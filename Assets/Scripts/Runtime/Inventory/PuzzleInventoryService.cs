@@ -27,7 +27,7 @@ public sealed class PuzzleInventoryService : MonoBehaviour
     public PuzzleInventory CurrentTrainWagon => (trainWagons.Count > CurrentWagonIndex && CurrentWagonIndex >= 0) ? trainWagons[CurrentWagonIndex] : null;
     public PuzzleInventory Train => CurrentTrainWagon;
     public int WagonCount => trainWagons.Count;
-    public long NextWagonCost => checked((long)trainWagons.Count * tables.PuzzleTrade.wagonAddCostBase);
+    public long NextWagonCost => tables.PuzzleTrade.wagonAddCostBase;
     public bool CanAddWagon => RunStatus == PuzzleRunStatus.InProgress && Funds >= NextWagonCost;
 
     public int TotalTrainOccupiedCells
