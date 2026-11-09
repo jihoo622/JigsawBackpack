@@ -1,12 +1,11 @@
 {
   "status": "active",
-  "note": "3단계 샘플 아이템과 도시별 시작 배치. 이름·기본 가치·태그는 개발용 샘플이다.",
+  "note": "3단계 샘플 아이템과 도시별 시작 배치. 이름·태그는 개발용 샘플이며 가격은 PuzzleItemPriceTableData가 원본이다.",
   "pieces": [
     {
       "id": "piece.elbowLeft",
       "displayName": "왼쪽 모서리 상자",
       "description": "왼쪽으로 꺾인 세 칸 화물.",
-      "baseValue": 32,
       "tags": ["Cargo", "Wood"],
       "visualKey": "cargo.crate",
       "slotCount": 3,
@@ -20,7 +19,6 @@
       "id": "piece.fourNotches",
       "displayName": "소형 상자",
       "description": "한 칸을 차지하는 소형 상자.",
-      "baseValue": 12,
       "tags": ["Cargo", "Wood"],
       "visualKey": "cargo.crate",
       "slotCount": 1,
@@ -32,7 +30,6 @@
       "id": "piece.topNotch",
       "displayName": "곡물 포대",
       "description": "한 칸을 차지하는 소형 포대.",
-      "baseValue": 10,
       "tags": ["Food", "Supply"],
       "visualKey": "cargo.supplies",
       "slotCount": 1,
@@ -44,7 +41,6 @@
       "id": "piece.verticalPair",
       "displayName": "목재 묶음",
       "description": "세로로 두 칸을 차지하는 직사각형 화물.",
-      "baseValue": 25,
       "tags": ["Cargo", "Wood"],
       "visualKey": "cargo.crate",
       "slotCount": 2,
@@ -57,7 +53,6 @@
       "id": "piece.verticalTabs",
       "displayName": "물통",
       "description": "한 칸을 차지하는 소형 통.",
-      "baseValue": 15,
       "tags": ["Supply", "Water"],
       "visualKey": "cargo.supplies",
       "slotCount": 1,
@@ -69,7 +64,6 @@
       "id": "piece.uShape",
       "displayName": "기계 프레임",
       "description": "가운데 한 칸이 열린 U자형 다섯 칸 화물.",
-      "baseValue": 55,
       "tags": ["Machinery", "Metal"],
       "visualKey": "cargo.machine",
       "slotCount": 5,
@@ -85,7 +79,6 @@
       "id": "piece.elbowRight",
       "displayName": "공구 상자",
       "description": "오른쪽으로 꺾인 세 칸 화물.",
-      "baseValue": 36,
       "tags": ["Cargo", "Metal"],
       "visualKey": "cargo.crate",
       "slotCount": 3,
@@ -99,7 +92,6 @@
       "id": "piece.fish",
       "displayName": "물고기",
       "description": "세로 두 칸을 차지하는 생선 화물.",
-      "baseValue": 18,
       "tags": ["Food", "Fish"],
       "visualKey": "cargo.supplies",
       "slotCount": 2,
@@ -112,7 +104,6 @@
       "id": "piece.saltSack",
       "displayName": "소금 자루",
       "description": "한 칸을 차지하는 소금 자루.",
-      "baseValue": 8,
       "tags": ["Salt", "Supply"],
       "visualKey": "cargo.supplies",
       "slotCount": 1,
@@ -140,6 +131,15 @@
     {
       "id": "city.a",
       "displayName": "City A",
+      "buyEnabled": true,
+      "sellEnabled": true,
+      "buyPercentOfBaseValue": 100,
+      "sellPercentOfFinalValue": 100,
+      "tagPrices": [
+        { "tag": "Food", "priority": 30, "buyPercent": 120, "sellPercent": 110 },
+        { "tag": "Wood", "priority": 20, "buyPercent": 80, "sellPercent": 75 },
+        { "tag": "Cargo", "priority": 10, "buyPercent": 90, "sellPercent": 70 }
+      ],
       "market": {
         "width": 7,
         "height": 6,
@@ -156,6 +156,16 @@
     {
       "id": "city.b",
       "displayName": "City B",
+      "buyEnabled": true,
+      "sellEnabled": true,
+      "buyPercentOfBaseValue": 100,
+      "sellPercentOfFinalValue": 100,
+      "tagPrices": [
+        { "tag": "Machinery", "priority": 30, "buyPercent": 150, "sellPercent": 120 },
+        { "tag": "Metal", "priority": 20, "buyPercent": 140, "sellPercent": 115 },
+        { "tag": "Wood", "priority": 15, "buyPercent": 95, "sellPercent": 85 },
+        { "tag": "Cargo", "priority": 10, "buyPercent": 105, "sellPercent": 95 }
+      ],
       "market": {
         "width": 6,
         "height": 5,
@@ -169,6 +179,17 @@
     {
       "id": "city.c",
       "displayName": "City C",
+      "buyEnabled": true,
+      "sellEnabled": true,
+      "buyPercentOfBaseValue": 100,
+      "sellPercentOfFinalValue": 100,
+      "tagPrices": [
+        { "tag": "Fish", "priority": 30, "buyPercent": 130, "sellPercent": 150 },
+        { "tag": "Salt", "priority": 25, "buyPercent": 115, "sellPercent": 125 },
+        { "tag": "Water", "priority": 20, "buyPercent": 110, "sellPercent": 120 },
+        { "tag": "Food", "priority": 15, "buyPercent": 100, "sellPercent": 105 },
+        { "tag": "Supply", "priority": 10, "buyPercent": 95, "sellPercent": 95 }
+      ],
       "market": {
         "width": 5,
         "height": 6,

@@ -98,7 +98,7 @@ public sealed class PuzzleInventoryView : MonoBehaviour
         boardTitle.color = boardValue.color = moveGuide.color = itemDetails.color = Presentation.PuzzleHeading;
         boardTitle.text = _title;
         moveGuide.text = Presentation.PUZZLE_MOVE_GUIDE;
-        ShowItemDetails(null, default);
+        ShowItemDetails(null, default, default, default);
 
         ConfigureSlots(placementSlots, flatOutline, fillSprites);
         ConfigureSlots(ghostSlots, flatOutline, fillSprites);
@@ -214,9 +214,15 @@ public sealed class PuzzleInventoryView : MonoBehaviour
         boardValue.text = Presentation.PuzzleValueText(_value);
     }
 
-    internal void ShowItemDetails(PuzzleItemDefinition _item, PuzzleValue _value)
+    internal void ShowBoardInfo(string _text)
     {
-        itemDetails.text = Presentation.PuzzleItemDetails(_item, _value);
+        boardValue.text = _text;
+    }
+
+    internal void ShowItemDetails(PuzzleItemDefinition _item, PuzzleValue _value, decimal _actualValue,
+        PuzzleTradeRate _rate)
+    {
+        itemDetails.text = Presentation.PuzzleItemDetails(_item, _value, _actualValue, _rate);
     }
 
     void OnDisable()

@@ -86,13 +86,22 @@ public sealed class PuzzlePlacement
     public PuzzleItemDefinition Definition { get; }
     public PuzzleInventory Owner { get; }
     public PuzzlePose Pose { get; }
+    // 도시 이동 턴마다 기존 시너지 변화량을 누적한 값. 인접 배치 변경만으로는 바뀌지 않는다.
+    public decimal ActualValue { get; private set; }
 
-    internal PuzzlePlacement(int _instanceId, PuzzleItemDefinition _definition, PuzzleInventory _owner, PuzzlePose _pose)
+    internal PuzzlePlacement(int _instanceId, PuzzleItemDefinition _definition, PuzzleInventory _owner, PuzzlePose _pose,
+        decimal _actualValue)
     {
         InstanceId = _instanceId;
         Definition = _definition;
         Owner = _owner;
         Pose = _pose;
+        ActualValue = _actualValue;
+    }
+
+    internal void AddActualValue(decimal _amount)
+    {
+        ActualValue += _amount;
     }
 }
 

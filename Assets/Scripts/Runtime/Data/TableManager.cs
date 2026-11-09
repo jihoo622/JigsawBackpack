@@ -24,12 +24,14 @@ public sealed class TableManager
     public GameplayTableData Gameplay { get; }
     public FlowTableData Flow { get; }
     public PuzzleTableData Puzzle { get; }
+    public PuzzleItemPriceTableData PuzzleItemPrice { get; }
     public PuzzleSynergyTableData PuzzleSynergy { get; }
     public PuzzleTradeTableData PuzzleTrade { get; }
     public PuzzleTurnTableData PuzzleTurn { get; }
     public IReadOnlyList<PuzzleDebtPaymentData> DebtSchedule { get; }
     public IReadOnlyList<PuzzleSynergyRuleData> SynergyRules { get; }
     public IReadOnlyList<PuzzlePieceData> Pieces { get; }
+    public IReadOnlyList<PuzzleItemPriceData> ItemPrices { get; }
     public IReadOnlyList<PuzzleCityData> Cities { get; }
     public IReadOnlyList<PuzzleStartingPlacementData> TrainStartingPlacements { get; }
     public bool IsValid { get; }
@@ -37,8 +39,9 @@ public sealed class TableManager
     readonly Dictionary<string, UpgradeData> upgrades;
     readonly Dictionary<string, SceneLinkData> scenes;
     readonly Dictionary<string, PuzzlePieceData> pieces;
+    readonly Dictionary<string, PuzzleItemPriceData> itemPrices;
     readonly Dictionary<string, PuzzleCityData> cities;
-    readonly Dictionary<string, PuzzleCityPriceData> cityPrices;
+    readonly Dictionary<string, Dictionary<string, PuzzleCityTagPriceData>> cityTagPrices;
 
     TableManager()
     {
@@ -46,6 +49,7 @@ public sealed class TableManager
         Gameplay = Load<GameplayTableData>(ref loaded);
         Flow = Load<FlowTableData>(ref loaded);
         Puzzle = Load<PuzzleTableData>(ref loaded);
+        PuzzleItemPrice = Load<PuzzleItemPriceTableData>(ref loaded);
         PuzzleSynergy = Load<PuzzleSynergyTableData>(ref loaded);
         PuzzleTrade = Load<PuzzleTradeTableData>(ref loaded);
         PuzzleTurn = Load<PuzzleTurnTableData>(ref loaded);
@@ -54,11 +58,13 @@ public sealed class TableManager
         upgrades = rules.Index(Gameplay.upgrades, e => e.id, "GameplayTableData.upgrades");
         scenes = rules.Index(Flow.scenes, e => e.scene, "FlowTableData.scenes");
         pieces = rules.Index(Puzzle.pieces, e => e.id, "PuzzleTableData.pieces");
+        itemPrices = rules.Index(PuzzleItemPrice.prices, e => e.pieceId, "PuzzleItemPriceTableData.prices");
         cities = rules.Index(Puzzle.cities, e => e.id, "PuzzleTableData.cities");
-        cityPrices = rules.Index(PuzzleTrade.cityPrices, e => e.cityId, "PuzzleTradeTableData.cityPrices");
+        cityTagPrices = IndexCityTagPrices(Puzzle.cities);
         var synergyRules = rules.Index(PuzzleSynergy.rules, e => e.id, "PuzzleSynergyTableData.rules");
         SynergyRules = Array.AsReadOnly(synergyRules.Values.OrderBy(entry => entry.id, StringComparer.Ordinal).ToArray());
         Pieces = Array.AsReadOnly(pieces.Values.OrderBy(entry => entry.id, StringComparer.Ordinal).ToArray());
+        ItemPrices = Array.AsReadOnly(itemPrices.Values.OrderBy(entry => entry.pieceId, StringComparer.Ordinal).ToArray());
         TrainStartingPlacements = SortStartingPlacements(Puzzle.train);
         DebtSchedule = Array.AsReadOnly((PuzzleTurn.debtPayments ?? Array.Empty<PuzzleDebtPaymentData>())
             .Where(entry => entry != null).OrderBy(entry => entry.moveCount).ToArray());
@@ -85,6 +91,46 @@ public sealed class TableManager
 
         return Array.AsReadOnly(_board.startingPlacements.Where(entry => entry != null)
             .OrderBy(entry => entry.id, StringComparer.Ordinal).ToArray());
+    }
+
+    // 도시 안에서 태그로 바로 찾을 수 있게 색인한다. 중복 태그·우선순위는 GameTableRules가 오류로 보고한다.
+    static Dictionary<string, Dictionary<string, PuzzleCityTagPriceData>> IndexCityTagPrices(
+        PuzzleCityData[] _cities)
+    {
+        var result = new Dictionary<string, Dictionary<string, PuzzleCityTagPriceData>>(StringComparer.Ordinal);
+        foreach (var city in _cities ?? Array.Empty<PuzzleCityData>())
+        {
+            if (city == null || string.IsNullOrEmpty(city.id))
+            {
+                continue;
+            }
+            if (!result.TryGetValue(city.id, out var tags))
+            {
+                tags = new Dictionary<string, PuzzleCityTagPriceData>(StringComparer.Ordinal);
+                result.Add(city.id, tags);
+            }
+            foreach (var tagPrice in city.tagPrices ?? Array.Empty<PuzzleCityTagPriceData>())
+            {
+                if (tagPrice == null || string.IsNullOrEmpty(tagPrice.tag))
+                {
+                    continue;
+                }
+                tags.TryAdd(tagPrice.tag, tagPrice);
+            }
+        }
+        return result;
+    }
+
+    internal bool TryGetCityTagPrice(string _cityId, string _tag, out PuzzleCityTagPriceData _price)
+    {
+        if (!string.IsNullOrEmpty(_cityId) && !string.IsNullOrEmpty(_tag) &&
+            cityTagPrices.TryGetValue(_cityId, out var tags) && tags.TryGetValue(_tag, out _price))
+        {
+            return true;
+        }
+
+        _price = null;
+        return false;
     }
 
     internal IReadOnlyList<PuzzleSynergyRuleData> SynergiesFor(PuzzleSynergyScope _scope)
@@ -148,17 +194,21 @@ public sealed class TableManager
         _piece = null;
         return false;
     }
+    internal bool HasItemPrice(string _pieceId)
+    {
+        return !string.IsNullOrEmpty(_pieceId) && itemPrices.ContainsKey(_pieceId);
+    }
+    internal PuzzleItemPriceData ItemPrice(string _pieceId)
+    {
+        return Find(itemPrices, _pieceId, "아이템 가격");
+    }
     public bool HasCity(string _id)
     {
         return !string.IsNullOrWhiteSpace(_id) && cities.ContainsKey(_id);
     }
-    internal bool HasCityPrice(string _cityId)
+    internal PuzzleCityData CityPrice(string _cityId)
     {
-        return cityPrices.ContainsKey(_cityId);
-    }
-    internal PuzzleCityPriceData CityPrice(string _cityId)
-    {
-        return Find(cityPrices, _cityId, "도시 가격");
+        return Find(cities, _cityId, "도시");
     }
     public IReadOnlyList<PuzzleStartingPlacementData> MarketStartingPlacements(string _cityId)
     {

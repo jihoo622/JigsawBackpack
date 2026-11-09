@@ -13,12 +13,12 @@ public sealed class PuzzleItemDefinition
     public IReadOnlyList<string> Tags { get; }
     public IReadOnlyList<Vector2Int> Cells { get; }
 
-    internal PuzzleItemDefinition(PuzzlePieceData _item)
+    internal PuzzleItemDefinition(PuzzlePieceData _item, int _baseValue)
     {
         Id = _item.id;
         DisplayName = _item.displayName;
         Description = _item.description;
-        BaseValue = _item.baseValue;
+        BaseValue = _baseValue;
         VisualKey = _item.visualKey;
         Tags = Array.AsReadOnly(_item.tags.OrderBy(tag => tag, StringComparer.Ordinal).ToArray());
         Cells = Array.AsReadOnly(_item.cells.OrderBy(cell => cell.y).ThenBy(cell => cell.x)

@@ -150,6 +150,7 @@ public sealed class GameTableRules
         ValidateUpgrades(_tables);
         ValidateScenes(_tables);
         ValidatePuzzle(_tables);
+        ValidateItemPrices(_tables);
         ValidatePuzzleSynergy(_tables);
         ValidatePuzzleTrade(_tables);
         ValidateDebtSchedule(_tables.PuzzleTurn);
@@ -200,32 +201,47 @@ public sealed class GameTableRules
     void ValidatePuzzleTrade(TableManager _tables)
     {
         const string PATH = nameof(PuzzleTradeTableData);
-        var trade = _tables.PuzzleTrade;
-        Check(trade.startingFunds >= 0, PATH + ".startingFunds", "시작 자금은 0 이상이어야 합니다.");
-        var prices = trade.cityPrices ?? Array.Empty<PuzzleCityPriceData>();
-        for (int i = 0; i < prices.Length; i++)
+        Check(_tables.PuzzleTrade.startingFunds >= 0, PATH + ".startingFunds", "시작 자금은 0 이상이어야 합니다.");
+        Check(_tables.PuzzleTrade.purchaseMarkupPercent > 0, PATH + ".purchaseMarkupPercent",
+            "공통 구매 배율은 0보다 커야 합니다.");
+    }
+
+    void ValidateCityTagPrices(PuzzleCityData _city, HashSet<string> _knownTags, string _path)
+    {
+        Check(_city.tagPrices != null, _path, "태그별 가격 목록이 필요합니다.");
+        var entries = _city.tagPrices ?? Array.Empty<PuzzleCityTagPriceData>();
+        var tags = new HashSet<string>(StringComparer.Ordinal);
+        var priorities = new HashSet<int>();
+        for (int i = 0; i < entries.Length; i++)
         {
-            var price = prices[i];
-            if (price == null)
+            var entry = entries[i];
+            string path = $"{_path}[{i}]";
+            if (entry == null)
             {
+                Check(false, path, "태그별 가격 항목이 필요합니다.");
                 continue;
             }
 
-            string path = $"{PATH}.cityPrices[{i}]";
-            Reference(price.cityId, path + ".cityId", _tables.HasCity(price.cityId), "도시");
-            Check(price.buyPercentOfBaseValue > 0, path + ".buyPercentOfBaseValue", "구매 배율은 0보다 커야 합니다.");
-            Check(SellPercentOfFinalValue(price) > 0, path + ".sellPercentOfFinalValue", "판매 배율은 0보다 커야 합니다.");
-        }
+            if (string.IsNullOrWhiteSpace(entry.tag) || entry.tag != entry.tag.Trim())
+            {
+                Check(false, path + ".tag", "앞뒤 공백이 없는 비어 있지 않은 태그가 필요합니다.");
+            }
+            else
+            {
+                Check(_knownTags.Contains(entry.tag), path + ".tag", $"태그 '{entry.tag}'가 아이템 정의에 없습니다.");
+                Check(tags.Add(entry.tag), path + ".tag", $"태그 '{entry.tag}'가 도시 안에서 중복되었습니다.");
+            }
 
-        foreach (var city in _tables.Cities)
-        {
-            Check(_tables.HasCityPrice(city.id), PATH + ".cityPrices", $"'{city.id}'의 가격 설정이 필요합니다.");
-        }
-    }
+            Check(entry.priority >= 0, path + ".priority", "우선순위가 누락되었거나 0보다 작습니다.");
+            if (entry.priority >= 0)
+            {
+                Check(priorities.Add(entry.priority), path + ".priority",
+                    $"우선순위 {entry.priority}가 도시 안에서 중복되었습니다.");
+            }
 
-    internal static int SellPercentOfFinalValue(PuzzleCityPriceData _price)
-    {
-        return _price.sellPercentOfFinalValue != 0 ? _price.sellPercentOfFinalValue : _price.sellPercentOfBaseValue;
+            Check(entry.buyPercent > 0, path + ".buyPercent", "구매 배율은 0보다 커야 합니다.");
+            Check(entry.sellPercent > 0, path + ".sellPercent", "판매 배율은 0보다 커야 합니다.");
+        }
     }
 
     void ValidatePuzzleSynergy(TableManager _tables)
@@ -281,6 +297,8 @@ public sealed class GameTableRules
         ValidateBoard(_tables, puzzle.train, shapes, placementIds, PATH + ".train");
         Check(cities.Length > 0, PATH + ".cities", "도시가 하나 이상 필요합니다.");
         Reference(puzzle.startCity, PATH + ".startCity", _tables.HasCity(puzzle.startCity), "시작 도시");
+        var knownTags = new HashSet<string>(
+            _tables.Pieces.SelectMany(item => item.tags ?? Array.Empty<string>()), StringComparer.Ordinal);
         for (int i = 0; i < cities.Length; i++)
         {
             var city = cities[i];
@@ -291,7 +309,34 @@ public sealed class GameTableRules
 
             string cityPath = $"{PATH}.cities[{i}]";
             Check(!string.IsNullOrWhiteSpace(city.displayName), cityPath + ".displayName", "도시 이름이 필요합니다.");
+            Check(city.buyPercentOfBaseValue > 0, cityPath + ".buyPercentOfBaseValue", "기본 구매 배율은 0보다 커야 합니다.");
+            Check(city.sellPercentOfFinalValue > 0, cityPath + ".sellPercentOfFinalValue", "기본 판매 배율은 0보다 커야 합니다.");
+            ValidateCityTagPrices(city, knownTags, cityPath + ".tagPrices");
             ValidateBoard(_tables, city.market, shapes, placementIds, cityPath + ".market");
+        }
+    }
+
+    void ValidateItemPrices(TableManager _tables)
+    {
+        const string PATH = nameof(PuzzleItemPriceTableData) + ".prices";
+        var prices = _tables.PuzzleItemPrice.prices ?? Array.Empty<PuzzleItemPriceData>();
+        for (int i = 0; i < prices.Length; i++)
+        {
+            var price = prices[i];
+            string path = $"{PATH}[{i}]";
+            if (price == null)
+            {
+                Check(false, path, "아이템 가격 항목이 필요합니다.");
+                continue;
+            }
+
+            Reference(price.pieceId, path + ".pieceId", _tables.TryGetPiece(price.pieceId, out _), "아이템");
+            Check(price.baseValue >= 0, path + ".baseValue", "아이템 기본 가격은 0 이상이어야 합니다.");
+        }
+
+        foreach (var piece in _tables.Pieces)
+        {
+            Check(_tables.HasItemPrice(piece.id), PATH, $"아이템 '{piece.id}'의 가격이 필요합니다.");
         }
     }
 
@@ -304,7 +349,6 @@ public sealed class GameTableRules
     {
         Check(!string.IsNullOrWhiteSpace(_piece.displayName), _path + ".displayName", "아이템 이름이 필요합니다.");
         Check(!string.IsNullOrWhiteSpace(_piece.description), _path + ".description", "조각 설명이 필요합니다.");
-        Check(_piece.baseValue >= 0, _path + ".baseValue", "기본 가치는 0 이상이어야 합니다.");
         Check(!string.IsNullOrWhiteSpace(_piece.visualKey), _path + ".visualKey", "표시 에셋 키가 필요합니다.");
         ValidateItemTags(_piece.tags, _path + ".tags");
         string path = _path + ".cells";

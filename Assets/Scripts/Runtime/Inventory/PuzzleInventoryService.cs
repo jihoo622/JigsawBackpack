@@ -15,6 +15,7 @@ public sealed class PuzzleInventoryService : MonoBehaviour
     public PuzzleInventory Train { get; private set; }
     public PuzzleInventory Market => markets[CurrentCityId];
     public string CurrentCityId => cities[currentCityIndex].id;
+    internal PuzzleCityData CityData => tables.CityPrice(CurrentCityId);
     public long Funds { get; private set; }
     public int CityMoveCount { get; private set; }
     public int PaidDebtCount { get; private set; }
@@ -38,7 +39,7 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         var definitions = new Dictionary<string, PuzzleItemDefinition>(StringComparer.Ordinal);
         foreach (var item in validatedTables.Pieces)
         {
-            definitions.Add(item.id, new PuzzleItemDefinition(item));
+            definitions.Add(item.id, new PuzzleItemDefinition(item, validatedTables.ItemPrice(item.id).baseValue));
         }
 
         int lastInstanceId = 0;
@@ -69,16 +70,51 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         Train = train;
     }
 
-    internal void Travel(bool _forward)
+    internal bool Travel(bool _forward)
     {
+        if (RunStatus != PuzzleRunStatus.InProgress || !CanTravel)
+        {
+            return false;
+        }
+
         int offset = _forward ? 1 : cities.Count - 1;
-        currentCityIndex = (currentCityIndex + offset) % cities.Count;
+        int nextCityIndex = (currentCityIndex + offset) % cities.Count;
+
+        // 출발 직전 기차 인접 관계로 한 턴의 가치 변화를 계산하고, 도시·턴·시장을 함께 확정한다.
+        Train.ApplyTurnValueChange();
+        currentCityIndex = nextCityIndex;
+        CityMoveCount++;
         Market.RecalculateValue();
+
+        var debt = NextDebt;
+        if (debt != null && debt.moveCount == CityMoveCount)
+        {
+            if (Funds < debt.amount)
+            {
+                RunStatus = PuzzleRunStatus.Lost;
+            }
+            else
+            {
+                Funds -= debt.amount;
+                PaidDebtCount++;
+                if (PaidDebtCount == tables.DebtSchedule.Count)
+                {
+                    RunStatus = PuzzleRunStatus.Won;
+                }
+            }
+        }
+
+        return true;
     }
 
     internal PuzzleDropResult EvaluateDrop(PuzzlePlacement _original, PuzzleInventory _destination,
         Vector2Int _grabbedCell, Vector2Int _targetCell, int _clockwiseTurns)
     {
+        if (RunStatus != PuzzleRunStatus.InProgress)
+        {
+            return new PuzzleDropResult(new PuzzlePlacementResult(PuzzlePlacementFailure.InvalidDestination));
+        }
+
         var source = _original?.Owner;
         var market = Market;
         if ((source != Train && source != market) || (_destination != Train && _destination != market))
@@ -99,17 +135,16 @@ public sealed class PuzzleInventoryService : MonoBehaviour
             return new PuzzleDropResult(placement, direction);
         }
 
-        var rates = tables.CityPrice(CurrentCityId);
-        bool enabled = buying ? rates.buyEnabled : rates.sellEnabled;
-        long price;
-        if (buying)
+        var city = tables.CityPrice(CurrentCityId);
+        bool enabled = buying ? city.buyEnabled : city.sellEnabled;
+        var rate = RateFor(city, _original.Definition);
+        int percent = rate.PercentFor(direction);
+        string tag = rate.Tag;
+        if (!TryGetTradePrice(buying ? _original.Definition.BaseValue : source.ValueOf(_original.InstanceId).FinalValue,
+            percent, out long price))
         {
-            price = ((long)_original.Definition.BaseValue * rates.buyPercentOfBaseValue + PERCENT_SCALE / 2) / PERCENT_SCALE;
-        }
-        else if (!TryGetSalePrice(source.ValueOf(_original.InstanceId).FinalValue, GameTableRules.SellPercentOfFinalValue(rates),
-            out price))
-        {
-            return new PuzzleDropResult(placement, direction, _tradeFailure: PuzzleTradeFailure.PriceOverflow);
+            return new PuzzleDropResult(placement, direction, _tradeFailure: PuzzleTradeFailure.PriceOverflow,
+                _percent: percent, _tag: tag);
         }
 
         var failure = PuzzleTradeFailure.None;
@@ -125,12 +160,46 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         {
             failure = PuzzleTradeFailure.BalanceOverflow;
         }
-        return new PuzzleDropResult(placement, direction, price, failure);
+        return new PuzzleDropResult(placement, direction, price, failure, percent, tag);
     }
 
-    static bool TryGetSalePrice(decimal _value, int _percent, out long _price)
+    // 현재 도시에서 이 아이템에 적용되는 태그 규칙과 구매·판매 비율.
+    internal PuzzleTradeRate RateFor(PuzzleItemDefinition _item)
+    {
+        return RateFor(tables.CityPrice(CurrentCityId), _item);
+    }
+
+    PuzzleTradeRate RateFor(PuzzleCityData _city, PuzzleItemDefinition _item)
+    {
+        var best = BestTagRule(_item);
+        return best == null
+            ? new PuzzleTradeRate(null, _city.buyPercentOfBaseValue, _city.sellPercentOfFinalValue)
+            : new PuzzleTradeRate(best.tag, best.buyPercent, best.sellPercent);
+    }
+
+    // 아이템 태그와 맞는 규칙 중 priority가 가장 높은 하나를 고른다. 맞는 규칙이 없으면 null.
+    PuzzleCityTagPriceData BestTagRule(PuzzleItemDefinition _item)
+    {
+        PuzzleCityTagPriceData best = null;
+        foreach (string tag in _item.Tags)
+        {
+            if (tables.TryGetCityTagPrice(CurrentCityId, tag, out var rule) &&
+                (best == null || rule.priority > best.priority))
+            {
+                best = rule;
+            }
+        }
+        return best;
+    }
+
+    static bool TryGetTradePrice(decimal _value, int _percent, out long _price)
     {
         _price = 0;
+        if (_percent <= 0 || _value < 0)
+        {
+            return false;
+        }
+
         decimal rate = (decimal)_percent / PERCENT_SCALE;
         if (_value > ((decimal)long.MaxValue + 1) / rate)
         {
@@ -159,7 +228,8 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         var move = _original.Owner.Move(_original, _destination, _grabbedCell, _targetCell, _clockwiseTurns);
         if (!move.CanPlace)
         {
-            return new PuzzleDropResult(move, result.Direction, result.Price);
+            return new PuzzleDropResult(move, result.Direction, result.Price, _percent: result.AppliedPercent,
+                _tag: result.AppliedTag);
         }
 
         if (result.Direction != PuzzleTradeDirection.None)
@@ -196,20 +266,44 @@ internal enum PuzzleTradeFailure
     BalanceOverflow
 }
 
+internal readonly struct PuzzleTradeRate
+{
+    internal string Tag { get; }
+    internal int BuyPercent { get; }
+    internal int SellPercent { get; }
+
+    internal PuzzleTradeRate(string _tag, int _buyPercent, int _sellPercent)
+    {
+        Tag = _tag;
+        BuyPercent = _buyPercent;
+        SellPercent = _sellPercent;
+    }
+
+    internal int PercentFor(PuzzleTradeDirection _direction)
+    {
+        return _direction == PuzzleTradeDirection.Buy ? BuyPercent : SellPercent;
+    }
+}
+
 internal readonly struct PuzzleDropResult
 {
     internal PuzzlePlacementResult Placement { get; }
     internal PuzzleTradeDirection Direction { get; }
     internal long Price { get; }
     internal PuzzleTradeFailure TradeFailure { get; }
+    // 적용된 도시·태그 비율. 태그가 없으면 기본 비율이다.
+    internal int AppliedPercent { get; }
+    internal string AppliedTag { get; }
     internal bool CanDrop => Placement.CanPlace && TradeFailure == PuzzleTradeFailure.None;
 
     internal PuzzleDropResult(PuzzlePlacementResult _placement, PuzzleTradeDirection _direction = PuzzleTradeDirection.None,
-        long _price = 0, PuzzleTradeFailure _tradeFailure = PuzzleTradeFailure.None)
+        long _price = 0, PuzzleTradeFailure _tradeFailure = PuzzleTradeFailure.None, int _percent = 0, string _tag = null)
     {
         Placement = _placement;
         Direction = _direction;
         Price = _price;
         TradeFailure = _tradeFailure;
+        AppliedPercent = _percent;
+        AppliedTag = _tag;
     }
 }

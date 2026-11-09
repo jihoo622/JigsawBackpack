@@ -34,7 +34,7 @@ public sealed class PuzzleInventory
                 throw new InvalidOperationException($"'{placement.id}' 시작 배치의 좌표를 만들 수 없습니다.");
             }
 
-            StorePlacement(new PuzzlePlacement(checked(++_lastInstanceId), definition, this, pose));
+            StorePlacement(new PuzzlePlacement(checked(++_lastInstanceId), definition, this, pose, definition.BaseValue));
         }
         RecalculateValue();
     }
@@ -47,6 +47,18 @@ public sealed class PuzzleInventory
     internal void RecalculateValue()
     {
         valuation.Recalculate(this, synergyRules);
+    }
+
+    // 유효한 도시 이동 턴이 확정될 때만 호출한다. 기존 시너지 결과에서 기본 가치를 뺀 변화량을
+    // 각 인스턴스의 실제 가치에 누적하며, 같은 턴의 인접 스냅샷을 기준으로 계산한다.
+    internal void ApplyTurnValueChange()
+    {
+        RecalculateValue();
+        foreach (var placement in placements.Values)
+        {
+            var value = valuation.ValueOf(placement.InstanceId);
+            placement.AddActualValue(value.FinalValue - value.BaseValue);
+        }
     }
 
     public bool TryGetCell(Vector2Int _position, out PuzzlePlacement _placement, out PuzzleCell _cell)
@@ -97,7 +109,8 @@ public sealed class PuzzleInventory
         if (result.CanPlace)
         {
             // 원본과 대상의 현재 점유를 확인한 뒤 같은 호출에서 소속과 점유를 함께 바꾼다.
-            var placement = new PuzzlePlacement(_original.InstanceId, _original.Definition, _destination, result.Candidate);
+            var placement = new PuzzlePlacement(_original.InstanceId, _original.Definition, _destination, result.Candidate,
+                _original.ActualValue);
             ClearOccupancy(_original);
             placements.Remove(_original.InstanceId);
             _destination.StorePlacement(placement);

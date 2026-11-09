@@ -1,0 +1,15 @@
+{
+  "status": "active",
+  "note": "아이템 기본 가격의 단일 원본. pieceId는 PuzzleTableData.pieces를 참조한다.",
+  "prices": [
+    { "pieceId": "piece.elbowLeft", "baseValue": 32 },
+    { "pieceId": "piece.fourNotches", "baseValue": 12 },
+    { "pieceId": "piece.topNotch", "baseValue": 10 },
+    { "pieceId": "piece.verticalPair", "baseValue": 25 },
+    { "pieceId": "piece.verticalTabs", "baseValue": 15 },
+    { "pieceId": "piece.uShape", "baseValue": 55 },
+    { "pieceId": "piece.elbowRight", "baseValue": 36 },
+    { "pieceId": "piece.fish", "baseValue": 18 },
+    { "pieceId": "piece.saltSack", "baseValue": 8 }
+  ]
+}

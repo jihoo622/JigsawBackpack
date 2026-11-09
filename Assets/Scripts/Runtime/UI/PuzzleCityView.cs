@@ -55,6 +55,11 @@ public sealed class PuzzleCityView : MonoBehaviour
         cityName.text = _name;
     }
 
+    internal void SetTravelEnabled(bool _enabled)
+    {
+        previousButton.interactable = nextButton.interactable = _enabled;
+    }
+
     internal void ShowFunds(long _funds)
     {
         funds.text = Presentation.PuzzleFunds(_funds);

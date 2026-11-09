@@ -95,18 +95,30 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
 
     void Travel(bool _forward)
     {
+        if (session.RunStatus != PuzzleRunStatus.InProgress)
+        {
+            return;
+        }
+
         hoverPosition = null;
         input.CancelCapture();
         ClearDrag();
-        session.Travel(_forward);
+        if (!session.Travel(_forward))
+        {
+            return;
+        }
         ShowCurrentCity();
     }
 
     void ShowCurrentCity()
     {
+        bool inProgress = session.RunStatus == PuzzleRunStatus.InProgress;
         cityView.ShowCity(session.CurrentCityName);
         cityView.ShowFunds(session.Funds);
-        cityView.ShowTradeStatus(Presentation.PUZZLE_TRADE_GUIDE);
+        cityView.SetTravelEnabled(inProgress && session.CanTravel);
+        cityView.ShowTradeStatus(inProgress
+            ? Presentation.PUZZLE_TRADE_GUIDE
+            : Presentation.PuzzleRunStatusText(session.RunStatus));
         marketView.SetBoardSize(session.Market.Width, session.Market.Height);
         RenderBoards();
         RenderValues();
@@ -115,6 +127,11 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
 
     void OnPressed(PointerEventData _eventData)
     {
+        if (session.RunStatus != PuzzleRunStatus.InProgress)
+        {
+            return;
+        }
+
         var position = _eventData.position;
         if (!TryGetBoard(position, out var sourceView, out var source, out var boardCell) ||
             !source.TryGetCell(boardCell, out var placement, out var cell))
@@ -139,6 +156,11 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
 
     void OnRotated()
     {
+        if (drag == null || session.RunStatus != PuzzleRunStatus.InProgress)
+        {
+            return;
+        }
+
         drag.RotateClockwise();
         RefreshDrag();
     }
@@ -276,13 +298,15 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
     {
         var item = _placement?.Definition;
         var value = _placement == null ? default : _placement.Owner.ValueOf(_placement.InstanceId);
+        decimal actualValue = _placement?.ActualValue ?? default;
+        var rate = item == null ? default : session.RateFor(item);
         if (trainView)
         {
-            trainView.ShowItemDetails(_view == trainView ? item : null, value);
+            trainView.ShowItemDetails(_view == trainView ? item : null, value, actualValue, rate);
         }
         if (marketView)
         {
-            marketView.ShowItemDetails(_view == marketView ? item : null, value);
+            marketView.ShowItemDetails(_view == marketView ? item : null, value, actualValue, rate);
         }
     }
 
@@ -294,7 +318,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         }
         if (marketView)
         {
-            marketView.ShowBoardValue(session.Market.Value);
+            marketView.ShowBoardInfo(Presentation.PuzzleCityTagPreferences(session.CityData));
         }
     }
 
@@ -335,7 +359,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
 
         drag = null;
         SetDragView(null);
-        if (cityView)
+        if (cityView && session != null && session.RunStatus == PuzzleRunStatus.InProgress)
         {
             cityView.ShowTradeStatus(Presentation.PUZZLE_TRADE_GUIDE);
         }

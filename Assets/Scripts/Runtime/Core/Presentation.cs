@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
@@ -18,6 +20,21 @@ public static class Presentation
     public const string PUZZLE_PREVIOUS_CITY = "Previous City";
     public const string PUZZLE_NEXT_CITY = "Next City";
     public const string PUZZLE_TRADE_GUIDE = "시장 → 기차 구매   ·   기차 → 시장 판매";
+    public const string PUZZLE_TAG_EXPENSIVE = "귀함";
+    public const string PUZZLE_TAG_COMMON = "흔함";
+
+    static readonly Dictionary<string, string> PUZZLE_TAG_LABELS = new Dictionary<string, string>
+    {
+        { "Cargo", "상자" },
+        { "Wood", "나무" },
+        { "Food", "음식" },
+        { "Supply", "보급품" },
+        { "Water", "물" },
+        { "Machinery", "기계" },
+        { "Metal", "금속" },
+        { "Fish", "물고기" },
+        { "Salt", "소금" },
+    };
 
     public static Color PuzzleBackground => new(0.10f, 0.13f, 0.17f);
     public static Color PuzzleCell => new(0.17f, 0.21f, 0.26f);
@@ -31,14 +48,20 @@ public static class Presentation
         return $"기본 가치 {_value.BaseValue:N0}  →  최종 가치 {_value.FinalValue:#,0.##}";
     }
 
-    internal static string PuzzleItemDetails(PuzzleItemDefinition _item, PuzzleValue _value)
+    internal static string PuzzleItemDetails(PuzzleItemDefinition _item, PuzzleValue _value, decimal _actualValue,
+        PuzzleTradeRate _rate)
     {
         if (_item == null)
         {
             return string.Empty;
         }
 
-        string details = $"{_item.DisplayName}    {PuzzleValueText(_value)}\n{_item.Description}";
+        string details =
+            $"{_item.DisplayName}    {PuzzleValueText(_value)}    실제 가치 {_actualValue:#,0.##}\n{_item.Description}";
+        if (_rate.BuyPercent > 0 || _rate.SellPercent > 0)
+        {
+            details += "\n" + PuzzleTradeRateText(_rate);
+        }
         if (_value.SynergyBonuses.Count == 0)
         {
             return $"{details}\n인접 시너지 없음";
@@ -49,9 +72,64 @@ public static class Presentation
         return $"{details}\n인접 시너지\n{string.Join("  ·  ", bonuses)}";
     }
 
+    internal static string PuzzleTradeRateText(PuzzleTradeRate _rate)
+    {
+        string rule = string.IsNullOrEmpty(_rate.Tag) ? "기본" : _rate.Tag;
+        return $"현재 도시 배율 · {rule} 구매 {_rate.BuyPercent}% · 판매 {_rate.SellPercent}%";
+    }
+
     internal static string PuzzleFunds(long _funds)
     {
         return $"보유 자금 {_funds:N0}";
+    }
+
+    // 도시의 태그 규칙을 구매·판매 비율 기준으로 귀함/흔함으로 묶는다.
+    // 두 비율이 100을 사이에 두고 갈리거나 한쪽이 100이면 어느 쪽도 아닌 것으로 보고 표시하지 않는다.
+    internal static string PuzzleCityTagPreferences(PuzzleCityData _city)
+    {
+        var expensive = new List<string>();
+        var common = new List<string>();
+        foreach (var rule in _city?.tagPrices ?? Array.Empty<PuzzleCityTagPriceData>())
+        {
+            if (rule == null)
+            {
+                continue;
+            }
+            if (rule.buyPercent > 100 && rule.sellPercent > 100)
+            {
+                expensive.Add(rule.tag);
+            }
+            else if (rule.buyPercent < 100 && rule.sellPercent < 100)
+            {
+                common.Add(rule.tag);
+            }
+        }
+
+        var parts = new List<string>();
+        if (expensive.Count > 0)
+        {
+            parts.Add($"{PUZZLE_TAG_EXPENSIVE} {string.Join(", ", expensive.OrderBy(tag => tag, StringComparer.Ordinal).Select(PuzzleTagLabel))}");
+        }
+        if (common.Count > 0)
+        {
+            parts.Add($"{PUZZLE_TAG_COMMON} {string.Join(", ", common.OrderBy(tag => tag, StringComparer.Ordinal).Select(PuzzleTagLabel))}");
+        }
+        return string.Join("    ", parts);
+    }
+
+    static string PuzzleTagLabel(string _tag)
+    {
+        return PUZZLE_TAG_LABELS.TryGetValue(_tag, out string label) ? label : _tag;
+    }
+
+    internal static string PuzzleRunStatusText(PuzzleRunStatus _status)
+    {
+        return _status switch
+        {
+            PuzzleRunStatus.Won => "빚을 모두 갚았습니다. 승리!",
+            PuzzleRunStatus.Lost => "빚을 갚지 못했습니다. 패배",
+            _ => PUZZLE_TRADE_GUIDE
+        };
     }
 
     internal static string PuzzleTradeStatus(PuzzleDropResult _result, PuzzleItemDefinition _item, bool _committed)
@@ -67,6 +145,12 @@ public static class Presentation
             _result.TradeFailure != PuzzleTradeFailure.PriceOverflow)
         {
             quote += $" {_result.Price:N0}";
+        }
+        if (_result.AppliedPercent > 0)
+        {
+            quote += _result.AppliedTag == null
+                ? $" · 기본 {_result.AppliedPercent}%"
+                : $" · {_result.AppliedTag} {_result.AppliedPercent}%";
         }
         if (_result.CanDrop)
         {

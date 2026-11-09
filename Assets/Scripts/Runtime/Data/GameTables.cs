@@ -31,6 +31,13 @@ public sealed class PuzzleTableData
 }
 
 [Serializable]
+public sealed class PuzzleItemPriceTableData
+{
+    public string status, note;
+    public PuzzleItemPriceData[] prices = Array.Empty<PuzzleItemPriceData>();
+}
+
+[Serializable]
 public sealed class PuzzleSynergyTableData
 {
     public string status, note;
@@ -42,7 +49,8 @@ public sealed class PuzzleTradeTableData
 {
     public string status, note;
     public long startingFunds = -1;
-    public PuzzleCityPriceData[] cityPrices = Array.Empty<PuzzleCityPriceData>();
+    // 누락된 값이 정상값으로 위장되지 않도록 하는 검증용 값이다. 110은 기준의 110%, 즉 10% 할증이다.
+    public int purchaseMarkupPercent = -1;
 }
 
 [Serializable]

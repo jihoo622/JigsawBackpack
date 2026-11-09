@@ -36,11 +36,19 @@ using System;
 public sealed class PuzzlePieceData
 {
     public string id, displayName, description, visualKey;
-    public int baseValue = -1;
     public string[] tags = Array.Empty<string>();
     // 누락된 슬롯 수를 검증에서 거부하기 위한 값이다.
     public int slotCount = -1;
     public PuzzleCellData[] cells = Array.Empty<PuzzleCellData>();
+}
+
+// 아이템 기본 가격의 단일 원본. pieceId는 PuzzlePieceData.id를 참조한다.
+[Serializable]
+public sealed class PuzzleItemPriceData
+{
+    public string pieceId;
+    // 누락된 금액이 유효한 0으로 위장되지 않도록 하는 검증용 값이다.
+    public int baseValue = -1;
 }
 
 [Serializable]
@@ -56,6 +64,10 @@ public sealed class PuzzleCellData
 public sealed class PuzzleCityData
 {
     public string id, displayName;
+    public bool buyEnabled, sellEnabled;
+    // 태그별 규칙이 없을 때 이 도시의 모든 아이템에 적용하는 명시적 기본 비율이다.
+    public int buyPercentOfBaseValue = -1, sellPercentOfFinalValue = -1;
+    public PuzzleCityTagPriceData[] tagPrices = Array.Empty<PuzzleCityTagPriceData>();
     public PuzzleBoardData market;
 }
 
@@ -84,13 +96,12 @@ public sealed class PuzzleSynergyRuleData
 }
 
 [Serializable]
-public sealed class PuzzleCityPriceData
+public sealed class PuzzleCityTagPriceData
 {
-    public string cityId;
-    public bool buyEnabled, sellEnabled;
-    public int buyPercentOfBaseValue, sellPercentOfFinalValue;
-    // 이전 거래 테이블의 판매 비율을 읽기 위한 호환 필드다.
-    public int sellPercentOfBaseValue;
+    public string tag;
+    // 도시 안에서 고유해야 하며, 여러 태그가 맞으면 가장 큰 값의 규칙 하나를 쓴다.
+    public int priority = -1;
+    public int buyPercent = -1, sellPercent = -1;
 }
 
 [Serializable]
