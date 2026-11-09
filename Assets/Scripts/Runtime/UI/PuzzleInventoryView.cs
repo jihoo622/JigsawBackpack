@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 [DisallowMultipleComponent]
 public sealed class PuzzleInventoryView : MonoBehaviour
@@ -24,10 +25,10 @@ public sealed class PuzzleInventoryView : MonoBehaviour
     };
 
     [SerializeField] Image board;
-    [SerializeField] Text boardTitle;
-    [SerializeField] Text boardValue;
-    [SerializeField] Text moveGuide;
-    [SerializeField] Text itemDetails;
+    [SerializeField] TextMeshProUGUI boardTitle;
+    [SerializeField] TextMeshProUGUI boardValue;
+    [SerializeField] TextMeshProUGUI moveGuide;
+    [SerializeField] TextMeshProUGUI itemDetails;
     [SerializeField] ItemIcon[] itemIcons;
     [SerializeField] Image flatTriangle;
     [SerializeField] Sprite eastFlatTriangle;

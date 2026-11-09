@@ -2,17 +2,18 @@ using System;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
+using TMPro;
 
 [DisallowMultipleComponent]
 public sealed class PuzzleCityView : MonoBehaviour
 {
-    [SerializeField] Text cityName;
+    [SerializeField] TextMeshProUGUI cityName;
     [SerializeField] Button previousButton;
-    [SerializeField] Text previousLabel;
+    [SerializeField] TextMeshProUGUI previousLabel;
     [SerializeField] Button nextButton;
-    [SerializeField] Text nextLabel;
-    [SerializeField] Text funds;
-    [SerializeField] Text tradeStatus;
+    [SerializeField] TextMeshProUGUI nextLabel;
+    [SerializeField] TextMeshProUGUI funds;
+    [SerializeField] TextMeshProUGUI tradeStatus;
 
     internal void Initialize(bool _canTravel)
     {
