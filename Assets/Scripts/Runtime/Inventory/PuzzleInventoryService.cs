@@ -139,6 +139,8 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         CityMoveCount++;
         Market.RecalculateValue();
 
+        // 테스트를 위해 빚 차감 및 빚으로 인한 승패 판정을 임시 비활성화한다.
+        /*
         // 빚은 도착 후에 차감한다.
         var debt = NextDebt;
         if (debt != null && debt.moveCount == CityMoveCount)
@@ -157,6 +159,8 @@ public sealed class PuzzleInventoryService : MonoBehaviour
                 }
             }
         }
+
+        */
 
         return new PuzzleTravelResult(PuzzleTravelFailure.None, evaluation.Cost, evaluation.FromCityId,
             evaluation.ToCityId, Funds);
