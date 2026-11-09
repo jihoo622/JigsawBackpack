@@ -46,7 +46,6 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         trainView.Initialize(trainCapacity, dragCapacity, Presentation.PuzzleTrainTitle(session.CurrentWagonIndex + 1), session.ItemDefinitions, _showSynergies: true);
         marketView.Initialize(session.MarketCapacity, dragCapacity, Presentation.PUZZLE_MARKET_TITLE, session.ItemDefinitions, _showSynergies: false);
         cityView.Initialize(session.CanTravel);
-        trainView.SetBoardSize(session.Train.Width, session.Train.Height);
         ShowCurrentCity();
         initialized = true;
 
@@ -175,6 +174,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             ? Presentation.PUZZLE_TRADE_GUIDE
             : Presentation.PuzzleRunStatusText(session.RunStatus));
         marketView.SetBoardSize(session.Market.Width, session.Market.Height);
+        trainView.SetBoardSize(session.Train.Width, session.Train.Height, marketView.CellSize);
         RenderBoards();
         RenderValues();
         ShowItemDetails(null, null);
@@ -513,7 +513,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
 
         ClearDrag();
         trainView.SetTitle(Presentation.PuzzleTrainTitle(session.CurrentWagonIndex + 1));
-        trainView.SetBoardSize(session.Train.Width, session.Train.Height);
+        trainView.SetBoardSize(session.Train.Width, session.Train.Height, marketView.CellSize);
         RenderBoards();
         RenderValues();
         ShowItemDetails(null, null);
@@ -540,7 +540,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         cityView.ShowFunds(session.Funds);
         RefreshTravelCosts();
         trainView.SetTitle(Presentation.PuzzleTrainTitle(session.CurrentWagonIndex + 1));
-        trainView.SetBoardSize(session.Train.Width, session.Train.Height);
+        trainView.SetBoardSize(session.Train.Width, session.Train.Height, marketView.CellSize);
         RenderBoards();
         RenderValues();
         ShowItemDetails(null, null);

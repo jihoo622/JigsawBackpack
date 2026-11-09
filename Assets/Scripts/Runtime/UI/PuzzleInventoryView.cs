@@ -52,6 +52,7 @@ public sealed class PuzzleInventoryView : MonoBehaviour
     bool showSynergies;
 
     Camera EventCamera => canvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : canvas.worldCamera;
+    internal float CellSize => cellSize;
 
     internal event Action Disabled;
 
@@ -127,11 +128,16 @@ public sealed class PuzzleInventoryView : MonoBehaviour
         }
     }
 
-    internal void SetBoardSize(int _width, int _height)
+    internal void SetBoardSize(int _width, int _height, float? _referenceCellSize = null)
     {
         gridSize = new Vector2Int(_width, _height);
+        if (_referenceCellSize.HasValue)
+        {
+            board.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, _width * _referenceCellSize.Value);
+            board.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, _height * _referenceCellSize.Value);
+        }
         Rect boardRect = board.rectTransform.rect;
-        cellSize = Mathf.Min(boardRect.width / _width, boardRect.height / _height);
+        cellSize = _referenceCellSize ?? Mathf.Min(boardRect.width / _width, boardRect.height / _height);
         gridMin = boardRect.center - new Vector2(_width, _height) * (cellSize * 0.5f);
 
         long cellCount = (long)_width * _height;
