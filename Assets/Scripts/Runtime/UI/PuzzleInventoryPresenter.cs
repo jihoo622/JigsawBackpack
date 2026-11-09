@@ -9,6 +9,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
     [SerializeField] PuzzleCityView cityView;
     [SerializeField] PuzzleItemTooltipView tooltipView;
     [SerializeField] PuzzleTrainBarView trainBarView;
+    [SerializeField] PauseMenu pauseMenu;
 
     PuzzleInventoryInput input;
     PuzzleInventoryService session;
@@ -22,11 +23,11 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
 
     void OnEnable()
     {
-        if (!TryGetComponent(out input) || !trainView || !marketView || trainView == marketView || !cityView ||
+        if (!TryGetComponent(out input) || !trainView || !marketView || trainView == marketView || !cityView || !pauseMenu ||
             !trainView.transform.IsChildOf(transform) || !marketView.transform.IsChildOf(transform) ||
             !cityView.transform.IsChildOf(transform))
         {
-            Debug.LogError("화물 인벤토리 Presenter에는 Input과 하위의 기차·시장·도시 View가 필요합니다.", this);
+            Debug.LogError("화물 인벤토리 Presenter에는 Input, 기차·시장·도시 View와 일시 정지 메뉴가 필요합니다.", this);
             enabled = false;
             return;
         }
@@ -46,7 +47,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         long dragCapacity = System.Math.Max(trainCapacity, session.MarketCapacity);
         trainView.Initialize(trainCapacity, dragCapacity, Presentation.PuzzleTrainTitle(session.CurrentWagonIndex + 1), session.ItemDefinitions, _showSynergies: true);
         marketView.Initialize(session.MarketCapacity, dragCapacity, Presentation.PUZZLE_MARKET_TITLE, session.ItemDefinitions, _showSynergies: false);
-        cityView.Initialize(session.CanTravel);
+        cityView.Initialize(session.CanTravel, session.GameClearCost);
         ShowCurrentCity();
         initialized = true;
 
@@ -117,6 +118,25 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         ShowCurrentCity();
     }
 
+    public void ClearGame()
+    {
+        if (!initialized || !isActiveAndEnabled || isMapOpen || !pauseMenu || !pauseMenu.CanShowCompletion ||
+            !session.TryClearGame())
+        {
+            return;
+        }
+
+        pauseMenu.ShowCompletion(session.Funds);
+        RefreshFunds();
+        cityView.ShowTradeStatus(Presentation.PUZZLE_CLEAR_TITLE);
+        RefreshTrainBar();
+    }
+
+    void RefreshFunds()
+    {
+        cityView.ShowFunds(session.Funds, session.CanClearGame);
+    }
+
     void OnPanelVisibility(GameEvents.PanelInfo _info)
     {
         if (_info.panel != Presentation.PUZZLE_MAP_PANEL_NAME)
@@ -147,7 +167,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
     {
         bool inProgress = session.RunStatus == PuzzleRunStatus.InProgress;
         cityView.ShowCity(session.CurrentCityName);
-        cityView.ShowFunds(session.Funds);
+        RefreshFunds();
         cityView.ShowTradeStatus(inProgress
             ? Presentation.PUZZLE_TRADE_GUIDE
             : Presentation.PuzzleRunStatusText(session.RunStatus));
@@ -203,7 +223,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         if (result.CanDrop)
         {
             RenderValues();
-            cityView.ShowFunds(session.Funds);
+            RefreshFunds();
             RefreshTrainBar();
         }
         RefreshHover();
@@ -252,7 +272,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
                 if (result.CanDrop)
                 {
                     RenderValues();
-                    cityView.ShowFunds(session.Funds);
+                    RefreshFunds();
                     RefreshTrainBar();
                 }
             }
@@ -562,7 +582,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             return;
         }
 
-        cityView.ShowFunds(session.Funds);
+        RefreshFunds();
         trainView.SetTitle(Presentation.PuzzleTrainTitle(session.CurrentWagonIndex + 1));
         trainView.SetBoardSize(session.Train.Width, session.Train.Height, marketView.CellSize);
         RenderBoards();

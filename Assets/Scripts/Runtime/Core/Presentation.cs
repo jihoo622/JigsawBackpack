@@ -382,11 +382,23 @@ public static class Presentation
         };
     }
 
+    internal const string PUZZLE_CLEAR_TITLE = "게임 완료";
+
+    internal static string PuzzleClearButton(long _cost)
+    {
+        return $"게임 클리어  {_cost:N0}$";
+    }
+
+    internal static string PuzzleClearSummary(long _funds)
+    {
+        return $"남은 자금 {_funds:N0}$";
+    }
+
     internal static string PuzzleRunStatusText(PuzzleRunStatus _status)
     {
         return _status switch
         {
-            PuzzleRunStatus.Won => "빚을 모두 갚았습니다. 승리!",
+            PuzzleRunStatus.Won => PUZZLE_CLEAR_TITLE,
             PuzzleRunStatus.Lost => "빚을 갚지 못했습니다. 패배",
             _ => PUZZLE_TRADE_GUIDE
         };

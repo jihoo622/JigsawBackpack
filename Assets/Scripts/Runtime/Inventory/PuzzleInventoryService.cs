@@ -80,6 +80,8 @@ public sealed class PuzzleInventoryService : MonoBehaviour
     public string CurrentCityId => currentCityId;
     internal PuzzleCityData CityData => tables.CityPrice(CurrentCityId);
     public long Funds { get; private set; }
+    public long GameClearCost => tables.PuzzleTrade.gameClearCost;
+    public bool CanClearGame => tables != null && RunStatus == PuzzleRunStatus.InProgress && Funds >= GameClearCost;
     public int CityMoveCount { get; private set; }
     public int PaidDebtCount { get; private set; }
     public PuzzleRunStatus RunStatus { get; private set; }
@@ -224,6 +226,18 @@ public sealed class PuzzleInventoryService : MonoBehaviour
             return false;
         }
 
+        return true;
+    }
+
+    internal bool TryClearGame()
+    {
+        if (!CanClearGame)
+        {
+            return false;
+        }
+
+        Funds -= GameClearCost;
+        RunStatus = PuzzleRunStatus.Won;
         return true;
     }
 
