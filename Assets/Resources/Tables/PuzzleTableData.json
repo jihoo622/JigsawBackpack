@@ -651,10 +651,10 @@
       },
       "generalStock": {
         "pieceIds": [
-          "piece.elbowRight",
-          "piece.verticalPair",
-          "piece.topNotch",
-          "piece.verticalTabs"
+          "piece.fourNotches",
+          "piece.uShape",
+          "piece.verticalTabs",
+          "piece.elbowLeft"
         ],
         "slots": [
           {
