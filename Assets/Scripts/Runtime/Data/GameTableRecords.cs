@@ -91,7 +91,7 @@ public sealed class PuzzleStartingPlacementData
 [Serializable]
 public sealed class PuzzleSynergyRuleData
 {
-    public string id, targetTag, excludedTargetTag, neighborTag, scope;
+    public string id, targetTag, excludedTargetTag, neighborTag, excludedNeighborTag, scope;
     public int multiplierPercent;
 }
 
