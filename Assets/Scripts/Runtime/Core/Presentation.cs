@@ -88,6 +88,14 @@ public static class Presentation
         return $"<color=#{ColorUtility.ToHtmlStringRGB(PuzzleTooltipText)}>• 적용 중인 시너지 없음</color>";
     }
 
+    internal static string PuzzleTooltipFutureValue(decimal _futureValue, decimal _actualValue)
+    {
+        Color color = _futureValue > _actualValue
+            ? PuzzleTooltipGreen
+            : (_futureValue < _actualValue ? PuzzleTooltipRed : PuzzleTooltipGold);
+        return $"<color=#{ColorUtility.ToHtmlStringRGB(PuzzleTooltipText)}>미래 가치 : </color><color=#{ColorUtility.ToHtmlStringRGB(color)}>$ {_futureValue:#,0.##}</color>";
+    }
+
     internal static string PuzzleValueText(PuzzleValue _value)
     {
         return $"기본 가치 {_value.BaseValue:N0}  →  최종 가치 {_value.FinalValue:#,0.##}";

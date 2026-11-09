@@ -28,6 +28,7 @@ public sealed class PuzzleItemTooltipView : PanelBase
     [SerializeField] TextMeshProUGUI synergyHeaderText;
     [SerializeField] RectTransform synergyListRoot;
     [SerializeField] TextMeshProUGUI[] synergySlots;
+    [SerializeField] TextMeshProUGUI futureValueText;
     [SerializeField] TMP_FontAsset fontAsset;
     [SerializeField] float followSpeed = DEFAULT_FOLLOW_SPEED;
 
@@ -78,6 +79,12 @@ public sealed class PuzzleItemTooltipView : PanelBase
 
     internal void Show(PuzzleItemDefinition _item, decimal _actualValue, PuzzleTradeRate _rate,
         IReadOnlyList<PuzzleSynergyBonus> _bonuses, Vector2 _screenPosition)
+    {
+        Show(_item, _actualValue, _rate, _bonuses, null, _screenPosition);
+    }
+
+    internal void Show(PuzzleItemDefinition _item, decimal _actualValue, PuzzleTradeRate _rate,
+        IReadOnlyList<PuzzleSynergyBonus> _bonuses, decimal? _futureValue, Vector2 _screenPosition)
     {
         if (_item == null)
         {
@@ -156,6 +163,19 @@ public sealed class PuzzleItemTooltipView : PanelBase
                         synergySlots[i].gameObject.SetActive(false);
                     }
                 }
+            }
+        }
+
+        if (futureValueText)
+        {
+            if (showSynergy && _futureValue.HasValue)
+            {
+                futureValueText.text = Presentation.PuzzleTooltipFutureValue(_futureValue.Value, _actualValue);
+                futureValueText.gameObject.SetActive(true);
+            }
+            else
+            {
+                futureValueText.gameObject.SetActive(false);
             }
         }
 
@@ -342,6 +362,7 @@ public sealed class PuzzleItemTooltipView : PanelBase
         ApplyTextSettings(sellRateText);
         ApplyTextSettings(buyRateText);
         ApplyTextSettings(synergyHeaderText);
+        ApplyTextSettings(futureValueText);
 
         if (categoryBadgeTexts != null)
         {

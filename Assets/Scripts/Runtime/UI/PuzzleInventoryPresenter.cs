@@ -374,11 +374,12 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         decimal actualValue = isTrain ? _placement.ActualValue : _placement.Definition.BaseValue;
         var rate = item == null ? default : session.RateFor(item);
         var bonuses = isTrain ? value.SynergyBonuses : null;
+        decimal? futureValue = isTrain ? actualValue + (value.FinalValue - value.BaseValue) : null;
 
         if (tooltipView && drag == null && (_position.HasValue || hoverPosition.HasValue))
         {
             Vector2 pos = _position ?? hoverPosition.Value;
-            tooltipView.Show(item, actualValue, rate, bonuses, pos);
+            tooltipView.Show(item, actualValue, rate, bonuses, futureValue, pos);
         }
 
         if (trainView)

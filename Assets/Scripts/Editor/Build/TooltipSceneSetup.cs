@@ -145,7 +145,9 @@ public static class TooltipSceneSetup
         {
             var existingView = tooltipTransform.GetComponent<PuzzleItemTooltipView>();
             var catRowProp = existingView ? new SerializedObject(existingView).FindProperty("categoryRow") : null;
-            if (catRowProp == null || catRowProp.objectReferenceValue == null)
+            var futureValProp = existingView ? new SerializedObject(existingView).FindProperty("futureValueText") : null;
+            if (catRowProp == null || catRowProp.objectReferenceValue == null ||
+                futureValProp == null || futureValProp.objectReferenceValue == null)
             {
                 UnityEngine.Object.DestroyImmediate(tooltipTransform.gameObject);
                 tooltipTransform = null;
@@ -328,6 +330,8 @@ public static class TooltipSceneSetup
             slots[i] = CreateTextObject($"Slot_{i}", synergyList.transform, _fontAsset, "• 아이템 이름 : +20%");
         }
 
+        var futureValue = CreateTextObject("FutureValue", synergySection.transform, _fontAsset, "미래 가치 : $ 100");
+
         // Wire serialized fields on PuzzleItemTooltipView
         var view = root.GetComponent<PuzzleItemTooltipView>();
         var viewSerialized = new SerializedObject(view);
@@ -366,6 +370,8 @@ public static class TooltipSceneSetup
         {
             slotsProp.GetArrayElementAtIndex(i).objectReferenceValue = slots[i];
         }
+
+        viewSerialized.FindProperty("futureValueText").objectReferenceValue = futureValue;
 
         if (_fontAsset != null)
         {
