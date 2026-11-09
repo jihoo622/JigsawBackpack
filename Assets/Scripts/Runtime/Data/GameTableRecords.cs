@@ -110,3 +110,12 @@ public sealed class PuzzleDebtPaymentData
     public int moveCount;
     public long amount;
 }
+
+// 한 방향 노선. fromCityId에서 toCityId로 떠날 때의 비용이고 반대 방향은 별개 행이다.
+[Serializable]
+public sealed class PuzzleRouteData
+{
+    public string fromCityId, toCityId;
+    // 누락된 값이 0이라는 정상값으로 위장되지 않도록 하는 검증용 값이다.
+    public long cost = -1;
+}

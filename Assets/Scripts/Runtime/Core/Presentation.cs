@@ -19,6 +19,7 @@ public static class Presentation
     public const string PUZZLE_MOVE_GUIDE = "드래그로 이동    R로 회전    Esc로 취소";
     public const string PUZZLE_PREVIOUS_CITY = "Previous City";
     public const string PUZZLE_NEXT_CITY = "Next City";
+    public const string PUZZLE_TRAVEL_COST = "비용";
     public const string PUZZLE_TRADE_GUIDE = "시장 → 기차 구매   ·   기차 → 시장 판매";
     public const string PUZZLE_TAG_EXPENSIVE = "귀함";
     public const string PUZZLE_TAG_COMMON = "흔함";
@@ -83,6 +84,12 @@ public static class Presentation
         return $"보유 자금 {_funds:N0}";
     }
 
+    // 도시 이동 버튼 문구. 목적지 노선의 비용을 같은 버튼에 붙여 별도 표시 요소를 두지 않는다.
+    internal static string PuzzleCityButton(string _label, long? _cost)
+    {
+        return _cost is long cost ? $"{_label}    {PUZZLE_TRAVEL_COST} {cost:N0}" : _label;
+    }
+
     // 도시의 태그 규칙을 구매·판매 비율 기준으로 귀함/흔함으로 묶는다.
     // 두 비율이 100을 사이에 두고 갈리거나 한쪽이 100이면 어느 쪽도 아닌 것으로 보고 표시하지 않는다.
     internal static string PuzzleCityTagPreferences(PuzzleCityData _city)
@@ -128,6 +135,19 @@ public static class Presentation
         {
             PuzzleRunStatus.Won => "빚을 모두 갚았습니다. 승리!",
             PuzzleRunStatus.Lost => "빚을 갚지 못했습니다. 패배",
+            _ => PUZZLE_TRADE_GUIDE
+        };
+    }
+
+    // 이동이 차단된 이유. 비용 부족은 패배가 아니라 상태 유지다.
+    internal static string PuzzleTravelStatus(PuzzleTravelResult _result)
+    {
+        return _result.Failure switch
+        {
+            PuzzleTravelFailure.InsufficientFunds => $"{PUZZLE_TRAVEL_COST} {_result.Cost:N0}이(가) 부족합니다",
+            PuzzleTravelFailure.MissingRoute => "두 도시를 잇는 노선이 없습니다",
+            PuzzleTravelFailure.NotAvailable => "이동할 수 있는 도시가 없습니다",
+            PuzzleTravelFailure.Blocked => "게임이 종료되었습니다",
             _ => PUZZLE_TRADE_GUIDE
         };
     }

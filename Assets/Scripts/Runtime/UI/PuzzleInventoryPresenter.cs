@@ -103,8 +103,11 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         hoverPosition = null;
         input.CancelCapture();
         ClearDrag();
-        if (!session.Travel(_forward))
+        var result = session.Travel(_forward);
+        if (!result.IsSuccess)
         {
+            // 비용 부족은 이동 차단이다. 도시·턴·시장·자금을 바꾸지 않고 이유만 표시한다.
+            cityView.ShowTradeStatus(Presentation.PuzzleTravelStatus(result));
             return;
         }
         ShowCurrentCity();
@@ -115,6 +118,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         bool inProgress = session.RunStatus == PuzzleRunStatus.InProgress;
         cityView.ShowCity(session.CurrentCityName);
         cityView.ShowFunds(session.Funds);
+        cityView.ShowTravelCost(session.NextRouteCost(false), session.NextRouteCost(true));
         cityView.SetTravelEnabled(inProgress && session.CanTravel);
         cityView.ShowTradeStatus(inProgress
             ? Presentation.PUZZLE_TRADE_GUIDE

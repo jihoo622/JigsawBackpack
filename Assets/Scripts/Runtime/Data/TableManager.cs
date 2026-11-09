@@ -27,6 +27,7 @@ public sealed class TableManager
     public PuzzleItemPriceTableData PuzzleItemPrice { get; }
     public PuzzleSynergyTableData PuzzleSynergy { get; }
     public PuzzleTradeTableData PuzzleTrade { get; }
+    public PuzzleRouteTableData PuzzleRoute { get; }
     public PuzzleTurnTableData PuzzleTurn { get; }
     public IReadOnlyList<PuzzleDebtPaymentData> DebtSchedule { get; }
     public IReadOnlyList<PuzzleSynergyRuleData> SynergyRules { get; }
@@ -42,6 +43,7 @@ public sealed class TableManager
     readonly Dictionary<string, PuzzleItemPriceData> itemPrices;
     readonly Dictionary<string, PuzzleCityData> cities;
     readonly Dictionary<string, Dictionary<string, PuzzleCityTagPriceData>> cityTagPrices;
+    readonly Dictionary<string, Dictionary<string, PuzzleRouteData>> routes;
 
     TableManager()
     {
@@ -52,6 +54,7 @@ public sealed class TableManager
         PuzzleItemPrice = Load<PuzzleItemPriceTableData>(ref loaded);
         PuzzleSynergy = Load<PuzzleSynergyTableData>(ref loaded);
         PuzzleTrade = Load<PuzzleTradeTableData>(ref loaded);
+        PuzzleRoute = Load<PuzzleRouteTableData>(ref loaded);
         PuzzleTurn = Load<PuzzleTurnTableData>(ref loaded);
 
         var rules = new GameTableRules();
@@ -61,6 +64,7 @@ public sealed class TableManager
         itemPrices = rules.Index(PuzzleItemPrice.prices, e => e.pieceId, "PuzzleItemPriceTableData.prices");
         cities = rules.Index(Puzzle.cities, e => e.id, "PuzzleTableData.cities");
         cityTagPrices = IndexCityTagPrices(Puzzle.cities);
+        routes = IndexRoutes(PuzzleRoute.routes);
         var synergyRules = rules.Index(PuzzleSynergy.rules, e => e.id, "PuzzleSynergyTableData.rules");
         SynergyRules = Array.AsReadOnly(synergyRules.Values.OrderBy(entry => entry.id, StringComparer.Ordinal).ToArray());
         Pieces = Array.AsReadOnly(pieces.Values.OrderBy(entry => entry.id, StringComparer.Ordinal).ToArray());
@@ -214,6 +218,43 @@ public sealed class TableManager
     {
         return SortStartingPlacements(Find(cities, _cityId, "도시").market);
     }
+    // 출발 도시→도착 도시의 2중 색인. 방향이 다른 노선은 따로 보관하고, 중복 행은 GameTableRules가 오류로 보고한다.
+    static Dictionary<string, Dictionary<string, PuzzleRouteData>> IndexRoutes(PuzzleRouteData[] _routes)
+    {
+        var result = new Dictionary<string, Dictionary<string, PuzzleRouteData>>(StringComparer.Ordinal);
+        foreach (var route in _routes ?? Array.Empty<PuzzleRouteData>())
+        {
+            if (route == null || string.IsNullOrEmpty(route.fromCityId) || string.IsNullOrEmpty(route.toCityId))
+            {
+                continue;
+            }
+            if (!result.TryGetValue(route.fromCityId, out var targets))
+            {
+                targets = new Dictionary<string, PuzzleRouteData>(StringComparer.Ordinal);
+                result.Add(route.fromCityId, targets);
+            }
+            targets.TryAdd(route.toCityId, route);
+        }
+        return result;
+    }
+
+    internal bool TryGetRoute(string _fromCityId, string _toCityId, out PuzzleRouteData _route)
+    {
+        if (!string.IsNullOrEmpty(_fromCityId) && !string.IsNullOrEmpty(_toCityId) &&
+            routes.TryGetValue(_fromCityId, out var targets) && targets.TryGetValue(_toCityId, out _route))
+        {
+            return true;
+        }
+
+        _route = null;
+        return false;
+    }
+
+    internal bool HasRoute(string _fromCityId, string _toCityId)
+    {
+        return TryGetRoute(_fromCityId, _toCityId, out _);
+    }
+
     public bool TryGetScene(string _scene, out SceneLinkData _link)
     {
         if (!string.IsNullOrEmpty(_scene) && scenes.TryGetValue(_scene, out _link))

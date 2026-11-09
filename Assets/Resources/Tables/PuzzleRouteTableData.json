@@ -1,0 +1,12 @@
+{
+  "status": "sample",
+  "note": "노선과 이동 비용의 원본. fromCityId에서 toCityId로 떠나는 순간 비용을 차감하며 방향이 다르면 별개 노선이다. 순환 이동(시작 도시 우선, ID 오름차순)에서 맞닿는 도시는 두 방향을 모두 정의해야 한다. 비용 부족은 이동 차단이고 패배가 아니다.",
+  "routes": [
+    { "fromCityId": "city.a", "toCityId": "city.b", "cost": 4 },
+    { "fromCityId": "city.b", "toCityId": "city.c", "cost": 5 },
+    { "fromCityId": "city.c", "toCityId": "city.a", "cost": 6 },
+    { "fromCityId": "city.a", "toCityId": "city.c", "cost": 3 },
+    { "fromCityId": "city.c", "toCityId": "city.b", "cost": 5 },
+    { "fromCityId": "city.b", "toCityId": "city.a", "cost": 4 }
+  ]
+}

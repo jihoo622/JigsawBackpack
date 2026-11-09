@@ -153,6 +153,7 @@ public sealed class GameTableRules
         ValidateItemPrices(_tables);
         ValidatePuzzleSynergy(_tables);
         ValidatePuzzleTrade(_tables);
+        ValidateRoutes(_tables);
         ValidateDebtSchedule(_tables.PuzzleTurn);
     }
 
@@ -204,6 +205,49 @@ public sealed class GameTableRules
         Check(_tables.PuzzleTrade.startingFunds >= 0, PATH + ".startingFunds", "시작 자금은 0 이상이어야 합니다.");
         Check(_tables.PuzzleTrade.purchaseMarkupPercent > 0, PATH + ".purchaseMarkupPercent",
             "공통 구매 배율은 0보다 커야 합니다.");
+    }
+
+    // 노선은 방향이 있는 행이다. 순환 이동으로 맞닿는 두 도시는 양쪽 방향이 모두 있어야 이동이 차단되지 않는다.
+    void ValidateRoutes(TableManager _tables)
+    {
+        const string PATH = nameof(PuzzleRouteTableData);
+        const string ROUTES_PATH = PATH + ".routes";
+        var routes = _tables.PuzzleRoute.routes ?? Array.Empty<PuzzleRouteData>();
+        var seen = new HashSet<(string From, string To)>();
+        for (int i = 0; i < routes.Length; i++)
+        {
+            var route = routes[i];
+            string path = $"{ROUTES_PATH}[{i}]";
+            if (route == null)
+            {
+                Check(false, path, "노선 항목이 필요합니다.");
+                continue;
+            }
+
+            Reference(route.fromCityId, path + ".fromCityId", _tables.HasCity(route.fromCityId), "출발 도시");
+            Reference(route.toCityId, path + ".toCityId", _tables.HasCity(route.toCityId), "도착 도시");
+            Check(route.fromCityId != route.toCityId, path, "출발 도시와 도착 도시는 달라야 합니다.");
+            Check(route.cost >= 0, path + ".cost", "이동 비용은 0 이상이어야 합니다.");
+            if (!string.IsNullOrEmpty(route.fromCityId) && !string.IsNullOrEmpty(route.toCityId))
+            {
+                Check(seen.Add((route.fromCityId, route.toCityId)), path, $"노선 '{route.fromCityId}'→'{route.toCityId}'가 중복되었습니다.");
+            }
+        }
+
+        var order = _tables.Cities;
+        if (order.Count < 2)
+        {
+            return;
+        }
+        for (int i = 0; i < order.Count; i++)
+        {
+            var from = order[i];
+            var to = order[(i + 1) % order.Count];
+            Check(_tables.HasRoute(from.id, to.id), $"{nameof(PuzzleTableData)}.cities 순환[{i}]→[{(i + 1) % order.Count}]",
+                $"순환 이동 '{from.id}'→'{to.id}' 노선이 없습니다.");
+            Check(_tables.HasRoute(to.id, from.id), $"{nameof(PuzzleTableData)}.cities 순환[{(i + 1) % order.Count}]→[{i}]",
+                $"순환 이동 '{to.id}'→'{from.id}' 노선이 없습니다.");
+        }
     }
 
     void ValidateCityTagPrices(PuzzleCityData _city, HashSet<string> _knownTags, string _path)
