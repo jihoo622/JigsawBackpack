@@ -14,6 +14,12 @@ public sealed class PuzzleInventoryService : MonoBehaviour
     IReadOnlyList<PuzzleSynergyRuleData> marketRules;
     int lastInstanceId;
     int currentCityIndex;
+    readonly HashSet<string> visitedCities = new HashSet<string>(StringComparer.Ordinal);
+
+    internal bool HasVisitedCity(string _cityId)
+    {
+        return visitedCities.Contains(_cityId);
+    }
 
     public PuzzleInventory Train { get; private set; }
     public PuzzleInventory Market => markets[CurrentCityId];
@@ -65,6 +71,8 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         ItemDefinitions = definitions.Values;
         MarketCapacity = marketCapacity;
         currentCityIndex = 0;
+        visitedCities.Clear();
+        visitedCities.Add(CurrentCityId);
         Funds = tables.PuzzleTrade.startingFunds;
         CityMoveCount = 0;
         PaidDebtCount = 0;
@@ -137,7 +145,9 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         markets[evaluation.FromCityId] = CreateMarket(evaluation.FromCityId);
         currentCityIndex = NextCityIndex(_forward);
         CityMoveCount++;
+        visitedCities.Add(CurrentCityId);
         Market.RecalculateValue();
+        GameEvents.RaiseCityArrived(CurrentCityId, CityMoveCount);
 
         // 테스트를 위해 빚 차감 및 빚으로 인한 승패 판정을 임시 비활성화한다.
         /*

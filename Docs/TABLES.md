@@ -58,3 +58,5 @@
 
 ## 테이블이 아닌 JSON
 `Assets/Resources/LogData.json`은 분석 로그(JSONL)의 운영 설정(`enabled`·`bufferLines`·`retentionDays`)이다. 게임 규칙 수치가 아니라 기록 계통의 스위치라 따로 두며, `TableManager`가 아니라 `TelemetryLog`가 읽는다. 자세한 설명은 `Docs/TELEMETRY.md`.
+
+- 지도 정보는 기존 도시의 이름과 태그 가격 규칙을 표시한다. 방문 여부는 테이블에 저장하지 않으며 씬 로컬 세션이 시작 마을과 성공적으로 도착한 마을 ID를 기록한다. 실패한 이동은 해금하지 않는다. GameEvents.CityArrived는 도시 ID·이동 횟수·TelemetryLog 게임 시간을 전달하며 지도 Presenter가 구독한다. 지도 프리팹의 마을 ID와 노선 배치는 고정 7개 마을용이므로 마을 구성 변경 시 프리팹도 함께 수정한다.

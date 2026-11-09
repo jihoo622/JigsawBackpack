@@ -59,6 +59,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         trainView.Disabled += OnViewDisabled;
         marketView.Disabled += OnViewDisabled;
         cityView.Subscribe(OnPreviousCity, OnNextCity);
+        GameEvents.PanelVisibility += OnPanelVisibility;
     }
 
     void OnDisable()
@@ -95,6 +96,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             tooltipView.Close();
         }
         currentHoveredInstanceId = null;
+        GameEvents.PanelVisibility -= OnPanelVisibility;
         OnViewDisabled();
         initialized = false;
     }
@@ -102,6 +104,22 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
     void OnPreviousCity()
     {
         Travel(false);
+    }
+
+    void OnPanelVisibility(GameEvents.PanelInfo _info)
+    {
+        if (!_info.open || _info.panel != Presentation.PUZZLE_MAP_PANEL_NAME)
+        {
+            return;
+        }
+        hoverPosition = null;
+        currentHoveredInstanceId = null;
+        input.CancelCapture();
+        ClearDrag();
+        if (tooltipView)
+        {
+            tooltipView.Close();
+        }
     }
 
     void OnNextCity()
