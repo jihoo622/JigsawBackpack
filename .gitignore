@@ -123,3 +123,4 @@ InitTestScene*.unity*
 # Auto-generated cache in Assets folder
 /[Aa]ssets/[Ss]ceneDependencyCache*
 Docs/시너지 현황.md
+.orca/

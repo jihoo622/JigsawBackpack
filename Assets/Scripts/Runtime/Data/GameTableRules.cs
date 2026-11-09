@@ -209,11 +209,12 @@ public sealed class GameTableRules
             "화물칸 증차 기본 비용은 0보다 커야 합니다.");
     }
 
-    // 노선은 방향이 있는 행이다. 순환 이동으로 맞닿는 두 도시는 양쪽 방향이 모두 있어야 이동이 차단되지 않는다.
+    // 노선은 방향 그래프다. 시작 도시에서 모든 도시로 도달할 수 있어야 한다.
     void ValidateRoutes(TableManager _tables)
     {
         const string PATH = nameof(PuzzleRouteTableData);
         const string ROUTES_PATH = PATH + ".routes";
+        Check(_tables.PuzzleRoute.travelTurns == 1, PATH + ".travelTurns", "이동 턴 수는 1이어야 합니다.");
         Check(_tables.PuzzleRoute.costPerCell >= 0, PATH + ".costPerCell", "칸당 이동 단가는 0 이상이어야 합니다.");
         var routes = _tables.PuzzleRoute.routes ?? Array.Empty<PuzzleRouteData>();
         var seen = new HashSet<(string From, string To)>();
@@ -237,19 +238,36 @@ public sealed class GameTableRules
             }
         }
 
-        var order = _tables.Cities;
-        if (order.Count < 2)
+        string startCity = _tables.Puzzle.startCity;
+        if (!_tables.HasCity(startCity))
         {
             return;
         }
-        for (int i = 0; i < order.Count; i++)
+
+        var reachable = new HashSet<string>(StringComparer.Ordinal);
+        var pending = new Queue<string>();
+        pending.Enqueue(startCity);
+        reachable.Add(startCity);
+
+        while (pending.Count > 0)
         {
-            var from = order[i];
-            var to = order[(i + 1) % order.Count];
-            Check(_tables.HasRoute(from.id, to.id), $"{nameof(PuzzleTableData)}.cities 순환[{i}]→[{(i + 1) % order.Count}]",
-                $"순환 이동 '{from.id}'→'{to.id}' 노선이 없습니다.");
-            Check(_tables.HasRoute(to.id, from.id), $"{nameof(PuzzleTableData)}.cities 순환[{(i + 1) % order.Count}]→[{i}]",
-                $"순환 이동 '{to.id}'→'{from.id}' 노선이 없습니다.");
+            string current = pending.Dequeue();
+            foreach (var route in _tables.RoutesFrom(current))
+            {
+                if (_tables.HasCity(route.toCityId) && reachable.Add(route.toCityId))
+                {
+                    pending.Enqueue(route.toCityId);
+                }
+            }
+        }
+
+        foreach (var city in _tables.Cities)
+        {
+            if (city != null && !string.IsNullOrEmpty(city.id))
+            {
+                Check(reachable.Contains(city.id), $"{PATH}.reachability",
+                    $"시작 도시 '{startCity}'에서 도시 '{city.id}'(으)로 갈 수 있는 경로가 없습니다.");
+            }
         }
     }
 

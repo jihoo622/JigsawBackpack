@@ -1,6 +1,6 @@
 {
   "status": "active",
-  "note": "7개 마을의 생산·수요와 시장 시작 재고. 풍부 80/75%, 필요 120/110%는 임시 구매/판매 배율이며 가격 밸런스는 미확정이다.",
+  "note": "7개 마을의 생산·수요와 시장 시작 재고. 풍부 80/75%, 필요 120/150%는 임시 구매/판매 배율이며 가격 밸런스는 미확정이다.",
   "pieces": [
     {
       "id": "piece.elbowLeft",
@@ -313,7 +313,7 @@
           "tag": "Machinery",
           "priority": 20,
           "buyPercent": 120,
-          "sellPercent": 110
+          "sellPercent": 150
         }
       ],
       "market": {
@@ -399,7 +399,7 @@
           "tag": "Water",
           "priority": 20,
           "buyPercent": 120,
-          "sellPercent": 110
+          "sellPercent": 150
         }
       ],
       "market": {
@@ -485,7 +485,7 @@
           "tag": "Machinery",
           "priority": 20,
           "buyPercent": 120,
-          "sellPercent": 110
+          "sellPercent": 150
         }
       ],
       "market": {
@@ -571,13 +571,13 @@
           "tag": "Grain",
           "priority": 20,
           "buyPercent": 120,
-          "sellPercent": 110
+          "sellPercent": 150
         },
         {
           "tag": "Water",
           "priority": 19,
           "buyPercent": 120,
-          "sellPercent": 110
+          "sellPercent": 150
         }
       ],
       "market": {
@@ -664,13 +664,13 @@
           "tag": "Wood",
           "priority": 20,
           "buyPercent": 120,
-          "sellPercent": 110
+          "sellPercent": 150
         },
         {
           "tag": "Metal",
           "priority": 19,
           "buyPercent": 120,
-          "sellPercent": 110
+          "sellPercent": 150
         }
       ],
       "market": {
@@ -756,7 +756,7 @@
           "tag": "Salt",
           "priority": 20,
           "buyPercent": 120,
-          "sellPercent": 110
+          "sellPercent": 150
         }
       ],
       "market": {
@@ -843,7 +843,7 @@
           "tag": "Machinery",
           "priority": 20,
           "buyPercent": 120,
-          "sellPercent": 110
+          "sellPercent": 150
         }
       ],
       "market": {

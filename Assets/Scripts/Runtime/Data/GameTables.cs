@@ -5,7 +5,8 @@ using System;
 // 파일명은 데이터 클래스명과 일치시켜야 한다(TableManager.Load가 그 이름으로 읽는다).
 
 // 플레이 공통 수치와 해금 효과 목록. 예시 필드이므로 프로젝트에서 필드를 더하거나 바꾼다.
-[Serializable] public sealed class GameplayTableData
+[Serializable]
+public sealed class GameplayTableData
 {
     public string status, note;
     public PlayerData player;
@@ -14,7 +15,8 @@ using System;
 }
 
 // 씬 진행 경로(타이틀 → 게임 → 재시작).
-[Serializable] public sealed class FlowTableData
+[Serializable]
+public sealed class FlowTableData
 {
     public string status, note;
     public SceneLinkData[] scenes = Array.Empty<SceneLinkData>();
@@ -59,6 +61,8 @@ public sealed class PuzzleTradeTableData
 public sealed class PuzzleRouteTableData
 {
     public string status, note;
+    // 모든 노선 연결 이동에 소모되는 턴 수. 현재 계약은 1이다.
+    public int travelTurns = -1;
     // 기차의 점유 칸 1칸에 더해지는 단가. 0이면 보유량과 무관한 정액 노선이다.
     public int costPerCell = -1;
     public PuzzleRouteData[] routes = Array.Empty<PuzzleRouteData>();

@@ -8,12 +8,11 @@ public sealed class PuzzleInventoryService : MonoBehaviour
     const int PERCENT_SCALE = 100;
 
     TableManager tables;
-    IReadOnlyList<PuzzleCityData> cities;
     Dictionary<string, PuzzleInventory> markets;
     Dictionary<string, PuzzleItemDefinition> definitions;
     IReadOnlyList<PuzzleSynergyRuleData> marketRules;
     int lastInstanceId;
-    int currentCityIndex;
+    string currentCityId;
     readonly HashSet<string> visitedCities = new HashSet<string>(StringComparer.Ordinal);
     readonly System.Random stockRandom = new System.Random();
 
@@ -78,17 +77,18 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         return true;
     }
     public PuzzleInventory Market => markets[CurrentCityId];
-    public string CurrentCityId => cities[currentCityIndex].id;
+    public string CurrentCityId => currentCityId;
     internal PuzzleCityData CityData => tables.CityPrice(CurrentCityId);
     public long Funds { get; private set; }
     public int CityMoveCount { get; private set; }
     public int PaidDebtCount { get; private set; }
     public PuzzleRunStatus RunStatus { get; private set; }
-    internal string CurrentCityName => cities[currentCityIndex].displayName;
+    internal string CurrentCityName => CityData.displayName;
     internal PuzzleDebtPaymentData NextDebt => PaidDebtCount < tables.DebtSchedule.Count
         ? tables.DebtSchedule[PaidDebtCount]
         : null;
-    internal bool CanTravel => cities.Count > 1;
+    internal bool CanTravel => tables != null && !string.IsNullOrEmpty(currentCityId) && tables.RoutesFrom(currentCityId).Count > 0;
+    internal int TravelTurns => tables.PuzzleRoute.travelTurns;
     internal long MarketCapacity { get; private set; }
     internal IReadOnlyCollection<PuzzleItemDefinition> ItemDefinitions { get; private set; }
 
@@ -107,7 +107,6 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         }
 
         tables = validatedTables;
-        cities = tables.Cities;
         lastInstanceId = 0;
         var trainRules = validatedTables.SynergiesFor(PuzzleSynergyScope.Train);
         marketRules = validatedTables.SynergiesFor(PuzzleSynergyScope.Market);
@@ -125,9 +124,9 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         markets = cityMarkets;
         ItemDefinitions = definitions.Values;
         MarketCapacity = marketCapacity;
-        currentCityIndex = 0;
+        currentCityId = tables.Puzzle.startCity;
         visitedCities.Clear();
-        visitedCities.Add(CurrentCityId);
+        visitedCities.Add(currentCityId);
         Funds = tables.PuzzleTrade.startingFunds;
         CityMoveCount = 0;
         PaidDebtCount = 0;
@@ -163,15 +162,8 @@ public sealed class PuzzleInventoryService : MonoBehaviour
             ref lastInstanceId);
     }
 
-    // 순환 이동에서 목적지의 인덱스. cities는 시작 도시 우선, ID 오름차순의 결정적 순서다.
-    int NextCityIndex(bool _forward)
-    {
-        int offset = _forward ? 1 : cities.Count - 1;
-        return (currentCityIndex + offset) % cities.Count;
-    }
-
     // 노선 기본 비용에 출발 직전 기차가 점유한 칸 수를 더한 금액을 확인한다. 미리보기와 확정이 같은 경로를 쓴다.
-    internal PuzzleTravelResult EvaluateTravel(bool _forward)
+    internal PuzzleTravelResult EvaluateTravel(string _cityId)
     {
         if (RunStatus != PuzzleRunStatus.InProgress)
         {
@@ -184,27 +176,36 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         }
 
         string fromCityId = CurrentCityId;
-        string toCityId = cities[NextCityIndex(_forward)].id;
-        if (!tables.TryGetRoute(fromCityId, toCityId, out var route))
+        if (string.IsNullOrEmpty(_cityId) || !tables.HasCity(_cityId))
         {
-            return new PuzzleTravelResult(PuzzleTravelFailure.MissingRoute, _fromCityId: fromCityId, _toCityId: toCityId);
+            return new PuzzleTravelResult(PuzzleTravelFailure.InvalidCity, _fromCityId: fromCityId, _toCityId: _cityId);
+        }
+
+        if (string.Equals(_cityId, fromCityId, StringComparison.Ordinal))
+        {
+            return new PuzzleTravelResult(PuzzleTravelFailure.SameCity, _fromCityId: fromCityId, _toCityId: _cityId);
+        }
+
+        if (!tables.TryGetRoute(fromCityId, _cityId, out var route))
+        {
+            return new PuzzleTravelResult(PuzzleTravelFailure.MissingRoute, _fromCityId: fromCityId, _toCityId: _cityId);
         }
 
         int cells = TotalTrainOccupiedCells;
         if (!TryTravelCost(route.cost, cells, tables.PuzzleRoute.costPerCell, out long cost))
         {
-            return new PuzzleTravelResult(PuzzleTravelFailure.CostOverflow, _fromCityId: fromCityId, _toCityId: toCityId,
+            return new PuzzleTravelResult(PuzzleTravelFailure.CostOverflow, _fromCityId: fromCityId, _toCityId: _cityId,
                 _baseCost: route.cost, _cells: cells);
         }
 
         return new PuzzleTravelResult(Funds < cost ? PuzzleTravelFailure.InsufficientFunds : PuzzleTravelFailure.None,
-            cost, fromCityId, toCityId, _baseCost: route.cost, _cells: cells);
+            cost, fromCityId, _cityId, _baseCost: route.cost, _cells: cells);
     }
 
     // 이동 버튼에 표시할 목적지 노선의 비용. 기차 보유 칸이 바뀌면 값도 바뀐다.
-    internal long? NextRouteCost(bool _forward)
+    internal long? NextRouteCost(string _cityId)
     {
-        var evaluation = EvaluateTravel(_forward);
+        var evaluation = EvaluateTravel(_cityId);
         return evaluation.Failure == PuzzleTravelFailure.None || evaluation.Failure == PuzzleTravelFailure.InsufficientFunds
             ? (long?)evaluation.Cost
             : null;
@@ -226,9 +227,9 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         return true;
     }
 
-    internal PuzzleTravelResult Travel(bool _forward)
+    internal PuzzleTravelResult Travel(string _cityId)
     {
-        var evaluation = EvaluateTravel(_forward);
+        var evaluation = EvaluateTravel(_cityId);
         if (!evaluation.IsSuccess)
         {
             return evaluation;
@@ -243,7 +244,7 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         }
         // 떠난 도시의 시장은 테이블의 시작 배치로 되돌린다. 기차는 그대로 두고, 목적지 시장은 손대지 않는다.
         markets[evaluation.FromCityId] = CreateMarket(evaluation.FromCityId);
-        currentCityIndex = NextCityIndex(_forward);
+        currentCityId = evaluation.ToCityId;
         CityMoveCount++;
         visitedCities.Add(CurrentCityId);
         Market.RecalculateValue();
@@ -385,6 +386,47 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         return true;
     }
 
+    // 현재 회전을 우선하고, 맞지 않으면 시계 방향으로 나머지 회전을 검사한다.
+    // 후보 탐색은 상태를 바꾸지 않으며 확정은 드래그와 같은 거래 경로를 사용한다.
+    internal PuzzleDropResult QuickTransfer(PuzzlePlacement _original)
+    {
+        if (_original == null)
+        {
+            return new PuzzleDropResult(new PuzzlePlacementResult(PuzzlePlacementFailure.StaleSource));
+        }
+
+        var destination = _original.Owner == Train ? Market : Train;
+        var grabbedCell = _original.Definition.Cells[0];
+        var evaluation = EvaluateDrop(_original, destination, grabbedCell, Vector2Int.zero, _original.Pose.ClockwiseTurns);
+        if (evaluation.TradeFailure != PuzzleTradeFailure.None ||
+            evaluation.Placement.Failure == PuzzlePlacementFailure.StaleSource ||
+            evaluation.Placement.Failure == PuzzlePlacementFailure.InvalidDestination)
+        {
+            return evaluation;
+        }
+
+        for (int turn = 0; turn < PuzzleRotation.TURN_COUNT; turn++)
+        {
+            int rotation = (_original.Pose.ClockwiseTurns + turn) % PuzzleRotation.TURN_COUNT;
+            var offset = new PuzzleRotation(_original.Definition.Cells, rotation).GetBoardOffset(grabbedCell);
+            for (int y = destination.Height - 1; y >= 0; y--)
+            {
+                for (int x = 0; x < destination.Width; x++)
+                {
+                    var targetCell = new Vector2Int(x, y) + offset;
+                    var candidate = EvaluateDrop(_original, destination, grabbedCell, targetCell, rotation);
+                    if (candidate.CanDrop)
+                    {
+                        return Drop(_original, destination, grabbedCell, targetCell, rotation);
+                    }
+                }
+            }
+        }
+
+        return new PuzzleDropResult(new PuzzlePlacementResult(PuzzlePlacementFailure.NoSpace), evaluation.Direction,
+            evaluation.Price, _percent: evaluation.AppliedPercent, _tag: evaluation.AppliedTag);
+    }
+
     internal PuzzleDropResult Drop(PuzzlePlacement _original, PuzzleInventory _destination,
         Vector2Int _grabbedCell, Vector2Int _targetCell, int _clockwiseTurns)
     {
@@ -424,6 +466,8 @@ internal enum PuzzleTravelFailure
     None,
     Blocked,
     NotAvailable,
+    SameCity,
+    InvalidCity,
     MissingRoute,
     InsufficientFunds,
     CostOverflow
