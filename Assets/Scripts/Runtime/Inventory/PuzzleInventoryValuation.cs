@@ -160,7 +160,8 @@ internal sealed class PuzzleInventoryValuation
             bool matchesTarget = string.IsNullOrEmpty(rule.excludedTargetTag)
                 ? _target.Definition.Tags.Contains(rule.targetTag)
                 : !_target.Definition.Tags.Contains(rule.excludedTargetTag);
-            if (!matchesTarget || !_neighbor.Definition.Tags.Contains(rule.neighborTag))
+            if (!matchesTarget || !_neighbor.Definition.Tags.Contains(rule.neighborTag) ||
+                (!string.IsNullOrEmpty(rule.excludedNeighborTag) && _neighbor.Definition.Tags.Contains(rule.excludedNeighborTag)))
             {
                 continue;
             }

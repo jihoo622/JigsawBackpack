@@ -2,8 +2,13 @@
   "status": "sample",
   "note": "인접 시너지 샘플. 증가는 기본 가치에 더하고 감소 배율은 증가가 반영된 가치에 곱한다.",
   "rules": [
-    { "id": "sample.cargoNearFood", "targetTag": "Cargo", "neighborTag": "Food", "scope": "Both", "multiplierPercent": 120 },
+    { "id": "sample.cargoNearFood", "targetTag": "Cargo", "neighborTag": "Food", "excludedNeighborTag": "Grain", "scope": "Both", "multiplierPercent": 120 },
     { "id": "sample.machineryNearWood", "targetTag": "Machinery", "neighborTag": "Wood", "scope": "Both", "multiplierPercent": 110 },
-    { "id": "sample.nonFishNearFish", "excludedTargetTag": "Fish", "neighborTag": "Fish", "scope": "Both", "multiplierPercent": 80 }
+    { "id": "foodNearSalt", "targetTag": "Food", "neighborTag": "Salt", "scope": "Both", "multiplierPercent": 120 },
+    { "id": "woodNearWater", "targetTag": "Wood", "neighborTag": "Water", "scope": "Both", "multiplierPercent": 90 },
+    { "id": "woodNearFish", "targetTag": "Wood", "neighborTag": "Fish", "scope": "Both", "multiplierPercent": 90 },
+    { "id": "metalNearWater", "targetTag": "Metal", "neighborTag": "Water", "scope": "Both", "multiplierPercent": 80 },
+    { "id": "metalNearFish", "targetTag": "Metal", "neighborTag": "Fish", "scope": "Both", "multiplierPercent": 80 },
+    { "id": "fishNearWater", "targetTag": "Fish", "neighborTag": "Water", "scope": "Both", "multiplierPercent": 130 }
   ]
 }

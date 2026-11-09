@@ -34,7 +34,7 @@
 - `FlowTableData` — Preload → Title → Game 진행 경로(`scene`, `nextScene`, `restartScene`).
 - `PuzzleTableData`는 공용 화물 모양(`pieces`), 기차 보드(`train`), 도시 목록(`cities`)을 정의한다. 각 도시에는 고유한 `id`, 화면 이름인 `displayName`, 시장 보드(`market`)가 필요하다. 1단계의 루트 `market`은 시작 도시 항목의 `market`으로 옮겼다. 각 보드의 크기와 시작 배치는 `width`·`height`와 `startingPlacements`에 둔다.
   - `startCity`는 도시 ID를 참조한다. 이동 순서는 시작 도시 우선, 나머지는 ID 오름차순이며 이전·다음 버튼은 이 순서를 양방향으로 순환한다.
-  - `pieces`의 각 아이템 정의는 고유한 `id`, `displayName`, `description`, `tags`, `visualKey`, `slotCount`, `cells`를 가진다. 태그는 대소문자를 구분하며 한 아이템에서 중복될 수 없다. 현재 태그는 개발용 샘플이며 곡물 전용 `Grain`을 포함한다. 마을은 `city.a`~`city.g`(산림·농업·수원·광산·공업·어촌·염전) 7개다. 시장은 각각 7×6, 생산 화물 3개이며 풍부 80/75%, 필요 120/110%의 임시 구매/판매 배율을 사용한다. 염전의 수요 태그는 `Machinery`다.
+  - `pieces`의 각 아이템 정의는 고유한 `id`, `displayName`, `description`, `tags`, `visualKey`, `slotCount`, `cells`를 가진다. 태그는 대소문자를 구분하며 한 아이템에서 중복될 수 없다. 현재 태그는 개발용 샘플이며 곡물 전용 `Grain`을 포함한다. 마을은 `city.a`~`city.g`(산림·농업·샘물·광산·공업·어촌·염전) 7개다. 시장은 각각 7×6, 생산 화물 3개이며 풍부 80/75%, 필요 120/110%의 임시 구매/판매 배율을 사용한다. 염전의 수요 태그는 `Machinery`다.
   - `visualKey`는 `PuzzleInventoryUI` 프리팹의 `itemIcons` 목록에 있는 스프라이트 키다. View 초기화 시 모든 아이템 정의의 참조를 확인한다. 등록된 키를 사용해 정의와 시작 배치를 추가하면 코드 변경 없이 표시할 수 있다.
   - `slotCount`는 `cells` 길이와 일치하고 슬롯은 상하좌우로 연결되어야 한다. 화물 로컬 좌표는 외접 사각형의 왼쪽 위 기준으로 오른쪽과 아래로 증가한다. `(0,0)`은 비어 있어도 된다. `north`, `east`, `south`, `west`는 모두 `Flat`이다. 셀 배열 순서는 배치나 아이콘 기준에 영향을 주지 않는다.
   - 시작 배치에는 기차와 모든 시장에서 고유한 `id`와 화물 종류를 가리키는 `pieceId`가 필요하다. `clockwiseTurns`는 시계방향 90도 회전 횟수로 0~3이다. `x`·`y`는 회전 후 외접 사각형의 왼쪽 위 기준점이며, 보드 좌표는 왼쪽 아래에서 오른쪽과 위로 증가한다. 회전한 슬롯 전체가 해당 보드 안에 있어야 하며 같은 보드의 배치끼리는 같은 칸을 점유할 수 없다.
@@ -46,7 +46,8 @@
   - 인접 관계는 배치·회전·거래 때 다시 계산하지만 인스턴스의 실제 가치를 즉시 바꾸지 않는다. 도시 이동 한 번이 확정될 때 기차 인스턴스마다 기존 계산 결과에서 기본 가치를 뺀 변화량을 실제 가치에 누적한다. 같은 이웃 인스턴스가 여러 면으로 닿아도 한 번만 계산하며, 실제 가치는 보드 이동과 도시 재방문에도 유지된다. 반올림·최솟값·상한은 아직 정하지 않았다.
 - `PuzzleTradeTableData`는 0 이상의 정수 `startingFunds`만 정의한다. 도시별 거래 설정은 `PuzzleTableData.cities`의 각 도시 항목이 가진다.
 - `PuzzleRouteTableData`는 도시 간 노선과 이동 비용의 원본이다. `routes`의 각 행은 `PuzzleTableData.cities`의 `id`를 참조하는 `fromCityId`·`toCityId`와 0 이상의 정수 `cost`를 가진다. 방향이 다르면 별개 노선이며 같은 방향의 중복 행, 자기 자신으로의 노선, 미등록 도시 참조, 음수 또는 누락된 비용은 테이블 오류다. 순환 이동(시작 도시 우선, ID 오름차순)에서 맞닿는 두 도시의 `from→to`와 `to→from`은 둘 다 있어야 하며 없으면 테이블 오류다. `TableManager.TryGetRoute`·`HasRoute`가 출발·도착 도시로 조회하고 모르는 키에는 기본값을 주지 않는다.
-  - 이동 비용은 출발 직전에 차감한다. 현재 자금이 비용보다 적으면 이동이 차단되고 도시·턴·시장·기차 가치·자금이 모두 그대로 남는다(패배가 아니다). 빚은 도착 후에 차감하므로 같은 이동에서 비용이 먼저, 빚이 나중이다. 이전·다음 버튼 문구에는 `Presentation.PuzzleCityButton`이 붙인 목적지 노선 비용이 표시되고, 노선이 없거나 게임이 종료되면 비용 없이 이름만 표시한다. 처리 순서와 계약은 `Docs/노선 비용과 시장 초기화 구현 계획.md`.
+  - 실제 차감액은 **`cost + 기차의 점유 칸 수 × costPerCell`**이다. `costPerCell`은 0 이상의 정수 칸당 단가(누락 판별은 `-1`)이고, 칸 수는 출발 직전 기차 보드의 점유 칸(`PuzzleInventory.OccupiedCells`)에서 읽는다. 시장 점유 칸은 넣지 않고, 0이면 보유량과 무관한 정액 노선이다. 곱과 합의 오버플로는 `PuzzleInventoryService.TryTravelCost`가 `CostOverflow`로 막는다.
+  - 이동 비용은 출발 직전에 차감한다. 현재 자금이 비용보다 적으면 이동이 차단되고 도시·턴·시장·기차 가치·자금이 모두 그대로 남는다(패배가 아니다). 빚은 도착 후에 차감하므로 같은 이동에서 비용이 먼저, 빚이 나중이다. 이전·다음 버튼 문구에는 `Presentation.PuzzleCityButton`이 붙인 목적지 노선 비용(총액)이 표시되고, 기차 구매·판매로 점유 칸이 바뀌면 즉시 다시 갱신한다. 노선이 없거나 게임이 종료되면 비용 없이 이름만 표시하고, 부족 문구에는 노선 기본액과 보유 칸이 함께 나온다. 처리 순서와 계약은 `Docs/노선 비용과 시장 초기화 구현 계획.md`.
 - 각 도시의 `buyEnabled`·`sellEnabled`가 거래 가능 여부를 정한다. `buyPercentOfBaseValue`·`sellPercentOfFinalValue`는 태그 규칙이 없는 아이템에 적용하는 명시적 기본 비율이며 둘 다 양의 정수다.
   - `tagPrices`의 각 행은 `tag`, 고유한 `priority`, 양의 정수 `buyPercent`·`sellPercent`를 가진다. 태그는 아이템 정의의 태그를 대소문자까지 같게 참조하고 도시 안에서 중복될 수 없다. 같은 도시에서 `priority`도 중복될 수 없다.
   - 여러 태그 규칙이 맞으면 가장 큰 `priority` 하나를 적용하고, 맞는 규칙이 없으면 도시의 기본 비율을 적용한다. 배열 순서는 결과에 영향을 주지 않는다. `TableManager.TryGetCityTagPrice`가 도시·태그로 규칙을 조회하고 `CityPrice`가 도시 설정을 반환한다.
@@ -58,3 +59,5 @@
 
 ## 테이블이 아닌 JSON
 `Assets/Resources/LogData.json`은 분석 로그(JSONL)의 운영 설정(`enabled`·`bufferLines`·`retentionDays`)이다. 게임 규칙 수치가 아니라 기록 계통의 스위치라 따로 두며, `TableManager`가 아니라 `TelemetryLog`가 읽는다. 자세한 설명은 `Docs/TELEMETRY.md`.
+
+- 지도 정보는 기존 도시의 이름과 태그 가격 규칙을 표시한다. 방문 여부는 테이블에 저장하지 않으며 씬 로컬 세션이 시작 마을과 성공적으로 도착한 마을 ID를 기록한다. 실패한 이동은 해금하지 않는다. GameEvents.CityArrived는 도시 ID·이동 횟수·TelemetryLog 게임 시간을 전달하며 지도 Presenter가 구독한다. 지도 프리팹의 마을 ID와 노선 배치는 고정 7개 마을용이므로 마을 구성 변경 시 프리팹도 함께 수정한다.

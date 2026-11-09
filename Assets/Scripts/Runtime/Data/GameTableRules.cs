@@ -212,6 +212,7 @@ public sealed class GameTableRules
     {
         const string PATH = nameof(PuzzleRouteTableData);
         const string ROUTES_PATH = PATH + ".routes";
+        Check(_tables.PuzzleRoute.costPerCell >= 0, PATH + ".costPerCell", "칸당 이동 단가는 0 이상이어야 합니다.");
         var routes = _tables.PuzzleRoute.routes ?? Array.Empty<PuzzleRouteData>();
         var seen = new HashSet<(string From, string To)>();
         for (int i = 0; i < routes.Length; i++)
@@ -308,6 +309,8 @@ public sealed class GameTableRules
             Reference(rule.excludedTargetTag, path + ".excludedTargetTag", tags.Contains(rule.excludedTargetTag),
                 "제외 대상 태그", _allowEmpty: true);
             Reference(rule.neighborTag, path + ".neighborTag", tags.Contains(rule.neighborTag), "이웃 태그");
+            Reference(rule.excludedNeighborTag, path + ".excludedNeighborTag", tags.Contains(rule.excludedNeighborTag),
+                "제외 이웃 태그", _allowEmpty: true);
             Check(rule.scope is nameof(PuzzleSynergyScope.Train) or nameof(PuzzleSynergyScope.Market)
                 or nameof(PuzzleSynergyScope.Both), path + ".scope", "적용 범위는 Train, Market, Both 중 하나여야 합니다.");
             Check(rule.multiplierPercent > 0, path + ".multiplierPercent", "배율은 양의 정수 백분율이어야 합니다.");

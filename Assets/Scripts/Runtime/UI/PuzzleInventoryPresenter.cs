@@ -59,6 +59,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         trainView.Disabled += OnViewDisabled;
         marketView.Disabled += OnViewDisabled;
         cityView.Subscribe(OnPreviousCity, OnNextCity);
+        GameEvents.PanelVisibility += OnPanelVisibility;
     }
 
     void OnDisable()
@@ -95,6 +96,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             tooltipView.Close();
         }
         currentHoveredInstanceId = null;
+        GameEvents.PanelVisibility -= OnPanelVisibility;
         OnViewDisabled();
         initialized = false;
     }
@@ -102,6 +104,22 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
     void OnPreviousCity()
     {
         Travel(false);
+    }
+
+    void OnPanelVisibility(GameEvents.PanelInfo _info)
+    {
+        if (!_info.open || _info.panel != Presentation.PUZZLE_MAP_PANEL_NAME)
+        {
+            return;
+        }
+        hoverPosition = null;
+        currentHoveredInstanceId = null;
+        input.CancelCapture();
+        ClearDrag();
+        if (tooltipView)
+        {
+            tooltipView.Close();
+        }
     }
 
     void OnNextCity()
@@ -129,12 +147,18 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         ShowCurrentCity();
     }
 
+    // 기차 보유 칸이 바뀌면 노선 비용도 바뀐다. 이동 버튼의 금액은 항상 지금 배치 기준이다.
+    void RefreshTravelCosts()
+    {
+        cityView.ShowTravelCost(session.NextRouteCost(false), session.NextRouteCost(true));
+    }
+
     void ShowCurrentCity()
     {
         bool inProgress = session.RunStatus == PuzzleRunStatus.InProgress;
         cityView.ShowCity(session.CurrentCityName);
         cityView.ShowFunds(session.Funds);
-        cityView.ShowTravelCost(session.NextRouteCost(false), session.NextRouteCost(true));
+        RefreshTravelCosts();
         cityView.SetTravelEnabled(inProgress && session.CanTravel);
         cityView.ShowTradeStatus(inProgress
             ? Presentation.PUZZLE_TRADE_GUIDE
@@ -206,6 +230,8 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
                 {
                     RenderValues();
                     cityView.ShowFunds(session.Funds);
+                    // 구매·판매로 기차 점유 칸이 바뀌어 노선 비용이 달라진다.
+                    RefreshTravelCosts();
                 }
             }
         }

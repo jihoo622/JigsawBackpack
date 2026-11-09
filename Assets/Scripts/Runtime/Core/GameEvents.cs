@@ -10,6 +10,27 @@ using UnityEngine.SceneManagement;
 //   4) 페이로드는 struct로 불변 data only로 두고, 시간·좌표처럼 분석에 쓰는 값은 여기서 함께 보낸다.
 public static class GameEvents
 {
+    public readonly struct CityArrivalInfo
+    {
+        public readonly string cityId;
+        public readonly int moveCount;
+        public readonly double time;
+
+        public CityArrivalInfo(string _cityId, int _moveCount, double _time)
+        {
+            cityId = _cityId;
+            moveCount = _moveCount;
+            time = _time;
+        }
+    }
+
+    public static event Action<CityArrivalInfo> CityArrived;
+
+    public static void RaiseCityArrived(string _cityId, int _moveCount)
+    {
+        Emit(CityArrived, new CityArrivalInfo(_cityId, _moveCount, TelemetryLog.GameTime));
+    }
+
     // ── 페이로드 ──
     public readonly struct RunInfo
     {
@@ -146,6 +167,7 @@ public static class GameEvents
         UpgradeGranted = null;
         PanelVisibility = null;
         TradeCompleted = null;
+        CityArrived = null;
         sequence = 0;
         SceneManager.sceneLoaded -= OnSceneLoaded;
         hooked = false;

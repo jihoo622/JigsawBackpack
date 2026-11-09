@@ -14,6 +14,43 @@ public enum EffectCategory
 
 public static class Presentation
 {
+    public const string PUZZLE_MAP_TITLE = "교역 노선도";
+    public const string PUZZLE_MAP_PANEL_NAME = "PuzzleWorldMap";
+    public const string PUZZLE_MAP_OPEN = "지도";
+    public const string PUZZLE_MAP_CLOSE = "닫기";
+    public const string PUZZLE_MAP_GUIDE = "마을에 마우스를 올려 정보를 확인하세요. 방문하면 교역 정보가 기록됩니다.";
+    public const string PUZZLE_MAP_HINT = "마을을 가리켜 수집한 정보를 확인하세요.";
+    public static Color PuzzleMapCurrent => new(1f, 0.78f, 0.30f);
+    public static Color PuzzleMapVisited => new(0.34f, 0.86f, 0.72f);
+    public static Color PuzzleMapUnknown => new(0.40f, 0.46f, 0.55f);
+    public static Color PuzzleMapRoute => new(0.30f, 0.68f, 0.82f);
+
+    internal static string PuzzleMapNodeLabel(string _name, bool _visited, bool _current)
+    {
+        return _name + (_current ? "\n현재 위치" : _visited ? "\n방문 완료" : "\n미방문");
+    }
+
+    internal static string PuzzleMapInformation(PuzzleCityData _city, bool _visited)
+    {
+        string heading = $"<size=32><b>{_city.displayName}</b></size>";
+        if (!_visited)
+        {
+            return heading + "\n<size=20>미방문 · 정보 미수집</size>\n\n직접 방문하면 교역 정보가 기록됩니다.";
+        }
+        var rules = _city.tagPrices ?? Array.Empty<PuzzleCityTagPriceData>();
+        string common = string.Join(" · ", rules
+            .Where(rule => rule != null && rule.buyPercent < 100 && rule.sellPercent < 100)
+            .OrderBy(rule => rule.tag, StringComparer.Ordinal).Select(rule => PuzzleTagLabel(rule.tag)));
+        string rare = string.Join(" · ", rules
+            .Where(rule => rule != null && rule.buyPercent > 100 && rule.sellPercent > 100)
+            .OrderBy(rule => rule.tag, StringComparer.Ordinal).Select(rule => PuzzleTagLabel(rule.tag)));
+        string commonColor = ColorUtility.ToHtmlStringRGB(PuzzleMapVisited);
+        string rareColor = ColorUtility.ToHtmlStringRGB(PuzzleMapCurrent);
+        return heading + "  <size=20>방문 완료 · 교역 메모</size>\n\n" +
+            $"<color=#{commonColor}><b>흔한 자원</b></color>   {(string.IsNullOrEmpty(common) ? "없음" : common)}\n" +
+            $"<color=#{rareColor}><b>귀한 자원</b></color>   {(string.IsNullOrEmpty(rare) ? "없음" : rare)}";
+    }
+
     public static Color PuzzleItemIcon(float _alpha)
     {
         return new Color(1f, 1f, 1f, _alpha);
@@ -247,12 +284,14 @@ public static class Presentation
         };
     }
 
-    // 이동이 차단된 이유. 비용 부족은 패배가 아니라 상태 유지다.
+    // 이동이 차단된 이유. 비용 부족은 패배가 아니라 상태 유지고, 금액은 노선 기본값과 기차 보유 칸으로 갈린다.
     internal static string PuzzleTravelStatus(PuzzleTravelResult _result)
     {
         return _result.Failure switch
         {
-            PuzzleTravelFailure.InsufficientFunds => $"{PUZZLE_TRAVEL_COST} {_result.Cost:N0}이(가) 부족합니다",
+            PuzzleTravelFailure.InsufficientFunds => $"{PUZZLE_TRAVEL_COST} {_result.Cost:N0}"
+                + $"(노선 {_result.BaseCost:N0} + 보유 {_result.Cells}칸)이(가) 부족합니다",
+            PuzzleTravelFailure.CostOverflow => "보유 칸이 많아 이동 비용이 거래 한도를 초과합니다",
             PuzzleTravelFailure.MissingRoute => "두 도시를 잇는 노선이 없습니다",
             PuzzleTravelFailure.NotAvailable => "이동할 수 있는 도시가 없습니다",
             PuzzleTravelFailure.Blocked => "게임이 종료되었습니다",
