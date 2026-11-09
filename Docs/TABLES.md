@@ -34,7 +34,7 @@
 - `FlowTableData` — Preload → Title → Game 진행 경로(`scene`, `nextScene`, `restartScene`).
 - `PuzzleTableData`는 공용 화물 모양(`pieces`), 기차 보드(`train`), 도시 목록(`cities`)을 정의한다. 각 도시에는 고유한 `id`, 화면 이름인 `displayName`, 시장 보드(`market`)가 필요하다. 1단계의 루트 `market`은 시작 도시 항목의 `market`으로 옮겼다. 각 보드의 크기와 시작 배치는 `width`·`height`와 `startingPlacements`에 둔다.
   - `startCity`는 도시 ID를 참조한다. 이동 순서는 시작 도시 우선, 나머지는 ID 오름차순이며 이전·다음 버튼은 이 순서를 양방향으로 순환한다.
-  - `pieces`의 각 아이템 정의는 고유한 `id`, `displayName`, `description`, `tags`, `visualKey`, `slotCount`, `cells`를 가진다. 태그는 대소문자를 구분하며 한 아이템에서 중복될 수 없다. 현재 태그는 개발용 샘플이며 곡물 전용 `Grain`을 포함한다. 마을은 `city.a`~`city.g`(산림·농업·샘물·광산·공업·어촌·염전) 7개다. 시장은 각각 7×6, 생산 화물 3개이며 풍부 80/75%, 필요 120/110%의 임시 구매/판매 배율을 사용한다. 염전의 수요 태그는 `Machinery`다.
+  - `pieces`의 각 아이템 정의는 고유한 `id`, `displayName`, `description`, `tags`, `visualKey`, `slotCount`, `cells`를 가진다. 태그는 대소문자를 구분하며 한 아이템에서 중복될 수 없다. 현재 태그는 개발용 샘플이며 곡물 전용 `Grain`을 포함한다. 마을은 `city.a`~`city.g`(산림·농업·샘물·광산·공업·어촌·염전) 7개다. 시장은 각각 7×6, 고정 특산품 3개와 랜덤 일반 물품 4개이며 풍부 80/75%, 필요 120/110%의 임시 구매/판매 배율을 사용한다. 염전의 수요 태그는 `Machinery`다.
   - `visualKey`는 `PuzzleInventoryUI` 프리팹의 `itemIcons` 목록에 있는 스프라이트 키다. View 초기화 시 모든 아이템 정의의 참조를 확인한다. 등록된 키를 사용해 정의와 시작 배치를 추가하면 코드 변경 없이 표시할 수 있다.
   - `slotCount`는 `cells` 길이와 일치하고 슬롯은 상하좌우로 연결되어야 한다. 화물 로컬 좌표는 외접 사각형의 왼쪽 위 기준으로 오른쪽과 아래로 증가한다. `(0,0)`은 비어 있어도 된다. `north`, `east`, `south`, `west`는 모두 `Flat`이다. 셀 배열 순서는 배치나 아이콘 기준에 영향을 주지 않는다.
   - 시작 배치에는 기차와 모든 시장에서 고유한 `id`와 화물 종류를 가리키는 `pieceId`가 필요하다. `clockwiseTurns`는 시계방향 90도 회전 횟수로 0~3이다. `x`·`y`는 회전 후 외접 사각형의 왼쪽 위 기준점이며, 보드 좌표는 왼쪽 아래에서 오른쪽과 위로 증가한다. 회전한 슬롯 전체가 해당 보드 안에 있어야 하며 같은 보드의 배치끼리는 같은 칸을 점유할 수 없다.
@@ -61,3 +61,5 @@
 `Assets/Resources/LogData.json`은 분석 로그(JSONL)의 운영 설정(`enabled`·`bufferLines`·`retentionDays`)이다. 게임 규칙 수치가 아니라 기록 계통의 스위치라 따로 두며, `TableManager`가 아니라 `TelemetryLog`가 읽는다. 자세한 설명은 `Docs/TELEMETRY.md`.
 
 - 지도 정보는 기존 도시의 이름과 태그 가격 규칙을 표시한다. 방문 여부는 테이블에 저장하지 않으며 씬 로컬 세션이 시작 마을과 성공적으로 도착한 마을 ID를 기록한다. 실패한 이동은 해금하지 않는다. GameEvents.CityArrived는 도시 ID·이동 횟수·TelemetryLog 게임 시간을 전달하며 지도 Presenter가 구독한다. 지도 프리팹의 마을 ID와 노선 배치는 고정 7개 마을용이므로 마을 구성 변경 시 프리팹도 함께 수정한다.
+
+- 도시별 generalStock.pieceIds는 지역 특성에 맞춰 직접 지정한 중복 없는 일반 물품 후보(수요 물품도 허용)이고 slots는 배치 ID·왼쪽 위 좌표(x/y)·예약 영역(width/height)이다. 슬롯 수만큼 후보를 중복 허용하여 추첨하며 후보는 모든 슬롯에 회전 없이 들어가야 한다. 후보 참조·개수·ID 중복·격자 범위·특산품 및 슬롯 간 겹침을 검증한다. market.startingPlacements에는 고정 특산품만 둔다. 시장 최초 생성과 출발 시 재설정에 다시 추첨하며, 실행 중 전역 테이블은 변경하지 않는다.

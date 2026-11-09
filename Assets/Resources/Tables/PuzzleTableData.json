@@ -6,109 +6,270 @@
       "id": "piece.elbowLeft",
       "displayName": "왼쪽 모서리 상자",
       "description": "왼쪽으로 꺾인 세 칸 화물.",
-      "tags": ["Cargo", "Wood"],
+      "tags": [
+        "Cargo",
+        "Wood"
+      ],
       "visualKey": "cargo.elbowLeft",
       "slotCount": 3,
       "cells": [
-        { "x": 0, "y": 0, "north": "Flat", "east": "Flat", "south": "Flat", "west": "Flat" },
-        { "x": 0, "y": 1, "north": "Flat", "east": "Flat", "south": "Flat", "west": "Flat" },
-        { "x": 1, "y": 1, "north": "Flat", "east": "Flat", "south": "Flat", "west": "Flat" }
+        {
+          "x": 0,
+          "y": 0,
+          "north": "Flat",
+          "east": "Flat",
+          "south": "Flat",
+          "west": "Flat"
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "north": "Flat",
+          "east": "Flat",
+          "south": "Flat",
+          "west": "Flat"
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "north": "Flat",
+          "east": "Flat",
+          "south": "Flat",
+          "west": "Flat"
+        }
       ]
     },
     {
       "id": "piece.fourNotches",
       "displayName": "소형 상자",
       "description": "한 칸을 차지하는 소형 상자.",
-      "tags": ["Cargo", "Wood"],
+      "tags": [
+        "Cargo",
+        "Wood"
+      ],
       "visualKey": "cargo.smallCrate",
       "slotCount": 1,
       "cells": [
-        { "x": 0, "y": 0, "north": "Flat", "east": "Flat", "south": "Flat", "west": "Flat" }
+        {
+          "x": 0,
+          "y": 0,
+          "north": "Flat",
+          "east": "Flat",
+          "south": "Flat",
+          "west": "Flat"
+        }
       ]
     },
     {
       "id": "piece.topNotch",
       "displayName": "곡물 포대",
       "description": "한 칸을 차지하는 소형 포대.",
-      "tags": ["Food", "Supply", "Grain"],
+      "tags": [
+        "Food",
+        "Supply",
+        "Grain"
+      ],
       "visualKey": "cargo.grainSack",
       "slotCount": 1,
       "cells": [
-        { "x": 0, "y": 0, "north": "Flat", "east": "Flat", "south": "Flat", "west": "Flat" }
+        {
+          "x": 0,
+          "y": 0,
+          "north": "Flat",
+          "east": "Flat",
+          "south": "Flat",
+          "west": "Flat"
+        }
       ]
     },
     {
       "id": "piece.verticalPair",
       "displayName": "목재 묶음",
       "description": "세로로 두 칸을 차지하는 직사각형 화물.",
-      "tags": ["Cargo", "Wood"],
+      "tags": [
+        "Cargo",
+        "Wood"
+      ],
       "visualKey": "cargo.woodBundle",
       "slotCount": 2,
       "cells": [
-        { "x": 0, "y": 0, "north": "Flat", "east": "Flat", "south": "Flat", "west": "Flat" },
-        { "x": 0, "y": 1, "north": "Flat", "east": "Flat", "south": "Flat", "west": "Flat" }
+        {
+          "x": 0,
+          "y": 0,
+          "north": "Flat",
+          "east": "Flat",
+          "south": "Flat",
+          "west": "Flat"
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "north": "Flat",
+          "east": "Flat",
+          "south": "Flat",
+          "west": "Flat"
+        }
       ]
     },
     {
       "id": "piece.verticalTabs",
       "displayName": "물통",
       "description": "한 칸을 차지하는 소형 통.",
-      "tags": ["Supply", "Water"],
+      "tags": [
+        "Supply",
+        "Water"
+      ],
       "visualKey": "cargo.waterBarrel",
       "slotCount": 1,
       "cells": [
-        { "x": 0, "y": 0, "north": "Flat", "east": "Flat", "south": "Flat", "west": "Flat" }
+        {
+          "x": 0,
+          "y": 0,
+          "north": "Flat",
+          "east": "Flat",
+          "south": "Flat",
+          "west": "Flat"
+        }
       ]
     },
     {
       "id": "piece.uShape",
       "displayName": "기계 프레임",
       "description": "가운데 한 칸이 열린 U자형 다섯 칸 화물.",
-      "tags": ["Machinery", "Metal"],
+      "tags": [
+        "Machinery",
+        "Metal"
+      ],
       "visualKey": "cargo.machineFrame",
       "slotCount": 5,
       "cells": [
-        { "x": 0, "y": 0, "north": "Flat", "east": "Flat", "south": "Flat", "west": "Flat" },
-        { "x": 2, "y": 0, "north": "Flat", "east": "Flat", "south": "Flat", "west": "Flat" },
-        { "x": 0, "y": 1, "north": "Flat", "east": "Flat", "south": "Flat", "west": "Flat" },
-        { "x": 1, "y": 1, "north": "Flat", "east": "Flat", "south": "Flat", "west": "Flat" },
-        { "x": 2, "y": 1, "north": "Flat", "east": "Flat", "south": "Flat", "west": "Flat" }
+        {
+          "x": 0,
+          "y": 0,
+          "north": "Flat",
+          "east": "Flat",
+          "south": "Flat",
+          "west": "Flat"
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "north": "Flat",
+          "east": "Flat",
+          "south": "Flat",
+          "west": "Flat"
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "north": "Flat",
+          "east": "Flat",
+          "south": "Flat",
+          "west": "Flat"
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "north": "Flat",
+          "east": "Flat",
+          "south": "Flat",
+          "west": "Flat"
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "north": "Flat",
+          "east": "Flat",
+          "south": "Flat",
+          "west": "Flat"
+        }
       ]
     },
     {
       "id": "piece.elbowRight",
       "displayName": "공구 상자",
       "description": "오른쪽으로 꺾인 세 칸 화물.",
-      "tags": ["Cargo", "Metal"],
+      "tags": [
+        "Cargo",
+        "Metal"
+      ],
       "visualKey": "cargo.toolbox",
       "slotCount": 3,
       "cells": [
-        { "x": 1, "y": 0, "north": "Flat", "east": "Flat", "south": "Flat", "west": "Flat" },
-        { "x": 0, "y": 1, "north": "Flat", "east": "Flat", "south": "Flat", "west": "Flat" },
-        { "x": 1, "y": 1, "north": "Flat", "east": "Flat", "south": "Flat", "west": "Flat" }
+        {
+          "x": 1,
+          "y": 0,
+          "north": "Flat",
+          "east": "Flat",
+          "south": "Flat",
+          "west": "Flat"
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "north": "Flat",
+          "east": "Flat",
+          "south": "Flat",
+          "west": "Flat"
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "north": "Flat",
+          "east": "Flat",
+          "south": "Flat",
+          "west": "Flat"
+        }
       ]
     },
     {
       "id": "piece.fish",
       "displayName": "물고기",
       "description": "세로 두 칸을 차지하는 생선 화물.",
-      "tags": ["Food", "Fish"],
+      "tags": [
+        "Food",
+        "Fish"
+      ],
       "visualKey": "cargo.fish",
       "slotCount": 2,
       "cells": [
-        { "x": 0, "y": 0, "north": "Flat", "east": "Flat", "south": "Flat", "west": "Flat" },
-        { "x": 0, "y": 1, "north": "Flat", "east": "Flat", "south": "Flat", "west": "Flat" }
+        {
+          "x": 0,
+          "y": 0,
+          "north": "Flat",
+          "east": "Flat",
+          "south": "Flat",
+          "west": "Flat"
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "north": "Flat",
+          "east": "Flat",
+          "south": "Flat",
+          "west": "Flat"
+        }
       ]
     },
     {
       "id": "piece.saltSack",
       "displayName": "소금 자루",
       "description": "한 칸을 차지하는 소금 자루.",
-      "tags": ["Salt", "Supply"],
+      "tags": [
+        "Salt",
+        "Supply"
+      ],
       "visualKey": "cargo.saltSack",
       "slotCount": 1,
       "cells": [
-        { "x": 0, "y": 0, "north": "Flat", "east": "Flat", "south": "Flat", "west": "Flat" }
+        {
+          "x": 0,
+          "y": 0,
+          "north": "Flat",
+          "east": "Flat",
+          "south": "Flat",
+          "west": "Flat"
+        }
       ]
     }
   ],
@@ -116,372 +277,682 @@
     "width": 7,
     "height": 6,
     "startingPlacements": [
-      { "id": "sample.elbowLeft", "pieceId": "piece.elbowLeft", "x": 0, "y": 1, "clockwiseTurns": 0 },
-      { "id": "sample.elbowRight", "pieceId": "piece.elbowRight", "x": 3, "y": 1, "clockwiseTurns": 0 },
-      { "id": "sample.fourNotches", "pieceId": "piece.fourNotches", "x": 3, "y": 3, "clockwiseTurns": 0 },
-      { "id": "sample.topNotch", "pieceId": "piece.topNotch", "x": 2, "y": 0, "clockwiseTurns": 0 },
-      { "id": "sample.uShape", "pieceId": "piece.uShape", "x": 0, "y": 4, "clockwiseTurns": 0 },
-      { "id": "sample.verticalPair", "pieceId": "piece.verticalPair", "x": 3, "y": 4, "clockwiseTurns": 1 },
-      { "id": "sample.verticalPairSpare", "pieceId": "piece.verticalPair", "x": 5, "y": 3, "clockwiseTurns": 0 },
-      { "id": "sample.verticalTabs", "pieceId": "piece.verticalTabs", "x": 0, "y": 2, "clockwiseTurns": 0 }
+      {
+        "id": "sample.elbowLeft",
+        "pieceId": "piece.elbowLeft",
+        "x": 0,
+        "y": 1,
+        "clockwiseTurns": 0
+      },
+      {
+        "id": "sample.elbowRight",
+        "pieceId": "piece.elbowRight",
+        "x": 3,
+        "y": 1,
+        "clockwiseTurns": 0
+      },
+      {
+        "id": "sample.fourNotches",
+        "pieceId": "piece.fourNotches",
+        "x": 3,
+        "y": 3,
+        "clockwiseTurns": 0
+      },
+      {
+        "id": "sample.topNotch",
+        "pieceId": "piece.topNotch",
+        "x": 2,
+        "y": 0,
+        "clockwiseTurns": 0
+      },
+      {
+        "id": "sample.uShape",
+        "pieceId": "piece.uShape",
+        "x": 0,
+        "y": 4,
+        "clockwiseTurns": 0
+      },
+      {
+        "id": "sample.verticalPair",
+        "pieceId": "piece.verticalPair",
+        "x": 3,
+        "y": 4,
+        "clockwiseTurns": 1
+      },
+      {
+        "id": "sample.verticalPairSpare",
+        "pieceId": "piece.verticalPair",
+        "x": 5,
+        "y": 3,
+        "clockwiseTurns": 0
+      },
+      {
+        "id": "sample.verticalTabs",
+        "pieceId": "piece.verticalTabs",
+        "x": 0,
+        "y": 2,
+        "clockwiseTurns": 0
+      }
     ]
   },
   "startCity": "city.a",
   "cities": [
-  {
-    "id": "city.a",
-    "displayName": "산림 마을",
-    "buyEnabled": true,
-    "sellEnabled": true,
-    "buyPercentOfBaseValue": 100,
-    "sellPercentOfFinalValue": 100,
-    "tagPrices": [
-      {
-        "tag": "Wood",
-        "priority": 30,
-        "buyPercent": 80,
-        "sellPercent": 75
-      },
-      {
-        "tag": "Machinery",
-        "priority": 20,
-        "buyPercent": 120,
-        "sellPercent": 110
-      }
-    ],
-    "market": {
-      "width": 7,
-      "height": 6,
-      "startingPlacements": [
+    {
+      "id": "city.a",
+      "displayName": "산림 마을",
+      "buyEnabled": true,
+      "sellEnabled": true,
+      "buyPercentOfBaseValue": 100,
+      "sellPercentOfFinalValue": 100,
+      "tagPrices": [
         {
-          "id": "city.a.stock.1",
-          "pieceId": "piece.verticalPair",
-          "x": 0,
-          "y": 1,
-          "clockwiseTurns": 0
+          "tag": "Wood",
+          "priority": 30,
+          "buyPercent": 80,
+          "sellPercent": 75
         },
         {
-          "id": "city.a.stock.2",
-          "pieceId": "piece.elbowLeft",
-          "x": 2,
-          "y": 1,
-          "clockwiseTurns": 0
-        },
-        {
-          "id": "city.a.stock.3",
-          "pieceId": "piece.fourNotches",
-          "x": 4,
-          "y": 1,
-          "clockwiseTurns": 0
+          "tag": "Machinery",
+          "priority": 20,
+          "buyPercent": 120,
+          "sellPercent": 110
         }
-      ]
-    }
-  },
-  {
-    "id": "city.b",
-    "displayName": "농업 마을",
-    "buyEnabled": true,
-    "sellEnabled": true,
-    "buyPercentOfBaseValue": 100,
-    "sellPercentOfFinalValue": 100,
-    "tagPrices": [
-      {
-        "tag": "Grain",
-        "priority": 30,
-        "buyPercent": 80,
-        "sellPercent": 75
+      ],
+      "market": {
+        "width": 7,
+        "height": 6,
+        "startingPlacements": [
+          {
+            "id": "city.a.stock.1",
+            "pieceId": "piece.verticalPair",
+            "x": 0,
+            "y": 1,
+            "clockwiseTurns": 0
+          },
+          {
+            "id": "city.a.stock.2",
+            "pieceId": "piece.elbowLeft",
+            "x": 2,
+            "y": 1,
+            "clockwiseTurns": 0
+          },
+          {
+            "id": "city.a.stock.3",
+            "pieceId": "piece.fourNotches",
+            "x": 4,
+            "y": 1,
+            "clockwiseTurns": 0
+          }
+        ]
       },
-      {
-        "tag": "Water",
-        "priority": 20,
-        "buyPercent": 120,
-        "sellPercent": 110
+      "generalStock": {
+        "pieceIds": [
+          "piece.elbowRight",
+          "piece.topNotch",
+          "piece.verticalTabs"
+        ],
+        "slots": [
+          {
+            "id": "city.a.general.1",
+            "x": 0,
+            "y": 5,
+            "width": 3,
+            "height": 2
+          },
+          {
+            "id": "city.a.general.2",
+            "x": 4,
+            "y": 5,
+            "width": 3,
+            "height": 2
+          },
+          {
+            "id": "city.a.general.3",
+            "x": 0,
+            "y": 3,
+            "width": 3,
+            "height": 2
+          },
+          {
+            "id": "city.a.general.4",
+            "x": 4,
+            "y": 3,
+            "width": 3,
+            "height": 2
+          }
+        ]
       }
-    ],
-    "market": {
-      "width": 7,
-      "height": 6,
-      "startingPlacements": [
+    },
+    {
+      "id": "city.b",
+      "displayName": "농업 마을",
+      "buyEnabled": true,
+      "sellEnabled": true,
+      "buyPercentOfBaseValue": 100,
+      "sellPercentOfFinalValue": 100,
+      "tagPrices": [
         {
-          "id": "city.b.stock.1",
-          "pieceId": "piece.topNotch",
-          "x": 0,
-          "y": 1,
-          "clockwiseTurns": 0
+          "tag": "Grain",
+          "priority": 30,
+          "buyPercent": 80,
+          "sellPercent": 75
         },
         {
-          "id": "city.b.stock.2",
-          "pieceId": "piece.topNotch",
-          "x": 2,
-          "y": 1,
-          "clockwiseTurns": 0
-        },
-        {
-          "id": "city.b.stock.3",
-          "pieceId": "piece.topNotch",
-          "x": 4,
-          "y": 1,
-          "clockwiseTurns": 0
+          "tag": "Water",
+          "priority": 20,
+          "buyPercent": 120,
+          "sellPercent": 110
         }
-      ]
-    }
-  },
-  {
-    "id": "city.c",
-    "displayName": "샘물 마을",
-    "buyEnabled": true,
-    "sellEnabled": true,
-    "buyPercentOfBaseValue": 100,
-    "sellPercentOfFinalValue": 100,
-    "tagPrices": [
-      {
-        "tag": "Water",
-        "priority": 30,
-        "buyPercent": 80,
-        "sellPercent": 75
+      ],
+      "market": {
+        "width": 7,
+        "height": 6,
+        "startingPlacements": [
+          {
+            "id": "city.b.stock.1",
+            "pieceId": "piece.topNotch",
+            "x": 0,
+            "y": 1,
+            "clockwiseTurns": 0
+          },
+          {
+            "id": "city.b.stock.2",
+            "pieceId": "piece.topNotch",
+            "x": 2,
+            "y": 1,
+            "clockwiseTurns": 0
+          },
+          {
+            "id": "city.b.stock.3",
+            "pieceId": "piece.topNotch",
+            "x": 4,
+            "y": 1,
+            "clockwiseTurns": 0
+          }
+        ]
       },
-      {
-        "tag": "Machinery",
-        "priority": 20,
-        "buyPercent": 120,
-        "sellPercent": 110
+      "generalStock": {
+        "pieceIds": [
+          "piece.verticalPair",
+          "piece.elbowRight",
+          "piece.saltSack"
+        ],
+        "slots": [
+          {
+            "id": "city.b.general.1",
+            "x": 0,
+            "y": 5,
+            "width": 3,
+            "height": 2
+          },
+          {
+            "id": "city.b.general.2",
+            "x": 4,
+            "y": 5,
+            "width": 3,
+            "height": 2
+          },
+          {
+            "id": "city.b.general.3",
+            "x": 0,
+            "y": 3,
+            "width": 3,
+            "height": 2
+          },
+          {
+            "id": "city.b.general.4",
+            "x": 4,
+            "y": 3,
+            "width": 3,
+            "height": 2
+          }
+        ]
       }
-    ],
-    "market": {
-      "width": 7,
-      "height": 6,
-      "startingPlacements": [
+    },
+    {
+      "id": "city.c",
+      "displayName": "샘물 마을",
+      "buyEnabled": true,
+      "sellEnabled": true,
+      "buyPercentOfBaseValue": 100,
+      "sellPercentOfFinalValue": 100,
+      "tagPrices": [
         {
-          "id": "city.c.stock.1",
-          "pieceId": "piece.verticalTabs",
-          "x": 0,
-          "y": 1,
-          "clockwiseTurns": 0
+          "tag": "Water",
+          "priority": 30,
+          "buyPercent": 80,
+          "sellPercent": 75
         },
         {
-          "id": "city.c.stock.2",
-          "pieceId": "piece.verticalTabs",
-          "x": 2,
-          "y": 1,
-          "clockwiseTurns": 0
-        },
-        {
-          "id": "city.c.stock.3",
-          "pieceId": "piece.verticalTabs",
-          "x": 4,
-          "y": 1,
-          "clockwiseTurns": 0
+          "tag": "Machinery",
+          "priority": 20,
+          "buyPercent": 120,
+          "sellPercent": 110
         }
-      ]
-    }
-  },
-  {
-    "id": "city.d",
-    "displayName": "광산 마을",
-    "buyEnabled": true,
-    "sellEnabled": true,
-    "buyPercentOfBaseValue": 100,
-    "sellPercentOfFinalValue": 100,
-    "tagPrices": [
-      {
-        "tag": "Metal",
-        "priority": 30,
-        "buyPercent": 80,
-        "sellPercent": 75
+      ],
+      "market": {
+        "width": 7,
+        "height": 6,
+        "startingPlacements": [
+          {
+            "id": "city.c.stock.1",
+            "pieceId": "piece.verticalTabs",
+            "x": 0,
+            "y": 1,
+            "clockwiseTurns": 0
+          },
+          {
+            "id": "city.c.stock.2",
+            "pieceId": "piece.verticalTabs",
+            "x": 2,
+            "y": 1,
+            "clockwiseTurns": 0
+          },
+          {
+            "id": "city.c.stock.3",
+            "pieceId": "piece.verticalTabs",
+            "x": 4,
+            "y": 1,
+            "clockwiseTurns": 0
+          }
+        ]
       },
-      {
-        "tag": "Grain",
-        "priority": 20,
-        "buyPercent": 120,
-        "sellPercent": 110
-      },
-      {
-        "tag": "Water",
-        "priority": 19,
-        "buyPercent": 120,
-        "sellPercent": 110
+      "generalStock": {
+        "pieceIds": [
+          "piece.topNotch",
+          "piece.verticalPair",
+          "piece.elbowRight"
+        ],
+        "slots": [
+          {
+            "id": "city.c.general.1",
+            "x": 0,
+            "y": 5,
+            "width": 3,
+            "height": 2
+          },
+          {
+            "id": "city.c.general.2",
+            "x": 4,
+            "y": 5,
+            "width": 3,
+            "height": 2
+          },
+          {
+            "id": "city.c.general.3",
+            "x": 0,
+            "y": 3,
+            "width": 3,
+            "height": 2
+          },
+          {
+            "id": "city.c.general.4",
+            "x": 4,
+            "y": 3,
+            "width": 3,
+            "height": 2
+          }
+        ]
       }
-    ],
-    "market": {
-      "width": 7,
-      "height": 6,
-      "startingPlacements": [
+    },
+    {
+      "id": "city.d",
+      "displayName": "광산 마을",
+      "buyEnabled": true,
+      "sellEnabled": true,
+      "buyPercentOfBaseValue": 100,
+      "sellPercentOfFinalValue": 100,
+      "tagPrices": [
         {
-          "id": "city.d.stock.1",
-          "pieceId": "piece.elbowRight",
-          "x": 0,
-          "y": 1,
-          "clockwiseTurns": 0
+          "tag": "Metal",
+          "priority": 30,
+          "buyPercent": 80,
+          "sellPercent": 75
         },
         {
-          "id": "city.d.stock.2",
-          "pieceId": "piece.elbowRight",
-          "x": 2,
-          "y": 1,
-          "clockwiseTurns": 0
+          "tag": "Grain",
+          "priority": 20,
+          "buyPercent": 120,
+          "sellPercent": 110
         },
         {
-          "id": "city.d.stock.3",
-          "pieceId": "piece.elbowRight",
-          "x": 4,
-          "y": 1,
-          "clockwiseTurns": 0
+          "tag": "Water",
+          "priority": 19,
+          "buyPercent": 120,
+          "sellPercent": 110
         }
-      ]
-    }
-  },
-  {
-    "id": "city.e",
-    "displayName": "공업 마을",
-    "buyEnabled": true,
-    "sellEnabled": true,
-    "buyPercentOfBaseValue": 100,
-    "sellPercentOfFinalValue": 100,
-    "tagPrices": [
-      {
-        "tag": "Machinery",
-        "priority": 30,
-        "buyPercent": 80,
-        "sellPercent": 75
+      ],
+      "market": {
+        "width": 7,
+        "height": 6,
+        "startingPlacements": [
+          {
+            "id": "city.d.stock.1",
+            "pieceId": "piece.elbowRight",
+            "x": 0,
+            "y": 1,
+            "clockwiseTurns": 0
+          },
+          {
+            "id": "city.d.stock.2",
+            "pieceId": "piece.elbowRight",
+            "x": 2,
+            "y": 1,
+            "clockwiseTurns": 0
+          },
+          {
+            "id": "city.d.stock.3",
+            "pieceId": "piece.elbowRight",
+            "x": 4,
+            "y": 1,
+            "clockwiseTurns": 0
+          }
+        ]
       },
-      {
-        "tag": "Wood",
-        "priority": 20,
-        "buyPercent": 120,
-        "sellPercent": 110
-      },
-      {
-        "tag": "Metal",
-        "priority": 19,
-        "buyPercent": 120,
-        "sellPercent": 110
+      "generalStock": {
+        "pieceIds": [
+          "piece.elbowRight",
+          "piece.verticalPair",
+          "piece.topNotch",
+          "piece.verticalTabs"
+        ],
+        "slots": [
+          {
+            "id": "city.d.general.1",
+            "x": 0,
+            "y": 5,
+            "width": 3,
+            "height": 2
+          },
+          {
+            "id": "city.d.general.2",
+            "x": 4,
+            "y": 5,
+            "width": 3,
+            "height": 2
+          },
+          {
+            "id": "city.d.general.3",
+            "x": 0,
+            "y": 3,
+            "width": 3,
+            "height": 2
+          },
+          {
+            "id": "city.d.general.4",
+            "x": 4,
+            "y": 3,
+            "width": 3,
+            "height": 2
+          }
+        ]
       }
-    ],
-    "market": {
-      "width": 7,
-      "height": 6,
-      "startingPlacements": [
+    },
+    {
+      "id": "city.e",
+      "displayName": "공업 마을",
+      "buyEnabled": true,
+      "sellEnabled": true,
+      "buyPercentOfBaseValue": 100,
+      "sellPercentOfFinalValue": 100,
+      "tagPrices": [
         {
-          "id": "city.e.stock.1",
-          "pieceId": "piece.uShape",
-          "x": 0,
-          "y": 1,
-          "clockwiseTurns": 0
+          "tag": "Machinery",
+          "priority": 30,
+          "buyPercent": 80,
+          "sellPercent": 75
         },
         {
-          "id": "city.e.stock.2",
-          "pieceId": "piece.uShape",
-          "x": 4,
-          "y": 1,
-          "clockwiseTurns": 0
+          "tag": "Wood",
+          "priority": 20,
+          "buyPercent": 120,
+          "sellPercent": 110
         },
         {
-          "id": "city.e.stock.3",
-          "pieceId": "piece.uShape",
-          "x": 0,
-          "y": 3,
-          "clockwiseTurns": 0
+          "tag": "Metal",
+          "priority": 19,
+          "buyPercent": 120,
+          "sellPercent": 110
         }
-      ]
-    }
-  },
-  {
-    "id": "city.f",
-    "displayName": "어촌 마을",
-    "buyEnabled": true,
-    "sellEnabled": true,
-    "buyPercentOfBaseValue": 100,
-    "sellPercentOfFinalValue": 100,
-    "tagPrices": [
-      {
-        "tag": "Fish",
-        "priority": 30,
-        "buyPercent": 80,
-        "sellPercent": 75
+      ],
+      "market": {
+        "width": 7,
+        "height": 6,
+        "startingPlacements": [
+          {
+            "id": "city.e.stock.1",
+            "pieceId": "piece.uShape",
+            "x": 0,
+            "y": 1,
+            "clockwiseTurns": 0
+          },
+          {
+            "id": "city.e.stock.2",
+            "pieceId": "piece.uShape",
+            "x": 4,
+            "y": 1,
+            "clockwiseTurns": 0
+          },
+          {
+            "id": "city.e.stock.3",
+            "pieceId": "piece.uShape",
+            "x": 0,
+            "y": 3,
+            "clockwiseTurns": 0
+          }
+        ]
       },
-      {
-        "tag": "Salt",
-        "priority": 20,
-        "buyPercent": 120,
-        "sellPercent": 110
+      "generalStock": {
+        "pieceIds": [
+          "piece.elbowRight",
+          "piece.verticalPair",
+          "piece.verticalTabs"
+        ],
+        "slots": [
+          {
+            "id": "city.e.general.1",
+            "x": 0,
+            "y": 5,
+            "width": 2,
+            "height": 2
+          },
+          {
+            "id": "city.e.general.2",
+            "x": 2,
+            "y": 5,
+            "width": 2,
+            "height": 2
+          },
+          {
+            "id": "city.e.general.3",
+            "x": 4,
+            "y": 5,
+            "width": 2,
+            "height": 2
+          },
+          {
+            "id": "city.e.general.4",
+            "x": 4,
+            "y": 3,
+            "width": 3,
+            "height": 2
+          }
+        ]
       }
-    ],
-    "market": {
-      "width": 7,
-      "height": 6,
-      "startingPlacements": [
+    },
+    {
+      "id": "city.f",
+      "displayName": "어촌 마을",
+      "buyEnabled": true,
+      "sellEnabled": true,
+      "buyPercentOfBaseValue": 100,
+      "sellPercentOfFinalValue": 100,
+      "tagPrices": [
         {
-          "id": "city.f.stock.1",
-          "pieceId": "piece.fish",
-          "x": 0,
-          "y": 1,
-          "clockwiseTurns": 0
+          "tag": "Fish",
+          "priority": 30,
+          "buyPercent": 80,
+          "sellPercent": 75
         },
         {
-          "id": "city.f.stock.2",
-          "pieceId": "piece.fish",
-          "x": 2,
-          "y": 1,
-          "clockwiseTurns": 0
-        },
-        {
-          "id": "city.f.stock.3",
-          "pieceId": "piece.fish",
-          "x": 4,
-          "y": 1,
-          "clockwiseTurns": 0
+          "tag": "Salt",
+          "priority": 20,
+          "buyPercent": 120,
+          "sellPercent": 110
         }
-      ]
-    }
-  },
-  {
-    "id": "city.g",
-    "displayName": "염전 마을",
-    "buyEnabled": true,
-    "sellEnabled": true,
-    "buyPercentOfBaseValue": 100,
-    "sellPercentOfFinalValue": 100,
-    "tagPrices": [
-      {
-        "tag": "Salt",
-        "priority": 30,
-        "buyPercent": 80,
-        "sellPercent": 75
+      ],
+      "market": {
+        "width": 7,
+        "height": 6,
+        "startingPlacements": [
+          {
+            "id": "city.f.stock.1",
+            "pieceId": "piece.fish",
+            "x": 0,
+            "y": 1,
+            "clockwiseTurns": 0
+          },
+          {
+            "id": "city.f.stock.2",
+            "pieceId": "piece.fish",
+            "x": 2,
+            "y": 1,
+            "clockwiseTurns": 0
+          },
+          {
+            "id": "city.f.stock.3",
+            "pieceId": "piece.fish",
+            "x": 4,
+            "y": 1,
+            "clockwiseTurns": 0
+          }
+        ]
       },
-      {
-        "tag": "Machinery",
-        "priority": 20,
-        "buyPercent": 120,
-        "sellPercent": 110
+      "generalStock": {
+        "pieceIds": [
+          "piece.verticalPair",
+          "piece.verticalTabs",
+          "piece.saltSack",
+          "piece.topNotch"
+        ],
+        "slots": [
+          {
+            "id": "city.f.general.1",
+            "x": 0,
+            "y": 5,
+            "width": 3,
+            "height": 2
+          },
+          {
+            "id": "city.f.general.2",
+            "x": 4,
+            "y": 5,
+            "width": 3,
+            "height": 2
+          },
+          {
+            "id": "city.f.general.3",
+            "x": 0,
+            "y": 3,
+            "width": 3,
+            "height": 2
+          },
+          {
+            "id": "city.f.general.4",
+            "x": 4,
+            "y": 3,
+            "width": 3,
+            "height": 2
+          }
+        ]
       }
-    ],
-    "market": {
-      "width": 7,
-      "height": 6,
-      "startingPlacements": [
+    },
+    {
+      "id": "city.g",
+      "displayName": "염전 마을",
+      "buyEnabled": true,
+      "sellEnabled": true,
+      "buyPercentOfBaseValue": 100,
+      "sellPercentOfFinalValue": 100,
+      "tagPrices": [
         {
-          "id": "city.g.stock.1",
-          "pieceId": "piece.saltSack",
-          "x": 0,
-          "y": 1,
-          "clockwiseTurns": 0
+          "tag": "Salt",
+          "priority": 30,
+          "buyPercent": 80,
+          "sellPercent": 75
         },
         {
-          "id": "city.g.stock.2",
-          "pieceId": "piece.saltSack",
-          "x": 2,
-          "y": 1,
-          "clockwiseTurns": 0
-        },
-        {
-          "id": "city.g.stock.3",
-          "pieceId": "piece.saltSack",
-          "x": 4,
-          "y": 1,
-          "clockwiseTurns": 0
+          "tag": "Machinery",
+          "priority": 20,
+          "buyPercent": 120,
+          "sellPercent": 110
         }
-      ]
+      ],
+      "market": {
+        "width": 7,
+        "height": 6,
+        "startingPlacements": [
+          {
+            "id": "city.g.stock.1",
+            "pieceId": "piece.saltSack",
+            "x": 0,
+            "y": 1,
+            "clockwiseTurns": 0
+          },
+          {
+            "id": "city.g.stock.2",
+            "pieceId": "piece.saltSack",
+            "x": 2,
+            "y": 1,
+            "clockwiseTurns": 0
+          },
+          {
+            "id": "city.g.stock.3",
+            "pieceId": "piece.saltSack",
+            "x": 4,
+            "y": 1,
+            "clockwiseTurns": 0
+          }
+        ]
+      },
+      "generalStock": {
+        "pieceIds": [
+          "piece.elbowRight",
+          "piece.verticalPair",
+          "piece.verticalTabs",
+          "piece.topNotch"
+        ],
+        "slots": [
+          {
+            "id": "city.g.general.1",
+            "x": 0,
+            "y": 5,
+            "width": 3,
+            "height": 2
+          },
+          {
+            "id": "city.g.general.2",
+            "x": 4,
+            "y": 5,
+            "width": 3,
+            "height": 2
+          },
+          {
+            "id": "city.g.general.3",
+            "x": 0,
+            "y": 3,
+            "width": 3,
+            "height": 2
+          },
+          {
+            "id": "city.g.general.4",
+            "x": 4,
+            "y": 3,
+            "width": 3,
+            "height": 2
+          }
+        ]
+      }
     }
-  }
-]
+  ]
 }
