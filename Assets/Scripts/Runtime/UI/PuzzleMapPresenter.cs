@@ -19,6 +19,7 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
         {
             node.Hovered += ShowCity;
             node.Exited += ClearInformation;
+            node.Clicked += OnNodeClicked;
         }
         GameEvents.CityArrived += OnCityArrived;
         Refresh();
@@ -32,6 +33,7 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
         {
             node.Hovered -= ShowCity;
             node.Exited -= ClearInformation;
+            node.Clicked -= OnNodeClicked;
         }
         GameEvents.CityArrived -= OnCityArrived;
         view.Close();
@@ -56,21 +58,84 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
 
     void Refresh()
     {
+        view.ShowGuide(Presentation.PuzzleMapGuide(session.TravelTurns));
+        string currentCityId = session.CurrentCityId;
         foreach (var node in view.Nodes)
         {
-            node.Show(TableManager.Instance.CityPrice(node.CityId), session.HasVisitedCity(node.CityId),
-                session.CurrentCityId == node.CityId);
+            string cityId = node.CityId;
+            bool isCurrent = string.Equals(cityId, currentCityId, System.StringComparison.Ordinal);
+            bool isConnected = false;
+            bool canAfford = false;
+            if (!isCurrent)
+            {
+                isConnected = TableManager.Instance.HasRoute(currentCityId, cityId);
+                if (isConnected)
+                {
+                    var eval = session.EvaluateTravel(cityId);
+                    canAfford = eval.IsSuccess;
+                }
+            }
+
+            node.Show(TableManager.Instance.CityPrice(cityId),
+                session.HasVisitedCity(cityId),
+                isCurrent,
+                isConnected,
+                canAfford);
         }
     }
 
     void ShowCity(string _cityId)
     {
-        view.ShowInformation(Presentation.PuzzleMapInformation(TableManager.Instance.CityPrice(_cityId),
-            session.HasVisitedCity(_cityId)));
+        string currentCityId = session.CurrentCityId;
+        bool isCurrent = string.Equals(_cityId, currentCityId, System.StringComparison.Ordinal);
+        bool isConnected = false;
+        PuzzleTravelResult eval = default;
+        if (!isCurrent)
+        {
+            isConnected = TableManager.Instance.HasRoute(currentCityId, _cityId);
+            if (isConnected)
+            {
+                eval = session.EvaluateTravel(_cityId);
+            }
+        }
+
+        view.ShowInformation(Presentation.PuzzleMapInformation(
+            TableManager.Instance.CityPrice(_cityId),
+            session.HasVisitedCity(_cityId),
+            isCurrent,
+            isConnected,
+            eval,
+            session.TravelTurns));
     }
 
     void ClearInformation()
     {
         view.ShowInformation(Presentation.PUZZLE_MAP_HINT);
+    }
+
+    void OnNodeClicked(string _cityId)
+    {
+        if (!view.IsOpen || session.RunStatus != PuzzleRunStatus.InProgress ||
+            string.Equals(_cityId, session.CurrentCityId, System.StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        var eval = session.EvaluateTravel(_cityId);
+        if (!eval.IsSuccess)
+        {
+            view.ShowInformation(Presentation.PuzzleTravelStatus(eval));
+            return;
+        }
+
+        var travelResult = session.Travel(_cityId);
+        if (travelResult.IsSuccess)
+        {
+            view.Close();
+        }
+        else
+        {
+            view.ShowInformation(Presentation.PuzzleTravelStatus(travelResult));
+        }
     }
 }

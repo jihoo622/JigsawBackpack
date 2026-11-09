@@ -33,7 +33,7 @@
 - `GameplayTableData` — 템플릿의 `player` 수치와 `sequence`/`upgrades` 샘플.
 - `FlowTableData` — Preload → Title → Game 진행 경로(`scene`, `nextScene`, `restartScene`).
 - `PuzzleTableData`는 공용 화물 모양(`pieces`), 기차 보드(`train`), 도시 목록(`cities`)을 정의한다. 각 도시에는 고유한 `id`, 화면 이름인 `displayName`, 시장 보드(`market`)가 필요하다. 1단계의 루트 `market`은 시작 도시 항목의 `market`으로 옮겼다. 각 보드의 크기와 시작 배치는 `width`·`height`와 `startingPlacements`에 둔다.
-  - `startCity`는 도시 ID를 참조한다. 이동 순서는 시작 도시 우선, 나머지는 ID 오름차순이며 이전·다음 버튼은 이 순서를 양방향으로 순환한다.
+  - `startCity`는 시작 도시 ID를 참조한다. 세션 시작 시 현재 도시로 설정되며, 이동은 노선 방향 그래프를 따라 이루어진다.
   - `pieces`의 각 아이템 정의는 고유한 `id`, `displayName`, `description`, `tags`, `visualKey`, `slotCount`, `cells`를 가진다. 태그는 대소문자를 구분하며 한 아이템에서 중복될 수 없다. 현재 태그는 개발용 샘플이며 곡물 전용 `Grain`을 포함한다. 마을은 `city.a`~`city.g`(산림·농업·샘물·광산·공업·어촌·염전) 7개다. 시장은 각각 7×6, 고정 특산품 3개와 랜덤 일반 물품 4개이며 풍부 80/75%, 필요 120/110%의 임시 구매/판매 배율을 사용한다. 염전의 수요 태그는 `Machinery`다.
   - `visualKey`는 `PuzzleInventoryUI` 프리팹의 `itemIcons` 목록에 있는 스프라이트 키다. View 초기화 시 모든 아이템 정의의 참조를 확인한다. 등록된 키를 사용해 정의와 시작 배치를 추가하면 코드 변경 없이 표시할 수 있다.
   - `slotCount`는 `cells` 길이와 일치하고 슬롯은 상하좌우로 연결되어야 한다. 화물 로컬 좌표는 외접 사각형의 왼쪽 위 기준으로 오른쪽과 아래로 증가한다. `(0,0)`은 비어 있어도 된다. `north`, `east`, `south`, `west`는 모두 `Flat`이다. 셀 배열 순서는 배치나 아이콘 기준에 영향을 주지 않는다.
@@ -45,9 +45,9 @@
   - 규칙은 ID 오름차순으로 평가한다. 100%를 넘는 배율의 초과분은 기본 가치 기준으로 합산한다. 120% 규칙 두 개가 적용되면 기본 가치의 140%가 된다. 그 뒤 100% 미만인 배율을 각각 곱한다. 80% 배율의 이웃 두 개는 증가 반영 가치의 64%를 남긴다. 상세 정보는 이웃별 증가와 감소를 표시한다.
   - 인접 관계는 배치·회전·거래 때 다시 계산하지만 인스턴스의 실제 가치를 즉시 바꾸지 않는다. 도시 이동 한 번이 확정될 때 기차 인스턴스마다 기존 계산 결과에서 기본 가치를 뺀 변화량을 실제 가치에 누적한다. 같은 이웃 인스턴스가 여러 면으로 닿아도 한 번만 계산하며, 실제 가치는 보드 이동과 도시 재방문에도 유지된다. 반올림·최솟값·상한은 아직 정하지 않았다.
 - `PuzzleTradeTableData`는 0 이상의 정수 `startingFunds`만 정의한다. 도시별 거래 설정은 `PuzzleTableData.cities`의 각 도시 항목이 가진다.
-- `PuzzleRouteTableData`는 도시 간 노선과 이동 비용의 원본이다. `routes`의 각 행은 `PuzzleTableData.cities`의 `id`를 참조하는 `fromCityId`·`toCityId`와 0 이상의 정수 `cost`를 가진다. 방향이 다르면 별개 노선이며 같은 방향의 중복 행, 자기 자신으로의 노선, 미등록 도시 참조, 음수 또는 누락된 비용은 테이블 오류다. 순환 이동(시작 도시 우선, ID 오름차순)에서 맞닿는 두 도시의 `from→to`와 `to→from`은 둘 다 있어야 하며 없으면 테이블 오류다. `TableManager.TryGetRoute`·`HasRoute`가 출발·도착 도시로 조회하고 모르는 키에는 기본값을 주지 않는다.
-  - 실제 차감액은 **`cost + 기차의 점유 칸 수 × costPerCell`**이다. `costPerCell`은 0 이상의 정수 칸당 단가(누락 판별은 `-1`)이고, 칸 수는 출발 직전 기차 보드의 점유 칸(`PuzzleInventory.OccupiedCells`)에서 읽는다. 시장 점유 칸은 넣지 않고, 0이면 보유량과 무관한 정액 노선이다. 곱과 합의 오버플로는 `PuzzleInventoryService.TryTravelCost`가 `CostOverflow`로 막는다.
-  - 이동 비용은 출발 직전에 차감한다. 현재 자금이 비용보다 적으면 이동이 차단되고 도시·턴·시장·기차 가치·자금이 모두 그대로 남는다(패배가 아니다). 빚은 도착 후에 차감하므로 같은 이동에서 비용이 먼저, 빚이 나중이다. 이전·다음 버튼 문구에는 `Presentation.PuzzleCityButton`이 붙인 목적지 노선 비용(총액)이 표시되고, 기차 구매·판매로 점유 칸이 바뀌면 즉시 다시 갱신한다. 노선이 없거나 게임이 종료되면 비용 없이 이름만 표시하고, 부족 문구에는 노선 기본액과 보유 칸이 함께 나온다. 처리 순서와 계약은 `Docs/노선 비용과 시장 초기화 구현 계획.md`.
+- `PuzzleRouteTableData`는 도시 간 노선과 이동 비용의 원본이다. `travelTurns`는 노선 이동에 소모되는 턴 수이며 현재 계약은 1이다(누락 판별은 `-1`). `routes`의 각 행은 `PuzzleTableData.cities`의 `id`를 참조하는 `fromCityId`·`toCityId`와 0 이상의 정수 `cost`를 가진다. 방향이 다르면 별개 노선이며 같은 방향의 중복 행, 자기 자신으로의 노선, 미등록 도시 참조, 음수 또는 누락된 비용은 테이블 오류다. 노선은 방향 그래프로 구성되며 시작 도시에서 모든 도시로 도달할 수 있어야 한다(미도달 도시가 있으면 테이블 오류). 순환 이동 강제는 없으며 그래프 순환(사이클)은 허용된다. `city.b`(농업) ↔ `city.f`(어촌) 양방향 직결 노선(각 cost 6)이 포함되며 기존 A↔C 및 링 간선도 유지된다. `TableManager.TryGetRoute`·`HasRoute`가 개별 노선을 조회하고, `TableManager.RoutesFrom(cityId)`가 출발 도시 기준 도착 도시 ID 오름차순 정렬된 노선 목록을 제공한다.
+  - 실제 차감액은 **`cost + 기차의 모든 화물칸 점유 칸 수 합계 × costPerCell`**이다. `costPerCell`은 0 이상의 정수 칸당 단가(누락 판별은 `-1`)이고, 칸 수는 출발 직전 `PuzzleInventoryService.TotalTrainOccupiedCells`에서 읽는다. 선택 중인 화물칸만 계산하지 않으며 시장 점유 칸은 넣지 않는다. 0이면 보유량과 무관한 정액 노선이다. 곱과 합의 오버플로는 `PuzzleInventoryService.TryTravelCost`가 `CostOverflow`로 막는다.
+  - 이동 비용은 출발 직전에 차감한다. 현재 자금이 비용보다 적으면 이동이 차단되고 도시·턴·시장·기차 가치·자금이 모두 그대로 남는다(패배가 아니다). 빚은 도착 후에 차감하므로 같은 이동에서 비용이 먼저, 빚이 나중이다. 이동은 목적지 도시 ID를 인자로 받는 `EvaluateTravel(toCityId)`와 `Travel(toCityId)`를 통해 평가·확정된다. 노선이 없거나 게임이 종료되면 이동이 차단되고 적절한 실패 원인을 반환한다.
 - 각 도시의 `buyEnabled`·`sellEnabled`가 거래 가능 여부를 정한다. `buyPercentOfBaseValue`·`sellPercentOfFinalValue`는 태그 규칙이 없는 아이템에 적용하는 명시적 기본 비율이며 둘 다 양의 정수다.
   - `tagPrices`의 각 행은 `tag`, 고유한 `priority`, 양의 정수 `buyPercent`·`sellPercent`를 가진다. 태그는 아이템 정의의 태그를 대소문자까지 같게 참조하고 도시 안에서 중복될 수 없다. 같은 도시에서 `priority`도 중복될 수 없다.
   - 여러 태그 규칙이 맞으면 가장 큰 `priority` 하나를 적용하고, 맞는 규칙이 없으면 도시의 기본 비율을 적용한다. 배열 순서는 결과에 영향을 주지 않는다. `TableManager.TryGetCityTagPrice`가 도시·태그로 규칙을 조회하고 `CityPrice`가 도시 설정을 반환한다.
@@ -55,7 +55,7 @@
   - 시장 보드 위에는 현재 도시의 `tagPrices`를 구매·판매 비율 기준으로 요약한다. 두 비율 모두 100 초과인 태그는 `귀함`, 둘 다 100 미만인 태그는 `흔함`으로 표시하고, 100을 사이에 두고 갈리거나 한쪽이 100이면 표시하지 않는다. 시장 보드의 종합 가치 텍스트는 쓰지 않는다.
   - 시장에서 기차로 옮기면 구매, 기차에서 현재 시장으로 옮기면 판매다. 같은 보드 안의 배치 변경은 무료다. 거래가 확정되면 씬 로컬 세션에서 소속과 자금을 함께 갱신한다.
 - `PuzzleTurnTableData`는 양의 정수 `debtInterval`과 차감 일정 `debtPayments`를 정의한다. 각 행의 양의 정수 `moveCount`는 고유하며 `amount`는 양의 정수다. 마지막 차감 시점은 주기와 행 수의 곱이다. 첫 주기부터 마지막 차감까지 모든 시점이 한 번씩 있어야 하며, `TableManager.DebtSchedule`은 이동 횟수 오름차순으로 제공한다.
-  - 씬 로컬 `PuzzleInventoryService`가 자금·이동 횟수·납부 횟수·진행 상태를 보유한다. 자금 시작값은 `PuzzleTradeTableData.startingFunds`에서 읽는다. 유효한 도시 이동 한 번이 턴 하나를 확정하고, 차감 시점마다 빚을 도착 후에 한 번 차감한다(노선 비용은 그보다 앞선 출발 직전에 차감한다). 차감 전 자금이 부족하면 도착·턴·가치 변화를 반영한 뒤 패배하며, 마지막 빚을 전액 갚으면 잔액이 0이어도 승리한다. 종료 후 이동·거래·회전은 차단된다.
+  - 씬 로컬 `PuzzleInventoryService`가 자금·이동 횟수·납부 횟수·진행 상태를 보유한다. 자금 시작값은 `PuzzleTradeTableData.startingFunds`에서 읽는다. 유효한 직결 이동 한 번이 1턴을 확정한다. 빚 차감·승패 코드는 현재 주석 처리돼 실행되지 않으며 그래프 도입에서도 비활성 상태를 유지한다. 기존 빚 계약은 도착 후 정산, 부족 시 패배, 마지막 납부 완료 시 승리이며 재활성화는 별도 작업이다.
 
 ## 테이블이 아닌 JSON
 `Assets/Resources/LogData.json`은 분석 로그(JSONL)의 운영 설정(`enabled`·`bufferLines`·`retentionDays`)이다. 게임 규칙 수치가 아니라 기록 계통의 스위치라 따로 두며, `TableManager`가 아니라 `TelemetryLog`가 읽는다. 자세한 설명은 `Docs/TELEMETRY.md`.

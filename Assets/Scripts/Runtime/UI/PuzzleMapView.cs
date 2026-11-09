@@ -22,11 +22,25 @@ public sealed class PuzzleMapView : PanelBase
         closeLabel.text = Presentation.PUZZLE_MAP_CLOSE;
         title.color = guide.color = information.color = openLabel.color = closeLabel.color = Presentation.PuzzleHeading;
         background.color = Presentation.PuzzleBackground;
-        foreach (var line in routeLines)
+        if (routeLines != null)
         {
-            line.color = Presentation.PuzzleMapRoute;
+            foreach (var line in routeLines)
+            {
+                if (line)
+                {
+                    line.color = Presentation.PuzzleMapRoute;
+                }
+            }
         }
         base.Awake();
+    }
+
+    internal void ShowGuide(string _text)
+    {
+        if (guide)
+        {
+            guide.text = _text;
+        }
     }
 
     internal void ShowInformation(string _text)

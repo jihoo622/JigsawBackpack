@@ -44,6 +44,7 @@ public sealed class TableManager
     readonly Dictionary<string, PuzzleCityData> cities;
     readonly Dictionary<string, Dictionary<string, PuzzleCityTagPriceData>> cityTagPrices;
     readonly Dictionary<string, Dictionary<string, PuzzleRouteData>> routes;
+    readonly Dictionary<string, IReadOnlyList<PuzzleRouteData>> routesFrom;
 
     TableManager()
     {
@@ -65,6 +66,7 @@ public sealed class TableManager
         cities = rules.Index(Puzzle.cities, e => e.id, "PuzzleTableData.cities");
         cityTagPrices = IndexCityTagPrices(Puzzle.cities);
         routes = IndexRoutes(PuzzleRoute.routes);
+        routesFrom = IndexRoutesFrom(routes);
         var synergyRules = rules.Index(PuzzleSynergy.rules, e => e.id, "PuzzleSynergyTableData.rules");
         SynergyRules = Array.AsReadOnly(synergyRules.Values.OrderBy(entry => entry.id, StringComparer.Ordinal).ToArray());
         Pieces = Array.AsReadOnly(pieces.Values.OrderBy(entry => entry.id, StringComparer.Ordinal).ToArray());
@@ -238,6 +240,20 @@ public sealed class TableManager
         return result;
     }
 
+    static Dictionary<string, IReadOnlyList<PuzzleRouteData>> IndexRoutesFrom(
+        Dictionary<string, Dictionary<string, PuzzleRouteData>> _routes)
+    {
+        var result = new Dictionary<string, IReadOnlyList<PuzzleRouteData>>(StringComparer.Ordinal);
+        foreach (var pair in _routes)
+        {
+            var sorted = pair.Value.Values
+                .OrderBy(route => route.toCityId, StringComparer.Ordinal)
+                .ToArray();
+            result.Add(pair.Key, Array.AsReadOnly(sorted));
+        }
+        return result;
+    }
+
     internal bool TryGetRoute(string _fromCityId, string _toCityId, out PuzzleRouteData _route)
     {
         if (!string.IsNullOrEmpty(_fromCityId) && !string.IsNullOrEmpty(_toCityId) &&
@@ -253,6 +269,16 @@ public sealed class TableManager
     internal bool HasRoute(string _fromCityId, string _toCityId)
     {
         return TryGetRoute(_fromCityId, _toCityId, out _);
+    }
+
+    internal IReadOnlyList<PuzzleRouteData> RoutesFrom(string _cityId)
+    {
+        if (!string.IsNullOrEmpty(_cityId) && routesFrom.TryGetValue(_cityId, out var list))
+        {
+            return list;
+        }
+
+        return Array.Empty<PuzzleRouteData>();
     }
 
     public bool TryGetScene(string _scene, out SceneLinkData _link)

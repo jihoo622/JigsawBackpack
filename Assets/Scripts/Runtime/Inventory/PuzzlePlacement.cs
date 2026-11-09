@@ -10,7 +10,8 @@ public enum PuzzlePlacementFailure
     InvalidGrabbedCell,
     InvalidRotation,
     CellOutsideBoard,
-    CellOccupied
+    CellOccupied,
+    NoSpace
 }
 
 public readonly struct PuzzleCell

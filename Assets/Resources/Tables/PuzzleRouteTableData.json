@@ -1,6 +1,7 @@
 {
   "status": "sample",
-  "note": "노선과 이동 비용의 원본. 차감액은 노선 cost + 기차의 점유 칸 수 × costPerCell이며 출발 직전 배치로 계산한다. fromCityId에서 toCityId로 떠나는 순간 비용을 차감하며 방향이 다르면 별개 노선이다. 순환 이동(시작 도시 우선, ID 오름차순)에서 맞닿는 도시는 두 방향을 모두 정의해야 한다. 비용 부족은 이동 차단이고 패배가 아니다. 7개 마을 확장 노선의 비용은 기존 C→A 6, A→C 3을 임시로 재사용하며 밸런스는 미확정이다.",
+  "note": "방향 그래프 노선과 이동 비용의 원본. 각 연결 이동은 travelTurns(1턴)를 소모하며 차감액은 노선 cost + 기차의 점유 칸 수 × costPerCell이다. fromCityId에서 toCityId로 떠나는 순간 비용을 차감하며 방향이 다르면 별개 노선이다. 시작 도시에서 모든 도시로 도달할 수 있어야 한다. 비용 부족은 이동 차단이고 패배가 아니다.",
+  "travelTurns": 1,
   "costPerCell": 1,
   "routes": [
     { "fromCityId": "city.a", "toCityId": "city.b", "cost": 4 },
@@ -9,6 +10,8 @@
     { "fromCityId": "city.a", "toCityId": "city.c", "cost": 3 },
     { "fromCityId": "city.c", "toCityId": "city.b", "cost": 5 },
     { "fromCityId": "city.b", "toCityId": "city.a", "cost": 4 },
+    { "fromCityId": "city.b", "toCityId": "city.f", "cost": 6 },
+    { "fromCityId": "city.f", "toCityId": "city.b", "cost": 6 },
     { "fromCityId": "city.c", "toCityId": "city.d", "cost": 6 },
     { "fromCityId": "city.d", "toCityId": "city.c", "cost": 3 },
     { "fromCityId": "city.d", "toCityId": "city.e", "cost": 6 },

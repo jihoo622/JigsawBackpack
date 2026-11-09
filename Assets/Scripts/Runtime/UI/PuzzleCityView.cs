@@ -1,6 +1,5 @@
 using System;
 using UnityEngine;
-using UnityEngine.Events;
 using UnityEngine.UI;
 using TMPro;
 
@@ -15,7 +14,7 @@ public sealed class PuzzleCityView : MonoBehaviour
     [SerializeField] TextMeshProUGUI funds;
     [SerializeField] TextMeshProUGUI tradeStatus;
 
-    internal void Initialize(bool _canTravel)
+    internal void Initialize(bool _canTravel = false)
     {
         if (!cityName || !cityName.font || !previousButton || !previousButton.targetGraphic ||
             !nextButton || !nextButton.targetGraphic || previousButton == nextButton ||
@@ -27,44 +26,17 @@ public sealed class PuzzleCityView : MonoBehaviour
 
         cityName.color = previousLabel.color = nextLabel.color = Presentation.PuzzleHeading;
         funds.color = tradeStatus.color = Presentation.PuzzleHeading;
-        ShowTravelCost(null, null);
         previousButton.colors = nextButton.colors = Presentation.PuzzleCityButtonColors;
         previousButton.interactable = nextButton.interactable = _canTravel;
-    }
 
-    internal void Subscribe(UnityAction _previous, UnityAction _next)
-    {
-        previousButton.onClick.AddListener(_previous);
-        nextButton.onClick.AddListener(_next);
-    }
-
-    internal void Unsubscribe(UnityAction _previous, UnityAction _next)
-    {
-        if (previousButton)
-        {
-            previousButton.onClick.RemoveListener(_previous);
-        }
-        if (nextButton)
-        {
-            nextButton.onClick.RemoveListener(_next);
-        }
+        // 지도를 통한 그래프 이동으로 통합하여 구 링 이동 버튼은 비활성화/숨김 처리한다.
+        previousButton.gameObject.SetActive(false);
+        nextButton.gameObject.SetActive(false);
     }
 
     internal void ShowCity(string _name)
     {
         cityName.text = _name;
-    }
-
-    // 이동 버튼에 목적지 노선의 비용을 함께 표시한다. 비용이 없으면(종료·노선 누락) 이름만 쓴다.
-    internal void ShowTravelCost(long? _previousCost, long? _nextCost)
-    {
-        previousLabel.text = Presentation.PuzzleCityButton(Presentation.PUZZLE_PREVIOUS_CITY, _previousCost);
-        nextLabel.text = Presentation.PuzzleCityButton(Presentation.PUZZLE_NEXT_CITY, _nextCost);
-    }
-
-    internal void SetTravelEnabled(bool _enabled)
-    {
-        previousButton.interactable = nextButton.interactable = _enabled;
     }
 
     internal void ShowFunds(long _funds)

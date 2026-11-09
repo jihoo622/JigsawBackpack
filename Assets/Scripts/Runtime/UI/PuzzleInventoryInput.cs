@@ -14,12 +14,14 @@ public sealed class PuzzleInventoryInput : MonoBehaviour, IPointerDownHandler, I
     InputActionAsset inputActions;
     InputAction rotate;
     InputAction cancel;
+    InputAction quickTransferModifier;
     int? pointerId;
     int? hoveredPointerId;
     bool navigationSuppressed;
     bool previousNavigation;
 
     internal event Action<PointerEventData> Pressed;
+    internal event Action<PointerEventData> QuickTransferRequested;
     internal event Action<PointerEventData> Dragged;
     internal event Action<PointerEventData> Released;
     internal event Action Rotated;
@@ -39,15 +41,17 @@ public sealed class PuzzleInventoryInput : MonoBehaviour, IPointerDownHandler, I
         inputActions = Instantiate(uiInputModule.actionsAsset);
         rotate = inputActions.FindAction("PuzzleInventory/Rotate");
         cancel = inputActions.FindAction("PuzzleInventory/Cancel");
-        if (rotate == null || cancel == null)
+        quickTransferModifier = inputActions.FindAction("PuzzleInventory/QuickTransferModifier");
+        if (rotate == null || cancel == null || quickTransferModifier == null)
         {
-            Debug.LogError("PuzzleInventory 액션 맵에 Rotate와 Cancel이 필요합니다.", this);
+            Debug.LogError("PuzzleInventory 액션 맵에 Rotate, Cancel, QuickTransferModifier가 필요합니다.", this);
             enabled = false;
             return;
         }
 
         rotate.performed += OnRotate;
         cancel.performed += OnCancel;
+        quickTransferModifier.Enable();
     }
 
     void OnDisable()
@@ -65,12 +69,14 @@ public sealed class PuzzleInventoryInput : MonoBehaviour, IPointerDownHandler, I
         }
         if (inputActions)
         {
+            inputActions.Disable();
             Destroy(inputActions);
         }
 
         inputActions = null;
         rotate = null;
         cancel = null;
+        quickTransferModifier = null;
     }
 
     void LateUpdate()
@@ -126,6 +132,11 @@ public sealed class PuzzleInventoryInput : MonoBehaviour, IPointerDownHandler, I
     {
         if (!pointerId.HasValue && _eventData.button == PointerEventData.InputButton.Left)
         {
+            if (quickTransferModifier != null && quickTransferModifier.IsPressed())
+            {
+                QuickTransferRequested?.Invoke(_eventData);
+                return;
+            }
             Pressed?.Invoke(_eventData);
         }
     }
