@@ -61,7 +61,7 @@ public sealed class PuzzleInventoryView : MonoBehaviour
         var parentCanvas = GetComponentInParent<Canvas>();
         if (!parentCanvas || !board || !boardTitle || !boardTitle.font || !boardValue || !boardValue.font ||
             !moveGuide || !moveGuide.font ||
-            !itemDetails || !itemDetails.font ||
+
             !flatTriangle || boardCells == null || boardCells.Distinct().Count() != boardCells.Length ||
             boardCells.Any(image => !image || image.rectTransform.parent != board.rectTransform) ||
             !increaseArrow || !decreaseArrow || synergyArrows == null ||
@@ -104,7 +104,11 @@ public sealed class PuzzleInventoryView : MonoBehaviour
         }
 
         board.color = Presentation.PuzzleBackground;
-        boardTitle.color = boardValue.color = moveGuide.color = itemDetails.color = Presentation.PuzzleHeading;
+        boardTitle.color = boardValue.color = moveGuide.color = Presentation.PuzzleHeading;
+        if (itemDetails)
+        {
+            itemDetails.gameObject.SetActive(false);
+        }
         boardTitle.text = _title;
         moveGuide.text = Presentation.PUZZLE_MOVE_GUIDE;
         ShowItemDetails(null, default, default, default);
@@ -255,12 +259,38 @@ public sealed class PuzzleInventoryView : MonoBehaviour
         }
 
         int index = _start;
+        var min = _pose.Cells[0].Position;
+        var max = min;
+        var originalMin = _pose.Cells[0].OriginalCell;
+        var originalMax = originalMin;
+        foreach (var cell in _pose.Cells)
+        {
+            min = Vector2Int.Min(min, cell.Position);
+            max = Vector2Int.Max(max, cell.Position);
+            originalMin = Vector2Int.Min(originalMin, cell.OriginalCell);
+            originalMax = Vector2Int.Max(originalMax, cell.OriginalCell);
+        }
+        Vector2 iconOffset = ((Vector2)min + max) * 0.5f - (Vector2)_pose.Cells[0].Position;
+        Vector2 iconSize = (Vector2)(originalMax - originalMin + Vector2Int.one);
         foreach (var cell in _pose.Cells)
         {
             int hiddenEdges = GetHiddenEdges(cell.Position);
             _slots[index].Show(GetCellCenter(cell.Position) + _offset, cellSize, _color, hiddenEdges,
-                index == _start ? _icon : null);
+                index == _start ? _icon : null, iconOffset, iconSize, _pose.ClockwiseTurns);
             index++;
+        }
+        if (_icon && index > _start)
+        {
+            var first = _slots[_start].transform;
+            if (_slots == placementSlots && synergyArrows.Length > 0)
+            {
+                int arrowIndex = synergyArrows[0].transform.GetSiblingIndex();
+                first.SetSiblingIndex(first.GetSiblingIndex() < arrowIndex ? arrowIndex - 1 : arrowIndex);
+            }
+            else if (_slots == ghostSlots)
+            {
+                first.SetAsLastSibling();
+            }
         }
         return index;
     }
@@ -284,7 +314,10 @@ public sealed class PuzzleInventoryView : MonoBehaviour
     internal void ShowItemDetails(PuzzleItemDefinition _item, PuzzleValue _value, decimal _actualValue,
         PuzzleTradeRate _rate)
     {
-        itemDetails.text = Presentation.PuzzleItemDetails(_item, _value, _actualValue, _rate);
+        if (itemDetails)
+        {
+            itemDetails.text = Presentation.PuzzleItemDetails(_item, _value, _actualValue, _rate);
+        }
     }
 
     void OnDisable()

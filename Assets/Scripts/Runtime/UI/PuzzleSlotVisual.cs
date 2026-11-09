@@ -38,7 +38,8 @@ public sealed class PuzzleSlotVisual : MonoBehaviour
         fillSprites = _fillSprites;
     }
 
-    internal void Show(Vector2 _center, float _cellSize, Color _color, int _hiddenEdges, Sprite _icon)
+    internal void Show(Vector2 _center, float _cellSize, Color _color, int _hiddenEdges, Sprite _icon,
+        Vector2 _iconOffset, Vector2 _iconSize, int _clockwiseTurns)
     {
         Rect.localPosition = _center;
         Rect.localScale = Vector3.one * (_cellSize / Rect.rect.width);
@@ -66,7 +67,11 @@ public sealed class PuzzleSlotVisual : MonoBehaviour
 
         itemIcon.sprite = _icon;
         itemIcon.enabled = hasFill && _icon;
-        itemIcon.color = outlineColor;
+        itemIcon.preserveAspect = false;
+        itemIcon.color = Presentation.PuzzleItemIcon(_color.a);
+        itemIcon.rectTransform.localPosition = _iconOffset * Rect.rect.width;
+        itemIcon.rectTransform.sizeDelta = _iconSize * Rect.rect.width;
+        itemIcon.rectTransform.localRotation = Quaternion.Euler(0f, 0f, -90f * _clockwiseTurns);
         gameObject.SetActive(true);
     }
 

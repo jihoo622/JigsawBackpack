@@ -14,6 +14,10 @@ public enum EffectCategory
 
 public static class Presentation
 {
+    public static Color PuzzleItemIcon(float _alpha)
+    {
+        return new Color(1f, 1f, 1f, _alpha);
+    }
     public static Color PuzzleSynergyArrow => UnityEngine.Color.white;
     public const string PUZZLE_TRAIN_TITLE = "Train Inventory";
     public const string PUZZLE_MARKET_TITLE = "Market Inventory";
@@ -27,7 +31,7 @@ public static class Presentation
     static readonly Dictionary<string, string> PUZZLE_TAG_LABELS = new Dictionary<string, string>
     {
         { "Cargo", "상자" },
-        { "Wood", "나무" },
+        { "Wood", "목재" },
         { "Food", "음식" },
         { "Supply", "보급품" },
         { "Water", "물" },
@@ -43,6 +47,46 @@ public static class Presentation
     public static Color PuzzlePiece => UnityEngine.Color.white;
     public static Color PuzzleGhost => new(1f, 1f, 1f, 0.42f);
     public static Color PuzzleMoveTarget => new(0.53f, 0.79f, 1f);
+
+    public static Color PuzzleTooltipHeaderBackground => new Color32(176, 180, 184, 255);
+    public static Color PuzzleTooltipBodyBackground => new Color32(214, 216, 218, 255);
+    public static Color PuzzleTooltipDivider => new Color32(30, 30, 30, 255);
+    public static Color PuzzleTooltipText => new Color32(30, 30, 30, 255);
+    public static Color PuzzleTooltipGold => new Color32(159, 163, 72, 255);
+    public static Color PuzzleTooltipGreen => new Color32(31, 158, 61, 255);
+    public static Color PuzzleTooltipRed => new Color32(192, 57, 43, 255);
+
+    internal static string PuzzleTooltipActualValue(decimal _actualValue)
+    {
+        return $"<color=#{ColorUtility.ToHtmlStringRGB(PuzzleTooltipText)}>실제 가치 : </color><color=#{ColorUtility.ToHtmlStringRGB(PuzzleTooltipGold)}>$ {_actualValue:#,0.##}</color>";
+    }
+
+    internal static string PuzzleTooltipSellRate(int _percent)
+    {
+        return $"<color=#{ColorUtility.ToHtmlStringRGB(PuzzleTooltipText)}>판매 배율 : </color><color=#{ColorUtility.ToHtmlStringRGB(PuzzleTooltipGreen)}>{_percent}%</color>";
+    }
+
+    internal static string PuzzleTooltipBuyRate(int _percent)
+    {
+        return $"<color=#{ColorUtility.ToHtmlStringRGB(PuzzleTooltipText)}>구매 배율 : </color><color=#{ColorUtility.ToHtmlStringRGB(PuzzleTooltipRed)}>{_percent}%</color>";
+    }
+
+    internal static string PuzzleTooltipSynergyHeader()
+    {
+        return $"<color=#{ColorUtility.ToHtmlStringRGB(PuzzleTooltipText)}>적용 중인 시너지 목록</color>";
+    }
+
+    internal static string PuzzleTooltipSynergyBonus(string _neighborName, decimal _percent)
+    {
+        string sign = _percent >= 0 ? "+" : string.Empty;
+        Color color = _percent >= 0 ? PuzzleTooltipGreen : PuzzleTooltipRed;
+        return $"<color=#{ColorUtility.ToHtmlStringRGB(PuzzleTooltipText)}>• {_neighborName} : </color><color=#{ColorUtility.ToHtmlStringRGB(color)}>{sign}{_percent:#,0.##}%</color>";
+    }
+
+    internal static string PuzzleTooltipNoSynergy()
+    {
+        return $"<color=#{ColorUtility.ToHtmlStringRGB(PuzzleTooltipText)}>• 적용 중인 시너지 없음</color>";
+    }
 
     internal static string PuzzleValueText(PuzzleValue _value)
     {
@@ -118,9 +162,63 @@ public static class Presentation
         return string.Join("    ", parts);
     }
 
-    static string PuzzleTagLabel(string _tag)
+    public static string PuzzleTagLabel(string _tag)
     {
+        if (string.IsNullOrEmpty(_tag))
+        {
+            return string.Empty;
+        }
         return PUZZLE_TAG_LABELS.TryGetValue(_tag, out string label) ? label : _tag;
+    }
+
+    public static Color PuzzleTagBackgroundColor(string _tag)
+    {
+        return (_tag ?? string.Empty).ToLowerInvariant() switch
+        {
+            "wood" => new Color32(141, 90, 48, 255),       // 목재: 팔레트같은 따뜻한 브라운
+            "metal" => new Color32(84, 110, 122, 255),     // 금속: 메탈릭 스틸 슬레이트
+            "machinery" => new Color32(180, 83, 9, 255),   // 기계: 산업용 앰버/브론즈
+            "food" => new Color32(217, 119, 6, 255),       // 식품/음식: 수확 웜 오렌지
+            "fish" => new Color32(2, 132, 199, 255),       // 물고기/수산물: 딥 오션 블루
+            "water" => new Color32(14, 165, 233, 255),     // 물/식수: 맑은 아쿠아 블루
+            "salt" => new Color32(100, 116, 139, 255),     // 소금: 미네랄 실버 슬레이트
+            "supply" => new Color32(22, 163, 74, 255),     // 보급품: 포레스트 그린
+            "cargo" => new Color32(141, 110, 99, 255),     // 화물/상자: 가죽/카톤 브라운
+            _ => new Color32(71, 85, 105, 255)
+        };
+    }
+
+    public static Color PuzzleTagTextColor(string _tag)
+    {
+        // 다크/미디엄 톤 테마 배경 위에서 선명하게 읽히는 흰색
+        return new Color32(255, 255, 255, 255);
+    }
+
+    public static IReadOnlyList<string> PrioritizeTags(IEnumerable<string> _tags)
+    {
+        if (_tags == null)
+        {
+            return Array.Empty<string>();
+        }
+
+        return _tags.OrderBy(tag => GetTagSortWeight(tag)).ThenBy(tag => tag, StringComparer.Ordinal).ToArray();
+    }
+
+    static int GetTagSortWeight(string _tag)
+    {
+        return (_tag ?? string.Empty).ToLowerInvariant() switch
+        {
+            "wood" => 1,
+            "machinery" => 2,
+            "metal" => 3,
+            "fish" => 4,
+            "food" => 5,
+            "water" => 6,
+            "salt" => 7,
+            "supply" => 20,
+            "cargo" => 21,
+            _ => 10
+        };
     }
 
     internal static string PuzzleRunStatusText(PuzzleRunStatus _status)

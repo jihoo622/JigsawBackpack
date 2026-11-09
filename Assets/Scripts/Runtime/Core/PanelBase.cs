@@ -13,6 +13,8 @@ public abstract class PanelBase : MonoBehaviour
     [SerializeField] bool startOpen;
     [SerializeField] GameObject root;          // 비어 있으면 이 gameObject를 사용
 
+    bool changingState;
+
     public bool IsOpen { get; private set; }
     public string PanelName
     {
@@ -53,9 +55,14 @@ public abstract class PanelBase : MonoBehaviour
         {
             root = gameObject;
         }
-        IsOpen = false;
-        Root.SetActive(startOpen);
+        if (changingState)
+        {
+            return;
+        }
         IsOpen = startOpen;
+        changingState = true;
+        Root.SetActive(startOpen);
+        changingState = false;
         if (startOpen)
         {
             OnShow();
@@ -69,14 +76,17 @@ public abstract class PanelBase : MonoBehaviour
     protected virtual void OnEnable()
     {
         Active = true;
-        SetOpenQuiet(IsOpen);
+        if (!changingState)
+        {
+            SetOpenQuiet(IsOpen);
+        }
     }
 
     // 꺼질 때 정리: 열린 상태·대기 타이머·구독을 남기지 않는다.
     protected virtual void OnDisable()
     {
         Active = false;
-        if (IsOpen)
+        if (!changingState && IsOpen)
         {
             Close();
         }
@@ -96,13 +106,19 @@ public abstract class PanelBase : MonoBehaviour
 
     bool SetOpen(bool _open, bool _quiet)
     {
+        if (!root)
+        {
+            root = gameObject;
+        }
         if (_open && !CanOpen)
         {
             _open = false;
         }
-        bool changed = IsOpen != _open;
-        Root.SetActive(_open);
+        bool changed = IsOpen != _open || Root.activeSelf != _open;
         IsOpen = _open;
+        changingState = true;
+        Root.SetActive(_open);
+        changingState = false;
         if (!changed && !_quiet)
         {
             return true;

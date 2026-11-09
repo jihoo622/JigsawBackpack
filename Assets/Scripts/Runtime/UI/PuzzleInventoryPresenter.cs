@@ -7,6 +7,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
     [SerializeField] PuzzleInventoryView trainView;
     [SerializeField] PuzzleInventoryView marketView;
     [SerializeField] PuzzleCityView cityView;
+    [SerializeField] PuzzleItemTooltipView tooltipView;
 
     PuzzleInventoryInput input;
     PuzzleInventoryService session;
@@ -14,6 +15,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
     PuzzleInventoryView dragView;
     Vector2 pointerPosition;
     Vector2? hoverPosition;
+    int? currentHoveredInstanceId;
     bool initialized;
 
     void OnEnable()
@@ -25,6 +27,15 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             Debug.LogError("화물 인벤토리 Presenter에는 Input과 하위의 기차·시장·도시 View가 필요합니다.", this);
             enabled = false;
             return;
+        }
+
+        if (!tooltipView)
+        {
+            tooltipView = GetComponentInChildren<PuzzleItemTooltipView>(true);
+            if (!tooltipView)
+            {
+                tooltipView = transform.root.GetComponentInChildren<PuzzleItemTooltipView>(true);
+            }
         }
 
         session = SceneServices.For<PuzzleInventoryService>(gameObject.scene);
@@ -79,6 +90,11 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             input.Hovered -= OnHovered;
             input.HoverEnded -= OnHoverEnded;
         }
+        if (tooltipView)
+        {
+            tooltipView.Close();
+        }
+        currentHoveredInstanceId = null;
         OnViewDisabled();
         initialized = false;
     }
@@ -133,6 +149,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         }
 
         var position = _eventData.position;
+        hoverPosition = position;
         if (!TryGetBoard(position, out var sourceView, out var source, out var boardCell) ||
             !source.TryGetCell(boardCell, out var placement, out var cell))
         {
@@ -143,6 +160,11 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         cityView.ShowTradeStatus(Presentation.PUZZLE_TRADE_GUIDE);
         pointerPosition = position;
         input.CapturePointer(_eventData.pointerId);
+        currentHoveredInstanceId = null;
+        if (tooltipView)
+        {
+            tooltipView.Close();
+        }
         RenderBoards();
         ShowItemDetails(sourceView, placement);
         RefreshDrag();
@@ -151,6 +173,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
     void OnDragged(PointerEventData _eventData)
     {
         pointerPosition = _eventData.position;
+        hoverPosition = _eventData.position;
         RefreshDrag();
     }
 
@@ -167,6 +190,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
 
     void OnReleased(PointerEventData _eventData)
     {
+        hoverPosition = _eventData.position;
         var activeDrag = drag;
         PuzzleDropResult result = default;
         try
@@ -259,47 +283,104 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
 
     void OnHovered(Vector2 _position)
     {
-        if (hoverPosition != _position)
+        hoverPosition = _position;
+        if (drag != null)
         {
-            hoverPosition = _position;
-            RefreshHover();
+            return;
+        }
+
+        if (TryGetBoard(_position, out var view, out var board, out var boardCell) &&
+            board.TryGetCell(boardCell, out var placement, out _))
+        {
+            bool tooltipClosed = tooltipView && (!tooltipView.IsOpen || !tooltipView.gameObject.activeInHierarchy);
+            if (currentHoveredInstanceId != placement.InstanceId || tooltipClosed)
+            {
+                currentHoveredInstanceId = placement.InstanceId;
+                RenderBoards(placement.InstanceId);
+                ShowItemDetails(view, placement, _position);
+            }
+            else if (tooltipView)
+            {
+                tooltipView.SetPointerPosition(_position);
+            }
+            return;
+        }
+
+        if (currentHoveredInstanceId.HasValue || (tooltipView && tooltipView.IsOpen))
+        {
+            currentHoveredInstanceId = null;
+            RenderBoards();
+            ShowItemDetails(null, null);
         }
     }
 
     void OnHoverEnded()
     {
-        if (hoverPosition.HasValue)
-        {
-            hoverPosition = null;
-            RefreshHover();
-        }
+        hoverPosition = null;
+        currentHoveredInstanceId = null;
+        RenderBoards();
+        ShowItemDetails(null, null);
     }
 
     void RefreshHover()
     {
         if (drag != null)
         {
+            currentHoveredInstanceId = null;
+            if (tooltipView)
+            {
+                tooltipView.Close();
+            }
             return;
         }
 
         if (hoverPosition is Vector2 position && TryGetBoard(position, out var view, out var board, out var boardCell) &&
             board.TryGetCell(boardCell, out var placement, out _))
         {
+            currentHoveredInstanceId = placement.InstanceId;
             RenderBoards(placement.InstanceId);
-            ShowItemDetails(view, placement);
+            ShowItemDetails(view, placement, position);
             return;
         }
 
+        currentHoveredInstanceId = null;
         RenderBoards();
         ShowItemDetails(null, null);
     }
 
-    void ShowItemDetails(PuzzleInventoryView _view, PuzzlePlacement _placement)
+    void ShowItemDetails(PuzzleInventoryView _view, PuzzlePlacement _placement, Vector2? _position = null)
     {
-        var item = _placement?.Definition;
-        var value = _placement == null ? default : _placement.Owner.ValueOf(_placement.InstanceId);
-        decimal actualValue = _placement?.ActualValue ?? default;
+        if (_placement == null)
+        {
+            currentHoveredInstanceId = null;
+            if (tooltipView)
+            {
+                tooltipView.Close();
+            }
+            if (trainView)
+            {
+                trainView.ShowItemDetails(null, default, default, default);
+            }
+            if (marketView)
+            {
+                marketView.ShowItemDetails(null, default, default, default);
+            }
+            return;
+        }
+
+        var item = _placement.Definition;
+        var value = _placement.Owner.ValueOf(_placement.InstanceId);
+        bool isTrain = _view == trainView || _placement.Owner == session.Train;
+        decimal actualValue = isTrain ? _placement.ActualValue : _placement.Definition.BaseValue;
         var rate = item == null ? default : session.RateFor(item);
+        var bonuses = isTrain ? value.SynergyBonuses : null;
+
+        if (tooltipView && drag == null && (_position.HasValue || hoverPosition.HasValue))
+        {
+            Vector2 pos = _position ?? hoverPosition.Value;
+            tooltipView.Show(item, actualValue, rate, bonuses, pos);
+        }
+
         if (trainView)
         {
             trainView.ShowItemDetails(_view == trainView ? item : null, value, actualValue, rate);

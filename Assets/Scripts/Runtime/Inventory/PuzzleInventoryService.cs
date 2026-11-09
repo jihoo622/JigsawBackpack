@@ -140,7 +140,7 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         var rate = RateFor(city, _original.Definition);
         int percent = rate.PercentFor(direction);
         string tag = rate.Tag;
-        if (!TryGetTradePrice(buying ? _original.Definition.BaseValue : source.ValueOf(_original.InstanceId).FinalValue,
+        if (!TryGetTradePrice(buying ? _original.Definition.BaseValue : _original.ActualValue,
             percent, out long price))
         {
             return new PuzzleDropResult(placement, direction, _tradeFailure: PuzzleTradeFailure.PriceOverflow,
