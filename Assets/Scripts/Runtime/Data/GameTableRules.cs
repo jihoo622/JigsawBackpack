@@ -216,6 +216,7 @@ public sealed class GameTableRules
         const string ROUTES_PATH = PATH + ".routes";
         Check(_tables.PuzzleRoute.travelTurns == 1, PATH + ".travelTurns", "이동 턴 수는 1이어야 합니다.");
         Check(_tables.PuzzleRoute.costPerCell >= 0, PATH + ".costPerCell", "칸당 이동 단가는 0 이상이어야 합니다.");
+        Check(_tables.PuzzleRoute.costPerDistance >= 0, PATH + ".costPerDistance", "거리당 이동 단가는 0 이상이어야 합니다.");
         var routes = _tables.PuzzleRoute.routes ?? Array.Empty<PuzzleRouteData>();
         var seen = new HashSet<(string From, string To)>();
         for (int i = 0; i < routes.Length; i++)
@@ -232,6 +233,21 @@ public sealed class GameTableRules
             Reference(route.toCityId, path + ".toCityId", _tables.HasCity(route.toCityId), "도착 도시");
             Check(route.fromCityId != route.toCityId, path, "출발 도시와 도착 도시는 달라야 합니다.");
             Check(route.cost >= 0, path + ".cost", "이동 비용은 0 이상이어야 합니다.");
+            Check(route.distance > 0, path + ".distance", "노선 거리는 0보다 커야 합니다.");
+            if (_tables.HasCity(route.fromCityId) && _tables.HasCity(route.toCityId))
+            {
+                string fromSpecialty = _tables.CityPrice(route.fromCityId).specialtyTag;
+                string toSpecialty = _tables.CityPrice(route.toCityId).specialtyTag;
+                if (!string.IsNullOrEmpty(fromSpecialty) && !string.IsNullOrEmpty(toSpecialty))
+                {
+                    Check(!string.Equals(fromSpecialty, toSpecialty, StringComparison.Ordinal), path,
+                        $"같은 특산품 '{fromSpecialty}' 생산 마을은 직접 연결할 수 없습니다.");
+                }
+            }
+            if (_tables.TryGetRoute(route.toCityId, route.fromCityId, out var reverse))
+            {
+                Check(route.distance == reverse.distance, path + ".distance", "같은 철도의 왕복 거리는 같아야 합니다.");
+            }
             if (!string.IsNullOrEmpty(route.fromCityId) && !string.IsNullOrEmpty(route.toCityId))
             {
                 Check(seen.Add((route.fromCityId, route.toCityId)), path, $"노선 '{route.fromCityId}'→'{route.toCityId}'가 중복되었습니다.");
@@ -379,8 +395,34 @@ public sealed class GameTableRules
             Check(city.buyPercentOfBaseValue > 0, cityPath + ".buyPercentOfBaseValue", "기본 구매 배율은 0보다 커야 합니다.");
             Check(city.sellPercentOfFinalValue > 0, cityPath + ".sellPercentOfFinalValue", "기본 판매 배율은 0보다 커야 합니다.");
             ValidateCityTagPrices(city, knownTags, cityPath + ".tagPrices");
+            ValidateCitySpecialty(_tables, city, knownTags, cityPath);
             ValidateBoard(_tables, city.market, shapes, placementIds, cityPath + ".market");
             ValidateGeneralStock(_tables, city, shapes, placementIds, cityPath + ".generalStock");
+        }
+    }
+
+    void ValidateCitySpecialty(TableManager _tables, PuzzleCityData _city, HashSet<string> _knownTags, string _path)
+    {
+        string tag = _city.specialtyTag;
+        Check(!string.IsNullOrWhiteSpace(tag) && _knownTags.Contains(tag), _path + ".specialtyTag",
+            "아이템 정의에 있는 대표 특산품 태그가 필요합니다.");
+        if (string.IsNullOrWhiteSpace(tag))
+        {
+            return;
+        }
+
+        var prices = _city.tagPrices ?? Array.Empty<PuzzleCityTagPriceData>();
+        Check(prices.Any(_price => _price != null && _price.tag == tag && _price.buyPercent < 100 && _price.sellPercent < 100),
+            _path + ".specialtyTag", "대표 특산품은 구매·판매 배율이 모두 100 미만인 풍부한 품목이어야 합니다.");
+        var stock = _city.market?.startingPlacements ?? Array.Empty<PuzzleStartingPlacementData>();
+        Check(stock.Length > 0, _path + ".market.startingPlacements", "대표 특산품의 고정 재고가 필요합니다.");
+        foreach (var placement in stock)
+        {
+            if (placement != null && _tables.TryGetPiece(placement.pieceId, out var piece))
+            {
+                Check((piece.tags ?? Array.Empty<string>()).Contains(tag), _path + ".market.startingPlacements",
+                    $"고정 재고 '{placement.pieceId}'는 대표 특산품 태그 '{tag}'를 가져야 합니다.");
+            }
         }
     }
 

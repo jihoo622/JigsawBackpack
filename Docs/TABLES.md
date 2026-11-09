@@ -34,7 +34,8 @@
 - `FlowTableData` — Preload → Title → Game 진행 경로(`scene`, `nextScene`, `restartScene`).
 - `PuzzleTableData`는 공용 화물 모양(`pieces`), 기차 보드(`train`), 도시 목록(`cities`)을 정의한다. 각 도시에는 고유한 `id`, 화면 이름인 `displayName`, 시장 보드(`market`)가 필요하다. 1단계의 루트 `market`은 시작 도시 항목의 `market`으로 옮겼다. 각 보드의 크기와 시작 배치는 `width`·`height`와 `startingPlacements`에 둔다.
   - `startCity`는 시작 도시 ID를 참조한다. 세션 시작 시 현재 도시로 설정되며, 이동은 노선 방향 그래프를 따라 이루어진다.
-  - `pieces`의 각 아이템 정의는 고유한 `id`, `displayName`, `description`, `tags`, `visualKey`, `slotCount`, `cells`를 가진다. 태그는 대소문자를 구분하며 한 아이템에서 중복될 수 없다. 현재 태그는 개발용 샘플이며 곡물 전용 `Grain`을 포함한다. 마을은 `city.a`~`city.g`(산림·농업·샘물·광산·공업·어촌·염전) 7개다. 시장은 각각 7×6, 고정 특산품 3개와 랜덤 일반 물품 4개이며 풍부 80/75%, 필요 120/110%의 임시 구매/판매 배율을 사용한다. 염전의 수요 태그는 `Machinery`다.
+  - `pieces`의 각 아이템 정의는 고유한 `id`, `displayName`, `description`, `tags`, `visualKey`, `slotCount`, `cells`를 가진다. 태그는 대소문자를 구분하며 한 아이템에서 중복될 수 없다. 마을은 `city.a`~`city.p` 16개다. 시장은 각각 7×6, 고정 특산품 3개와 랜덤 일반 물품 4개이며 풍부 80/75%, 필요 120/150%의 임시 구매/판매 배율을 사용한다.
+  - `specialtyTag`는 대표 생산품을 구분하는 필수 키다. 고정 특산품은 모두 이 태그를 가져야 하며, 같은 태그의 풍부한 가격 규칙(구매·판매 모두 100 미만)이 있어야 한다. 직결 노선 양 끝의 `specialtyTag`는 달라야 한다. `Food` 같은 공통 분류가 아닌 `Grain`·`Fish` 등 대표 품목으로 구분하며 일반 재고나 부가 태그의 중복을 금지하는 규칙은 아니다.
   - `visualKey`는 `PuzzleInventoryUI` 프리팹의 `itemIcons` 목록에 있는 스프라이트 키다. View 초기화 시 모든 아이템 정의의 참조를 확인한다. 등록된 키를 사용해 정의와 시작 배치를 추가하면 코드 변경 없이 표시할 수 있다.
   - `slotCount`는 `cells` 길이와 일치하고 슬롯은 상하좌우로 연결되어야 한다. 화물 로컬 좌표는 외접 사각형의 왼쪽 위 기준으로 오른쪽과 아래로 증가한다. `(0,0)`은 비어 있어도 된다. `north`, `east`, `south`, `west`는 모두 `Flat`이다. 셀 배열 순서는 배치나 아이콘 기준에 영향을 주지 않는다.
   - 시작 배치에는 기차와 모든 시장에서 고유한 `id`와 화물 종류를 가리키는 `pieceId`가 필요하다. `clockwiseTurns`는 시계방향 90도 회전 횟수로 0~3이다. `x`·`y`는 회전 후 외접 사각형의 왼쪽 위 기준점이며, 보드 좌표는 왼쪽 아래에서 오른쪽과 위로 증가한다. 회전한 슬롯 전체가 해당 보드 안에 있어야 하며 같은 보드의 배치끼리는 같은 칸을 점유할 수 없다.
@@ -46,7 +47,8 @@
   - 인접 관계는 배치·회전·거래 때 다시 계산하지만 인스턴스의 실제 가치를 즉시 바꾸지 않는다. 도시 이동 한 번이 확정될 때 기차 인스턴스마다 기존 계산 결과에서 기본 가치를 뺀 변화량을 실제 가치에 누적한다. 같은 이웃 인스턴스가 여러 면으로 닿아도 한 번만 계산하며, 실제 가치는 보드 이동과 도시 재방문에도 유지된다. 반올림·최솟값·상한은 아직 정하지 않았다.
 - `PuzzleTradeTableData`는 0 이상의 정수 `startingFunds`만 정의한다. 도시별 거래 설정은 `PuzzleTableData.cities`의 각 도시 항목이 가진다.
 - `PuzzleRouteTableData`는 도시 간 노선과 이동 비용의 원본이다. `travelTurns`는 노선 이동에 소모되는 턴 수이며 현재 계약은 1이다(누락 판별은 `-1`). `routes`의 각 행은 `PuzzleTableData.cities`의 `id`를 참조하는 `fromCityId`·`toCityId`와 0 이상의 정수 `cost`를 가진다. 방향이 다르면 별개 노선이며 같은 방향의 중복 행, 자기 자신으로의 노선, 미등록 도시 참조, 음수 또는 누락된 비용은 테이블 오류다. 노선은 방향 그래프로 구성되며 시작 도시에서 모든 도시로 도달할 수 있어야 한다(미도달 도시가 있으면 테이블 오류). 순환 이동 강제는 없으며 그래프 순환(사이클)은 허용된다. `city.b`(농업) ↔ `city.f`(어촌) 양방향 직결 노선(각 cost 6)이 포함되며 기존 A↔C 및 링 간선도 유지된다. `TableManager.TryGetRoute`·`HasRoute`가 개별 노선을 조회하고, `TableManager.RoutesFrom(cityId)`가 출발 도시 기준 도착 도시 ID 오름차순 정렬된 노선 목록을 제공한다.
-  - 실제 차감액은 **`cost + 기차의 모든 화물칸 점유 칸 수 합계 × costPerCell`**이다. `costPerCell`은 0 이상의 정수 칸당 단가(누락 판별은 `-1`)이고, 칸 수는 출발 직전 `PuzzleInventoryService.TotalTrainOccupiedCells`에서 읽는다. 선택 중인 화물칸만 계산하지 않으며 시장 점유 칸은 넣지 않는다. 0이면 보유량과 무관한 정액 노선이다. 곱과 합의 오버플로는 `PuzzleInventoryService.TryTravelCost`가 `CostOverflow`로 막는다.
+  - `distance`는 양의 정수 거리이며 제작 시 각 철도에 3~12 중 하나를 추첨해 저장했다. 양방향이 있으면 거리가 일치해야 한다. 플레이·재시작마다 재추첨하지 않으며 `cost`는 방향별 기본요금으로 유지한다. 지도에는 거리와 비용 내역을 표시하고 이동 시간은 거리와 무관하게 1턴이다.
+  - 실제 차감액은 **`cost + distance × costPerDistance + 전체 화물칸 점유 칸 수 × costPerCell`**이다. `costPerDistance`와 `costPerCell`은 각각 0 이상의 거리당·칸당 단가(누락 판별 `-1`)이며 현재 모두 1이다. 칸 수는 출발 직전 `PuzzleInventoryService.TotalTrainOccupiedCells`에서 읽는다. 곱과 합의 오버플로는 `PuzzleInventoryService.TryTravelCost`가 `CostOverflow`로 막는다. 견적과 이동 결과가 거리·거리 요금을 함께 전달하며 UI에서 따로 요금을 재계산하지 않는다.
   - 이동 비용은 출발 직전에 차감한다. 현재 자금이 비용보다 적으면 이동이 차단되고 도시·턴·시장·기차 가치·자금이 모두 그대로 남는다(패배가 아니다). 빚은 도착 후에 차감하므로 같은 이동에서 비용이 먼저, 빚이 나중이다. 이동은 목적지 도시 ID를 인자로 받는 `EvaluateTravel(toCityId)`와 `Travel(toCityId)`를 통해 평가·확정된다. 노선이 없거나 게임이 종료되면 이동이 차단되고 적절한 실패 원인을 반환한다.
 - 각 도시의 `buyEnabled`·`sellEnabled`가 거래 가능 여부를 정한다. `buyPercentOfBaseValue`·`sellPercentOfFinalValue`는 태그 규칙이 없는 아이템에 적용하는 명시적 기본 비율이며 둘 다 양의 정수다.
   - `tagPrices`의 각 행은 `tag`, 고유한 `priority`, 양의 정수 `buyPercent`·`sellPercent`를 가진다. 태그는 아이템 정의의 태그를 대소문자까지 같게 참조하고 도시 안에서 중복될 수 없다. 같은 도시에서 `priority`도 중복될 수 없다.
@@ -60,6 +62,27 @@
 ## 테이블이 아닌 JSON
 `Assets/Resources/LogData.json`은 분석 로그(JSONL)의 운영 설정(`enabled`·`bufferLines`·`retentionDays`)이다. 게임 규칙 수치가 아니라 기록 계통의 스위치라 따로 두며, `TableManager`가 아니라 `TelemetryLog`가 읽는다. 자세한 설명은 `Docs/TELEMETRY.md`.
 
-- 지도 정보는 기존 도시의 이름과 태그 가격 규칙을 표시한다. 방문 여부는 테이블에 저장하지 않으며 씬 로컬 세션이 시작 마을과 성공적으로 도착한 마을 ID를 기록한다. 실패한 이동은 해금하지 않는다. GameEvents.CityArrived는 도시 ID·이동 횟수·TelemetryLog 게임 시간을 전달하며 지도 Presenter가 구독한다. 지도 프리팹의 마을 ID와 노선 배치는 고정 7개 마을용이므로 마을 구성 변경 시 프리팹도 함께 수정한다.
+- 지도는 16개 마을을 4×4로 배치하고 양방향 철도 26개를 표시한다. 선 교차점은 환승역이 아니다. 방문한 마을은 대표 특산품과 수요 정보를 표시하며 방문 여부는 씬 로컬 세션이 보유한다. `GameEvents.CityArrived`는 도시 ID·이동 횟수·분석 시간을 전달하며 지도와 인벤토리 Presenter가 구독한다. 지도 프리팹의 노드·철도선은 사전 배치하므로 마을·노선을 수정하면 프리팹도 함께 수정한다.
+
+## 마을별 대표 생산품과 우대 수요
+
+| ID | 마을 | 대표 생산품 | 우대 수요 |
+|---|---|---|---|
+| city.a | 산림 | 목재 | 기계 |
+| city.b | 농업 | 곡물 | 물 |
+| city.c | 샘물 | 물 | 기계 |
+| city.d | 광산 | 금속 | 곡물·물 |
+| city.e | 공업 | 기계 | 목재·금속 |
+| city.f | 어촌 | 물고기 | 소금 |
+| city.g | 염전 | 소금 | 기계 |
+| city.h | 벌목 | 목재 | 곡물 |
+| city.i | 곡창 | 곡물 | 기계 |
+| city.j | 호수 | 물 | 목재·물고기 |
+| city.k | 철광 | 금속 | 물 |
+| city.l | 암염 | 소금 | 기계 |
+| city.m | 항구 | 물고기 | 소금 |
+| city.n | 해안 염전 | 소금 | 물고기 |
+| city.o | 조립 | 기계 | 금속 |
+| city.p | 들녘 | 곡물 | 기계 |
 
 - 도시별 generalStock.pieceIds는 지역 특성에 맞춰 직접 지정한 중복 없는 일반 물품 후보(수요 물품도 허용)이고 slots는 배치 ID·왼쪽 위 좌표(x/y)·예약 영역(width/height)이다. 슬롯 수만큼 후보를 중복 허용하여 추첨하며 후보는 모든 슬롯에 회전 없이 들어가야 한다. 후보 참조·개수·ID 중복·격자 범위·특산품 및 슬롯 간 겹침을 검증한다. market.startingPlacements에는 고정 특산품만 둔다. 시장 최초 생성과 출발 시 재설정에 다시 추첨하며, 실행 중 전역 테이블은 변경하지 않는다.

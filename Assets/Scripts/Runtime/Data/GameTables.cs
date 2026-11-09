@@ -65,6 +65,7 @@ public sealed class PuzzleRouteTableData
     public int travelTurns = -1;
     // 기차의 점유 칸 1칸에 더해지는 단가. 0이면 보유량과 무관한 정액 노선이다.
     public int costPerCell = -1;
+    public int costPerDistance = -1;
     public PuzzleRouteData[] routes = Array.Empty<PuzzleRouteData>();
 }
 

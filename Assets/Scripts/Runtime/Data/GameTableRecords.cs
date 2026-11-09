@@ -3,7 +3,8 @@ using System;
 // 순수 직렬화 항목. 수치는 JSON에 두고 이 파일에는 필드만 둔다.
 // 검증 규칙이나 조회 로직을 여기 넣지 않는다(GameTableRules / TableManager).
 
-[Serializable] public sealed class PlayerData
+[Serializable]
+public sealed class PlayerData
 {
     public float maxHealth;
     public float moveSpeed;
@@ -14,20 +15,23 @@ using System;
 
 // 해금(확장) 효과 한 항목. id로 찾고 nextUpgrade로 다음 해금을 잇는다.
 // category는 Presentation이 색·제목의 기준으로 읽는 키이며 EffectCategory 이름과 일치해야 한다.
-[Serializable] public sealed class UpgradeData
+[Serializable]
+public sealed class UpgradeData
 {
     public string id, nextUpgrade, displayName, description, category;
 }
 
 // 해금 사슬의 시작. 배열 순서에 의존하지 않기 위한 명시적 시작 키.
-[Serializable] public sealed class UpgradeSequenceData
+[Serializable]
+public sealed class UpgradeSequenceData
 {
     public string firstUpgrade;
 }
 
 // 씬 진행 경로 한 행. 씬 이름이 키이며 배열 순서는 의미하지 않는다.
 // nextScene이 비어 있으면 최종 씬, restartScene은 사망·재시작 때 로드하는 씬.
-[Serializable] public sealed class SceneLinkData
+[Serializable]
+public sealed class SceneLinkData
 {
     public string scene, nextScene, restartScene;
 }
@@ -64,6 +68,8 @@ public sealed class PuzzleCellData
 public sealed class PuzzleCityData
 {
     public string id, displayName;
+    // 대표 생산품의 태그. 넓은 분류(Food)가 아닌 Grain/Fish처럼 생산지를 구분하는 키다.
+    public string specialtyTag;
     public bool buyEnabled, sellEnabled;
     // 태그별 규칙이 없을 때 이 도시의 모든 아이템에 적용하는 명시적 기본 비율이다.
     public int buyPercentOfBaseValue = -1, sellPercentOfFinalValue = -1;
@@ -132,6 +138,7 @@ public sealed class PuzzleDebtPaymentData
 public sealed class PuzzleRouteData
 {
     public string fromCityId, toCityId;
+    public int distance = -1;
     // 누락된 값이 0이라는 정상값으로 위장되지 않도록 하는 검증용 값이다.
     public long cost = -1;
 }

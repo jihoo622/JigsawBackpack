@@ -1,26 +1,321 @@
 {
   "status": "sample",
-  "note": "방향 그래프 노선과 이동 비용의 원본. 각 연결 이동은 travelTurns(1턴)를 소모하며 차감액은 노선 cost + 기차의 점유 칸 수 × costPerCell이다. fromCityId에서 toCityId로 떠나는 순간 비용을 차감하며 방향이 다르면 별개 노선이다. 시작 도시에서 모든 도시로 도달할 수 있어야 한다. 비용 부족은 이동 차단이고 패배가 아니다.",
+  "note": "16개 마을의 방향 그래프. 모든 직결 이동은 travelTurns의 1턴이다. 기본 비용 + distance × costPerDistance + 전체 기차 점유 칸 수 × costPerCell을 출발 직전에 정산한다. 거리는 제작 시 3~12로 추첨해 저장했으며 왕복이 같고 플레이 중 재추첨하지 않는다. 같은 specialtyTag 생산지는 직결하지 않는다. 신규 노선 기본 비용은 양방향 6인 임시 밸런스다.",
   "travelTurns": 1,
   "costPerCell": 1,
   "routes": [
-    { "fromCityId": "city.a", "toCityId": "city.b", "cost": 4 },
-    { "fromCityId": "city.b", "toCityId": "city.c", "cost": 5 },
-    { "fromCityId": "city.c", "toCityId": "city.a", "cost": 6 },
-    { "fromCityId": "city.a", "toCityId": "city.c", "cost": 3 },
-    { "fromCityId": "city.c", "toCityId": "city.b", "cost": 5 },
-    { "fromCityId": "city.b", "toCityId": "city.a", "cost": 4 },
-    { "fromCityId": "city.b", "toCityId": "city.f", "cost": 6 },
-    { "fromCityId": "city.f", "toCityId": "city.b", "cost": 6 },
-    { "fromCityId": "city.c", "toCityId": "city.d", "cost": 6 },
-    { "fromCityId": "city.d", "toCityId": "city.c", "cost": 3 },
-    { "fromCityId": "city.d", "toCityId": "city.e", "cost": 6 },
-    { "fromCityId": "city.e", "toCityId": "city.d", "cost": 3 },
-    { "fromCityId": "city.e", "toCityId": "city.f", "cost": 6 },
-    { "fromCityId": "city.f", "toCityId": "city.e", "cost": 3 },
-    { "fromCityId": "city.f", "toCityId": "city.g", "cost": 6 },
-    { "fromCityId": "city.g", "toCityId": "city.f", "cost": 3 },
-    { "fromCityId": "city.g", "toCityId": "city.a", "cost": 6 },
-    { "fromCityId": "city.a", "toCityId": "city.g", "cost": 3 }
-  ]
+    {
+      "fromCityId": "city.a",
+      "toCityId": "city.b",
+      "cost": 4,
+      "distance": 11
+    },
+    {
+      "fromCityId": "city.b",
+      "toCityId": "city.c",
+      "cost": 5,
+      "distance": 10
+    },
+    {
+      "fromCityId": "city.c",
+      "toCityId": "city.a",
+      "cost": 6,
+      "distance": 9
+    },
+    {
+      "fromCityId": "city.a",
+      "toCityId": "city.c",
+      "cost": 3,
+      "distance": 9
+    },
+    {
+      "fromCityId": "city.c",
+      "toCityId": "city.b",
+      "cost": 5,
+      "distance": 10
+    },
+    {
+      "fromCityId": "city.b",
+      "toCityId": "city.a",
+      "cost": 4,
+      "distance": 11
+    },
+    {
+      "fromCityId": "city.b",
+      "toCityId": "city.f",
+      "cost": 6,
+      "distance": 6
+    },
+    {
+      "fromCityId": "city.f",
+      "toCityId": "city.b",
+      "cost": 6,
+      "distance": 6
+    },
+    {
+      "fromCityId": "city.c",
+      "toCityId": "city.d",
+      "cost": 6,
+      "distance": 4
+    },
+    {
+      "fromCityId": "city.d",
+      "toCityId": "city.c",
+      "cost": 3,
+      "distance": 4
+    },
+    {
+      "fromCityId": "city.d",
+      "toCityId": "city.e",
+      "cost": 6,
+      "distance": 9
+    },
+    {
+      "fromCityId": "city.e",
+      "toCityId": "city.d",
+      "cost": 3,
+      "distance": 9
+    },
+    {
+      "fromCityId": "city.e",
+      "toCityId": "city.f",
+      "cost": 6,
+      "distance": 9
+    },
+    {
+      "fromCityId": "city.f",
+      "toCityId": "city.e",
+      "cost": 3,
+      "distance": 9
+    },
+    {
+      "fromCityId": "city.f",
+      "toCityId": "city.g",
+      "cost": 6,
+      "distance": 7
+    },
+    {
+      "fromCityId": "city.g",
+      "toCityId": "city.f",
+      "cost": 3,
+      "distance": 7
+    },
+    {
+      "fromCityId": "city.g",
+      "toCityId": "city.a",
+      "cost": 6,
+      "distance": 3
+    },
+    {
+      "fromCityId": "city.a",
+      "toCityId": "city.g",
+      "cost": 3,
+      "distance": 3
+    },
+    {
+      "fromCityId": "city.g",
+      "toCityId": "city.h",
+      "cost": 6,
+      "distance": 6
+    },
+    {
+      "fromCityId": "city.h",
+      "toCityId": "city.g",
+      "cost": 6,
+      "distance": 6
+    },
+    {
+      "fromCityId": "city.h",
+      "toCityId": "city.i",
+      "cost": 6,
+      "distance": 4
+    },
+    {
+      "fromCityId": "city.i",
+      "toCityId": "city.h",
+      "cost": 6,
+      "distance": 4
+    },
+    {
+      "fromCityId": "city.i",
+      "toCityId": "city.e",
+      "cost": 6,
+      "distance": 9
+    },
+    {
+      "fromCityId": "city.e",
+      "toCityId": "city.i",
+      "cost": 6,
+      "distance": 9
+    },
+    {
+      "fromCityId": "city.h",
+      "toCityId": "city.j",
+      "cost": 6,
+      "distance": 12
+    },
+    {
+      "fromCityId": "city.j",
+      "toCityId": "city.h",
+      "cost": 6,
+      "distance": 12
+    },
+    {
+      "fromCityId": "city.i",
+      "toCityId": "city.k",
+      "cost": 6,
+      "distance": 6
+    },
+    {
+      "fromCityId": "city.k",
+      "toCityId": "city.i",
+      "cost": 6,
+      "distance": 6
+    },
+    {
+      "fromCityId": "city.j",
+      "toCityId": "city.k",
+      "cost": 6,
+      "distance": 11
+    },
+    {
+      "fromCityId": "city.k",
+      "toCityId": "city.j",
+      "cost": 6,
+      "distance": 11
+    },
+    {
+      "fromCityId": "city.k",
+      "toCityId": "city.l",
+      "cost": 6,
+      "distance": 5
+    },
+    {
+      "fromCityId": "city.l",
+      "toCityId": "city.k",
+      "cost": 6,
+      "distance": 5
+    },
+    {
+      "fromCityId": "city.e",
+      "toCityId": "city.l",
+      "cost": 6,
+      "distance": 11
+    },
+    {
+      "fromCityId": "city.l",
+      "toCityId": "city.e",
+      "cost": 6,
+      "distance": 11
+    },
+    {
+      "fromCityId": "city.f",
+      "toCityId": "city.j",
+      "cost": 6,
+      "distance": 7
+    },
+    {
+      "fromCityId": "city.j",
+      "toCityId": "city.f",
+      "cost": 6,
+      "distance": 7
+    },
+    {
+      "fromCityId": "city.f",
+      "toCityId": "city.p",
+      "cost": 6,
+      "distance": 7
+    },
+    {
+      "fromCityId": "city.p",
+      "toCityId": "city.f",
+      "cost": 6,
+      "distance": 7
+    },
+    {
+      "fromCityId": "city.j",
+      "toCityId": "city.o",
+      "cost": 6,
+      "distance": 4
+    },
+    {
+      "fromCityId": "city.o",
+      "toCityId": "city.j",
+      "cost": 6,
+      "distance": 4
+    },
+    {
+      "fromCityId": "city.k",
+      "toCityId": "city.n",
+      "cost": 6,
+      "distance": 8
+    },
+    {
+      "fromCityId": "city.n",
+      "toCityId": "city.k",
+      "cost": 6,
+      "distance": 8
+    },
+    {
+      "fromCityId": "city.l",
+      "toCityId": "city.m",
+      "cost": 6,
+      "distance": 4
+    },
+    {
+      "fromCityId": "city.m",
+      "toCityId": "city.l",
+      "cost": 6,
+      "distance": 4
+    },
+    {
+      "fromCityId": "city.m",
+      "toCityId": "city.n",
+      "cost": 6,
+      "distance": 6
+    },
+    {
+      "fromCityId": "city.n",
+      "toCityId": "city.m",
+      "cost": 6,
+      "distance": 6
+    },
+    {
+      "fromCityId": "city.n",
+      "toCityId": "city.o",
+      "cost": 6,
+      "distance": 8
+    },
+    {
+      "fromCityId": "city.o",
+      "toCityId": "city.n",
+      "cost": 6,
+      "distance": 8
+    },
+    {
+      "fromCityId": "city.o",
+      "toCityId": "city.p",
+      "cost": 6,
+      "distance": 12
+    },
+    {
+      "fromCityId": "city.p",
+      "toCityId": "city.o",
+      "cost": 6,
+      "distance": 12
+    },
+    {
+      "fromCityId": "city.o",
+      "toCityId": "city.k",
+      "cost": 6,
+      "distance": 12
+    },
+    {
+      "fromCityId": "city.k",
+      "toCityId": "city.o",
+      "cost": 6,
+      "distance": 12
+    }
+  ],
+  "costPerDistance": 1
 }

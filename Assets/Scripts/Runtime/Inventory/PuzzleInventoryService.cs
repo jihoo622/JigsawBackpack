@@ -162,7 +162,7 @@ public sealed class PuzzleInventoryService : MonoBehaviour
             ref lastInstanceId);
     }
 
-    // 노선 기본 비용에 출발 직전 기차가 점유한 칸 수를 더한 금액을 확인한다. 미리보기와 확정이 같은 경로를 쓴다.
+    // 기본 요금·거리 요금·출발 직전 전체 기차 적재 요금을 같은 경로에서 평가한다.
     internal PuzzleTravelResult EvaluateTravel(string _cityId)
     {
         if (RunStatus != PuzzleRunStatus.InProgress)
@@ -192,14 +192,16 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         }
 
         int cells = TotalTrainOccupiedCells;
-        if (!TryTravelCost(route.cost, cells, tables.PuzzleRoute.costPerCell, out long cost))
+        if (!TryTravelCost(route.cost, route.distance, tables.PuzzleRoute.costPerDistance,
+            cells, tables.PuzzleRoute.costPerCell, out long cost, out long distanceCost))
         {
             return new PuzzleTravelResult(PuzzleTravelFailure.CostOverflow, _fromCityId: fromCityId, _toCityId: _cityId,
-                _baseCost: route.cost, _cells: cells);
+                _baseCost: route.cost, _cells: cells, _distance: route.distance);
         }
 
         return new PuzzleTravelResult(Funds < cost ? PuzzleTravelFailure.InsufficientFunds : PuzzleTravelFailure.None,
-            cost, fromCityId, _cityId, _baseCost: route.cost, _cells: cells);
+            cost, fromCityId, _cityId, _baseCost: route.cost, _cells: cells,
+            _distance: route.distance, _distanceCost: distanceCost);
     }
 
     // 이동 버튼에 표시할 목적지 노선의 비용. 기차 보유 칸이 바뀌면 값도 바뀐다.
@@ -211,13 +213,16 @@ public sealed class PuzzleInventoryService : MonoBehaviour
             : null;
     }
 
-    // 노선 비용 + 기차 점유 칸 수 × 칸당 단가. 한도를 넘으면 조용히 넘기지 않고 실패로 알린다.
-    static bool TryTravelCost(long _baseCost, int _cells, int _costPerCell, out long _cost)
+    // 기본 요금 + 거리 × 거리 단가 + 전체 기차 점유 칸 × 칸당 단가.
+    static bool TryTravelCost(long _baseCost, int _distance, int _costPerDistance,
+        int _cells, int _costPerCell, out long _cost, out long _distanceCost)
     {
         _cost = 0;
+        _distanceCost = 0;
         try
         {
-            _cost = checked(_baseCost + (long)_cells * _costPerCell);
+            _distanceCost = checked((long)_distance * _costPerDistance);
+            _cost = checked(_baseCost + _distanceCost + (long)_cells * _costPerCell);
         }
         catch (OverflowException)
         {
@@ -274,7 +279,7 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         */
 
         return new PuzzleTravelResult(PuzzleTravelFailure.None, evaluation.Cost, evaluation.FromCityId,
-            evaluation.ToCityId, Funds, evaluation.BaseCost, evaluation.Cells);
+            evaluation.ToCityId, Funds, evaluation.BaseCost, evaluation.Cells, evaluation.Distance, evaluation.DistanceCost);
     }
 
     internal PuzzleDropResult EvaluateDrop(PuzzlePlacement _original, PuzzleInventory _destination,
@@ -478,8 +483,10 @@ internal readonly struct PuzzleTravelResult
 {
     internal PuzzleTravelFailure Failure { get; }
     internal long Cost { get; }
-    // 노선 기본 비용과 그때의 기차 점유 칸 수. Cost = BaseCost + 점유 칸 × 칸당 단가다.
+    // 미리보기와 확정에서 공유하는 비용 내역.
     internal long BaseCost { get; }
+    internal int Distance { get; }
+    internal long DistanceCost { get; }
     internal int Cells { get; }
     internal long FundsAfter { get; }
     internal string FromCityId { get; }
@@ -487,7 +494,8 @@ internal readonly struct PuzzleTravelResult
     internal bool IsSuccess => Failure == PuzzleTravelFailure.None;
 
     internal PuzzleTravelResult(PuzzleTravelFailure _failure, long _cost = 0, string _fromCityId = null,
-        string _toCityId = null, long _fundsAfter = 0, long _baseCost = 0, int _cells = 0)
+        string _toCityId = null, long _fundsAfter = 0, long _baseCost = 0, int _cells = 0,
+        int _distance = 0, long _distanceCost = 0)
     {
         Failure = _failure;
         Cost = _cost;
@@ -495,6 +503,8 @@ internal readonly struct PuzzleTravelResult
         ToCityId = _toCityId;
         FundsAfter = _fundsAfter;
         BaseCost = _baseCost;
+        Distance = _distance;
+        DistanceCost = _distanceCost;
         Cells = _cells;
     }
 }
