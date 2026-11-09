@@ -23,20 +23,47 @@ public sealed class TableManager
 
     public GameplayTableData Gameplay { get; }
     public FlowTableData Flow { get; }
+    public PuzzleTableData Puzzle { get; }
+    public PuzzleSynergyTableData PuzzleSynergy { get; }
+    public PuzzleTradeTableData PuzzleTrade { get; }
+    public PuzzleTurnTableData PuzzleTurn { get; }
+    public IReadOnlyList<PuzzleDebtPaymentData> DebtSchedule { get; }
+    public IReadOnlyList<PuzzleSynergyRuleData> SynergyRules { get; }
+    public IReadOnlyList<PuzzlePieceData> Pieces { get; }
+    public IReadOnlyList<PuzzleCityData> Cities { get; }
+    public IReadOnlyList<PuzzleStartingPlacementData> TrainStartingPlacements { get; }
     public bool IsValid { get; }
 
     readonly Dictionary<string, UpgradeData> upgrades;
     readonly Dictionary<string, SceneLinkData> scenes;
+    readonly Dictionary<string, PuzzlePieceData> pieces;
+    readonly Dictionary<string, PuzzleCityData> cities;
+    readonly Dictionary<string, PuzzleCityPriceData> cityPrices;
 
     TableManager()
     {
         bool loaded = true;
         Gameplay = Load<GameplayTableData>(ref loaded);
         Flow = Load<FlowTableData>(ref loaded);
+        Puzzle = Load<PuzzleTableData>(ref loaded);
+        PuzzleSynergy = Load<PuzzleSynergyTableData>(ref loaded);
+        PuzzleTrade = Load<PuzzleTradeTableData>(ref loaded);
+        PuzzleTurn = Load<PuzzleTurnTableData>(ref loaded);
 
         var rules = new GameTableRules();
         upgrades = rules.Index(Gameplay.upgrades, e => e.id, "GameplayTableData.upgrades");
         scenes = rules.Index(Flow.scenes, e => e.scene, "FlowTableData.scenes");
+        pieces = rules.Index(Puzzle.pieces, e => e.id, "PuzzleTableData.pieces");
+        cities = rules.Index(Puzzle.cities, e => e.id, "PuzzleTableData.cities");
+        cityPrices = rules.Index(PuzzleTrade.cityPrices, e => e.cityId, "PuzzleTradeTableData.cityPrices");
+        var synergyRules = rules.Index(PuzzleSynergy.rules, e => e.id, "PuzzleSynergyTableData.rules");
+        SynergyRules = Array.AsReadOnly(synergyRules.Values.OrderBy(entry => entry.id, StringComparer.Ordinal).ToArray());
+        Pieces = Array.AsReadOnly(pieces.Values.OrderBy(entry => entry.id, StringComparer.Ordinal).ToArray());
+        TrainStartingPlacements = SortStartingPlacements(Puzzle.train);
+        DebtSchedule = Array.AsReadOnly((PuzzleTurn.debtPayments ?? Array.Empty<PuzzleDebtPaymentData>())
+            .Where(entry => entry != null).OrderBy(entry => entry.moveCount).ToArray());
+        Cities = Array.AsReadOnly(cities.Values.OrderBy(entry => entry.id == Puzzle.startCity ? 0 : 1)
+            .ThenBy(entry => entry.id, StringComparer.Ordinal).ToArray());
         // 노출용 목록은 배열 순서에 의존하지 않는다. 사슬의 첫 항목 우선, 이후 id 오름차순의 결정적 순서.
         string first = Gameplay.sequence == null ? null : Gameplay.sequence.firstUpgrade;
         Upgrades = (Gameplay.upgrades ?? Array.Empty<UpgradeData>())
@@ -47,6 +74,24 @@ public sealed class TableManager
 
         rules.Validate(this);
         IsValid = loaded && rules.IsValid;
+    }
+
+    static IReadOnlyList<PuzzleStartingPlacementData> SortStartingPlacements(PuzzleBoardData _board)
+    {
+        if (_board?.startingPlacements == null)
+        {
+            return Array.Empty<PuzzleStartingPlacementData>();
+        }
+
+        return Array.AsReadOnly(_board.startingPlacements.Where(entry => entry != null)
+            .OrderBy(entry => entry.id, StringComparer.Ordinal).ToArray());
+    }
+
+    internal IReadOnlyList<PuzzleSynergyRuleData> SynergiesFor(PuzzleSynergyScope _scope)
+    {
+        string scope = _scope.ToString();
+        return Array.AsReadOnly(SynergyRules.Where(rule => rule.scope == scope ||
+            rule.scope == nameof(PuzzleSynergyScope.Both)).ToArray());
     }
 
     // 사슬의 첫 해금 id. 없으면 빈 문자열.
@@ -89,6 +134,35 @@ public sealed class TableManager
     public SceneLinkData Scene(string _scene)
     {
         return Find(scenes, _scene, "씬 진행");
+    }
+    public PuzzlePieceData Piece(string _id)
+    {
+        return Find(pieces, _id, "퍼즐 조각");
+    }
+    public bool TryGetPiece(string _id, out PuzzlePieceData _piece)
+    {
+        if (!string.IsNullOrEmpty(_id) && pieces.TryGetValue(_id, out _piece))
+        {
+            return true;
+        }
+        _piece = null;
+        return false;
+    }
+    public bool HasCity(string _id)
+    {
+        return !string.IsNullOrWhiteSpace(_id) && cities.ContainsKey(_id);
+    }
+    internal bool HasCityPrice(string _cityId)
+    {
+        return cityPrices.ContainsKey(_cityId);
+    }
+    internal PuzzleCityPriceData CityPrice(string _cityId)
+    {
+        return Find(cityPrices, _cityId, "도시 가격");
+    }
+    public IReadOnlyList<PuzzleStartingPlacementData> MarketStartingPlacements(string _cityId)
+    {
+        return SortStartingPlacements(Find(cities, _cityId, "도시").market);
     }
     public bool TryGetScene(string _scene, out SceneLinkData _link)
     {

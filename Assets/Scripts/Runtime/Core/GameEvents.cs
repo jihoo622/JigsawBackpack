@@ -52,6 +52,27 @@ public static class GameEvents
             this.open = _open;
         }
     }
+    public readonly struct TradeInfo
+    {
+        public readonly string cityId, itemId;
+        public readonly int instanceId, clockwiseTurns;
+        public readonly PuzzleTradeDirection direction;
+        public readonly long price, fundsAfter;
+        public readonly Vector2Int destination;
+
+        public TradeInfo(string _cityId, string _itemId, int _instanceId, PuzzleTradeDirection _direction,
+            long _price, long _fundsAfter, Vector2Int _destination, int _clockwiseTurns)
+        {
+            cityId = _cityId;
+            itemId = _itemId;
+            instanceId = _instanceId;
+            direction = _direction;
+            price = _price;
+            fundsAfter = _fundsAfter;
+            destination = _destination;
+            clockwiseTurns = _clockwiseTurns;
+        }
+    }
 
     // ── 이벤트 ──
     public static event Action<RunInfo> RunStarted;
@@ -59,6 +80,7 @@ public static class GameEvents
     public static event Action<SceneInfo> SceneChanged;
     public static event Action<UpgradeInfo> UpgradeGranted;
     public static event Action<PanelInfo> PanelVisibility;
+    public static event Action<TradeInfo> TradeCompleted;
 
     // ── 발행 ──
     public static void RaiseRunStarted(string _scene, double _time)
@@ -80,6 +102,10 @@ public static class GameEvents
     public static void RaisePanelVisibility(string _panelName, bool _open)
     {
         Emit(PanelVisibility, new PanelInfo(_panelName, _open));
+    }
+    public static void RaiseTradeCompleted(TradeInfo _info)
+    {
+        Emit(TradeCompleted, _info);
     }
 
     // 구독자 하나가 예외를 던져도 나머지 구독자와 게임 진행은 멈추지 않는다.
@@ -119,6 +145,7 @@ public static class GameEvents
         SceneChanged = null;
         UpgradeGranted = null;
         PanelVisibility = null;
+        TradeCompleted = null;
         sequence = 0;
         SceneManager.sceneLoaded -= OnSceneLoaded;
         hooked = false;

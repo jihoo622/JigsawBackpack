@@ -21,6 +21,7 @@ public sealed class TelemetryRecorder : MonoBehaviour
         GameEvents.SceneChanged += OnSceneChanged;
         GameEvents.UpgradeGranted += OnUpgradeGranted;
         GameEvents.PanelVisibility += OnPanelVisibility;
+        GameEvents.TradeCompleted += OnTradeCompleted;
     }
 
     void OnDisable()
@@ -30,6 +31,7 @@ public sealed class TelemetryRecorder : MonoBehaviour
         GameEvents.SceneChanged -= OnSceneChanged;
         GameEvents.UpgradeGranted -= OnUpgradeGranted;
         GameEvents.PanelVisibility -= OnPanelVisibility;
+        GameEvents.TradeCompleted -= OnTradeCompleted;
     }
 
     void OnRunStarted(GameEvents.RunInfo _info)
@@ -55,5 +57,10 @@ public sealed class TelemetryRecorder : MonoBehaviour
     void OnPanelVisibility(GameEvents.PanelInfo _info)
     {
         TelemetryLog.Write(TelemetryEvents.PANEL_VISIBILITY, TelemetryPayload.Panel(_info));
+    }
+
+    void OnTradeCompleted(GameEvents.TradeInfo _info)
+    {
+        TelemetryLog.Write(TelemetryEvents.TRADE_COMPLETED, TelemetryPayload.Trade(_info));
     }
 }

@@ -1,0 +1,276 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
+using UnityEngine.UI;
+
+[DisallowMultipleComponent]
+public sealed class PuzzleInventoryView : MonoBehaviour
+{
+    const float CELL_GAP = 2f;
+    const string ITEM_ICON_PATH = "PuzzleInventoryUI.itemIcons";
+
+    [Serializable]
+    sealed class ItemIcon
+    {
+        public string key;
+        public Sprite sprite;
+    }
+
+    // PuzzleSlotVisual의 이미지와 같은 시계 방향 순서다.
+    static readonly Vector2Int[] NEIGHBOR_OFFSETS =
+    {
+        Vector2Int.up, Vector2Int.right, Vector2Int.down, Vector2Int.left
+    };
+
+    [SerializeField] Image board;
+    [SerializeField] Text boardTitle;
+    [SerializeField] Text boardValue;
+    [SerializeField] Text moveGuide;
+    [SerializeField] Text itemDetails;
+    [SerializeField] ItemIcon[] itemIcons;
+    [SerializeField] Image flatTriangle;
+    [SerializeField] Sprite eastFlatTriangle;
+    [SerializeField] Sprite southFlatTriangle;
+    [SerializeField] Sprite westFlatTriangle;
+    [SerializeField] Sprite flatOutline;
+    [SerializeField] Image[] boardCells;
+    [SerializeField] PuzzleSlotVisual[] placementSlots;
+    [SerializeField] PuzzleSlotVisual[] ghostSlots;
+    [SerializeField] PuzzleSlotVisual[] outlineSlots;
+
+    readonly HashSet<Vector2Int> piecePositions = new();
+    Dictionary<string, ItemIcon> iconIndex;
+    Canvas canvas;
+    Vector2Int gridSize;
+    Vector2 gridMin;
+    float cellSize;
+
+    Camera EventCamera => canvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : canvas.worldCamera;
+
+    internal event Action Disabled;
+
+    internal void Initialize(long _boardCapacity, long _dragCapacity, string _title,
+        IReadOnlyCollection<PuzzleItemDefinition> _items)
+    {
+        var parentCanvas = GetComponentInParent<Canvas>();
+        if (!parentCanvas || !board || !boardTitle || !boardTitle.font || !boardValue || !boardValue.font ||
+            !moveGuide || !moveGuide.font ||
+            !itemDetails || !itemDetails.font ||
+            !flatTriangle || boardCells == null || boardCells.Distinct().Count() != boardCells.Length ||
+            boardCells.Any(image => !image || image.rectTransform.parent != board.rectTransform))
+        {
+            throw new InvalidOperationException("화물 인벤토리 View의 Canvas 또는 프리팹 참조가 누락되었습니다.");
+        }
+
+        var rules = new GameTableRules();
+        var icons = rules.Index(itemIcons, entry => entry.key, ITEM_ICON_PATH);
+        rules.ValidateItemVisuals(_items, key => icons.TryGetValue(key, out var icon) && icon.sprite, ITEM_ICON_PATH);
+        if (!rules.IsValid || icons.Values.Any(icon => !icon.sprite))
+        {
+            throw new InvalidOperationException("화물 인벤토리 프리팹의 아이콘 키 또는 스프라이트 참조가 올바르지 않습니다.");
+        }
+        iconIndex = icons;
+
+        var reference = flatTriangle.sprite;
+        var fillSprites = new[] { reference, eastFlatTriangle, southFlatTriangle, westFlatTriangle };
+        if (!reference || !fillSprites.All(sprite => MatchesReference(sprite, reference)) ||
+            !MatchesReference(flatOutline, reference) ||
+            !HasSlots(placementSlots, board.rectTransform, reference) || !HasSlots(ghostSlots, transform, reference) ||
+            !HasSlots(outlineSlots, board.rectTransform, reference))
+        {
+            throw new InvalidOperationException("화물 슬롯의 스프라이트 참조·크기 또는 슬롯 구성이 올바르지 않습니다.");
+        }
+
+        if (_boardCapacity > boardCells.Length || _boardCapacity > placementSlots.Length ||
+            _dragCapacity > ghostSlots.Length || _dragCapacity > outlineSlots.Length)
+        {
+            throw new InvalidOperationException("화물 테이블과 인벤토리 프리팹의 표시 용량이 맞지 않습니다.");
+        }
+
+        canvas = parentCanvas.rootCanvas;
+        if (canvas.renderMode == RenderMode.WorldSpace && !canvas.worldCamera)
+        {
+            throw new InvalidOperationException("World Space Canvas에는 화물 좌표 변환에 사용할 카메라가 필요합니다.");
+        }
+
+        board.color = Presentation.PuzzleBackground;
+        boardTitle.color = boardValue.color = moveGuide.color = itemDetails.color = Presentation.PuzzleHeading;
+        boardTitle.text = _title;
+        moveGuide.text = Presentation.PUZZLE_MOVE_GUIDE;
+        ShowItemDetails(null, default);
+
+        ConfigureSlots(placementSlots, flatOutline, fillSprites);
+        ConfigureSlots(ghostSlots, flatOutline, fillSprites);
+        ConfigureSlots(outlineSlots, flatOutline);
+    }
+
+    internal void SetBoardSize(int _width, int _height)
+    {
+        gridSize = new Vector2Int(_width, _height);
+        Rect boardRect = board.rectTransform.rect;
+        cellSize = Mathf.Min(boardRect.width / _width, boardRect.height / _height);
+        gridMin = boardRect.center - new Vector2(_width, _height) * (cellSize * 0.5f);
+
+        long cellCount = (long)_width * _height;
+        for (int i = 0; i < boardCells.Length; i++)
+        {
+            var cell = boardCells[i];
+            cell.enabled = i < cellCount;
+            if (cell.enabled)
+            {
+                cell.color = Presentation.PuzzleCell;
+                cell.rectTransform.localPosition = GetCellCenter(new Vector2Int(i % _width, i / _width));
+                cell.rectTransform.sizeDelta = Vector2.one * (cellSize - CELL_GAP);
+            }
+        }
+
+        HideSlots(placementSlots);
+        ClearDrag();
+    }
+
+    public bool TryGetBoardCell(Vector2 _screenPosition, out Vector2Int _cell)
+    {
+        if (RectTransformUtility.ScreenPointToLocalPointInRectangle(
+            board.rectTransform, _screenPosition, EventCamera, out var local))
+        {
+            var position = (local - gridMin) / cellSize;
+            _cell = new Vector2Int(Mathf.FloorToInt(position.x), Mathf.FloorToInt(position.y));
+            return _cell.x >= 0 && _cell.x < gridSize.x && _cell.y >= 0 && _cell.y < gridSize.y;
+        }
+
+        _cell = default;
+        return false;
+    }
+
+    public void RenderPlacements(IReadOnlyCollection<PuzzlePlacement> _placements,
+        int? _hiddenInstanceId = null, int? _highlightedInstanceId = null)
+    {
+        int index = 0;
+        foreach (var placement in _placements)
+        {
+            if (placement.InstanceId == _hiddenInstanceId)
+            {
+                continue;
+            }
+
+            var color = placement.InstanceId == _highlightedInstanceId
+                ? Presentation.PuzzleMoveTarget
+                : Presentation.PuzzlePiece;
+            index = RenderPose(placementSlots, index, placement.Pose, Vector2.zero, color,
+                iconIndex[placement.Definition.VisualKey].sprite);
+        }
+
+        HideSlots(placementSlots, index);
+    }
+
+    public void ShowGhost(PuzzlePose _pose, PuzzleItemDefinition _item, Vector2Int _grabbedBoardCell, Vector2 _screenPosition)
+    {
+        if (_pose == null || !RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                (RectTransform)transform, _screenPosition, EventCamera, out var local))
+        {
+            HideSlots(ghostSlots);
+            return;
+        }
+
+        var offset = local - GetCellCenter(_grabbedBoardCell);
+        int used = RenderPose(ghostSlots, 0, _pose, offset, Presentation.PuzzleGhost, iconIndex[_item.VisualKey].sprite);
+        HideSlots(ghostSlots, used);
+    }
+
+    public void ShowPreview(PuzzlePose _pose, bool _canPlace)
+    {
+        int used = _pose == null ? 0 : RenderPose(outlineSlots, 0, _pose, Vector2.zero, Presentation.PuzzleOutline(_canPlace));
+        HideSlots(outlineSlots, used);
+    }
+
+    int RenderPose(PuzzleSlotVisual[] _slots, int _start, PuzzlePose _pose, Vector2 _offset, Color _color, Sprite _icon = null)
+    {
+        piecePositions.Clear();
+        foreach (var cell in _pose.Cells)
+        {
+            piecePositions.Add(cell.Position);
+        }
+
+        int index = _start;
+        foreach (var cell in _pose.Cells)
+        {
+            int hiddenEdges = GetHiddenEdges(cell.Position);
+            _slots[index].Show(GetCellCenter(cell.Position) + _offset, cellSize, _color, hiddenEdges,
+                index == _start ? _icon : null);
+            index++;
+        }
+        return index;
+    }
+
+    public void ClearDrag()
+    {
+        HideSlots(ghostSlots);
+        HideSlots(outlineSlots);
+    }
+
+    internal void ShowBoardValue(PuzzleValue _value)
+    {
+        boardValue.text = Presentation.PuzzleValueText(_value);
+    }
+
+    internal void ShowItemDetails(PuzzleItemDefinition _item, PuzzleValue _value)
+    {
+        itemDetails.text = Presentation.PuzzleItemDetails(_item, _value);
+    }
+
+    void OnDisable()
+    {
+        if (canvas)
+        {
+            ClearDrag();
+        }
+        Disabled?.Invoke();
+    }
+
+    Vector2 GetCellCenter(Vector2Int _cell)
+    {
+        return gridMin + ((Vector2)_cell + Vector2.one * 0.5f) * cellSize;
+    }
+
+    int GetHiddenEdges(Vector2Int _position)
+    {
+        int hiddenEdges = 0;
+        for (int direction = 0; direction < NEIGHBOR_OFFSETS.Length; direction++)
+        {
+            if (piecePositions.Contains(_position + NEIGHBOR_OFFSETS[direction]))
+            {
+                hiddenEdges |= 1 << direction;
+            }
+        }
+        return hiddenEdges;
+    }
+
+    static bool MatchesReference(Sprite _sprite, Sprite _reference)
+    {
+        return _sprite && _sprite.rect.size == _reference.rect.size && _sprite.pixelsPerUnit == _reference.pixelsPerUnit &&
+            _sprite.pivot == _sprite.rect.size * 0.5f;
+    }
+
+    static bool HasSlots(PuzzleSlotVisual[] _slots, Transform _parent, Sprite _reference)
+    {
+        return _slots != null && _slots.Distinct().Count() == _slots.Length &&
+            _slots.All(slot => slot && slot.transform.parent == _parent && slot.IsConfigured(_reference));
+    }
+
+    static void ConfigureSlots(PuzzleSlotVisual[] _slots, Sprite _outlineSprite, Sprite[] _fillSprites = null)
+    {
+        foreach (var slot in _slots)
+        {
+            slot.ConfigureSprites(_outlineSprite, _fillSprites);
+        }
+    }
+
+    static void HideSlots(PuzzleSlotVisual[] _slots, int _start = 0)
+    {
+        for (int i = _start; i < _slots.Length; i++)
+        {
+            _slots[i].Hide();
+        }
+    }
+}

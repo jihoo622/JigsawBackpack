@@ -1,0 +1,10 @@
+{
+  "status": "sample",
+  "note": "구매가는 기본 가치, 판매가는 이동 직전 기차 내 최종 가치에 도시별 비율을 곱하고 정수로 반올림한다.",
+  "startingFunds": 80,
+  "cityPrices": [
+    { "cityId": "city.a", "buyEnabled": true, "sellEnabled": true, "buyPercentOfBaseValue": 80, "sellPercentOfFinalValue": 65 },
+    { "cityId": "city.b", "buyEnabled": true, "sellEnabled": true, "buyPercentOfBaseValue": 145, "sellPercentOfFinalValue": 125 },
+    { "cityId": "city.c", "buyEnabled": true, "sellEnabled": true, "buyPercentOfBaseValue": 110, "sellPercentOfFinalValue": 95 }
+  ]
+}

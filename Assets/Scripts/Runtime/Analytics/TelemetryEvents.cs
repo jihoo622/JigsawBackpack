@@ -11,6 +11,7 @@ public static class TelemetryEvents
     public const string SCENE_CHANGE = "scene_change";
     public const string UPGRADE_GRANTED = "upgrade_granted";
     public const string PANEL_VISIBILITY = "panel_visibility";
+    public const string TRADE_COMPLETED = "trade_completed";
 }
 
 // payload 자료형은 [Serializable] 구조체로 둔다(JsonUtility는 익명 타입을 직렬화하지 않는다).
@@ -53,6 +54,14 @@ public struct PanelPayload
 {
     public string panel;
     public bool open;
+}
+
+[Serializable]
+public struct TradePayload
+{
+    public string cityId, itemId, direction;
+    public int instanceId, x, y, clockwiseTurns;
+    public long price, fundsAfter;
 }
 
 // 좌표는 히트맵에 충분한 1cm 단위로 줄여 행 크기를 낮춘다.
@@ -112,6 +121,22 @@ public static class TelemetryPayload
         payload.panel = _info.panel;
         payload.open = _info.open;
         return payload;
+    }
+
+    public static TradePayload Trade(GameEvents.TradeInfo _info)
+    {
+        return new TradePayload
+        {
+            cityId = _info.cityId,
+            itemId = _info.itemId,
+            direction = _info.direction.ToString().ToLowerInvariant(),
+            instanceId = _info.instanceId,
+            x = _info.destination.x,
+            y = _info.destination.y,
+            clockwiseTurns = _info.clockwiseTurns,
+            price = _info.price,
+            fundsAfter = _info.fundsAfter
+        };
     }
 
     public static TelemetryPosition Position(Vector3 _value)

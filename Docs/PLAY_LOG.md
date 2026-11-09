@@ -20,8 +20,11 @@
 | `scene_change` | `GameEvents` 씬 훅(자동) | `ScenePayload` | `scene`, `loaded` |
 | `upgrade_granted` | `UpgradeManager.Grant` → `GameEvents.RaiseUpgradeGranted` | `UpgradePayload` | `id`, `displayName` |
 | `panel_visibility` | `PanelBase.SetOpen` → `GameEvents.RaisePanelVisibility` | `PanelPayload` | `panel`, `open` |
+| `trade_completed` | `PuzzleInventoryService.Drop` → `GameEvents.RaiseTradeCompleted` | `TradePayload` | `cityId`, `itemId`, `instanceId`, `direction`(`buy` / `sell`), `price`, `fundsAfter`, `x`, `y`, `clockwiseTurns` |
 | `summary` | 게임 쪽 `TelemetryLog.WriteSummary` | (집계 자료형) | `summaryId`, `revision` |
 | `session_end` | 종료 훅(`TelemetryLog.Close`) | `SessionPayload` | `reason`(`shutdown` / `application_quit`) |
+
+`trade_completed`는 보드 간 구매·판매가 확정될 때 기록한다. `x`·`y`는 대상 보드에서 회전한 화물의 왼쪽 위 기준점이다.
 
 ## 이벤트 추가할 때
 1. `GameEvents`에 `struct` 페이로드와 `Raise*`를 추가한다.

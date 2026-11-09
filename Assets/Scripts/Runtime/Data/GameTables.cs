@@ -13,9 +13,42 @@ using System;
     public UpgradeData[] upgrades = Array.Empty<UpgradeData>();
 }
 
-// 씬 진행 경로(타이틀 → 게임 → 재시작). TableManager.Load가 읽는 두 번째 테이블.
+// 씬 진행 경로(타이틀 → 게임 → 재시작).
 [Serializable] public sealed class FlowTableData
 {
     public string status, note;
     public SceneLinkData[] scenes = Array.Empty<SceneLinkData>();
+}
+
+[Serializable]
+public sealed class PuzzleTableData
+{
+    public string status, note;
+    public PuzzlePieceData[] pieces = Array.Empty<PuzzlePieceData>();
+    public PuzzleBoardData train;
+    public string startCity;
+    public PuzzleCityData[] cities = Array.Empty<PuzzleCityData>();
+}
+
+[Serializable]
+public sealed class PuzzleSynergyTableData
+{
+    public string status, note;
+    public PuzzleSynergyRuleData[] rules = Array.Empty<PuzzleSynergyRuleData>();
+}
+
+[Serializable]
+public sealed class PuzzleTradeTableData
+{
+    public string status, note;
+    public long startingFunds = -1;
+    public PuzzleCityPriceData[] cityPrices = Array.Empty<PuzzleCityPriceData>();
+}
+
+[Serializable]
+public sealed class PuzzleTurnTableData
+{
+    public string status, note;
+    public int debtInterval;
+    public PuzzleDebtPaymentData[] debtPayments = Array.Empty<PuzzleDebtPaymentData>();
 }

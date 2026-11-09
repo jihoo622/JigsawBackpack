@@ -1,0 +1,183 @@
+{
+  "status": "active",
+  "note": "3단계 샘플 아이템과 도시별 시작 배치. 이름·기본 가치·태그는 개발용 샘플이다.",
+  "pieces": [
+    {
+      "id": "piece.elbowLeft",
+      "displayName": "왼쪽 모서리 상자",
+      "description": "왼쪽으로 꺾인 세 칸 화물.",
+      "baseValue": 32,
+      "tags": ["Cargo", "Wood"],
+      "visualKey": "cargo.crate",
+      "slotCount": 3,
+      "cells": [
+        { "x": 0, "y": 0, "north": "Flat", "east": "Flat", "south": "Flat", "west": "Flat" },
+        { "x": 0, "y": 1, "north": "Flat", "east": "Flat", "south": "Flat", "west": "Flat" },
+        { "x": 1, "y": 1, "north": "Flat", "east": "Flat", "south": "Flat", "west": "Flat" }
+      ]
+    },
+    {
+      "id": "piece.fourNotches",
+      "displayName": "소형 상자",
+      "description": "한 칸을 차지하는 소형 상자.",
+      "baseValue": 12,
+      "tags": ["Cargo", "Wood"],
+      "visualKey": "cargo.crate",
+      "slotCount": 1,
+      "cells": [
+        { "x": 0, "y": 0, "north": "Flat", "east": "Flat", "south": "Flat", "west": "Flat" }
+      ]
+    },
+    {
+      "id": "piece.topNotch",
+      "displayName": "곡물 포대",
+      "description": "한 칸을 차지하는 소형 포대.",
+      "baseValue": 10,
+      "tags": ["Food", "Supply"],
+      "visualKey": "cargo.supplies",
+      "slotCount": 1,
+      "cells": [
+        { "x": 0, "y": 0, "north": "Flat", "east": "Flat", "south": "Flat", "west": "Flat" }
+      ]
+    },
+    {
+      "id": "piece.verticalPair",
+      "displayName": "목재 묶음",
+      "description": "세로로 두 칸을 차지하는 직사각형 화물.",
+      "baseValue": 25,
+      "tags": ["Cargo", "Wood"],
+      "visualKey": "cargo.crate",
+      "slotCount": 2,
+      "cells": [
+        { "x": 0, "y": 0, "north": "Flat", "east": "Flat", "south": "Flat", "west": "Flat" },
+        { "x": 0, "y": 1, "north": "Flat", "east": "Flat", "south": "Flat", "west": "Flat" }
+      ]
+    },
+    {
+      "id": "piece.verticalTabs",
+      "displayName": "물통",
+      "description": "한 칸을 차지하는 소형 통.",
+      "baseValue": 15,
+      "tags": ["Supply", "Water"],
+      "visualKey": "cargo.supplies",
+      "slotCount": 1,
+      "cells": [
+        { "x": 0, "y": 0, "north": "Flat", "east": "Flat", "south": "Flat", "west": "Flat" }
+      ]
+    },
+    {
+      "id": "piece.uShape",
+      "displayName": "기계 프레임",
+      "description": "가운데 한 칸이 열린 U자형 다섯 칸 화물.",
+      "baseValue": 55,
+      "tags": ["Machinery", "Metal"],
+      "visualKey": "cargo.machine",
+      "slotCount": 5,
+      "cells": [
+        { "x": 0, "y": 0, "north": "Flat", "east": "Flat", "south": "Flat", "west": "Flat" },
+        { "x": 2, "y": 0, "north": "Flat", "east": "Flat", "south": "Flat", "west": "Flat" },
+        { "x": 0, "y": 1, "north": "Flat", "east": "Flat", "south": "Flat", "west": "Flat" },
+        { "x": 1, "y": 1, "north": "Flat", "east": "Flat", "south": "Flat", "west": "Flat" },
+        { "x": 2, "y": 1, "north": "Flat", "east": "Flat", "south": "Flat", "west": "Flat" }
+      ]
+    },
+    {
+      "id": "piece.elbowRight",
+      "displayName": "공구 상자",
+      "description": "오른쪽으로 꺾인 세 칸 화물.",
+      "baseValue": 36,
+      "tags": ["Cargo", "Metal"],
+      "visualKey": "cargo.crate",
+      "slotCount": 3,
+      "cells": [
+        { "x": 1, "y": 0, "north": "Flat", "east": "Flat", "south": "Flat", "west": "Flat" },
+        { "x": 0, "y": 1, "north": "Flat", "east": "Flat", "south": "Flat", "west": "Flat" },
+        { "x": 1, "y": 1, "north": "Flat", "east": "Flat", "south": "Flat", "west": "Flat" }
+      ]
+    },
+    {
+      "id": "piece.fish",
+      "displayName": "물고기",
+      "description": "세로 두 칸을 차지하는 생선 화물.",
+      "baseValue": 18,
+      "tags": ["Food", "Fish"],
+      "visualKey": "cargo.supplies",
+      "slotCount": 2,
+      "cells": [
+        { "x": 0, "y": 0, "north": "Flat", "east": "Flat", "south": "Flat", "west": "Flat" },
+        { "x": 0, "y": 1, "north": "Flat", "east": "Flat", "south": "Flat", "west": "Flat" }
+      ]
+    },
+    {
+      "id": "piece.saltSack",
+      "displayName": "소금 자루",
+      "description": "한 칸을 차지하는 소금 자루.",
+      "baseValue": 8,
+      "tags": ["Salt", "Supply"],
+      "visualKey": "cargo.supplies",
+      "slotCount": 1,
+      "cells": [
+        { "x": 0, "y": 0, "north": "Flat", "east": "Flat", "south": "Flat", "west": "Flat" }
+      ]
+    }
+  ],
+  "train": {
+    "width": 7,
+    "height": 6,
+    "startingPlacements": [
+      { "id": "sample.elbowLeft", "pieceId": "piece.elbowLeft", "x": 0, "y": 1, "clockwiseTurns": 0 },
+      { "id": "sample.elbowRight", "pieceId": "piece.elbowRight", "x": 3, "y": 1, "clockwiseTurns": 0 },
+      { "id": "sample.fourNotches", "pieceId": "piece.fourNotches", "x": 3, "y": 3, "clockwiseTurns": 0 },
+      { "id": "sample.topNotch", "pieceId": "piece.topNotch", "x": 2, "y": 0, "clockwiseTurns": 0 },
+      { "id": "sample.uShape", "pieceId": "piece.uShape", "x": 0, "y": 4, "clockwiseTurns": 0 },
+      { "id": "sample.verticalPair", "pieceId": "piece.verticalPair", "x": 3, "y": 4, "clockwiseTurns": 1 },
+      { "id": "sample.verticalPairSpare", "pieceId": "piece.verticalPair", "x": 5, "y": 3, "clockwiseTurns": 0 },
+      { "id": "sample.verticalTabs", "pieceId": "piece.verticalTabs", "x": 0, "y": 2, "clockwiseTurns": 0 }
+    ]
+  },
+  "startCity": "city.a",
+  "cities": [
+    {
+      "id": "city.a",
+      "displayName": "City A",
+      "market": {
+        "width": 7,
+        "height": 6,
+        "startingPlacements": [
+          { "id": "sample.marketElbowRight", "pieceId": "piece.elbowRight", "x": 1, "y": 4, "clockwiseTurns": 0 },
+          { "id": "sample.marketTopNotch", "pieceId": "piece.topNotch", "x": 5, "y": 4, "clockwiseTurns": 0 },
+          { "id": "sample.marketUShape", "pieceId": "piece.uShape", "x": 3, "y": 1, "clockwiseTurns": 0 },
+          { "id": "sample.marketVerticalPair", "pieceId": "piece.verticalPair", "x": 4, "y": 3, "clockwiseTurns": 0 },
+          { "id": "sample.marketFish", "pieceId": "piece.fish", "x": 3, "y": 4, "clockwiseTurns": 0 },
+          { "id": "sample.marketSaltSack", "pieceId": "piece.saltSack", "x": 3, "y": 2, "clockwiseTurns": 0 }
+        ]
+      }
+    },
+    {
+      "id": "city.b",
+      "displayName": "City B",
+      "market": {
+        "width": 6,
+        "height": 5,
+        "startingPlacements": [
+          { "id": "sample.cityBElbowLeft", "pieceId": "piece.elbowLeft", "x": 1, "y": 3, "clockwiseTurns": 0 },
+          { "id": "sample.cityBFourNotches", "pieceId": "piece.fourNotches", "x": 4, "y": 1, "clockwiseTurns": 0 },
+          { "id": "sample.cityBVerticalPair", "pieceId": "piece.verticalPair", "x": 3, "y": 4, "clockwiseTurns": 1 }
+        ]
+      }
+    },
+    {
+      "id": "city.c",
+      "displayName": "City C",
+      "market": {
+        "width": 5,
+        "height": 6,
+        "startingPlacements": [
+          { "id": "sample.cityCElbowRight", "pieceId": "piece.elbowRight", "x": 3, "y": 2, "clockwiseTurns": 0 },
+          { "id": "sample.cityCUShape", "pieceId": "piece.uShape", "x": 0, "y": 4, "clockwiseTurns": 0 },
+          { "id": "sample.cityCVerticalTabs", "pieceId": "piece.verticalTabs", "x": 1, "y": 0, "clockwiseTurns": 0 }
+        ]
+      }
+    }
+  ]
+}

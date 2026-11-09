@@ -31,3 +31,71 @@ using System;
 {
     public string scene, nextScene, restartScene;
 }
+
+[Serializable]
+public sealed class PuzzlePieceData
+{
+    public string id, displayName, description, visualKey;
+    public int baseValue = -1;
+    public string[] tags = Array.Empty<string>();
+    // 누락된 슬롯 수를 검증에서 거부하기 위한 값이다.
+    public int slotCount = -1;
+    public PuzzleCellData[] cells = Array.Empty<PuzzleCellData>();
+}
+
+[Serializable]
+public sealed class PuzzleCellData
+{
+    // 필드 누락을 유효한 0과 구분하기 위한 검증용 값이다.
+    public int x = -1;
+    public int y = -1;
+    public string north, east, south, west;
+}
+
+[Serializable]
+public sealed class PuzzleCityData
+{
+    public string id, displayName;
+    public PuzzleBoardData market;
+}
+
+[Serializable]
+public sealed class PuzzleBoardData
+{
+    public int width, height;
+    public PuzzleStartingPlacementData[] startingPlacements = Array.Empty<PuzzleStartingPlacementData>();
+}
+
+[Serializable]
+public sealed class PuzzleStartingPlacementData
+{
+    public string id, pieceId;
+    // 누락을 검증에서 거부하기 위한 값이다.
+    public int x = -1;
+    public int y = -1;
+    public int clockwiseTurns = -1;
+}
+
+[Serializable]
+public sealed class PuzzleSynergyRuleData
+{
+    public string id, targetTag, excludedTargetTag, neighborTag, scope;
+    public int multiplierPercent;
+}
+
+[Serializable]
+public sealed class PuzzleCityPriceData
+{
+    public string cityId;
+    public bool buyEnabled, sellEnabled;
+    public int buyPercentOfBaseValue, sellPercentOfFinalValue;
+    // 이전 거래 테이블의 판매 비율을 읽기 위한 호환 필드다.
+    public int sellPercentOfBaseValue;
+}
+
+[Serializable]
+public sealed class PuzzleDebtPaymentData
+{
+    public int moveCount;
+    public long amount;
+}

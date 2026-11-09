@@ -1,4 +1,6 @@
+using System.Linq;
 using UnityEngine;
+using UnityEngine.UI;
 
 // 색과 설명 문자열의 단일 출처.
 // 선택지 카드·정보 패널·슬롯 핍·장식 오브젝트가 모두 여기를 읽고, 개별 UI가 자기 색과 문구를 가지지 않는다.
@@ -10,6 +12,105 @@ public enum EffectCategory
 
 public static class Presentation
 {
+    public const string PUZZLE_TRAIN_TITLE = "Train Inventory";
+    public const string PUZZLE_MARKET_TITLE = "Market Inventory";
+    public const string PUZZLE_MOVE_GUIDE = "드래그로 이동    R로 회전    Esc로 취소";
+    public const string PUZZLE_PREVIOUS_CITY = "Previous City";
+    public const string PUZZLE_NEXT_CITY = "Next City";
+    public const string PUZZLE_TRADE_GUIDE = "시장 → 기차 구매   ·   기차 → 시장 판매";
+
+    public static Color PuzzleBackground => new(0.10f, 0.13f, 0.17f);
+    public static Color PuzzleCell => new(0.17f, 0.21f, 0.26f);
+    public static Color PuzzleHeading => new(0.92f, 0.94f, 0.97f);
+    public static Color PuzzlePiece => UnityEngine.Color.white;
+    public static Color PuzzleGhost => new(1f, 1f, 1f, 0.42f);
+    public static Color PuzzleMoveTarget => new(0.53f, 0.79f, 1f);
+
+    internal static string PuzzleValueText(PuzzleValue _value)
+    {
+        return $"기본 가치 {_value.BaseValue:N0}  →  최종 가치 {_value.FinalValue:#,0.##}";
+    }
+
+    internal static string PuzzleItemDetails(PuzzleItemDefinition _item, PuzzleValue _value)
+    {
+        if (_item == null)
+        {
+            return string.Empty;
+        }
+
+        string details = $"{_item.DisplayName}    {PuzzleValueText(_value)}\n{_item.Description}";
+        if (_value.SynergyBonuses.Count == 0)
+        {
+            return $"{details}\n인접 시너지 없음";
+        }
+
+        var bonuses = _value.SynergyBonuses.Select(bonus =>
+            $"{bonus.NeighborName} {bonus.Percent:+#,0.##;-#,0.##;0}% ({bonus.Amount:+#,0.##;-#,0.##;0})");
+        return $"{details}\n인접 시너지\n{string.Join("  ·  ", bonuses)}";
+    }
+
+    internal static string PuzzleFunds(long _funds)
+    {
+        return $"보유 자금 {_funds:N0}";
+    }
+
+    internal static string PuzzleTradeStatus(PuzzleDropResult _result, PuzzleItemDefinition _item, bool _committed)
+    {
+        if (_result.Direction == PuzzleTradeDirection.None)
+        {
+            return PUZZLE_TRADE_GUIDE;
+        }
+
+        string direction = _result.Direction == PuzzleTradeDirection.Buy ? "구매" : "판매";
+        string quote = $"{_item.DisplayName} · {direction}";
+        if (_result.Placement.Failure != PuzzlePlacementFailure.StaleSource &&
+            _result.TradeFailure != PuzzleTradeFailure.PriceOverflow)
+        {
+            quote += $" {_result.Price:N0}";
+        }
+        if (_result.CanDrop)
+        {
+            return _committed ? $"{quote} 완료" : quote;
+        }
+
+        string reason = _result.TradeFailure switch
+        {
+            PuzzleTradeFailure.Disabled => "이 도시에서는 허용되지 않습니다",
+            PuzzleTradeFailure.InsufficientFunds => "자금이 부족합니다",
+            PuzzleTradeFailure.PriceOverflow => "판매가가 거래 한도를 초과합니다",
+            PuzzleTradeFailure.BalanceOverflow => "보유 자금 한도를 초과합니다",
+            _ => _result.Placement.Failure switch
+            {
+                PuzzlePlacementFailure.StaleSource => "원래 화물 배치가 변경됐습니다",
+                PuzzlePlacementFailure.CellOutsideBoard => "화물이 보드 경계를 넘습니다",
+                PuzzlePlacementFailure.CellOccupied => "다른 화물과 겹칩니다",
+                _ => "이 위치에 배치할 수 없습니다"
+            }
+        };
+        return $"{quote} · {reason}";
+    }
+
+    public static ColorBlock PuzzleCityButtonColors => new()
+    {
+        normalColor = PuzzleBackground,
+        highlightedColor = new Color(0.23f, 0.30f, 0.38f),
+        pressedColor = PuzzleBackground,
+        selectedColor = PuzzleCell,
+        disabledColor = new Color(0.10f, 0.13f, 0.17f, 0.50f),
+        colorMultiplier = 1f,
+        fadeDuration = ColorBlock.defaultColorBlock.fadeDuration
+    };
+
+    public static Color PuzzlePieceOutline(float _alpha)
+    {
+        return new Color(0f, 0f, 0f, _alpha);
+    }
+
+    public static Color PuzzleOutline(bool _canPlace)
+    {
+        return _canPlace ? new Color(0.39f, 0.91f, 0.67f) : new Color(1f, 0.43f, 0.39f);
+    }
+
     // 범주 팔레트. 새 범주를 추가하면 여기 색과 Title을 함께 추가한다.
     public static Color Color(EffectCategory _category)
     {

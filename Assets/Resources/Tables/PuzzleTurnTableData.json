@@ -1,0 +1,10 @@
+{
+  "status": "active",
+  "note": "도시 이동 횟수를 기준으로 차감할 빚의 일정.",
+  "debtInterval": 2,
+  "debtPayments": [
+    { "moveCount": 2, "amount": 50 },
+    { "moveCount": 4, "amount": 100 },
+    { "moveCount": 6, "amount": 200 }
+  ]
+}
