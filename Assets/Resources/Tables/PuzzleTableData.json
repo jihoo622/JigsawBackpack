@@ -1,6 +1,6 @@
 {
   "status": "active",
-  "note": "3단계 샘플 아이템과 도시별 시작 배치. 이름·태그는 개발용 샘플이며 가격은 PuzzleItemPriceTableData가 원본이다.",
+  "note": "7개 마을의 생산·수요와 시장 시작 재고. 풍부 80/75%, 필요 120/110%는 임시 구매/판매 배율이며 가격 밸런스는 미확정이다.",
   "pieces": [
     {
       "id": "piece.elbowLeft",
@@ -30,7 +30,7 @@
       "id": "piece.topNotch",
       "displayName": "곡물 포대",
       "description": "한 칸을 차지하는 소형 포대.",
-      "tags": ["Food", "Supply"],
+      "tags": ["Food", "Supply", "Grain"],
       "visualKey": "cargo.supplies",
       "slotCount": 1,
       "cells": [
@@ -128,77 +128,354 @@
   },
   "startCity": "city.a",
   "cities": [
-    {
-      "id": "city.a",
-      "displayName": "City A",
-      "buyEnabled": true,
-      "sellEnabled": true,
-      "buyPercentOfBaseValue": 100,
-      "sellPercentOfFinalValue": 100,
-      "tagPrices": [
-        { "tag": "Food", "priority": 30, "buyPercent": 120, "sellPercent": 110 },
-        { "tag": "Wood", "priority": 20, "buyPercent": 80, "sellPercent": 75 },
-        { "tag": "Cargo", "priority": 10, "buyPercent": 90, "sellPercent": 70 }
-      ],
-      "market": {
-        "width": 7,
-        "height": 6,
-        "startingPlacements": [
-          { "id": "sample.marketElbowRight", "pieceId": "piece.elbowRight", "x": 1, "y": 4, "clockwiseTurns": 0 },
-          { "id": "sample.marketTopNotch", "pieceId": "piece.topNotch", "x": 5, "y": 4, "clockwiseTurns": 0 },
-          { "id": "sample.marketUShape", "pieceId": "piece.uShape", "x": 3, "y": 1, "clockwiseTurns": 0 },
-          { "id": "sample.marketVerticalPair", "pieceId": "piece.verticalPair", "x": 4, "y": 3, "clockwiseTurns": 0 },
-          { "id": "sample.marketFish", "pieceId": "piece.fish", "x": 3, "y": 4, "clockwiseTurns": 0 },
-          { "id": "sample.marketSaltSack", "pieceId": "piece.saltSack", "x": 3, "y": 2, "clockwiseTurns": 0 }
-        ]
+  {
+    "id": "city.a",
+    "displayName": "산림 마을",
+    "buyEnabled": true,
+    "sellEnabled": true,
+    "buyPercentOfBaseValue": 100,
+    "sellPercentOfFinalValue": 100,
+    "tagPrices": [
+      {
+        "tag": "Wood",
+        "priority": 30,
+        "buyPercent": 80,
+        "sellPercent": 75
+      },
+      {
+        "tag": "Machinery",
+        "priority": 20,
+        "buyPercent": 120,
+        "sellPercent": 110
       }
-    },
-    {
-      "id": "city.b",
-      "displayName": "City B",
-      "buyEnabled": true,
-      "sellEnabled": true,
-      "buyPercentOfBaseValue": 100,
-      "sellPercentOfFinalValue": 100,
-      "tagPrices": [
-        { "tag": "Machinery", "priority": 30, "buyPercent": 150, "sellPercent": 120 },
-        { "tag": "Metal", "priority": 20, "buyPercent": 140, "sellPercent": 115 },
-        { "tag": "Wood", "priority": 15, "buyPercent": 95, "sellPercent": 85 },
-        { "tag": "Cargo", "priority": 10, "buyPercent": 105, "sellPercent": 95 }
-      ],
-      "market": {
-        "width": 6,
-        "height": 5,
-        "startingPlacements": [
-          { "id": "sample.cityBElbowLeft", "pieceId": "piece.elbowLeft", "x": 1, "y": 3, "clockwiseTurns": 0 },
-          { "id": "sample.cityBFourNotches", "pieceId": "piece.fourNotches", "x": 4, "y": 1, "clockwiseTurns": 0 },
-          { "id": "sample.cityBVerticalPair", "pieceId": "piece.verticalPair", "x": 3, "y": 4, "clockwiseTurns": 1 }
-        ]
-      }
-    },
-    {
-      "id": "city.c",
-      "displayName": "City C",
-      "buyEnabled": true,
-      "sellEnabled": true,
-      "buyPercentOfBaseValue": 100,
-      "sellPercentOfFinalValue": 100,
-      "tagPrices": [
-        { "tag": "Fish", "priority": 30, "buyPercent": 130, "sellPercent": 150 },
-        { "tag": "Salt", "priority": 25, "buyPercent": 115, "sellPercent": 125 },
-        { "tag": "Water", "priority": 20, "buyPercent": 110, "sellPercent": 120 },
-        { "tag": "Food", "priority": 15, "buyPercent": 100, "sellPercent": 105 },
-        { "tag": "Supply", "priority": 10, "buyPercent": 95, "sellPercent": 95 }
-      ],
-      "market": {
-        "width": 5,
-        "height": 6,
-        "startingPlacements": [
-          { "id": "sample.cityCElbowRight", "pieceId": "piece.elbowRight", "x": 3, "y": 2, "clockwiseTurns": 0 },
-          { "id": "sample.cityCUShape", "pieceId": "piece.uShape", "x": 0, "y": 4, "clockwiseTurns": 0 },
-          { "id": "sample.cityCVerticalTabs", "pieceId": "piece.verticalTabs", "x": 1, "y": 0, "clockwiseTurns": 0 }
-        ]
-      }
+    ],
+    "market": {
+      "width": 7,
+      "height": 6,
+      "startingPlacements": [
+        {
+          "id": "city.a.stock.1",
+          "pieceId": "piece.verticalPair",
+          "x": 0,
+          "y": 1,
+          "clockwiseTurns": 0
+        },
+        {
+          "id": "city.a.stock.2",
+          "pieceId": "piece.elbowLeft",
+          "x": 2,
+          "y": 1,
+          "clockwiseTurns": 0
+        },
+        {
+          "id": "city.a.stock.3",
+          "pieceId": "piece.fourNotches",
+          "x": 4,
+          "y": 1,
+          "clockwiseTurns": 0
+        }
+      ]
     }
-  ]
+  },
+  {
+    "id": "city.b",
+    "displayName": "농업 마을",
+    "buyEnabled": true,
+    "sellEnabled": true,
+    "buyPercentOfBaseValue": 100,
+    "sellPercentOfFinalValue": 100,
+    "tagPrices": [
+      {
+        "tag": "Grain",
+        "priority": 30,
+        "buyPercent": 80,
+        "sellPercent": 75
+      },
+      {
+        "tag": "Water",
+        "priority": 20,
+        "buyPercent": 120,
+        "sellPercent": 110
+      }
+    ],
+    "market": {
+      "width": 7,
+      "height": 6,
+      "startingPlacements": [
+        {
+          "id": "city.b.stock.1",
+          "pieceId": "piece.topNotch",
+          "x": 0,
+          "y": 1,
+          "clockwiseTurns": 0
+        },
+        {
+          "id": "city.b.stock.2",
+          "pieceId": "piece.topNotch",
+          "x": 2,
+          "y": 1,
+          "clockwiseTurns": 0
+        },
+        {
+          "id": "city.b.stock.3",
+          "pieceId": "piece.topNotch",
+          "x": 4,
+          "y": 1,
+          "clockwiseTurns": 0
+        }
+      ]
+    }
+  },
+  {
+    "id": "city.c",
+    "displayName": "수원 마을",
+    "buyEnabled": true,
+    "sellEnabled": true,
+    "buyPercentOfBaseValue": 100,
+    "sellPercentOfFinalValue": 100,
+    "tagPrices": [
+      {
+        "tag": "Water",
+        "priority": 30,
+        "buyPercent": 80,
+        "sellPercent": 75
+      },
+      {
+        "tag": "Fish",
+        "priority": 20,
+        "buyPercent": 120,
+        "sellPercent": 110
+      }
+    ],
+    "market": {
+      "width": 7,
+      "height": 6,
+      "startingPlacements": [
+        {
+          "id": "city.c.stock.1",
+          "pieceId": "piece.verticalTabs",
+          "x": 0,
+          "y": 1,
+          "clockwiseTurns": 0
+        },
+        {
+          "id": "city.c.stock.2",
+          "pieceId": "piece.verticalTabs",
+          "x": 2,
+          "y": 1,
+          "clockwiseTurns": 0
+        },
+        {
+          "id": "city.c.stock.3",
+          "pieceId": "piece.verticalTabs",
+          "x": 4,
+          "y": 1,
+          "clockwiseTurns": 0
+        }
+      ]
+    }
+  },
+  {
+    "id": "city.d",
+    "displayName": "광산 마을",
+    "buyEnabled": true,
+    "sellEnabled": true,
+    "buyPercentOfBaseValue": 100,
+    "sellPercentOfFinalValue": 100,
+    "tagPrices": [
+      {
+        "tag": "Metal",
+        "priority": 30,
+        "buyPercent": 80,
+        "sellPercent": 75
+      },
+      {
+        "tag": "Grain",
+        "priority": 20,
+        "buyPercent": 120,
+        "sellPercent": 110
+      }
+    ],
+    "market": {
+      "width": 7,
+      "height": 6,
+      "startingPlacements": [
+        {
+          "id": "city.d.stock.1",
+          "pieceId": "piece.elbowRight",
+          "x": 0,
+          "y": 1,
+          "clockwiseTurns": 0
+        },
+        {
+          "id": "city.d.stock.2",
+          "pieceId": "piece.elbowRight",
+          "x": 2,
+          "y": 1,
+          "clockwiseTurns": 0
+        },
+        {
+          "id": "city.d.stock.3",
+          "pieceId": "piece.elbowRight",
+          "x": 4,
+          "y": 1,
+          "clockwiseTurns": 0
+        }
+      ]
+    }
+  },
+  {
+    "id": "city.e",
+    "displayName": "공업 마을",
+    "buyEnabled": true,
+    "sellEnabled": true,
+    "buyPercentOfBaseValue": 100,
+    "sellPercentOfFinalValue": 100,
+    "tagPrices": [
+      {
+        "tag": "Machinery",
+        "priority": 30,
+        "buyPercent": 80,
+        "sellPercent": 75
+      },
+      {
+        "tag": "Wood",
+        "priority": 20,
+        "buyPercent": 120,
+        "sellPercent": 110
+      },
+      {
+        "tag": "Metal",
+        "priority": 19,
+        "buyPercent": 120,
+        "sellPercent": 110
+      }
+    ],
+    "market": {
+      "width": 7,
+      "height": 6,
+      "startingPlacements": [
+        {
+          "id": "city.e.stock.1",
+          "pieceId": "piece.uShape",
+          "x": 0,
+          "y": 1,
+          "clockwiseTurns": 0
+        },
+        {
+          "id": "city.e.stock.2",
+          "pieceId": "piece.uShape",
+          "x": 4,
+          "y": 1,
+          "clockwiseTurns": 0
+        },
+        {
+          "id": "city.e.stock.3",
+          "pieceId": "piece.uShape",
+          "x": 0,
+          "y": 3,
+          "clockwiseTurns": 0
+        }
+      ]
+    }
+  },
+  {
+    "id": "city.f",
+    "displayName": "어촌 마을",
+    "buyEnabled": true,
+    "sellEnabled": true,
+    "buyPercentOfBaseValue": 100,
+    "sellPercentOfFinalValue": 100,
+    "tagPrices": [
+      {
+        "tag": "Fish",
+        "priority": 30,
+        "buyPercent": 80,
+        "sellPercent": 75
+      },
+      {
+        "tag": "Salt",
+        "priority": 20,
+        "buyPercent": 120,
+        "sellPercent": 110
+      }
+    ],
+    "market": {
+      "width": 7,
+      "height": 6,
+      "startingPlacements": [
+        {
+          "id": "city.f.stock.1",
+          "pieceId": "piece.fish",
+          "x": 0,
+          "y": 1,
+          "clockwiseTurns": 0
+        },
+        {
+          "id": "city.f.stock.2",
+          "pieceId": "piece.fish",
+          "x": 2,
+          "y": 1,
+          "clockwiseTurns": 0
+        },
+        {
+          "id": "city.f.stock.3",
+          "pieceId": "piece.fish",
+          "x": 4,
+          "y": 1,
+          "clockwiseTurns": 0
+        }
+      ]
+    }
+  },
+  {
+    "id": "city.g",
+    "displayName": "염전 마을",
+    "buyEnabled": true,
+    "sellEnabled": true,
+    "buyPercentOfBaseValue": 100,
+    "sellPercentOfFinalValue": 100,
+    "tagPrices": [
+      {
+        "tag": "Salt",
+        "priority": 30,
+        "buyPercent": 80,
+        "sellPercent": 75
+      },
+      {
+        "tag": "Machinery",
+        "priority": 20,
+        "buyPercent": 120,
+        "sellPercent": 110
+      }
+    ],
+    "market": {
+      "width": 7,
+      "height": 6,
+      "startingPlacements": [
+        {
+          "id": "city.g.stock.1",
+          "pieceId": "piece.saltSack",
+          "x": 0,
+          "y": 1,
+          "clockwiseTurns": 0
+        },
+        {
+          "id": "city.g.stock.2",
+          "pieceId": "piece.saltSack",
+          "x": 2,
+          "y": 1,
+          "clockwiseTurns": 0
+        },
+        {
+          "id": "city.g.stock.3",
+          "pieceId": "piece.saltSack",
+          "x": 4,
+          "y": 1,
+          "clockwiseTurns": 0
+        }
+      ]
+    }
+  }
+]
 }

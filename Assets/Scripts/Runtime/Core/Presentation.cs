@@ -29,6 +29,7 @@ public static class Presentation
         { "Cargo", "상자" },
         { "Wood", "나무" },
         { "Food", "음식" },
+        { "Grain", "곡물" },
         { "Supply", "보급품" },
         { "Water", "물" },
         { "Machinery", "기계" },

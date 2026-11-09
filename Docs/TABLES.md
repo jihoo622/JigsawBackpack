@@ -34,7 +34,7 @@
 - `FlowTableData` — Preload → Title → Game 진행 경로(`scene`, `nextScene`, `restartScene`).
 - `PuzzleTableData`는 공용 화물 모양(`pieces`), 기차 보드(`train`), 도시 목록(`cities`)을 정의한다. 각 도시에는 고유한 `id`, 화면 이름인 `displayName`, 시장 보드(`market`)가 필요하다. 1단계의 루트 `market`은 시작 도시 항목의 `market`으로 옮겼다. 각 보드의 크기와 시작 배치는 `width`·`height`와 `startingPlacements`에 둔다.
   - `startCity`는 도시 ID를 참조한다. 이동 순서는 시작 도시 우선, 나머지는 ID 오름차순이며 이전·다음 버튼은 이 순서를 양방향으로 순환한다.
-  - `pieces`의 각 아이템 정의는 고유한 `id`, `displayName`, `description`, `tags`, `visualKey`, `slotCount`, `cells`를 가진다. 태그는 대소문자를 구분하며 한 아이템에서 중복될 수 없다. 현재 태그는 개발용 샘플이다.
+  - `pieces`의 각 아이템 정의는 고유한 `id`, `displayName`, `description`, `tags`, `visualKey`, `slotCount`, `cells`를 가진다. 태그는 대소문자를 구분하며 한 아이템에서 중복될 수 없다. 현재 태그는 개발용 샘플이며 곡물 전용 `Grain`을 포함한다. 마을은 `city.a`~`city.g`(산림·농업·수원·광산·공업·어촌·염전) 7개다. 시장은 각각 7×6, 생산 화물 3개이며 풍부 80/75%, 필요 120/110%의 임시 구매/판매 배율을 사용한다. 염전의 수요 태그는 `Machinery`다.
   - `visualKey`는 `PuzzleInventoryUI` 프리팹의 `itemIcons` 목록에 있는 스프라이트 키다. View 초기화 시 모든 아이템 정의의 참조를 확인한다. 등록된 키를 사용해 정의와 시작 배치를 추가하면 코드 변경 없이 표시할 수 있다.
   - `slotCount`는 `cells` 길이와 일치하고 슬롯은 상하좌우로 연결되어야 한다. 화물 로컬 좌표는 외접 사각형의 왼쪽 위 기준으로 오른쪽과 아래로 증가한다. `(0,0)`은 비어 있어도 된다. `north`, `east`, `south`, `west`는 모두 `Flat`이다. 셀 배열 순서는 배치나 아이콘 기준에 영향을 주지 않는다.
   - 시작 배치에는 기차와 모든 시장에서 고유한 `id`와 화물 종류를 가리키는 `pieceId`가 필요하다. `clockwiseTurns`는 시계방향 90도 회전 횟수로 0~3이다. `x`·`y`는 회전 후 외접 사각형의 왼쪽 위 기준점이며, 보드 좌표는 왼쪽 아래에서 오른쪽과 위로 증가한다. 회전한 슬롯 전체가 해당 보드 안에 있어야 하며 같은 보드의 배치끼리는 같은 칸을 점유할 수 없다.
