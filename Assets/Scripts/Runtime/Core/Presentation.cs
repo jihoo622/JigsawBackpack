@@ -14,6 +14,7 @@ public enum EffectCategory
 
 public static class Presentation
 {
+    public static Color PuzzleSynergyArrow => UnityEngine.Color.white;
     public const string PUZZLE_TRAIN_TITLE = "Train Inventory";
     public const string PUZZLE_MARKET_TITLE = "Market Inventory";
     public const string PUZZLE_MOVE_GUIDE = "드래그로 이동    R로 회전    Esc로 취소";

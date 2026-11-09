@@ -29,12 +29,18 @@ internal readonly struct PuzzleValue
 internal readonly struct PuzzleSynergyBonus
 {
     internal string NeighborName { get; }
+    internal int NeighborId { get; }
+    internal Vector2Int TargetCell { get; }
+    internal Vector2Int NeighborCell { get; }
     internal decimal Percent { get; }
     internal decimal Amount { get; }
 
-    internal PuzzleSynergyBonus(PuzzlePlacement _neighbor, decimal _percent, decimal _amount)
+    internal PuzzleSynergyBonus(PuzzlePlacement _neighbor, Vector2Int _targetCell, Vector2Int _neighborCell, decimal _percent, decimal _amount)
     {
         NeighborName = _neighbor.Definition.DisplayName;
+        NeighborId = _neighbor.InstanceId;
+        TargetCell = _targetCell;
+        NeighborCell = _neighborCell;
         Percent = _percent;
         Amount = _amount;
     }
@@ -49,11 +55,15 @@ internal sealed class PuzzleInventoryValuation
     readonly struct NeighborEffect
     {
         internal readonly PuzzlePlacement neighbor;
+        internal readonly Vector2Int targetCell, neighborCell;
         internal readonly decimal bonusPercent, reductionMultiplier;
 
-        internal NeighborEffect(PuzzlePlacement _neighbor, decimal _bonusPercent, decimal _reductionMultiplier)
+        internal NeighborEffect(PuzzlePlacement _neighbor, Vector2Int _targetCell, Vector2Int _neighborCell,
+            decimal _bonusPercent, decimal _reductionMultiplier)
         {
             neighbor = _neighbor;
+            targetCell = _targetCell;
+            neighborCell = _neighborCell;
             bonusPercent = _bonusPercent;
             reductionMultiplier = _reductionMultiplier;
         }
@@ -89,8 +99,8 @@ internal sealed class PuzzleInventoryValuation
                         : (neighbor.InstanceId, placement.InstanceId);
                     if (pairs.Add(pair))
                     {
-                        CollectEffects(placement, neighbor, _rules, effects);
-                        CollectEffects(neighbor, placement, _rules, effects);
+                        CollectEffects(placement, neighbor, cell.Position, cell.Position + offset, _rules, effects);
+                        CollectEffects(neighbor, placement, cell.Position + offset, cell.Position, _rules, effects);
                     }
                 }
             }
@@ -123,7 +133,7 @@ internal sealed class PuzzleInventoryValuation
             {
                 decimal amount = _baseValue * (effect.bonusPercent / BASE_PERCENT);
                 finalValue += amount;
-                details.Add(new PuzzleSynergyBonus(effect.neighbor, effect.bonusPercent, amount));
+                details.Add(new PuzzleSynergyBonus(effect.neighbor, effect.targetCell, effect.neighborCell, effect.bonusPercent, amount));
             }
         }
         foreach (var effect in _effects)
@@ -132,14 +142,15 @@ internal sealed class PuzzleInventoryValuation
             {
                 decimal reducedValue = finalValue * effect.reductionMultiplier;
                 decimal percent = (effect.reductionMultiplier - 1) * BASE_PERCENT;
-                details.Add(new PuzzleSynergyBonus(effect.neighbor, percent, reducedValue - finalValue));
+                details.Add(new PuzzleSynergyBonus(effect.neighbor, effect.targetCell, effect.neighborCell, percent, reducedValue - finalValue));
                 finalValue = reducedValue;
             }
         }
         return new PuzzleValue(_baseValue, finalValue, details.AsReadOnly());
     }
 
-    static void CollectEffects(PuzzlePlacement _target, PuzzlePlacement _neighbor, IReadOnlyList<PuzzleSynergyRuleData> _rules,
+    static void CollectEffects(PuzzlePlacement _target, PuzzlePlacement _neighbor, Vector2Int _targetCell,
+        Vector2Int _neighborCell, IReadOnlyList<PuzzleSynergyRuleData> _rules,
         Dictionary<int, List<NeighborEffect>> _effects)
     {
         decimal bonusPercent = 0;
@@ -172,7 +183,7 @@ internal sealed class PuzzleInventoryValuation
                 _effects.Add(_target.InstanceId, itemEffects);
             }
 
-            itemEffects.Add(new NeighborEffect(_neighbor, bonusPercent, reductionMultiplier));
+            itemEffects.Add(new NeighborEffect(_neighbor, _targetCell, _neighborCell, bonusPercent, reductionMultiplier));
         }
     }
 }

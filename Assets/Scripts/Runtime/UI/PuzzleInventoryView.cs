@@ -38,6 +38,9 @@ public sealed class PuzzleInventoryView : MonoBehaviour
     [SerializeField] PuzzleSlotVisual[] placementSlots;
     [SerializeField] PuzzleSlotVisual[] ghostSlots;
     [SerializeField] PuzzleSlotVisual[] outlineSlots;
+    [SerializeField] Image[] synergyArrows;
+    [SerializeField] Sprite increaseArrow;
+    [SerializeField] Sprite decreaseArrow;
 
     readonly HashSet<Vector2Int> piecePositions = new();
     Dictionary<string, ItemIcon> iconIndex;
@@ -45,20 +48,25 @@ public sealed class PuzzleInventoryView : MonoBehaviour
     Vector2Int gridSize;
     Vector2 gridMin;
     float cellSize;
+    bool showSynergies;
 
     Camera EventCamera => canvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : canvas.worldCamera;
 
     internal event Action Disabled;
 
     internal void Initialize(long _boardCapacity, long _dragCapacity, string _title,
-        IReadOnlyCollection<PuzzleItemDefinition> _items)
+        IReadOnlyCollection<PuzzleItemDefinition> _items, bool _showSynergies)
     {
+        showSynergies = _showSynergies;
         var parentCanvas = GetComponentInParent<Canvas>();
         if (!parentCanvas || !board || !boardTitle || !boardTitle.font || !boardValue || !boardValue.font ||
             !moveGuide || !moveGuide.font ||
             !itemDetails || !itemDetails.font ||
             !flatTriangle || boardCells == null || boardCells.Distinct().Count() != boardCells.Length ||
-            boardCells.Any(image => !image || image.rectTransform.parent != board.rectTransform))
+            boardCells.Any(image => !image || image.rectTransform.parent != board.rectTransform) ||
+            !increaseArrow || !decreaseArrow || synergyArrows == null ||
+            synergyArrows.Distinct().Count() != synergyArrows.Length ||
+            synergyArrows.Any(image => !image || image.rectTransform.parent != board.rectTransform))
         {
             throw new InvalidOperationException("화물 인벤토리 View의 Canvas 또는 프리팹 참조가 누락되었습니다.");
         }
@@ -83,7 +91,8 @@ public sealed class PuzzleInventoryView : MonoBehaviour
         }
 
         if (_boardCapacity > boardCells.Length || _boardCapacity > placementSlots.Length ||
-            _dragCapacity > ghostSlots.Length || _dragCapacity > outlineSlots.Length)
+            _dragCapacity > ghostSlots.Length || _dragCapacity > outlineSlots.Length ||
+            _boardCapacity * 8 > synergyArrows.Length)
         {
             throw new InvalidOperationException("화물 테이블과 인벤토리 프리팹의 표시 용량이 맞지 않습니다.");
         }
@@ -126,6 +135,7 @@ public sealed class PuzzleInventoryView : MonoBehaviour
         }
 
         HideSlots(placementSlots);
+        HideArrows();
         ClearDrag();
     }
 
@@ -143,11 +153,11 @@ public sealed class PuzzleInventoryView : MonoBehaviour
         return false;
     }
 
-    public void RenderPlacements(IReadOnlyCollection<PuzzlePlacement> _placements,
+    public void RenderPlacements(PuzzleInventory _inventory,
         int? _hiddenInstanceId = null, int? _highlightedInstanceId = null)
     {
         int index = 0;
-        foreach (var placement in _placements)
+        foreach (var placement in _inventory.Placements)
         {
             if (placement.InstanceId == _hiddenInstanceId)
             {
@@ -162,6 +172,58 @@ public sealed class PuzzleInventoryView : MonoBehaviour
         }
 
         HideSlots(placementSlots, index);
+        if (showSynergies)
+        {
+            RenderSynergies(_inventory, _hiddenInstanceId);
+        }
+        else
+        {
+            HideArrows();
+        }
+    }
+
+    void RenderSynergies(PuzzleInventory _inventory, int? _hiddenInstanceId)
+    {
+        int index = 0;
+        foreach (var target in _inventory.Placements)
+        {
+            if (target.InstanceId == _hiddenInstanceId)
+            {
+                continue;
+            }
+
+            foreach (var effect in _inventory.ValueOf(target.InstanceId).SynergyBonuses)
+            {
+                if (effect.NeighborId == _hiddenInstanceId)
+                {
+                    continue;
+                }
+
+                Vector2 direction = effect.TargetCell - effect.NeighborCell;
+                bool forward = direction.x > 0 || direction.y > 0;
+                bool increase = effect.Percent > 0;
+                Vector2 axis = direction.x != 0 ? Vector2.up : Vector2.right;
+                float lane = (forward ? 1f : -1f) * (increase ? 0.08f : 0.2f);
+                var arrow = synergyArrows[index++];
+                arrow.sprite = increase ? increaseArrow : decreaseArrow;
+                arrow.color = Presentation.PuzzleSynergyArrow;
+                arrow.rectTransform.localPosition = (GetCellCenter(effect.TargetCell) +
+                    GetCellCenter(effect.NeighborCell)) * 0.5f + axis * (lane * cellSize);
+                // 원본 스프라이트의 투명 여백을 포함한 크기다.
+                arrow.rectTransform.sizeDelta = new Vector2(cellSize * 1.8f, cellSize * 0.55f);
+                arrow.rectTransform.localRotation = Quaternion.Euler(0f, 0f, Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg);
+                arrow.enabled = true;
+            }
+        }
+        HideArrows(index);
+    }
+
+    void HideArrows(int _start = 0)
+    {
+        for (int i = _start; i < synergyArrows.Length; i++)
+        {
+            synergyArrows[i].enabled = false;
+        }
     }
 
     public void ShowGhost(PuzzlePose _pose, PuzzleItemDefinition _item, Vector2Int _grabbedBoardCell, Vector2 _screenPosition)

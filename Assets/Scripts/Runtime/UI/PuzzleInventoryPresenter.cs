@@ -31,8 +31,8 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         session.Initialize();
         long trainCapacity = (long)session.Train.Width * session.Train.Height;
         long dragCapacity = System.Math.Max(trainCapacity, session.MarketCapacity);
-        trainView.Initialize(trainCapacity, dragCapacity, Presentation.PUZZLE_TRAIN_TITLE, session.ItemDefinitions);
-        marketView.Initialize(session.MarketCapacity, dragCapacity, Presentation.PUZZLE_MARKET_TITLE, session.ItemDefinitions);
+        trainView.Initialize(trainCapacity, dragCapacity, Presentation.PUZZLE_TRAIN_TITLE, session.ItemDefinitions, _showSynergies: true);
+        marketView.Initialize(session.MarketCapacity, dragCapacity, Presentation.PUZZLE_MARKET_TITLE, session.ItemDefinitions, _showSynergies: false);
         cityView.Initialize(session.CanTravel);
         trainView.SetBoardSize(session.Train.Width, session.Train.Height);
         ShowCurrentCity();
@@ -326,11 +326,11 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
     {
         if (trainView)
         {
-            trainView.RenderPlacements(session.Train.Placements, drag?.InstanceId, _highlightedInstanceId);
+            trainView.RenderPlacements(session.Train, drag?.InstanceId, _highlightedInstanceId);
         }
         if (marketView)
         {
-            marketView.RenderPlacements(session.Market.Placements, drag?.InstanceId, _highlightedInstanceId);
+            marketView.RenderPlacements(session.Market, drag?.InstanceId, _highlightedInstanceId);
         }
     }
 
