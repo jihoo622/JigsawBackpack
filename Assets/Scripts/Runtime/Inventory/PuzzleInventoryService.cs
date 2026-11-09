@@ -96,7 +96,7 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         return (currentCityIndex + offset) % cities.Count;
     }
 
-    // 노선 비용과 진행 상태만 확인한다. 미리보기와 확정이 같은 경로를 쓰도록 Travel이 이 결과를 재사용한다.
+    // 노선 기본 비용에 출발 직전 기차가 점유한 칸 수를 더한 금액을 확인한다. 미리보기와 확정이 같은 경로를 쓴다.
     internal PuzzleTravelResult EvaluateTravel(bool _forward)
     {
         if (RunStatus != PuzzleRunStatus.InProgress)
@@ -116,17 +116,40 @@ public sealed class PuzzleInventoryService : MonoBehaviour
             return new PuzzleTravelResult(PuzzleTravelFailure.MissingRoute, _fromCityId: fromCityId, _toCityId: toCityId);
         }
 
-        return new PuzzleTravelResult(Funds < route.cost ? PuzzleTravelFailure.InsufficientFunds : PuzzleTravelFailure.None,
-            route.cost, fromCityId, toCityId);
+        int cells = Train.OccupiedCells;
+        if (!TryTravelCost(route.cost, cells, tables.PuzzleRoute.costPerCell, out long cost))
+        {
+            return new PuzzleTravelResult(PuzzleTravelFailure.CostOverflow, _fromCityId: fromCityId, _toCityId: toCityId,
+                _baseCost: route.cost, _cells: cells);
+        }
+
+        return new PuzzleTravelResult(Funds < cost ? PuzzleTravelFailure.InsufficientFunds : PuzzleTravelFailure.None,
+            cost, fromCityId, toCityId, _baseCost: route.cost, _cells: cells);
     }
 
-    // 이동 버튼에 표시할 목적지 노선의 비용. 이동이 불가능하면 표시할 비용이 없다.
+    // 이동 버튼에 표시할 목적지 노선의 비용. 기차 보유 칸이 바뀌면 값도 바뀐다.
     internal long? NextRouteCost(bool _forward)
     {
         var evaluation = EvaluateTravel(_forward);
         return evaluation.Failure == PuzzleTravelFailure.None || evaluation.Failure == PuzzleTravelFailure.InsufficientFunds
             ? (long?)evaluation.Cost
             : null;
+    }
+
+    // 노선 비용 + 기차 점유 칸 수 × 칸당 단가. 한도를 넘으면 조용히 넘기지 않고 실패로 알린다.
+    static bool TryTravelCost(long _baseCost, int _cells, int _costPerCell, out long _cost)
+    {
+        _cost = 0;
+        try
+        {
+            _cost = checked(_baseCost + (long)_cells * _costPerCell);
+        }
+        catch (OverflowException)
+        {
+            return false;
+        }
+
+        return true;
     }
 
     internal PuzzleTravelResult Travel(bool _forward)
@@ -137,7 +160,7 @@ public sealed class PuzzleInventoryService : MonoBehaviour
             return evaluation;
         }
 
-        // 이동 비용은 출발 전에 낸다. 이후의 도시 도착·턴 증가·가치 변화는 한 번에 확정한다.
+        // 이동 비용은 출발 전에 낸다. 기차는 출발 직전까지의 배치로 계산한다. 이후의 도시 도착·턴 증가·가치 변화는 한 번에 확정한다.
         Funds -= evaluation.Cost;
         // 출발 직전 기차 인접 관계로 한 턴의 가치 변화를 계산한다.
         Train.ApplyTurnValueChange();
@@ -173,7 +196,7 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         */
 
         return new PuzzleTravelResult(PuzzleTravelFailure.None, evaluation.Cost, evaluation.FromCityId,
-            evaluation.ToCityId, Funds);
+            evaluation.ToCityId, Funds, evaluation.BaseCost, evaluation.Cells);
     }
 
     internal PuzzleDropResult EvaluateDrop(PuzzlePlacement _original, PuzzleInventory _destination,
@@ -325,7 +348,8 @@ internal enum PuzzleTravelFailure
     Blocked,
     NotAvailable,
     MissingRoute,
-    InsufficientFunds
+    InsufficientFunds,
+    CostOverflow
 }
 
 // 이동 미리보기와 확정의 공통 결과. 실패하면 도시·턴·시장·자금 어느 것도 바뀌지 않는다.
@@ -333,19 +357,24 @@ internal readonly struct PuzzleTravelResult
 {
     internal PuzzleTravelFailure Failure { get; }
     internal long Cost { get; }
+    // 노선 기본 비용과 그때의 기차 점유 칸 수. Cost = BaseCost + 점유 칸 × 칸당 단가다.
+    internal long BaseCost { get; }
+    internal int Cells { get; }
     internal long FundsAfter { get; }
     internal string FromCityId { get; }
     internal string ToCityId { get; }
     internal bool IsSuccess => Failure == PuzzleTravelFailure.None;
 
     internal PuzzleTravelResult(PuzzleTravelFailure _failure, long _cost = 0, string _fromCityId = null,
-        string _toCityId = null, long _fundsAfter = 0)
+        string _toCityId = null, long _fundsAfter = 0, long _baseCost = 0, int _cells = 0)
     {
         Failure = _failure;
         Cost = _cost;
         FromCityId = _fromCityId;
         ToCityId = _toCityId;
         FundsAfter = _fundsAfter;
+        BaseCost = _baseCost;
+        Cells = _cells;
     }
 }
 

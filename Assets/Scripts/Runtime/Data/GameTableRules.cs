@@ -212,6 +212,7 @@ public sealed class GameTableRules
     {
         const string PATH = nameof(PuzzleRouteTableData);
         const string ROUTES_PATH = PATH + ".routes";
+        Check(_tables.PuzzleRoute.costPerCell >= 0, PATH + ".costPerCell", "칸당 이동 단가는 0 이상이어야 합니다.");
         var routes = _tables.PuzzleRoute.routes ?? Array.Empty<PuzzleRouteData>();
         var seen = new HashSet<(string From, string To)>();
         for (int i = 0; i < routes.Length; i++)

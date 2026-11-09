@@ -284,12 +284,14 @@ public static class Presentation
         };
     }
 
-    // 이동이 차단된 이유. 비용 부족은 패배가 아니라 상태 유지다.
+    // 이동이 차단된 이유. 비용 부족은 패배가 아니라 상태 유지고, 금액은 노선 기본값과 기차 보유 칸으로 갈린다.
     internal static string PuzzleTravelStatus(PuzzleTravelResult _result)
     {
         return _result.Failure switch
         {
-            PuzzleTravelFailure.InsufficientFunds => $"{PUZZLE_TRAVEL_COST} {_result.Cost:N0}이(가) 부족합니다",
+            PuzzleTravelFailure.InsufficientFunds => $"{PUZZLE_TRAVEL_COST} {_result.Cost:N0}"
+                + $"(노선 {_result.BaseCost:N0} + 보유 {_result.Cells}칸)이(가) 부족합니다",
+            PuzzleTravelFailure.CostOverflow => "보유 칸이 많아 이동 비용이 거래 한도를 초과합니다",
             PuzzleTravelFailure.MissingRoute => "두 도시를 잇는 노선이 없습니다",
             PuzzleTravelFailure.NotAvailable => "이동할 수 있는 도시가 없습니다",
             PuzzleTravelFailure.Blocked => "게임이 종료되었습니다",

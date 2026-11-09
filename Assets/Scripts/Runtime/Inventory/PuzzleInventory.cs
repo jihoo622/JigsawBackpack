@@ -75,6 +75,9 @@ public sealed class PuzzleInventory
         return false;
     }
 
+    // 이 보드가 지금 점유한 칸 수. 노선 이동 비용의 보유량 계산에 쓴다.
+    internal int OccupiedCells => occupancy.Count;
+
     internal PuzzlePlacementResult EvaluateMove(PuzzlePlacement _original, PuzzleInventory _destination,
         Vector2Int _grabbedCell, Vector2Int _targetCell, int _clockwiseTurns)
     {
