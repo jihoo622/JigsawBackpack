@@ -45,6 +45,12 @@
 # Visual Studio cache directory
 .vs/
 
+# Visual Studio Code
+.vscode/extensions.json
+.vscode/extension.json
+.vscode/launch.json
+.vscode/settings.json
+
 # Gradle cache directory
 .gradle/
 
