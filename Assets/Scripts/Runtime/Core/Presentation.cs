@@ -100,14 +100,54 @@ public static class Presentation
         return $"<color=#{ColorUtility.ToHtmlStringRGB(PuzzleTooltipText)}>실제 가치 : </color><color=#{ColorUtility.ToHtmlStringRGB(PuzzleTooltipGold)}>$ {_actualValue:#,0.##}</color>";
     }
 
+    static Color RateValueColor(int _percent)
+    {
+        if (_percent > 100)
+        {
+            return PuzzleTooltipGreen;
+        }
+        if (_percent < 100)
+        {
+            return PuzzleTooltipRed;
+        }
+        return PuzzleTooltipText;
+    }
+
+    static Color PriceValueColor(decimal _price, decimal _actualValue)
+    {
+        if (_price > _actualValue)
+        {
+            return PuzzleTooltipGreen;
+        }
+        if (_price < _actualValue)
+        {
+            return PuzzleTooltipRed;
+        }
+        return PuzzleTooltipText;
+    }
+
     internal static string PuzzleTooltipSellRate(int _percent)
     {
-        return $"<color=#{ColorUtility.ToHtmlStringRGB(PuzzleTooltipText)}>판매 배율 : </color><color=#{ColorUtility.ToHtmlStringRGB(PuzzleTooltipGreen)}>{_percent}%</color>";
+        Color color = RateValueColor(_percent);
+        return $"<color=#{ColorUtility.ToHtmlStringRGB(PuzzleTooltipText)}>판매 배율 : </color><color=#{ColorUtility.ToHtmlStringRGB(color)}>{_percent}%</color>";
     }
 
     internal static string PuzzleTooltipBuyRate(int _percent)
     {
-        return $"<color=#{ColorUtility.ToHtmlStringRGB(PuzzleTooltipText)}>구매 배율 : </color><color=#{ColorUtility.ToHtmlStringRGB(PuzzleTooltipRed)}>{_percent}%</color>";
+        Color color = RateValueColor(_percent);
+        return $"<color=#{ColorUtility.ToHtmlStringRGB(PuzzleTooltipText)}>구매 배율 : </color><color=#{ColorUtility.ToHtmlStringRGB(color)}>{_percent}%</color>";
+    }
+
+    internal static string PuzzleTooltipFinalSellPrice(decimal _price, decimal _actualValue)
+    {
+        Color color = PriceValueColor(_price, _actualValue);
+        return $"<color=#{ColorUtility.ToHtmlStringRGB(PuzzleTooltipText)}>판매 금액 : </color><color=#{ColorUtility.ToHtmlStringRGB(color)}>$ {_price:#,0.##}</color>";
+    }
+
+    internal static string PuzzleTooltipFinalBuyPrice(decimal _price, decimal _actualValue)
+    {
+        Color color = PriceValueColor(_price, _actualValue);
+        return $"<color=#{ColorUtility.ToHtmlStringRGB(PuzzleTooltipText)}>구매 금액 : </color><color=#{ColorUtility.ToHtmlStringRGB(color)}>$ {_price:#,0.##}</color>";
     }
 
     internal static string PuzzleTooltipSynergyHeader()

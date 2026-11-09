@@ -78,13 +78,14 @@ public sealed class PuzzleItemTooltipView : PanelBase
     }
 
     internal void Show(PuzzleItemDefinition _item, decimal _actualValue, PuzzleTradeRate _rate,
-        IReadOnlyList<PuzzleSynergyBonus> _bonuses, Vector2 _screenPosition)
+        IReadOnlyList<PuzzleSynergyBonus> _bonuses, Vector2 _screenPosition, bool _isTrainInventory = true)
     {
-        Show(_item, _actualValue, _rate, _bonuses, null, _screenPosition);
+        Show(_item, _actualValue, _rate, _bonuses, null, _screenPosition, _isTrainInventory);
     }
 
     internal void Show(PuzzleItemDefinition _item, decimal _actualValue, PuzzleTradeRate _rate,
-        IReadOnlyList<PuzzleSynergyBonus> _bonuses, decimal? _futureValue, Vector2 _screenPosition)
+        IReadOnlyList<PuzzleSynergyBonus> _bonuses, decimal? _futureValue, Vector2 _screenPosition,
+        bool _isTrainInventory = true)
     {
         if (_item == null)
         {
@@ -115,15 +116,32 @@ public sealed class PuzzleItemTooltipView : PanelBase
         {
             actualValueText.text = Presentation.PuzzleTooltipActualValue(_actualValue);
         }
-        if (sellRateText)
+
+        if (_isTrainInventory)
         {
             int sellPercent = _rate.SellPercent > 0 ? _rate.SellPercent : 100;
-            sellRateText.text = Presentation.PuzzleTooltipSellRate(sellPercent);
+            decimal finalSellPrice = System.Math.Round(_actualValue * (decimal)sellPercent / 100m, System.MidpointRounding.AwayFromZero);
+            if (sellRateText)
+            {
+                sellRateText.text = Presentation.PuzzleTooltipSellRate(sellPercent);
+            }
+            if (buyRateText)
+            {
+                buyRateText.text = Presentation.PuzzleTooltipFinalSellPrice(finalSellPrice, _actualValue);
+            }
         }
-        if (buyRateText)
+        else
         {
             int buyPercent = _rate.BuyPercent > 0 ? _rate.BuyPercent : 100;
-            buyRateText.text = Presentation.PuzzleTooltipBuyRate(buyPercent);
+            decimal finalBuyPrice = System.Math.Round(_actualValue * (decimal)buyPercent / 100m, System.MidpointRounding.AwayFromZero);
+            if (sellRateText)
+            {
+                sellRateText.text = Presentation.PuzzleTooltipBuyRate(buyPercent);
+            }
+            if (buyRateText)
+            {
+                buyRateText.text = Presentation.PuzzleTooltipFinalBuyPrice(finalBuyPrice, _actualValue);
+            }
         }
 
         bool showSynergy = _bonuses != null;

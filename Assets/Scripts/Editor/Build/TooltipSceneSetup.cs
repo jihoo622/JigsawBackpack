@@ -298,7 +298,7 @@ public static class TooltipSceneSetup
 
         var actualVal = CreateTextObject("ActualValue", body.transform, _fontAsset, "실제 가치 : $ 100");
         var sellRate = CreateTextObject("SellRate", body.transform, _fontAsset, "판매 배율 : 100%");
-        var buyRate = CreateTextObject("BuyRate", body.transform, _fontAsset, "구매 배율 : 100%");
+        var buyRate = CreateTextObject("BuyRate", body.transform, _fontAsset, "최종 판매 금액(이 도시 기준) : $ 100");
 
         // 5. Synergy Section
         var synergySection = new GameObject("SynergySection", typeof(RectTransform), typeof(VerticalLayoutGroup));
