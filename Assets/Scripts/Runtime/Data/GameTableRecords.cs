@@ -69,6 +69,22 @@ public sealed class PuzzleCityData
     public int buyPercentOfBaseValue = -1, sellPercentOfFinalValue = -1;
     public PuzzleCityTagPriceData[] tagPrices = Array.Empty<PuzzleCityTagPriceData>();
     public PuzzleBoardData market;
+    public PuzzleMarketStockData generalStock;
+}
+
+[Serializable]
+public sealed class PuzzleMarketStockData
+{
+    public string[] pieceIds = Array.Empty<string>();
+    public PuzzleMarketStockSlotData[] slots = Array.Empty<PuzzleMarketStockSlotData>();
+}
+
+[Serializable]
+public sealed class PuzzleMarketStockSlotData
+{
+    public string id;
+    public int x = -1, y = -1;
+    public int width, height;
 }
 
 [Serializable]

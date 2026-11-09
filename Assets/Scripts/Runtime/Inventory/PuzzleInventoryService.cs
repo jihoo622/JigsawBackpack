@@ -15,6 +15,7 @@ public sealed class PuzzleInventoryService : MonoBehaviour
     int lastInstanceId;
     int currentCityIndex;
     readonly HashSet<string> visitedCities = new HashSet<string>(StringComparer.Ordinal);
+    readonly System.Random stockRandom = new System.Random();
 
     internal bool HasVisitedCity(string _cityId)
     {
@@ -85,7 +86,24 @@ public sealed class PuzzleInventoryService : MonoBehaviour
     PuzzleInventory CreateMarket(string _cityId)
     {
         var city = tables.CityPrice(_cityId);
-        return new PuzzleInventory(city.market, tables.MarketStartingPlacements(_cityId), definitions, marketRules,
+        var placements = new List<PuzzleStartingPlacementData>(tables.MarketStartingPlacements(_cityId));
+        var candidates = new List<string>(city.generalStock.pieceIds);
+        candidates.Sort(StringComparer.Ordinal);
+        var slots = new List<PuzzleMarketStockSlotData>(city.generalStock.slots);
+        slots.Sort((_left, _right) => StringComparer.Ordinal.Compare(_left.id, _right.id));
+        foreach (var slot in slots)
+        {
+            int index = stockRandom.Next(candidates.Count);
+            placements.Add(new PuzzleStartingPlacementData
+            {
+                id = slot.id,
+                pieceId = candidates[index],
+                x = slot.x,
+                y = slot.y,
+                clockwiseTurns = 0
+            });
+        }
+        return new PuzzleInventory(city.market, placements, definitions, marketRules,
             ref lastInstanceId);
     }
 
