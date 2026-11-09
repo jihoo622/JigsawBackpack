@@ -51,6 +51,10 @@
 .vscode/launch.json
 .vscode/settings.json
 
+# Agent instructions
+/AGENTS.md
+/Agents.md
+
 # Gradle cache directory
 .gradle/
 
