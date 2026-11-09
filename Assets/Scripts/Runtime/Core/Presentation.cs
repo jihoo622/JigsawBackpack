@@ -57,6 +57,17 @@ public static class Presentation
     }
     public static Color PuzzleSynergyArrow => UnityEngine.Color.white;
     public const string PUZZLE_TRAIN_TITLE = "Train Inventory";
+    internal static string PuzzleTrainTitle(int _wagonNumber)
+    {
+        return $"기차 화물 ({_wagonNumber}번 칸)";
+    }
+    internal static string PuzzleAddWagonLabel(long _cost)
+    {
+        return $"기차 화물칸 추가\n${_cost}";
+    }
+    public static Color PuzzleAddWagonBox => new Color32(40, 167, 69, 255);
+    public static Color PuzzleWagonSelectedBorder => new Color32(255, 215, 0, 255);
+    public static Color PuzzleWagonNormalBorder => new Color32(90, 95, 105, 255);
     public const string PUZZLE_MARKET_TITLE = "Market Inventory";
     public const string PUZZLE_MOVE_GUIDE = "드래그로 이동    R로 회전    Esc로 취소";
     public const string PUZZLE_PREVIOUS_CITY = "Previous City";

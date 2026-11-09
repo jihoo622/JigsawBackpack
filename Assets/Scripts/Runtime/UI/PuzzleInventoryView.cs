@@ -119,6 +119,14 @@ public sealed class PuzzleInventoryView : MonoBehaviour
         ConfigureSlots(outlineSlots, flatOutline);
     }
 
+    internal void SetTitle(string _title)
+    {
+        if (boardTitle)
+        {
+            boardTitle.text = _title;
+        }
+    }
+
     internal void SetBoardSize(int _width, int _height)
     {
         gridSize = new Vector2Int(_width, _height);

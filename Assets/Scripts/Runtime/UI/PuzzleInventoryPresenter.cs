@@ -8,6 +8,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
     [SerializeField] PuzzleInventoryView marketView;
     [SerializeField] PuzzleCityView cityView;
     [SerializeField] PuzzleItemTooltipView tooltipView;
+    [SerializeField] PuzzleTrainBarView trainBarView;
 
     PuzzleInventoryInput input;
     PuzzleInventoryService session;
@@ -42,7 +43,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         session.Initialize();
         long trainCapacity = (long)session.Train.Width * session.Train.Height;
         long dragCapacity = System.Math.Max(trainCapacity, session.MarketCapacity);
-        trainView.Initialize(trainCapacity, dragCapacity, Presentation.PUZZLE_TRAIN_TITLE, session.ItemDefinitions, _showSynergies: true);
+        trainView.Initialize(trainCapacity, dragCapacity, Presentation.PuzzleTrainTitle(session.CurrentWagonIndex + 1), session.ItemDefinitions, _showSynergies: true);
         marketView.Initialize(session.MarketCapacity, dragCapacity, Presentation.PUZZLE_MARKET_TITLE, session.ItemDefinitions, _showSynergies: false);
         cityView.Initialize(session.CanTravel);
         trainView.SetBoardSize(session.Train.Width, session.Train.Height);
@@ -60,6 +61,11 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         marketView.Disabled += OnViewDisabled;
         cityView.Subscribe(OnPreviousCity, OnNextCity);
         GameEvents.PanelVisibility += OnPanelVisibility;
+        if (trainBarView)
+        {
+            trainBarView.WagonSelected += OnWagonSelected;
+            trainBarView.AddWagonClicked += OnAddWagonClicked;
+        }
     }
 
     void OnDisable()
@@ -97,6 +103,11 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         }
         currentHoveredInstanceId = null;
         GameEvents.PanelVisibility -= OnPanelVisibility;
+        if (trainBarView)
+        {
+            trainBarView.WagonSelected -= OnWagonSelected;
+            trainBarView.AddWagonClicked -= OnAddWagonClicked;
+        }
         OnViewDisabled();
         initialized = false;
     }
@@ -167,6 +178,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         RenderBoards();
         RenderValues();
         ShowItemDetails(null, null);
+        RefreshTrainBar();
     }
 
     void OnPressed(PointerEventData _eventData)
@@ -232,6 +244,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
                     cityView.ShowFunds(session.Funds);
                     // 구매·판매로 기차 점유 칸이 바뀌어 노선 비용이 달라진다.
                     RefreshTravelCosts();
+                    RefreshTrainBar();
                 }
             }
         }
@@ -481,5 +494,56 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
     static bool IsOnScreen(Vector2 _position)
     {
         return new Rect(0f, 0f, Screen.width, Screen.height).Contains(_position);
+    }
+
+    void RefreshTrainBar()
+    {
+        if (trainBarView && session != null)
+        {
+            trainBarView.Refresh(session.WagonCount, session.CurrentWagonIndex, session.NextWagonCost, session.CanAddWagon);
+        }
+    }
+
+    void OnWagonSelected(int _index)
+    {
+        if (session == null || !session.SelectWagon(_index))
+        {
+            return;
+        }
+
+        ClearDrag();
+        trainView.SetTitle(Presentation.PuzzleTrainTitle(session.CurrentWagonIndex + 1));
+        trainView.SetBoardSize(session.Train.Width, session.Train.Height);
+        RenderBoards();
+        RenderValues();
+        ShowItemDetails(null, null);
+        RefreshTrainBar();
+    }
+
+    void OnAddWagonClicked()
+    {
+        if (session == null)
+        {
+            return;
+        }
+
+        if (!session.TryAddWagon(out string failureReason))
+        {
+            if (!string.IsNullOrEmpty(failureReason))
+            {
+                cityView.ShowTradeStatus(failureReason);
+            }
+            return;
+        }
+
+        ClearDrag();
+        cityView.ShowFunds(session.Funds);
+        RefreshTravelCosts();
+        trainView.SetTitle(Presentation.PuzzleTrainTitle(session.CurrentWagonIndex + 1));
+        trainView.SetBoardSize(session.Train.Width, session.Train.Height);
+        RenderBoards();
+        RenderValues();
+        ShowItemDetails(null, null);
+        RefreshTrainBar();
     }
 }

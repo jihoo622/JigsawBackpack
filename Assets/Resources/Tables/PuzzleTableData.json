@@ -274,64 +274,22 @@
     }
   ],
   "train": {
-    "width": 7,
-    "height": 6,
+    "width": 5,
+    "height": 5,
     "startingPlacements": [
-      {
-        "id": "sample.elbowLeft",
-        "pieceId": "piece.elbowLeft",
-        "x": 0,
-        "y": 1,
-        "clockwiseTurns": 0
-      },
-      {
-        "id": "sample.elbowRight",
-        "pieceId": "piece.elbowRight",
-        "x": 3,
-        "y": 1,
-        "clockwiseTurns": 0
-      },
-      {
-        "id": "sample.fourNotches",
-        "pieceId": "piece.fourNotches",
-        "x": 3,
-        "y": 3,
-        "clockwiseTurns": 0
-      },
-      {
-        "id": "sample.topNotch",
-        "pieceId": "piece.topNotch",
-        "x": 2,
-        "y": 0,
-        "clockwiseTurns": 0
-      },
-      {
-        "id": "sample.uShape",
-        "pieceId": "piece.uShape",
-        "x": 0,
-        "y": 4,
-        "clockwiseTurns": 0
-      },
       {
         "id": "sample.verticalPair",
         "pieceId": "piece.verticalPair",
-        "x": 3,
-        "y": 4,
-        "clockwiseTurns": 1
+        "x": 0,
+        "y": 1,
+        "clockwiseTurns": 0
       },
       {
         "id": "sample.verticalPairSpare",
         "pieceId": "piece.verticalPair",
-        "x": 5,
-        "y": 3,
-        "clockwiseTurns": 0
-      },
-      {
-        "id": "sample.verticalTabs",
-        "pieceId": "piece.verticalTabs",
-        "x": 0,
+        "x": 2,
         "y": 2,
-        "clockwiseTurns": 0
+        "clockwiseTurns": 1
       }
     ]
   },

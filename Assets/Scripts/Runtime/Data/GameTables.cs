@@ -51,6 +51,8 @@ public sealed class PuzzleTradeTableData
     public long startingFunds = -1;
     // 누락된 값이 정상값으로 위장되지 않도록 하는 검증용 값이다. 110은 기준의 110%, 즉 10% 할증이다.
     public int purchaseMarkupPercent = -1;
+    // 화물칸 증차 시 기본 단위 비용 (예: 50원씩 누적 증가)
+    public int wagonAddCostBase = -1;
 }
 
 [Serializable]

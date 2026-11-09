@@ -205,6 +205,8 @@ public sealed class GameTableRules
         Check(_tables.PuzzleTrade.startingFunds >= 0, PATH + ".startingFunds", "시작 자금은 0 이상이어야 합니다.");
         Check(_tables.PuzzleTrade.purchaseMarkupPercent > 0, PATH + ".purchaseMarkupPercent",
             "공통 구매 배율은 0보다 커야 합니다.");
+        Check(_tables.PuzzleTrade.wagonAddCostBase > 0, PATH + ".wagonAddCostBase",
+            "화물칸 증차 기본 비용은 0보다 커야 합니다.");
     }
 
     // 노선은 방향이 있는 행이다. 순환 이동으로 맞닿는 두 도시는 양쪽 방향이 모두 있어야 이동이 차단되지 않는다.

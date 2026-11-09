@@ -22,7 +22,61 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         return visitedCities.Contains(_cityId);
     }
 
-    public PuzzleInventory Train { get; private set; }
+    readonly List<PuzzleInventory> trainWagons = new List<PuzzleInventory>();
+    public IReadOnlyList<PuzzleInventory> TrainWagons => trainWagons;
+    public int CurrentWagonIndex { get; private set; }
+    public PuzzleInventory CurrentTrainWagon => (trainWagons.Count > CurrentWagonIndex && CurrentWagonIndex >= 0) ? trainWagons[CurrentWagonIndex] : null;
+    public PuzzleInventory Train => CurrentTrainWagon;
+    public int WagonCount => trainWagons.Count;
+    public long NextWagonCost => checked((long)trainWagons.Count * tables.PuzzleTrade.wagonAddCostBase);
+    public bool CanAddWagon => RunStatus == PuzzleRunStatus.InProgress && Funds >= NextWagonCost;
+
+    public int TotalTrainOccupiedCells
+    {
+        get
+        {
+            int total = 0;
+            for (int i = 0; i < trainWagons.Count; i++)
+            {
+                total += trainWagons[i].OccupiedCells;
+            }
+            return total;
+        }
+    }
+
+    internal bool SelectWagon(int _index)
+    {
+        if (_index < 0 || _index >= trainWagons.Count || _index == CurrentWagonIndex)
+        {
+            return false;
+        }
+        CurrentWagonIndex = _index;
+        return true;
+    }
+
+    internal bool TryAddWagon(out string _failureReason)
+    {
+        _failureReason = null;
+        if (RunStatus != PuzzleRunStatus.InProgress)
+        {
+            _failureReason = "진행 중인 게임에서만 화물칸을 증차할 수 있습니다.";
+            return false;
+        }
+        long cost = NextWagonCost;
+        if (Funds < cost)
+        {
+            _failureReason = $"자금이 부족합니다. (필요: ${cost})";
+            return false;
+        }
+
+        Funds -= cost;
+        var trainRules = tables.SynergiesFor(PuzzleSynergyScope.Train);
+        var newWagon = new PuzzleInventory(tables.Puzzle.train, Array.Empty<PuzzleStartingPlacementData>(), definitions, trainRules,
+            ref lastInstanceId);
+        trainWagons.Add(newWagon);
+        CurrentWagonIndex = trainWagons.Count - 1;
+        return true;
+    }
     public PuzzleInventory Market => markets[CurrentCityId];
     public string CurrentCityId => cities[currentCityIndex].id;
     internal PuzzleCityData CityData => tables.CityPrice(CurrentCityId);
@@ -78,7 +132,9 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         CityMoveCount = 0;
         PaidDebtCount = 0;
         RunStatus = PuzzleRunStatus.InProgress;
-        Train = train;
+        trainWagons.Clear();
+        trainWagons.Add(train);
+        CurrentWagonIndex = 0;
     }
 
     // 도시 시장의 유일한 생성 경로. 처음 만들 때와 떠난 도시를 되돌릴 때 같은 경로를 쓴다.
@@ -134,7 +190,7 @@ public sealed class PuzzleInventoryService : MonoBehaviour
             return new PuzzleTravelResult(PuzzleTravelFailure.MissingRoute, _fromCityId: fromCityId, _toCityId: toCityId);
         }
 
-        int cells = Train.OccupiedCells;
+        int cells = TotalTrainOccupiedCells;
         if (!TryTravelCost(route.cost, cells, tables.PuzzleRoute.costPerCell, out long cost))
         {
             return new PuzzleTravelResult(PuzzleTravelFailure.CostOverflow, _fromCityId: fromCityId, _toCityId: toCityId,
@@ -181,7 +237,10 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         // 이동 비용은 출발 전에 낸다. 기차는 출발 직전까지의 배치로 계산한다. 이후의 도시 도착·턴 증가·가치 변화는 한 번에 확정한다.
         Funds -= evaluation.Cost;
         // 출발 직전 기차 인접 관계로 한 턴의 가치 변화를 계산한다.
-        Train.ApplyTurnValueChange();
+        for (int i = 0; i < trainWagons.Count; i++)
+        {
+            trainWagons[i].ApplyTurnValueChange();
+        }
         // 떠난 도시의 시장은 테이블의 시작 배치로 되돌린다. 기차는 그대로 두고, 목적지 시장은 손대지 않는다.
         markets[evaluation.FromCityId] = CreateMarket(evaluation.FromCityId);
         currentCityIndex = NextCityIndex(_forward);
