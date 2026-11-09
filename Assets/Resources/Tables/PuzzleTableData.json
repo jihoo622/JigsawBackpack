@@ -228,7 +228,7 @@
   },
   {
     "id": "city.c",
-    "displayName": "수원 마을",
+    "displayName": "샘물 마을",
     "buyEnabled": true,
     "sellEnabled": true,
     "buyPercentOfBaseValue": 100,
@@ -241,7 +241,7 @@
         "sellPercent": 75
       },
       {
-        "tag": "Fish",
+        "tag": "Machinery",
         "priority": 20,
         "buyPercent": 120,
         "sellPercent": 110
@@ -292,6 +292,12 @@
       {
         "tag": "Grain",
         "priority": 20,
+        "buyPercent": 120,
+        "sellPercent": 110
+      },
+      {
+        "tag": "Water",
+        "priority": 19,
         "buyPercent": 120,
         "sellPercent": 110
       }

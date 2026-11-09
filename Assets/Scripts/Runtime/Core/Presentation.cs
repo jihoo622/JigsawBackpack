@@ -14,6 +14,43 @@ public enum EffectCategory
 
 public static class Presentation
 {
+    public const string PUZZLE_MAP_TITLE = "교역 노선도";
+    public const string PUZZLE_MAP_PANEL_NAME = "PuzzleWorldMap";
+    public const string PUZZLE_MAP_OPEN = "지도";
+    public const string PUZZLE_MAP_CLOSE = "닫기";
+    public const string PUZZLE_MAP_GUIDE = "마을에 마우스를 올려 정보를 확인하세요. 방문하면 교역 정보가 기록됩니다.";
+    public const string PUZZLE_MAP_HINT = "마을을 가리켜 수집한 정보를 확인하세요.";
+    public static Color PuzzleMapCurrent => new(1f, 0.78f, 0.30f);
+    public static Color PuzzleMapVisited => new(0.34f, 0.86f, 0.72f);
+    public static Color PuzzleMapUnknown => new(0.40f, 0.46f, 0.55f);
+    public static Color PuzzleMapRoute => new(0.30f, 0.68f, 0.82f);
+
+    internal static string PuzzleMapNodeLabel(string _name, bool _visited, bool _current)
+    {
+        return _name + (_current ? "\n현재 위치" : _visited ? "\n방문 완료" : "\n미방문");
+    }
+
+    internal static string PuzzleMapInformation(PuzzleCityData _city, bool _visited)
+    {
+        string heading = $"<size=32><b>{_city.displayName}</b></size>";
+        if (!_visited)
+        {
+            return heading + "\n<size=20>미방문 · 정보 미수집</size>\n\n직접 방문하면 교역 정보가 기록됩니다.";
+        }
+        var rules = _city.tagPrices ?? Array.Empty<PuzzleCityTagPriceData>();
+        string common = string.Join(" · ", rules
+            .Where(rule => rule != null && rule.buyPercent < 100 && rule.sellPercent < 100)
+            .OrderBy(rule => rule.tag, StringComparer.Ordinal).Select(rule => PuzzleTagLabel(rule.tag)));
+        string rare = string.Join(" · ", rules
+            .Where(rule => rule != null && rule.buyPercent > 100 && rule.sellPercent > 100)
+            .OrderBy(rule => rule.tag, StringComparer.Ordinal).Select(rule => PuzzleTagLabel(rule.tag)));
+        string commonColor = ColorUtility.ToHtmlStringRGB(PuzzleMapVisited);
+        string rareColor = ColorUtility.ToHtmlStringRGB(PuzzleMapCurrent);
+        return heading + "  <size=20>방문 완료 · 교역 메모</size>\n\n" +
+            $"<color=#{commonColor}><b>흔한 자원</b></color>   {(string.IsNullOrEmpty(common) ? "없음" : common)}\n" +
+            $"<color=#{rareColor}><b>귀한 자원</b></color>   {(string.IsNullOrEmpty(rare) ? "없음" : rare)}";
+    }
+
     public static Color PuzzleItemIcon(float _alpha)
     {
         return new Color(1f, 1f, 1f, _alpha);
