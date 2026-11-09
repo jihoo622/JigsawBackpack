@@ -1,7 +1,7 @@
 {
   "status": "sample",
   "note": "시작 자금과 모든 구매에 공통 적용하는 구매 배율, 화물칸 증차 기본 단가. 도시별 거래 허용 여부와 기본·태그별 비율은 PuzzleTableData.cities가 원본이다.",
-  "startingFunds": 80,
+  "startingFunds": 200,
   "purchaseMarkupPercent": 110,
   "wagonAddCostBase": 50
 }
