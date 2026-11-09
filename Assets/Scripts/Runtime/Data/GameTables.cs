@@ -54,6 +54,13 @@ public sealed class PuzzleTradeTableData
 }
 
 [Serializable]
+public sealed class PuzzleRouteTableData
+{
+    public string status, note;
+    public PuzzleRouteData[] routes = Array.Empty<PuzzleRouteData>();
+}
+
+[Serializable]
 public sealed class PuzzleTurnTableData
 {
     public string status, note;

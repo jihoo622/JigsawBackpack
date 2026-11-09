@@ -26,8 +26,7 @@ public sealed class PuzzleCityView : MonoBehaviour
 
         cityName.color = previousLabel.color = nextLabel.color = Presentation.PuzzleHeading;
         funds.color = tradeStatus.color = Presentation.PuzzleHeading;
-        previousLabel.text = Presentation.PUZZLE_PREVIOUS_CITY;
-        nextLabel.text = Presentation.PUZZLE_NEXT_CITY;
+        ShowTravelCost(null, null);
         previousButton.colors = nextButton.colors = Presentation.PuzzleCityButtonColors;
         previousButton.interactable = nextButton.interactable = _canTravel;
     }
@@ -53,6 +52,13 @@ public sealed class PuzzleCityView : MonoBehaviour
     internal void ShowCity(string _name)
     {
         cityName.text = _name;
+    }
+
+    // 이동 버튼에 목적지 노선의 비용을 함께 표시한다. 비용이 없으면(종료·노선 누락) 이름만 쓴다.
+    internal void ShowTravelCost(long? _previousCost, long? _nextCost)
+    {
+        previousLabel.text = Presentation.PuzzleCityButton(Presentation.PUZZLE_PREVIOUS_CITY, _previousCost);
+        nextLabel.text = Presentation.PuzzleCityButton(Presentation.PUZZLE_NEXT_CITY, _nextCost);
     }
 
     internal void SetTravelEnabled(bool _enabled)

@@ -10,6 +10,9 @@ public sealed class PuzzleInventoryService : MonoBehaviour
     TableManager tables;
     IReadOnlyList<PuzzleCityData> cities;
     Dictionary<string, PuzzleInventory> markets;
+    Dictionary<string, PuzzleItemDefinition> definitions;
+    IReadOnlyList<PuzzleSynergyRuleData> marketRules;
+    int lastInstanceId;
     int currentCityIndex;
 
     public PuzzleInventory Train { get; private set; }
@@ -36,29 +39,28 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         }
 
         var validatedTables = TableManager.Instance.RequireValid();
-        var definitions = new Dictionary<string, PuzzleItemDefinition>(StringComparer.Ordinal);
+        definitions = new Dictionary<string, PuzzleItemDefinition>(StringComparer.Ordinal);
         foreach (var item in validatedTables.Pieces)
         {
             definitions.Add(item.id, new PuzzleItemDefinition(item, validatedTables.ItemPrice(item.id).baseValue));
         }
 
-        int lastInstanceId = 0;
+        tables = validatedTables;
+        cities = tables.Cities;
+        lastInstanceId = 0;
         var trainRules = validatedTables.SynergiesFor(PuzzleSynergyScope.Train);
-        var marketRules = validatedTables.SynergiesFor(PuzzleSynergyScope.Market);
+        marketRules = validatedTables.SynergiesFor(PuzzleSynergyScope.Market);
         var train = new PuzzleInventory(validatedTables.Puzzle.train, validatedTables.TrainStartingPlacements, definitions, trainRules,
             ref lastInstanceId);
         var cityMarkets = new Dictionary<string, PuzzleInventory>(StringComparer.Ordinal);
         long marketCapacity = 0;
         foreach (var city in validatedTables.Cities)
         {
-            var market = new PuzzleInventory(city.market, validatedTables.MarketStartingPlacements(city.id), definitions,
-                marketRules, ref lastInstanceId);
+            var market = CreateMarket(city.id);
             cityMarkets.Add(city.id, market);
             marketCapacity = Math.Max(marketCapacity, (long)market.Width * market.Height);
         }
 
-        tables = validatedTables;
-        cities = tables.Cities;
         markets = cityMarkets;
         ItemDefinitions = definitions.Values;
         MarketCapacity = marketCapacity;
@@ -70,22 +72,74 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         Train = train;
     }
 
-    internal bool Travel(bool _forward)
+    // 도시 시장의 유일한 생성 경로. 처음 만들 때와 떠난 도시를 되돌릴 때 같은 경로를 쓴다.
+    // 시작 배치로 새 인스턴스를 발급하므로 인스턴스 ID는 세션 동안 계속 증가하고 과거 ID는 재사용하지 않는다.
+    PuzzleInventory CreateMarket(string _cityId)
     {
-        if (RunStatus != PuzzleRunStatus.InProgress || !CanTravel)
+        var city = tables.CityPrice(_cityId);
+        return new PuzzleInventory(city.market, tables.MarketStartingPlacements(_cityId), definitions, marketRules,
+            ref lastInstanceId);
+    }
+
+    // 순환 이동에서 목적지의 인덱스. cities는 시작 도시 우선, ID 오름차순의 결정적 순서다.
+    int NextCityIndex(bool _forward)
+    {
+        int offset = _forward ? 1 : cities.Count - 1;
+        return (currentCityIndex + offset) % cities.Count;
+    }
+
+    // 노선 비용과 진행 상태만 확인한다. 미리보기와 확정이 같은 경로를 쓰도록 Travel이 이 결과를 재사용한다.
+    internal PuzzleTravelResult EvaluateTravel(bool _forward)
+    {
+        if (RunStatus != PuzzleRunStatus.InProgress)
         {
-            return false;
+            return new PuzzleTravelResult(PuzzleTravelFailure.Blocked);
         }
 
-        int offset = _forward ? 1 : cities.Count - 1;
-        int nextCityIndex = (currentCityIndex + offset) % cities.Count;
+        if (!CanTravel)
+        {
+            return new PuzzleTravelResult(PuzzleTravelFailure.NotAvailable);
+        }
 
-        // 출발 직전 기차 인접 관계로 한 턴의 가치 변화를 계산하고, 도시·턴·시장을 함께 확정한다.
+        string fromCityId = CurrentCityId;
+        string toCityId = cities[NextCityIndex(_forward)].id;
+        if (!tables.TryGetRoute(fromCityId, toCityId, out var route))
+        {
+            return new PuzzleTravelResult(PuzzleTravelFailure.MissingRoute, _fromCityId: fromCityId, _toCityId: toCityId);
+        }
+
+        return new PuzzleTravelResult(Funds < route.cost ? PuzzleTravelFailure.InsufficientFunds : PuzzleTravelFailure.None,
+            route.cost, fromCityId, toCityId);
+    }
+
+    // 이동 버튼에 표시할 목적지 노선의 비용. 이동이 불가능하면 표시할 비용이 없다.
+    internal long? NextRouteCost(bool _forward)
+    {
+        var evaluation = EvaluateTravel(_forward);
+        return evaluation.Failure == PuzzleTravelFailure.None || evaluation.Failure == PuzzleTravelFailure.InsufficientFunds
+            ? (long?)evaluation.Cost
+            : null;
+    }
+
+    internal PuzzleTravelResult Travel(bool _forward)
+    {
+        var evaluation = EvaluateTravel(_forward);
+        if (!evaluation.IsSuccess)
+        {
+            return evaluation;
+        }
+
+        // 이동 비용은 출발 전에 낸다. 이후의 도시 도착·턴 증가·가치 변화는 한 번에 확정한다.
+        Funds -= evaluation.Cost;
+        // 출발 직전 기차 인접 관계로 한 턴의 가치 변화를 계산한다.
         Train.ApplyTurnValueChange();
-        currentCityIndex = nextCityIndex;
+        // 떠난 도시의 시장은 테이블의 시작 배치로 되돌린다. 기차는 그대로 두고, 목적지 시장은 손대지 않는다.
+        markets[evaluation.FromCityId] = CreateMarket(evaluation.FromCityId);
+        currentCityIndex = NextCityIndex(_forward);
         CityMoveCount++;
         Market.RecalculateValue();
 
+        // 빚은 도착 후에 차감한다.
         var debt = NextDebt;
         if (debt != null && debt.moveCount == CityMoveCount)
         {
@@ -104,7 +158,8 @@ public sealed class PuzzleInventoryService : MonoBehaviour
             }
         }
 
-        return true;
+        return new PuzzleTravelResult(PuzzleTravelFailure.None, evaluation.Cost, evaluation.FromCityId,
+            evaluation.ToCityId, Funds);
     }
 
     internal PuzzleDropResult EvaluateDrop(PuzzlePlacement _original, PuzzleInventory _destination,
@@ -248,6 +303,36 @@ public enum PuzzleRunStatus
     InProgress,
     Won,
     Lost
+}
+
+internal enum PuzzleTravelFailure
+{
+    None,
+    Blocked,
+    NotAvailable,
+    MissingRoute,
+    InsufficientFunds
+}
+
+// 이동 미리보기와 확정의 공통 결과. 실패하면 도시·턴·시장·자금 어느 것도 바뀌지 않는다.
+internal readonly struct PuzzleTravelResult
+{
+    internal PuzzleTravelFailure Failure { get; }
+    internal long Cost { get; }
+    internal long FundsAfter { get; }
+    internal string FromCityId { get; }
+    internal string ToCityId { get; }
+    internal bool IsSuccess => Failure == PuzzleTravelFailure.None;
+
+    internal PuzzleTravelResult(PuzzleTravelFailure _failure, long _cost = 0, string _fromCityId = null,
+        string _toCityId = null, long _fundsAfter = 0)
+    {
+        Failure = _failure;
+        Cost = _cost;
+        FromCityId = _fromCityId;
+        ToCityId = _toCityId;
+        FundsAfter = _fundsAfter;
+    }
 }
 
 public enum PuzzleTradeDirection
