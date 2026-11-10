@@ -193,6 +193,8 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         }
         cityView.ShowTime(session.Time);
         RefreshFunds();
+        RenderBoards();
+        RenderValues();
         if (session.RunStatus != PuzzleRunStatus.InProgress)
         {
             cityView.ShowTradeStatus(Presentation.PuzzleRunStatusText(session.RunStatus));

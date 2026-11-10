@@ -127,6 +127,46 @@ public sealed class PuzzleInventory
         return result;
     }
 
+    // 비어 있는 첫 칸에 조각을 새로 올려 배치한다. 마땅한 빈 칸이 없으면 false.
+    internal bool TryAutoPlace(PuzzleItemDefinition _definition, int _instanceId, out PuzzlePlacement _placement)
+    {
+        _placement = null;
+        var rotation = new PuzzleRotation(_definition.Cells, 0);
+        for (int y = 0; y < Height; y++)
+        {
+            for (int x = 0; x < Width; x++)
+            {
+                if (!TryCreatePose(_definition.Cells, new Vector2Int(x, y), rotation, out var pose))
+                {
+                    continue;
+                }
+
+                bool free = true;
+                foreach (var cell in pose.Cells)
+                {
+                    if (!InBounds(cell.Position) || occupancy.ContainsKey(cell.Position))
+                    {
+                        free = false;
+                        break;
+                    }
+                }
+
+                if (!free)
+                {
+                    continue;
+                }
+
+                var placement = new PuzzlePlacement(_instanceId, _definition, this, pose, _definition.BaseValue, 0);
+                StorePlacement(placement);
+                RecalculateValue();
+                _placement = placement;
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     internal PuzzlePose GetDragPose(PuzzleItemDefinition _definition, Vector2Int _grabbedCell, int _clockwiseTurns)
     {
         // 보드 밖의 고스트는 잡은 슬롯을 (0, 0)에 둔 포즈에서 상대 위치를 읽는다.

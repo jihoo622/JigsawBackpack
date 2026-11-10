@@ -173,6 +173,7 @@ public static class Presentation
         { "Meat", "고기" },
         { "Animal", "가축" },
         { "Fruit", "과일" },
+        { "Poo", "똥" },
     };
 
     public static Color PuzzleBackground => new(0.10f, 0.13f, 0.17f);
@@ -380,6 +381,7 @@ public static class Presentation
             "meat" => new Color32(159, 45, 58, 255),       // 고기: 딥 레드
             "animal" => new Color32(160, 120, 74, 255),    // 가축: 탄/레더 탠
             "fruit" => new Color32(196, 63, 63, 255),      // 과일: 사과 레드
+            "poo" => new Color32(96, 64, 38, 255),         // 똥: 다크 브라운
             _ => new Color32(71, 85, 105, 255)
         };
     }
@@ -416,6 +418,7 @@ public static class Presentation
             "salt" => 7,
             "supply" => 20,
             "cargo" => 21,
+            "poo" => 22,
             _ => 10
         };
     }

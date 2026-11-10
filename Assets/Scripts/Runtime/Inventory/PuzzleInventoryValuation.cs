@@ -49,6 +49,8 @@ internal readonly struct PuzzleSynergyBonus
 internal sealed class PuzzleInventoryValuation
 {
     internal const int BASE_PERCENT = 100;
+    // 시너지 대상에서 항상 제외하는 면역 태그.
+    const string POO_TAG = "Poo";
     // 반대편 슬롯에서 같은 경계를 다시 조회하지 않도록 오른쪽과 위만 확인한다.
     static readonly Vector2Int[] FORWARD_OFFSETS = { Vector2Int.right, Vector2Int.up };
 
@@ -153,6 +155,12 @@ internal sealed class PuzzleInventoryValuation
         Vector2Int _neighborCell, IReadOnlyList<PuzzleSynergyRuleData> _rules,
         Dictionary<int, List<NeighborEffect>> _effects)
     {
+        // Poo 태그 아이템은 어떤 태그 시너지의 대상도 되지 않는다(음수 가치 고정).
+        if (_target.Definition.Tags.Contains(POO_TAG))
+        {
+            return;
+        }
+
         decimal bonusPercent = 0;
         decimal reductionMultiplier = 1;
         foreach (var rule in _rules)
