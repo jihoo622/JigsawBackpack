@@ -7,7 +7,7 @@ using UnityEditor;
 
 // LogKit 자동 부트스트랩(AfterSceneLoad) 이전에 서버 주소·키를 코드로 넣는다.
 // Debug.Log 계열 로그는 LogKit이 자동 수집해 전송하므로 개별 호출이 필요 없다.
-// 분석용 이벤트는 GameLogger.Data(category, message, data)로 보내고 Docs/PLAY_LOG.md 규칙을 따른다.
+// 분석용 이벤트는 GameLogger.Data(category, message, data)로 보내고 Docs/Management/PLAY_LOG.md 규칙을 따른다.
 public static class LogKitSetup
 {
     // LogKit이 큐를 닫기 전에 반드시 한 번 실행해야 하는 작업(판 종료 로그 등)을 여기 등록한다.

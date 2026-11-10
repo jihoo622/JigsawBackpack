@@ -1,10 +1,10 @@
 {
   "status": "sample",
-  "note": "시작 자금, 공통 구매 배율, 화물칸 증차 단가, 게임 클리어 비용. 도시별 거래 설정은 PuzzleTableData.cities가 원본이다.",
+  "note": "시작 자금, 공통 구매 배율, 화물칸 증차 단가, 게임 클리어 비용. 도시별 거래 설정은 PuzzleTableData.cities가 원본이다. debtCityId는 상환 가능 도시 제한이며 빈 값이면 어디서든 상환한다.",
   "startingFunds": 200,
   "purchaseMarkupPercent": 110,
   "wagonAddCostBase": 50,
   "gameClearCost": 500,
   "deadlineHours": 336,
-  "debtCityId": ""
+  "debtCityId": "city.capital.finance"
 }

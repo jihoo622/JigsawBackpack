@@ -8,7 +8,7 @@ using UnityEngine;
 // 가장 최근 분석 로그 파일의 계약을 검사한다. 게임을 실행하거나 씬을 바꾸지 않고 파일만 읽는다.
 // 검사 항목: sessionId 단수 / sequence 1씩 연속·중복 없음 / session_start·session_end 경계 /
 //            summaryId별 revision 증가 / time 감소 없음 / 파싱 실패 줄
-// 파일 계약만 본다. 보상·피해처럼 값의 정확성은 실제 플레이 확인이 필요하다(Docs/TELEMETRY.md).
+// 파일 계약만 본다. 보상·피해처럼 값의 정확성은 실제 플레이 확인이 필요하다(Docs/Management/TELEMETRY.md).
 public static class TelemetryVerifier
 {
     public const string MENU = "Tools/MyJG/Verify Telemetry File";

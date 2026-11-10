@@ -65,9 +65,18 @@ public sealed class PuzzleCellData
 }
 
 [Serializable]
+public sealed class PuzzleRegionData
+{
+    public string id, displayName, specialtyTag;
+    public string[] productionTags = Array.Empty<string>();
+    public int pricePercent = -1;
+    public bool tradeHub;
+}
+
+[Serializable]
 public sealed class PuzzleCityData
 {
-    public string id, displayName;
+    public string id, displayName, regionId;
     // 대표 생산품의 태그. 넓은 분류(Food)가 아닌 Grain/Fish처럼 생산지를 구분하는 키다.
     public string specialtyTag;
     public bool buyEnabled, sellEnabled;
@@ -76,6 +85,7 @@ public sealed class PuzzleCityData
     public PuzzleCityTagPriceData[] tagPrices = Array.Empty<PuzzleCityTagPriceData>();
     public PuzzleBoardData market;
     public PuzzleMarketStockData generalStock;
+    public PuzzleMarketStockData regionalStock;
 }
 
 [Serializable]

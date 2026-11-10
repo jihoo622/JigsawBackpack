@@ -1,65 +1,36 @@
-# JigsawBackpack 메모
+# JigsawBackpack
 
-Unity 6(URP) 기반의 2D 기차 화물 인벤토리 프로젝트. 에이전트 작업 지침은 AGENTS.md.
+Unity 6.3 LTS(6000.3.22f1) URP 기반의 기차 화물 거래 게임. 작업 규칙은 [AGENTS.md](AGENTS.md), 문서 진입점은 [Docs/README.md](Docs/README.md)다.
 
-## 화물 인벤토리
+게임 기획서는 [노션](https://app.notion.com/p/41400f902d2281849db4c5e61b7f5ac3)과 로컬을 함께 관리한다. 작업 시작 시 노션 변경을 로컬로 가져오고, 여기서 기획을 바꾸면 노션에도 반영한다. [동기화 규칙](Docs/Management/NOTION_SYNC.md)과 마지막 공통 기준을 먼저 확인한다.
 
-- 기차 보드는 시장과 같은 칸 크기를 사용하고 중앙을 유지한 채 칸 수에 맞춰 크기가 달라진다. 기차 보드 배경은 투명하다.
-- Game 씬 왼쪽은 기차, 오른쪽은 현재 도시의 시장이다. `PuzzleTableData`가 기차(5×5)와 31개 거점(기존 `city.a`~`city.p`와 역명 기반 신규 ID)의 보드·초기 배치·대표 특산품(`specialtyTag`)을 정의한다. 이동은 목적지 ID 기반 방향 그래프를 사용하며, 같은 대표 특산품을 생산하는 마을은 직접 연결하지 않는다. 일반 재고의 품목 중복은 이 제한과 무관하다.
-- 하단에 기차 화물 UI 바(`PuzzleTrainBarView`)가 추가되었다. 오른쪽부터 1번 칸, 그 왼쪽으로 증차되는 구조(`[+] [3] [2] [1]`, 버튼 150×60, 간격 50px)로 화물칸 버튼이 나열된다. 각 화물칸 버튼에 번호가 표기되고 선택 시 골드 테두리로 강조되며, 좌측 인벤토리 타이틀에도 현재 선택된 번호(예: `기차 화물 (1번 칸)`)가 표시된다.
-- 마지막 화물칸 왼쪽에는 초록색 `기차 화물칸 추가` 버튼이 배치되어 항상 50$ 고정 비용(`PuzzleTradeTableData.wagonAddCostBase`)으로, 자금이 충족될 때 새 5×5 화물칸을 증차할 수 있다. 초기 보유 자금은 200$이다.
-- 왼쪽 상단의 게임 클리어 버튼은 자금이 `PuzzleTradeTableData.gameClearCost` 이상일 때 활성화된다. 비용을 지불하면 승리 상태와 게임 완료 패널을 열고, 재시작하거나 게임을 종료할 수 있다.
-- 노선 이동 비용은 **기본요금 + 거리 × `costPerDistance` + 모든 화물칸 점유 칸 수 합계 × `costPerCell`**이다. 시너지는 각 5×5 화물칸 안에서 독립적으로 평가하며, 이동 시 모든 화물칸의 가치가 한 번씩 누적된다.
-- 도시를 바꾸면 진행 중 드래그를 취소하고 오른쪽 시장을 교체한다. **도시를 떠나면 그 도시의 시장만 고정 특산품과 새로 추첨한 일반 물품으로 재생성한다.** 새 인스턴스 ID를 발급해 과거 배치는 남지 않는다. 기차의 모든 화물칸은 도시 이동과 무관하게 인스턴스·좌표·회전을 유지하며 Game 씬 재시작 시 시작 화물칸으로 초기화한다.
-- `PuzzleTableData.pieces`의 샘플 아이템 정의가 이름·설명·모양·태그·아이콘 키를 제공하고, `PuzzleItemPriceTableData`가 아이템 ID별 기본 가치의 유일한 원본이다. 같은 종류의 화물은 정의를 공유하며 각 인스턴스가 소속·좌표·회전을 가진다. 기존 아이콘 키를 쓰면 테이블만 편집해 아이템을 추가할 수 있다.
-- 시장은 모두 7×6이고 특산품 3개를 고정 배치하고 일반 물품 4개를 시장 초기 생성·출발 시 재설정마다 추첨한다(동일 종류 중복 가능). 도시별 `generalStock.pieceIds`가 후보, `slots`가 수량과 배치 영역의 원본이다. 후보는 JSON에 명시하며 수요 물품도 포함할 수 있다. 도시 ID별 기존 생산·수요·재고 배정을 유지하며 실제 지역 특산품 고증은 아니다. 추첨은 스크립트가 담당하고 재고는 해당 방문 동안 유지된다. 곡물은 `Grain`으로 구분한다. 풍부/필요의 임시 구매·판매 배율은 각각 80/75%, 120/150%다. 목포는 소금이 풍부하고 기계를 필요로 한다. 익산은 물이 풍부하고 기계를 필요로 하며, 동대구는 곡물과 물을 필요로 한다. 물은 깨끗한 물로 취급한다. 배치 기준은 왼쪽 위이므로 높이 2칸 화물은 y가 1 이상이어야 한다. 가격 밸런스·시너지 재설계는 미완료다.
-- 아이템별 이미지는 배치와 드래그 고스트에서 격자 크기와 회전에 맞춰 표시된다. 화물에 마우스를 올리면 마우스 커서를 추적하며 크기가 가변적으로 조절되는 호버 정보 패널(물건 이름, 항목 테마별 라운드 직사각형 종류 태그 배지, 실제 가치, 거래 배율, 적용 시너지 목록, 다음 턴 반영 미래 가치)이 표시된다. 기존 하단 고정 상세 텍스트는 호버 정보 패널로 대체되었다. 기차에는 같은 종류의 목재 묶음 두 개를 서로 다른 위치와 회전으로 배치했다.
-- Inventory Canvas와 공용 인벤토리 프리팹의 텍스트는 NotoSansKR TextMeshPro를 사용한다. 기존 크기 16~24는 자동 크기 16~24로 설정했다.
-- `PuzzleSynergyTableData`의 규칙은 같은 보드의 상하좌우 인접 화물에만 적용된다. 같은 쌍의 접촉 면이 여러 개여도 한 번 평가한다. 증가는 기본 가치 기준으로 합산하고 감소는 그 결과에 곱한다. 소금은 음식의 가치를 20%, 물은 물고기의 가치를 30% 높인다. 물과 물고기는 목재의 가치를 10%, 금속의 가치를 20% 낮춘다. 곡물은 화물 가치 증가 대상 이웃에서 제외한다. 화물 상세에 이웃별 이름·비율·가치 변화량을 표시한다.
-- 기차의 인접 시너지는 효과를 주는 화물에서 받는 화물 방향의 짧은 화살표로 표시한다. 증가와 감소는 각각 초록색과 빨간색이며, 같은 쌍의 여러 접촉 면 중 계산에 사용한 한 곳에 표시한다. 시장에는 화살표를 표시하지 않는다.
-- 인접 시너지 결과는 배치만 바꿔도 실제 가치를 즉시 바꾸지 않는다. 도시를 이동할 때마다 기차 화물별로 기존 시너지 결과에서 기본 가치를 뺀 변화량을 실제 가치에 누적한다. 실제 가치는 화물 상세에 표시되고 보드 이동·도시 재방문에도 유지된다.
-- 같은 보드 안의 드래그는 무료다. 구매가는 아이템 기본 가치, 판매가는 시너지로 누적된 화물의 실제 가치(ActualValue)에 도시·태그별 비율을 적용한다. 태그 규칙이 여럿 맞으면 priority가 가장 높은 하나를 쓰고, 없으면 도시의 명시적 기본 비율을 쓴다. 드래그 미리보기와 거래 결과에는 적용된 태그·비율이 함께 표시되고, 화물 상세에는 현재 도시의 선택 태그와 구매·판매 비율이 표시된다. `PuzzleTableData.cities`가 도시별 거래 허용 여부와 기본·태그별 가격 비율을 정하고, `PuzzleTradeTableData`는 시작 자금만 정한다. 도시 전환 중에도 자금을 유지한다. 오른쪽 시장 위에는 현재 도시의 태그를 구매·판매 비율 모두 100 초과면 `귀함`, 모두 100 미만이면 `흔함`으로 표시하고, 두 비율이 100을 사이에 두고 갈리면 그 태그는 표시하지 않는다. 시장 보드의 종합 가치 텍스트는 쓰지 않는다.
-- `Ctrl + 왼쪽 클릭`(좌우 Ctrl 지원)으로 기차↔현재 시장에 즉시 구매·판매한다. 현재 회전으로 왼쪽 위부터 빈자리를 찾고, 없으면 시계 방향의 나머지 회전도 검사한다. 기존 거래 판정·이벤트를 재사용하며 공간·자금 부족이나 거래 금지 시 배치와 자금을 보존한다. 안내는 거래 상태 문구에 표시한다. Play Mode 확인은 남아 있다.
-- 드래그 중 R로 잡은 슬롯 기준으로 회전한다. 보드 사이 드래그는 예상 가격과 실패 이유를 표시한다. 유효한 배치는 초록색이며, 배치나 거래가 불가능하면 빨간색이다. 놓는 순간 원본·대상 점유·자금을 다시 판정하고 성공 시 인스턴스 ID를 유지한다. 실패하거나 취소하면 배치와 자금을 보존한다.
-- 두 View는 같은 `PuzzleInventoryUI` 프리팹의 보드·배치·고스트·미리보기 각 42슬롯을 사용한다. 기존 `PuzzleInventory`와 Unity Input System을 사용하며, 외부 패키지 조사와 적용 범위는 구현 계획서의 1단계에 기록했다.
-- 대한민국 주요 간선을 31개 거점·양방향 철도 44개(방향별 88개)로 축약했다. 경부·호남 고속선과 경부·호남·장항·전라·경전·중앙·경강·충북·태백·영동·동해 일반선 축을 반영한다. 경부고속선은 서울–광명–천안아산–오송–대전–김천구미–동대구–경주–울산(통도사)–부산이며 일반선은 수원·천안·김천·밀양 경유로 분리한다. 호남고속선은 오송에서 공주–익산–정읍–광주송정으로 분기한다. 서울은 서울·용산·청량리, 부산은 부산·부전, 천안아산은 천안아산·아산 환승권을 묶는다. 울산(통도사)과 태화강은 별도 거점이다. 거리는 주요 경유지의 구면거리 합을 약 25km당 1로 환산한 게임 단위이며 실제 영업거리가 아니다. 왕복 거리는 같고 거리당 단가는 1, 연결당 시간은 `travelTurns: 1`이다. 기존 ID 쌍의 기본요금은 유지하고 새 연결은 6을 사용한다. 자금 부족 시 이동 상태를 보존하며 빚 차감·승패는 비활성이다.
+## 현재 상태 요약
 
-- `PuzzleWorldMap` 프리팹을 Game 씬에 배치했다. 우측 상단 지도 버튼으로 노선도를 열고 직접 연결된 마을을 클릭해 이동한다. 호버 시 비용·소요 턴과 방문한 곳의 교역 정보를 표시하며 미방문 연결 역도 이동할 수 있다. 기존 이전·다음 이동 버튼은 숨긴다. 방문 기록은 씬 로컬 세션이 보유하며 Game 씬 재시작 시 초기화한다. 지도 이동 성공 시 `CityArrived`로 인벤토리·자금·지도 표시를 갱신하고 지도를 닫는다. 지도 열림 중 배경 드래그·Ctrl+클릭은 차단한다. UI와 철도선은 프리팹에 사전 배치하며 런타임 생성하지 않는다. Unity 에디터에서 표시·동작 확인은 남아 있다.
+상세 구현 현황과 기획 대비 차이는 [현재 구현 상태](Docs/Management/CURRENT_STATE.md)를 본다.
 
-## 기반 구조
-- **어셈블리**: asmdef·네임스페이스 없음. 런타임 `Assets/Scripts/Runtime`, 에디터 `Assets/Scripts/Editor`(폴더 규칙). 테스트 코드는 asmdef 없이는 컴파일되지 않으므로 두지 않고, 대신 `SmokeCheck`로 기동 검사를 대신한다.
-- **테이블**: `Assets/Resources/Tables/*.json` → DTO → `TableManager.Instance`(지연 로드·`RequireValid`·`Reload`·에디터 디스크 원본 우선 읽기) → `GameTableRules`(인덱스 중복·참조 무결성·리플렉션 숫자 검사).`Tools/MyJG/Tables/Reload Tables`와 JSON 저장 시 자동 캐시 무효화.
-- **이벤트 허브**: `GameEvents`가 Run/Scene/Upgrade/Panel/Trade 이벤트를 발행한다. 구독자 예외 격리, `NextId()` 진단 순번, 씬 진입 자동 발행을 제공한다.
-- **확장 계약**: `IUpgrade`(Id/Apply/Remove) + `UpgradeManager`(Register/Grant/GrantNext/Capture/Restore, 씬 로컬 상태).
-- **씬 로컬 자원**: `SceneServices.For<T>()`(씬 안 호스트 생성) + `ScenePool`(key별 Rent/Return/prewarm, 씬과 함께 사라짐).
-- **씬 골격**: `Preload → Title → Game` 3개 씬을 만들고 Build Settings에 등록했다(시작 씬 = Preload). 진행 경로의 원본은 `FlowTableData.scenes`이고, ProjectSettings의 기본 씬도 Preload를 가리킨다. URP 샘플 씬(SampleScene)은 Game으로 흡수하고 제거했다.
-- **표기 단일 출처**: `Presentation`(EffectCategory 색·제목, 리치 텍스트 Accent/Dim/Heading, 테이블 description 원본 참조).
-- **UI 패널**: `PanelBase`(startOpen으로 시작 상태 명시, OnDisable 정리, `GameEvents.PanelVisibility` 발행).
-- **레이어**: `GameLayers`(7 Ground / 8 Obstacle / 9 Player / 10 Enemy / 11 Prop / 12 Weapon / 13 Projectile)와 TagManager.asset 등록 완료.
-- **LogKit**: git 패키지(v0.7.0) 설치, `LogKitSetup`이 `LOGKIT_SERVER_URL`/`LOGKIT_UPLOAD_KEY` 환경변수를 기동 시 적용. Debug.Log 계열은 자동 수집·전송.
-- **분석 로그**: `TelemetryLog`가 sessionId·sequence·FixedUpdate 시간의 단일 소유자(JSONL은 `persistentDataPath/Telemetry`, LogKit 전송에 자동으로 포함되지 않음). `TelemetryRecorder`가 GameEvents를 구독해 한 곳에서 쓰고, 이벤트 이름·필드 원본은 `TelemetryEvents`/`TelemetryPayload`, 스위치는 `Resources/LogData.json`. 계약과 검증은 `Docs/TELEMETRY.md`.
-- **설정**: Active Input Handling = Both(신규 Input System만 사용 권장, Validate Project가 안내), Enter Play Mode Options = 도메인 리로드 해제(정적 초기화 규약 필수).
-- **도구**: `Tools/MyJG/Validate Project`(빈 스크립트·테이블·빌드 씬·레이어 동기화·입력 설정·LogData 유무), `Tools/MyJG/Verify Telemetry File`(최신 분석 파일의 session/sequence/revision 계약), `Tools/MyJG/Reveal Telemetry Folder`, `Tools/MyJG/Debug/Jump To Scene`, `Tools/MyJG/Build Windows (Development)`(활성 씬 사용 → `Artifacts/Windows`).
-- **기동 검사**: 실행 인자 `-projectSmoke` → 테이블 검증·풀 왕복·해금/스냅샷 복원·이벤트 왕복·분석 로그 세션 계약까지 확인 후 `MYJG_SMOKE_PASS/FAIL`과 종료 코드.
+- Game 씬에서 바로 진입한다. 좌측 기차는 5×5 화물칸 선택·증차, 우측 시장은 도시별 7×6 보드다. 드래그·R 회전·Esc 취소·Ctrl+클릭 즉시 거래를 지원한다.
+- 레일 생성 seed 20265146의 `ProjectWorldData.json`이 준 지리·이름·노선·좌표를 값 그대로 옮겼다. 생산 지역 26개 마을(공업·수도권 각5, 나머지 각4)과 일반 마을 4개, 양방향 연결 43개는 그대로지만 **마을 ID 대응이 바뀌어** 같은 이름이 다른 `city.*`에 붙었다(라센턴은 `city.mine.dig`)이고  상환 예정지 금융마을은 ★로 표시하고 `debtCityId`로 상환 장소까지 제한한다. 공업 출발점 기준 금융마을까지 최단은 32~56시간, 현재 시작 설정은 `city.industry.ironworks`(에른아 공업역 · 40시간)다.
+- 지도 프리팹에도 외부 데이터의 역 30개·철도 43개(85구간)·시간 라벨을 저장했다. `Tools/MyJG/Apply Rail Map Layout (seed 20265146)`으로 다시 적용할 수 있다([MAP](Docs/Management/MAP.md) §4).
+- 지도에 지형 배경·휠 확대/축소·드래그 이동·전체 보기/현재 위치 버튼을 연결했다. 현재 역은 금색 배지·링으로 강조한다. UI 여백과 연결 재적용은 `Tools/MyJG/Apply Map Presentation`이다.
+- 이동 비용은 기본요금 + 거리 요금 + 전체 기차 적재 요금이다. 시간 가중치만큼 각 화물칸의 인접 시너지 변화량을 실제 가치에 누적하고 출발 시장만 새 인스턴스로 재생성한다.
+- 시장 재고는 마을 특산 3개·지역 특산 1개·랜덤 2개이며 수도권은 집산·수입품을 사용한다. 시너지와 거래는 복수 태그를 공유하고 흔함을 귀함보다 우선한다. 구매는 기본 가치·도시 배율, 판매는 누적 실제 가치·도시 배율에 지역 물가를 곱한다. 귀함 150/120, 수도권 물가 125%다. 클리어 비용 지불로 승리하고 완료 패널에서 재시작·종료한다. 옛 빚 일정은 비활성이다. 14일 기한·조기 상환 코드를 유지하고, `debtCityId`를 금융마을으로 정해 그 도시에서만 상환할 수 있다.
+- 시간은 `PuzzleTimeManager` 하나를 사용한다. 레일 43개 중 39개가 가중치 1=8시간(하루 3회), 3개가 2=16시간, 1개가 4=32시간이다. 요금용 거리는 1~9로 시간 가중치와 분리됐다. 별도의 지역 시계를 누적하지 않고 구매 후 보유 시간 이벤트를 보존한다.
+- 수치·재고·노선은 `Assets/Resources/Tables/*.json`이 원본이다. 표기·색은 `Presentation`, 상태는 씬 로컬 `PuzzleInventoryService`, UI는 사전 배치한 View와 Presenter가 담당한다.
 
-## 프로젝트를 시작할 때 할 일
-1. 샘플 데이터를 지운다: `GameplayTableData.json`의 `sample.*` 해금 항목과 예시 필드, `FlowTableData.json`의 씬 이름(기본은 Preload·Title·Game). 실제 씬을 추가하면 Build Settings와 표 양쪽에 같은 이름으로 등록한다.
-2. `GameLayers`와 TagManager 레이어를 실제 게임에 맞게 고치고 `Tools/MyJG/Validate Project`로 확인한다.
-3. 메뉴·로그의 `MyJG` 접두사를 프로젝트명으로 바꾼다(에디터 스크립트 내 문자열, `MYJG_SMOKE_*`).
-4. `IUpgrade` 구현체를 만들어 `UpgradeManager.Register`로 연결하고, 패널은 `PanelBase`를 상속해 `startOpen`을 명시한다.
-5. 분석 서버가 있으면 `Docs/PLAY_LOG.md`의 이벤트 이름을 서버 측과 맞춘다. 분석 파일의 전송·수집은 별도 작업이라 필요하면 직접 붙인다(`Docs/TELEMETRY.md`).
+## 문서
 
-## 검증 · 미정
-- 지도는 대한민국 주요 철도 거점의 남북·동서 관계를 반영한 축약 배치다. 서울에서 출발하며 도시 이름은 실제 거점명, 특산품·재고는 기존 게임 배정이다. 외형은 어두운 배경·사각 카드·단색 직선이며 고속선은 굵게, 일반선은 가늘게 표시한다. 연결 역 호버 정보에도 고속·일반 구분을 표시한다. 가독성을 위해 좌표를 벌렸다. 선 교차점은 환승역이 아니다. 같은 특산품 인접 금지·왕복 거리 일치·대표 고정 재고와 가격 규칙을 테이블에서 검증한다. 현재 연결과 축약 기준은 `Docs/TABLES.md`를 참고한다.
-- 노선 비용과 시장 재설정(①~④)은 구현했으나 Play Mode 확인은 남았다. `PuzzleRouteTableData.json`의 비용은 `status: sample`이며 빚 일정 대비 밸런스를 아직 조정하지 않았다. 시장은 완전 재설정(a안)이라 재방문 시 시작 배치 화물이 복제된다.
-- 시작 자금 200, 칸당 단가와 거리당 단가는 각 1이다. 거리 요금과 신규 무역 경로를 포함한 수익 밸런스는 미조정이며, 빚 일정은 현재 실행하지 않는다.
-- ⑤ 이자 부족 시 기차 화물 40% 강제매각은 계약만 확정되고 미구현이다(현재는 부족하면 즉시 패배). 설계는 `Docs/노선 비용과 시장 초기화 구현 계획.md`의 3단계.
-- 5단계의 도시 간 구매·판매와 실패 시 상태 보존은 Play Mode에서 확인할 항목이다. 가격과 시너지 배율은 개발용 샘플이다. LogKit 패키지 버전은 `packages-lock.json`에 기록되어 있다.
-- Preload·Title·Game 씬의 에디터 로드 확인이 남아 있다.
-- Preload·Title은 씬 전환을 실행할 컴포넌트가 비어 있다. 인벤토리는 Game 씬에서 바로 진입한다.
-- 코딩 스타일: 전 스크립트를 AGENTS 규칙(Allman, 파라미터 `_` 접두사, const UPPER_SNAKE, 한 줄 블록 금지)에 맞게 일괄 정리했다. 리터럴 문자열 안 텍스트와 이벤트/직렬화 필드 이름은 바꾸지 않았다.
-- 분석 파일의 서버 전송·수집기는 없다(JSONL은 LogKit 업로드 대상에 자동으로 포함되지 않음). 파일 생성과 계약 검증(`Verify Telemetry File`)까지 제공한다.
-- 씬 진행 상태의 판 단위 인계(장비·체력 이어받기)는 템플릿에 없다. 필요하면 명시적으로 추가한다.
-- 오디오·저장·씬 로더(페이드) 공용 서비스는 없다. 게임이 정하면 테이블 4계층 규약으로 수치를 옮긴다.
-- 테스트 asmdef가 없어 EditMode/PlayMode Test Runner 항목은 비어 있다. 테스트가 필요해지면 asmdef 예외를 만들지 정한다.
-- LogKit 수신 서버와 환경변수는 이 PC에서 확인하지 않았다. 빌드 시 값이 없으면 LogKit 빌드 단계가 실패한다(`LOGKIT_OPTIONAL=1`로 로컬 우회).
+- [게임 기획서](<Docs/게임 기획서.md>): 게임 목표·규칙·지역·경제·화면·미정 사항의 본문.
+- [TABLES](Docs/Management/TABLES.md): 데이터 소유권과 검증 계약.
+- [MAP](Docs/Management/MAP.md): 맵 데이터와 화면 구성의 저장소 좌표.
+- [BACKLOG](Docs/Management/BACKLOG.md): 개발 기반 제약·남은 사용자 확인.
+- [TELEMETRY](Docs/Management/TELEMETRY.md) / [PLAY_LOG](Docs/Management/PLAY_LOG.md): 기록 경로·설정 / 이벤트 필드.
+- 초기 기획·단계별 작업 계획은 [Docs/Management/Archive](Docs/Management/Archive/)에 보존하며 현재 작업 기준으로 사용하지 않는다.
+
+## 중요한 제약
+
+- `purchaseMarkupPercent: 110`은 테이블·검증만 있으며 실제 구매가에는 미적용이다. 수익 밸런스와 실제 가치 경계 정책은 게임 기획서 10장의 미정 사항이다.
+- `FlowTableData`에는 Preload·Title·Game이 있지만 빌드는 Game만 활성이다. ProjectValidation의 Preload·Title 빌드 목록 누락이 남아 있고 진입·전환 흐름도 미연결이다.
+- 테스트·플레이·입력 실험·캡처는 사용자 요청 시에만 실행한다. 임시 지역 맵·시간 소비·거래 경계·클리어 흐름의 남은 사용자 확인은 BACKLOG를 본다.
+- 컴파일과 씬 변경은 Unity CLI를 사용한다. 자동 에디터 설정이 열린 씬을 재저장할 수 있으므로 원격 씬을 병합한 후 메모리의 씬과 파일의 참조가 일치하는지 주의한다.
+- asmdef·namespace 없이 새 Input System, `PanelBase`, `GameEvents`, 정적 상태 초기화 규약을 따른다. Enter Play Mode는 도메인 리로드 해제, Active Input Handling은 Both다.
+- LogKit 패키지는 v0.7.0이다. 분석 JSONL은 서버로 자동 전송되지 않는다. 빌드 환경변수·로컬 우회 설정은 TELEMETRY를 본다. 서버 주소·키는 저장소에 넣지 않는다.

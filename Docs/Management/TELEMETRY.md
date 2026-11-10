@@ -34,9 +34,8 @@ TelemetryLog.WriteSummary($"wave:{wave.index}", wave);   // revision 1, 2, 3 ...
 - **분석 로그**: `Assets/Resources/LogData.json`이 원본이다(`enabled`, `bufferLines`, `retentionDays`). 파일이 없으면 분석 경로만 꺼지고 콘솔 수집은 계속 동작한다. 코드에 폴백 수치를 두지 않는다.
 - **LogKit 전송**: 씬의 `GameLogger` Inspector, 또는 `GameLogger.Configure(...)`로 넣은 값이 원본이다. 빌드에서는 LogKit 빌드 단계가 CI 환경변수 `LOGKIT_SERVER_URL`, `LOGKIT_UPLOAD_KEY`를 읽어 `Assets/Resources/LogKitBuildConfig.json`에 구워 넣는다(값 없으면 빌드 실패, 로컬은 `LOGKIT_OPTIONAL=1`, localhost는 `LOGKIT_ALLOW_LOCALHOST=1`).
 - **로컬 오버라이드**: 에디터에서는 같은 이름의 환경변수를 PC에 설정하면 `LogKitSetup`이 기동 시 적용한다. 서버 주소·키를 저장소에 커밋하지 않고, 전송 기본값은 꺼 두었다.
-- 오래된 분석 파일은 기동에 `retentionDays`만큼 정리한다. 전송·정리 자동화가 없는 경로라 그대로 두면 계속 쌓인다.
+- 오래된 분석 파일은 기동 시 `retentionDays` 기준으로 정리한다. 서버 전송은 별도 구현이 필요하다.
 
-> 원 문서(KJG_6_B2_POC_TrenchSlot)는 LogKit v0.3 기준이라 `Resources/TelemetryData.json`을 읽게 되어 있다. 이 템플릿이 쓰는 LogKit v0.7은 그 파일을 읽지 않으므로 전송 설정의 원본이 Inspector/Configure/빌드 설정이다.
 
 ## 검증
 

@@ -122,7 +122,8 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         ? tables.DebtSchedule[PaidDebtCount]
         : null;
     internal bool CanTravel => tables != null && !string.IsNullOrEmpty(currentCityId) && tables.RoutesFrom(currentCityId).Count > 0;
-    internal int TravelTurns => tables.PuzzleRoute.travelTurns;
+    internal long ElapsedTime => Time.ElapsedHours;
+    internal PuzzleRegionData RegionData => tables.Region(CityData.regionId);
     internal long MarketCapacity { get; private set; }
     internal IReadOnlyCollection<PuzzleItemDefinition> ItemDefinitions { get; private set; }
 
@@ -182,24 +183,29 @@ public sealed class PuzzleInventoryService : MonoBehaviour
     {
         var city = tables.CityPrice(_cityId);
         var placements = new List<PuzzleStartingPlacementData>(tables.MarketStartingPlacements(_cityId));
-        var candidates = new List<string>(city.generalStock.pieceIds);
+        AddStock(city.regionalStock, placements);
+        AddStock(city.generalStock, placements);
+        return new PuzzleInventory(city.market, placements, definitions, marketRules,
+            ref lastInstanceId);
+    }
+
+    void AddStock(PuzzleMarketStockData _stock, List<PuzzleStartingPlacementData> _placements)
+    {
+        var candidates = new List<string>(_stock.pieceIds);
         candidates.Sort(StringComparer.Ordinal);
-        var slots = new List<PuzzleMarketStockSlotData>(city.generalStock.slots);
+        var slots = new List<PuzzleMarketStockSlotData>(_stock.slots);
         slots.Sort((_left, _right) => StringComparer.Ordinal.Compare(_left.id, _right.id));
         foreach (var slot in slots)
         {
-            int index = stockRandom.Next(candidates.Count);
-            placements.Add(new PuzzleStartingPlacementData
+            _placements.Add(new PuzzleStartingPlacementData
             {
                 id = slot.id,
-                pieceId = candidates[index],
+                pieceId = candidates[stockRandom.Next(candidates.Count)],
                 x = slot.x,
                 y = slot.y,
                 clockwiseTurns = 0
             });
         }
-        return new PuzzleInventory(city.market, placements, definitions, marketRules,
-            ref lastInstanceId);
     }
 
     // 기본 요금·거리 요금·출발 직전 전체 기차 적재 요금을 같은 경로에서 평가한다.
@@ -239,9 +245,27 @@ public sealed class PuzzleInventoryService : MonoBehaviour
                 _baseCost: route.cost, _cells: cells, _distance: route.distance);
         }
 
+        long travelTime;
+        try
+        {
+            travelTime = PuzzleTimeManager.TravelHours(route.travelTimeWeight);
+            Time.ArrivalAt(travelTime);
+        }
+        catch (OverflowException)
+        {
+            return new PuzzleTravelResult(PuzzleTravelFailure.TimeOverflow);
+        }
+        foreach (var wagon in trainWagons)
+        {
+            if (!wagon.CanApplyTimeValueChange(route.travelTimeWeight))
+            {
+                return new PuzzleTravelResult(PuzzleTravelFailure.TimeOverflow);
+            }
+        }
+
         return new PuzzleTravelResult(Funds < cost ? PuzzleTravelFailure.InsufficientFunds : PuzzleTravelFailure.None,
             cost, fromCityId, _cityId, _baseCost: route.cost, _cells: cells,
-            _distance: route.distance, _distanceCost: distanceCost);
+            _distance: route.distance, _distanceCost: distanceCost, _travelTime: travelTime);
     }
 
     // 이동 버튼에 표시할 목적지 노선의 비용. 기차 보유 칸이 바뀌면 값도 바뀐다.
@@ -330,15 +354,15 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         }
 
         tables.TryGetRoute(evaluation.FromCityId, evaluation.ToCityId, out var route);
-        long duration = PuzzleTimeManager.TravelHours(route.travelTimeWeight);
+        long duration = evaluation.TravelTime;
         // 잘못된 시간이나 오버플로는 자금·배치·도시 변경 전에 검사한다.
         Time.ArrivalAt(duration);
         // 이동 비용은 출발 전에 낸다. 기차는 출발 직전까지의 배치로 계산한다. 이후의 도시 도착·턴 증가·가치 변화는 한 번에 확정한다.
         Funds -= evaluation.Cost;
-        // 출발 직전 기차 인접 관계로 한 턴의 가치 변화를 계산한다.
+        // 출발 직전 인접 배치의 시간당 변화량을 소비 시간만큼 누적한다.
         for (int i = 0; i < trainWagons.Count; i++)
         {
-            trainWagons[i].ApplyTurnValueChange();
+            trainWagons[i].ApplyTurnValueChange(route.travelTimeWeight);
         }
         // 떠난 도시의 시장은 테이블의 시작 배치로 되돌린다. 기차는 그대로 두고, 목적지 시장은 손대지 않는다.
         markets[evaluation.FromCityId] = CreateMarket(evaluation.FromCityId);
@@ -373,7 +397,7 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         */
 
         return new PuzzleTravelResult(PuzzleTravelFailure.None, evaluation.Cost, evaluation.FromCityId,
-            evaluation.ToCityId, Funds, evaluation.BaseCost, evaluation.Cells, evaluation.Distance, evaluation.DistanceCost);
+            evaluation.ToCityId, Funds, evaluation.BaseCost, evaluation.Cells, evaluation.Distance, evaluation.DistanceCost, evaluation.TravelTime);
     }
 
     internal PuzzleDropResult EvaluateDrop(PuzzlePlacement _original, PuzzleInventory _destination,
@@ -410,7 +434,7 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         int percent = rate.PercentFor(direction);
         string tag = rate.Tag;
         if (!TryGetTradePrice(buying ? _original.Definition.BaseValue : _original.ActualValue,
-            percent, out long price))
+            percent, tables.Region(city.regionId).pricePercent, out long price))
         {
             return new PuzzleDropResult(placement, direction, _tradeFailure: PuzzleTradeFailure.PriceOverflow,
                 _percent: percent, _tag: tag);
@@ -461,7 +485,7 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         return best;
     }
 
-    static bool TryGetTradePrice(decimal _value, int _percent, out long _price)
+    static bool TryGetTradePrice(decimal _value, int _percent, int _regionPercent, out long _price)
     {
         _price = 0;
         if (_percent <= 0 || _value < 0)
@@ -469,7 +493,7 @@ public sealed class PuzzleInventoryService : MonoBehaviour
             return false;
         }
 
-        decimal rate = (decimal)_percent / PERCENT_SCALE;
+        decimal rate = (decimal)_percent / PERCENT_SCALE * _regionPercent / PERCENT_SCALE;
         if (_value > ((decimal)long.MaxValue + 1) / rate)
         {
             return false;
@@ -572,7 +596,8 @@ internal enum PuzzleTravelFailure
     InvalidCity,
     MissingRoute,
     InsufficientFunds,
-    CostOverflow
+    CostOverflow,
+    TimeOverflow
 }
 
 // 이동 미리보기와 확정의 공통 결과. 실패하면 도시·턴·시장·자금 어느 것도 바뀌지 않는다.
@@ -583,6 +608,7 @@ internal readonly struct PuzzleTravelResult
     // 미리보기와 확정에서 공유하는 비용 내역.
     internal long BaseCost { get; }
     internal int Distance { get; }
+    internal long TravelTime { get; }
     internal long DistanceCost { get; }
     internal int Cells { get; }
     internal long FundsAfter { get; }
@@ -592,7 +618,7 @@ internal readonly struct PuzzleTravelResult
 
     internal PuzzleTravelResult(PuzzleTravelFailure _failure, long _cost = 0, string _fromCityId = null,
         string _toCityId = null, long _fundsAfter = 0, long _baseCost = 0, int _cells = 0,
-        int _distance = 0, long _distanceCost = 0)
+        int _distance = 0, long _distanceCost = 0, long _travelTime = 0)
     {
         Failure = _failure;
         Cost = _cost;
@@ -601,6 +627,7 @@ internal readonly struct PuzzleTravelResult
         FundsAfter = _fundsAfter;
         BaseCost = _baseCost;
         Distance = _distance;
+        TravelTime = _travelTime;
         DistanceCost = _distanceCost;
         Cells = _cells;
     }

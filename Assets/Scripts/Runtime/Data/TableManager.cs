@@ -42,6 +42,7 @@ public sealed class TableManager
     readonly Dictionary<string, PuzzlePieceData> pieces;
     readonly Dictionary<string, PuzzleItemPriceData> itemPrices;
     readonly Dictionary<string, PuzzleCityData> cities;
+    readonly Dictionary<string, PuzzleRegionData> regions;
     readonly Dictionary<string, Dictionary<string, PuzzleCityTagPriceData>> cityTagPrices;
     readonly Dictionary<string, Dictionary<string, PuzzleRouteData>> routes;
     readonly Dictionary<string, IReadOnlyList<PuzzleRouteData>> routesFrom;
@@ -64,6 +65,7 @@ public sealed class TableManager
         pieces = rules.Index(Puzzle.pieces, e => e.id, "PuzzleTableData.pieces");
         itemPrices = rules.Index(PuzzleItemPrice.prices, e => e.pieceId, "PuzzleItemPriceTableData.prices");
         cities = rules.Index(Puzzle.cities, e => e.id, "PuzzleTableData.cities");
+        regions = rules.Index(Puzzle.regions, entry => entry.id, "PuzzleTableData.regions");
         cityTagPrices = IndexCityTagPrices(Puzzle.cities);
         routes = IndexRoutes(PuzzleRoute.routes);
         routesFrom = IndexRoutesFrom(routes);
@@ -86,6 +88,21 @@ public sealed class TableManager
 
         rules.Validate(this);
         IsValid = loaded && rules.IsValid;
+    }
+
+    internal bool TryGetRegion(string _id, out PuzzleRegionData _region)
+    {
+        if (string.IsNullOrEmpty(_id))
+        {
+            _region = null;
+            return false;
+        }
+        return regions.TryGetValue(_id, out _region);
+    }
+
+    internal PuzzleRegionData Region(string _id)
+    {
+        return regions[_id];
     }
 
     static IReadOnlyList<PuzzleStartingPlacementData> SortStartingPlacements(PuzzleBoardData _board)

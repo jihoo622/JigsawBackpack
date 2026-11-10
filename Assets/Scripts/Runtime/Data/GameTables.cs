@@ -29,7 +29,10 @@ public sealed class PuzzleTableData
     public PuzzlePieceData[] pieces = Array.Empty<PuzzlePieceData>();
     public PuzzleBoardData train;
     public string startCity;
+    // 지도상 예정 목적지. 실제 상환 장소 판정인 debtCityId와 별개다.
+    public string planningTargetCityId;
     public PuzzleCityData[] cities = Array.Empty<PuzzleCityData>();
+    public PuzzleRegionData[] regions = Array.Empty<PuzzleRegionData>();
 }
 
 [Serializable]
@@ -65,8 +68,6 @@ public sealed class PuzzleTradeTableData
 public sealed class PuzzleRouteTableData
 {
     public string status, note;
-    // 모든 노선 연결 이동에 소모되는 턴 수. 현재 계약은 1이다.
-    public int travelTurns = -1;
     // 기차의 점유 칸 1칸에 더해지는 단가. 0이면 보유량과 무관한 정액 노선이다.
     public int costPerCell = -1;
     public int costPerDistance = -1;

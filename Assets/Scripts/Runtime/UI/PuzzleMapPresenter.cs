@@ -58,12 +58,16 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
 
     void Refresh()
     {
-        view.ShowGuide(Presentation.PuzzleMapGuide());
+        view.ShowGuide(Presentation.PuzzleMapGuide(session.ElapsedTime));
         string currentCityId = session.CurrentCityId;
         foreach (var node in view.Nodes)
         {
             string cityId = node.CityId;
             bool isCurrent = string.Equals(cityId, currentCityId, System.StringComparison.Ordinal);
+            if (isCurrent)
+            {
+                view.ShowCurrentLocation(node.transform as RectTransform);
+            }
             bool isConnected = false;
             bool canAfford = false;
             if (!isCurrent)
@@ -80,7 +84,8 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
                 session.HasVisitedCity(cityId),
                 isCurrent,
                 isConnected,
-                canAfford);
+                canAfford,
+                cityId == TableManager.Instance.Puzzle.planningTargetCityId);
         }
     }
 
@@ -89,16 +94,12 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
         string currentCityId = session.CurrentCityId;
         bool isCurrent = string.Equals(_cityId, currentCityId, System.StringComparison.Ordinal);
         bool isConnected = false;
-        bool highSpeed = false;
-        long travelHours = 0;
         PuzzleTravelResult eval = default;
         if (!isCurrent)
         {
             isConnected = TableManager.Instance.TryGetRoute(currentCityId, _cityId, out var route);
             if (isConnected)
             {
-                highSpeed = route.highSpeed;
-                travelHours = PuzzleTimeManager.TravelHours(route.travelTimeWeight);
                 eval = session.EvaluateTravel(_cityId);
             }
         }
@@ -109,8 +110,7 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
             isCurrent,
             isConnected,
             eval,
-            travelHours,
-            highSpeed));
+            TableManager.Instance.Region(TableManager.Instance.CityPrice(_cityId).regionId)));
     }
 
     void ClearInformation()

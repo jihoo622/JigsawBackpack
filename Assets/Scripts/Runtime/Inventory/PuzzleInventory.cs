@@ -49,15 +49,32 @@ public sealed class PuzzleInventory
         valuation.Recalculate(this, synergyRules);
     }
 
-    // 유효한 도시 이동 턴이 확정될 때만 호출한다. 기존 시너지 결과에서 기본 가치를 뺀 변화량을
-    // 각 인스턴스의 실제 가치에 누적하며, 같은 턴의 인접 스냅샷을 기준으로 계산한다.
-    internal void ApplyTurnValueChange()
+    // 현재 인접 배치의 시간당 변화량을 사용한다. 범위 검사는 모든 화물칸을 변경하기 전에 끝낸다.
+    internal bool CanApplyTimeValueChange(int _elapsedTime)
+    {
+        RecalculateValue();
+        try
+        {
+            foreach (var placement in placements.Values)
+            {
+                var value = valuation.ValueOf(placement.InstanceId);
+                _ = checked(placement.ActualValue + (value.FinalValue - value.BaseValue) * _elapsedTime);
+            }
+        }
+        catch (OverflowException)
+        {
+            return false;
+        }
+        return true;
+    }
+
+    internal void ApplyTurnValueChange(int _elapsedTime)
     {
         RecalculateValue();
         foreach (var placement in placements.Values)
         {
             var value = valuation.ValueOf(placement.InstanceId);
-            placement.AddActualValue(value.FinalValue - value.BaseValue);
+            placement.AddActualValue((value.FinalValue - value.BaseValue) * _elapsedTime);
         }
     }
 

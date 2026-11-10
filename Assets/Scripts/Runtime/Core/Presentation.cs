@@ -22,11 +22,25 @@ public static class Presentation
 
     public static Color PuzzleTimeAccent => new(1f, 0.82f, 0.42f);
 
-    public const string PUZZLE_MAP_TITLE = "교역 노선도";
+    public const string PUZZLE_MAP_TITLE = "지역 철도 노선도";
     public const string PUZZLE_MAP_PANEL_NAME = "PuzzleWorldMap";
     public const string PUZZLE_MAP_OPEN = "지도";
     public const string PUZZLE_MAP_CLOSE = "닫기";
-    public const string PUZZLE_MAP_GUIDE = "연결된 마을을 클릭해 이동합니다. 선이 교차해도 마을이 없으면 환승할 수 없습니다.";
+    public const string PUZZLE_MAP_CURRENT = "▼ 현재 위치";
+    public const string PUZZLE_MAP_FIT = "전체 보기";
+    public const string PUZZLE_MAP_LOCATE = "현재 위치";
+    public const string PUZZLE_MAP_ZOOM_IN = "+";
+    public const string PUZZLE_MAP_ZOOM_OUT = "−";
+    public static Color PuzzleMapCurrentHalo => new(1f, 0.78f, 0.30f, 0.25f);
+    public static Color PuzzleMapOcean => new Color32(21, 41, 58, 255);
+    public static Color PuzzleMapLand => new Color32(42, 55, 58, 255);
+    public static Color PuzzleMapRiver => new Color32(43, 90, 112, 255);
+    public static Color PuzzleMapTerrainBorder => new Color32(113, 139, 147, 255);
+    public static string PuzzleMapZoom(float _scale)
+    {
+        return $"{_scale * 100f:0}%";
+    }
+    public const string PUZZLE_MAP_GUIDE = "역 클릭: 이동 · 휠: 확대/축소 · 드래그: 지도 이동 · 색 노선: 지역 내부 · 흰 노선: 지역 간";
     public const string PUZZLE_MAP_HINT = "마을을 가리켜 거리·비용과 수집한 교역 정보를 확인하세요.";
     public static Color PuzzleMapCurrent => new(1f, 0.78f, 0.30f);
     public static Color PuzzleMapVisited => new(0.34f, 0.86f, 0.72f);
@@ -48,32 +62,29 @@ public static class Presentation
         return _visited ? PuzzleMapVisited : PuzzleMapUnknown;
     }
 
-    internal static string PuzzleMapGuide()
+    internal static string PuzzleMapGuide(long _elapsedTime)
     {
-        return $"{PUZZLE_MAP_GUIDE}\n굵은 선: 고속선 · 가는 선: 일반선 · 시간 가중치 1 = {PuzzleTimeManager.HOURS_PER_TRAVEL_WEIGHT}시간 · 마을을 가리켜 거리·비용 확인";
+        return $"{PUZZLE_MAP_GUIDE}\n근거리 {PuzzleTimeManager.HOURS_PER_TRAVEL_WEIGHT}시간 · 숫자: 소요 시간 · ★: 상환 예정지 · 경과 {_elapsedTime / PuzzleTimeManager.HOURS_PER_DAY}일 {_elapsedTime % PuzzleTimeManager.HOURS_PER_DAY}시간";
     }
 
     internal static string PuzzleMapNodeLabel(string _name, bool _visited, bool _current, bool _connected, bool _canAfford)
     {
         if (_current)
         {
-            return _name + "\n현재 위치";
+            return _name + "\n<size=14>현재 위치</size>";
         }
         if (_connected)
         {
-            return _name + (_canAfford ? "\n이동 가능" : "\n자금 부족");
+            return _name + (_canAfford ? "\n<size=14>이동 가능</size>" : "\n<size=14>자금 부족</size>");
         }
-        return _name + (_visited ? "\n방문 완료" : "\n미방문");
+        return _name + (_visited ? "\n<size=14>방문 완료</size>" : "\n<size=14>미방문</size>");
     }
 
     internal static string PuzzleMapInformation(PuzzleCityData _city, bool _visited, bool _current, bool _connected,
-        PuzzleTravelResult _evaluation, long _travelHours, bool _highSpeed)
+        PuzzleTravelResult _evaluation, PuzzleRegionData _region)
     {
         string heading = $"<size=28><b>{_city.displayName}</b></size>";
-        if (_connected)
-        {
-            heading += _highSpeed ? " <size=18>[고속선]</size>" : " <size=18>[일반선]</size>";
-        }
+        heading += $" <size=18>{_region.displayName} · 물가 {_region.pricePercent}%</size>";
         string status;
         if (_current)
         {
@@ -85,15 +96,15 @@ public static class Presentation
         }
         else if (_evaluation.Failure == PuzzleTravelFailure.InsufficientFunds)
         {
-            status = $"<color=#{ColorUtility.ToHtmlStringRGB(PuzzleMapConnectedDisabled)}><b>자금 부족</b> · {PuzzleTravelQuote(_evaluation, _travelHours)}</color>";
+            status = $"<color=#{ColorUtility.ToHtmlStringRGB(PuzzleMapConnectedDisabled)}><b>자금 부족</b> · {PuzzleTravelQuote(_evaluation)}</color>";
         }
         else if (_evaluation.IsSuccess)
         {
-            status = $"<color=#{ColorUtility.ToHtmlStringRGB(PuzzleMapConnected)}><b>이동 가능</b> · {PuzzleTravelQuote(_evaluation, _travelHours)}</color>";
+            status = $"<color=#{ColorUtility.ToHtmlStringRGB(PuzzleMapConnected)}><b>이동 가능</b> · {PuzzleTravelQuote(_evaluation)}</color>";
         }
         else
         {
-            status = $"<color=#{ColorUtility.ToHtmlStringRGB(PuzzleMapConnectedDisabled)}>{PuzzleTravelStatus(_evaluation)} · 소요: {_travelHours}시간</color>";
+            status = $"<color=#{ColorUtility.ToHtmlStringRGB(PuzzleMapConnectedDisabled)}>{PuzzleTravelStatus(_evaluation)} · 소요: {_evaluation.TravelTime}시간</color>";
         }
 
         string trade;
@@ -112,7 +123,7 @@ public static class Presentation
                 .OrderBy(rule => rule.tag, StringComparer.Ordinal).Select(rule => PuzzleTagLabel(rule.tag)));
             string commonColor = ColorUtility.ToHtmlStringRGB(PuzzleMapVisited);
             string rareColor = ColorUtility.ToHtmlStringRGB(PuzzleMapCurrent);
-            trade = $"<size=20>특산품: {PuzzleTagLabel(_city.specialtyTag)} · 방문 완료</size>\n" +
+            trade = $"<size=20>특산품: {(_region.tradeHub ? "집산품" : PuzzleTagLabel(_city.specialtyTag))} · 방문 완료</size>\n" +
                 $"<color=#{commonColor}><b>흔한 자원</b></color>   {(string.IsNullOrEmpty(common) ? "없음" : common)}\n" +
                 $"<color=#{rareColor}><b>귀한 자원</b></color>   {(string.IsNullOrEmpty(rare) ? "없음" : rare)}";
         }
@@ -126,9 +137,60 @@ public static class Presentation
         return $"기본 {_result.BaseCost:N0} + 거리 {_result.DistanceCost:N0} + 적재 {cargoCost:N0}";
     }
 
-    static string PuzzleTravelQuote(PuzzleTravelResult _result, long _travelHours)
+    static string PuzzleTravelQuote(PuzzleTravelResult _result)
     {
-        return $"거리 {_result.Distance} · 소요 {_travelHours}시간 · {PUZZLE_TRAVEL_COST} {_result.Cost:N0} ({PuzzleTravelBreakdown(_result)})";
+        return $"거리 {_result.Distance} · 소요 {_result.TravelTime}시간 · {PUZZLE_TRAVEL_COST} {_result.Cost:N0} ({PuzzleTravelBreakdown(_result)})";
+    }
+
+    public static string PuzzleMapRegionLabel(PuzzleRegionData _region)
+    {
+        return string.IsNullOrEmpty(_region.specialtyTag) ? _region.displayName :
+            $"{_region.displayName} · {PuzzleTagLabel(_region.specialtyTag)}";
+    }
+
+    public static string PuzzleMapStationName(string _name, bool _planningTarget)
+    {
+        return _planningTarget ? _name + " ★" : _name;
+    }
+
+    public static string PuzzleMapTime(long _time)
+    {
+        return _time % PuzzleTimeManager.HOURS_PER_DAY == 0
+            ? $"{_time / PuzzleTimeManager.HOURS_PER_DAY}일"
+            : $"{_time}시간";
+    }
+
+    public static Color PuzzleMapRegionColor(string _regionId)
+    {
+        return _regionId switch
+        {
+            "region.mine" => new Color32(111, 158, 199, 30),
+            "region.ranch" => new Color32(199, 151, 98, 30),
+            "region.industry" => new Color32(105, 179, 137, 30),
+            "region.capital" => new Color32(186, 128, 170, 30),
+            "region.coast" => new Color32(143, 132, 193, 30),
+            "region.farm" => new Color32(106, 180, 179, 30),
+            "region.common" => new Color32(165, 173, 184, 30),
+            _ => UnityEngine.Color.clear
+        };
+    }
+
+    public static Color PuzzleMapInterchange => new Color32(228, 233, 239, 255);
+
+    public static Color PuzzleMapLineColor(string _regionId)
+    {
+        if (_regionId == "line.regional")
+        {
+            return PuzzleMapInterchange;
+        }
+        var color = PuzzleMapRegionColor(_regionId);
+        color.a = 1f;
+        return color;
+    }
+
+    internal static string PuzzleCityTitle(PuzzleCityData _city, PuzzleRegionData _region)
+    {
+        return $"{_city.displayName} · {_region.displayName}";
     }
 
     public static Color PuzzleItemIcon(float _alpha)
@@ -159,7 +221,7 @@ public static class Presentation
 
     static readonly Dictionary<string, string> PUZZLE_TAG_LABELS = new Dictionary<string, string>
     {
-        { "Cargo", "상자" },
+        { "Cargo", "화물" },
         { "Wood", "목재" },
         { "Food", "음식" },
         { "Grain", "곡물" },
@@ -169,6 +231,10 @@ public static class Presentation
         { "Metal", "금속" },
         { "Fish", "물고기" },
         { "Salt", "소금" },
+        { "Fruit", "과일" },
+        { "Animal", "동물" },
+        { "Meat", "고기" },
+        { "Box", "상자" },
     };
 
     public static Color PuzzleBackground => new(0.10f, 0.13f, 0.17f);
@@ -263,7 +329,7 @@ public static class Presentation
         Color color = _futureValue > _actualValue
             ? PuzzleTooltipGreen
             : (_futureValue < _actualValue ? PuzzleTooltipRed : PuzzleTooltipGold);
-        return $"<color=#{ColorUtility.ToHtmlStringRGB(PuzzleTooltipText)}>미래 가치 : </color><color=#{ColorUtility.ToHtmlStringRGB(color)}>$ {_futureValue:#,0.##}</color>";
+        return $"<color=#{ColorUtility.ToHtmlStringRGB(PuzzleTooltipText)}>{PuzzleTimeManager.HOURS_PER_TRAVEL_WEIGHT}시간 후 가치 : </color><color=#{ColorUtility.ToHtmlStringRGB(color)}>$ {_futureValue:#,0.##}</color>";
     }
 
     internal static string PuzzleValueText(PuzzleValue _value)
@@ -314,7 +380,7 @@ public static class Presentation
 
     // 도시의 태그 규칙을 구매·판매 비율 기준으로 귀함/흔함으로 묶는다.
     // 두 비율이 100을 사이에 두고 갈리거나 한쪽이 100이면 어느 쪽도 아닌 것으로 보고 표시하지 않는다.
-    internal static string PuzzleCityTagPreferences(PuzzleCityData _city)
+    internal static string PuzzleCityTagPreferences(PuzzleCityData _city, PuzzleRegionData _region)
     {
         var expensive = new List<string>();
         var common = new List<string>();
@@ -343,7 +409,7 @@ public static class Presentation
         {
             parts.Add($"{PUZZLE_TAG_COMMON} {string.Join(", ", common.OrderBy(tag => tag, StringComparer.Ordinal).Select(PuzzleTagLabel))}");
         }
-        return string.Join("    ", parts);
+        return $"지역 물가 {_region.pricePercent}%    {string.Join("    ", parts)}";
     }
 
     public static string PuzzleTagLabel(string _tag)
@@ -366,6 +432,10 @@ public static class Presentation
             "fish" => new Color32(2, 132, 199, 255),       // 물고기/수산물: 딥 오션 블루
             "water" => new Color32(14, 165, 233, 255),     // 물/식수: 맑은 아쿠아 블루
             "salt" => new Color32(100, 116, 139, 255),     // 소금: 미네랄 실버 슬레이트
+            "fruit" => new Color32(110, 155, 65, 255),
+            "animal" => new Color32(157, 111, 76, 255),
+            "meat" => new Color32(170, 75, 80, 255),
+            "box" => new Color32(141, 110, 99, 255),
             "supply" => new Color32(22, 163, 74, 255),     // 보급품: 포레스트 그린
             "cargo" => new Color32(141, 110, 99, 255),     // 화물/상자: 가죽/카톤 브라운
             _ => new Color32(71, 85, 105, 255)
@@ -399,6 +469,10 @@ public static class Presentation
             "food" => 5,
             "water" => 6,
             "salt" => 7,
+            "fruit" => 8,
+            "animal" => 9,
+            "meat" => 10,
+            "box" => 11,
             "supply" => 20,
             "cargo" => 21,
             _ => 10
@@ -437,6 +511,7 @@ public static class Presentation
             PuzzleTravelFailure.InsufficientFunds => $"{PUZZLE_TRAVEL_COST} {_result.Cost:N0}"
                 + $" ({PuzzleTravelBreakdown(_result)})에 필요한 자금이 부족합니다",
             PuzzleTravelFailure.CostOverflow => "이동 비용이 거래 한도를 초과합니다",
+            PuzzleTravelFailure.TimeOverflow => "소비 시간 또는 화물 가치가 계산 범위를 초과했습니다.",
             PuzzleTravelFailure.MissingRoute => "두 도시를 잇는 직결 철로가 없습니다",
             PuzzleTravelFailure.NotAvailable => "이동할 수 있는 도시가 없습니다",
             PuzzleTravelFailure.Blocked => "게임이 종료되었습니다",

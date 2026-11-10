@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-// 분석 파일에 남기는 이벤트 이름의 원본. 분석 서버·문서(Docs/PLAY_LOG.md)와 같은 이름을 쓴다.
+// 분석 파일에 남기는 이벤트 이름의 원본. 분석 서버·문서(Docs/Management/PLAY_LOG.md)와 같은 이름을 쓴다.
 // 이름을 바꾸려면 서버와 문서를 함께 고친다. 개별 시스템에 문자열 리터럴로 퍼뜨리지 않는다.
 public static class TelemetryEvents
 {

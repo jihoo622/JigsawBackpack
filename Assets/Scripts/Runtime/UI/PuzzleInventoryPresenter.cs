@@ -182,7 +182,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
     void ShowCurrentCity()
     {
         bool inProgress = session.RunStatus == PuzzleRunStatus.InProgress;
-        cityView.ShowCity(session.CurrentCityName);
+        cityView.ShowCity(Presentation.PuzzleCityTitle(session.CityData, session.RegionData));
         cityView.ShowTime(session.Time);
         RefreshFunds();
         cityView.ShowTradeStatus(inProgress
@@ -499,7 +499,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         }
         if (marketView)
         {
-            marketView.ShowBoardInfo(Presentation.PuzzleCityTagPreferences(session.CityData));
+            marketView.ShowBoardInfo(Presentation.PuzzleCityTagPreferences(session.CityData, session.RegionData));
         }
     }
 

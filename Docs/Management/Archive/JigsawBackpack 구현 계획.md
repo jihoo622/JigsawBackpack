@@ -1,9 +1,11 @@
+> 과거 설계 자료입니다. 현재 구현이나 작업 지시로 사용하지 않습니다. 현재 규칙은 [게임 기획서](<../../게임 기획서.md>), 미구현·미정 항목은 [BACKLOG](../BACKLOG.md), 데이터 계약은 [TABLES](../TABLES.md)를 따릅니다.
+
 # JigsawBackpack 구현 계획
 
 ## 목적과 범위
-- 요구사항은 `Docs/JigsawBackpack 기획서.md`와 `Docs/직각삼각형 퍼즐 구조 변경 기획.md`를 따른다. `Assets/Resources/Images/puzzles1.png`는 원본 실루엣 참고 자료다. 이 문서는 구현 순서와 작업 계약을 정리한다.
+- 요구사항은 `Docs/Management/Archive/JigsawBackpack 기획서.md`와 초기 직각삼각형 퍼즐 설계(현재 저장소에 별도 문서 없음)를 따른다. `Assets/Resources/Images/puzzles1.png`는 원본 실루엣 참고 자료다. 이 문서는 구현 순서와 작업 계약을 정리한다.
 - 2D 화면에서 왼쪽 팔레트의 조각을 오른쪽 5×5 인벤토리로 드래그하고, 회전·배치·재배치·삭제한다. 게임 규칙, 저장, 점수, 승리 조건은 추가하지 않는다.
-- 작업 전 `AGENTS.md`, `README.md`, `Docs/TABLES.md`를 읽는다. 구현이 바뀌면 관련 문서를 함께 갱신한다. 테스트·플레이·검증용 실험은 사용자가 요청할 때만 한다.
+- 작업 전 `AGENTS.md`, `README.md`, `Docs/Management/TABLES.md`를 읽는다. 구현이 바뀌면 관련 문서를 함께 갱신한다. 테스트·플레이·검증용 실험은 사용자가 요청할 때만 한다.
 
 ## 기획 해석과 구현 가정
 - **기본 슬롯**은 격자 한 칸이며, **조각**은 상하좌우로 연결된 하나 이상의 기본 슬롯을 가진 팔레트 항목이다. 참고 이미지의 독립 실루엣 7종을 테이블에 정의한다.
@@ -32,7 +34,7 @@
 | A: 데이터·모델 | `Assets/Resources/Tables/`의 조각 데이터, `Assets/Scripts/Runtime/Data/`의 DTO·로더·검증, 신규 인벤토리 모델·배치 판정 코드 | Game 씬, UI 에셋·View, Input Actions, Presenter | 조각 ID와 데이터 형식, 모델 API, 판정 결과·거부 사유, 변경 파일과 남은 연결 사항 |
 | B: 시각 에셋·View | 삼각형·외곽선 에셋과 UI 프리팹, 인벤토리 View 코드, `Presentation`의 표시 색·문구 | Game 씬, 테이블·모델, Input Actions, Presenter | 공용 에셋의 상태별 참조와 방향, 표시 용량, View API 및 좌표·피벗 기준 |
 | C: 입력·Presenter | `Assets/InputSystem_Actions.inputactions`, 신규 입력 처리와 인벤토리 Presenter 코드 | Game 씬, 테이블·모델, UI 프리팹·View·`Presentation` | 액션 맵·액션 이름, Presenter API와 필요한 씬 참조, 입력 활성화·정리 조건 |
-| D: 통합 | `Assets/Scenes/Game.unity`, 필요한 씬 연결, `README.md`, `Docs/TABLES.md`와 이 계획의 실제 상태 | A·B·C 소유 파일의 병렬 수정 | 연결된 씬, 참조 목록, 미해결 사항과 미실행 확인 항목 |
+| D: 통합 | `Assets/Scenes/Game.unity`, 필요한 씬 연결, `README.md`, `Docs/Management/TABLES.md`와 이 계획의 실제 상태 | A·B·C 소유 파일의 병렬 수정 | 연결된 씬, 참조 목록, 미해결 사항과 미실행 확인 항목 |
 
 ### 착수와 의존 순서
 1. **계약 확정 — A, B, C의 구현 전:** A는 조각 ID, 슬롯·회전·배치 판정 계약을 정한다. B는 공용 삼각형의 슬롯 크기·중심 피벗과 View 표시 입력을 확인한다. C는 포인터가 잡은 원본 슬롯과 모델의 후보 포즈를 전달하는 방식을 확인한다. 계약이 바뀌면 소비 코드와 함께 갱신한다.
@@ -89,7 +91,7 @@
 **완료 기준:** 팔레트 원본은 유지되고 배치된 조각은 이동·회전·팔레트 반환이 가능하다. 무효 위치에는 배치되지 않으며 취소 시 이전 상태가 보존된다.
 
 ### 5. 연결 정리와 문서 갱신 — D
-**대상:** 관련 씬·프리팹, `README.md`, 필요한 경우 `Docs/TABLES.md`.
+**대상:** 관련 씬·프리팹, `README.md`, 필요한 경우 `Docs/Management/TABLES.md`.
 
 **현재 상태:** `PuzzleInventoryPresenter`와 `PuzzleInventoryInput`을 Game 씬의 프리팹 인스턴스 루트에 추가했다. Presenter는 같은 루트의 View와 `SceneServices`의 씬 로컬 모델을 사용한다. Input의 `uiInputModule`은 EventSystem의 모듈을 참조하고, 해당 액션 자산의 `UI` 맵과 `PuzzleInventory/Rotate`, `PuzzleInventory/Cancel`을 사용한다. Preload·Title에서 Game으로 넘어가는 실행 컴포넌트와 Play Mode 확인은 남아 있다.
 
