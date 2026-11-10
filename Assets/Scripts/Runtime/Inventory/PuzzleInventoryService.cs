@@ -81,7 +81,11 @@ public sealed class PuzzleInventoryService : MonoBehaviour
     internal PuzzleCityData CityData => tables.CityPrice(CurrentCityId);
     public long Funds { get; private set; }
     public long GameClearCost => tables.PuzzleTrade.gameClearCost;
-    public bool CanClearGame => tables != null && RunStatus == PuzzleRunStatus.InProgress && Funds >= GameClearCost;
+    /// <summary>이 세션의 게임 시계. Initialize 이후 조회 가능하며 씬 재시작 시 초기화된다.</summary>
+    public PuzzleTimeManager Time { get; private set; }
+    public string DebtCityId => tables.PuzzleTrade.debtCityId;
+    public bool CanClearGame => tables != null && RunStatus == PuzzleRunStatus.InProgress && Funds >= GameClearCost
+        && !Time.IsOverdue && (string.IsNullOrEmpty(DebtCityId) || CurrentCityId == DebtCityId);
     public int CityMoveCount { get; private set; }
     public int PaidDebtCount { get; private set; }
     public PuzzleRunStatus RunStatus { get; private set; }
@@ -109,6 +113,7 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         }
 
         tables = validatedTables;
+        Time = new PuzzleTimeManager(tables.PuzzleTrade.deadlineHours);
         lastInstanceId = 0;
         var trainRules = validatedTables.SynergiesFor(PuzzleSynergyScope.Train);
         marketRules = validatedTables.SynergiesFor(PuzzleSynergyScope.Market);
@@ -246,6 +251,43 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         return true;
     }
 
+    /// <summary>
+    /// 행동 확정 후 게임 시간을 진행하고 기한 초과 시 패배를 확정한 뒤 TimeAdvanced를 발행한다.
+    /// 이동은 목적지를 확정한 뒤 호출한다. 신선도·내구도는 이벤트의 DeltaHours를 기준으로 갱신한다.
+    /// </summary>
+    /// <param name="_hours">추가 경과 시간. 0은 이벤트를 발행하지 않는다.</param>
+    /// <returns>진행 중이며 시계가 초기화됐으면 true, 그 외에는 변경 없이 false.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">진행 가능한 상태에서 시간이 음수일 때 발생한다.</exception>
+    /// <exception cref="OverflowException">누적 시간이 long 범위를 초과할 때 발생한다.</exception>
+    public bool AdvanceHours(long _hours)
+    {
+        if (RunStatus != PuzzleRunStatus.InProgress || Time == null)
+        {
+            return false;
+        }
+        long previous = Time.ElapsedHours;
+        Time.Advance(_hours);
+        if (Time.IsOverdue)
+        {
+            RunStatus = PuzzleRunStatus.Lost;
+        }
+        if (_hours > 0)
+        {
+            GameEvents.RaiseTimeAdvanced(previous, Time.ElapsedHours, this);
+        }
+        return true;
+    }
+
+    /// <summary>외부 이동 시스템에서 확정한 이동 가중치만큼 시간을 진행한다. 기존 Travel은 내부에서 처리하므로 중복 호출하지 않는다.</summary>
+    /// <param name="_weight">1 이상의 노선 시간 가중치. 1은 8시간.</param>
+    /// <returns>초기화된 진행 중 세션에서 처리되면 true.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">가중치가 1 미만일 때 발생한다.</exception>
+    /// <exception cref="OverflowException">시간 변환 또는 누적 시간이 long 범위를 초과할 때 발생한다.</exception>
+    public bool AdvanceTravelTime(long _weight)
+    {
+        return AdvanceHours(PuzzleTimeManager.TravelHours(_weight));
+    }
+
     internal PuzzleTravelResult Travel(string _cityId)
     {
         var evaluation = EvaluateTravel(_cityId);
@@ -254,6 +296,10 @@ public sealed class PuzzleInventoryService : MonoBehaviour
             return evaluation;
         }
 
+        tables.TryGetRoute(evaluation.FromCityId, evaluation.ToCityId, out var route);
+        long duration = PuzzleTimeManager.TravelHours(route.travelTimeWeight);
+        // 잘못된 시간이나 오버플로는 자금·배치·도시 변경 전에 검사한다.
+        Time.ArrivalAt(duration);
         // 이동 비용은 출발 전에 낸다. 기차는 출발 직전까지의 배치로 계산한다. 이후의 도시 도착·턴 증가·가치 변화는 한 번에 확정한다.
         Funds -= evaluation.Cost;
         // 출발 직전 기차 인접 관계로 한 턴의 가치 변화를 계산한다.
@@ -267,6 +313,7 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         CityMoveCount++;
         visitedCities.Add(CurrentCityId);
         Market.RecalculateValue();
+        AdvanceHours(duration);
         GameEvents.RaiseCityArrived(CurrentCityId, CityMoveCount);
 
         // 테스트를 위해 빚 차감 및 빚으로 인한 승패 판정을 임시 비활성화한다.

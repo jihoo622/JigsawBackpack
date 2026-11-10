@@ -14,6 +14,14 @@ public enum EffectCategory
 
 public static class Presentation
 {
+    // 날짜 표기 도입 시 시간 데이터와 분리해 이 표시 경로만 교체한다.
+    internal static string PuzzleTime(PuzzleTimeManager _time)
+    {
+        return $"Day {_time.Day} · {_time.Hour:00}:00";
+    }
+
+    public static Color PuzzleTimeAccent => new(1f, 0.82f, 0.42f);
+
     public const string PUZZLE_MAP_TITLE = "교역 노선도";
     public const string PUZZLE_MAP_PANEL_NAME = "PuzzleWorldMap";
     public const string PUZZLE_MAP_OPEN = "지도";
@@ -40,9 +48,9 @@ public static class Presentation
         return _visited ? PuzzleMapVisited : PuzzleMapUnknown;
     }
 
-    internal static string PuzzleMapGuide(int _travelTurns)
+    internal static string PuzzleMapGuide()
     {
-        return $"{PUZZLE_MAP_GUIDE}\n굵은 선: 고속선 · 가는 선: 일반선 · 모든 연결 {_travelTurns}턴 · 마을을 가리켜 거리·비용 확인";
+        return $"{PUZZLE_MAP_GUIDE}\n굵은 선: 고속선 · 가는 선: 일반선 · 시간 가중치 1 = {PuzzleTimeManager.HOURS_PER_TRAVEL_WEIGHT}시간 · 마을을 가리켜 거리·비용 확인";
     }
 
     internal static string PuzzleMapNodeLabel(string _name, bool _visited, bool _current, bool _connected, bool _canAfford)
@@ -59,7 +67,7 @@ public static class Presentation
     }
 
     internal static string PuzzleMapInformation(PuzzleCityData _city, bool _visited, bool _current, bool _connected,
-        PuzzleTravelResult _evaluation, int _travelTurns, bool _highSpeed)
+        PuzzleTravelResult _evaluation, long _travelHours, bool _highSpeed)
     {
         string heading = $"<size=28><b>{_city.displayName}</b></size>";
         if (_connected)
@@ -77,15 +85,15 @@ public static class Presentation
         }
         else if (_evaluation.Failure == PuzzleTravelFailure.InsufficientFunds)
         {
-            status = $"<color=#{ColorUtility.ToHtmlStringRGB(PuzzleMapConnectedDisabled)}><b>자금 부족</b> · {PuzzleTravelQuote(_evaluation, _travelTurns)}</color>";
+            status = $"<color=#{ColorUtility.ToHtmlStringRGB(PuzzleMapConnectedDisabled)}><b>자금 부족</b> · {PuzzleTravelQuote(_evaluation, _travelHours)}</color>";
         }
         else if (_evaluation.IsSuccess)
         {
-            status = $"<color=#{ColorUtility.ToHtmlStringRGB(PuzzleMapConnected)}><b>이동 가능</b> · {PuzzleTravelQuote(_evaluation, _travelTurns)}</color>";
+            status = $"<color=#{ColorUtility.ToHtmlStringRGB(PuzzleMapConnected)}><b>이동 가능</b> · {PuzzleTravelQuote(_evaluation, _travelHours)}</color>";
         }
         else
         {
-            status = $"<color=#{ColorUtility.ToHtmlStringRGB(PuzzleMapConnectedDisabled)}>{PuzzleTravelStatus(_evaluation)} · 소요: {_travelTurns}턴</color>";
+            status = $"<color=#{ColorUtility.ToHtmlStringRGB(PuzzleMapConnectedDisabled)}>{PuzzleTravelStatus(_evaluation)} · 소요: {_travelHours}시간</color>";
         }
 
         string trade;
@@ -118,9 +126,9 @@ public static class Presentation
         return $"기본 {_result.BaseCost:N0} + 거리 {_result.DistanceCost:N0} + 적재 {cargoCost:N0}";
     }
 
-    static string PuzzleTravelQuote(PuzzleTravelResult _result, int _travelTurns)
+    static string PuzzleTravelQuote(PuzzleTravelResult _result, long _travelHours)
     {
-        return $"거리 {_result.Distance} · 소요 {_travelTurns}턴 · {PUZZLE_TRAVEL_COST} {_result.Cost:N0} ({PuzzleTravelBreakdown(_result)})";
+        return $"거리 {_result.Distance} · 소요 {_travelHours}시간 · {PUZZLE_TRAVEL_COST} {_result.Cost:N0} ({PuzzleTravelBreakdown(_result)})";
     }
 
     public static Color PuzzleItemIcon(float _alpha)

@@ -58,7 +58,7 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
 
     void Refresh()
     {
-        view.ShowGuide(Presentation.PuzzleMapGuide(session.TravelTurns));
+        view.ShowGuide(Presentation.PuzzleMapGuide());
         string currentCityId = session.CurrentCityId;
         foreach (var node in view.Nodes)
         {
@@ -90,6 +90,7 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
         bool isCurrent = string.Equals(_cityId, currentCityId, System.StringComparison.Ordinal);
         bool isConnected = false;
         bool highSpeed = false;
+        long travelHours = 0;
         PuzzleTravelResult eval = default;
         if (!isCurrent)
         {
@@ -97,6 +98,7 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
             if (isConnected)
             {
                 highSpeed = route.highSpeed;
+                travelHours = PuzzleTimeManager.TravelHours(route.travelTimeWeight);
                 eval = session.EvaluateTravel(_cityId);
             }
         }
@@ -107,7 +109,7 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
             isCurrent,
             isConnected,
             eval,
-            session.TravelTurns,
+            travelHours,
             highSpeed));
     }
 
