@@ -7,6 +7,34 @@ public sealed class PuzzleInventoryService : MonoBehaviour
 {
     const int PERCENT_SCALE = 100;
 
+    /// <summary>활성화 시 물건 시간 갱신 이벤트를 구독한다.</summary>
+    void OnEnable()
+    {
+        GameEvents.TimeAdvanced += OnTimeAdvanced;
+    }
+
+    /// <summary>비활성화·씬 종료 시 구독을 해제한다.</summary>
+    void OnDisable()
+    {
+        GameEvents.TimeAdvanced -= OnTimeAdvanced;
+    }
+
+    /// <summary>이 세션의 시간 변화만 현재 기차 물건에 전달한다. 물건의 실제 시간 처리는 ApplyElapsedHours가 담당한다.</summary>
+    void OnTimeAdvanced(GameEvents.TimeAdvanceInfo _info)
+    {
+        if (_info.session != this)
+        {
+            return;
+        }
+        foreach (var wagon in trainWagons)
+        {
+            foreach (var item in wagon.Placements)
+            {
+                item.ApplyElapsedHours(_info.DeltaHours);
+            }
+        }
+    }
+
     TableManager tables;
     Dictionary<string, PuzzleInventory> markets;
     Dictionary<string, PuzzleItemDefinition> definitions;
@@ -119,6 +147,11 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         marketRules = validatedTables.SynergiesFor(PuzzleSynergyScope.Market);
         var train = new PuzzleInventory(validatedTables.Puzzle.train, validatedTables.TrainStartingPlacements, definitions, trainRules,
             ref lastInstanceId);
+        // 시작 지급 화물도 처음부터 소유 중이므로 게임 시작을 보유 시간의 기준으로 삼는다.
+        foreach (var item in train.Placements)
+        {
+            item.SetOwned(true);
+        }
         var cityMarkets = new Dictionary<string, PuzzleInventory>(StringComparer.Ordinal);
         long marketCapacity = 0;
         foreach (var city in validatedTables.Cities)
@@ -511,6 +544,9 @@ public sealed class PuzzleInventoryService : MonoBehaviour
 
         if (result.Direction != PuzzleTradeDirection.None)
         {
+            // Move는 새 배치 객체를 만들므로 이동 완료된 인스턴스의 구매 시계를 갱신한다.
+            _destination.TryGetCell(move.Candidate.Cells[0].Position, out var movedItem, out _);
+            movedItem.SetOwned(result.Direction == PuzzleTradeDirection.Buy);
             Funds += result.Direction == PuzzleTradeDirection.Buy ? -result.Price : result.Price;
             GameEvents.RaiseTradeCompleted(new GameEvents.TradeInfo(CurrentCityId, _original.Definition.Id,
                 _original.InstanceId, result.Direction, result.Price, Funds, move.Candidate.Origin,
