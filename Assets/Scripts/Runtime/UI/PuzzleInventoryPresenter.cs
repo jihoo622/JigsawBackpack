@@ -478,7 +478,8 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         if (tooltipView && drag == null && (_position.HasValue || hoverPosition.HasValue))
         {
             Vector2 pos = _position ?? hoverPosition.Value;
-            tooltipView.Show(item, actualValue, rate, bonuses, futureValue, pos, isTrain);
+            int? freshness = item != null && item.HasDurability ? _placement.Durability : (int?)null;
+            tooltipView.Show(item, actualValue, rate, bonuses, futureValue, pos, isTrain, freshness);
         }
 
         if (trainView)

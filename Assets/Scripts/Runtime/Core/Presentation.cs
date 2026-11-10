@@ -269,6 +269,11 @@ public static class Presentation
         return $"<color=#{ColorUtility.ToHtmlStringRGB(PuzzleTooltipText)}>미래 가치 : </color><color=#{ColorUtility.ToHtmlStringRGB(color)}>$ {_futureValue:#,0.##}</color>";
     }
 
+    internal static string PuzzleTooltipFreshness(int _current)
+    {
+        return $"<color=#{ColorUtility.ToHtmlStringRGB(PuzzleTooltipText)}>신선도 : </color><color=#{ColorUtility.ToHtmlStringRGB(PuzzleTooltipGreen)}>{_current}</color>";
+    }
+
     internal static string PuzzleValueText(PuzzleValue _value)
     {
         return $"기본 가치 {_value.BaseValue:N0}  →  최종 가치 {_value.FinalValue:#,0.##}";

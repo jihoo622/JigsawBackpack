@@ -91,9 +91,11 @@ public sealed class PuzzlePlacement
     public decimal ActualValue { get; private set; }
     /// <summary>획득 후 보유 시간. 시작 지급·구매 시 0부터 시작하며 -1은 미소유·판매된 물건이다.</summary>
     public long OwnedHours { get; private set; }
+    // 현재 내구도. 생성 시 정의의 시작값으로 초기화하고, 이동 시 보존한다. 감소는 외부 Manager가 담당한다.
+    public int Durability { get; private set; }
 
     internal PuzzlePlacement(int _instanceId, PuzzleItemDefinition _definition, PuzzleInventory _owner, PuzzlePose _pose,
-        decimal _actualValue, long _ownedHours = -1)
+        decimal _actualValue, long _ownedHours = -1, int _durability = -1)
     {
         InstanceId = _instanceId;
         Definition = _definition;
@@ -101,6 +103,17 @@ public sealed class PuzzlePlacement
         Pose = _pose;
         ActualValue = _actualValue;
         OwnedHours = _ownedHours;
+        Durability = _durability >= 0 ? _durability : _definition.Durability;
+    }
+
+    /// <summary>현재 내구도를 깎는 연결 지점. 0 이하로 내려가지 않으며, 아직 호출자는 없다.</summary>
+    internal void ReduceDurability(int _amount)
+    {
+        if (_amount <= 0)
+        {
+            return;
+        }
+        Durability = Math.Max(0, Durability - _amount);
     }
 
     /// <summary>시작 지급·구매 시 보유 시간을 0으로 시작하고 판매 시 추적을 종료한다.</summary>

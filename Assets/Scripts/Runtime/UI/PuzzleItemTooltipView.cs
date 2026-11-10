@@ -29,6 +29,7 @@ public sealed class PuzzleItemTooltipView : PanelBase
     [SerializeField] RectTransform synergyListRoot;
     [SerializeField] TextMeshProUGUI[] synergySlots;
     [SerializeField] TextMeshProUGUI futureValueText;
+    [SerializeField] TextMeshProUGUI freshnessText;
     [SerializeField] TMP_FontAsset fontAsset;
     [SerializeField] float followSpeed = DEFAULT_FOLLOW_SPEED;
 
@@ -85,7 +86,7 @@ public sealed class PuzzleItemTooltipView : PanelBase
 
     internal void Show(PuzzleItemDefinition _item, decimal _actualValue, PuzzleTradeRate _rate,
         IReadOnlyList<PuzzleSynergyBonus> _bonuses, decimal? _futureValue, Vector2 _screenPosition,
-        bool _isTrainInventory = true)
+        bool _isTrainInventory = true, int? _freshness = null)
     {
         if (_item == null)
         {
@@ -194,6 +195,19 @@ public sealed class PuzzleItemTooltipView : PanelBase
             else
             {
                 futureValueText.gameObject.SetActive(false);
+            }
+        }
+
+        if (freshnessText)
+        {
+            if (_freshness.HasValue)
+            {
+                freshnessText.text = Presentation.PuzzleTooltipFreshness(_freshness.Value);
+                freshnessText.gameObject.SetActive(true);
+            }
+            else
+            {
+                freshnessText.gameObject.SetActive(false);
             }
         }
 
@@ -381,6 +395,7 @@ public sealed class PuzzleItemTooltipView : PanelBase
         ApplyTextSettings(buyRateText);
         ApplyTextSettings(synergyHeaderText);
         ApplyTextSettings(futureValueText);
+        ApplyTextSettings(freshnessText);
 
         if (categoryBadgeTexts != null)
         {
