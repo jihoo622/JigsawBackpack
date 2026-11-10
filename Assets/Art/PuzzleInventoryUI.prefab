@@ -125,6 +125,12 @@ MonoBehaviour:
     sprite: {fileID: 21300000, guid: 3c43b8e922434ecaab06fe5d8f4ccf04, type: 3}
   - key: cargo.saltSack
     sprite: {fileID: 21300000, guid: 1fe68976c8dc415fa8e2f942266b50f7, type: 3}
+  - key: cargo.beef
+    sprite: {fileID: 21300000, guid: 61a7b4b5df5e476eaf6448c811d7db7a, type: 3}
+  - key: cargo.cow
+    sprite: {fileID: 21300000, guid: cc36a9b6cfa54830a57c3299ead2336d, type: 3}
+  - key: cargo.apple
+    sprite: {fileID: 21300000, guid: bfb17e1e7a1045748c0b017c1e0cc695, type: 3}
   flatTriangle: {fileID: 11400000, guid: 4e2099728f0543fd97fdcad40817628a, type: 3}
   eastFlatTriangle: {fileID: 21300000, guid: cd201bef2f7ef0dc183bae0cf1666f94, type: 3}
   southFlatTriangle: {fileID: 21300000, guid: f2334a0000de83a06a5126bbaaec1ca0, type: 3}

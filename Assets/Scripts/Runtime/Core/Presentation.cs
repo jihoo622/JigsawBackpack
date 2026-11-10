@@ -169,6 +169,9 @@ public static class Presentation
         { "Metal", "금속" },
         { "Fish", "물고기" },
         { "Salt", "소금" },
+        { "Meat", "고기" },
+        { "Animal", "가축" },
+        { "Fruit", "과일" },
     };
 
     public static Color PuzzleBackground => new(0.10f, 0.13f, 0.17f);
@@ -367,7 +370,10 @@ public static class Presentation
             "water" => new Color32(14, 165, 233, 255),     // 물/식수: 맑은 아쿠아 블루
             "salt" => new Color32(100, 116, 139, 255),     // 소금: 미네랄 실버 슬레이트
             "supply" => new Color32(22, 163, 74, 255),     // 보급품: 포레스트 그린
-            "cargo" => new Color32(141, 110, 99, 255),     // 화물/상자: 가죽/카톤 브라운
+            "cargo" => new Color32(141, 110, 99, 255),      // 화물/상자: 가죽/카톤 브라운
+            "meat" => new Color32(159, 45, 58, 255),       // 고기: 딥 레드
+            "animal" => new Color32(160, 120, 74, 255),    // 가축: 탄/레더 탠
+            "fruit" => new Color32(196, 63, 63, 255),      // 과일: 사과 레드
             _ => new Color32(71, 85, 105, 255)
         };
     }
@@ -397,6 +403,9 @@ public static class Presentation
             "metal" => 3,
             "fish" => 4,
             "food" => 5,
+            "meat" => 5,
+            "fruit" => 5,
+            "animal" => 8,
             "water" => 6,
             "salt" => 7,
             "supply" => 20,

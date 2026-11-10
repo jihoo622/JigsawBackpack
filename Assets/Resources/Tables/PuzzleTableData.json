@@ -12,6 +12,7 @@
       ],
       "visualKey": "cargo.elbowLeft",
       "slotCount": 3,
+      "durability": 100,
       "cells": [
         {
           "x": 0,
@@ -49,6 +50,7 @@
       ],
       "visualKey": "cargo.smallCrate",
       "slotCount": 1,
+      "durability": 100,
       "cells": [
         {
           "x": 0,
@@ -71,6 +73,7 @@
       ],
       "visualKey": "cargo.grainSack",
       "slotCount": 1,
+      "durability": 100,
       "cells": [
         {
           "x": 0,
@@ -92,6 +95,7 @@
       ],
       "visualKey": "cargo.woodBundle",
       "slotCount": 2,
+      "durability": 100,
       "cells": [
         {
           "x": 0,
@@ -121,6 +125,7 @@
       ],
       "visualKey": "cargo.waterBarrel",
       "slotCount": 1,
+      "durability": 100,
       "cells": [
         {
           "x": 0,
@@ -142,6 +147,7 @@
       ],
       "visualKey": "cargo.machineFrame",
       "slotCount": 5,
+      "durability": 100,
       "cells": [
         {
           "x": 0,
@@ -195,6 +201,7 @@
       ],
       "visualKey": "cargo.toolbox",
       "slotCount": 3,
+      "durability": 100,
       "cells": [
         {
           "x": 1,
@@ -232,6 +239,7 @@
       ],
       "visualKey": "cargo.fish",
       "slotCount": 2,
+      "durability": 100,
       "cells": [
         {
           "x": 0,
@@ -261,6 +269,112 @@
       ],
       "visualKey": "cargo.saltSack",
       "slotCount": 1,
+      "durability": 100,
+      "cells": [
+        {
+          "x": 0,
+          "y": 0,
+          "north": "Flat",
+          "east": "Flat",
+          "south": "Flat",
+          "west": "Flat"
+        }
+      ]
+    },
+    {
+      "id": "piece.beef",
+      "displayName": "소고기",
+      "description": "세로 두 칸을 차지하는 정육 화물.",
+      "tags": [
+        "Food",
+        "Meat"
+      ],
+      "visualKey": "cargo.beef",
+      "slotCount": 2,
+      "durability": 100,
+      "cells": [
+        {
+          "x": 0,
+          "y": 0,
+          "north": "Flat",
+          "east": "Flat",
+          "south": "Flat",
+          "west": "Flat"
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "north": "Flat",
+          "east": "Flat",
+          "south": "Flat",
+          "west": "Flat"
+        }
+      ]
+    },
+    {
+      "id": "piece.cow",
+      "displayName": "소",
+      "description": "두 칸에 한 칸이 덧붙은 다섯 칸 가축 화물.",
+      "tags": [
+        "Animal"
+      ],
+      "visualKey": "cargo.cow",
+      "slotCount": 5,
+      "durability": 100,
+      "cells": [
+        {
+          "x": 0,
+          "y": 0,
+          "north": "Flat",
+          "east": "Flat",
+          "south": "Flat",
+          "west": "Flat"
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "north": "Flat",
+          "east": "Flat",
+          "south": "Flat",
+          "west": "Flat"
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "north": "Flat",
+          "east": "Flat",
+          "south": "Flat",
+          "west": "Flat"
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "north": "Flat",
+          "east": "Flat",
+          "south": "Flat",
+          "west": "Flat"
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "north": "Flat",
+          "east": "Flat",
+          "south": "Flat",
+          "west": "Flat"
+        }
+      ]
+    },
+    {
+      "id": "piece.apple",
+      "displayName": "사과",
+      "description": "한 칸을 차지하는 과일 화물.",
+      "tags": [
+        "Food",
+        "Fruit"
+      ],
+      "visualKey": "cargo.apple",
+      "slotCount": 1,
+      "durability": 100,
       "cells": [
         {
           "x": 0,

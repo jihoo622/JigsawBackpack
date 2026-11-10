@@ -43,6 +43,8 @@ public sealed class PuzzlePieceData
     public string[] tags = Array.Empty<string>();
     // 누락된 슬롯 수를 검증에서 거부하기 위한 값이다.
     public int slotCount = -1;
+    // 내구도 시작값. 누락이 정상값으로 위장되지 않도록 검증용 값으로 둔다.
+    public int durability = -1;
     public PuzzleCellData[] cells = Array.Empty<PuzzleCellData>();
 }
 
