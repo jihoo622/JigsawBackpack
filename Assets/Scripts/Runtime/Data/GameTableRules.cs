@@ -203,6 +203,7 @@ public sealed class GameTableRules
     {
         const string PATH = nameof(PuzzleTradeTableData);
         Check(_tables.PuzzleTrade.startingFunds >= 0, PATH + ".startingFunds", "시작 자금은 0 이상이어야 합니다.");
+        Check(_tables.PuzzleTrade.gameClearCost > 0, PATH + ".gameClearCost", "클리어 비용은 0보다 커야 합니다.");
         Check(_tables.PuzzleTrade.purchaseMarkupPercent > 0, PATH + ".purchaseMarkupPercent",
             "공통 구매 배율은 0보다 커야 합니다.");
         Check(_tables.PuzzleTrade.wagonAddCostBase > 0, PATH + ".wagonAddCostBase",

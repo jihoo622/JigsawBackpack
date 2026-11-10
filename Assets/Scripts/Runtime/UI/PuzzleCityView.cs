@@ -13,19 +13,24 @@ public sealed class PuzzleCityView : MonoBehaviour
     [SerializeField] TextMeshProUGUI nextLabel;
     [SerializeField] TextMeshProUGUI funds;
     [SerializeField] TextMeshProUGUI tradeStatus;
+    [SerializeField] Button clearButton;
+    [SerializeField] TextMeshProUGUI clearLabel;
 
-    internal void Initialize(bool _canTravel = false)
+    internal void Initialize(bool _canTravel, long _clearCost)
     {
         if (!cityName || !cityName.font || !previousButton || !previousButton.targetGraphic ||
             !nextButton || !nextButton.targetGraphic || previousButton == nextButton ||
             !previousLabel || !previousLabel.font || !nextLabel || !nextLabel.font ||
-            !funds || !funds.font || !tradeStatus || !tradeStatus.font)
+            !funds || !funds.font || !tradeStatus || !tradeStatus.font ||
+            !clearButton || !clearButton.targetGraphic || !clearLabel || !clearLabel.font)
         {
             throw new InvalidOperationException("도시 View에 도시 이름, 이동 버튼, 자금과 거래 표시 참조가 필요합니다.");
         }
 
         cityName.color = previousLabel.color = nextLabel.color = Presentation.PuzzleHeading;
         funds.color = tradeStatus.color = Presentation.PuzzleHeading;
+        clearLabel.color = Presentation.PuzzleHeading;
+        clearLabel.text = Presentation.PuzzleClearButton(_clearCost);
         previousButton.colors = nextButton.colors = Presentation.PuzzleCityButtonColors;
         previousButton.interactable = nextButton.interactable = _canTravel;
 
@@ -39,9 +44,10 @@ public sealed class PuzzleCityView : MonoBehaviour
         cityName.text = _name;
     }
 
-    internal void ShowFunds(long _funds)
+    internal void ShowFunds(long _funds, bool _canClear)
     {
         funds.text = Presentation.PuzzleFunds(_funds);
+        clearButton.interactable = _canClear;
     }
 
     internal void ShowTradeStatus(string _status)

@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
@@ -9,18 +10,31 @@ public sealed class PauseMenu : PanelBase
 {
     [SerializeField] PuzzleInventoryInput inventoryInput;
     [SerializeField] Button restartButton;
+    [SerializeField] TextMeshProUGUI panelTitle;
+    [SerializeField] TextMeshProUGUI panelHint;
 
     float previousTimeScale;
     bool paused;
     bool restoreInventoryInput;
+    bool showingCompletion;
     GameObject previousSelection;
+
+    internal bool CanShowCompletion => isActiveAndEnabled && !IsOpen && restartButton && panelTitle && panelHint;
 
     void Update()
     {
-        if (Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame)
+        if (!showingCompletion && Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame)
         {
             Toggle();
         }
+    }
+
+    internal void ShowCompletion(long _funds)
+    {
+        showingCompletion = true;
+        panelTitle.text = Presentation.PUZZLE_CLEAR_TITLE;
+        panelHint.text = Presentation.PuzzleClearSummary(_funds);
+        Open();
     }
 
     protected override void OnShow()
