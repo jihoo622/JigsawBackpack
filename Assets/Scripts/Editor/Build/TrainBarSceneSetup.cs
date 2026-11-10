@@ -92,6 +92,7 @@ public static class TrainBarSceneSetup
 
         var addBtnRect = addBtnObj.GetComponent<RectTransform>();
         addBtnRect.sizeDelta = new Vector2(150f, 60f);
+        addBtnRect.anchoredPosition = new Vector2(650f, 0f);
 
         var addBtnImg = addBtnObj.GetComponent<Image>();
         addBtnImg.color = Presentation.PuzzleAddWagonBox;

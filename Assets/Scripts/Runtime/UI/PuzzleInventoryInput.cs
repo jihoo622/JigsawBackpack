@@ -19,6 +19,7 @@ public sealed class PuzzleInventoryInput : MonoBehaviour, IPointerDownHandler, I
     int? hoveredPointerId;
     bool navigationSuppressed;
     bool previousNavigation;
+    int cancelConsumedFrame = -1;
 
     internal event Action<PointerEventData> Pressed;
     internal event Action<PointerEventData> QuickTransferRequested;
@@ -195,7 +196,24 @@ public sealed class PuzzleInventoryInput : MonoBehaviour, IPointerDownHandler, I
 
     void OnCancel(InputAction.CallbackContext _context)
     {
+        TryConsumeCancel();
+    }
+
+    internal bool TryConsumeCancel()
+    {
+        // Input callbacks can release the item before PauseMenu.Update reads Escape.
+        // Keep the consumed state for the entire frame, regardless of update order.
+        if (cancelConsumedFrame == Time.frameCount)
+        {
+            return true;
+        }
+        if (!pointerId.HasValue)
+        {
+            return false;
+        }
+        cancelConsumedFrame = Time.frameCount;
         CancelCapture();
+        return true;
     }
 
     void ClearHover()

@@ -161,10 +161,6 @@ public sealed class PuzzleTrainBarView : MonoBehaviour
 
         if (addWagonButton != null && addWagonRect != null)
         {
-            float addX = originX - (_wagonCount * step);
-            addWagonRect.anchoredPosition = new Vector2(addX, originY);
-            addWagonRect.sizeDelta = new Vector2(WAGON_WIDTH, WAGON_HEIGHT);
-
             if (addWagonBox != null)
             {
                 addWagonBox.color = _canAfford ? Presentation.PuzzleAddWagonBox : new Color(0.18f, 0.55f, 0.28f, 0.5f);
