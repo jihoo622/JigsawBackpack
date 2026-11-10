@@ -328,8 +328,12 @@ public sealed class GameTableRules
                     $"우선순위 {entry.priority}가 도시 안에서 중복되었습니다.");
             }
 
-            Check(entry.buyPercent > 0, path + ".buyPercent", "구매 배율은 0보다 커야 합니다.");
-            Check(entry.sellPercent > 0, path + ".sellPercent", "판매 배율은 0보다 커야 합니다.");
+            bool rare = entry.rareValue != int.MinValue;
+            if (!rare)
+            {
+                Check(entry.buyPercent > 0, path + ".buyPercent", "구매 배율은 0보다 커야 합니다.");
+                Check(entry.sellPercent > 0, path + ".sellPercent", "판매 배율은 0보다 커야 합니다.");
+            }
         }
     }
 
@@ -525,7 +529,7 @@ public sealed class GameTableRules
             }
 
             Reference(price.pieceId, path + ".pieceId", _tables.TryGetPiece(price.pieceId, out _), "아이템");
-            Check(price.baseValue >= 0, path + ".baseValue", "아이템 기본 가격은 0 이상이어야 합니다.");
+            Check(price.baseValue != -1, path + ".baseValue", "아이템 기본 가격이 누락되었습니다.");
         }
 
         foreach (var piece in _tables.Pieces)

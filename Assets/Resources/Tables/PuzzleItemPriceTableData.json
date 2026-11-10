@@ -14,6 +14,6 @@
     { "pieceId": "piece.beef", "baseValue": 20 },
     { "pieceId": "piece.cow", "baseValue": 65 },
     { "pieceId": "piece.apple", "baseValue": 10 },
-    { "pieceId": "piece.poo", "baseValue": 15 }
+    { "pieceId": "piece.poo", "baseValue": -10 }
   ]
 }

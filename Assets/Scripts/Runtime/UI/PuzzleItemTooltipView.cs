@@ -121,7 +121,8 @@ public sealed class PuzzleItemTooltipView : PanelBase
         if (_isTrainInventory)
         {
             int sellPercent = _rate.SellPercent > 0 ? _rate.SellPercent : 100;
-            decimal finalSellPrice = System.Math.Round(_actualValue * (decimal)sellPercent / 100m, System.MidpointRounding.AwayFromZero);
+            decimal finalSellPrice = _rate.HasRareValue ? _rate.RareValue
+                : System.Math.Round(_actualValue * (decimal)sellPercent / 100m, System.MidpointRounding.AwayFromZero);
             if (sellRateText)
             {
                 sellRateText.text = Presentation.PuzzleTooltipSellRate(sellPercent);
@@ -134,7 +135,8 @@ public sealed class PuzzleItemTooltipView : PanelBase
         else
         {
             int buyPercent = _rate.BuyPercent > 0 ? _rate.BuyPercent : 100;
-            decimal finalBuyPrice = System.Math.Round(_actualValue * (decimal)buyPercent / 100m, System.MidpointRounding.AwayFromZero);
+            decimal finalBuyPrice = _rate.HasRareValue ? _rate.RareValue
+                : System.Math.Round(_actualValue * (decimal)buyPercent / 100m, System.MidpointRounding.AwayFromZero);
             if (sellRateText)
             {
                 sellRateText.text = Presentation.PuzzleTooltipBuyRate(buyPercent);
