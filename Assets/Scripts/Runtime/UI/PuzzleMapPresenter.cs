@@ -66,7 +66,7 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
             bool isCurrent = string.Equals(cityId, currentCityId, System.StringComparison.Ordinal);
             if (isCurrent)
             {
-                view.ShowCurrentLocation(node.transform as RectTransform);
+                view.ShowCurrentLocation(node);
             }
             bool isConnected = false;
             bool canAfford = false;
@@ -87,10 +87,12 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
                 canAfford,
                 cityId == TableManager.Instance.Puzzle.planningTargetCityId);
         }
+        view.RefreshLayout();
     }
 
     void ShowCity(string _cityId)
     {
+        view.HighlightCity(_cityId);
         string currentCityId = session.CurrentCityId;
         bool isCurrent = string.Equals(_cityId, currentCityId, System.StringComparison.Ordinal);
         bool isConnected = false;
@@ -115,6 +117,7 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
 
     void ClearInformation()
     {
+        view.HighlightCity(null);
         view.ShowInformation(Presentation.PUZZLE_MAP_HINT);
     }
 

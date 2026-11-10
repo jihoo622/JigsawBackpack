@@ -138,6 +138,10 @@ public static class MapPresentationTool
             data.FindProperty("currentHalo").objectReferenceValue = halo;
             data.FindProperty("currentBadge").objectReferenceValue = badge;
             data.ApplyModifiedPropertiesWithoutUndo();
+            var stationLabel = data.FindProperty("label").objectReferenceValue as Text;
+            var outline = Component<Outline>(stationLabel.rectTransform);
+            outline.effectColor = Presentation.PuzzleBackground;
+            outline.effectDistance = new Vector2(1f, -1f);
         }
 
         Place(Find(panel, "Title"), new Vector2(-200f, 488f), new Vector2(1400f, 48f));
@@ -207,6 +211,7 @@ public static class MapPresentationTool
         info.rectTransform.sizeDelta = new Vector2(-96f, 116f);
         var navigation = Component<PuzzleMapNavigation>(viewport);
         var serialized = new SerializedObject(navigation);
+        Bind(serialized, "view", _root.GetComponentInChildren<PuzzleMapView>(true));
         Bind(serialized, "inputActions", AssetDatabase.LoadAssetAtPath<UnityEngine.InputSystem.InputActionAsset>("Assets/InputSystem_Actions.inputactions"));
         Bind(serialized, "content", content);
         Bind(serialized, "viewport", viewport);
@@ -218,6 +223,17 @@ public static class MapPresentationTool
         serialized.ApplyModifiedPropertiesWithoutUndo();
         var view = new SerializedObject(_root.GetComponentInChildren<PuzzleMapView>(true));
         Bind(view, "navigation", navigation);
+        var routes = view.FindProperty("routeTimes");
+        for (int i = 0; i < routes.arraySize; i++)
+        {
+            var route = routes.GetArrayElementAtIndex(i);
+            var label = route.FindPropertyRelative("label").objectReferenceValue as Text;
+            string index = label.name.Substring("Time_".Length);
+            var plate = Find(content, "TimePlate_" + index).GetComponent<Image>();
+            route.FindPropertyRelative("plate").objectReferenceValue = plate;
+            label.raycastTarget = false;
+            plate.raycastTarget = false;
+        }
         view.ApplyModifiedPropertiesWithoutUndo();
     }
 

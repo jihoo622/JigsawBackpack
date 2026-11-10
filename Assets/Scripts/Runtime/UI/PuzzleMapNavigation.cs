@@ -18,6 +18,7 @@ public sealed class PuzzleMapNavigation : MonoBehaviour, IBeginDragHandler, IDra
     [SerializeField] Button fit;
     [SerializeField] Button locate;
     [SerializeField] Text zoomLabel;
+    [SerializeField] PuzzleMapView view;
 
     InputActionAsset actions;
     InputAction zoom;
@@ -67,6 +68,11 @@ public sealed class PuzzleMapNavigation : MonoBehaviour, IBeginDragHandler, IDra
     internal void SetCurrent(RectTransform _current)
     {
         current = _current;
+    }
+
+    internal void RefreshLayout()
+    {
+        view.UpdateMapLayout(scale, viewport);
     }
 
     internal void Open()
@@ -140,6 +146,7 @@ public sealed class PuzzleMapNavigation : MonoBehaviour, IBeginDragHandler, IDra
         Vector2 range = Vector2.Max(Vector2.zero, (content.rect.size * scale - viewport.rect.size) * 0.5f);
         Vector2 position = content.anchoredPosition;
         content.anchoredPosition = new Vector2(Mathf.Clamp(position.x, -range.x, range.x), Mathf.Clamp(position.y, -range.y, range.y));
+        RefreshLayout();
     }
 
     public void OnBeginDrag(PointerEventData _eventData)

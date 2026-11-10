@@ -31,6 +31,18 @@ public static class Presentation
     public const string PUZZLE_MAP_LOCATE = "현재 위치";
     public const string PUZZLE_MAP_ZOOM_IN = "+";
     public const string PUZZLE_MAP_ZOOM_OUT = "−";
+    public const float PUZZLE_MAP_HALO_SIZE = 56f;
+    public const int PUZZLE_MAP_BADGE_FONT_SIZE = 16;
+    public const int PUZZLE_MAP_TIME_FONT_SIZE = 18;
+    public static int PuzzleMapStationFontSize(float _zoom, bool _current)
+    {
+        return _current ? 24 : _zoom < 0.8f ? 18 : 22;
+    }
+
+    public static float PuzzleMapTrackThickness(float _authoredThickness)
+    {
+        return _authoredThickness * 0.65f;
+    }
     public static Color PuzzleMapCurrentHalo => new(1f, 0.78f, 0.30f, 0.25f);
     public static Color PuzzleMapOcean => new Color32(21, 41, 58, 255);
     public static Color PuzzleMapLand => new Color32(42, 55, 58, 255);

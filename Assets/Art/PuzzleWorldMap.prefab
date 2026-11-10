@@ -268,132 +268,175 @@ MonoBehaviour:
   - fromCityId: city.industry.ironworks
     toCityId: city.mine.dig
     label: {fileID: 4258536435036005089}
+    plate: {fileID: 3450833707990302372}
   - fromCityId: city.mine.dig
     toCityId: city.coast.port
     label: {fileID: 6975411743106430264}
+    plate: {fileID: 2966327063066530845}
   - fromCityId: city.coast.port
     toCityId: city.farm.grain
     label: {fileID: 774464189743990621}
+    plate: {fileID: 6956280443715952165}
   - fromCityId: city.farm.grain
     toCityId: city.capital.central
     label: {fileID: 5477214430987312420}
+    plate: {fileID: 5390035446101450926}
   - fromCityId: city.capital.central
     toCityId: city.capital.finance
     label: {fileID: 6598309339806731116}
+    plate: {fileID: 6587685268568762843}
   - fromCityId: city.industry.ironworks
     toCityId: city.common.crossing
     label: {fileID: 8868376902561698764}
+    plate: {fileID: 9113721247546626566}
   - fromCityId: city.common.crossing
     toCityId: city.common.wayfarer
     label: {fileID: 5051670510317357975}
+    plate: {fileID: 272924978109855960}
   - fromCityId: city.common.wayfarer
     toCityId: city.common.rest
     label: {fileID: 4724639027063654901}
+    plate: {fileID: 4199032444535813139}
   - fromCityId: city.common.rest
     toCityId: city.common.roadside
     label: {fileID: 3746701901534545360}
+    plate: {fileID: 5105814014686909738}
   - fromCityId: city.common.roadside
     toCityId: city.capital.finance
     label: {fileID: 4763105296719533066}
+    plate: {fileID: 8838314572276445578}
   - fromCityId: city.ranch.highland
     toCityId: city.industry.ironworks
     label: {fileID: 2717520018976117872}
+    plate: {fileID: 3545130171814296221}
   - fromCityId: city.ranch.highland
     toCityId: city.farm.grain
     label: {fileID: 8731557047324304239}
+    plate: {fileID: 868328016182220832}
   - fromCityId: city.capital.central
     toCityId: city.capital.wholesale
     label: {fileID: 415361811740408655}
+    plate: {fileID: 6105034971930443341}
   - fromCityId: city.farm.grain
     toCityId: city.farm.orchard
     label: {fileID: 82016523505983749}
+    plate: {fileID: 3249766236819034799}
   - fromCityId: city.capital.central
     toCityId: city.capital.outskirts
     label: {fileID: 7705949138111084154}
+    plate: {fileID: 5477681857229103883}
   - fromCityId: city.farm.orchard
     toCityId: city.farm.lumber
     label: {fileID: 4273065856258137009}
+    plate: {fileID: 6716532108906672110}
   - fromCityId: city.mine.dig
     toCityId: city.mine.iron
     label: {fileID: 8857368064538536031}
+    plate: {fileID: 6249376742868206865}
   - fromCityId: city.capital.wholesale
     toCityId: city.capital.merchant
     label: {fileID: 2233915311882089316}
+    plate: {fileID: 6993374425709233966}
   - fromCityId: city.ranch.highland
     toCityId: city.ranch.jerky
     label: {fileID: 825147785778619829}
+    plate: {fileID: 3075623706259945735}
   - fromCityId: city.industry.ironworks
     toCityId: city.industry.logistics
     label: {fileID: 778014679942597381}
+    plate: {fileID: 6825835285428407129}
   - fromCityId: city.coast.port
     toCityId: city.coast.fish
     label: {fileID: 4594348080416805202}
+    plate: {fileID: 1063364813060078867}
   - fromCityId: city.coast.fish
     toCityId: city.coast.spring
     label: {fileID: 5635870335088721383}
+    plate: {fileID: 6404652146829071257}
   - fromCityId: city.industry.ironworks
     toCityId: city.industry.engine
     label: {fileID: 573429667801619660}
+    plate: {fileID: 6739609589401554394}
   - fromCityId: city.farm.lumber
     toCityId: city.ranch.butcher
     label: {fileID: 9163913719256242245}
+    plate: {fileID: 3700098434706871601}
   - fromCityId: city.industry.meatlover
     toCityId: city.ranch.butcher
     label: {fileID: 7461555862939512663}
+    plate: {fileID: 4318643642354558899}
   - fromCityId: city.farm.grain
     toCityId: city.farm.field
     label: {fileID: 52643133518496246}
+    plate: {fileID: 3429664520564974462}
   - fromCityId: city.ranch.butcher
     toCityId: city.ranch.pass
     label: {fileID: 8487258502852754375}
+    plate: {fileID: 2724733188718192553}
   - fromCityId: city.mine.salt
     toCityId: city.farm.lumber
     label: {fileID: 1287809434240302348}
+    plate: {fileID: 754695584904239269}
   - fromCityId: city.industry.assembly
     toCityId: city.industry.logistics
     label: {fileID: 670079359329718014}
+    plate: {fileID: 6330658231786377075}
   - fromCityId: city.coast.port
     toCityId: city.coast.sea
     label: {fileID: 2447909212688277670}
+    plate: {fileID: 7414187119850444152}
   - fromCityId: city.mine.dig
     toCityId: city.mine.cave
     label: {fileID: 8813305567550041253}
+    plate: {fileID: 1056660753976470241}
   - fromCityId: city.farm.orchard
     toCityId: city.ranch.butcher
     label: {fileID: 2169564761614306869}
+    plate: {fileID: 2727378068787433188}
   - fromCityId: city.capital.wholesale
     toCityId: city.capital.outskirts
     label: {fileID: 2401110927796219794}
+    plate: {fileID: 1666197957810572591}
   - fromCityId: city.capital.finance
     toCityId: city.capital.outskirts
     label: {fileID: 219441889574540888}
+    plate: {fileID: 7358838490923217416}
   - fromCityId: city.industry.meatlover
     toCityId: city.farm.lumber
     label: {fileID: 39992765997154483}
+    plate: {fileID: 4904881897839074785}
   - fromCityId: city.farm.grain
     toCityId: city.common.roadside
     label: {fileID: 6924908218055654203}
+    plate: {fileID: 1723200431982584987}
   - fromCityId: city.ranch.butcher
     toCityId: city.common.wayfarer
     label: {fileID: 6447755253404808542}
+    plate: {fileID: 807622924974468862}
   - fromCityId: city.industry.engine
     toCityId: city.ranch.pass
     label: {fileID: 3282498713843788407}
+    plate: {fileID: 8729893261028134157}
   - fromCityId: city.farm.lumber
     toCityId: city.common.rest
     label: {fileID: 2230224392767393400}
+    plate: {fileID: 4406849137193324137}
   - fromCityId: city.coast.port
     toCityId: city.capital.outskirts
     label: {fileID: 1970217943816840876}
+    plate: {fileID: 3871125304226381508}
   - fromCityId: city.ranch.highland
     toCityId: city.common.wayfarer
     label: {fileID: 7505184380395199818}
+    plate: {fileID: 7610498406862603086}
   - fromCityId: city.farm.orchard
     toCityId: city.common.wayfarer
     label: {fileID: 7995661061508825641}
+    plate: {fileID: 9032257982941118348}
   - fromCityId: city.mine.salt
     toCityId: city.common.rest
     label: {fileID: 3879558142624764293}
+    plate: {fileID: 4697502120554413181}
   lines:
   - regionId: line.regional
     segments:
@@ -1470,6 +1513,7 @@ GameObject:
   - component: {fileID: 2419530567596094792}
   - component: {fileID: 717206878577205017}
   - component: {fileID: 1302391992562714722}
+  - component: {fileID: 1493411583086160704}
   m_Layer: 5
   m_Name: Label
   m_TagString: Untagged
@@ -1538,6 +1582,21 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: "\uD5E4\uC77C\uD558\uC784"
+--- !u!114 &1493411583086160704
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 125428915905994683}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
+  m_EffectColor: {r: 0.1, g: 0.13, b: 0.17, a: 1}
+  m_EffectDistance: {x: 1, y: -1}
+  m_UseGraphicAlpha: 1
 --- !u!1 &134643573123956580
 GameObject:
   m_ObjectHideFlags: 0
@@ -2498,6 +2557,7 @@ GameObject:
   - component: {fileID: 1694875216602083137}
   - component: {fileID: 89212768963140801}
   - component: {fileID: 6306030111422348655}
+  - component: {fileID: 3769945149028053743}
   m_Layer: 5
   m_Name: Label
   m_TagString: Untagged
@@ -2566,6 +2626,21 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: "\uAE08\uC735\uB9C8\uC744 \u2605"
+--- !u!114 &3769945149028053743
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 424355460603028030}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
+  m_EffectColor: {r: 0.1, g: 0.13, b: 0.17, a: 1}
+  m_EffectDistance: {x: 1, y: -1}
+  m_UseGraphicAlpha: 1
 --- !u!1 &435898744986312639
 GameObject:
   m_ObjectHideFlags: 0
@@ -2828,6 +2903,7 @@ GameObject:
   - component: {fileID: 3398939624627946614}
   - component: {fileID: 980461555647193981}
   - component: {fileID: 6932292947605572272}
+  - component: {fileID: 8633881843292901931}
   m_Layer: 5
   m_Name: Label
   m_TagString: Untagged
@@ -2896,6 +2972,21 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: "\uCE74\uB974\uCE74"
+--- !u!114 &8633881843292901931
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 454924897854569458}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
+  m_EffectColor: {r: 0.1, g: 0.13, b: 0.17, a: 1}
+  m_EffectDistance: {x: 1, y: -1}
+  m_UseGraphicAlpha: 1
 --- !u!1 &466914092610196131
 GameObject:
   m_ObjectHideFlags: 0
@@ -3515,6 +3606,7 @@ GameObject:
   - component: {fileID: 5140964673297182301}
   - component: {fileID: 5794955307700002304}
   - component: {fileID: 4099446496732049049}
+  - component: {fileID: 8002237767414452035}
   m_Layer: 5
   m_Name: Label
   m_TagString: Untagged
@@ -3583,6 +3675,21 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: "\uD5E4\uC77C\uD3EC\uB4DC"
+--- !u!114 &8002237767414452035
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 619068349563075408}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
+  m_EffectColor: {r: 0.1, g: 0.13, b: 0.17, a: 1}
+  m_EffectDistance: {x: 1, y: -1}
+  m_UseGraphicAlpha: 1
 --- !u!1 &642110101549968120
 GameObject:
   m_ObjectHideFlags: 0
@@ -4886,6 +4993,7 @@ GameObject:
   - component: {fileID: 6737215796136382484}
   - component: {fileID: 7541558214785940306}
   - component: {fileID: 7734663055708318431}
+  - component: {fileID: 7017942373578064170}
   m_Layer: 5
   m_Name: Label
   m_TagString: Untagged
@@ -4954,6 +5062,21 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: "\uB9AC\uC624\uBE0C\uB8E8\uD06C"
+--- !u!114 &7017942373578064170
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1097474340546935424}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
+  m_EffectColor: {r: 0.1, g: 0.13, b: 0.17, a: 1}
+  m_EffectDistance: {x: 1, y: -1}
+  m_UseGraphicAlpha: 1
 --- !u!1 &1130192272744659870
 GameObject:
   m_ObjectHideFlags: 0
@@ -5269,6 +5392,7 @@ GameObject:
   - component: {fileID: 3489083440164158609}
   - component: {fileID: 4075966884313768896}
   - component: {fileID: 4789143145355608762}
+  - component: {fileID: 7903285359623251852}
   m_Layer: 5
   m_Name: Label
   m_TagString: Untagged
@@ -5337,6 +5461,21 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: "\uBC1C\uB80C\uB9AC\uC5D0"
+--- !u!114 &7903285359623251852
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1220856683837968961}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
+  m_EffectColor: {r: 0.1, g: 0.13, b: 0.17, a: 1}
+  m_EffectDistance: {x: 1, y: -1}
+  m_UseGraphicAlpha: 1
 --- !u!1 &1224675867782133646
 GameObject:
   m_ObjectHideFlags: 0
@@ -5945,6 +6084,7 @@ MonoBehaviour:
   fit: {fileID: 4263540089677716287}
   locate: {fileID: 7210713070692373952}
   zoomLabel: {fileID: 7437498870883906129}
+  view: {fileID: 700015}
 --- !u!1 &1359319009981602465
 GameObject:
   m_ObjectHideFlags: 0
@@ -6913,6 +7053,7 @@ GameObject:
   - component: {fileID: 9085688678976208963}
   - component: {fileID: 270641673041569280}
   - component: {fileID: 2818339910393312719}
+  - component: {fileID: 5719193460380379166}
   m_Layer: 5
   m_Name: Label
   m_TagString: Untagged
@@ -6981,6 +7122,21 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: "\uB77C\uC13C\uD3F4"
+--- !u!114 &5719193460380379166
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1686532814517468933}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
+  m_EffectColor: {r: 0.1, g: 0.13, b: 0.17, a: 1}
+  m_EffectDistance: {x: 1, y: -1}
+  m_UseGraphicAlpha: 1
 --- !u!1 &1689113243198828931
 GameObject:
   m_ObjectHideFlags: 0
@@ -9595,6 +9751,7 @@ GameObject:
   - component: {fileID: 8876659628926402944}
   - component: {fileID: 5163053580949527633}
   - component: {fileID: 203786391855847167}
+  - component: {fileID: 271582841696405178}
   m_Layer: 5
   m_Name: Label
   m_TagString: Untagged
@@ -9663,6 +9820,21 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: "\uD3EC\uB974\uBCA0\uB974"
+--- !u!114 &271582841696405178
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2450088285746590287}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
+  m_EffectColor: {r: 0.1, g: 0.13, b: 0.17, a: 1}
+  m_EffectDistance: {x: 1, y: -1}
+  m_UseGraphicAlpha: 1
 --- !u!1 &2453667411964044911
 GameObject:
   m_ObjectHideFlags: 0
@@ -10492,6 +10664,7 @@ GameObject:
   - component: {fileID: 6660505760226718009}
   - component: {fileID: 3217800120795917196}
   - component: {fileID: 7822258590030037615}
+  - component: {fileID: 202405520625716547}
   m_Layer: 5
   m_Name: Label
   m_TagString: Untagged
@@ -10560,6 +10733,21 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: "\uC138\uB974\uC544"
+--- !u!114 &202405520625716547
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2596289379868665937}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
+  m_EffectColor: {r: 0.1, g: 0.13, b: 0.17, a: 1}
+  m_EffectDistance: {x: 1, y: -1}
+  m_UseGraphicAlpha: 1
 --- !u!1 &2602745095836273867
 GameObject:
   m_ObjectHideFlags: 0
@@ -10725,6 +10913,7 @@ GameObject:
   - component: {fileID: 5369440947538538556}
   - component: {fileID: 5616884175072704772}
   - component: {fileID: 2730934315700094874}
+  - component: {fileID: 1499438766957238352}
   m_Layer: 5
   m_Name: Label
   m_TagString: Untagged
@@ -10793,6 +10982,21 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: "\uD14C\uB77C\uADF8\uB77C\uB4DC"
+--- !u!114 &1499438766957238352
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2630441872060127112}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
+  m_EffectColor: {r: 0.1, g: 0.13, b: 0.17, a: 1}
+  m_EffectDistance: {x: 1, y: -1}
+  m_UseGraphicAlpha: 1
 --- !u!1 &2660355028276785012
 GameObject:
   m_ObjectHideFlags: 0
@@ -11416,6 +11620,7 @@ GameObject:
   - component: {fileID: 4156438248371092801}
   - component: {fileID: 99811638902153741}
   - component: {fileID: 7872572082986253573}
+  - component: {fileID: 4485428901112906570}
   m_Layer: 5
   m_Name: Label
   m_TagString: Untagged
@@ -11484,6 +11689,21 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: "\uD14C\uB77C\uD3F4"
+--- !u!114 &4485428901112906570
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2891484634842965125}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
+  m_EffectColor: {r: 0.1, g: 0.13, b: 0.17, a: 1}
+  m_EffectDistance: {x: 1, y: -1}
+  m_UseGraphicAlpha: 1
 --- !u!1 &2917698537597277293
 GameObject:
   m_ObjectHideFlags: 0
@@ -14342,6 +14562,7 @@ GameObject:
   - component: {fileID: 4098802800640023957}
   - component: {fileID: 4999244403962260950}
   - component: {fileID: 7866402509772525986}
+  - component: {fileID: 5316201985428278778}
   m_Layer: 5
   m_Name: Label
   m_TagString: Untagged
@@ -14410,6 +14631,21 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: "\uC624\uC2A4\uBCA0\uB974"
+--- !u!114 &5316201985428278778
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3605128840727101064}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
+  m_EffectColor: {r: 0.1, g: 0.13, b: 0.17, a: 1}
+  m_EffectDistance: {x: 1, y: -1}
+  m_UseGraphicAlpha: 1
 --- !u!1 &3636174118322907225
 GameObject:
   m_ObjectHideFlags: 0
@@ -14421,6 +14657,7 @@ GameObject:
   - component: {fileID: 4468736241691801490}
   - component: {fileID: 8667897788780128685}
   - component: {fileID: 6243783682188346828}
+  - component: {fileID: 8780182427676243140}
   m_Layer: 5
   m_Name: Label
   m_TagString: Untagged
@@ -14489,6 +14726,21 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: "\uD14C\uB77C\uD2F0\uC544"
+--- !u!114 &8780182427676243140
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3636174118322907225}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
+  m_EffectColor: {r: 0.1, g: 0.13, b: 0.17, a: 1}
+  m_EffectDistance: {x: 1, y: -1}
+  m_UseGraphicAlpha: 1
 --- !u!1 &3661344822709833598
 GameObject:
   m_ObjectHideFlags: 0
@@ -17486,6 +17738,7 @@ GameObject:
   - component: {fileID: 5721006142232436634}
   - component: {fileID: 8122110919772631171}
   - component: {fileID: 2349457916458488640}
+  - component: {fileID: 1780197420340123146}
   m_Layer: 5
   m_Name: Label
   m_TagString: Untagged
@@ -17554,6 +17807,21 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: "\uD14C\uB77C\uCE74"
+--- !u!114 &1780197420340123146
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4478813102663080180}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
+  m_EffectColor: {r: 0.1, g: 0.13, b: 0.17, a: 1}
+  m_EffectDistance: {x: 1, y: -1}
+  m_UseGraphicAlpha: 1
 --- !u!1 &4490373979550507057
 GameObject:
   m_ObjectHideFlags: 0
@@ -18120,6 +18388,7 @@ GameObject:
   - component: {fileID: 5726621927755463518}
   - component: {fileID: 1001211460210639602}
   - component: {fileID: 3565631579945037629}
+  - component: {fileID: 1561117786090814845}
   m_Layer: 5
   m_Name: Label
   m_TagString: Untagged
@@ -18188,6 +18457,21 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: "\uCE74\uB974\uD3EC\uD2B8"
+--- !u!114 &1561117786090814845
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4587653919182479028}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
+  m_EffectColor: {r: 0.1, g: 0.13, b: 0.17, a: 1}
+  m_EffectDistance: {x: 1, y: -1}
+  m_UseGraphicAlpha: 1
 --- !u!1 &4595783715665378892
 GameObject:
   m_ObjectHideFlags: 0
@@ -18349,6 +18633,7 @@ GameObject:
   - component: {fileID: 6322501405080832527}
   - component: {fileID: 4482575835098875938}
   - component: {fileID: 5621713541954530643}
+  - component: {fileID: 252267078700197455}
   m_Layer: 5
   m_Name: Label
   m_TagString: Untagged
@@ -18417,6 +18702,21 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: "\uD2B8\uB80C\uD3EC\uB4DC"
+--- !u!114 &252267078700197455
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4637430745283990142}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
+  m_EffectColor: {r: 0.1, g: 0.13, b: 0.17, a: 1}
+  m_EffectDistance: {x: 1, y: -1}
+  m_UseGraphicAlpha: 1
 --- !u!1 &4708208410400436477
 GameObject:
   m_ObjectHideFlags: 0
@@ -19208,6 +19508,7 @@ GameObject:
   - component: {fileID: 3831808160043513992}
   - component: {fileID: 5430524797798691808}
   - component: {fileID: 6000632943765612358}
+  - component: {fileID: 749822196379104308}
   m_Layer: 5
   m_Name: Label
   m_TagString: Untagged
@@ -19276,6 +19577,21 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: "\uB77C\uC13C\uD134"
+--- !u!114 &749822196379104308
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4907132978452442263}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
+  m_EffectColor: {r: 0.1, g: 0.13, b: 0.17, a: 1}
+  m_EffectDistance: {x: 1, y: -1}
+  m_UseGraphicAlpha: 1
 --- !u!1 &4915888434740313231
 GameObject:
   m_ObjectHideFlags: 0
@@ -19613,6 +19929,7 @@ GameObject:
   - component: {fileID: 4553262190188752839}
   - component: {fileID: 8759122419293233120}
   - component: {fileID: 491061328344275559}
+  - component: {fileID: 8281618337873814257}
   m_Layer: 5
   m_Name: Label
   m_TagString: Untagged
@@ -19681,6 +19998,21 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: "\uC5D0\uB978\uC544 \uACF5\uC5C5\uC5ED"
+--- !u!114 &8281618337873814257
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4974626457413808375}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
+  m_EffectColor: {r: 0.1, g: 0.13, b: 0.17, a: 1}
+  m_EffectDistance: {x: 1, y: -1}
+  m_UseGraphicAlpha: 1
 --- !u!1 &4980301445146909711
 GameObject:
   m_ObjectHideFlags: 0
@@ -20841,6 +21173,7 @@ GameObject:
   - component: {fileID: 7437350615035991369}
   - component: {fileID: 522129770781699556}
   - component: {fileID: 5461011796336973798}
+  - component: {fileID: 8479530834608591101}
   m_Layer: 5
   m_Name: Label
   m_TagString: Untagged
@@ -20909,6 +21242,21 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: "\uBA54\uB974\uD2B8"
+--- !u!114 &8479530834608591101
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5400196292835368444}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
+  m_EffectColor: {r: 0.1, g: 0.13, b: 0.17, a: 1}
+  m_EffectDistance: {x: 1, y: -1}
+  m_UseGraphicAlpha: 1
 --- !u!1 &5450660588226417956
 GameObject:
   m_ObjectHideFlags: 0
@@ -21445,6 +21793,7 @@ GameObject:
   - component: {fileID: 1616903540554274066}
   - component: {fileID: 3411125855798212755}
   - component: {fileID: 201596017056011340}
+  - component: {fileID: 5470215541612020668}
   m_Layer: 5
   m_Name: Label
   m_TagString: Untagged
@@ -21513,6 +21862,21 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: "\uC774\uBE0C\uD2B8"
+--- !u!114 &5470215541612020668
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5601936275305329566}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
+  m_EffectColor: {r: 0.1, g: 0.13, b: 0.17, a: 1}
+  m_EffectDistance: {x: 1, y: -1}
+  m_UseGraphicAlpha: 1
 --- !u!1 &5605253060278849275
 GameObject:
   m_ObjectHideFlags: 0
@@ -25722,6 +26086,7 @@ GameObject:
   - component: {fileID: 2835275153908871280}
   - component: {fileID: 775522570027833881}
   - component: {fileID: 5020291101899237853}
+  - component: {fileID: 2892027676856587926}
   m_Layer: 5
   m_Name: Label
   m_TagString: Untagged
@@ -25790,6 +26155,21 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: "\uB2E4\uB974\uD2B8"
+--- !u!114 &2892027676856587926
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6569216454963866870}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
+  m_EffectColor: {r: 0.1, g: 0.13, b: 0.17, a: 1}
+  m_EffectDistance: {x: 1, y: -1}
+  m_UseGraphicAlpha: 1
 --- !u!1 &6573981435257120815
 GameObject:
   m_ObjectHideFlags: 0
@@ -26259,6 +26639,7 @@ GameObject:
   - component: {fileID: 9206347915927452104}
   - component: {fileID: 1780316798200501369}
   - component: {fileID: 7774206260492304106}
+  - component: {fileID: 2612769395920553703}
   m_Layer: 5
   m_Name: Label
   m_TagString: Untagged
@@ -26327,6 +26708,21 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: "\uB514\uC544\uC548"
+--- !u!114 &2612769395920553703
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6757162788345020732}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
+  m_EffectColor: {r: 0.1, g: 0.13, b: 0.17, a: 1}
+  m_EffectDistance: {x: 1, y: -1}
+  m_UseGraphicAlpha: 1
 --- !u!1 &6768347318564523754
 GameObject:
   m_ObjectHideFlags: 0
@@ -26413,6 +26809,7 @@ GameObject:
   - component: {fileID: 2175516171355302718}
   - component: {fileID: 523308108636191205}
   - component: {fileID: 6529443675572889563}
+  - component: {fileID: 8994692839103947338}
   m_Layer: 5
   m_Name: Label
   m_TagString: Untagged
@@ -26481,6 +26878,21 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: "\uC624\uC2A4\uADF8\uB77C\uB4DC"
+--- !u!114 &8994692839103947338
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6797537852127408254}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
+  m_EffectColor: {r: 0.1, g: 0.13, b: 0.17, a: 1}
+  m_EffectDistance: {x: 1, y: -1}
+  m_UseGraphicAlpha: 1
 --- !u!1 &6811162920271811607
 GameObject:
   m_ObjectHideFlags: 0
@@ -26818,6 +27230,7 @@ GameObject:
   - component: {fileID: 2956789291659735552}
   - component: {fileID: 5301192120363182076}
   - component: {fileID: 7511395523341576155}
+  - component: {fileID: 727897473947684087}
   m_Layer: 5
   m_Name: Label
   m_TagString: Untagged
@@ -26886,6 +27299,21 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: "\uD53C\uC624\uC544 \uD56D"
+--- !u!114 &727897473947684087
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6912878706719493279}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
+  m_EffectColor: {r: 0.1, g: 0.13, b: 0.17, a: 1}
+  m_EffectDistance: {x: 1, y: -1}
+  m_UseGraphicAlpha: 1
 --- !u!1 &6951710675837624635
 GameObject:
   m_ObjectHideFlags: 0
@@ -28526,6 +28954,7 @@ GameObject:
   - component: {fileID: 1306253764717937948}
   - component: {fileID: 2865272876016648320}
   - component: {fileID: 6974025437832507727}
+  - component: {fileID: 5105731180790942494}
   m_Layer: 5
   m_Name: Label
   m_TagString: Untagged
@@ -28594,6 +29023,21 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: "\uBCA0\uB974\uC2A4\uCE74"
+--- !u!114 &5105731180790942494
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7305500644403712294}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
+  m_EffectColor: {r: 0.1, g: 0.13, b: 0.17, a: 1}
+  m_EffectDistance: {x: 1, y: -1}
+  m_UseGraphicAlpha: 1
 --- !u!1 &7368204770445379041
 GameObject:
   m_ObjectHideFlags: 0
@@ -29209,6 +29653,7 @@ GameObject:
   - component: {fileID: 8112209497660822290}
   - component: {fileID: 833397098395628157}
   - component: {fileID: 336656229916745610}
+  - component: {fileID: 4800949304920553728}
   m_Layer: 5
   m_Name: Label
   m_TagString: Untagged
@@ -29277,6 +29722,21 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: "\uB2E4\uB974\uC548"
+--- !u!114 &4800949304920553728
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7707162305102615291}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
+  m_EffectColor: {r: 0.1, g: 0.13, b: 0.17, a: 1}
+  m_EffectDistance: {x: 1, y: -1}
+  m_UseGraphicAlpha: 1
 --- !u!1 &7719245793107982537
 GameObject:
   m_ObjectHideFlags: 0
@@ -29904,6 +30364,7 @@ GameObject:
   - component: {fileID: 2172167715541101321}
   - component: {fileID: 1063223789292434439}
   - component: {fileID: 229262053166341520}
+  - component: {fileID: 6192347807658050526}
   m_Layer: 5
   m_Name: Label
   m_TagString: Untagged
@@ -29972,6 +30433,21 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: "\uC138\uB974\uADF8\uB77C\uB4DC"
+--- !u!114 &6192347807658050526
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7887721919217807014}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
+  m_EffectColor: {r: 0.1, g: 0.13, b: 0.17, a: 1}
+  m_EffectDistance: {x: 1, y: -1}
+  m_UseGraphicAlpha: 1
 --- !u!1 &7891958557107578292
 GameObject:
   m_ObjectHideFlags: 0
@@ -32246,6 +32722,7 @@ GameObject:
   - component: {fileID: 8475795569182998972}
   - component: {fileID: 4252662535789992501}
   - component: {fileID: 473922688102969635}
+  - component: {fileID: 1410625337743035438}
   m_Layer: 5
   m_Name: Label
   m_TagString: Untagged
@@ -32314,6 +32791,21 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: "\uB178\uB974\uB178\uBC14"
+--- !u!114 &1410625337743035438
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8436071070717497470}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
+  m_EffectColor: {r: 0.1, g: 0.13, b: 0.17, a: 1}
+  m_EffectDistance: {x: 1, y: -1}
+  m_UseGraphicAlpha: 1
 --- !u!1 &8456485067990440503
 GameObject:
   m_ObjectHideFlags: 0
@@ -33079,6 +33571,7 @@ GameObject:
   - component: {fileID: 8173322088130764480}
   - component: {fileID: 1614439943352449421}
   - component: {fileID: 4325619557253905423}
+  - component: {fileID: 2952319462963629996}
   m_Layer: 5
   m_Name: Label
   m_TagString: Untagged
@@ -33147,6 +33640,21 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: "\uC544\uC774\uD3EC\uD2B8 \uC911\uC559"
+--- !u!114 &2952319462963629996
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8745932770139777507}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
+  m_EffectColor: {r: 0.1, g: 0.13, b: 0.17, a: 1}
+  m_EffectDistance: {x: 1, y: -1}
+  m_UseGraphicAlpha: 1
 --- !u!1 &8751974220540370741
 GameObject:
   m_ObjectHideFlags: 0
@@ -33563,6 +34071,7 @@ GameObject:
   - component: {fileID: 4928754581228684499}
   - component: {fileID: 4186207613221203208}
   - component: {fileID: 8729445007360238992}
+  - component: {fileID: 6954584047594810097}
   m_Layer: 5
   m_Name: Label
   m_TagString: Untagged
@@ -33631,6 +34140,21 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: "\uB2E4\uB974\uD3F4"
+--- !u!114 &6954584047594810097
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8955753631534773848}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
+  m_EffectColor: {r: 0.1, g: 0.13, b: 0.17, a: 1}
+  m_EffectDistance: {x: 1, y: -1}
+  m_UseGraphicAlpha: 1
 --- !u!1 &8965502312180975737
 GameObject:
   m_ObjectHideFlags: 0

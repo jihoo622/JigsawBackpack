@@ -13,15 +13,60 @@ public sealed class PuzzleMapNodeView : MonoBehaviour, IPointerEnterHandler, IPo
     [SerializeField] Image currentHalo;
     [SerializeField] Text currentBadge;
 
+    bool isCurrent;
+    bool isTarget;
+    bool isConnected;
+    internal Vector2 LabelSize { get; private set; }
+
     internal string CityId => cityId;
     internal event Action<string> Hovered;
     internal event Action Exited;
     internal event Action<string> Clicked;
 
+    internal int LabelPriority(string _selectedCityId)
+    {
+        return isCurrent ? 5 : cityId == _selectedCityId ? 4 : isTarget ? 3 : isConnected ? 2 : interchange ? 1 : 0;
+    }
+
+    internal void PrepareLayout(float _zoom)
+    {
+        transform.localScale = Vector3.one / _zoom;
+        ((RectTransform)transform).sizeDelta = Vector2.one * 44f;
+        label.raycastTarget = false;
+        label.fontSize = Presentation.PuzzleMapStationFontSize(_zoom, isCurrent);
+        label.horizontalOverflow = HorizontalWrapMode.Overflow;
+        label.verticalOverflow = VerticalWrapMode.Truncate;
+        label.resizeTextForBestFit = false;
+        float width = Mathf.Ceil(label.preferredWidth) + 12f;
+        label.rectTransform.sizeDelta = new Vector2(width, 28f);
+        currentHalo.rectTransform.sizeDelta = Vector2.one * Presentation.PUZZLE_MAP_HALO_SIZE;
+        currentBadge.fontSize = Presentation.PUZZLE_MAP_BADGE_FONT_SIZE;
+        currentBadge.rectTransform.sizeDelta = new Vector2(160f, 24f);
+        LabelSize = new Vector2(isCurrent ? Mathf.Max(width, 160f) : width, isCurrent ? 54f : 28f);
+    }
+
+    internal Vector2 MarkerPosition(RectTransform _viewport)
+    {
+        return _viewport.InverseTransformPoint(stationRing.transform.position);
+    }
+
+    internal float MarkerRadius => isCurrent ? 28f : 16f;
+
+    internal void PlaceLabel(bool _visible, Vector2 _footprintOffset)
+    {
+        label.gameObject.SetActive(_visible);
+        currentBadge.gameObject.SetActive(_visible && isCurrent);
+        Vector2 offset = _footprintOffset - (isCurrent ? new Vector2(0f, 13f) : Vector2.zero);
+        label.rectTransform.anchoredPosition = offset;
+        currentBadge.rectTransform.anchoredPosition = offset + new Vector2(0f, 26f);
+    }
+
     internal void Show(PuzzleCityData _city, bool _visited, bool _current, bool _connected, bool _canAfford, bool _planningTarget)
     {
-        label.text = Presentation.PuzzleMapNodeLabel(Presentation.PuzzleMapStationName(_city.displayName, _planningTarget),
-            _visited, _current, _connected, _canAfford);
+        isCurrent = _current;
+        isTarget = _planningTarget;
+        isConnected = _connected;
+        label.text = Presentation.PuzzleMapStationName(_city.displayName, _planningTarget);
         label.color = _current ? Presentation.PuzzleMapCurrent : Presentation.PuzzleHeading;
         label.fontStyle = _current ? FontStyle.Bold : FontStyle.Normal;
         currentHalo.gameObject.SetActive(_current);

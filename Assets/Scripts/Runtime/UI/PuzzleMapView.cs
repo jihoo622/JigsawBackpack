@@ -1,5 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
+using System;
+using System.Collections.Generic;
 
 public sealed class PuzzleMapView : PanelBase
 {
@@ -16,6 +18,8 @@ public sealed class PuzzleMapView : PanelBase
     {
         public string fromCityId, toCityId;
         public Text label;
+        public Image plate;
+        [NonSerialized] public Vector2 position;
     }
 
     [System.Serializable]
@@ -38,11 +42,192 @@ public sealed class PuzzleMapView : PanelBase
     [SerializeField] LineVisual[] lines;
     [SerializeField] PuzzleMapNavigation navigation;
 
+    readonly List<Rect> occupied = new List<Rect>();
+    readonly Dictionary<Image, float> trackThickness = new Dictionary<Image, float>();
+    PuzzleMapNodeView[] layoutNodes;
+    RouteTimeVisual[] layoutRoutes;
+    string currentCityId;
+    string selectedCityId;
+    const float LABEL_GAP = 6f;
+    static readonly Vector2[] LABEL_DIRECTIONS =
+    {
+        Vector2.up, Vector2.right, Vector2.down, Vector2.left,
+        new Vector2(1f, 1f), new Vector2(-1f, 1f), new Vector2(1f, -1f), new Vector2(-1f, -1f)
+    };
+    static readonly Vector2[] TIME_OFFSETS =
+    {
+        Vector2.zero, new Vector2(0f, 24f), new Vector2(0f, -24f), new Vector2(28f, 0f), new Vector2(-28f, 0f)
+    };
+
     internal PuzzleMapNodeView[] Nodes => nodes;
 
-    internal void ShowCurrentLocation(RectTransform _node)
+    internal void ShowCurrentLocation(PuzzleMapNodeView _node)
     {
-        navigation.SetCurrent(_node);
+        currentCityId = _node.CityId;
+        navigation.SetCurrent(_node.transform as RectTransform);
+    }
+
+    internal void RefreshLayout()
+    {
+        navigation.RefreshLayout();
+    }
+
+    internal void HighlightCity(string _cityId)
+    {
+        selectedCityId = _cityId;
+        RefreshLayout();
+    }
+
+    void PrepareLayout()
+    {
+        if (layoutNodes != null)
+        {
+            return;
+        }
+        layoutNodes = (PuzzleMapNodeView[])nodes.Clone();
+        layoutRoutes = (RouteTimeVisual[])routeTimes.Clone();
+        foreach (var route in layoutRoutes)
+        {
+            route.position = route.label.rectTransform.anchoredPosition;
+        }
+        foreach (var track in routeLines)
+        {
+            trackThickness[track] = track.rectTransform.sizeDelta.y;
+        }
+    }
+
+    internal void UpdateMapLayout(float _zoom, RectTransform _viewport)
+    {
+        PrepareLayout();
+        occupied.Clear();
+        Rect bounds = _viewport.rect;
+        bounds = Rect.MinMaxRect(bounds.xMin + 8f, bounds.yMin + 8f, bounds.xMax - 8f, bounds.yMax - 8f);
+        foreach (var node in layoutNodes)
+        {
+            node.PrepareLayout(_zoom);
+            Vector2 position = node.MarkerPosition(_viewport);
+            occupied.Add(Box(position, Vector2.one * node.MarkerRadius * 2f));
+        }
+        Array.Sort(layoutNodes, (_a, _b) =>
+        {
+            int priority = _b.LabelPriority(selectedCityId).CompareTo(_a.LabelPriority(selectedCityId));
+            return priority != 0 ? priority : string.CompareOrdinal(_a.CityId, _b.CityId);
+        });
+        foreach (var node in layoutNodes)
+        {
+            Vector2 position = node.MarkerPosition(_viewport);
+            Vector2 size = node.LabelSize;
+            bool visible = false;
+            Vector2 offset = Vector2.zero;
+            if (bounds.Contains(position))
+            {
+                foreach (var direction in LABEL_DIRECTIONS)
+                {
+                    offset = Vector2.Scale(direction, size * 0.5f + Vector2.one * (node.MarkerRadius + LABEL_GAP));
+                    Rect candidate = Box(position + offset, size);
+                    if (Available(candidate, bounds))
+                    {
+                        occupied.Add(candidate);
+                        visible = true;
+                        break;
+                    }
+                }
+                if (!visible && node.LabelPriority(selectedCityId) >= 4)
+                {
+                    Vector2 center = position + Vector2.up * (node.MarkerRadius + LABEL_GAP + size.y * 0.5f);
+                    center.x = Mathf.Clamp(center.x, bounds.xMin + size.x * 0.5f, bounds.xMax - size.x * 0.5f);
+                    center.y = Mathf.Clamp(center.y, bounds.yMin + size.y * 0.5f, bounds.yMax - size.y * 0.5f);
+                    offset = center - position;
+                    occupied.Add(Box(center, size));
+                    visible = true;
+                }
+            }
+            node.PlaceLabel(visible, offset);
+        }
+
+        foreach (var track in routeLines)
+        {
+            Vector2 size = track.rectTransform.sizeDelta;
+            size.y = Presentation.PuzzleMapTrackThickness(trackThickness[track]) / _zoom;
+            track.rectTransform.sizeDelta = size;
+        }
+        Array.Sort(layoutRoutes, (_a, _b) =>
+        {
+            int priority = RoutePriority(_b).CompareTo(RoutePriority(_a));
+            if (priority != 0)
+            {
+                return priority;
+            }
+            int from = string.CompareOrdinal(_a.fromCityId, _b.fromCityId);
+            return from != 0 ? from : string.CompareOrdinal(_a.toCityId, _b.toCityId);
+        });
+        foreach (var route in layoutRoutes)
+        {
+            var label = route.label;
+            label.rectTransform.localScale = Vector3.one / _zoom;
+            label.rectTransform.anchoredPosition = route.position;
+            label.fontSize = Presentation.PUZZLE_MAP_TIME_FONT_SIZE;
+            label.resizeTextForBestFit = false;
+            label.horizontalOverflow = HorizontalWrapMode.Overflow;
+            Vector2 size = new Vector2(Mathf.Ceil(label.preferredWidth) + 16f, 28f);
+            label.rectTransform.sizeDelta = size;
+            bool visible = false;
+            if (route.plate)
+            {
+                var plate = route.plate.rectTransform;
+                plate.localScale = Vector3.one / _zoom;
+                plate.sizeDelta = size;
+                if (_zoom >= 0.85f)
+                {
+                    Vector2 origin = _viewport.InverseTransformPoint(label.transform.position);
+                    foreach (var offset in TIME_OFFSETS)
+                    {
+                        Rect candidate = Box(origin + offset, size);
+                        if (Available(candidate, bounds))
+                        {
+                            label.rectTransform.anchoredPosition = route.position + offset / _zoom;
+                            occupied.Add(candidate);
+                            visible = true;
+                            break;
+                        }
+                    }
+                }
+                plate.anchoredPosition = label.rectTransform.anchoredPosition;
+                route.plate.gameObject.SetActive(visible);
+            }
+            label.gameObject.SetActive(visible);
+        }
+    }
+
+    int RoutePriority(RouteTimeVisual _route)
+    {
+        bool current = _route.fromCityId == currentCityId || _route.toCityId == currentCityId;
+        bool selected = _route.fromCityId == selectedCityId || _route.toCityId == selectedCityId;
+        return current && selected ? 3 : current ? 2 : selected ? 1 : 0;
+    }
+
+    bool Available(Rect _candidate, Rect _bounds)
+    {
+        if (_candidate.xMin < _bounds.xMin || _candidate.yMin < _bounds.yMin ||
+            _candidate.xMax > _bounds.xMax || _candidate.yMax > _bounds.yMax)
+        {
+            return false;
+        }
+        Rect padded = Rect.MinMaxRect(_candidate.xMin - LABEL_GAP, _candidate.yMin - LABEL_GAP,
+            _candidate.xMax + LABEL_GAP, _candidate.yMax + LABEL_GAP);
+        foreach (var rect in occupied)
+        {
+            if (padded.Overlaps(rect))
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    static Rect Box(Vector2 _center, Vector2 _size)
+    {
+        return new Rect(_center - _size * 0.5f, _size);
     }
 
     protected override void Awake()
