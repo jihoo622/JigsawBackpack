@@ -10,6 +10,9 @@
     { "pieceId": "piece.uShape", "baseValue": 55 },
     { "pieceId": "piece.elbowRight", "baseValue": 36 },
     { "pieceId": "piece.fish", "baseValue": 18 },
-    { "pieceId": "piece.saltSack", "baseValue": 8 }
+    { "pieceId": "piece.saltSack", "baseValue": 8 },
+    { "pieceId": "piece.beef", "baseValue": 20 },
+    { "pieceId": "piece.cow", "baseValue": 65 },
+    { "pieceId": "piece.apple", "baseValue": 10 }
   ]
 }

@@ -40,9 +40,15 @@ public sealed class SceneLinkData
 public sealed class PuzzlePieceData
 {
     public string id, displayName, description, visualKey;
+    // 아이콘 표시 크기(칸 단위). 0 이하면 외접 사각형 크기를 쓴다. 삐져나오는 이미지를 조정한다.
+    public float iconWidth = -1, iconHeight = -1;
+    // 아이콘 중심을 외접 사각형 중심에서 칸 단위로 어긋나게 옮긴다.
+    public float iconOffsetX, iconOffsetY;
     public string[] tags = Array.Empty<string>();
     // 누락된 슬롯 수를 검증에서 거부하기 위한 값이다.
     public int slotCount = -1;
+    // 내구도 시작값. 누락이 정상값으로 위장되지 않도록 검증용 값으로 둔다.
+    public int durability = -1;
     public PuzzleCellData[] cells = Array.Empty<PuzzleCellData>();
 }
 

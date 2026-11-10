@@ -550,6 +550,8 @@ public sealed class GameTableRules
         Check(cells.Length > 0, path, "슬롯이 하나 이상 필요합니다.");
         Check(_piece.slotCount > 0 && _piece.slotCount == cells.Length, _path + ".slotCount",
             $"슬롯 수는 1 이상이며 cells 항목 수({cells.Length})와 일치해야 합니다.");
+        Check(_piece.durability >= 1 && _piece.durability <= 100, _path + ".durability",
+            "내구도 시작값은 1 이상 100 이하여야 합니다.");
 
         var positions = new HashSet<Vector2Int>();
         bool hasZeroX = false;

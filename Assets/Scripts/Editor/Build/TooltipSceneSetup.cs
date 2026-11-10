@@ -141,8 +141,10 @@ public static class TooltipSceneSetup
             var existingView = tooltipTransform.GetComponent<PuzzleItemTooltipView>();
             var catRowProp = existingView ? new SerializedObject(existingView).FindProperty("categoryRow") : null;
             var futureValProp = existingView ? new SerializedObject(existingView).FindProperty("futureValueText") : null;
+            var freshnessProp = existingView ? new SerializedObject(existingView).FindProperty("freshnessText") : null;
             if (catRowProp == null || catRowProp.objectReferenceValue == null ||
-                futureValProp == null || futureValProp.objectReferenceValue == null)
+                futureValProp == null || futureValProp.objectReferenceValue == null ||
+                freshnessProp == null || freshnessProp.objectReferenceValue == null)
             {
                 UnityEngine.Object.DestroyImmediate(tooltipTransform.gameObject);
                 tooltipTransform = null;
@@ -292,6 +294,7 @@ public static class TooltipSceneSetup
         bodyLayout.childForceExpandHeight = false;
 
         var actualVal = CreateTextObject("ActualValue", body.transform, _fontAsset, "실제 가치 : $ 100");
+        var freshness = CreateTextObject("Freshness", body.transform, _fontAsset, "신선도 : 100");
         var sellRate = CreateTextObject("SellRate", body.transform, _fontAsset, "판매 배율 : 100%");
         var buyRate = CreateTextObject("BuyRate", body.transform, _fontAsset, "최종 판매 금액(이 도시 기준) : $ 100");
 
@@ -353,6 +356,8 @@ public static class TooltipSceneSetup
         }
 
         viewSerialized.FindProperty("actualValueText").objectReferenceValue = actualVal;
+        viewSerialized.FindProperty("freshnessText").objectReferenceValue = freshness;
+        freshness.gameObject.SetActive(false);
         viewSerialized.FindProperty("sellRateText").objectReferenceValue = sellRate;
         viewSerialized.FindProperty("buyRateText").objectReferenceValue = buyRate;
         viewSerialized.FindProperty("synergySection").objectReferenceValue = synergySection;
