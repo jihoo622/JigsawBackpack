@@ -62,6 +62,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         trainView.Disabled += OnViewDisabled;
         marketView.Disabled += OnViewDisabled;
         GameEvents.CityArrived += OnCityArrived;
+        GameEvents.TimeAdvanced += OnTimeAdvanced;
         GameEvents.PanelVisibility += OnPanelVisibility;
         if (trainBarView)
         {
@@ -103,6 +104,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         currentHoveredInstanceId = null;
         isMapOpen = false;
         GameEvents.CityArrived -= OnCityArrived;
+        GameEvents.TimeAdvanced -= OnTimeAdvanced;
         GameEvents.PanelVisibility -= OnPanelVisibility;
         if (trainBarView)
         {
@@ -116,6 +118,20 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
     void OnCityArrived(GameEvents.CityArrivalInfo _info)
     {
         ShowCurrentCity();
+    }
+
+    void OnTimeAdvanced(GameEvents.TimeAdvanceInfo _info)
+    {
+        if (_info.session != session)
+        {
+            return;
+        }
+        cityView.ShowTime(session.Time);
+        RefreshFunds();
+        if (session.RunStatus != PuzzleRunStatus.InProgress)
+        {
+            cityView.ShowTradeStatus(Presentation.PuzzleRunStatusText(session.RunStatus));
+        }
     }
 
     public void ClearGame()
@@ -167,6 +183,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
     {
         bool inProgress = session.RunStatus == PuzzleRunStatus.InProgress;
         cityView.ShowCity(session.CurrentCityName);
+        cityView.ShowTime(session.Time);
         RefreshFunds();
         cityView.ShowTradeStatus(inProgress
             ? Presentation.PUZZLE_TRADE_GUIDE

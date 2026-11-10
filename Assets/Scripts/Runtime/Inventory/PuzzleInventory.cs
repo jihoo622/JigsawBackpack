@@ -113,7 +113,7 @@ public sealed class PuzzleInventory
         {
             // 원본과 대상의 현재 점유를 확인한 뒤 같은 호출에서 소속과 점유를 함께 바꾼다.
             var placement = new PuzzlePlacement(_original.InstanceId, _original.Definition, _destination, result.Candidate,
-                _original.ActualValue);
+                _original.ActualValue, _original.OwnedHours);
             ClearOccupancy(_original);
             placements.Remove(_original.InstanceId);
             _destination.StorePlacement(placement);

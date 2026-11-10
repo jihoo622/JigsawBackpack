@@ -204,6 +204,11 @@ public sealed class GameTableRules
         const string PATH = nameof(PuzzleTradeTableData);
         Check(_tables.PuzzleTrade.startingFunds >= 0, PATH + ".startingFunds", "시작 자금은 0 이상이어야 합니다.");
         Check(_tables.PuzzleTrade.gameClearCost > 0, PATH + ".gameClearCost", "클리어 비용은 0보다 커야 합니다.");
+        Check(_tables.PuzzleTrade.deadlineHours >= 0, PATH + ".deadlineHours", "기한은 시간 단위 0 이상이어야 합니다. 0이면 무기한입니다.");
+        if (!string.IsNullOrEmpty(_tables.PuzzleTrade.debtCityId))
+        {
+            Reference(_tables.PuzzleTrade.debtCityId, PATH + ".debtCityId", _tables.HasCity(_tables.PuzzleTrade.debtCityId), "상환 도시");
+        }
         Check(_tables.PuzzleTrade.purchaseMarkupPercent > 0, PATH + ".purchaseMarkupPercent",
             "공통 구매 배율은 0보다 커야 합니다.");
         Check(_tables.PuzzleTrade.wagonAddCostBase > 0, PATH + ".wagonAddCostBase",
@@ -235,6 +240,7 @@ public sealed class GameTableRules
             Check(route.fromCityId != route.toCityId, path, "출발 도시와 도착 도시는 달라야 합니다.");
             Check(route.cost >= 0, path + ".cost", "이동 비용은 0 이상이어야 합니다.");
             Check(route.distance > 0, path + ".distance", "노선 거리는 0보다 커야 합니다.");
+            Check(route.travelTimeWeight > 0, path + ".travelTimeWeight", "노선 시간 가중치는 1 이상이어야 합니다.");
             if (_tables.HasCity(route.fromCityId) && _tables.HasCity(route.toCityId))
             {
                 string fromSpecialty = _tables.CityPrice(route.fromCityId).specialtyTag;

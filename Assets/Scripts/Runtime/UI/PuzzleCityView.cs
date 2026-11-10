@@ -7,6 +7,7 @@ using TMPro;
 public sealed class PuzzleCityView : MonoBehaviour
 {
     [SerializeField] TextMeshProUGUI cityName;
+    [SerializeField] TextMeshProUGUI timeLabel;
     [SerializeField] Button previousButton;
     [SerializeField] TextMeshProUGUI previousLabel;
     [SerializeField] Button nextButton;
@@ -18,7 +19,7 @@ public sealed class PuzzleCityView : MonoBehaviour
 
     internal void Initialize(bool _canTravel, long _clearCost)
     {
-        if (!cityName || !cityName.font || !previousButton || !previousButton.targetGraphic ||
+        if (!timeLabel || !timeLabel.font || !cityName || !cityName.font || !previousButton || !previousButton.targetGraphic ||
             !nextButton || !nextButton.targetGraphic || previousButton == nextButton ||
             !previousLabel || !previousLabel.font || !nextLabel || !nextLabel.font ||
             !funds || !funds.font || !tradeStatus || !tradeStatus.font ||
@@ -29,6 +30,7 @@ public sealed class PuzzleCityView : MonoBehaviour
 
         cityName.color = previousLabel.color = nextLabel.color = Presentation.PuzzleHeading;
         funds.color = tradeStatus.color = Presentation.PuzzleHeading;
+        timeLabel.color = Presentation.PuzzleTimeAccent;
         clearLabel.color = Presentation.PuzzleHeading;
         clearLabel.text = Presentation.PuzzleClearButton(_clearCost);
         previousButton.colors = nextButton.colors = Presentation.PuzzleCityButtonColors;
@@ -42,6 +44,11 @@ public sealed class PuzzleCityView : MonoBehaviour
     internal void ShowCity(string _name)
     {
         cityName.text = _name;
+    }
+
+    internal void ShowTime(PuzzleTimeManager _time)
+    {
+        timeLabel.text = Presentation.PuzzleTime(_time);
     }
 
     internal void ShowFunds(long _funds, bool _canClear)

@@ -4,5 +4,7 @@
   "startingFunds": 200,
   "purchaseMarkupPercent": 110,
   "wagonAddCostBase": 50,
-  "gameClearCost": 500
+  "gameClearCost": 500,
+  "deadlineHours": 336,
+  "debtCityId": ""
 }

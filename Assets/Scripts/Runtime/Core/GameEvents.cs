@@ -10,6 +10,40 @@ using UnityEngine.SceneManagement;
 //   4) 페이로드는 struct로 불변 data only로 두고, 시간·좌표처럼 분석에 쓰는 값은 여기서 함께 보낸다.
 public static class GameEvents
 {
+    /// <summary>게임 시간 진행 결과. 모든 값은 세션 시작 기준 시간 단위다.</summary>
+    public readonly struct TimeAdvanceInfo
+    {
+        /// <summary>시간을 진행한 세션. 다른 씬의 이벤트를 구분하는 데 사용한다.</summary>
+        public readonly PuzzleInventoryService session;
+        /// <summary>진행 전 누적 경과 시간.</summary>
+        public readonly long previousHours;
+        /// <summary>진행 후 누적 경과 시간.</summary>
+        public readonly long elapsedHours;
+        /// <summary>이번 행동으로 경과한 시간. 신선도·내구도 갱신에 사용한다.</summary>
+        public long DeltaHours => elapsedHours - previousHours;
+
+
+        /// <summary>시간 변화 전후의 누적 시간을 보관한다.</summary>
+        public TimeAdvanceInfo(long _previousHours, long _elapsedHours, PuzzleInventoryService _session = null)
+        {
+            session = _session;
+            previousHours = _previousHours;
+            elapsedHours = _elapsedHours;
+        }
+    }
+
+    /// <summary>세션 시간·기한 판정 확정 후 발행된다. OnEnable/OnDisable에서 대칭으로 구독·해제한다.</summary>
+    public static event Action<TimeAdvanceInfo> TimeAdvanced;
+
+    /// <summary>확정된 게임 시간 변화를 알린다. 시간을 직접 진행하지 않으며 구독자 예외는 격리한다.</summary>
+    /// <param name="_previousHours">진행 전 누적 경과 시간.</param>
+    /// <param name="_elapsedHours">진행 후 누적 경과 시간.</param>
+    /// <param name="_session">시간을 확정한 세션. 소비자는 자신이 속한 세션인지 확인한다.</param>
+    public static void RaiseTimeAdvanced(long _previousHours, long _elapsedHours, PuzzleInventoryService _session = null)
+    {
+        Emit(TimeAdvanced, new TimeAdvanceInfo(_previousHours, _elapsedHours, _session));
+    }
+
     public readonly struct CityArrivalInfo
     {
         public readonly string cityId;
@@ -168,6 +202,7 @@ public static class GameEvents
         PanelVisibility = null;
         TradeCompleted = null;
         CityArrived = null;
+        TimeAdvanced = null;
         sequence = 0;
         SceneManager.sceneLoaded -= OnSceneLoaded;
         hooked = false;
