@@ -147,6 +147,7 @@ public static class Presentation
     }
     public static Color PuzzleAddWagonBox => new Color32(40, 167, 69, 255);
     public static Color PuzzleWagonSelectedBorder => new Color32(255, 215, 0, 255);
+    public static Color PuzzleWagonDragHoverBorder => new Color(0.39f, 0.91f, 0.67f);
     public static Color PuzzleWagonNormalBorder => new Color32(90, 95, 105, 255);
     public const string PUZZLE_MARKET_TITLE = "Market Inventory";
     public const string PUZZLE_MOVE_GUIDE = "드래그로 이동    R로 회전    Esc로 취소";

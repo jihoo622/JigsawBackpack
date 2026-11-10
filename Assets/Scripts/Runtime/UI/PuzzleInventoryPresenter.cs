@@ -4,6 +4,8 @@ using UnityEngine.EventSystems;
 [DisallowMultipleComponent]
 public sealed class PuzzleInventoryPresenter : MonoBehaviour
 {
+    const float WAGON_DRAG_HOVER_DELAY = 0.5f;
+
     [SerializeField] PuzzleInventoryView trainView;
     [SerializeField] PuzzleInventoryView marketView;
     [SerializeField] PuzzleCityView cityView;
@@ -18,6 +20,8 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
     Vector2 pointerPosition;
     Vector2? hoverPosition;
     int? currentHoveredInstanceId;
+    int? hoveredWagonIndex;
+    float hoveredWagonStartTime;
     bool initialized;
     bool isMapOpen;
 
@@ -113,6 +117,67 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         }
         OnViewDisabled();
         initialized = false;
+    }
+
+    void Update()
+    {
+        if (!initialized || isMapOpen || drag == null || !trainBarView || session == null ||
+            session.RunStatus != PuzzleRunStatus.InProgress)
+        {
+            if (hoveredWagonIndex.HasValue)
+            {
+                hoveredWagonIndex = null;
+                RefreshTrainBar();
+            }
+            return;
+        }
+
+        if (trainBarView.TryGetWagonAtScreenPosition(pointerPosition, out int wagonIndex) &&
+            IsValidDragTargetWagon(wagonIndex))
+        {
+            if (hoveredWagonIndex != wagonIndex)
+            {
+                hoveredWagonIndex = wagonIndex;
+                hoveredWagonStartTime = Time.unscaledTime;
+                RefreshTrainBar();
+            }
+            else if (wagonIndex != session.CurrentWagonIndex &&
+                     Time.unscaledTime - hoveredWagonStartTime >= WAGON_DRAG_HOVER_DELAY)
+            {
+                SwitchWagonDuringDrag(wagonIndex);
+            }
+        }
+        else if (hoveredWagonIndex.HasValue)
+        {
+            hoveredWagonIndex = null;
+            RefreshTrainBar();
+        }
+    }
+
+    bool IsValidDragTargetWagon(int _wagonIndex)
+    {
+        if (drag == null || session == null || _wagonIndex < 0 || _wagonIndex >= session.WagonCount)
+        {
+            return false;
+        }
+
+        return drag.Source != session.TrainWagons[_wagonIndex];
+    }
+
+    void SwitchWagonDuringDrag(int _index)
+    {
+        if (!session.SelectWagon(_index))
+        {
+            return;
+        }
+
+        SetDragView(null);
+        trainView.SetTitle(Presentation.PuzzleTrainTitle(session.CurrentWagonIndex + 1));
+        trainView.SetBoardSize(session.Train.Width, session.Train.Height, marketView.CellSize);
+        RenderBoards();
+        RenderValues();
+        RefreshTrainBar();
+        RefreshDrag();
     }
 
     void OnCityArrived(GameEvents.CityArrivalInfo _info)
@@ -281,11 +346,24 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         hoverPosition = _eventData.position;
         var activeDrag = drag;
         PuzzleDropResult result = default;
+        int droppedWagonIndex = -1;
         try
         {
             if (TryGetBoard(_eventData.position, out _, out var destination, out var targetCell))
             {
                 result = activeDrag.DropOnBoard(session, destination, targetCell);
+                if (result.CanDrop)
+                {
+                    RenderValues();
+                    RefreshFunds();
+                    RefreshTrainBar();
+                }
+            }
+            else if (trainBarView && trainBarView.TryGetWagonAtScreenPosition(_eventData.position, out int candidateWagon) &&
+                     IsValidDragTargetWagon(candidateWagon))
+            {
+                droppedWagonIndex = candidateWagon;
+                result = activeDrag.QuickDropToWagon(session, droppedWagonIndex);
                 if (result.CanDrop)
                 {
                     RenderValues();
@@ -301,6 +379,10 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         if (result.Direction != PuzzleTradeDirection.None)
         {
             cityView.ShowTradeStatus(Presentation.PuzzleTradeStatus(result, activeDrag.Definition, _committed: true));
+        }
+        else if (droppedWagonIndex >= 0 && result.Placement.Failure == PuzzlePlacementFailure.NoSpace)
+        {
+            cityView.ShowTradeStatus($"{activeDrag.Definition.DisplayName} · {droppedWagonIndex + 1}번 칸에 화물을 놓을 공간이 없습니다");
         }
     }
 
@@ -325,7 +407,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             return;
         }
 
-        var sourceView = drag.Source == session.Train ? trainView : marketView;
+        var sourceView = session.IsTrainWagon(drag.Source) ? trainView : marketView;
         SetDragView(sourceView);
         sourceView.ShowGhost(drag.GetGhostPose(), drag.Definition, Vector2Int.zero, pointerPosition);
         sourceView.ShowPreview(null, false);
@@ -469,7 +551,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
 
         var item = _placement.Definition;
         var value = _placement.Owner.ValueOf(_placement.InstanceId);
-        bool isTrain = _view == trainView || _placement.Owner == session.Train;
+        bool isTrain = _view == trainView || session.IsTrainWagon(_placement.Owner);
         decimal actualValue = isTrain ? _placement.ActualValue : _placement.Definition.BaseValue;
         var rate = item == null ? default : session.RateFor(item);
         var bonuses = isTrain ? value.SynergyBonuses : null;
@@ -534,13 +616,23 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
 
     void ClearDrag()
     {
+        bool hadHoveredWagon = hoveredWagonIndex.HasValue;
+        hoveredWagonIndex = null;
         if (drag == null)
         {
+            if (hadHoveredWagon)
+            {
+                RefreshTrainBar();
+            }
             return;
         }
 
         drag = null;
         SetDragView(null);
+        if (hadHoveredWagon)
+        {
+            RefreshTrainBar();
+        }
         if (cityView && session != null && session.RunStatus == PuzzleRunStatus.InProgress)
         {
             cityView.ShowTradeStatus(Presentation.PUZZLE_TRADE_GUIDE);
@@ -557,7 +649,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
     {
         if (trainBarView && session != null)
         {
-            trainBarView.Refresh(session.WagonCount, session.CurrentWagonIndex, session.NextWagonCost, session.CanAddWagon);
+            trainBarView.Refresh(session.WagonCount, session.CurrentWagonIndex, session.NextWagonCost, session.CanAddWagon, hoveredWagonIndex);
         }
     }
 
