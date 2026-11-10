@@ -9,6 +9,7 @@ public sealed class PuzzleTrainBarView : MonoBehaviour
     const float WAGON_WIDTH = 150f;
     const float WAGON_HEIGHT = 60f;
     const float WAGON_SPACING = 50f;
+    const float WAGON_DRAG_HOVER_SCALE = 1.08f;
 
     [Serializable]
     public sealed class WagonSlotUI
@@ -86,7 +87,32 @@ public sealed class PuzzleTrainBarView : MonoBehaviour
         AddWagonClicked?.Invoke();
     }
 
-    public void Refresh(int _wagonCount, int _selectedIndex, long _nextCost, bool _canAfford)
+    public bool TryGetWagonAtScreenPosition(Vector2 _screenPosition, out int _wagonIndex)
+    {
+        _wagonIndex = -1;
+        if (wagonSlots == null)
+        {
+            return false;
+        }
+
+        var canvas = GetComponentInParent<Canvas>();
+        Camera eventCamera = canvas && canvas.renderMode != RenderMode.ScreenSpaceOverlay ? canvas.worldCamera : null;
+
+        for (int i = 0; i < wagonSlots.Length; i++)
+        {
+            var slot = wagonSlots[i];
+            if (slot?.root != null && slot.root.activeInHierarchy && slot.rectTransform != null &&
+                RectTransformUtility.RectangleContainsScreenPoint(slot.rectTransform, _screenPosition, eventCamera))
+            {
+                _wagonIndex = i;
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public void Refresh(int _wagonCount, int _selectedIndex, long _nextCost, bool _canAfford, int? _dragHoveredIndex = null)
     {
         if (wagonSlots == null)
         {
@@ -108,11 +134,14 @@ public sealed class PuzzleTrainBarView : MonoBehaviour
 
             if (active)
             {
+                bool isSelected = i == _selectedIndex;
+                bool isDragHovered = _dragHoveredIndex == i;
                 float x = originX - (i * step);
                 if (slot.rectTransform != null)
                 {
                     slot.rectTransform.anchoredPosition = new Vector2(x, originY);
                     slot.rectTransform.sizeDelta = new Vector2(WAGON_WIDTH, WAGON_HEIGHT);
+                    slot.rectTransform.localScale = isDragHovered ? Vector3.one * WAGON_DRAG_HOVER_SCALE : Vector3.one;
                 }
 
                 if (slot.numberText != null)
@@ -122,18 +151,16 @@ public sealed class PuzzleTrainBarView : MonoBehaviour
 
                 if (slot.highlightBorder != null)
                 {
-                    slot.highlightBorder.enabled = (i == _selectedIndex);
-                    slot.highlightBorder.color = Presentation.PuzzleWagonSelectedBorder;
+                    slot.highlightBorder.enabled = isSelected || isDragHovered;
+                    slot.highlightBorder.color = isDragHovered
+                        ? Presentation.PuzzleWagonDragHoverBorder
+                        : Presentation.PuzzleWagonSelectedBorder;
                 }
             }
         }
 
         if (addWagonButton != null && addWagonRect != null)
         {
-            float addX = originX - (_wagonCount * step);
-            addWagonRect.anchoredPosition = new Vector2(addX, originY);
-            addWagonRect.sizeDelta = new Vector2(WAGON_WIDTH, WAGON_HEIGHT);
-
             if (addWagonBox != null)
             {
                 addWagonBox.color = _canAfford ? Presentation.PuzzleAddWagonBox : new Color(0.18f, 0.55f, 0.28f, 0.5f);

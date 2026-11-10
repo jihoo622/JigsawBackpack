@@ -25,6 +25,10 @@ public sealed class PauseMenu : PanelBase
     {
         if (!showingCompletion && Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame)
         {
+            if (inventoryInput && inventoryInput.TryConsumeCancel())
+            {
+                return;
+            }
             Toggle();
         }
     }

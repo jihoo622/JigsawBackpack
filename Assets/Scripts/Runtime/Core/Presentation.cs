@@ -201,21 +201,23 @@ public static class Presentation
     public const string PUZZLE_TRAIN_TITLE = "Train Inventory";
     internal static string PuzzleTrainTitle(int _wagonNumber)
     {
-        return $"기차 화물 ({_wagonNumber}번 칸)";
+        return $"기차 화물 · {_wagonNumber}번 칸";
     }
     internal static string PuzzleAddWagonLabel(long _cost)
     {
         return $"기차 화물칸 추가\n${_cost}";
     }
+    internal static string PuzzleWagonPurchaseStatus(int _wagonNumber, long _cost)
+    {
+        return $"화물칸 구매 완료 · ${_cost:N0} · {_wagonNumber}번 칸 추가";
+    }
     public static Color PuzzleAddWagonBox => new Color32(40, 167, 69, 255);
     public static Color PuzzleWagonSelectedBorder => new Color32(255, 215, 0, 255);
+    public static Color PuzzleWagonDragHoverBorder => new Color(0.39f, 0.91f, 0.67f);
     public static Color PuzzleWagonNormalBorder => new Color32(90, 95, 105, 255);
-    public const string PUZZLE_MARKET_TITLE = "Market Inventory";
+    public const string PUZZLE_MARKET_TITLE = "도시 시장";
     public const string PUZZLE_MOVE_GUIDE = "드래그로 이동    R로 회전    Esc로 취소";
-    public const string PUZZLE_PREVIOUS_CITY = "Previous City";
-    public const string PUZZLE_NEXT_CITY = "Next City";
     public const string PUZZLE_TRAVEL_COST = "비용";
-    public const string PUZZLE_TRADE_GUIDE = "시장 → 기차 구매   ·   기차 → 시장 판매   ·   Ctrl + 클릭 즉시 이동";
     public const string PUZZLE_TAG_EXPENSIVE = "귀함";
     public const string PUZZLE_TAG_COMMON = "흔함";
 
@@ -231,10 +233,12 @@ public static class Presentation
         { "Metal", "금속" },
         { "Fish", "물고기" },
         { "Salt", "소금" },
-        { "Fruit", "과일" },
-        { "Animal", "동물" },
         { "Meat", "고기" },
-        { "Box", "상자" },
+        { "Animal", "가축" },
+        { "Fruit", "과일" },
+        { "Poo", "똥" },
+        { "Box", "\uC0C1\uC790" },
+
     };
 
     public static Color PuzzleBackground => new(0.10f, 0.13f, 0.17f);
@@ -332,9 +336,14 @@ public static class Presentation
         return $"<color=#{ColorUtility.ToHtmlStringRGB(PuzzleTooltipText)}>{PuzzleTimeManager.HOURS_PER_TRAVEL_WEIGHT}시간 후 가치 : </color><color=#{ColorUtility.ToHtmlStringRGB(color)}>$ {_futureValue:#,0.##}</color>";
     }
 
+    internal static string PuzzleTooltipFreshness(int _current)
+    {
+        return $"<color=#{ColorUtility.ToHtmlStringRGB(PuzzleTooltipText)}>신선도 : </color><color=#{ColorUtility.ToHtmlStringRGB(PuzzleTooltipGreen)}>{_current}</color>";
+    }
+
     internal static string PuzzleValueText(PuzzleValue _value)
     {
-        return $"기본 가치 {_value.BaseValue:N0}  →  최종 가치 {_value.FinalValue:#,0.##}";
+        return $"화물 가치  ${_value.FinalValue:#,0.##}  <size=18>기본 ${_value.BaseValue:N0}</size>";
     }
 
     internal static string PuzzleItemDetails(PuzzleItemDefinition _item, PuzzleValue _value, decimal _actualValue,
@@ -372,12 +381,6 @@ public static class Presentation
         return $"보유 자금 {_funds:N0}";
     }
 
-    // 도시 이동 버튼 문구. 목적지 노선의 비용을 같은 버튼에 붙여 별도 표시 요소를 두지 않는다.
-    internal static string PuzzleCityButton(string _label, long? _cost)
-    {
-        return _cost is long cost ? $"{_label}    {PUZZLE_TRAVEL_COST} {cost:N0}" : _label;
-    }
-
     // 도시의 태그 규칙을 구매·판매 비율 기준으로 귀함/흔함으로 묶는다.
     // 두 비율이 100을 사이에 두고 갈리거나 한쪽이 100이면 어느 쪽도 아닌 것으로 보고 표시하지 않는다.
     internal static string PuzzleCityTagPreferences(PuzzleCityData _city, PuzzleRegionData _region)
@@ -400,16 +403,13 @@ public static class Presentation
             }
         }
 
-        var parts = new List<string>();
-        if (expensive.Count > 0)
-        {
-            parts.Add($"{PUZZLE_TAG_EXPENSIVE} {string.Join(", ", expensive.OrderBy(tag => tag, StringComparer.Ordinal).Select(PuzzleTagLabel))}");
-        }
-        if (common.Count > 0)
-        {
-            parts.Add($"{PUZZLE_TAG_COMMON} {string.Join(", ", common.OrderBy(tag => tag, StringComparer.Ordinal).Select(PuzzleTagLabel))}");
-        }
-        return $"지역 물가 {_region.pricePercent}%    {string.Join("    ", parts)}";
+        string commonText = string.Join(" · ", common.OrderBy(tag => tag, StringComparer.Ordinal).Select(PuzzleTagLabel));
+        string rareText = string.Join(" · ", expensive.OrderBy(tag => tag, StringComparer.Ordinal).Select(PuzzleTagLabel));
+        string commonColor = ColorUtility.ToHtmlStringRGB(PuzzleMapVisited);
+        string rareColor = ColorUtility.ToHtmlStringRGB(PuzzleMapCurrent);
+        return $"<color=#{commonColor}><b>흔한 자원</b></color>   {(string.IsNullOrEmpty(commonText) ? "없음" : commonText)}\n" +
+            $"<color=#{rareColor}><b>귀한 자원</b></color>   {(string.IsNullOrEmpty(rareText) ? "없음" : rareText)}";
+
     }
 
     public static string PuzzleTagLabel(string _tag)
@@ -432,12 +432,13 @@ public static class Presentation
             "fish" => new Color32(2, 132, 199, 255),       // 물고기/수산물: 딥 오션 블루
             "water" => new Color32(14, 165, 233, 255),     // 물/식수: 맑은 아쿠아 블루
             "salt" => new Color32(100, 116, 139, 255),     // 소금: 미네랄 실버 슬레이트
-            "fruit" => new Color32(110, 155, 65, 255),
-            "animal" => new Color32(157, 111, 76, 255),
-            "meat" => new Color32(170, 75, 80, 255),
             "box" => new Color32(141, 110, 99, 255),
             "supply" => new Color32(22, 163, 74, 255),     // 보급품: 포레스트 그린
-            "cargo" => new Color32(141, 110, 99, 255),     // 화물/상자: 가죽/카톤 브라운
+            "cargo" => new Color32(141, 110, 99, 255),      // 화물/상자: 가죽/카톤 브라운
+            "meat" => new Color32(159, 45, 58, 255),       // 고기: 딥 레드
+            "animal" => new Color32(160, 120, 74, 255),    // 가축: 탄/레더 탠
+            "fruit" => new Color32(196, 63, 63, 255),      // 과일: 사과 레드
+            "poo" => new Color32(96, 64, 38, 255),         // 똥: 다크 브라운
             _ => new Color32(71, 85, 105, 255)
         };
     }
@@ -467,14 +468,15 @@ public static class Presentation
             "metal" => 3,
             "fish" => 4,
             "food" => 5,
+            "meat" => 5,
+            "fruit" => 5,
+            "animal" => 8,
             "water" => 6,
             "salt" => 7,
-            "fruit" => 8,
-            "animal" => 9,
-            "meat" => 10,
             "box" => 11,
             "supply" => 20,
             "cargo" => 21,
+            "poo" => 22,
             _ => 10
         };
     }
@@ -497,7 +499,7 @@ public static class Presentation
         {
             PuzzleRunStatus.Won => PUZZLE_CLEAR_TITLE,
             PuzzleRunStatus.Lost => "빚을 갚지 못했습니다. 패배",
-            _ => PUZZLE_TRADE_GUIDE
+            _ => string.Empty
         };
     }
 
@@ -515,7 +517,7 @@ public static class Presentation
             PuzzleTravelFailure.MissingRoute => "두 도시를 잇는 직결 철로가 없습니다",
             PuzzleTravelFailure.NotAvailable => "이동할 수 있는 도시가 없습니다",
             PuzzleTravelFailure.Blocked => "게임이 종료되었습니다",
-            _ => PUZZLE_TRADE_GUIDE
+            _ => string.Empty
         };
     }
 
@@ -523,25 +525,21 @@ public static class Presentation
     {
         if (_result.Direction == PuzzleTradeDirection.None)
         {
-            return PUZZLE_TRADE_GUIDE;
+            return string.Empty;
         }
 
         string direction = _result.Direction == PuzzleTradeDirection.Buy ? "구매" : "판매";
-        string quote = $"{_item.DisplayName} · {direction}";
+        string quote = $"{_item.DisplayName} {direction}";
         if (_result.Placement.Failure != PuzzlePlacementFailure.StaleSource &&
             _result.TradeFailure != PuzzleTradeFailure.PriceOverflow)
         {
-            quote += $" {_result.Price:N0}";
-        }
-        if (_result.AppliedPercent > 0)
-        {
-            quote += _result.AppliedTag == null
-                ? $" · 기본 {_result.AppliedPercent}%"
-                : $" · {_result.AppliedTag} {_result.AppliedPercent}%";
+            quote += $" · ${_result.Price:N0}";
         }
         if (_result.CanDrop)
         {
-            return _committed ? $"{quote} 완료" : quote;
+            return _committed
+                ? $"{_item.DisplayName} {direction} 완료 · ${_result.Price:N0}"
+                : $"{_item.DisplayName} {direction} 예정 · ${_result.Price:N0}";
         }
 
         string reason = _result.TradeFailure switch
@@ -561,17 +559,6 @@ public static class Presentation
         };
         return $"{quote} · {reason}";
     }
-
-    public static ColorBlock PuzzleCityButtonColors => new()
-    {
-        normalColor = PuzzleBackground,
-        highlightedColor = new Color(0.23f, 0.30f, 0.38f),
-        pressedColor = PuzzleBackground,
-        selectedColor = PuzzleCell,
-        disabledColor = new Color(0.10f, 0.13f, 0.17f, 0.50f),
-        colorMultiplier = 1f,
-        fadeDuration = ColorBlock.defaultColorBlock.fadeDuration
-    };
 
     public static Color PuzzlePieceOutline(float _alpha)
     {

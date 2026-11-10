@@ -37,7 +37,8 @@
           "south": "Flat",
           "west": "Flat"
         }
-      ]
+      ],
+      "durability": 100
     },
     {
       "id": "piece.fourNotches",
@@ -58,7 +59,8 @@
           "south": "Flat",
           "west": "Flat"
         }
-      ]
+      ],
+      "durability": 100
     },
     {
       "id": "piece.topNotch",
@@ -80,7 +82,8 @@
           "south": "Flat",
           "west": "Flat"
         }
-      ]
+      ],
+      "durability": 100
     },
     {
       "id": "piece.verticalPair",
@@ -109,7 +112,8 @@
           "south": "Flat",
           "west": "Flat"
         }
-      ]
+      ],
+      "durability": 100
     },
     {
       "id": "piece.verticalTabs",
@@ -130,7 +134,8 @@
           "south": "Flat",
           "west": "Flat"
         }
-      ]
+      ],
+      "durability": 100
     },
     {
       "id": "piece.uShape",
@@ -183,7 +188,8 @@
           "south": "Flat",
           "west": "Flat"
         }
-      ]
+      ],
+      "durability": 100
     },
     {
       "id": "piece.elbowRight",
@@ -220,7 +226,8 @@
           "south": "Flat",
           "west": "Flat"
         }
-      ]
+      ],
+      "durability": 100
     },
     {
       "id": "piece.fish",
@@ -249,7 +256,8 @@
           "south": "Flat",
           "west": "Flat"
         }
-      ]
+      ],
+      "durability": 100
     },
     {
       "id": "piece.saltSack",
@@ -270,7 +278,8 @@
           "south": "Flat",
           "west": "Flat"
         }
-      ]
+      ],
+      "durability": 100
     },
     {
       "id": "piece.fruit",
@@ -292,7 +301,8 @@
           "south": "Flat",
           "west": "Flat"
         }
-      ]
+      ],
+      "durability": 100
     },
     {
       "id": "piece.animal",
@@ -321,7 +331,8 @@
           "south": "Flat",
           "west": "Flat"
         }
-      ]
+      ],
+      "durability": 100
     },
     {
       "id": "piece.meat",
@@ -342,7 +353,8 @@
           "south": "Flat",
           "west": "Flat"
         }
-      ]
+      ],
+      "durability": 100
     },
     {
       "id": "piece.box",
@@ -354,6 +366,136 @@
       ],
       "visualKey": "cargo.smallCrate",
       "slotCount": 1,
+      "cells": [
+        {
+          "x": 0,
+          "y": 0,
+          "north": "Flat",
+          "east": "Flat",
+          "south": "Flat",
+          "west": "Flat"
+        }
+      ],
+      "durability": 100
+    },
+    {
+      "id": "piece.beef",
+      "displayName": "소고기",
+      "description": "세로 두 칸을 차지하는 정육 화물.",
+      "tags": [
+        "Food",
+        "Meat"
+      ],
+      "visualKey": "cargo.beef",
+      "slotCount": 2,
+      "durability": 100,
+      "cells": [
+        {
+          "x": 0,
+          "y": 0,
+          "north": "Flat",
+          "east": "Flat",
+          "south": "Flat",
+          "west": "Flat"
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "north": "Flat",
+          "east": "Flat",
+          "south": "Flat",
+          "west": "Flat"
+        }
+      ]
+    },
+    {
+      "id": "piece.cow",
+      "displayName": "소",
+      "description": "두 칸에 한 칸이 덧붙은 다섯 칸 가축 화물.",
+      "tags": [
+        "Animal"
+      ],
+      "visualKey": "cargo.cow",
+      "slotCount": 5,
+      "durability": 100,
+      "iconWidth": 2.5,
+      "iconHeight": 2,
+      "iconOffsetX": 0.2,
+      "cells": [
+        {
+          "x": 0,
+          "y": 0,
+          "north": "Flat",
+          "east": "Flat",
+          "south": "Flat",
+          "west": "Flat"
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "north": "Flat",
+          "east": "Flat",
+          "south": "Flat",
+          "west": "Flat"
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "north": "Flat",
+          "east": "Flat",
+          "south": "Flat",
+          "west": "Flat"
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "north": "Flat",
+          "east": "Flat",
+          "south": "Flat",
+          "west": "Flat"
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "north": "Flat",
+          "east": "Flat",
+          "south": "Flat",
+          "west": "Flat"
+        }
+      ]
+    },
+    {
+      "id": "piece.apple",
+      "displayName": "사과",
+      "description": "한 칸을 차지하는 과일 화물.",
+      "tags": [
+        "Food",
+        "Fruit"
+      ],
+      "visualKey": "cargo.apple",
+      "slotCount": 1,
+      "durability": 100,
+      "cells": [
+        {
+          "x": 0,
+          "y": 0,
+          "north": "Flat",
+          "east": "Flat",
+          "south": "Flat",
+          "west": "Flat"
+        }
+      ]
+    },
+    {
+      "id": "piece.poo",
+      "displayName": "똥",
+      "description": "한 칸을 차지하는 불쾌한 화물. 근처의 다른 화물 가치를 떨어뜨린다.",
+      "tags": [
+        "Poo"
+      ],
+      "visualKey": "cargo.poo",
+      "slotCount": 1,
+      "durability": 100,
       "cells": [
         {
           "x": 0,

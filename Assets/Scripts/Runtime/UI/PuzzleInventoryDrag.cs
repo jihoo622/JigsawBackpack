@@ -36,4 +36,9 @@ internal sealed class PuzzleInventoryDrag
     {
         return _session.Drop(original, _destination, grabbedCell, _targetCell, clockwiseTurns);
     }
+
+    public PuzzleDropResult QuickDropToWagon(PuzzleInventoryService _session, int _wagonIndex)
+    {
+        return _session.QuickTransferToWagon(original, _wagonIndex, clockwiseTurns);
+    }
 }
