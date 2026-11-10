@@ -6,18 +6,13 @@ using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.UI;
 
-[InitializeOnLoad]
+// 씬을 수정·저장하는 설정 도구이므로 컴파일 후 자동 실행하지 않고 메뉴에서만 호출한다.
 public static class TooltipSceneSetup
 {
     const string FONT_PATH = "Assets/TextMesh Pro/Fonts/NotoSansKR-Medium.ttf";
     const string OUTPUT_PATH = "Assets/TextMesh Pro/Resources/Fonts & Materials/NotoSansKR-Medium SDF.asset";
     const string BADGE_SPRITE_PATH = "Assets/Art/TooltipBadgeRoundedRect.png";
     const string SCENE_PATH = "Assets/Scenes/Game.unity";
-
-    static TooltipSceneSetup()
-    {
-        EditorApplication.delayCall += EnsureAll;
-    }
 
     [MenuItem("Tools/MyJG/Setup Tooltip in Game Scene")]
     public static void EnsureAll()

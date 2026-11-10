@@ -6,18 +6,13 @@ using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.UI;
 
-[InitializeOnLoad]
+// 씬을 수정·저장하는 설정 도구이므로 컴파일 후 자동 실행하지 않고 메뉴에서만 호출한다.
 public static class TrainBarSceneSetup
 {
     const string SCENE_PATH = "Assets/Scenes/Game.unity";
     const string TRAIN_WAGON_SPRITE_PATH = "Assets/Art/TrainWagon.png";
     const string FONT_PATH = "Assets/TextMesh Pro/Resources/Fonts & Materials/NotoSansKR-Medium SDF.asset";
     const int POOL_SIZE = 8;
-
-    static TrainBarSceneSetup()
-    {
-        EditorApplication.delayCall += EnsureAll;
-    }
 
     [MenuItem("Tools/MyJG/Setup Train Bar in Game Scene")]
     public static void EnsureAll()
