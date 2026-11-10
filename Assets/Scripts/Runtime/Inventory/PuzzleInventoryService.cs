@@ -1,11 +1,14 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 [DisallowMultipleComponent]
 public sealed class PuzzleInventoryService : MonoBehaviour
 {
     const int PERCENT_SCALE = 100;
+    const string ANIMAL_TAG = "Animal";
+    const string ANIMAL_WASTE_PIECE_ID = "piece.poo";
 
     /// <summary>활성화 시 물건 시간 갱신 이벤트를 구독한다.</summary>
     void OnEnable()
@@ -306,9 +309,57 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         }
         if (_hours > 0)
         {
+            SpawnAnimalWaste(previous, Time.ElapsedHours);
             GameEvents.RaiseTimeAdvanced(previous, Time.ElapsedHours, this);
         }
         return true;
+    }
+
+    /// <summary>
+    /// 하루가 넘어갔을 때 기차 인벤토리의 Animal 태그 마리수만큼 똥을 빈 칸에 생성한다.
+    /// 여러 날을 한 번에 넘어도 이번 호출에서는 1회만 생성하며, 빈 칸이 없으면 생성하지 않는다.
+    /// </summary>
+    void SpawnAnimalWaste(long _previousHours, long _elapsedHours)
+    {
+        if (RunStatus != PuzzleRunStatus.InProgress ||
+            _elapsedHours / PuzzleTimeManager.HOURS_PER_DAY == _previousHours / PuzzleTimeManager.HOURS_PER_DAY)
+        {
+            return;
+        }
+        if (!definitions.TryGetValue(ANIMAL_WASTE_PIECE_ID, out var waste))
+        {
+            return;
+        }
+
+        int animals = 0;
+        for (int i = 0; i < trainWagons.Count; i++)
+        {
+            foreach (var item in trainWagons[i].Placements)
+            {
+                if (item.Definition.Tags.Contains(ANIMAL_TAG))
+                {
+                    animals++;
+                }
+            }
+        }
+
+        for (int i = 0; i < animals; i++)
+        {
+            bool placed = false;
+            for (int wagon = 0; wagon < trainWagons.Count; wagon++)
+            {
+                if (trainWagons[wagon].TryAutoPlace(waste, checked(++lastInstanceId), out _))
+                {
+                    placed = true;
+                    break;
+                }
+            }
+
+            if (!placed)
+            {
+                break;
+            }
+        }
     }
 
     /// <summary>외부 이동 시스템에서 확정한 이동 가중치만큼 시간을 진행한다. 기존 Travel은 내부에서 처리하므로 중복 호출하지 않는다.</summary>

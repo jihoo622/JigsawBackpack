@@ -131,6 +131,8 @@ MonoBehaviour:
     sprite: {fileID: 21300000, guid: cc36a9b6cfa54830a57c3299ead2336d, type: 3}
   - key: cargo.apple
     sprite: {fileID: 21300000, guid: bfb17e1e7a1045748c0b017c1e0cc695, type: 3}
+  - key: cargo.poo
+    sprite: {fileID: 21300000, guid: 5207a54b01d14cc3a974a06fe4fb703d, type: 3}
   flatTriangle: {fileID: 11400000, guid: 4e2099728f0543fd97fdcad40817628a, type: 3}
   eastFlatTriangle: {fileID: 21300000, guid: cd201bef2f7ef0dc183bae0cf1666f94, type: 3}
   southFlatTriangle: {fileID: 21300000, guid: f2334a0000de83a06a5126bbaaec1ca0, type: 3}

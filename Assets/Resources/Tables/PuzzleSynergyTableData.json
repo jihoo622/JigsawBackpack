@@ -9,6 +9,7 @@
     { "id": "woodNearFish", "targetTag": "Wood", "neighborTag": "Fish", "scope": "Both", "multiplierPercent": 90 },
     { "id": "metalNearWater", "targetTag": "Metal", "neighborTag": "Water", "scope": "Both", "multiplierPercent": 80 },
     { "id": "metalNearFish", "targetTag": "Metal", "neighborTag": "Fish", "scope": "Both", "multiplierPercent": 80 },
-    { "id": "fishNearWater", "targetTag": "Fish", "neighborTag": "Water", "scope": "Both", "multiplierPercent": 130 }
+    { "id": "fishNearWater", "targetTag": "Fish", "neighborTag": "Water", "scope": "Both", "multiplierPercent": 130 },
+    { "id": "pooNearbyPenalty", "excludedTargetTag": "Poo", "neighborTag": "Poo", "scope": "Both", "multiplierPercent": 50 }
   ]
 }

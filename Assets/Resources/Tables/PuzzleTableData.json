@@ -388,6 +388,27 @@
           "west": "Flat"
         }
       ]
+    },
+    {
+      "id": "piece.poo",
+      "displayName": "똥",
+      "description": "한 칸을 차지하는 불쾌한 화물. 근처의 다른 화물 가치를 떨어뜨린다.",
+      "tags": [
+        "Poo"
+      ],
+      "visualKey": "cargo.poo",
+      "slotCount": 1,
+      "durability": 100,
+      "cells": [
+        {
+          "x": 0,
+          "y": 0,
+          "north": "Flat",
+          "east": "Flat",
+          "south": "Flat",
+          "west": "Flat"
+        }
+      ]
     }
   ],
   "train": {
