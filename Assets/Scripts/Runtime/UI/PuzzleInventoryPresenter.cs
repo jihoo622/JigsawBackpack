@@ -51,7 +51,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         long dragCapacity = System.Math.Max(trainCapacity, session.MarketCapacity);
         trainView.Initialize(trainCapacity, dragCapacity, Presentation.PuzzleTrainTitle(session.CurrentWagonIndex + 1), session.ItemDefinitions, _showSynergies: true);
         marketView.Initialize(session.MarketCapacity, dragCapacity, Presentation.PUZZLE_MARKET_TITLE, session.ItemDefinitions, _showSynergies: false);
-        cityView.Initialize(session.CanTravel, session.GameClearCost);
+        cityView.Initialize(session.GameClearCost);
         ShowCurrentCity();
         initialized = true;
 
@@ -173,7 +173,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
 
         SetDragView(null);
         trainView.SetTitle(Presentation.PuzzleTrainTitle(session.CurrentWagonIndex + 1));
-        trainView.SetBoardSize(session.Train.Width, session.Train.Height, marketView.CellSize);
+        trainView.SetBoardSize(session.Train.Width, session.Train.Height);
         RenderBoards();
         RenderValues();
         RefreshTrainBar();
@@ -253,10 +253,10 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         cityView.ShowTime(session.Time);
         RefreshFunds();
         cityView.ShowTradeStatus(inProgress
-            ? Presentation.PUZZLE_TRADE_GUIDE
+            ? string.Empty
             : Presentation.PuzzleRunStatusText(session.RunStatus));
         marketView.SetBoardSize(session.Market.Width, session.Market.Height);
-        trainView.SetBoardSize(session.Train.Width, session.Train.Height, marketView.CellSize);
+        trainView.SetBoardSize(session.Train.Width, session.Train.Height);
         RenderBoards();
         RenderValues();
         ShowItemDetails(null, null);
@@ -279,7 +279,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         }
 
         drag = new PuzzleInventoryDrag(placement, cell);
-        cityView.ShowTradeStatus(Presentation.PUZZLE_TRADE_GUIDE);
+        cityView.ShowTradeStatus(string.Empty);
         pointerPosition = position;
         input.CapturePointer(_eventData.pointerId);
         currentHoveredInstanceId = null;
@@ -393,7 +393,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         if (!IsOnScreen(pointerPosition))
         {
             SetDragView(null);
-            cityView.ShowTradeStatus(Presentation.PUZZLE_TRADE_GUIDE);
+            cityView.ShowTradeStatus(string.Empty);
             return;
         }
 
@@ -413,7 +413,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         SetDragView(sourceView);
         sourceView.ShowGhost(drag.GetGhostPose(), drag.Definition, Vector2Int.zero, pointerPosition);
         sourceView.ShowPreview(null, false);
-        cityView.ShowTradeStatus(Presentation.PUZZLE_TRADE_GUIDE);
+        cityView.ShowTradeStatus(string.Empty);
     }
 
     void SetDragView(PuzzleInventoryView _next)
@@ -637,7 +637,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         }
         if (cityView && session != null && session.RunStatus == PuzzleRunStatus.InProgress)
         {
-            cityView.ShowTradeStatus(Presentation.PUZZLE_TRADE_GUIDE);
+            cityView.ShowTradeStatus(string.Empty);
         }
         RefreshHover();
     }
@@ -669,7 +669,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             return;
         }
         trainView.SetTitle(Presentation.PuzzleTrainTitle(session.CurrentWagonIndex + 1));
-        trainView.SetBoardSize(session.Train.Width, session.Train.Height, marketView.CellSize);
+        trainView.SetBoardSize(session.Train.Width, session.Train.Height);
         RenderBoards();
         RenderValues();
         ShowItemDetails(null, null);
@@ -685,21 +685,23 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
 
         input.CancelCapture();
         ClearDrag();
+        long purchaseCost = session.NextWagonCost;
         if (!session.TryAddWagon(out string failureReason))
         {
             if (!string.IsNullOrEmpty(failureReason))
             {
-                cityView.ShowTradeStatus(failureReason);
+                cityView.ShowTradeStatus($"화물칸 구매 불가 · {failureReason}");
             }
             return;
         }
 
         RefreshFunds();
         trainView.SetTitle(Presentation.PuzzleTrainTitle(session.CurrentWagonIndex + 1));
-        trainView.SetBoardSize(session.Train.Width, session.Train.Height, marketView.CellSize);
+        trainView.SetBoardSize(session.Train.Width, session.Train.Height);
         RenderBoards();
         RenderValues();
         ShowItemDetails(null, null);
         RefreshTrainBar();
+        cityView.ShowTradeStatus(Presentation.PuzzleWagonPurchaseStatus(session.CurrentWagonIndex + 1, purchaseCost));
     }
 }
