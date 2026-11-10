@@ -1,6 +1,6 @@
 {
   "status": "active",
-  "note": "16개 마을의 대표 특산품(specialtyTag), 생산·수요와 시장 시작 재고. 같은 대표 특산품 생산지는 직결하지 않는다. 풍부 80/75%, 필요 120/150%는 임시 구매/판매 배율이며 가격 밸런스는 미확정이다.",
+  "note": "대한민국 철도망의 31개 거점과 기존 게임 생산·수요·재고 배정. 새 거점은 같은 생산 그룹의 기존 재고 규칙을 사용한다. 실제 지역 특산품 고증은 아니며 같은 대표 특산품 생산지는 직접 연결하지 않는다.",
   "pieces": [
     {
       "id": "piece.elbowLeft",
@@ -297,7 +297,7 @@
   "cities": [
     {
       "id": "city.a",
-      "displayName": "산림 마을",
+      "displayName": "서울",
       "buyEnabled": true,
       "sellEnabled": true,
       "buyPercentOfBaseValue": 100,
@@ -384,7 +384,7 @@
     },
     {
       "id": "city.b",
-      "displayName": "농업 마을",
+      "displayName": "전주",
       "buyEnabled": true,
       "sellEnabled": true,
       "buyPercentOfBaseValue": 100,
@@ -471,7 +471,7 @@
     },
     {
       "id": "city.c",
-      "displayName": "샘물 마을",
+      "displayName": "익산",
       "buyEnabled": true,
       "sellEnabled": true,
       "buyPercentOfBaseValue": 100,
@@ -557,8 +557,182 @@
       "specialtyTag": "Water"
     },
     {
+      "id": "city.changwon",
+      "displayName": "창원중앙",
+      "buyEnabled": true,
+      "sellEnabled": true,
+      "buyPercentOfBaseValue": 100,
+      "sellPercentOfFinalValue": 100,
+      "tagPrices": [
+        {
+          "tag": "Wood",
+          "priority": 30,
+          "buyPercent": 80,
+          "sellPercent": 75
+        },
+        {
+          "tag": "Machinery",
+          "priority": 20,
+          "buyPercent": 120,
+          "sellPercent": 150
+        }
+      ],
+      "market": {
+        "width": 7,
+        "height": 6,
+        "startingPlacements": [
+          {
+            "id": "city.changwon.stock.1",
+            "pieceId": "piece.verticalPair",
+            "x": 0,
+            "y": 1,
+            "clockwiseTurns": 0
+          },
+          {
+            "id": "city.changwon.stock.2",
+            "pieceId": "piece.elbowLeft",
+            "x": 2,
+            "y": 1,
+            "clockwiseTurns": 0
+          },
+          {
+            "id": "city.changwon.stock.3",
+            "pieceId": "piece.fourNotches",
+            "x": 4,
+            "y": 1,
+            "clockwiseTurns": 0
+          }
+        ]
+      },
+      "generalStock": {
+        "pieceIds": [
+          "piece.elbowRight",
+          "piece.topNotch",
+          "piece.verticalTabs"
+        ],
+        "slots": [
+          {
+            "id": "city.changwon.general.1",
+            "x": 0,
+            "y": 5,
+            "width": 3,
+            "height": 2
+          },
+          {
+            "id": "city.changwon.general.2",
+            "x": 4,
+            "y": 5,
+            "width": 3,
+            "height": 2
+          },
+          {
+            "id": "city.changwon.general.3",
+            "x": 0,
+            "y": 3,
+            "width": 3,
+            "height": 2
+          },
+          {
+            "id": "city.changwon.general.4",
+            "x": 4,
+            "y": 3,
+            "width": 3,
+            "height": 2
+          }
+        ]
+      },
+      "specialtyTag": "Wood"
+    },
+    {
+      "id": "city.cheonanasan",
+      "displayName": "천안아산",
+      "buyEnabled": true,
+      "sellEnabled": true,
+      "buyPercentOfBaseValue": 100,
+      "sellPercentOfFinalValue": 100,
+      "tagPrices": [
+        {
+          "tag": "Grain",
+          "priority": 30,
+          "buyPercent": 80,
+          "sellPercent": 75
+        },
+        {
+          "tag": "Water",
+          "priority": 20,
+          "buyPercent": 120,
+          "sellPercent": 150
+        }
+      ],
+      "market": {
+        "width": 7,
+        "height": 6,
+        "startingPlacements": [
+          {
+            "id": "city.cheonanasan.stock.1",
+            "pieceId": "piece.topNotch",
+            "x": 0,
+            "y": 1,
+            "clockwiseTurns": 0
+          },
+          {
+            "id": "city.cheonanasan.stock.2",
+            "pieceId": "piece.topNotch",
+            "x": 2,
+            "y": 1,
+            "clockwiseTurns": 0
+          },
+          {
+            "id": "city.cheonanasan.stock.3",
+            "pieceId": "piece.topNotch",
+            "x": 4,
+            "y": 1,
+            "clockwiseTurns": 0
+          }
+        ]
+      },
+      "generalStock": {
+        "pieceIds": [
+          "piece.verticalPair",
+          "piece.elbowRight",
+          "piece.saltSack"
+        ],
+        "slots": [
+          {
+            "id": "city.cheonanasan.general.1",
+            "x": 0,
+            "y": 5,
+            "width": 3,
+            "height": 2
+          },
+          {
+            "id": "city.cheonanasan.general.2",
+            "x": 4,
+            "y": 5,
+            "width": 3,
+            "height": 2
+          },
+          {
+            "id": "city.cheonanasan.general.3",
+            "x": 0,
+            "y": 3,
+            "width": 3,
+            "height": 2
+          },
+          {
+            "id": "city.cheonanasan.general.4",
+            "x": 4,
+            "y": 3,
+            "width": 3,
+            "height": 2
+          }
+        ]
+      },
+      "specialtyTag": "Grain"
+    },
+    {
       "id": "city.d",
-      "displayName": "광산 마을",
+      "displayName": "동대구",
       "buyEnabled": true,
       "sellEnabled": true,
       "buyPercentOfBaseValue": 100,
@@ -651,8 +825,95 @@
       "specialtyTag": "Metal"
     },
     {
+      "id": "city.donghae",
+      "displayName": "동해",
+      "buyEnabled": true,
+      "sellEnabled": true,
+      "buyPercentOfBaseValue": 100,
+      "sellPercentOfFinalValue": 100,
+      "tagPrices": [
+        {
+          "tag": "Grain",
+          "priority": 30,
+          "buyPercent": 80,
+          "sellPercent": 75
+        },
+        {
+          "tag": "Water",
+          "priority": 20,
+          "buyPercent": 120,
+          "sellPercent": 150
+        }
+      ],
+      "market": {
+        "width": 7,
+        "height": 6,
+        "startingPlacements": [
+          {
+            "id": "city.donghae.stock.1",
+            "pieceId": "piece.topNotch",
+            "x": 0,
+            "y": 1,
+            "clockwiseTurns": 0
+          },
+          {
+            "id": "city.donghae.stock.2",
+            "pieceId": "piece.topNotch",
+            "x": 2,
+            "y": 1,
+            "clockwiseTurns": 0
+          },
+          {
+            "id": "city.donghae.stock.3",
+            "pieceId": "piece.topNotch",
+            "x": 4,
+            "y": 1,
+            "clockwiseTurns": 0
+          }
+        ]
+      },
+      "generalStock": {
+        "pieceIds": [
+          "piece.verticalPair",
+          "piece.elbowRight",
+          "piece.saltSack"
+        ],
+        "slots": [
+          {
+            "id": "city.donghae.general.1",
+            "x": 0,
+            "y": 5,
+            "width": 3,
+            "height": 2
+          },
+          {
+            "id": "city.donghae.general.2",
+            "x": 4,
+            "y": 5,
+            "width": 3,
+            "height": 2
+          },
+          {
+            "id": "city.donghae.general.3",
+            "x": 0,
+            "y": 3,
+            "width": 3,
+            "height": 2
+          },
+          {
+            "id": "city.donghae.general.4",
+            "x": 4,
+            "y": 3,
+            "width": 3,
+            "height": 2
+          }
+        ]
+      },
+      "specialtyTag": "Grain"
+    },
+    {
       "id": "city.e",
-      "displayName": "공업 마을",
+      "displayName": "경주",
       "buyEnabled": true,
       "sellEnabled": true,
       "buyPercentOfBaseValue": 100,
@@ -745,7 +1006,7 @@
     },
     {
       "id": "city.f",
-      "displayName": "어촌 마을",
+      "displayName": "부산",
       "buyEnabled": true,
       "sellEnabled": true,
       "buyPercentOfBaseValue": 100,
@@ -833,7 +1094,7 @@
     },
     {
       "id": "city.g",
-      "displayName": "염전 마을",
+      "displayName": "목포",
       "buyEnabled": true,
       "sellEnabled": true,
       "buyPercentOfBaseValue": 100,
@@ -920,8 +1181,371 @@
       "specialtyTag": "Salt"
     },
     {
+      "id": "city.gimcheon",
+      "displayName": "김천",
+      "buyEnabled": true,
+      "sellEnabled": true,
+      "buyPercentOfBaseValue": 100,
+      "sellPercentOfFinalValue": 100,
+      "tagPrices": [
+        {
+          "tag": "Wood",
+          "priority": 30,
+          "buyPercent": 80,
+          "sellPercent": 75
+        },
+        {
+          "tag": "Machinery",
+          "priority": 20,
+          "buyPercent": 120,
+          "sellPercent": 150
+        }
+      ],
+      "market": {
+        "width": 7,
+        "height": 6,
+        "startingPlacements": [
+          {
+            "id": "city.gimcheon.stock.1",
+            "pieceId": "piece.verticalPair",
+            "x": 0,
+            "y": 1,
+            "clockwiseTurns": 0
+          },
+          {
+            "id": "city.gimcheon.stock.2",
+            "pieceId": "piece.elbowLeft",
+            "x": 2,
+            "y": 1,
+            "clockwiseTurns": 0
+          },
+          {
+            "id": "city.gimcheon.stock.3",
+            "pieceId": "piece.fourNotches",
+            "x": 4,
+            "y": 1,
+            "clockwiseTurns": 0
+          }
+        ]
+      },
+      "generalStock": {
+        "pieceIds": [
+          "piece.elbowRight",
+          "piece.topNotch",
+          "piece.verticalTabs"
+        ],
+        "slots": [
+          {
+            "id": "city.gimcheon.general.1",
+            "x": 0,
+            "y": 5,
+            "width": 3,
+            "height": 2
+          },
+          {
+            "id": "city.gimcheon.general.2",
+            "x": 4,
+            "y": 5,
+            "width": 3,
+            "height": 2
+          },
+          {
+            "id": "city.gimcheon.general.3",
+            "x": 0,
+            "y": 3,
+            "width": 3,
+            "height": 2
+          },
+          {
+            "id": "city.gimcheon.general.4",
+            "x": 4,
+            "y": 3,
+            "width": 3,
+            "height": 2
+          }
+        ]
+      },
+      "specialtyTag": "Wood"
+    },
+    {
+      "id": "city.gimcheongumi",
+      "displayName": "김천구미",
+      "buyEnabled": true,
+      "sellEnabled": true,
+      "buyPercentOfBaseValue": 100,
+      "sellPercentOfFinalValue": 100,
+      "tagPrices": [
+        {
+          "tag": "Salt",
+          "priority": 30,
+          "buyPercent": 80,
+          "sellPercent": 75
+        },
+        {
+          "tag": "Machinery",
+          "priority": 20,
+          "buyPercent": 120,
+          "sellPercent": 150
+        }
+      ],
+      "market": {
+        "width": 7,
+        "height": 6,
+        "startingPlacements": [
+          {
+            "id": "city.gimcheongumi.stock.1",
+            "pieceId": "piece.saltSack",
+            "x": 0,
+            "y": 1,
+            "clockwiseTurns": 0
+          },
+          {
+            "id": "city.gimcheongumi.stock.2",
+            "pieceId": "piece.saltSack",
+            "x": 2,
+            "y": 1,
+            "clockwiseTurns": 0
+          },
+          {
+            "id": "city.gimcheongumi.stock.3",
+            "pieceId": "piece.saltSack",
+            "x": 4,
+            "y": 1,
+            "clockwiseTurns": 0
+          }
+        ]
+      },
+      "generalStock": {
+        "pieceIds": [
+          "piece.elbowRight",
+          "piece.verticalPair",
+          "piece.verticalTabs",
+          "piece.topNotch"
+        ],
+        "slots": [
+          {
+            "id": "city.gimcheongumi.general.1",
+            "x": 0,
+            "y": 5,
+            "width": 3,
+            "height": 2
+          },
+          {
+            "id": "city.gimcheongumi.general.2",
+            "x": 4,
+            "y": 5,
+            "width": 3,
+            "height": 2
+          },
+          {
+            "id": "city.gimcheongumi.general.3",
+            "x": 0,
+            "y": 3,
+            "width": 3,
+            "height": 2
+          },
+          {
+            "id": "city.gimcheongumi.general.4",
+            "x": 4,
+            "y": 3,
+            "width": 3,
+            "height": 2
+          }
+        ]
+      },
+      "specialtyTag": "Salt"
+    },
+    {
+      "id": "city.gongju",
+      "displayName": "공주",
+      "buyEnabled": true,
+      "sellEnabled": true,
+      "buyPercentOfBaseValue": 100,
+      "sellPercentOfFinalValue": 100,
+      "tagPrices": [
+        {
+          "tag": "Metal",
+          "priority": 30,
+          "buyPercent": 80,
+          "sellPercent": 75
+        },
+        {
+          "tag": "Grain",
+          "priority": 20,
+          "buyPercent": 120,
+          "sellPercent": 150
+        },
+        {
+          "tag": "Water",
+          "priority": 19,
+          "buyPercent": 120,
+          "sellPercent": 150
+        }
+      ],
+      "market": {
+        "width": 7,
+        "height": 6,
+        "startingPlacements": [
+          {
+            "id": "city.gongju.stock.1",
+            "pieceId": "piece.elbowRight",
+            "x": 0,
+            "y": 1,
+            "clockwiseTurns": 0
+          },
+          {
+            "id": "city.gongju.stock.2",
+            "pieceId": "piece.elbowRight",
+            "x": 2,
+            "y": 1,
+            "clockwiseTurns": 0
+          },
+          {
+            "id": "city.gongju.stock.3",
+            "pieceId": "piece.elbowRight",
+            "x": 4,
+            "y": 1,
+            "clockwiseTurns": 0
+          }
+        ]
+      },
+      "generalStock": {
+        "pieceIds": [
+          "piece.fourNotches",
+          "piece.uShape",
+          "piece.verticalTabs",
+          "piece.elbowLeft"
+        ],
+        "slots": [
+          {
+            "id": "city.gongju.general.1",
+            "x": 0,
+            "y": 5,
+            "width": 3,
+            "height": 2
+          },
+          {
+            "id": "city.gongju.general.2",
+            "x": 4,
+            "y": 5,
+            "width": 3,
+            "height": 2
+          },
+          {
+            "id": "city.gongju.general.3",
+            "x": 0,
+            "y": 3,
+            "width": 3,
+            "height": 2
+          },
+          {
+            "id": "city.gongju.general.4",
+            "x": 4,
+            "y": 3,
+            "width": 3,
+            "height": 2
+          }
+        ]
+      },
+      "specialtyTag": "Metal"
+    },
+    {
+      "id": "city.gwangmyeong",
+      "displayName": "광명",
+      "buyEnabled": true,
+      "sellEnabled": true,
+      "buyPercentOfBaseValue": 100,
+      "sellPercentOfFinalValue": 100,
+      "tagPrices": [
+        {
+          "tag": "Metal",
+          "priority": 30,
+          "buyPercent": 80,
+          "sellPercent": 75
+        },
+        {
+          "tag": "Grain",
+          "priority": 20,
+          "buyPercent": 120,
+          "sellPercent": 150
+        },
+        {
+          "tag": "Water",
+          "priority": 19,
+          "buyPercent": 120,
+          "sellPercent": 150
+        }
+      ],
+      "market": {
+        "width": 7,
+        "height": 6,
+        "startingPlacements": [
+          {
+            "id": "city.gwangmyeong.stock.1",
+            "pieceId": "piece.elbowRight",
+            "x": 0,
+            "y": 1,
+            "clockwiseTurns": 0
+          },
+          {
+            "id": "city.gwangmyeong.stock.2",
+            "pieceId": "piece.elbowRight",
+            "x": 2,
+            "y": 1,
+            "clockwiseTurns": 0
+          },
+          {
+            "id": "city.gwangmyeong.stock.3",
+            "pieceId": "piece.elbowRight",
+            "x": 4,
+            "y": 1,
+            "clockwiseTurns": 0
+          }
+        ]
+      },
+      "generalStock": {
+        "pieceIds": [
+          "piece.fourNotches",
+          "piece.uShape",
+          "piece.verticalTabs",
+          "piece.elbowLeft"
+        ],
+        "slots": [
+          {
+            "id": "city.gwangmyeong.general.1",
+            "x": 0,
+            "y": 5,
+            "width": 3,
+            "height": 2
+          },
+          {
+            "id": "city.gwangmyeong.general.2",
+            "x": 4,
+            "y": 5,
+            "width": 3,
+            "height": 2
+          },
+          {
+            "id": "city.gwangmyeong.general.3",
+            "x": 0,
+            "y": 3,
+            "width": 3,
+            "height": 2
+          },
+          {
+            "id": "city.gwangmyeong.general.4",
+            "x": 4,
+            "y": 3,
+            "width": 3,
+            "height": 2
+          }
+        ]
+      },
+      "specialtyTag": "Metal"
+    },
+    {
       "id": "city.h",
-      "displayName": "벌목 마을",
+      "displayName": "제천",
       "buyEnabled": true,
       "sellEnabled": true,
       "buyPercentOfBaseValue": 100,
@@ -1008,7 +1632,7 @@
     },
     {
       "id": "city.i",
-      "displayName": "곡창 마을",
+      "displayName": "대전",
       "buyEnabled": true,
       "sellEnabled": true,
       "buyPercentOfBaseValue": 100,
@@ -1095,7 +1719,7 @@
     },
     {
       "id": "city.j",
-      "displayName": "호수 마을",
+      "displayName": "원주",
       "buyEnabled": true,
       "sellEnabled": true,
       "buyPercentOfBaseValue": 100,
@@ -1187,8 +1811,102 @@
       "specialtyTag": "Water"
     },
     {
+      "id": "city.jeongeup",
+      "displayName": "정읍",
+      "buyEnabled": true,
+      "sellEnabled": true,
+      "buyPercentOfBaseValue": 100,
+      "sellPercentOfFinalValue": 100,
+      "tagPrices": [
+        {
+          "tag": "Metal",
+          "priority": 30,
+          "buyPercent": 80,
+          "sellPercent": 75
+        },
+        {
+          "tag": "Grain",
+          "priority": 20,
+          "buyPercent": 120,
+          "sellPercent": 150
+        },
+        {
+          "tag": "Water",
+          "priority": 19,
+          "buyPercent": 120,
+          "sellPercent": 150
+        }
+      ],
+      "market": {
+        "width": 7,
+        "height": 6,
+        "startingPlacements": [
+          {
+            "id": "city.jeongeup.stock.1",
+            "pieceId": "piece.elbowRight",
+            "x": 0,
+            "y": 1,
+            "clockwiseTurns": 0
+          },
+          {
+            "id": "city.jeongeup.stock.2",
+            "pieceId": "piece.elbowRight",
+            "x": 2,
+            "y": 1,
+            "clockwiseTurns": 0
+          },
+          {
+            "id": "city.jeongeup.stock.3",
+            "pieceId": "piece.elbowRight",
+            "x": 4,
+            "y": 1,
+            "clockwiseTurns": 0
+          }
+        ]
+      },
+      "generalStock": {
+        "pieceIds": [
+          "piece.fourNotches",
+          "piece.uShape",
+          "piece.verticalTabs",
+          "piece.elbowLeft"
+        ],
+        "slots": [
+          {
+            "id": "city.jeongeup.general.1",
+            "x": 0,
+            "y": 5,
+            "width": 3,
+            "height": 2
+          },
+          {
+            "id": "city.jeongeup.general.2",
+            "x": 4,
+            "y": 5,
+            "width": 3,
+            "height": 2
+          },
+          {
+            "id": "city.jeongeup.general.3",
+            "x": 0,
+            "y": 3,
+            "width": 3,
+            "height": 2
+          },
+          {
+            "id": "city.jeongeup.general.4",
+            "x": 4,
+            "y": 3,
+            "width": 3,
+            "height": 2
+          }
+        ]
+      },
+      "specialtyTag": "Metal"
+    },
+    {
       "id": "city.k",
-      "displayName": "철광 마을",
+      "displayName": "안동",
       "buyEnabled": true,
       "sellEnabled": true,
       "buyPercentOfBaseValue": 100,
@@ -1276,7 +1994,7 @@
     },
     {
       "id": "city.l",
-      "displayName": "암염 마을",
+      "displayName": "강릉",
       "buyEnabled": true,
       "sellEnabled": true,
       "buyPercentOfBaseValue": 100,
@@ -1364,7 +2082,7 @@
     },
     {
       "id": "city.m",
-      "displayName": "항구 마을",
+      "displayName": "순천",
       "buyEnabled": true,
       "sellEnabled": true,
       "buyPercentOfBaseValue": 100,
@@ -1451,8 +2169,95 @@
       "specialtyTag": "Fish"
     },
     {
+      "id": "city.milyang",
+      "displayName": "밀양",
+      "buyEnabled": true,
+      "sellEnabled": true,
+      "buyPercentOfBaseValue": 100,
+      "sellPercentOfFinalValue": 100,
+      "tagPrices": [
+        {
+          "tag": "Water",
+          "priority": 30,
+          "buyPercent": 80,
+          "sellPercent": 75
+        },
+        {
+          "tag": "Machinery",
+          "priority": 20,
+          "buyPercent": 120,
+          "sellPercent": 150
+        }
+      ],
+      "market": {
+        "width": 7,
+        "height": 6,
+        "startingPlacements": [
+          {
+            "id": "city.milyang.stock.1",
+            "pieceId": "piece.verticalTabs",
+            "x": 0,
+            "y": 1,
+            "clockwiseTurns": 0
+          },
+          {
+            "id": "city.milyang.stock.2",
+            "pieceId": "piece.verticalTabs",
+            "x": 2,
+            "y": 1,
+            "clockwiseTurns": 0
+          },
+          {
+            "id": "city.milyang.stock.3",
+            "pieceId": "piece.verticalTabs",
+            "x": 4,
+            "y": 1,
+            "clockwiseTurns": 0
+          }
+        ]
+      },
+      "generalStock": {
+        "pieceIds": [
+          "piece.topNotch",
+          "piece.verticalPair",
+          "piece.elbowRight"
+        ],
+        "slots": [
+          {
+            "id": "city.milyang.general.1",
+            "x": 0,
+            "y": 5,
+            "width": 3,
+            "height": 2
+          },
+          {
+            "id": "city.milyang.general.2",
+            "x": 4,
+            "y": 5,
+            "width": 3,
+            "height": 2
+          },
+          {
+            "id": "city.milyang.general.3",
+            "x": 0,
+            "y": 3,
+            "width": 3,
+            "height": 2
+          },
+          {
+            "id": "city.milyang.general.4",
+            "x": 4,
+            "y": 3,
+            "width": 3,
+            "height": 2
+          }
+        ]
+      },
+      "specialtyTag": "Water"
+    },
+    {
       "id": "city.n",
-      "displayName": "해안 염전",
+      "displayName": "진주",
       "buyEnabled": true,
       "sellEnabled": true,
       "buyPercentOfBaseValue": 100,
@@ -1540,7 +2345,7 @@
     },
     {
       "id": "city.o",
-      "displayName": "조립 마을",
+      "displayName": "천안",
       "buyEnabled": true,
       "sellEnabled": true,
       "buyPercentOfBaseValue": 100,
@@ -1626,8 +2431,96 @@
       "specialtyTag": "Machinery"
     },
     {
+      "id": "city.osong",
+      "displayName": "오송",
+      "buyEnabled": true,
+      "sellEnabled": true,
+      "buyPercentOfBaseValue": 100,
+      "sellPercentOfFinalValue": 100,
+      "tagPrices": [
+        {
+          "tag": "Fish",
+          "priority": 30,
+          "buyPercent": 80,
+          "sellPercent": 75
+        },
+        {
+          "tag": "Salt",
+          "priority": 20,
+          "buyPercent": 120,
+          "sellPercent": 150
+        }
+      ],
+      "market": {
+        "width": 7,
+        "height": 6,
+        "startingPlacements": [
+          {
+            "id": "city.osong.stock.1",
+            "pieceId": "piece.fish",
+            "x": 0,
+            "y": 1,
+            "clockwiseTurns": 0
+          },
+          {
+            "id": "city.osong.stock.2",
+            "pieceId": "piece.fish",
+            "x": 2,
+            "y": 1,
+            "clockwiseTurns": 0
+          },
+          {
+            "id": "city.osong.stock.3",
+            "pieceId": "piece.fish",
+            "x": 4,
+            "y": 1,
+            "clockwiseTurns": 0
+          }
+        ]
+      },
+      "generalStock": {
+        "pieceIds": [
+          "piece.verticalPair",
+          "piece.verticalTabs",
+          "piece.saltSack",
+          "piece.topNotch"
+        ],
+        "slots": [
+          {
+            "id": "city.osong.general.1",
+            "x": 0,
+            "y": 5,
+            "width": 3,
+            "height": 2
+          },
+          {
+            "id": "city.osong.general.2",
+            "x": 4,
+            "y": 5,
+            "width": 3,
+            "height": 2
+          },
+          {
+            "id": "city.osong.general.3",
+            "x": 0,
+            "y": 3,
+            "width": 3,
+            "height": 2
+          },
+          {
+            "id": "city.osong.general.4",
+            "x": 4,
+            "y": 3,
+            "width": 3,
+            "height": 2
+          }
+        ]
+      },
+      "specialtyTag": "Fish"
+    },
+    {
       "id": "city.p",
-      "displayName": "들녘 마을",
+      "displayName": "광주송정",
       "buyEnabled": true,
       "sellEnabled": true,
       "buyPercentOfBaseValue": 100,
@@ -1711,6 +2604,448 @@
         ]
       },
       "specialtyTag": "Grain"
+    },
+    {
+      "id": "city.pohang",
+      "displayName": "포항",
+      "buyEnabled": true,
+      "sellEnabled": true,
+      "buyPercentOfBaseValue": 100,
+      "sellPercentOfFinalValue": 100,
+      "tagPrices": [
+        {
+          "tag": "Wood",
+          "priority": 30,
+          "buyPercent": 80,
+          "sellPercent": 75
+        },
+        {
+          "tag": "Machinery",
+          "priority": 20,
+          "buyPercent": 120,
+          "sellPercent": 150
+        }
+      ],
+      "market": {
+        "width": 7,
+        "height": 6,
+        "startingPlacements": [
+          {
+            "id": "city.pohang.stock.1",
+            "pieceId": "piece.verticalPair",
+            "x": 0,
+            "y": 1,
+            "clockwiseTurns": 0
+          },
+          {
+            "id": "city.pohang.stock.2",
+            "pieceId": "piece.elbowLeft",
+            "x": 2,
+            "y": 1,
+            "clockwiseTurns": 0
+          },
+          {
+            "id": "city.pohang.stock.3",
+            "pieceId": "piece.fourNotches",
+            "x": 4,
+            "y": 1,
+            "clockwiseTurns": 0
+          }
+        ]
+      },
+      "generalStock": {
+        "pieceIds": [
+          "piece.elbowRight",
+          "piece.topNotch",
+          "piece.verticalTabs"
+        ],
+        "slots": [
+          {
+            "id": "city.pohang.general.1",
+            "x": 0,
+            "y": 5,
+            "width": 3,
+            "height": 2
+          },
+          {
+            "id": "city.pohang.general.2",
+            "x": 4,
+            "y": 5,
+            "width": 3,
+            "height": 2
+          },
+          {
+            "id": "city.pohang.general.3",
+            "x": 0,
+            "y": 3,
+            "width": 3,
+            "height": 2
+          },
+          {
+            "id": "city.pohang.general.4",
+            "x": 4,
+            "y": 3,
+            "width": 3,
+            "height": 2
+          }
+        ]
+      },
+      "specialtyTag": "Wood"
+    },
+    {
+      "id": "city.suwon",
+      "displayName": "수원",
+      "buyEnabled": true,
+      "sellEnabled": true,
+      "buyPercentOfBaseValue": 100,
+      "sellPercentOfFinalValue": 100,
+      "tagPrices": [
+        {
+          "tag": "Water",
+          "priority": 30,
+          "buyPercent": 80,
+          "sellPercent": 75
+        },
+        {
+          "tag": "Machinery",
+          "priority": 20,
+          "buyPercent": 120,
+          "sellPercent": 150
+        }
+      ],
+      "market": {
+        "width": 7,
+        "height": 6,
+        "startingPlacements": [
+          {
+            "id": "city.suwon.stock.1",
+            "pieceId": "piece.verticalTabs",
+            "x": 0,
+            "y": 1,
+            "clockwiseTurns": 0
+          },
+          {
+            "id": "city.suwon.stock.2",
+            "pieceId": "piece.verticalTabs",
+            "x": 2,
+            "y": 1,
+            "clockwiseTurns": 0
+          },
+          {
+            "id": "city.suwon.stock.3",
+            "pieceId": "piece.verticalTabs",
+            "x": 4,
+            "y": 1,
+            "clockwiseTurns": 0
+          }
+        ]
+      },
+      "generalStock": {
+        "pieceIds": [
+          "piece.topNotch",
+          "piece.verticalPair",
+          "piece.elbowRight"
+        ],
+        "slots": [
+          {
+            "id": "city.suwon.general.1",
+            "x": 0,
+            "y": 5,
+            "width": 3,
+            "height": 2
+          },
+          {
+            "id": "city.suwon.general.2",
+            "x": 4,
+            "y": 5,
+            "width": 3,
+            "height": 2
+          },
+          {
+            "id": "city.suwon.general.3",
+            "x": 0,
+            "y": 3,
+            "width": 3,
+            "height": 2
+          },
+          {
+            "id": "city.suwon.general.4",
+            "x": 4,
+            "y": 3,
+            "width": 3,
+            "height": 2
+          }
+        ]
+      },
+      "specialtyTag": "Water"
+    },
+    {
+      "id": "city.taehwagang",
+      "displayName": "태화강",
+      "buyEnabled": true,
+      "sellEnabled": true,
+      "buyPercentOfBaseValue": 100,
+      "sellPercentOfFinalValue": 100,
+      "tagPrices": [
+        {
+          "tag": "Grain",
+          "priority": 30,
+          "buyPercent": 80,
+          "sellPercent": 75
+        },
+        {
+          "tag": "Water",
+          "priority": 20,
+          "buyPercent": 120,
+          "sellPercent": 150
+        }
+      ],
+      "market": {
+        "width": 7,
+        "height": 6,
+        "startingPlacements": [
+          {
+            "id": "city.taehwagang.stock.1",
+            "pieceId": "piece.topNotch",
+            "x": 0,
+            "y": 1,
+            "clockwiseTurns": 0
+          },
+          {
+            "id": "city.taehwagang.stock.2",
+            "pieceId": "piece.topNotch",
+            "x": 2,
+            "y": 1,
+            "clockwiseTurns": 0
+          },
+          {
+            "id": "city.taehwagang.stock.3",
+            "pieceId": "piece.topNotch",
+            "x": 4,
+            "y": 1,
+            "clockwiseTurns": 0
+          }
+        ]
+      },
+      "generalStock": {
+        "pieceIds": [
+          "piece.verticalPair",
+          "piece.elbowRight",
+          "piece.saltSack"
+        ],
+        "slots": [
+          {
+            "id": "city.taehwagang.general.1",
+            "x": 0,
+            "y": 5,
+            "width": 3,
+            "height": 2
+          },
+          {
+            "id": "city.taehwagang.general.2",
+            "x": 4,
+            "y": 5,
+            "width": 3,
+            "height": 2
+          },
+          {
+            "id": "city.taehwagang.general.3",
+            "x": 0,
+            "y": 3,
+            "width": 3,
+            "height": 2
+          },
+          {
+            "id": "city.taehwagang.general.4",
+            "x": 4,
+            "y": 3,
+            "width": 3,
+            "height": 2
+          }
+        ]
+      },
+      "specialtyTag": "Grain"
+    },
+    {
+      "id": "city.ulsan",
+      "displayName": "울산(통도사)",
+      "buyEnabled": true,
+      "sellEnabled": true,
+      "buyPercentOfBaseValue": 100,
+      "sellPercentOfFinalValue": 100,
+      "tagPrices": [
+        {
+          "tag": "Metal",
+          "priority": 30,
+          "buyPercent": 80,
+          "sellPercent": 75
+        },
+        {
+          "tag": "Grain",
+          "priority": 20,
+          "buyPercent": 120,
+          "sellPercent": 150
+        },
+        {
+          "tag": "Water",
+          "priority": 19,
+          "buyPercent": 120,
+          "sellPercent": 150
+        }
+      ],
+      "market": {
+        "width": 7,
+        "height": 6,
+        "startingPlacements": [
+          {
+            "id": "city.ulsan.stock.1",
+            "pieceId": "piece.elbowRight",
+            "x": 0,
+            "y": 1,
+            "clockwiseTurns": 0
+          },
+          {
+            "id": "city.ulsan.stock.2",
+            "pieceId": "piece.elbowRight",
+            "x": 2,
+            "y": 1,
+            "clockwiseTurns": 0
+          },
+          {
+            "id": "city.ulsan.stock.3",
+            "pieceId": "piece.elbowRight",
+            "x": 4,
+            "y": 1,
+            "clockwiseTurns": 0
+          }
+        ]
+      },
+      "generalStock": {
+        "pieceIds": [
+          "piece.fourNotches",
+          "piece.uShape",
+          "piece.verticalTabs",
+          "piece.elbowLeft"
+        ],
+        "slots": [
+          {
+            "id": "city.ulsan.general.1",
+            "x": 0,
+            "y": 5,
+            "width": 3,
+            "height": 2
+          },
+          {
+            "id": "city.ulsan.general.2",
+            "x": 4,
+            "y": 5,
+            "width": 3,
+            "height": 2
+          },
+          {
+            "id": "city.ulsan.general.3",
+            "x": 0,
+            "y": 3,
+            "width": 3,
+            "height": 2
+          },
+          {
+            "id": "city.ulsan.general.4",
+            "x": 4,
+            "y": 3,
+            "width": 3,
+            "height": 2
+          }
+        ]
+      },
+      "specialtyTag": "Metal"
+    },
+    {
+      "id": "city.yeongju",
+      "displayName": "영주",
+      "buyEnabled": true,
+      "sellEnabled": true,
+      "buyPercentOfBaseValue": 100,
+      "sellPercentOfFinalValue": 100,
+      "tagPrices": [
+        {
+          "tag": "Water",
+          "priority": 30,
+          "buyPercent": 80,
+          "sellPercent": 75
+        },
+        {
+          "tag": "Machinery",
+          "priority": 20,
+          "buyPercent": 120,
+          "sellPercent": 150
+        }
+      ],
+      "market": {
+        "width": 7,
+        "height": 6,
+        "startingPlacements": [
+          {
+            "id": "city.yeongju.stock.1",
+            "pieceId": "piece.verticalTabs",
+            "x": 0,
+            "y": 1,
+            "clockwiseTurns": 0
+          },
+          {
+            "id": "city.yeongju.stock.2",
+            "pieceId": "piece.verticalTabs",
+            "x": 2,
+            "y": 1,
+            "clockwiseTurns": 0
+          },
+          {
+            "id": "city.yeongju.stock.3",
+            "pieceId": "piece.verticalTabs",
+            "x": 4,
+            "y": 1,
+            "clockwiseTurns": 0
+          }
+        ]
+      },
+      "generalStock": {
+        "pieceIds": [
+          "piece.topNotch",
+          "piece.verticalPair",
+          "piece.elbowRight"
+        ],
+        "slots": [
+          {
+            "id": "city.yeongju.general.1",
+            "x": 0,
+            "y": 5,
+            "width": 3,
+            "height": 2
+          },
+          {
+            "id": "city.yeongju.general.2",
+            "x": 4,
+            "y": 5,
+            "width": 3,
+            "height": 2
+          },
+          {
+            "id": "city.yeongju.general.3",
+            "x": 0,
+            "y": 3,
+            "width": 3,
+            "height": 2
+          },
+          {
+            "id": "city.yeongju.general.4",
+            "x": 4,
+            "y": 3,
+            "width": 3,
+            "height": 2
+          }
+        ]
+      },
+      "specialtyTag": "Water"
     }
   ]
 }

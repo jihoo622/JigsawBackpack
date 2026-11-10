@@ -89,12 +89,14 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
         string currentCityId = session.CurrentCityId;
         bool isCurrent = string.Equals(_cityId, currentCityId, System.StringComparison.Ordinal);
         bool isConnected = false;
+        bool highSpeed = false;
         PuzzleTravelResult eval = default;
         if (!isCurrent)
         {
-            isConnected = TableManager.Instance.HasRoute(currentCityId, _cityId);
+            isConnected = TableManager.Instance.TryGetRoute(currentCityId, _cityId, out var route);
             if (isConnected)
             {
+                highSpeed = route.highSpeed;
                 eval = session.EvaluateTravel(_cityId);
             }
         }
@@ -105,7 +107,8 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
             isCurrent,
             isConnected,
             eval,
-            session.TravelTurns));
+            session.TravelTurns,
+            highSpeed));
     }
 
     void ClearInformation()

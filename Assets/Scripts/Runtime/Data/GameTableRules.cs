@@ -247,6 +247,7 @@ public sealed class GameTableRules
             if (_tables.TryGetRoute(route.toCityId, route.fromCityId, out var reverse))
             {
                 Check(route.distance == reverse.distance, path + ".distance", "같은 철도의 왕복 거리는 같아야 합니다.");
+                Check(route.highSpeed == reverse.highSpeed, path + ".highSpeed", "같은 철도의 왕복 고속선 구분은 같아야 합니다.");
             }
             if (!string.IsNullOrEmpty(route.fromCityId) && !string.IsNullOrEmpty(route.toCityId))
             {

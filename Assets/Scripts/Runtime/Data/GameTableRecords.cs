@@ -139,6 +139,7 @@ public sealed class PuzzleRouteData
 {
     public string fromCityId, toCityId;
     public int distance = -1;
+    public bool highSpeed;
     // 누락된 값이 0이라는 정상값으로 위장되지 않도록 하는 검증용 값이다.
     public long cost = -1;
 }

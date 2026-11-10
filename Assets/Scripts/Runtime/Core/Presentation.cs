@@ -42,7 +42,7 @@ public static class Presentation
 
     internal static string PuzzleMapGuide(int _travelTurns)
     {
-        return $"{PUZZLE_MAP_GUIDE}\n소요 {_travelTurns}턴 · 마을에 마우스를 올리면 거리·비용·교역 정보를 표시합니다.";
+        return $"{PUZZLE_MAP_GUIDE}\n굵은 선: 고속선 · 가는 선: 일반선 · 모든 연결 {_travelTurns}턴 · 마을을 가리켜 거리·비용 확인";
     }
 
     internal static string PuzzleMapNodeLabel(string _name, bool _visited, bool _current, bool _connected, bool _canAfford)
@@ -59,9 +59,13 @@ public static class Presentation
     }
 
     internal static string PuzzleMapInformation(PuzzleCityData _city, bool _visited, bool _current, bool _connected,
-        PuzzleTravelResult _evaluation, int _travelTurns)
+        PuzzleTravelResult _evaluation, int _travelTurns, bool _highSpeed)
     {
         string heading = $"<size=28><b>{_city.displayName}</b></size>";
+        if (_connected)
+        {
+            heading += _highSpeed ? " <size=18>[고속선]</size>" : " <size=18>[일반선]</size>";
+        }
         string status;
         if (_current)
         {
