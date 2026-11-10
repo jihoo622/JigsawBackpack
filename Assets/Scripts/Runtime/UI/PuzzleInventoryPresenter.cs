@@ -124,28 +124,44 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         if (!initialized || isMapOpen || drag == null || !trainBarView || session == null ||
             session.RunStatus != PuzzleRunStatus.InProgress)
         {
-            hoveredWagonIndex = null;
+            if (hoveredWagonIndex.HasValue)
+            {
+                hoveredWagonIndex = null;
+                RefreshTrainBar();
+            }
             return;
         }
 
         if (trainBarView.TryGetWagonAtScreenPosition(pointerPosition, out int wagonIndex) &&
-            wagonIndex != session.CurrentWagonIndex)
+            IsValidDragTargetWagon(wagonIndex))
         {
             if (hoveredWagonIndex != wagonIndex)
             {
                 hoveredWagonIndex = wagonIndex;
                 hoveredWagonStartTime = Time.unscaledTime;
+                RefreshTrainBar();
             }
-            else if (Time.unscaledTime - hoveredWagonStartTime >= WAGON_DRAG_HOVER_DELAY)
+            else if (wagonIndex != session.CurrentWagonIndex &&
+                     Time.unscaledTime - hoveredWagonStartTime >= WAGON_DRAG_HOVER_DELAY)
             {
-                hoveredWagonIndex = null;
                 SwitchWagonDuringDrag(wagonIndex);
             }
         }
-        else
+        else if (hoveredWagonIndex.HasValue)
         {
             hoveredWagonIndex = null;
+            RefreshTrainBar();
         }
+    }
+
+    bool IsValidDragTargetWagon(int _wagonIndex)
+    {
+        if (drag == null || session == null || _wagonIndex < 0 || _wagonIndex >= session.WagonCount)
+        {
+            return false;
+        }
+
+        return drag.Source != session.TrainWagons[_wagonIndex];
     }
 
     void SwitchWagonDuringDrag(int _index)
@@ -343,8 +359,10 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
                     RefreshTrainBar();
                 }
             }
-            else if (trainBarView && trainBarView.TryGetWagonAtScreenPosition(_eventData.position, out droppedWagonIndex))
+            else if (trainBarView && trainBarView.TryGetWagonAtScreenPosition(_eventData.position, out int candidateWagon) &&
+                     IsValidDragTargetWagon(candidateWagon))
             {
+                droppedWagonIndex = candidateWagon;
                 result = activeDrag.QuickDropToWagon(session, droppedWagonIndex);
                 if (result.CanDrop)
                 {
@@ -597,14 +615,23 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
 
     void ClearDrag()
     {
+        bool hadHoveredWagon = hoveredWagonIndex.HasValue;
         hoveredWagonIndex = null;
         if (drag == null)
         {
+            if (hadHoveredWagon)
+            {
+                RefreshTrainBar();
+            }
             return;
         }
 
         drag = null;
         SetDragView(null);
+        if (hadHoveredWagon)
+        {
+            RefreshTrainBar();
+        }
         if (cityView && session != null && session.RunStatus == PuzzleRunStatus.InProgress)
         {
             cityView.ShowTradeStatus(Presentation.PUZZLE_TRADE_GUIDE);
@@ -621,7 +648,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
     {
         if (trainBarView && session != null)
         {
-            trainBarView.Refresh(session.WagonCount, session.CurrentWagonIndex, session.NextWagonCost, session.CanAddWagon);
+            trainBarView.Refresh(session.WagonCount, session.CurrentWagonIndex, session.NextWagonCost, session.CanAddWagon, hoveredWagonIndex);
         }
     }
 
