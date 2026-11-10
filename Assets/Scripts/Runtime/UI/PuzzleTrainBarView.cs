@@ -86,6 +86,31 @@ public sealed class PuzzleTrainBarView : MonoBehaviour
         AddWagonClicked?.Invoke();
     }
 
+    public bool TryGetWagonAtScreenPosition(Vector2 _screenPosition, out int _wagonIndex)
+    {
+        _wagonIndex = -1;
+        if (wagonSlots == null)
+        {
+            return false;
+        }
+
+        var canvas = GetComponentInParent<Canvas>();
+        Camera eventCamera = canvas && canvas.renderMode != RenderMode.ScreenSpaceOverlay ? canvas.worldCamera : null;
+
+        for (int i = 0; i < wagonSlots.Length; i++)
+        {
+            var slot = wagonSlots[i];
+            if (slot?.root != null && slot.root.activeInHierarchy && slot.rectTransform != null &&
+                RectTransformUtility.RectangleContainsScreenPoint(slot.rectTransform, _screenPosition, eventCamera))
+            {
+                _wagonIndex = i;
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public void Refresh(int _wagonCount, int _selectedIndex, long _nextCost, bool _canAfford)
     {
         if (wagonSlots == null)

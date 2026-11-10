@@ -71,6 +71,11 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         }
     }
 
+    internal bool IsTrainWagon(PuzzleInventory _inventory)
+    {
+        return _inventory != null && trainWagons.Contains(_inventory);
+    }
+
     internal bool SelectWagon(int _index)
     {
         if (_index < 0 || _index >= trainWagons.Count || _index == CurrentWagonIndex)
@@ -386,13 +391,15 @@ public sealed class PuzzleInventoryService : MonoBehaviour
 
         var source = _original?.Owner;
         var market = Market;
-        if ((source != Train && source != market) || (_destination != Train && _destination != market))
+        bool sourceIsTrain = IsTrainWagon(source);
+        bool destIsTrain = IsTrainWagon(_destination);
+        if ((!sourceIsTrain && source != market) || (!destIsTrain && _destination != market))
         {
             return new PuzzleDropResult(new PuzzlePlacementResult(PuzzlePlacementFailure.InvalidDestination));
         }
 
         var placement = source.EvaluateMove(_original, _destination, _grabbedCell, _targetCell, _clockwiseTurns);
-        if (source == _destination)
+        if (source == _destination || (sourceIsTrain && destIsTrain))
         {
             return new PuzzleDropResult(placement);
         }
@@ -494,9 +501,34 @@ public sealed class PuzzleInventoryService : MonoBehaviour
             return new PuzzleDropResult(new PuzzlePlacementResult(PuzzlePlacementFailure.StaleSource));
         }
 
-        var destination = _original.Owner == Train ? Market : Train;
+        var destination = IsTrainWagon(_original.Owner) ? Market : Train;
+        return QuickTransferTo(_original, destination, _original.Pose.ClockwiseTurns);
+    }
+
+    internal PuzzleDropResult QuickTransferToWagon(PuzzlePlacement _original, int _wagonIndex, int _preferredClockwiseTurns)
+    {
+        if (_wagonIndex < 0 || _wagonIndex >= trainWagons.Count)
+        {
+            return new PuzzleDropResult(new PuzzlePlacementResult(PuzzlePlacementFailure.InvalidDestination));
+        }
+
+        return QuickTransferTo(_original, trainWagons[_wagonIndex], _preferredClockwiseTurns);
+    }
+
+    internal PuzzleDropResult QuickTransferTo(PuzzlePlacement _original, PuzzleInventory _destination, int _preferredClockwiseTurns)
+    {
+        if (_original == null)
+        {
+            return new PuzzleDropResult(new PuzzlePlacementResult(PuzzlePlacementFailure.StaleSource));
+        }
+        if (_destination == null)
+        {
+            return new PuzzleDropResult(new PuzzlePlacementResult(PuzzlePlacementFailure.InvalidDestination));
+        }
+
+        int startRotation = ((_preferredClockwiseTurns % PuzzleRotation.TURN_COUNT) + PuzzleRotation.TURN_COUNT) % PuzzleRotation.TURN_COUNT;
         var grabbedCell = _original.Definition.Cells[0];
-        var evaluation = EvaluateDrop(_original, destination, grabbedCell, Vector2Int.zero, _original.Pose.ClockwiseTurns);
+        var evaluation = EvaluateDrop(_original, _destination, grabbedCell, Vector2Int.zero, startRotation);
         if (evaluation.TradeFailure != PuzzleTradeFailure.None ||
             evaluation.Placement.Failure == PuzzlePlacementFailure.StaleSource ||
             evaluation.Placement.Failure == PuzzlePlacementFailure.InvalidDestination)
@@ -506,17 +538,17 @@ public sealed class PuzzleInventoryService : MonoBehaviour
 
         for (int turn = 0; turn < PuzzleRotation.TURN_COUNT; turn++)
         {
-            int rotation = (_original.Pose.ClockwiseTurns + turn) % PuzzleRotation.TURN_COUNT;
+            int rotation = (startRotation + turn) % PuzzleRotation.TURN_COUNT;
             var offset = new PuzzleRotation(_original.Definition.Cells, rotation).GetBoardOffset(grabbedCell);
-            for (int y = destination.Height - 1; y >= 0; y--)
+            for (int y = _destination.Height - 1; y >= 0; y--)
             {
-                for (int x = 0; x < destination.Width; x++)
+                for (int x = 0; x < _destination.Width; x++)
                 {
                     var targetCell = new Vector2Int(x, y) + offset;
-                    var candidate = EvaluateDrop(_original, destination, grabbedCell, targetCell, rotation);
+                    var candidate = EvaluateDrop(_original, _destination, grabbedCell, targetCell, rotation);
                     if (candidate.CanDrop)
                     {
-                        return Drop(_original, destination, grabbedCell, targetCell, rotation);
+                        return Drop(_original, _destination, grabbedCell, targetCell, rotation);
                     }
                 }
             }
