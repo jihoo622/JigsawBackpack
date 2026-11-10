@@ -6,5 +6,7 @@
   "wagonAddCostBase": 50,
   "gameClearCost": 500,
   "deadlineHours": 336,
-  "debtCityId": "city.capital.finance"
+  "debtCityId": "city.capital.finance",
+  "travelEffectSeconds": 1.25,
+  "travelArrivalHoldSeconds": 0.35
 }

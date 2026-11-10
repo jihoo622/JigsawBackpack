@@ -62,6 +62,8 @@ public sealed class PuzzleTradeTableData
     // 0이면 무기한. 목표 도시가 비어 있으면 상환 장소를 제한하지 않는다.
     public int deadlineHours = -1;
     public string debtCityId;
+    public float travelEffectSeconds = -1f;
+    public float travelArrivalHoldSeconds = -1f;
 }
 
 [Serializable]

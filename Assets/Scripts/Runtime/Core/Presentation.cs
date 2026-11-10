@@ -27,6 +27,29 @@ public static class Presentation
     public const string PUZZLE_MAP_OPEN = "지도";
     public const string PUZZLE_MAP_CLOSE = "닫기";
     public const string PUZZLE_MAP_CURRENT = "▼ 현재 위치";
+    public const string PUZZLE_TRAVEL_PANEL_NAME = "MapTravelPanel";
+    public const string PUZZLE_TRAVEL_QUESTION = "이동하시겠습니까?";
+    public const string PUZZLE_TRAVEL_CONFIRM = "확인";
+    public const string PUZZLE_TRAVEL_CANCEL = "취소";
+    public const string PUZZLE_TRAVEL_IN_PROGRESS = "기차가 이동 중입니다";
+    public const string PUZZLE_TRAVEL_ARRIVED = "도착했습니다";
+    public static Color PuzzleTravelDim => new Color32(6, 11, 18, 220);
+    public static Color PuzzleTravelCard => new Color32(27, 36, 47, 255);
+
+    internal static string PuzzleTravelConfirmation(string _fromName, string _toName, PuzzleTravelResult _quote)
+    {
+        return $"<b>{_fromName} → {_toName}</b>\n\n소요 시간  {PuzzleMapTime(_quote.TravelTime)}\n이동 요금  {_quote.Cost:N0}\n이동 후 자금  {_quote.FundsAfter:N0}";
+    }
+
+    internal static string PuzzleTravelJourney(string _fromName, string _toName)
+    {
+        return $"{_fromName} → {_toName}";
+    }
+
+    public static string PuzzleTravelProgress(float _progress)
+    {
+        return $"{Mathf.RoundToInt(_progress * 100f)}%";
+    }
     public const string PUZZLE_MAP_FIT = "전체 보기";
     public const string PUZZLE_MAP_LOCATE = "현재 위치";
     public const string PUZZLE_MAP_ZOOM_IN = "+";

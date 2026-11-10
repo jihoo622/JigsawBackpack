@@ -14,7 +14,7 @@
 | 지도 프리팹 | `Assets/Art/PuzzleWorldMap.prefab`<br>guid `ab2441b70b1c4490988e4eb2ca06784a` | 화면 좌표·선분·라벨 등 모든 시각 요소, 그리고 Presenter/View/NodeView 컴포넌트 자체 |
 | 코드 상수 | `Assets/Scripts/Runtime/Core/PuzzleTimeManager.cs` | `HOURS_PER_DAY = 24` · `HOURS_PER_TRAVEL_WEIGHT = 8` · `DEFAULT_DEADLINE_HOURS = 14 * 24` |
 
-- 맵 UI 스크립트(PuzzleMapPresenter 1·PuzzleMapView 1·PuzzleMapNavigation 1·PuzzleMapNodeView 30)는 **전부 프리팹 안에 자기 완결로 들어 있다.** `Assets/Scenes/Game.unity`는 프리팹 인스턴스 하나를 사용한다.
+- 맵 UI 스크립트(PuzzleMapPresenter 1·PuzzleMapView 1·PuzzleMapNavigation 1·PuzzleMapTravelView 1·PuzzleMapNodeView 30)는 **전부 프리팹 안에 자기 완결로 들어 있다.** `Assets/Scenes/Game.unity`는 프리팹 인스턴스 하나를 사용한다.
 - `Game.unity`의 인스턴스는 루트 RectTransform(fileID 700011)에 프로퍼티 오버라이드 11개(pivot·anchor·sizeDelta·localScale)를 저장한다. 노드·선분·라벨 좌표는 전부 프리팹에 있고 씬 오버라이드는 없다.
 - 배경 이미지의 지리 원본은 `rail_map_geography_seed_20265146.json`이며, `Game.unity`는 지도 프리팹 인스턴스를 사용한다.
 - 현재 맵은 생성 데이터 `ProjectWorldData.json`(seed 20265146)의 `projectMapData`를 값 그대로 옮긴 판이다. 표에 들어갈 값은 `targetTables`가 지정한 3개 테이블에 넣고, 표시 좌표와 노선 폴리라인은 [rail_map_layout_seed_20265146.json](rail_map_layout_seed_20265146.json)에 따로 저장한다. 원본 `ProjectWorldData.json`(1.5MB, 지형 배열 포함)은 저장소에 넣지 않고 위 파일만 보관한다. 지역 구분·태그 경제·시장 격자는 생성 데이터 대신 기존 테이블 값을 유지한다.
@@ -222,7 +222,9 @@
 ### 코드에서 읽는 경로
 
 - `PuzzleMapView.Awake` — `regions` 라벨·색, `lines` 세그먼트 색, `routeTimes` 라벨 텍스트(`Presentation.PuzzleMapTime(PuzzleTimeManager.TravelHours(route.travelTimeWeight))`)를 채운다. `TryGetRoute`가 실패하면 **라벨을 갱신하지 않고 조용히 넘어간다.**
-- `PuzzleMapPresenter` — `SceneServices.For<PuzzleInventoryService>`로 세션을 얻고, 노드 Hover/Click을 구독한다. Click → `EvaluateTravel` → 성공 시 `Travel` 후 패널 Close, 실패 시 실패 문구를 `information`에 표시.
+- `PuzzleMapPresenter` — `SceneServices.For<PuzzleInventoryService>`로 세션을 얻고, 노드 Hover/Click을 구독한다. Click → `EvaluateTravel` → 확인·취소 모달 → 확인 시 재판정 → 이동 연출 → `Travel` 1회 → 도착 표시 → 지도 Close 순서다. 실패는 지도 `information`에 표시한다.
+- `PuzzleMapTravelView : PanelBase`는 `MapPanel/MapTravelPanel` 아래에 사전 배치한 확인 카드·이동 카드·기차·진행 막대를 제어한다. 기본 선택은 취소이며 `UI/Cancel`도 취소다. 이동 중에는 확인·취소·지도 조작을 막는다. 패널이 닫히거나 비활성화되면 Presenter의 대기 코루틴을 중단한다. 이동 확정 전 중단은 도시·시간·자금을 바꾸지 않는다.
+- `Tools/MyJG/Apply Map Travel UI`(`MapTravelSetupTool`)로 모달·연출·Presenter 참조를 다시 저장한다. 연출 실제 초 단위 시간은 `PuzzleTradeTableData.travelEffectSeconds`·`travelArrivalHoldSeconds`, 문구·색은 `Presentation`이 원본이다. 실제 게임 시간·요금 계산은 기존 `PuzzleInventoryService.Travel`만 수행한다.
 - 노드 상태는 `HasRoute(현재, target)` + `EvaluateTravel` + `session.HasVisitedCity` + `planningTargetCityId` 비교로 계산한다. **화면 좌표와 선분은 프리팹에 있고, 인접 관계·시간·비용·방문 여부는 전부 테이블과 세션 조회 결과다.** 프리팹에 인접 목록이 중복 저장되지는 않는다.
 - `GameEvents.CityArrived`를 받아 도착 후 다시 갱신한다.
 - 노선 라벨은 `PuzzleMapTime`이 24의 배수면 "N일"로 나머지는 "N시간"으로 표기한다. 현재 가중치는 8시간 · 16시간 · 32시간으로 표시된다.

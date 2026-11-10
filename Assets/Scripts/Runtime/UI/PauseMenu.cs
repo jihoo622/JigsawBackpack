@@ -18,12 +18,56 @@ public sealed class PauseMenu : PanelBase
     bool restoreInventoryInput;
     bool showingCompletion;
     GameObject previousSelection;
+    InputActionAsset actions;
+    InputAction cancel;
+    bool travelPanelOpen;
+    int travelPanelChangedFrame = -1;
 
     internal bool CanShowCompletion => isActiveAndEnabled && !IsOpen && restartButton && panelTitle && panelHint;
 
-    void Update()
+    protected override void Awake()
     {
-        if (!showingCompletion && Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame)
+        actions = Instantiate(inventoryInput.ActionsAsset);
+        cancel = actions.FindAction("UI/Cancel", true);
+        base.Awake();
+    }
+
+    protected override void OnEnable()
+    {
+        base.OnEnable();
+        cancel.performed += OnCancel;
+        cancel.Enable();
+        GameEvents.PanelVisibility += OnPanelVisibility;
+    }
+
+    protected override void OnDisable()
+    {
+        GameEvents.PanelVisibility -= OnPanelVisibility;
+        cancel.performed -= OnCancel;
+        cancel.Disable();
+        base.OnDisable();
+    }
+
+    void OnDestroy()
+    {
+        if (actions)
+        {
+            Destroy(actions);
+        }
+    }
+
+    void OnPanelVisibility(GameEvents.PanelInfo _info)
+    {
+        if (_info.panel == Presentation.PUZZLE_TRAVEL_PANEL_NAME)
+        {
+            travelPanelOpen = _info.open;
+            travelPanelChangedFrame = Time.frameCount;
+        }
+    }
+
+    void OnCancel(InputAction.CallbackContext _context)
+    {
+        if (!showingCompletion && !travelPanelOpen && travelPanelChangedFrame != Time.frameCount)
         {
             if (inventoryInput && inventoryInput.TryConsumeCancel())
             {

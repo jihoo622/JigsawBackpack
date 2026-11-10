@@ -24,7 +24,7 @@
 | `PuzzleTableData` | 화물 모양·복수 태그·표기 키, 시작 기차, 지역·생산 태그·물가, 도시·시장·특산품·재고·도시 배율 |
 | `PuzzleItemPriceTableData` | 화물 종류별 기본 가치 |
 | `PuzzleSynergyTableData` | 인접 시너지 조건·범위·배율 |
-| `PuzzleTradeTableData` | 시작 자금·공통 구매 배율 설정·증차 비용·클리어 비용 |
+| `PuzzleTradeTableData` | 시작 자금·공통 구매 배율 설정·증차 비용·클리어 비용·이동 연출 시간 |
 | `PuzzleRouteTableData` | 방향별 연결·기본 비용·거리·거리 및 적재 단가·거리당 소비 시간 |
 | `PuzzleTurnTableData` | 비활성 상태인 빚 일정 |
 | `FlowTableData` | 씬 이름·다음 씬·재시작 씬 |
@@ -60,6 +60,7 @@
 - `distance`는 비용용 양수 게임 거리, `travelTimeWeight`는 1 이상 시간 가중치다. 소요 시간은 `PuzzleTimeManager.TravelHours`가 8시간 단위로 변환한다. 현 표는 레일 43개 중 39개가 가중치 1 · 3개가 2 · 1개가 4이고, `distance`는 1~9로 가중치와 다른 값을 쓴다. 임시 가중치 1 기본값에 기대지 않고 모든 노선에 값을 저장한다. 이전 `timePerDistance`는 제거했다.
 - 경과 시간은 `PuzzleInventoryService.Time` 하나가 소유한다. 지역 맵의 `ElapsedTime`은 `Time.ElapsedHours` 조회 별칭이며 별도로 증가시키지 않는다. 이동당 `AdvanceHours`는 한 번만 호출해 보유 시간 이벤트와 함께 진행한다.
 - `planningTargetCityId`는 등록된 도시 ID를 가리키는 선택적 지도 표식이다. 현재 `city.capital.finance`(금융마을)이며 실제 상환 장소 설정인 `PuzzleTradeTableData.debtCityId`와 분리한다. `debtCityId`도 같은 도시를 가리켜 금융마을에서만 상환할 수 있다.
+- `PuzzleTradeTableData.travelEffectSeconds`·`travelArrivalHoldSeconds`는 UI 이동 연출·도착 표시의 실제 초 단위 시간이며 유한한 양수여야 한다. 게임 내 소요 시간·기한과 분리한다.
 - 비용은 `cost + distance × costPerDistance + TotalTrainOccupiedCells × costPerCell`이다. UI는 견적 결과의 거리·비용·실제 소비 시간을 표시한다. 화물 가치 변화는 시간 가중치 단위, 구매 후 보유 시간은 실제 hour 단위로 추적한다.
 - `highSpeed`는 이전 철도망 호환 필드이며 현 초안은 모두 false다. 노선도는 지역별 색·일반 길 회색·역 표식과 시간·일수 숫자를 사용한다.
 - 이동은 `EvaluateTravel(toCityId)`·`Travel(toCityId)`로 평가·확정한다. 자금 부족·연결 없음·종료 상태 등 실패 시 이동 상태를 보존한다.

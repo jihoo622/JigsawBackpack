@@ -213,6 +213,15 @@ public sealed class GameTableRules
             "공통 구매 배율은 0보다 커야 합니다.");
         Check(_tables.PuzzleTrade.wagonAddCostBase > 0, PATH + ".wagonAddCostBase",
             "화물칸 증차 기본 비용은 0보다 커야 합니다.");
+        Check(IsFinitePositive(_tables.PuzzleTrade.travelEffectSeconds), PATH + ".travelEffectSeconds",
+            "이동 연출 시간은 유한한 양수여야 합니다.");
+        Check(IsFinitePositive(_tables.PuzzleTrade.travelArrivalHoldSeconds), PATH + ".travelArrivalHoldSeconds",
+            "도착 표시 시간은 유한한 양수여야 합니다.");
+    }
+
+    static bool IsFinitePositive(float _value)
+    {
+        return !float.IsNaN(_value) && !float.IsInfinity(_value) && _value > 0f;
     }
 
     // 노선은 방향 그래프다. 시작 도시에서 모든 도시로 도달할 수 있어야 한다.

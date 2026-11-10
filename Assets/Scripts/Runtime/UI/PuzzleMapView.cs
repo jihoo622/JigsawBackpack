@@ -61,6 +61,11 @@ public sealed class PuzzleMapView : PanelBase
 
     internal PuzzleMapNodeView[] Nodes => nodes;
 
+    internal void SetInteraction(bool _enabled)
+    {
+        navigation.enabled = _enabled;
+    }
+
     internal void ShowCurrentLocation(PuzzleMapNodeView _node)
     {
         currentCityId = _node.CityId;

@@ -20,6 +20,7 @@ public sealed class PuzzleInventoryInput : MonoBehaviour, IPointerDownHandler, I
     bool navigationSuppressed;
     bool previousNavigation;
     int cancelConsumedFrame = -1;
+    internal InputActionAsset ActionsAsset => uiInputModule.actionsAsset;
 
     internal event Action<PointerEventData> Pressed;
     internal event Action<PointerEventData> QuickTransferRequested;
