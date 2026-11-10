@@ -187,7 +187,7 @@ public sealed class PuzzleInventoryView : MonoBehaviour
                 ? Presentation.PuzzleMoveTarget
                 : Presentation.PuzzlePiece;
             index = RenderPose(placementSlots, index, placement.Pose, Vector2.zero, color,
-                iconIndex[placement.Definition.VisualKey].sprite);
+                iconIndex[placement.Definition.VisualKey].sprite, placement.Definition.IconSize, placement.Definition.IconOffset);
         }
 
         HideSlots(placementSlots, index);
@@ -255,7 +255,7 @@ public sealed class PuzzleInventoryView : MonoBehaviour
         }
 
         var offset = local - GetCellCenter(_grabbedBoardCell);
-        int used = RenderPose(ghostSlots, 0, _pose, offset, Presentation.PuzzleGhost, iconIndex[_item.VisualKey].sprite);
+        int used = RenderPose(ghostSlots, 0, _pose, offset, Presentation.PuzzleGhost, iconIndex[_item.VisualKey].sprite, _item.IconSize, _item.IconOffset);
         HideSlots(ghostSlots, used);
     }
 
@@ -265,7 +265,8 @@ public sealed class PuzzleInventoryView : MonoBehaviour
         HideSlots(outlineSlots, used);
     }
 
-    int RenderPose(PuzzleSlotVisual[] _slots, int _start, PuzzlePose _pose, Vector2 _offset, Color _color, Sprite _icon = null)
+    int RenderPose(PuzzleSlotVisual[] _slots, int _start, PuzzlePose _pose, Vector2 _offset, Color _color, Sprite _icon = null,
+        Vector2 _iconSize = default, Vector2 _iconOffset = default)
     {
         piecePositions.Clear();
         foreach (var cell in _pose.Cells)
@@ -285,8 +286,10 @@ public sealed class PuzzleInventoryView : MonoBehaviour
             originalMin = Vector2Int.Min(originalMin, cell.OriginalCell);
             originalMax = Vector2Int.Max(originalMax, cell.OriginalCell);
         }
-        Vector2 iconOffset = ((Vector2)min + max) * 0.5f - (Vector2)_pose.Cells[0].Position;
-        Vector2 iconSize = (Vector2)(originalMax - originalMin + Vector2Int.one);
+        Vector2 iconOffset = ((Vector2)min + max) * 0.5f - (Vector2)_pose.Cells[0].Position + _iconOffset;
+        Vector2 iconSize = (_iconSize.x > 0f && _iconSize.y > 0f)
+            ? _iconSize
+            : (Vector2)(originalMax - originalMin + Vector2Int.one);
         foreach (var cell in _pose.Cells)
         {
             int hiddenEdges = GetHiddenEdges(cell.Position);

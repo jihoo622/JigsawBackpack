@@ -321,6 +321,9 @@
       "visualKey": "cargo.cow",
       "slotCount": 5,
       "durability": 100,
+      "iconWidth": 2.5,
+      "iconHeight": 2,
+      "iconOffsetX": 0.2,
       "cells": [
         {
           "x": 0,
@@ -461,7 +464,10 @@
         "pieceIds": [
           "piece.elbowRight",
           "piece.topNotch",
-          "piece.verticalTabs"
+          "piece.verticalTabs",
+          "piece.apple",
+          "piece.beef",
+          "piece.cow"
         ],
         "slots": [
           {
