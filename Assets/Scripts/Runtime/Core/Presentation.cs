@@ -366,28 +366,28 @@ public static class Presentation
         return BasicData.Format("presentation.PuzzleTooltipActualValueValue.text1", ColorUtility.ToHtmlStringRGB(PuzzleTooltipGold), _actualValue);
     }
 
-    static Color RateValueColor(int _percent)
+    static Color RateValueColor(int _percent, bool _isBuying)
     {
         if (_percent > BasicData.Int("presentation.RateValueColor.number1"))
         {
-            return PuzzleTooltipGreen;
+            return _isBuying ? PuzzleTooltipRed : PuzzleTooltipGreen;
         }
         if (_percent < BasicData.Int("presentation.RateValueColor.number2"))
         {
-            return PuzzleTooltipRed;
+            return _isBuying ? PuzzleTooltipGreen : PuzzleTooltipRed;
         }
         return PuzzleTooltipText;
     }
 
-    static Color PriceValueColor(decimal _price, decimal _actualValue)
+    static Color PriceValueColor(decimal _price, decimal _actualValue, bool _isBuying)
     {
         if (_price > _actualValue)
         {
-            return PuzzleTooltipGreen;
+            return _isBuying ? PuzzleTooltipRed : PuzzleTooltipGreen;
         }
         if (_price < _actualValue)
         {
-            return PuzzleTooltipRed;
+            return _isBuying ? PuzzleTooltipGreen : PuzzleTooltipRed;
         }
         return PuzzleTooltipText;
     }
@@ -399,7 +399,7 @@ public static class Presentation
 
     internal static string PuzzleTooltipSellRateValue(int _percent)
     {
-        return BasicData.Format("presentation.PuzzleTooltipSellRateValue.text1", ColorUtility.ToHtmlStringRGB(RateValueColor(_percent)), _percent);
+        return BasicData.Format("presentation.PuzzleTooltipSellRateValue.text1", ColorUtility.ToHtmlStringRGB(RateValueColor(_percent, _isBuying: false)), _percent);
     }
 
     internal static string PuzzleTooltipBuyRateLabel()
@@ -409,7 +409,7 @@ public static class Presentation
 
     internal static string PuzzleTooltipBuyRateValue(int _percent)
     {
-        return BasicData.Format("presentation.PuzzleTooltipBuyRateValue.text1", ColorUtility.ToHtmlStringRGB(RateValueColor(_percent)), _percent);
+        return BasicData.Format("presentation.PuzzleTooltipBuyRateValue.text1", ColorUtility.ToHtmlStringRGB(RateValueColor(_percent, _isBuying: true)), _percent);
     }
 
     internal static string PuzzleTooltipFinalSellPriceLabel()
@@ -419,7 +419,7 @@ public static class Presentation
 
     internal static string PuzzleTooltipFinalSellPriceValue(decimal _price, decimal _actualValue)
     {
-        return BasicData.Format("presentation.PuzzleTooltipFinalSellPriceValue.text1", ColorUtility.ToHtmlStringRGB(PriceValueColor(_price, _actualValue)), _price);
+        return BasicData.Format("presentation.PuzzleTooltipFinalSellPriceValue.text1", ColorUtility.ToHtmlStringRGB(PriceValueColor(_price, _actualValue, _isBuying: false)), _price);
     }
 
     internal static string PuzzleTooltipFinalBuyPriceLabel()
@@ -429,7 +429,7 @@ public static class Presentation
 
     internal static string PuzzleTooltipFinalBuyPriceValue(decimal _price, decimal _actualValue)
     {
-        return BasicData.Format("presentation.PuzzleTooltipFinalBuyPriceValue.text1", ColorUtility.ToHtmlStringRGB(PriceValueColor(_price, _actualValue)), _price);
+        return BasicData.Format("presentation.PuzzleTooltipFinalBuyPriceValue.text1", ColorUtility.ToHtmlStringRGB(PriceValueColor(_price, _actualValue, _isBuying: true)), _price);
     }
 
     internal static string PuzzleTooltipEffectHeader()
