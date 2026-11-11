@@ -169,7 +169,8 @@ internal sealed class PuzzleInventoryValuation
                 ? _target.Definition.Tags.Contains(rule.targetTag)
                 : !_target.Definition.Tags.Contains(rule.excludedTargetTag);
             if (!matchesTarget || !_neighbor.Definition.Tags.Contains(rule.neighborTag) ||
-                (!string.IsNullOrEmpty(rule.excludedNeighborTag) && _neighbor.Definition.Tags.Contains(rule.excludedNeighborTag)))
+                (!string.IsNullOrEmpty(rule.excludedNeighborTag) &&
+                 rule.excludedNeighborTag.Split(',').Any(tag => _neighbor.Definition.Tags.Contains(tag.Trim()))))
             {
                 continue;
             }

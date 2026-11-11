@@ -482,8 +482,9 @@ public sealed class GameTableRules
             Reference(rule.excludedTargetTag, path + ".excludedTargetTag", tags.Contains(rule.excludedTargetTag),
                 "제외 대상 태그", _allowEmpty: true);
             Reference(rule.neighborTag, path + ".neighborTag", tags.Contains(rule.neighborTag), "이웃 태그");
-            Reference(rule.excludedNeighborTag, path + ".excludedNeighborTag", tags.Contains(rule.excludedNeighborTag),
-                "제외 이웃 태그", _allowEmpty: true);
+            Check(string.IsNullOrEmpty(rule.excludedNeighborTag) ||
+                  rule.excludedNeighborTag.Split(',').All(tag => tags.Contains(tag.Trim())),
+                path + ".excludedNeighborTag", "제외 이웃 태그는 쉼표로 구분된 등록 태그여야 합니다.");
             Reference(rule.descriptionTag, path + ".descriptionTag", tags.Contains(rule.descriptionTag),
                 "설명 표시 태그", _allowEmpty: true);
             Check(rule.scope is nameof(PuzzleSynergyScope.Train) or nameof(PuzzleSynergyScope.Market)

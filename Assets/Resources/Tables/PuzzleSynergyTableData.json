@@ -2,7 +2,7 @@
   "status": "sample",
   "note": "인접 시너지 샘플. 증가는 기본 가치에 더하고 감소 배율은 증가가 반영된 가치에 곱한다.",
   "rules": [
-    { "id": "sample.cargoNearFood", "targetTag": "Cargo", "neighborTag": "Food", "excludedNeighborTag": "Grain", "scope": "Both", "multiplierPercent": 120, "description": "식량이 함께 실리면 화물의 가치가 올라갑니다. 곡물 태그는 수송 부담으로 제외됩니다." },
+    { "id": "sample.cargoNearFood", "targetTag": "Cargo", "neighborTag": "Food", "excludedNeighborTag": "Grain,Fish", "scope": "Both", "multiplierPercent": 120, "description": "식량이 함께 실리면 화물의 가치가 올라갑니다. 곡물 태그는 수송 부담으로, 생선 태그는 악취 오염으로 제외됩니다." },
     { "id": "sample.machineryNearWood", "targetTag": "Machinery", "neighborTag": "Wood", "scope": "Both", "multiplierPercent": 110, "description": "목재와 나란히 놓이면 나무 포장의 완충으로 기계의 가치가 올라갑니다." },
     { "id": "foodNearSalt", "targetTag": "Food", "neighborTag": "Salt", "scope": "Both", "multiplierPercent": 120, "description": "소금과 가까이 있으면 절임 보관이 쉬워져 음식의 가치가 올라갑니다." },
     { "id": "woodNearWater", "targetTag": "Wood", "neighborTag": "Water", "scope": "Both", "multiplierPercent": 90, "descriptionTag": "Water", "description": "근처의 목재는 습기와 부식으로 가치가 떨어집니다." },

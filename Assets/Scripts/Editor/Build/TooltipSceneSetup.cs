@@ -143,10 +143,14 @@ public static class TooltipSceneSetup
             var futureValProp = existingView ? new SerializedObject(existingView).FindProperty("futureValueLabelText") : null;
             var freshnessProp = existingView ? new SerializedObject(existingView).FindProperty("freshnessLabelText") : null;
             var splitRowProp = existingView ? new SerializedObject(existingView).FindProperty("actualValueLabelText") : null;
+            var bodyProp = existingView ? new SerializedObject(existingView).FindProperty("bodyRect") : null;
+            var futureRowGrandParent = (futureValProp?.objectReferenceValue as TextMeshProUGUI)?.transform.parent?.parent;
             if (catRowProp == null || catRowProp.objectReferenceValue == null ||
                 futureValProp == null || futureValProp.objectReferenceValue == null ||
                 freshnessProp == null || freshnessProp.objectReferenceValue == null ||
-                splitRowProp == null || splitRowProp.objectReferenceValue == null)
+                splitRowProp == null || splitRowProp.objectReferenceValue == null ||
+                bodyProp == null || bodyProp.objectReferenceValue == null ||
+                futureRowGrandParent != bodyProp.objectReferenceValue)
             {
                 UnityEngine.Object.DestroyImmediate(tooltipTransform.gameObject);
                 tooltipTransform = null;
@@ -303,6 +307,8 @@ public static class TooltipSceneSetup
             out TextMeshProUGUI sellRateLabel, out TextMeshProUGUI sellRateValue);
         CreateValueRow("BuyRateRow", body.transform, _fontAsset, "판매 금액", "$ 100",
             out TextMeshProUGUI buyRateLabel, out TextMeshProUGUI buyRateValue);
+        CreateValueRow("FutureValueRow", body.transform, _fontAsset, "미래 가치", "$ 100",
+            out TextMeshProUGUI futureLabel, out TextMeshProUGUI futureValue);
 
         // 5. Synergy Section
         var synergySection = new GameObject("SynergySection", typeof(RectTransform), typeof(VerticalLayoutGroup));
@@ -336,9 +342,6 @@ public static class TooltipSceneSetup
             slots[i].enableAutoSizing = false;
             slots[i].textWrappingMode = TextWrappingModes.Normal;
         }
-
-        CreateValueRow("FutureValueRow", synergySection.transform, _fontAsset, "미래 가치", "$ 100",
-            out TextMeshProUGUI futureLabel, out TextMeshProUGUI futureValue);
 
         // Wire serialized fields on PuzzleItemTooltipView
         var view = root.GetComponent<PuzzleItemTooltipView>();
