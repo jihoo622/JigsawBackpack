@@ -7,8 +7,8 @@ using UnityEngine;
 public sealed class PuzzleInventoryService : MonoBehaviour
 {
     const int PERCENT_SCALE = 100;
-    static string AnimalTag => BasicData.Text("rules.PuzzleInventoryService.AnimalTag");
-    static string AnimalWastePieceId => BasicData.Text("rules.PuzzleInventoryService.AnimalWastePieceId");
+    static string AnimalTag => BasicData.Text("rules.PuzzleInventoryService.animalTag");
+    static string AnimalWastePieceId => BasicData.Text("rules.PuzzleInventoryService.animalWastePieceId");
 
     TableManager tables;
     Dictionary<string, PuzzleInventory> markets;
@@ -134,12 +134,8 @@ public sealed class PuzzleInventoryService : MonoBehaviour
     public bool CanClearGame => tables != null && RunStatus == PuzzleRunStatus.InProgress && Funds >= GameClearCost
         && !Time.IsOverdue && (string.IsNullOrEmpty(DebtCityId) || CurrentCityId == DebtCityId);
     public int CityMoveCount { get; private set; }
-    public int PaidDebtCount { get; private set; }
     public PuzzleRunStatus RunStatus { get; private set; }
     internal string CurrentCityName => CityData.displayName;
-    internal PuzzleDebtPaymentData NextDebt => PaidDebtCount < tables.DebtSchedule.Count
-        ? tables.DebtSchedule[PaidDebtCount]
-        : null;
     internal bool CanTravel => tables != null && !string.IsNullOrEmpty(currentCityId) && tables.RoutesFrom(currentCityId).Count > 0;
     internal long ElapsedTime => Time.ElapsedMinutes;
     internal PuzzleRegionData RegionData => tables.Region(CityData.regionId);
@@ -157,7 +153,7 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         definitions = new Dictionary<string, PuzzleItemDefinition>(StringComparer.Ordinal);
         foreach (var item in validatedTables.Pieces)
         {
-            definitions.Add(item.id, new PuzzleItemDefinition(item, validatedTables.ItemPrice(item.id).baseValue));
+            definitions.Add(item.id, new PuzzleItemDefinition(item));
         }
 
         tables = validatedTables;
@@ -189,7 +185,6 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         visitedCities.Add(currentCityId);
         Funds = tables.PuzzleTrade.startingFunds;
         CityMoveCount = 0;
-        PaidDebtCount = 0;
         RunStatus = PuzzleRunStatus.InProgress;
         trainWagons.Clear();
         trainWagons.Add(train);
@@ -202,13 +197,13 @@ public sealed class PuzzleInventoryService : MonoBehaviour
     {
         var city = tables.CityPrice(_cityId);
         var placements = new List<PuzzleStartingPlacementData>(tables.MarketStartingPlacements(_cityId));
-        AddStock(city.regionalStock, placements);
-        AddStock(city.generalStock, placements);
+        AddStock(_cityId, tables.StockProfile(city.regionalStockId), placements);
+        AddStock(_cityId, tables.StockProfile(city.generalStockId), placements);
         return new PuzzleInventory(city.market, placements, definitions, marketRules,
             ref lastInstanceId);
     }
 
-    void AddStock(PuzzleMarketStockData _stock, List<PuzzleStartingPlacementData> _placements)
+    void AddStock(string _cityId, PuzzleMarketStockData _stock, List<PuzzleStartingPlacementData> _placements)
     {
         var candidates = new List<string>(_stock.pieceIds);
         candidates.Sort(StringComparer.Ordinal);
@@ -218,7 +213,7 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         {
             _placements.Add(new PuzzleStartingPlacementData
             {
-                id = slot.id,
+                id = _cityId + "." + slot.id,
                 pieceId = candidates[stockRandom.Next(candidates.Count)],
                 x = slot.x,
                 y = slot.y,
@@ -463,29 +458,6 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         AdvanceMinutes(duration);
         SetPreviewDestination(null);
         GameEvents.RaiseCityArrived(CurrentCityId, CityMoveCount);
-
-        // 테스트를 위해 빚 차감 및 빚으로 인한 승패 판정을 임시 비활성화한다.
-        /*
-        // 빚은 도착 후에 차감한다.
-        var debt = NextDebt;
-        if (debt != null && debt.moveCount == CityMoveCount)
-        {
-            if (Funds < debt.amount)
-            {
-                RunStatus = PuzzleRunStatus.Lost;
-            }
-            else
-            {
-                Funds -= debt.amount;
-                PaidDebtCount++;
-                if (PaidDebtCount == tables.DebtSchedule.Count)
-                {
-                    RunStatus = PuzzleRunStatus.Won;
-                }
-            }
-        }
-
-        */
 
         return new PuzzleTravelResult(PuzzleTravelFailure.None, evaluation.Cost, evaluation.FromCityId,
             evaluation.ToCityId, Funds, evaluation.BaseCost, evaluation.Cells, evaluation.Distance, evaluation.DistanceCost,

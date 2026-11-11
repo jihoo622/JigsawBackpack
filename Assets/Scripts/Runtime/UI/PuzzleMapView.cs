@@ -48,7 +48,7 @@ public sealed class PuzzleMapView : PanelBase
     RouteTimeVisual[] layoutRoutes;
     string currentCityId;
     string selectedCityId;
-    static float LabelGap => BasicData.Float("ui.PuzzleMapView.LabelGap");
+    static float LabelGap => BasicData.Float("ui.PuzzleMapView.labelGap");
     static readonly Vector2[] LABEL_DIRECTIONS =
     {
         Vector2.up, Vector2.right, Vector2.down, Vector2.left,
@@ -56,7 +56,7 @@ public sealed class PuzzleMapView : PanelBase
     };
     static Vector2[] TimeOffsets => new Vector2[]
     {
-        Vector2.zero, new Vector2(0f, BasicData.Float("ui.PuzzleMapView.Vector2.number1")), new Vector2(0f, -BasicData.Float("ui.PuzzleMapView.Vector2.number2")), new Vector2(BasicData.Float("ui.PuzzleMapView.Vector2.number3"), 0f), new Vector2(-BasicData.Float("ui.PuzzleMapView.Vector2.number4"), 0f)
+        Vector2.zero, new Vector2(0f, BasicData.Float("ui.PuzzleMapView.puzzleMapViewY")), new Vector2(0f, -BasicData.Float("ui.PuzzleMapView.puzzleMapViewY2")), new Vector2(BasicData.Float("ui.PuzzleMapView.puzzleMapViewX"), 0f), new Vector2(-BasicData.Float("ui.PuzzleMapView.puzzleMapViewX2"), 0f)
     };
 
     internal PuzzleMapNodeView[] Nodes => nodes;
@@ -107,7 +107,7 @@ public sealed class PuzzleMapView : PanelBase
         PrepareLayout();
         occupied.Clear();
         Rect bounds = _viewport.rect;
-        bounds = Rect.MinMaxRect(bounds.xMin + BasicData.Float("ui.PuzzleMapView.UpdateMapLayout.number1"), bounds.yMin + BasicData.Float("ui.PuzzleMapView.UpdateMapLayout.number2"), bounds.xMax - BasicData.Float("ui.PuzzleMapView.UpdateMapLayout.number3"), bounds.yMax - BasicData.Float("ui.PuzzleMapView.UpdateMapLayout.number4"));
+        bounds = Rect.MinMaxRect(bounds.xMin + BasicData.Float("ui.PuzzleMapView.updateMapLayout"), bounds.yMin + BasicData.Float("ui.PuzzleMapView.updateMapLayout2"), bounds.xMax - BasicData.Float("ui.PuzzleMapView.updateMapLayout3"), bounds.yMax - BasicData.Float("ui.PuzzleMapView.updateMapLayout4"));
         foreach (var node in layoutNodes)
         {
             node.PrepareLayout(_zoom);
@@ -138,7 +138,7 @@ public sealed class PuzzleMapView : PanelBase
                         break;
                     }
                 }
-                if (!visible && node.LabelPriority(selectedCityId) >= BasicData.Int("ui.PuzzleMapView.UpdateMapLayout.number5"))
+                if (!visible && node.LabelPriority(selectedCityId) >= BasicData.Int("ui.PuzzleMapView.updateMapLayoutAbovePercent"))
                 {
                     Vector2 center = position + Vector2.up * (node.MarkerRadius + LabelGap + size.y * 0.5f);
                     center.x = Mathf.Clamp(center.x, bounds.xMin + size.x * 0.5f, bounds.xMax - size.x * 0.5f);
@@ -175,7 +175,7 @@ public sealed class PuzzleMapView : PanelBase
             label.fontSize = Presentation.PuzzleMapTimeFontSize;
             label.resizeTextForBestFit = false;
             label.horizontalOverflow = HorizontalWrapMode.Overflow;
-            Vector2 size = new Vector2(Mathf.Ceil(label.preferredWidth) + BasicData.Float("ui.PuzzleMapView.Vector2.number5"), BasicData.Float("ui.PuzzleMapView.Vector2.number6"));
+            Vector2 size = new Vector2(Mathf.Ceil(label.preferredWidth) + BasicData.Float("ui.PuzzleMapView.updateMapLayoutX"), BasicData.Float("ui.PuzzleMapView.updateMapLayoutY"));
             label.rectTransform.sizeDelta = size;
             bool visible = false;
             if (route.plate)
@@ -183,7 +183,7 @@ public sealed class PuzzleMapView : PanelBase
                 var plate = route.plate.rectTransform;
                 plate.localScale = Vector3.one / _zoom;
                 plate.sizeDelta = size;
-                if (_zoom >= BasicData.Float("ui.PuzzleMapView.Vector2.number7"))
+                if (_zoom >= BasicData.Float("ui.PuzzleMapView.updateMapLayoutAbovePercent2"))
                 {
                     Vector2 origin = _viewport.InverseTransformPoint(label.transform.position);
                     foreach (var offset in TimeOffsets)
@@ -209,7 +209,10 @@ public sealed class PuzzleMapView : PanelBase
     {
         bool current = _route.fromCityId == currentCityId || _route.toCityId == currentCityId;
         bool selected = _route.fromCityId == selectedCityId || _route.toCityId == selectedCityId;
-        return current && selected ? BasicData.Int("ui.PuzzleMapView.RoutePriority.number1") : current ? 2 : selected ? 1 : 0;
+        return current && selected ? BasicData.Int("ui.mapRoutes.currentSelected")
+            : current ? BasicData.Int("ui.mapRoutes.current")
+            : selected ? BasicData.Int("ui.mapRoutes.selected")
+            : BasicData.Int("ui.mapRoutes.other");
     }
 
     bool Available(Rect _candidate, Rect _bounds)

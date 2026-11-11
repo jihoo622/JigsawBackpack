@@ -6,7 +6,7 @@ using UnityEngine.UI;
 [DisallowMultipleComponent]
 public sealed class PuzzleItemTooltipView : PanelBase
 {
-    static float DefaultFollowSpeed => BasicData.Float("ui.PuzzleItemTooltipView.DefaultFollowSpeed");
+    static float DefaultFollowSpeed => BasicData.Float("ui.PuzzleItemTooltipView.defaultFollowSpeed");
 
     [SerializeField] Canvas canvas;
     [SerializeField] RectTransform panelRect;
@@ -229,7 +229,7 @@ public sealed class PuzzleItemTooltipView : PanelBase
                 {
                     badgeImage.gameObject.SetActive(true);
                     badgeImage.color = Color.Lerp(Presentation.PuzzleTagBackgroundColor(tag),
-                        Presentation.PuzzleTooltipBodyBackground, 0.35f);
+                        Presentation.PuzzleTooltipBodyBackground, BasicData.Float("ui.tooltip.badgeBlend"));
                 }
                 if (badgeText)
                 {
@@ -305,7 +305,7 @@ public sealed class PuzzleItemTooltipView : PanelBase
 
         float offset = BasicData.Float("ui.layout.tooltipPointerOffset");
         float posX = localPoint.x + offset;
-        const float pointerTopInset = 32f;
+        float pointerTopInset = BasicData.Float("ui.tooltip.pointerTopInset");
         float posY = localPoint.y + pointerTopInset;
 
         Rect cRect = canvasRectTransform.rect;
@@ -329,8 +329,9 @@ public sealed class PuzzleItemTooltipView : PanelBase
             float edge = flipped ? 1f : 0f;
             pointer.anchorMin = pointer.anchorMax = new Vector2(edge, 1f);
             pointer.localScale = new Vector3(flipped ? -1f : 1f, 1f, 1f);
+            float edgeInset = BasicData.Float("ui.tooltip.pointerEdgeInset");
             pointer.anchoredPosition = new Vector2(0f,
-                Mathf.Clamp(localPoint.y - posY, -height + 20f, -20f));
+                Mathf.Clamp(localPoint.y - posY, -height + edgeInset, -edgeInset));
         }
 
         targetCanvasPosition = new Vector2(posX, posY);

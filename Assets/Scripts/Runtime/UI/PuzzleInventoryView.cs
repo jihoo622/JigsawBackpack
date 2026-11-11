@@ -8,7 +8,7 @@ using TMPro;
 [DisallowMultipleComponent]
 public sealed class PuzzleInventoryView : MonoBehaviour
 {
-    static float CellGap => BasicData.Float("ui.PuzzleInventoryView.CellGap");
+    static float CellGap => BasicData.Float("ui.PuzzleInventoryView.cellGap");
     const string ITEM_ICON_PATH = "PuzzleInventoryUI.itemIcons";
 
     [Serializable]
@@ -102,7 +102,7 @@ public sealed class PuzzleInventoryView : MonoBehaviour
 
         if (_boardCapacity > boardCells.Length || _boardCapacity > placementSlots.Length ||
             _dragCapacity > ghostSlots.Length || _dragCapacity > outlineSlots.Length ||
-            _boardCapacity * BasicData.Int("ui.PuzzleInventoryView.InvalidOperationException.number1") > synergyArrows.Length)
+            _boardCapacity * BasicData.Int("ui.PuzzleInventoryView.setMarketOpen") > synergyArrows.Length)
         {
             throw new InvalidOperationException("화물 테이블과 인벤토리 프리팹의 표시 용량이 맞지 않습니다.");
         }
@@ -122,8 +122,8 @@ public sealed class PuzzleInventoryView : MonoBehaviour
         if (!freshnessMaterial)
         {
             freshnessMaterial = new Material(boardTitle.font.material);
-            freshnessMaterial.SetColor(ShaderUtilities.ID_OutlineColor, Color.black);
-            freshnessMaterial.SetFloat(ShaderUtilities.ID_OutlineWidth, 0.35f);
+            freshnessMaterial.SetColor(ShaderUtilities.ID_OutlineColor, Presentation.PuzzleFreshnessOutline);
+            freshnessMaterial.SetFloat(ShaderUtilities.ID_OutlineWidth, BasicData.Float("ui.freshness.outlineWidth"));
             freshnessMaterial.EnableKeyword(ShaderUtilities.Keyword_Outline);
         }
         ShowItemDetails(null, default, default, default);
@@ -231,14 +231,14 @@ public sealed class PuzzleInventoryView : MonoBehaviour
                 bool forward = direction.x > 0 || direction.y > 0;
                 bool increase = effect.Percent > 0;
                 Vector2 axis = direction.x != 0 ? Vector2.up : Vector2.right;
-                float lane = (forward ? 1f : -1f) * (increase ? BasicData.Float("ui.PuzzleInventoryView.RenderSynergies.number1") : BasicData.Float("ui.PuzzleInventoryView.RenderSynergies.number2"));
+                float lane = (forward ? 1f : -1f) * (increase ? BasicData.Float("ui.PuzzleInventoryView.renderSynergies") : BasicData.Float("ui.PuzzleInventoryView.renderSynergies2"));
                 var arrow = synergyArrows[index++];
                 arrow.sprite = increase ? increaseArrow : decreaseArrow;
                 arrow.color = Presentation.PuzzleSynergyArrow;
                 arrow.rectTransform.localPosition = (GetCellCenter(effect.TargetCell) +
                     GetCellCenter(effect.NeighborCell)) * 0.5f + axis * (lane * cellSize);
                 // 원본 스프라이트의 투명 여백을 포함한 크기다.
-                arrow.rectTransform.sizeDelta = new Vector2(cellSize * BasicData.Float("ui.PuzzleInventoryView.Vector2.number1"), cellSize * BasicData.Float("ui.PuzzleInventoryView.Vector2.number2"));
+                arrow.rectTransform.sizeDelta = new Vector2(cellSize * BasicData.Float("ui.PuzzleInventoryView.rectTransformsizeDeltaWidth"), cellSize * BasicData.Float("ui.PuzzleInventoryView.rectTransformsizeDeltaHeight"));
                 arrow.rectTransform.localRotation = Quaternion.Euler(0f, 0f, Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg);
                 arrow.enabled = true;
             }

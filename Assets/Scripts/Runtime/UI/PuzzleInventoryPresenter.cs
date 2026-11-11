@@ -6,7 +6,7 @@ using UnityEngine.EventSystems;
 [DisallowMultipleComponent]
 public sealed class PuzzleInventoryPresenter : MonoBehaviour
 {
-    static float WagonDragHoverDelay => BasicData.Float("ui.PuzzleInventoryPresenter.WagonDragHoverDelay");
+    static float WagonDragHoverDelay => BasicData.Float("ui.PuzzleInventoryPresenter.wagonDragHoverDelay");
 
     [SerializeField] PuzzleInventoryView trainView;
     [SerializeField] PuzzleInventoryView marketView;

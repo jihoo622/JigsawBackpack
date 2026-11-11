@@ -17,7 +17,7 @@ public static class MapPresentationTool
         var data = JObject.Parse(File.ReadAllText(GEOGRAPHY_PATH));
         int width = (int)data["grid"]["width"];
         int height = (int)data["grid"]["height"];
-        int pixelsPerTile = BasicData.Int("editor.MapPresentationTool.Pixelspertile");
+        int pixelsPerTile = BasicData.Int("editor.MapPresentationTool.pixelspertile");
         var texture = new Texture2D(width * pixelsPerTile, height * pixelsPerTile, TextureFormat.RGB24, false);
         var pixels = new Color32[texture.width * texture.height];
         var layers = data["layers"];
@@ -34,9 +34,9 @@ public static class MapPresentationTool
                     int region = (int)data["regionIndex"][index];
                     Color tint = region < 0 ? Presentation.PuzzleMapLand :
                         Presentation.PuzzleMapLineColor((string)data["regionIndexToId"][region]);
-                    color = Color.Lerp(Presentation.PuzzleMapLand, tint, BasicData.Float("editor.MapPresentationTool.Texture2D.number1"));
+                    color = Color.Lerp(Presentation.PuzzleMapLand, tint, BasicData.Float("editor.MapPresentationTool.generateTerrain"));
                     float elevation = (float)layers["elevationNormalized"][index];
-                    color *= BasicData.Float("editor.MapPresentationTool.Texture2D.number2") + elevation * BasicData.Float("editor.MapPresentationTool.Texture2D.number3");
+                    color *= BasicData.Float("editor.MapPresentationTool.generateTerrain2") + elevation * BasicData.Float("editor.MapPresentationTool.generateTerrain3");
                     if ((int)layers["river"][index] == 1)
                     {
                         color = Presentation.PuzzleMapRiver;
@@ -45,7 +45,7 @@ public static class MapPresentationTool
                     edge |= tileY > 0 && (int)data["regionIndex"][index - width] != region && y % pixelsPerTile == 0;
                     if (edge || (int)layers["coast"][index] == 1)
                     {
-                        color = Color.Lerp(color, Presentation.PuzzleMapTerrainBorder, edge ? BasicData.Float("editor.MapPresentationTool.Texture2D.number4") : BasicData.Float("editor.MapPresentationTool.Texture2D.number5"));
+                        color = Color.Lerp(color, Presentation.PuzzleMapTerrainBorder, edge ? BasicData.Float("editor.MapPresentationTool.generateTerrain4") : BasicData.Float("editor.MapPresentationTool.generateTerrain5"));
                     }
                 }
                 color.a = 1f;
@@ -94,16 +94,16 @@ public static class MapPresentationTool
         var viewport = Rect(panel, "MapViewport", Vector2.zero, Vector2.zero);
         viewport.anchorMin = Vector2.zero;
         viewport.anchorMax = Vector2.one;
-        viewport.offsetMin = new Vector2(BasicData.Float("editor.MapPresentationTool.Vector2.number1"), BasicData.Float("editor.MapPresentationTool.Vector2.number2"));
-        viewport.offsetMax = new Vector2(-BasicData.Float("editor.MapPresentationTool.Vector2.number3"), -BasicData.Float("editor.MapPresentationTool.Vector2.number4"));
+        viewport.offsetMin = new Vector2(BasicData.Float("editor.MapPresentationTool.viewportoffsetMinX"), BasicData.Float("editor.MapPresentationTool.viewportoffsetMinY"));
+        viewport.offsetMax = new Vector2(-BasicData.Float("editor.MapPresentationTool.viewportoffsetMaxX"), -BasicData.Float("editor.MapPresentationTool.viewportoffsetMaxY"));
         var backdrop = Component<Image>(viewport);
         backdrop.color = Presentation.PuzzleMapOcean;
         backdrop.raycastTarget = true;
         Component<RectMask2D>(viewport);
-        var content = Rect(viewport, "MapContent", Vector2.zero, new Vector2(BasicData.Float("editor.MapPresentationTool.Vector2.number5"), BasicData.Float("editor.MapPresentationTool.Vector2.number6")));
-        content.localScale = Vector3.one * BasicData.Float("editor.MapPresentationTool.Vector2.number7");
+        var content = Rect(viewport, "MapContent", Vector2.zero, new Vector2(BasicData.Float("editor.MapPresentationTool.mapContentX"), BasicData.Float("editor.MapPresentationTool.mapContentY")));
+        content.localScale = Vector3.one * BasicData.Float("editor.MapPresentationTool.contentlocalScale");
 
-        var terrainRect = Rect(content, "TerrainBackground", new Vector2(0f, 0f), new Vector2(BasicData.Float("editor.MapPresentationTool.Vector2.number8"), BasicData.Float("editor.MapPresentationTool.Vector2.number9")));
+        var terrainRect = Rect(content, "TerrainBackground", new Vector2(0f, 0f), new Vector2(BasicData.Float("editor.MapPresentationTool.terrainBackgroundWidth"), BasicData.Float("editor.MapPresentationTool.terrainBackgroundHeight")));
         var image = Component<RawImage>(terrainRect);
         image.texture = _terrain;
         image.color = Presentation.PuzzleUnmodifiedTint;
@@ -123,14 +123,14 @@ public static class MapPresentationTool
             node.transform.SetParent(content, false);
             var data = new SerializedObject(node);
             var ring = data.FindProperty("stationRing").objectReferenceValue as Image;
-            var haloRect = Rect(node.transform, "CurrentHalo", ring.rectTransform.anchoredPosition, new Vector2(BasicData.Float("editor.MapPresentationTool.Vector2.number10"), BasicData.Float("editor.MapPresentationTool.Vector2.number11")));
+            var haloRect = Rect(node.transform, "CurrentHalo", ring.rectTransform.anchoredPosition, new Vector2(BasicData.Float("editor.MapPresentationTool.currentHaloX"), BasicData.Float("editor.MapPresentationTool.currentHaloY")));
             haloRect.SetAsFirstSibling();
             var halo = Component<Image>(haloRect);
             halo.sprite = ring.sprite;
             halo.color = Presentation.PuzzleMapCurrentHalo;
             halo.raycastTarget = false;
             var badge = Label(node.transform, "CurrentBadge", font, Presentation.PuzzleMapCurrentText,
-                ring.rectTransform.anchoredPosition + new Vector2(0f, BasicData.Float("editor.MapPresentationTool.Vector2.number12")), new Vector2(BasicData.Float("editor.MapPresentationTool.Vector2.number13"), BasicData.Float("editor.MapPresentationTool.Vector2.number14")), BasicData.Int("editor.MapPresentationTool.Vector2.number15"));
+                ring.rectTransform.anchoredPosition + new Vector2(0f, BasicData.Float("editor.MapPresentationTool.currentBadgeOffsetY")), new Vector2(BasicData.Float("editor.MapPresentationTool.currentBadgeWidth"), BasicData.Float("editor.MapPresentationTool.currentBadgeHeight")), BasicData.Int("editor.MapPresentationTool.currentBadgeFontSize"));
             badge.color = Presentation.PuzzleMapCurrent;
             badge.fontStyle = FontStyle.Bold;
             halo.gameObject.SetActive(false);
@@ -144,26 +144,26 @@ public static class MapPresentationTool
             outline.effectDistance = new Vector2(1f, -1f);
         }
 
-        Place(Find(panel, "Title"), new Vector2(0f, BasicData.Float("editor.MapPresentationTool.Vector2.number16")), new Vector2(BasicData.Float("editor.MapPresentationTool.Vector2.number17"), BasicData.Float("editor.MapPresentationTool.Vector2.number18")));
-        Place(template.transform, new Vector2(BasicData.Float("editor.MapPresentationTool.Vector2.number19"), BasicData.Float("editor.MapPresentationTool.Vector2.number20")), new Vector2(BasicData.Float("editor.MapPresentationTool.Vector2.number21"), BasicData.Float("editor.MapPresentationTool.Vector2.number22")));
-        Place(Find(panel, "Guide"), new Vector2(0f, BasicData.Float("editor.MapPresentationTool.Vector2.number23")), new Vector2(BasicData.Float("editor.MapPresentationTool.Vector2.number24"), BasicData.Float("editor.MapPresentationTool.Vector2.number25")));
-        Find(panel, "Guide").GetComponent<Text>().fontSize = BasicData.Int("editor.MapPresentationTool.Vector2.number26");
-        Place(Find(panel, "CityInformation"), new Vector2(0f, -BasicData.Float("editor.MapPresentationTool.Vector2.number27")), new Vector2(BasicData.Float("editor.MapPresentationTool.Vector2.number28"), BasicData.Float("editor.map.cityInformationHeight")));
+        Place(Find(panel, "Title"), new Vector2(0f, BasicData.Float("editor.MapPresentationTool.titleY")), new Vector2(BasicData.Float("editor.MapPresentationTool.titleWidth"), BasicData.Float("editor.MapPresentationTool.titleHeight")));
+        Place(template.transform, new Vector2(BasicData.Float("editor.MapPresentationTool.closeButtonX"), BasicData.Float("editor.MapPresentationTool.closeButtonY")), new Vector2(BasicData.Float("editor.MapPresentationTool.closeButtonWidth"), BasicData.Float("editor.MapPresentationTool.closeButtonHeight")));
+        Place(Find(panel, "Guide"), new Vector2(0f, BasicData.Float("editor.MapPresentationTool.guideY")), new Vector2(BasicData.Float("editor.MapPresentationTool.guideWidth"), BasicData.Float("editor.MapPresentationTool.guideHeight")));
+        Find(panel, "Guide").GetComponent<Text>().fontSize = BasicData.Int("editor.MapPresentationTool.guideFontSize");
+        Place(Find(panel, "CityInformation"), new Vector2(0f, -BasicData.Float("editor.MapPresentationTool.cityInformationY")), new Vector2(BasicData.Float("editor.MapPresentationTool.cityInformationWidth"), BasicData.Float("editor.map.cityInformationHeight")));
         int regionIndex = 0;
         foreach (var region in new[] { "region.mine", "region.ranch", "region.industry", "region.capital", "region.coast", "region.farm", "region.common" })
         {
-            float x = -BasicData.Float("editor.MapPresentationTool.Vector2.number29") + regionIndex * BasicData.Float("editor.MapPresentationTool.Vector2.number30");
-            Place(Find(labels, "LineSwatch_" + region), new Vector2(x, BasicData.Float("editor.MapPresentationTool.Vector2.number31")), new Vector2(BasicData.Float("editor.MapPresentationTool.Vector2.number32"), BasicData.Float("editor.MapPresentationTool.Vector2.number33")));
+            float x = -BasicData.Float("editor.MapPresentationTool.legendOriginX") + regionIndex * BasicData.Float("editor.MapPresentationTool.legendStep");
+            Place(Find(labels, "LineSwatch_" + region), new Vector2(x, BasicData.Float("editor.MapPresentationTool.lineSwatchY")), new Vector2(BasicData.Float("editor.MapPresentationTool.lineSwatchWidth"), BasicData.Float("editor.MapPresentationTool.lineSwatchHeight")));
             var label = Find(labels, "LineName_" + region);
-            Place(label, new Vector2(x + BasicData.Float("editor.MapPresentationTool.Vector2.number34"), BasicData.Float("editor.MapPresentationTool.Vector2.number35")), new Vector2(BasicData.Float("editor.MapPresentationTool.Vector2.number36"), BasicData.Float("editor.MapPresentationTool.Vector2.number37")));
-            label.GetComponent<Text>().fontSize = BasicData.Int("editor.MapPresentationTool.Vector2.number38");
+            Place(label, new Vector2(x + BasicData.Float("editor.MapPresentationTool.legendLabelOffsetX"), BasicData.Float("editor.MapPresentationTool.legendLabelY")), new Vector2(BasicData.Float("editor.MapPresentationTool.legendLabelWidth"), BasicData.Float("editor.MapPresentationTool.legendLabelHeight")));
+            label.GetComponent<Text>().fontSize = BasicData.Int("editor.MapPresentationTool.legendFontSize");
             regionIndex++;
         }
 
         labels.anchorMin = Vector2.zero;
         labels.anchorMax = Vector2.one;
-        labels.offsetMin = new Vector2(BasicData.Float("editor.MapPresentationTool.Vector2.number39"), 0f);
-        labels.offsetMax = new Vector2(-BasicData.Float("editor.MapPresentationTool.Vector2.number40"), 0f);
+        labels.offsetMin = new Vector2(BasicData.Float("editor.MapPresentationTool.labelsoffsetMinX"), 0f);
+        labels.offsetMax = new Vector2(-BasicData.Float("editor.MapPresentationTool.labelsoffsetMaxX"), 0f);
         regionIndex = 0;
         foreach (var label in labels.GetComponentsInChildren<Text>(true))
         {
@@ -175,32 +175,32 @@ public static class MapPresentationTool
             var order = new[] { "region.mine", "region.ranch", "region.industry", "region.capital", "region.coast", "region.farm", "region.common" };
             regionIndex = System.Array.IndexOf(order, label.name.Substring("LineName_".Length));
             var rect = label.rectTransform;
-            rect.anchorMin = new Vector2(regionIndex / BasicData.Float("editor.MapPresentationTool.Vector2.number41"), 1f);
-            rect.anchorMax = new Vector2((regionIndex + 1f) / BasicData.Float("editor.MapPresentationTool.Vector2.number42"), 1f);
-            rect.anchoredPosition = new Vector2(BasicData.Float("editor.MapPresentationTool.Vector2.number43"), -BasicData.Float("editor.MapPresentationTool.Vector2.number44"));
-            rect.sizeDelta = new Vector2(-BasicData.Float("editor.MapPresentationTool.Vector2.number45"), BasicData.Float("editor.MapPresentationTool.Vector2.number46"));
+            rect.anchorMin = new Vector2(regionIndex / BasicData.Float("editor.MapPresentationTool.rectanchorMinX"), 1f);
+            rect.anchorMax = new Vector2((regionIndex + 1f) / BasicData.Float("editor.MapPresentationTool.rectanchorMaxX"), 1f);
+            rect.anchoredPosition = new Vector2(BasicData.Float("editor.MapPresentationTool.rectanchoredPositionX"), -BasicData.Float("editor.MapPresentationTool.rectanchoredPositionY"));
+            rect.sizeDelta = new Vector2(-BasicData.Float("editor.MapPresentationTool.rectsizeDeltaWidth"), BasicData.Float("editor.MapPresentationTool.rectsizeDeltaHeight"));
             var swatch = Find(labels, "LineSwatch_" + order[regionIndex]);
-            swatch.anchorMin = swatch.anchorMax = new Vector2(regionIndex / BasicData.Float("editor.MapPresentationTool.Vector2.number47"), 1f);
-            swatch.anchoredPosition = new Vector2(BasicData.Float("editor.MapPresentationTool.Vector2.number48"), -BasicData.Float("editor.MapPresentationTool.Vector2.number49"));
+            swatch.anchorMin = swatch.anchorMax = new Vector2(regionIndex / BasicData.Float("editor.MapPresentationTool.swatchanchorMinX"), 1f);
+            swatch.anchoredPosition = new Vector2(BasicData.Float("editor.MapPresentationTool.swatchanchoredPositionX"), -BasicData.Float("editor.MapPresentationTool.swatchanchoredPositionY"));
         }
 
-        var controls = Rect(panel, "MapControls", new Vector2(0f, -BasicData.Float("editor.MapPresentationTool.Vector2.number50")), new Vector2(BasicData.Float("editor.MapPresentationTool.Vector2.number51"), BasicData.Float("editor.MapPresentationTool.Vector2.number52")));
-        var minus = Button(controls, template, "ZoomOut", Presentation.PuzzleMapZoomOut, -BasicData.Float("editor.MapPresentationTool.Vector2.number53"), BasicData.Float("editor.MapPresentationTool.Vector2.number54"));
-        var percent = Label(controls, "ZoomPercent", font, Presentation.PuzzleMapZoom(BasicData.Float("editor.MapPresentationTool.Vector2.number55")), new Vector2(-BasicData.Float("editor.MapPresentationTool.Vector2.number56"), 0f), new Vector2(BasicData.Float("editor.MapPresentationTool.Vector2.number57"), BasicData.Float("editor.MapPresentationTool.Vector2.number58")), BasicData.Int("editor.MapPresentationTool.Vector2.number59"));
-        var plus = Button(controls, template, "ZoomIn", Presentation.PuzzleMapZoomIn, -BasicData.Float("editor.MapPresentationTool.Vector2.number60"), BasicData.Float("editor.MapPresentationTool.Vector2.number61"));
-        var fit = Button(controls, template, "FitMap", Presentation.PuzzleMapFit, BasicData.Float("editor.MapPresentationTool.Vector2.number62"), BasicData.Float("editor.MapPresentationTool.Vector2.number63"));
-        var locate = Button(controls, template, "LocateCurrent", Presentation.PuzzleMapLocate, BasicData.Float("editor.MapPresentationTool.Vector2.number64"), BasicData.Float("editor.MapPresentationTool.Vector2.number65"));
-        Place(Find(panel, "CityInformation"), new Vector2(0f, -BasicData.Float("editor.MapPresentationTool.Vector2.number66")), new Vector2(BasicData.Float("editor.MapPresentationTool.Vector2.number67"), BasicData.Float("editor.MapPresentationTool.Vector2.number68")));
+        var controls = Rect(panel, "MapControls", new Vector2(0f, -BasicData.Float("editor.MapPresentationTool.mapControlsY")), new Vector2(BasicData.Float("editor.MapPresentationTool.mapControlsWidth"), BasicData.Float("editor.MapPresentationTool.mapControlsHeight")));
+        var minus = Button(controls, template, "ZoomOut", Presentation.PuzzleMapZoomOut, -BasicData.Float("editor.MapPresentationTool.zoomOut"), BasicData.Float("editor.MapPresentationTool.zoomOut2"));
+        var percent = Label(controls, "ZoomPercent", font, Presentation.PuzzleMapZoom(BasicData.Float("editor.MapPresentationTool.zoomPercentFontSize")), new Vector2(-BasicData.Float("editor.MapPresentationTool.zoomPercentX"), 0f), new Vector2(BasicData.Float("editor.MapPresentationTool.zoomPercentWidth"), BasicData.Float("editor.MapPresentationTool.zoomPercentHeight")), BasicData.Int("editor.MapPresentationTool.zoomPercentFontSize2"));
+        var plus = Button(controls, template, "ZoomIn", Presentation.PuzzleMapZoomIn, -BasicData.Float("editor.MapPresentationTool.zoomIn"), BasicData.Float("editor.MapPresentationTool.zoomIn2"));
+        var fit = Button(controls, template, "FitMap", Presentation.PuzzleMapFit, BasicData.Float("editor.MapPresentationTool.fitMap"), BasicData.Float("editor.MapPresentationTool.fitMap2"));
+        var locate = Button(controls, template, "LocateCurrent", Presentation.PuzzleMapLocate, BasicData.Float("editor.MapPresentationTool.locateCurrent"), BasicData.Float("editor.MapPresentationTool.locateCurrent2"));
+        Place(Find(panel, "CityInformation"), new Vector2(0f, -BasicData.Float("editor.MapPresentationTool.cityInformationY2")), new Vector2(BasicData.Float("editor.MapPresentationTool.cityInformationWidth2"), BasicData.Float("editor.MapPresentationTool.cityInformationHeight")));
         var info = Find(panel, "CityInformation").GetComponent<Text>();
-        info.fontSize = BasicData.Int("editor.MapPresentationTool.Vector2.number69");
+        info.fontSize = BasicData.Int("editor.MapPresentationTool.infofontSizeFontSize");
         info.resizeTextForBestFit = true;
-        info.resizeTextMinSize = BasicData.Int("editor.MapPresentationTool.Vector2.number70");
-        info.resizeTextMaxSize = BasicData.Int("editor.MapPresentationTool.Vector2.number71");
-        Header(Find(panel, "Title"), BasicData.Float("editor.MapPresentationTool.Vector2.number72"), BasicData.Float("editor.MapPresentationTool.Vector2.number73"), BasicData.Float("editor.MapPresentationTool.Vector2.number74"), BasicData.Float("editor.MapPresentationTool.Vector2.number75"));
-        Header(Find(panel, "Guide"), BasicData.Float("editor.MapPresentationTool.Vector2.number76"), BasicData.Float("editor.MapPresentationTool.Vector2.number77"), BasicData.Float("editor.MapPresentationTool.Vector2.number78"), BasicData.Float("editor.MapPresentationTool.Vector2.number79"));
+        info.resizeTextMinSize = BasicData.Int("editor.MapPresentationTool.inforesizeTextMinSize");
+        info.resizeTextMaxSize = BasicData.Int("editor.MapPresentationTool.inforesizeTextMaxSize");
+        Header(Find(panel, "Title"), BasicData.Float("editor.MapPresentationTool.title"), BasicData.Float("editor.MapPresentationTool.title2"), BasicData.Float("editor.MapPresentationTool.title3"), BasicData.Float("editor.MapPresentationTool.title4"));
+        Header(Find(panel, "Guide"), BasicData.Float("editor.MapPresentationTool.guide"), BasicData.Float("editor.MapPresentationTool.guide2"), BasicData.Float("editor.MapPresentationTool.guide3"), BasicData.Float("editor.MapPresentationTool.guide4"));
         var close = (RectTransform)template.transform;
         close.anchorMin = close.anchorMax = Vector2.one;
-        close.anchoredPosition = new Vector2(-BasicData.Float("editor.MapPresentationTool.Vector2.number80"), -BasicData.Float("editor.MapPresentationTool.Vector2.number81"));
+        close.anchoredPosition = new Vector2(-BasicData.Float("editor.MapPresentationTool.closeanchoredPositionX"), -BasicData.Float("editor.MapPresentationTool.closeanchoredPositionY"));
         var open = Find(_root.transform, "OpenMap");
         open.anchorMin = close.anchorMin;
         open.anchorMax = close.anchorMax;
@@ -208,12 +208,12 @@ public static class MapPresentationTool
         Place(open, close.anchoredPosition, close.sizeDelta);
         controls.anchorMin = new Vector2(0f, 0f);
         controls.anchorMax = new Vector2(1f, 0f);
-        controls.anchoredPosition = new Vector2(0f, BasicData.Float("editor.MapPresentationTool.Vector2.number82"));
-        controls.sizeDelta = new Vector2(-BasicData.Float("editor.MapPresentationTool.Vector2.number83"), BasicData.Float("editor.MapPresentationTool.Vector2.number84"));
+        controls.anchoredPosition = new Vector2(0f, BasicData.Float("editor.MapPresentationTool.controlsanchoredPositionY"));
+        controls.sizeDelta = new Vector2(-BasicData.Float("editor.MapPresentationTool.controlssizeDeltaWidth"), BasicData.Float("editor.MapPresentationTool.controlssizeDeltaHeight"));
         info.rectTransform.anchorMin = new Vector2(0f, 0f);
         info.rectTransform.anchorMax = new Vector2(1f, 0f);
-        info.rectTransform.anchoredPosition = new Vector2(0f, BasicData.Float("editor.MapPresentationTool.Vector2.number85"));
-        info.rectTransform.sizeDelta = new Vector2(-BasicData.Float("editor.MapPresentationTool.Vector2.number86"), BasicData.Float("editor.MapPresentationTool.Vector2.number87"));
+        info.rectTransform.anchoredPosition = new Vector2(0f, BasicData.Float("editor.MapPresentationTool.rectTransformanchoredPositionY"));
+        info.rectTransform.sizeDelta = new Vector2(-BasicData.Float("editor.MapPresentationTool.rectTransformsizeDeltaWidth"), BasicData.Float("editor.MapPresentationTool.rectTransformsizeDeltaHeight"));
         var navigation = Component<PuzzleMapNavigation>(viewport);
         var serialized = new SerializedObject(navigation);
         Bind(serialized, "view", _root.GetComponentInChildren<PuzzleMapView>(true));
@@ -294,7 +294,7 @@ public static class MapPresentationTool
         button.onClick = new Button.ButtonClickedEvent();
         var rect = (RectTransform)button.transform;
         rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(0.5f, 0.5f);
-        Place(button.transform, new Vector2(_x, 0f), new Vector2(_width, BasicData.Float("editor.MapPresentationTool.Vector2.number88")));
+        Place(button.transform, new Vector2(_x, 0f), new Vector2(_width, BasicData.Float("editor.MapPresentationTool.buttonY")));
         button.GetComponentInChildren<Text>(true).text = _text;
         return button;
     }

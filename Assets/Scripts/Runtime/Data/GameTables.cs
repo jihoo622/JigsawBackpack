@@ -4,9 +4,7 @@ using System;
 public sealed class BasicDataTableData
 {
     public string displayName, status, note;
-    public BasicNumberData[] numbers = Array.Empty<BasicNumberData>();
-    public BasicTextData[] texts = Array.Empty<BasicTextData>();
-    public BasicColorData[] colors = Array.Empty<BasicColorData>();
+    public BasicDataGroupData[] groups = Array.Empty<BasicDataGroupData>();
 }
 
 // 테이블 원본은 Assets/Resources/Tables에만 두고, 이 클래스들은 직렬화 필드만 가진다.
@@ -42,13 +40,7 @@ public sealed class PuzzleTableData
     public string planningTargetCityId;
     public PuzzleCityData[] cities = Array.Empty<PuzzleCityData>();
     public PuzzleRegionData[] regions = Array.Empty<PuzzleRegionData>();
-}
-
-[Serializable]
-public sealed class PuzzleItemPriceTableData
-{
-    public string status, note;
-    public PuzzleItemPriceData[] prices = Array.Empty<PuzzleItemPriceData>();
+    public PuzzleMarketStockData[] stockProfiles = Array.Empty<PuzzleMarketStockData>();
 }
 
 [Serializable]
@@ -64,8 +56,6 @@ public sealed class PuzzleTradeTableData
 {
     public string status, note;
     public long startingFunds = -1;
-    // 누락된 값이 정상값으로 위장되지 않도록 하는 검증용 값이다. 110은 기준의 110%, 즉 10% 할증이다.
-    public int purchaseMarkupPercent = -1;
     // 화물칸 증차 시 기본 단위 비용 (예: 50원씩 누적 증가)
     public int wagonAddCostBase = -1;
     public long gameClearCost = -1;
@@ -96,12 +86,4 @@ public sealed class PuzzleTimeTableData
     public int daylightStartHour = -1;
     public int startHour = -1;
     public long restMinutes = -1;
-}
-
-[Serializable]
-public sealed class PuzzleTurnTableData
-{
-    public string status, note;
-    public int debtInterval;
-    public PuzzleDebtPaymentData[] debtPayments = Array.Empty<PuzzleDebtPaymentData>();
 }

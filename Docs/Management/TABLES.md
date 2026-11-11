@@ -23,18 +23,18 @@
 |---|---|
 | `BasicDataTableData` (기초데이터) | 공통 표시 문구·서식·색·UI 조정값·제작 치수·규칙 참조 ID·레이어 번호. [편집 계약](BASIC_DATA.md) |
 | `PuzzleTableData` | 화물 모양·복수 태그·표기 키, 시작 기차, 지역·생산 태그·물가, 도시·시장·특산품·재고·도시 배율 |
-| `PuzzleItemPriceTableData` | 화물 종류별 기본 가치 |
 | `PuzzleSynergyTableData` | 인접 시너지 조건·범위·배율·적용 주기 |
-| `PuzzleTradeTableData` | 시작 자금·공통 구매 배율 설정·증차 비용·클리어 비용·이동 연출 시간 |
+| `PuzzleTradeTableData` | 시작 자금·증차 비용·클리어 비용·상환 조건·이동 연출 시간 |
 | `PuzzleTimeTableData` | 고정 폴라인의 픽셀/시간 비율·시작 및 일출 시각·일출/야간 길이·휴식 분수 |
 | `PuzzleRouteTableData` | 방향별 연결·고정 폴라인 좌표·기본 비용·거리·거리 및 적재 단가 |
-| `PuzzleTurnTableData` | 비활성 상태인 빚 일정 |
 | `FlowTableData` | 씬 이름·다음 씬·재시작 씬 |
 | `GameplayTableData` | 템플릿의 player·sequence·upgrades 샘플 |
 
+현재 도메인 JSON은 8개다. `GameplayTableData`는 UpgradeManager와 템플릿 SmokeCheck 참조가 있어 유지한다.
+
 ## 화물·보드·시장
 
-- `pieces` 항목의 `id`, `displayName`, `description`, `tags`, `visualKey`, `slotCount`, `cells`가 정의 원본이다. 태그는 대소문자를 구분하고 한 아이템 안에서 중복되지 않아야 한다.
+- `pieces` 항목의 `id`, `displayName`, `description`, `tags`, `visualKey`, `baseValue`, `slotCount`, `cells`가 정의 원본이다. 태그는 대소문자를 구분하고 한 아이템 안에서 중복되지 않아야 한다.
 - `slotCount`는 `cells` 길이와 같고 슬롯은 상하좌우로 연결되어야 한다. 현재 화물의 네 방향 상태는 모두 `Flat`이다. 셀 배열 순서에는 의미가 없다.
 - 화물 로컬 좌표는 외접 사각형 왼쪽 위에서 오른쪽·아래로 증가한다. 보드 좌표는 왼쪽 아래에서 오른쪽·위로 증가한다. 시작 배치의 `x`·`y`는 회전 후 외접 사각형의 왼쪽 위 기준점이다. 높이 2칸 화물은 y가 1 이상이어야 한다.
 - `clockwiseTurns`는 시계 방향 90도 회전 횟수 0~3이다. 시작 배치 ID는 기차와 모든 시장에서 고유해야 하며 정의 참조·경계·점유 겹침을 검증한다.
@@ -42,15 +42,15 @@
 - `visualKey`는 `PuzzleInventoryUI.itemIcons`의 스프라이트 키다. 새 표시 키를 쓰면 프리팹 참조도 함께 추가한다. View는 초기화 시 모든 정의의 참조와 사전 배치 용량을 확인한다.
 - 각 도시는 등록된 `regionId`를 참조한다. 지역은 고유 ID·표시 이름·양의 `pricePercent`, 대표 `specialtyTag`·`productionTags`를 가진다. `tradeHub` 지역은 생산 특산품 없이 집산품을 사용한다.
 - 생산 도시의 `specialtyTag`는 대표 생산품이다. 고정 특산품이 이 태그를 가져야 하고 해당 태그의 구매·판매 배율이 모두 100 미만이어야 한다. 같은 대표 특산품의 직결을 허용하되 근거리 공급·수요 일치 연결은 금지한다. 일반 물품이나 공통 분류 태그의 중복을 금지하는 규칙은 아니다.
-- `generalStock`와 `regionalStock` 각각의 `pieceIds`는 중복 없는 후보 목록, `slots`는 예약 영역이다. 두 그룹의 모든 후보가 공통 예약 영역에 들어가야 하고 영역은 고정 배치 및 두 그룹 전체에서 겹치면 안 된다. 생산 지역의 `regionalStock` 후보는 해당 지역 대표 특산품 태그를 가져야 한다. 각 후보는 모든 예약 영역에 회전 없이 들어가야 한다. 생성 시 슬롯마다 후보를 중복 허용해 추첨한다. `market.startingPlacements`에는 고정 특산품을 둔다.
+- 도시의 `generalStockId`·`regionalStockId`는 `stockProfiles`의 고유 ID를 참조한다. 현재 일반 재고 1개·생산 지역 5개·집산 재고 1개로 7개 프로필을 공유한다. 프로필의 `pieceIds`는 중복 없는 후보, `slots`는 예약 영역이다. 후보는 모든 슬롯에 회전 없이 들어가야 하며 고정 배치·두 프로필의 영역이 겹치면 안 된다. 생산 지역 후보는 대표 특산품 태그를 가져야 한다. 슬롯 ID는 프로필 내부에서 고유하며 실제 배치 ID는 `도시 ID.슬롯 ID`다. 슬롯 순서를 결정적으로 정렬하고 중복 허용 추첨한다. 고정 특산품은 `market.startingPlacements`에 둔다.
 - 정의는 공유하고 실제 화물 인스턴스는 씬 로컬 세션이 소유한다. 보드 간 이동 시 인스턴스 ID와 실제 가치를 보존하며 시장 재생성 때는 새 ID를 발급한다.
 
 ## 가치·거래
 
-- `PuzzleItemPriceTableData.prices`의 `pieceId`는 등록된 화물을 참조하고 `baseValue`는 0 이상이다. 모든 화물에 가격이 정확히 하나씩 있어야 한다. 누락·중복·미등록 참조·음수 가격은 오류다.
+- 기본 가치는 `pieces[].baseValue`에 통합했다. 기존 음수 가치도 유지하며 누락 센티널 `-1`은 오류다. 별도 가격 표와 중복 참조는 두지 않는다.
 - 도시의 `tagPrices`는 등록된 `tag`, 고유 `priority`, 양의 `buyPercent`·`sellPercent`를 가진다. 일치 태그 중 최고 우선순위 하나를 사용하고 없으면 `buyPercentOfBaseValue`·`sellPercentOfFinalValue`를 쓴다.
 - 현재 거래가는 구매 시 기본 가치, 판매 시 인스턴스의 `ActualValue`에 선택된 도시 배율을 곱한다. 도시 배율과 지역의 `pricePercent`를 중간 반올림 없이 곱한 최종 금액을 `MidpointRounding.AwayFromZero`로 정수화한다. 범위 초과는 거래 실패로 처리한다. 미리보기와 확정 모두 `EvaluateDrop` 경로를 쓰고 확정 직전에 다시 평가한다.
-- `startingFunds`는 0 이상, `purchaseMarkupPercent`, `wagonAddCostBase`, `gameClearCost`는 양수다. **공통 구매 배율은 저장·검증만 하며 현재 가격 계산에는 사용되지 않는다.** 설정 존재를 구현 완료로 해석하지 않는다.
+- `startingFunds`는 0 이상, `wagonAddCostBase`·`gameClearCost`는 양수다. 가격 계산에 사용하지 않던 공통 구매 할증 필드는 제거했다. 현재 구매/판매 배율은 도시와 지역 표에서 읽는다.
 - 시너지 규칙은 고유 `id`, 등록된 `neighborTag`, `scope`(`Train`, `Market`, `Both`), 양의 `multiplierPercent`, 비어 있지 않은 `description`과 대상 조건을 가진다. `targetTag` 또는 `excludedTargetTag` 중 하나로 대상을 정한다. `description`은 아이템 팝업에 표시할 시너지 설명이며, `descriptionTag`를 지정하면 그 태그를 가진 아이템의 팝업에만 표시한다(미지정 시 주체 조건을 따른다).
 - 같은 이웃과 여러 면이 접해도 한 번 평가한다. 규칙 ID 순서로 기본 가치 기준 증가분을 합산한 뒤 감소 배율을 곱한다. 인접 정보 갱신과 실제 가치 누적을 분리하며 가치의 누적 경계 정책은 게임 기획서 10장을 따른다.
 
@@ -67,7 +67,7 @@
 - `highSpeed`는 이전 철도망 호환 필드이며 현 초안은 모두 false다. 노선도는 지역별 색·일반 길 회색·역 표식과 시간·일수 숫자를 사용한다.
 - 이동은 `EvaluateTravel(toCityId)`·`Travel(toCityId)`로 평가·확정한다. 자금 부족·연결 없음·종료 상태 등 실패 시 이동 상태를 보존한다.
 - 시장·노드·연결선은 프리팹에 사전 배치하므로 도시·노선을 수정하면 관련 프리팹·씬 참조도 함께 맞춘다. 표시·조작 계약은 게임 기획서를 따른다.
-- `PuzzleTurnTableData`의 `debtInterval`·각 `moveCount`·`amount`는 양수다. 일정은 중복 없이 주기마다 존재해야 하며 `DebtSchedule`은 이동 횟수 순으로 제공한다. 옛 이동횟수 기반 빚 실행 코드는 비활성이다. 최신 시간 기한·조기 상환은 거래 테이블의 deadlineHours·debtCityId·gameClearCost를 사용한다. 현재 deadlineHours는 336이고 `debtCityId`는 `city.capital.finance`로 상환 장소가 제한된다.
+- 옛 이동 횟수 기반 빚 일정 DTO·JSON·조회·비활성 코드는 제거했다. 상환은 거래 표의 `deadlineHours`·`debtCityId`·`gameClearCost`를 사용한다. 현재 기한은 336시간이며 금융마을에서 상환한다.
 
 ## 씬·분석 설정
 

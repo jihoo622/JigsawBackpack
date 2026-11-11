@@ -38,7 +38,8 @@
           "west": "Flat"
         }
       ],
-      "durability": 100
+      "durability": 100,
+      "baseValue": 32
     },
     {
       "id": "piece.fourNotches",
@@ -60,7 +61,8 @@
           "west": "Flat"
         }
       ],
-      "durability": 100
+      "durability": 100,
+      "baseValue": 12
     },
     {
       "id": "piece.topNotch",
@@ -83,7 +85,8 @@
           "west": "Flat"
         }
       ],
-      "durability": 100
+      "durability": 100,
+      "baseValue": 10
     },
     {
       "id": "piece.verticalPair",
@@ -113,7 +116,8 @@
           "west": "Flat"
         }
       ],
-      "durability": 100
+      "durability": 100,
+      "baseValue": 25
     },
     {
       "id": "piece.verticalTabs",
@@ -135,7 +139,8 @@
           "west": "Flat"
         }
       ],
-      "durability": 100
+      "durability": 100,
+      "baseValue": 15
     },
     {
       "id": "piece.uShape",
@@ -189,7 +194,8 @@
           "west": "Flat"
         }
       ],
-      "durability": 100
+      "durability": 100,
+      "baseValue": 55
     },
     {
       "id": "piece.elbowRight",
@@ -227,7 +233,8 @@
           "west": "Flat"
         }
       ],
-      "durability": 100
+      "durability": 100,
+      "baseValue": 36
     },
     {
       "id": "piece.fish",
@@ -257,7 +264,8 @@
           "west": "Flat"
         }
       ],
-      "durability": 100
+      "durability": 100,
+      "baseValue": 18
     },
     {
       "id": "piece.saltSack",
@@ -279,7 +287,8 @@
           "west": "Flat"
         }
       ],
-      "durability": 100
+      "durability": 100,
+      "baseValue": 8
     },
     {
       "id": "piece.fruit",
@@ -302,7 +311,8 @@
           "west": "Flat"
         }
       ],
-      "durability": 100
+      "durability": 100,
+      "baseValue": 20
     },
     {
       "id": "piece.box",
@@ -324,7 +334,8 @@
           "west": "Flat"
         }
       ],
-      "durability": 100
+      "durability": 100,
+      "baseValue": 10
     },
     {
       "id": "piece.meat",
@@ -346,7 +357,8 @@
           "west": "Flat"
         }
       ],
-      "durability": 100
+      "durability": 100,
+      "baseValue": 24
     },
     {
       "id": "piece.beef",
@@ -376,7 +388,8 @@
           "south": "Flat",
           "west": "Flat"
         }
-      ]
+      ],
+      "baseValue": 20
     },
     {
       "id": "piece.cow",
@@ -432,7 +445,8 @@
           "south": "Flat",
           "west": "Flat"
         }
-      ]
+      ],
+      "baseValue": 65
     },
     {
       "id": "piece.apple",
@@ -454,7 +468,8 @@
           "south": "Flat",
           "west": "Flat"
         }
-      ]
+      ],
+      "baseValue": 10
     },
     {
       "id": "piece.poo",
@@ -475,7 +490,8 @@
           "south": "Flat",
           "west": "Flat"
         }
-      ]
+      ],
+      "baseValue": -10
     }
   ],
   "train": {
@@ -574,54 +590,8 @@
           }
         ]
       },
-      "regionalStock": {
-        "pieceIds": [
-          "piece.saltSack"
-        ],
-        "slots": [
-          {
-            "id": "city.mine.iron.region",
-            "x": 4,
-            "y": 3,
-            "width": 3,
-            "height": 2
-          }
-        ]
-      },
-      "generalStock": {
-        "pieceIds": [
-          "piece.cow",
-          "piece.box",
-          "piece.elbowLeft",
-          "piece.elbowRight",
-          "piece.fish",
-          "piece.fourNotches",
-          "piece.fruit",
-          "piece.meat",
-          "piece.beef",
-          "piece.saltSack",
-          "piece.topNotch",
-          "piece.uShape",
-          "piece.verticalPair",
-          "piece.verticalTabs"
-        ],
-        "slots": [
-          {
-            "id": "city.mine.iron.random.0",
-            "x": 0,
-            "y": 5,
-            "width": 3,
-            "height": 2
-          },
-          {
-            "id": "city.mine.iron.random.1",
-            "x": 4,
-            "y": 5,
-            "width": 3,
-            "height": 2
-          }
-        ]
-      }
+      "generalStockId": "stock.general",
+      "regionalStockId": "stock.mine"
     },
     {
       "id": "city.mine.salt",
@@ -697,54 +667,8 @@
           }
         ]
       },
-      "regionalStock": {
-        "pieceIds": [
-          "piece.saltSack"
-        ],
-        "slots": [
-          {
-            "id": "city.mine.salt.region",
-            "x": 4,
-            "y": 3,
-            "width": 3,
-            "height": 2
-          }
-        ]
-      },
-      "generalStock": {
-        "pieceIds": [
-          "piece.cow",
-          "piece.box",
-          "piece.elbowLeft",
-          "piece.elbowRight",
-          "piece.fish",
-          "piece.fourNotches",
-          "piece.fruit",
-          "piece.meat",
-          "piece.beef",
-          "piece.saltSack",
-          "piece.topNotch",
-          "piece.uShape",
-          "piece.verticalPair",
-          "piece.verticalTabs"
-        ],
-        "slots": [
-          {
-            "id": "city.mine.salt.random.0",
-            "x": 0,
-            "y": 5,
-            "width": 3,
-            "height": 2
-          },
-          {
-            "id": "city.mine.salt.random.1",
-            "x": 4,
-            "y": 5,
-            "width": 3,
-            "height": 2
-          }
-        ]
-      }
+      "generalStockId": "stock.general",
+      "regionalStockId": "stock.mine"
     },
     {
       "id": "city.mine.dig",
@@ -820,54 +744,8 @@
           }
         ]
       },
-      "regionalStock": {
-        "pieceIds": [
-          "piece.saltSack"
-        ],
-        "slots": [
-          {
-            "id": "city.mine.dig.region",
-            "x": 4,
-            "y": 3,
-            "width": 3,
-            "height": 2
-          }
-        ]
-      },
-      "generalStock": {
-        "pieceIds": [
-          "piece.cow",
-          "piece.box",
-          "piece.elbowLeft",
-          "piece.elbowRight",
-          "piece.fish",
-          "piece.fourNotches",
-          "piece.fruit",
-          "piece.meat",
-          "piece.beef",
-          "piece.saltSack",
-          "piece.topNotch",
-          "piece.uShape",
-          "piece.verticalPair",
-          "piece.verticalTabs"
-        ],
-        "slots": [
-          {
-            "id": "city.mine.dig.random.0",
-            "x": 0,
-            "y": 5,
-            "width": 3,
-            "height": 2
-          },
-          {
-            "id": "city.mine.dig.random.1",
-            "x": 4,
-            "y": 5,
-            "width": 3,
-            "height": 2
-          }
-        ]
-      }
+      "generalStockId": "stock.general",
+      "regionalStockId": "stock.mine"
     },
     {
       "id": "city.mine.cave",
@@ -943,54 +821,8 @@
           }
         ]
       },
-      "regionalStock": {
-        "pieceIds": [
-          "piece.saltSack"
-        ],
-        "slots": [
-          {
-            "id": "city.mine.cave.region",
-            "x": 4,
-            "y": 3,
-            "width": 3,
-            "height": 2
-          }
-        ]
-      },
-      "generalStock": {
-        "pieceIds": [
-          "piece.cow",
-          "piece.box",
-          "piece.elbowLeft",
-          "piece.elbowRight",
-          "piece.fish",
-          "piece.fourNotches",
-          "piece.fruit",
-          "piece.meat",
-          "piece.beef",
-          "piece.saltSack",
-          "piece.topNotch",
-          "piece.uShape",
-          "piece.verticalPair",
-          "piece.verticalTabs"
-        ],
-        "slots": [
-          {
-            "id": "city.mine.cave.random.0",
-            "x": 0,
-            "y": 5,
-            "width": 3,
-            "height": 2
-          },
-          {
-            "id": "city.mine.cave.random.1",
-            "x": 4,
-            "y": 5,
-            "width": 3,
-            "height": 2
-          }
-        ]
-      }
+      "generalStockId": "stock.general",
+      "regionalStockId": "stock.mine"
     },
     {
       "id": "city.ranch.pass",
@@ -1066,54 +898,8 @@
           }
         ]
       },
-      "regionalStock": {
-        "pieceIds": [
-          "piece.cow"
-        ],
-        "slots": [
-          {
-            "id": "city.ranch.pass.region",
-            "x": 4,
-            "y": 3,
-            "width": 3,
-            "height": 2
-          }
-        ]
-      },
-      "generalStock": {
-        "pieceIds": [
-          "piece.cow",
-          "piece.box",
-          "piece.elbowLeft",
-          "piece.elbowRight",
-          "piece.fish",
-          "piece.fourNotches",
-          "piece.fruit",
-          "piece.meat",
-          "piece.beef",
-          "piece.saltSack",
-          "piece.topNotch",
-          "piece.uShape",
-          "piece.verticalPair",
-          "piece.verticalTabs"
-        ],
-        "slots": [
-          {
-            "id": "city.ranch.pass.random.0",
-            "x": 0,
-            "y": 5,
-            "width": 3,
-            "height": 2
-          },
-          {
-            "id": "city.ranch.pass.random.1",
-            "x": 4,
-            "y": 5,
-            "width": 3,
-            "height": 2
-          }
-        ]
-      }
+      "generalStockId": "stock.general",
+      "regionalStockId": "stock.ranch"
     },
     {
       "id": "city.ranch.butcher",
@@ -1189,54 +975,8 @@
           }
         ]
       },
-      "regionalStock": {
-        "pieceIds": [
-          "piece.cow"
-        ],
-        "slots": [
-          {
-            "id": "city.ranch.butcher.region",
-            "x": 4,
-            "y": 3,
-            "width": 3,
-            "height": 2
-          }
-        ]
-      },
-      "generalStock": {
-        "pieceIds": [
-          "piece.cow",
-          "piece.box",
-          "piece.elbowLeft",
-          "piece.elbowRight",
-          "piece.fish",
-          "piece.fourNotches",
-          "piece.fruit",
-          "piece.meat",
-          "piece.beef",
-          "piece.saltSack",
-          "piece.topNotch",
-          "piece.uShape",
-          "piece.verticalPair",
-          "piece.verticalTabs"
-        ],
-        "slots": [
-          {
-            "id": "city.ranch.butcher.random.0",
-            "x": 0,
-            "y": 5,
-            "width": 3,
-            "height": 2
-          },
-          {
-            "id": "city.ranch.butcher.random.1",
-            "x": 4,
-            "y": 5,
-            "width": 3,
-            "height": 2
-          }
-        ]
-      }
+      "generalStockId": "stock.general",
+      "regionalStockId": "stock.ranch"
     },
     {
       "id": "city.ranch.highland",
@@ -1312,54 +1052,8 @@
           }
         ]
       },
-      "regionalStock": {
-        "pieceIds": [
-          "piece.cow"
-        ],
-        "slots": [
-          {
-            "id": "city.ranch.highland.region",
-            "x": 4,
-            "y": 3,
-            "width": 3,
-            "height": 2
-          }
-        ]
-      },
-      "generalStock": {
-        "pieceIds": [
-          "piece.cow",
-          "piece.box",
-          "piece.elbowLeft",
-          "piece.elbowRight",
-          "piece.fish",
-          "piece.fourNotches",
-          "piece.fruit",
-          "piece.meat",
-          "piece.beef",
-          "piece.saltSack",
-          "piece.topNotch",
-          "piece.uShape",
-          "piece.verticalPair",
-          "piece.verticalTabs"
-        ],
-        "slots": [
-          {
-            "id": "city.ranch.highland.random.0",
-            "x": 0,
-            "y": 5,
-            "width": 3,
-            "height": 2
-          },
-          {
-            "id": "city.ranch.highland.random.1",
-            "x": 4,
-            "y": 5,
-            "width": 3,
-            "height": 2
-          }
-        ]
-      }
+      "generalStockId": "stock.general",
+      "regionalStockId": "stock.ranch"
     },
     {
       "id": "city.ranch.jerky",
@@ -1435,54 +1129,8 @@
           }
         ]
       },
-      "regionalStock": {
-        "pieceIds": [
-          "piece.cow"
-        ],
-        "slots": [
-          {
-            "id": "city.ranch.jerky.region",
-            "x": 4,
-            "y": 3,
-            "width": 3,
-            "height": 2
-          }
-        ]
-      },
-      "generalStock": {
-        "pieceIds": [
-          "piece.cow",
-          "piece.box",
-          "piece.elbowLeft",
-          "piece.elbowRight",
-          "piece.fish",
-          "piece.fourNotches",
-          "piece.fruit",
-          "piece.meat",
-          "piece.beef",
-          "piece.saltSack",
-          "piece.topNotch",
-          "piece.uShape",
-          "piece.verticalPair",
-          "piece.verticalTabs"
-        ],
-        "slots": [
-          {
-            "id": "city.ranch.jerky.random.0",
-            "x": 0,
-            "y": 5,
-            "width": 3,
-            "height": 2
-          },
-          {
-            "id": "city.ranch.jerky.random.1",
-            "x": 4,
-            "y": 5,
-            "width": 3,
-            "height": 2
-          }
-        ]
-      }
+      "generalStockId": "stock.general",
+      "regionalStockId": "stock.ranch"
     },
     {
       "id": "city.industry.ironworks",
@@ -1558,54 +1206,8 @@
           }
         ]
       },
-      "regionalStock": {
-        "pieceIds": [
-          "piece.uShape"
-        ],
-        "slots": [
-          {
-            "id": "city.industry.ironworks.region",
-            "x": 4,
-            "y": 3,
-            "width": 3,
-            "height": 2
-          }
-        ]
-      },
-      "generalStock": {
-        "pieceIds": [
-          "piece.cow",
-          "piece.box",
-          "piece.elbowLeft",
-          "piece.elbowRight",
-          "piece.fish",
-          "piece.fourNotches",
-          "piece.fruit",
-          "piece.meat",
-          "piece.beef",
-          "piece.saltSack",
-          "piece.topNotch",
-          "piece.uShape",
-          "piece.verticalPair",
-          "piece.verticalTabs"
-        ],
-        "slots": [
-          {
-            "id": "city.industry.ironworks.random.0",
-            "x": 0,
-            "y": 5,
-            "width": 3,
-            "height": 2
-          },
-          {
-            "id": "city.industry.ironworks.random.1",
-            "x": 4,
-            "y": 5,
-            "width": 3,
-            "height": 2
-          }
-        ]
-      }
+      "generalStockId": "stock.general",
+      "regionalStockId": "stock.industry"
     },
     {
       "id": "city.industry.assembly",
@@ -1681,54 +1283,8 @@
           }
         ]
       },
-      "regionalStock": {
-        "pieceIds": [
-          "piece.uShape"
-        ],
-        "slots": [
-          {
-            "id": "city.industry.assembly.region",
-            "x": 4,
-            "y": 3,
-            "width": 3,
-            "height": 2
-          }
-        ]
-      },
-      "generalStock": {
-        "pieceIds": [
-          "piece.cow",
-          "piece.box",
-          "piece.elbowLeft",
-          "piece.elbowRight",
-          "piece.fish",
-          "piece.fourNotches",
-          "piece.fruit",
-          "piece.meat",
-          "piece.beef",
-          "piece.saltSack",
-          "piece.topNotch",
-          "piece.uShape",
-          "piece.verticalPair",
-          "piece.verticalTabs"
-        ],
-        "slots": [
-          {
-            "id": "city.industry.assembly.random.0",
-            "x": 0,
-            "y": 5,
-            "width": 3,
-            "height": 2
-          },
-          {
-            "id": "city.industry.assembly.random.1",
-            "x": 4,
-            "y": 5,
-            "width": 3,
-            "height": 2
-          }
-        ]
-      }
+      "generalStockId": "stock.general",
+      "regionalStockId": "stock.industry"
     },
     {
       "id": "city.industry.meatlover",
@@ -1804,54 +1360,8 @@
           }
         ]
       },
-      "regionalStock": {
-        "pieceIds": [
-          "piece.uShape"
-        ],
-        "slots": [
-          {
-            "id": "city.industry.meatlover.region",
-            "x": 4,
-            "y": 3,
-            "width": 3,
-            "height": 2
-          }
-        ]
-      },
-      "generalStock": {
-        "pieceIds": [
-          "piece.cow",
-          "piece.box",
-          "piece.elbowLeft",
-          "piece.elbowRight",
-          "piece.fish",
-          "piece.fourNotches",
-          "piece.fruit",
-          "piece.meat",
-          "piece.beef",
-          "piece.saltSack",
-          "piece.topNotch",
-          "piece.uShape",
-          "piece.verticalPair",
-          "piece.verticalTabs"
-        ],
-        "slots": [
-          {
-            "id": "city.industry.meatlover.random.0",
-            "x": 0,
-            "y": 5,
-            "width": 3,
-            "height": 2
-          },
-          {
-            "id": "city.industry.meatlover.random.1",
-            "x": 4,
-            "y": 5,
-            "width": 3,
-            "height": 2
-          }
-        ]
-      }
+      "generalStockId": "stock.general",
+      "regionalStockId": "stock.industry"
     },
     {
       "id": "city.industry.engine",
@@ -1927,54 +1437,8 @@
           }
         ]
       },
-      "regionalStock": {
-        "pieceIds": [
-          "piece.uShape"
-        ],
-        "slots": [
-          {
-            "id": "city.industry.engine.region",
-            "x": 4,
-            "y": 3,
-            "width": 3,
-            "height": 2
-          }
-        ]
-      },
-      "generalStock": {
-        "pieceIds": [
-          "piece.cow",
-          "piece.box",
-          "piece.elbowLeft",
-          "piece.elbowRight",
-          "piece.fish",
-          "piece.fourNotches",
-          "piece.fruit",
-          "piece.meat",
-          "piece.beef",
-          "piece.saltSack",
-          "piece.topNotch",
-          "piece.uShape",
-          "piece.verticalPair",
-          "piece.verticalTabs"
-        ],
-        "slots": [
-          {
-            "id": "city.industry.engine.random.0",
-            "x": 0,
-            "y": 5,
-            "width": 3,
-            "height": 2
-          },
-          {
-            "id": "city.industry.engine.random.1",
-            "x": 4,
-            "y": 5,
-            "width": 3,
-            "height": 2
-          }
-        ]
-      }
+      "generalStockId": "stock.general",
+      "regionalStockId": "stock.industry"
     },
     {
       "id": "city.capital.central",
@@ -2050,67 +1514,8 @@
           }
         ]
       },
-      "regionalStock": {
-        "pieceIds": [
-          "piece.cow",
-          "piece.box",
-          "piece.elbowLeft",
-          "piece.elbowRight",
-          "piece.fish",
-          "piece.fourNotches",
-          "piece.fruit",
-          "piece.meat",
-          "piece.beef",
-          "piece.saltSack",
-          "piece.topNotch",
-          "piece.uShape",
-          "piece.verticalPair",
-          "piece.verticalTabs"
-        ],
-        "slots": [
-          {
-            "id": "city.capital.central.region",
-            "x": 4,
-            "y": 3,
-            "width": 3,
-            "height": 2
-          }
-        ]
-      },
-      "generalStock": {
-        "pieceIds": [
-          "piece.cow",
-          "piece.box",
-          "piece.elbowLeft",
-          "piece.elbowRight",
-          "piece.fish",
-          "piece.fourNotches",
-          "piece.fruit",
-          "piece.meat",
-          "piece.beef",
-          "piece.saltSack",
-          "piece.topNotch",
-          "piece.uShape",
-          "piece.verticalPair",
-          "piece.verticalTabs"
-        ],
-        "slots": [
-          {
-            "id": "city.capital.central.random.0",
-            "x": 0,
-            "y": 5,
-            "width": 3,
-            "height": 2
-          },
-          {
-            "id": "city.capital.central.random.1",
-            "x": 4,
-            "y": 5,
-            "width": 3,
-            "height": 2
-          }
-        ]
-      }
+      "generalStockId": "stock.general",
+      "regionalStockId": "stock.hub"
     },
     {
       "id": "city.capital.wholesale",
@@ -2186,67 +1591,8 @@
           }
         ]
       },
-      "regionalStock": {
-        "pieceIds": [
-          "piece.cow",
-          "piece.box",
-          "piece.elbowLeft",
-          "piece.elbowRight",
-          "piece.fish",
-          "piece.fourNotches",
-          "piece.fruit",
-          "piece.meat",
-          "piece.beef",
-          "piece.saltSack",
-          "piece.topNotch",
-          "piece.uShape",
-          "piece.verticalPair",
-          "piece.verticalTabs"
-        ],
-        "slots": [
-          {
-            "id": "city.capital.wholesale.region",
-            "x": 4,
-            "y": 3,
-            "width": 3,
-            "height": 2
-          }
-        ]
-      },
-      "generalStock": {
-        "pieceIds": [
-          "piece.cow",
-          "piece.box",
-          "piece.elbowLeft",
-          "piece.elbowRight",
-          "piece.fish",
-          "piece.fourNotches",
-          "piece.fruit",
-          "piece.meat",
-          "piece.beef",
-          "piece.saltSack",
-          "piece.topNotch",
-          "piece.uShape",
-          "piece.verticalPair",
-          "piece.verticalTabs"
-        ],
-        "slots": [
-          {
-            "id": "city.capital.wholesale.random.0",
-            "x": 0,
-            "y": 5,
-            "width": 3,
-            "height": 2
-          },
-          {
-            "id": "city.capital.wholesale.random.1",
-            "x": 4,
-            "y": 5,
-            "width": 3,
-            "height": 2
-          }
-        ]
-      }
+      "generalStockId": "stock.general",
+      "regionalStockId": "stock.hub"
     },
     {
       "id": "city.capital.merchant",
@@ -2322,67 +1668,8 @@
           }
         ]
       },
-      "regionalStock": {
-        "pieceIds": [
-          "piece.cow",
-          "piece.box",
-          "piece.elbowLeft",
-          "piece.elbowRight",
-          "piece.fish",
-          "piece.fourNotches",
-          "piece.fruit",
-          "piece.meat",
-          "piece.beef",
-          "piece.saltSack",
-          "piece.topNotch",
-          "piece.uShape",
-          "piece.verticalPair",
-          "piece.verticalTabs"
-        ],
-        "slots": [
-          {
-            "id": "city.capital.merchant.region",
-            "x": 4,
-            "y": 3,
-            "width": 3,
-            "height": 2
-          }
-        ]
-      },
-      "generalStock": {
-        "pieceIds": [
-          "piece.cow",
-          "piece.box",
-          "piece.elbowLeft",
-          "piece.elbowRight",
-          "piece.fish",
-          "piece.fourNotches",
-          "piece.fruit",
-          "piece.meat",
-          "piece.beef",
-          "piece.saltSack",
-          "piece.topNotch",
-          "piece.uShape",
-          "piece.verticalPair",
-          "piece.verticalTabs"
-        ],
-        "slots": [
-          {
-            "id": "city.capital.merchant.random.0",
-            "x": 0,
-            "y": 5,
-            "width": 3,
-            "height": 2
-          },
-          {
-            "id": "city.capital.merchant.random.1",
-            "x": 4,
-            "y": 5,
-            "width": 3,
-            "height": 2
-          }
-        ]
-      }
+      "generalStockId": "stock.general",
+      "regionalStockId": "stock.hub"
     },
     {
       "id": "city.capital.outskirts",
@@ -2458,67 +1745,8 @@
           }
         ]
       },
-      "regionalStock": {
-        "pieceIds": [
-          "piece.cow",
-          "piece.box",
-          "piece.elbowLeft",
-          "piece.elbowRight",
-          "piece.fish",
-          "piece.fourNotches",
-          "piece.fruit",
-          "piece.meat",
-          "piece.beef",
-          "piece.saltSack",
-          "piece.topNotch",
-          "piece.uShape",
-          "piece.verticalPair",
-          "piece.verticalTabs"
-        ],
-        "slots": [
-          {
-            "id": "city.capital.outskirts.region",
-            "x": 4,
-            "y": 3,
-            "width": 3,
-            "height": 2
-          }
-        ]
-      },
-      "generalStock": {
-        "pieceIds": [
-          "piece.cow",
-          "piece.box",
-          "piece.elbowLeft",
-          "piece.elbowRight",
-          "piece.fish",
-          "piece.fourNotches",
-          "piece.fruit",
-          "piece.meat",
-          "piece.beef",
-          "piece.saltSack",
-          "piece.topNotch",
-          "piece.uShape",
-          "piece.verticalPair",
-          "piece.verticalTabs"
-        ],
-        "slots": [
-          {
-            "id": "city.capital.outskirts.random.0",
-            "x": 0,
-            "y": 5,
-            "width": 3,
-            "height": 2
-          },
-          {
-            "id": "city.capital.outskirts.random.1",
-            "x": 4,
-            "y": 5,
-            "width": 3,
-            "height": 2
-          }
-        ]
-      }
+      "generalStockId": "stock.general",
+      "regionalStockId": "stock.hub"
     },
     {
       "id": "city.coast.fish",
@@ -2594,54 +1822,8 @@
           }
         ]
       },
-      "regionalStock": {
-        "pieceIds": [
-          "piece.fish"
-        ],
-        "slots": [
-          {
-            "id": "city.coast.fish.region",
-            "x": 4,
-            "y": 3,
-            "width": 3,
-            "height": 2
-          }
-        ]
-      },
-      "generalStock": {
-        "pieceIds": [
-          "piece.cow",
-          "piece.box",
-          "piece.elbowLeft",
-          "piece.elbowRight",
-          "piece.fish",
-          "piece.fourNotches",
-          "piece.fruit",
-          "piece.meat",
-          "piece.beef",
-          "piece.saltSack",
-          "piece.topNotch",
-          "piece.uShape",
-          "piece.verticalPair",
-          "piece.verticalTabs"
-        ],
-        "slots": [
-          {
-            "id": "city.coast.fish.random.0",
-            "x": 0,
-            "y": 5,
-            "width": 3,
-            "height": 2
-          },
-          {
-            "id": "city.coast.fish.random.1",
-            "x": 4,
-            "y": 5,
-            "width": 3,
-            "height": 2
-          }
-        ]
-      }
+      "generalStockId": "stock.general",
+      "regionalStockId": "stock.coast"
     },
     {
       "id": "city.coast.spring",
@@ -2717,54 +1899,8 @@
           }
         ]
       },
-      "regionalStock": {
-        "pieceIds": [
-          "piece.fish"
-        ],
-        "slots": [
-          {
-            "id": "city.coast.spring.region",
-            "x": 4,
-            "y": 3,
-            "width": 3,
-            "height": 2
-          }
-        ]
-      },
-      "generalStock": {
-        "pieceIds": [
-          "piece.cow",
-          "piece.box",
-          "piece.elbowLeft",
-          "piece.elbowRight",
-          "piece.fish",
-          "piece.fourNotches",
-          "piece.fruit",
-          "piece.meat",
-          "piece.beef",
-          "piece.saltSack",
-          "piece.topNotch",
-          "piece.uShape",
-          "piece.verticalPair",
-          "piece.verticalTabs"
-        ],
-        "slots": [
-          {
-            "id": "city.coast.spring.random.0",
-            "x": 0,
-            "y": 5,
-            "width": 3,
-            "height": 2
-          },
-          {
-            "id": "city.coast.spring.random.1",
-            "x": 4,
-            "y": 5,
-            "width": 3,
-            "height": 2
-          }
-        ]
-      }
+      "generalStockId": "stock.general",
+      "regionalStockId": "stock.coast"
     },
     {
       "id": "city.coast.port",
@@ -2840,54 +1976,8 @@
           }
         ]
       },
-      "regionalStock": {
-        "pieceIds": [
-          "piece.fish"
-        ],
-        "slots": [
-          {
-            "id": "city.coast.port.region",
-            "x": 4,
-            "y": 3,
-            "width": 3,
-            "height": 2
-          }
-        ]
-      },
-      "generalStock": {
-        "pieceIds": [
-          "piece.cow",
-          "piece.box",
-          "piece.elbowLeft",
-          "piece.elbowRight",
-          "piece.fish",
-          "piece.fourNotches",
-          "piece.fruit",
-          "piece.meat",
-          "piece.beef",
-          "piece.saltSack",
-          "piece.topNotch",
-          "piece.uShape",
-          "piece.verticalPair",
-          "piece.verticalTabs"
-        ],
-        "slots": [
-          {
-            "id": "city.coast.port.random.0",
-            "x": 0,
-            "y": 5,
-            "width": 3,
-            "height": 2
-          },
-          {
-            "id": "city.coast.port.random.1",
-            "x": 4,
-            "y": 5,
-            "width": 3,
-            "height": 2
-          }
-        ]
-      }
+      "generalStockId": "stock.general",
+      "regionalStockId": "stock.coast"
     },
     {
       "id": "city.coast.sea",
@@ -2963,54 +2053,8 @@
           }
         ]
       },
-      "regionalStock": {
-        "pieceIds": [
-          "piece.fish"
-        ],
-        "slots": [
-          {
-            "id": "city.coast.sea.region",
-            "x": 4,
-            "y": 3,
-            "width": 3,
-            "height": 2
-          }
-        ]
-      },
-      "generalStock": {
-        "pieceIds": [
-          "piece.cow",
-          "piece.box",
-          "piece.elbowLeft",
-          "piece.elbowRight",
-          "piece.fish",
-          "piece.fourNotches",
-          "piece.fruit",
-          "piece.meat",
-          "piece.beef",
-          "piece.saltSack",
-          "piece.topNotch",
-          "piece.uShape",
-          "piece.verticalPair",
-          "piece.verticalTabs"
-        ],
-        "slots": [
-          {
-            "id": "city.coast.sea.random.0",
-            "x": 0,
-            "y": 5,
-            "width": 3,
-            "height": 2
-          },
-          {
-            "id": "city.coast.sea.random.1",
-            "x": 4,
-            "y": 5,
-            "width": 3,
-            "height": 2
-          }
-        ]
-      }
+      "generalStockId": "stock.general",
+      "regionalStockId": "stock.coast"
     },
     {
       "id": "city.farm.grain",
@@ -3086,54 +2130,8 @@
           }
         ]
       },
-      "regionalStock": {
-        "pieceIds": [
-          "piece.fruit"
-        ],
-        "slots": [
-          {
-            "id": "city.farm.grain.region",
-            "x": 4,
-            "y": 3,
-            "width": 3,
-            "height": 2
-          }
-        ]
-      },
-      "generalStock": {
-        "pieceIds": [
-          "piece.cow",
-          "piece.box",
-          "piece.elbowLeft",
-          "piece.elbowRight",
-          "piece.fish",
-          "piece.fourNotches",
-          "piece.fruit",
-          "piece.meat",
-          "piece.beef",
-          "piece.saltSack",
-          "piece.topNotch",
-          "piece.uShape",
-          "piece.verticalPair",
-          "piece.verticalTabs"
-        ],
-        "slots": [
-          {
-            "id": "city.farm.grain.random.0",
-            "x": 0,
-            "y": 5,
-            "width": 3,
-            "height": 2
-          },
-          {
-            "id": "city.farm.grain.random.1",
-            "x": 4,
-            "y": 5,
-            "width": 3,
-            "height": 2
-          }
-        ]
-      }
+      "generalStockId": "stock.general",
+      "regionalStockId": "stock.farm"
     },
     {
       "id": "city.farm.orchard",
@@ -3209,54 +2207,8 @@
           }
         ]
       },
-      "regionalStock": {
-        "pieceIds": [
-          "piece.fruit"
-        ],
-        "slots": [
-          {
-            "id": "city.farm.orchard.region",
-            "x": 4,
-            "y": 3,
-            "width": 3,
-            "height": 2
-          }
-        ]
-      },
-      "generalStock": {
-        "pieceIds": [
-          "piece.cow",
-          "piece.box",
-          "piece.elbowLeft",
-          "piece.elbowRight",
-          "piece.fish",
-          "piece.fourNotches",
-          "piece.fruit",
-          "piece.meat",
-          "piece.beef",
-          "piece.saltSack",
-          "piece.topNotch",
-          "piece.uShape",
-          "piece.verticalPair",
-          "piece.verticalTabs"
-        ],
-        "slots": [
-          {
-            "id": "city.farm.orchard.random.0",
-            "x": 0,
-            "y": 5,
-            "width": 3,
-            "height": 2
-          },
-          {
-            "id": "city.farm.orchard.random.1",
-            "x": 4,
-            "y": 5,
-            "width": 3,
-            "height": 2
-          }
-        ]
-      }
+      "generalStockId": "stock.general",
+      "regionalStockId": "stock.farm"
     },
     {
       "id": "city.farm.lumber",
@@ -3332,54 +2284,8 @@
           }
         ]
       },
-      "regionalStock": {
-        "pieceIds": [
-          "piece.fruit"
-        ],
-        "slots": [
-          {
-            "id": "city.farm.lumber.region",
-            "x": 4,
-            "y": 3,
-            "width": 3,
-            "height": 2
-          }
-        ]
-      },
-      "generalStock": {
-        "pieceIds": [
-          "piece.cow",
-          "piece.box",
-          "piece.elbowLeft",
-          "piece.elbowRight",
-          "piece.fish",
-          "piece.fourNotches",
-          "piece.fruit",
-          "piece.meat",
-          "piece.beef",
-          "piece.saltSack",
-          "piece.topNotch",
-          "piece.uShape",
-          "piece.verticalPair",
-          "piece.verticalTabs"
-        ],
-        "slots": [
-          {
-            "id": "city.farm.lumber.random.0",
-            "x": 0,
-            "y": 5,
-            "width": 3,
-            "height": 2
-          },
-          {
-            "id": "city.farm.lumber.random.1",
-            "x": 4,
-            "y": 5,
-            "width": 3,
-            "height": 2
-          }
-        ]
-      }
+      "generalStockId": "stock.general",
+      "regionalStockId": "stock.farm"
     },
     {
       "id": "city.farm.field",
@@ -3455,54 +2361,8 @@
           }
         ]
       },
-      "regionalStock": {
-        "pieceIds": [
-          "piece.fruit"
-        ],
-        "slots": [
-          {
-            "id": "city.farm.field.region",
-            "x": 4,
-            "y": 3,
-            "width": 3,
-            "height": 2
-          }
-        ]
-      },
-      "generalStock": {
-        "pieceIds": [
-          "piece.cow",
-          "piece.box",
-          "piece.elbowLeft",
-          "piece.elbowRight",
-          "piece.fish",
-          "piece.fourNotches",
-          "piece.fruit",
-          "piece.meat",
-          "piece.beef",
-          "piece.saltSack",
-          "piece.topNotch",
-          "piece.uShape",
-          "piece.verticalPair",
-          "piece.verticalTabs"
-        ],
-        "slots": [
-          {
-            "id": "city.farm.field.random.0",
-            "x": 0,
-            "y": 5,
-            "width": 3,
-            "height": 2
-          },
-          {
-            "id": "city.farm.field.random.1",
-            "x": 4,
-            "y": 5,
-            "width": 3,
-            "height": 2
-          }
-        ]
-      }
+      "generalStockId": "stock.general",
+      "regionalStockId": "stock.farm"
     },
     {
       "id": "city.industry.logistics",
@@ -3578,54 +2438,8 @@
           }
         ]
       },
-      "regionalStock": {
-        "pieceIds": [
-          "piece.uShape"
-        ],
-        "slots": [
-          {
-            "id": "city.industry.logistics.region",
-            "x": 4,
-            "y": 3,
-            "width": 3,
-            "height": 2
-          }
-        ]
-      },
-      "generalStock": {
-        "pieceIds": [
-          "piece.cow",
-          "piece.box",
-          "piece.elbowLeft",
-          "piece.elbowRight",
-          "piece.fish",
-          "piece.fourNotches",
-          "piece.fruit",
-          "piece.meat",
-          "piece.beef",
-          "piece.saltSack",
-          "piece.topNotch",
-          "piece.uShape",
-          "piece.verticalPair",
-          "piece.verticalTabs"
-        ],
-        "slots": [
-          {
-            "id": "city.industry.logistics.random.0",
-            "x": 0,
-            "y": 5,
-            "width": 3,
-            "height": 2
-          },
-          {
-            "id": "city.industry.logistics.random.1",
-            "x": 4,
-            "y": 5,
-            "width": 3,
-            "height": 2
-          }
-        ]
-      }
+      "generalStockId": "stock.general",
+      "regionalStockId": "stock.industry"
     },
     {
       "id": "city.capital.finance",
@@ -3701,67 +2515,8 @@
           }
         ]
       },
-      "regionalStock": {
-        "pieceIds": [
-          "piece.cow",
-          "piece.box",
-          "piece.elbowLeft",
-          "piece.elbowRight",
-          "piece.fish",
-          "piece.fourNotches",
-          "piece.fruit",
-          "piece.meat",
-          "piece.beef",
-          "piece.saltSack",
-          "piece.topNotch",
-          "piece.uShape",
-          "piece.verticalPair",
-          "piece.verticalTabs"
-        ],
-        "slots": [
-          {
-            "id": "city.capital.finance.region",
-            "x": 4,
-            "y": 3,
-            "width": 3,
-            "height": 2
-          }
-        ]
-      },
-      "generalStock": {
-        "pieceIds": [
-          "piece.cow",
-          "piece.box",
-          "piece.elbowLeft",
-          "piece.elbowRight",
-          "piece.fish",
-          "piece.fourNotches",
-          "piece.fruit",
-          "piece.meat",
-          "piece.beef",
-          "piece.saltSack",
-          "piece.topNotch",
-          "piece.uShape",
-          "piece.verticalPair",
-          "piece.verticalTabs"
-        ],
-        "slots": [
-          {
-            "id": "city.capital.finance.random.0",
-            "x": 0,
-            "y": 5,
-            "width": 3,
-            "height": 2
-          },
-          {
-            "id": "city.capital.finance.random.1",
-            "x": 4,
-            "y": 5,
-            "width": 3,
-            "height": 2
-          }
-        ]
-      }
+      "generalStockId": "stock.general",
+      "regionalStockId": "stock.hub"
     },
     {
       "id": "city.common.crossing",
@@ -3800,67 +2555,8 @@
           }
         ]
       },
-      "regionalStock": {
-        "pieceIds": [
-          "piece.cow",
-          "piece.box",
-          "piece.elbowLeft",
-          "piece.elbowRight",
-          "piece.fish",
-          "piece.fourNotches",
-          "piece.fruit",
-          "piece.meat",
-          "piece.beef",
-          "piece.saltSack",
-          "piece.topNotch",
-          "piece.uShape",
-          "piece.verticalPair",
-          "piece.verticalTabs"
-        ],
-        "slots": [
-          {
-            "id": "city.common.crossing.region",
-            "x": 4,
-            "y": 3,
-            "width": 3,
-            "height": 2
-          }
-        ]
-      },
-      "generalStock": {
-        "pieceIds": [
-          "piece.cow",
-          "piece.box",
-          "piece.elbowLeft",
-          "piece.elbowRight",
-          "piece.fish",
-          "piece.fourNotches",
-          "piece.fruit",
-          "piece.meat",
-          "piece.beef",
-          "piece.saltSack",
-          "piece.topNotch",
-          "piece.uShape",
-          "piece.verticalPair",
-          "piece.verticalTabs"
-        ],
-        "slots": [
-          {
-            "id": "city.common.crossing.random.0",
-            "x": 0,
-            "y": 5,
-            "width": 3,
-            "height": 2
-          },
-          {
-            "id": "city.common.crossing.random.1",
-            "x": 4,
-            "y": 5,
-            "width": 3,
-            "height": 2
-          }
-        ]
-      }
+      "generalStockId": "stock.general",
+      "regionalStockId": "stock.hub"
     },
     {
       "id": "city.common.wayfarer",
@@ -3899,67 +2595,8 @@
           }
         ]
       },
-      "regionalStock": {
-        "pieceIds": [
-          "piece.cow",
-          "piece.box",
-          "piece.elbowLeft",
-          "piece.elbowRight",
-          "piece.fish",
-          "piece.fourNotches",
-          "piece.fruit",
-          "piece.meat",
-          "piece.beef",
-          "piece.saltSack",
-          "piece.topNotch",
-          "piece.uShape",
-          "piece.verticalPair",
-          "piece.verticalTabs"
-        ],
-        "slots": [
-          {
-            "id": "city.common.wayfarer.region",
-            "x": 4,
-            "y": 3,
-            "width": 3,
-            "height": 2
-          }
-        ]
-      },
-      "generalStock": {
-        "pieceIds": [
-          "piece.cow",
-          "piece.box",
-          "piece.elbowLeft",
-          "piece.elbowRight",
-          "piece.fish",
-          "piece.fourNotches",
-          "piece.fruit",
-          "piece.meat",
-          "piece.beef",
-          "piece.saltSack",
-          "piece.topNotch",
-          "piece.uShape",
-          "piece.verticalPair",
-          "piece.verticalTabs"
-        ],
-        "slots": [
-          {
-            "id": "city.common.wayfarer.random.0",
-            "x": 0,
-            "y": 5,
-            "width": 3,
-            "height": 2
-          },
-          {
-            "id": "city.common.wayfarer.random.1",
-            "x": 4,
-            "y": 5,
-            "width": 3,
-            "height": 2
-          }
-        ]
-      }
+      "generalStockId": "stock.general",
+      "regionalStockId": "stock.hub"
     },
     {
       "id": "city.common.rest",
@@ -3998,67 +2635,8 @@
           }
         ]
       },
-      "regionalStock": {
-        "pieceIds": [
-          "piece.cow",
-          "piece.box",
-          "piece.elbowLeft",
-          "piece.elbowRight",
-          "piece.fish",
-          "piece.fourNotches",
-          "piece.fruit",
-          "piece.meat",
-          "piece.beef",
-          "piece.saltSack",
-          "piece.topNotch",
-          "piece.uShape",
-          "piece.verticalPair",
-          "piece.verticalTabs"
-        ],
-        "slots": [
-          {
-            "id": "city.common.rest.region",
-            "x": 4,
-            "y": 3,
-            "width": 3,
-            "height": 2
-          }
-        ]
-      },
-      "generalStock": {
-        "pieceIds": [
-          "piece.cow",
-          "piece.box",
-          "piece.elbowLeft",
-          "piece.elbowRight",
-          "piece.fish",
-          "piece.fourNotches",
-          "piece.fruit",
-          "piece.meat",
-          "piece.beef",
-          "piece.saltSack",
-          "piece.topNotch",
-          "piece.uShape",
-          "piece.verticalPair",
-          "piece.verticalTabs"
-        ],
-        "slots": [
-          {
-            "id": "city.common.rest.random.0",
-            "x": 0,
-            "y": 5,
-            "width": 3,
-            "height": 2
-          },
-          {
-            "id": "city.common.rest.random.1",
-            "x": 4,
-            "y": 5,
-            "width": 3,
-            "height": 2
-          }
-        ]
-      }
+      "generalStockId": "stock.general",
+      "regionalStockId": "stock.hub"
     },
     {
       "id": "city.common.roadside",
@@ -4097,67 +2675,8 @@
           }
         ]
       },
-      "regionalStock": {
-        "pieceIds": [
-          "piece.cow",
-          "piece.box",
-          "piece.elbowLeft",
-          "piece.elbowRight",
-          "piece.fish",
-          "piece.fourNotches",
-          "piece.fruit",
-          "piece.meat",
-          "piece.beef",
-          "piece.saltSack",
-          "piece.topNotch",
-          "piece.uShape",
-          "piece.verticalPair",
-          "piece.verticalTabs"
-        ],
-        "slots": [
-          {
-            "id": "city.common.roadside.region",
-            "x": 4,
-            "y": 3,
-            "width": 3,
-            "height": 2
-          }
-        ]
-      },
-      "generalStock": {
-        "pieceIds": [
-          "piece.cow",
-          "piece.box",
-          "piece.elbowLeft",
-          "piece.elbowRight",
-          "piece.fish",
-          "piece.fourNotches",
-          "piece.fruit",
-          "piece.meat",
-          "piece.beef",
-          "piece.saltSack",
-          "piece.topNotch",
-          "piece.uShape",
-          "piece.verticalPair",
-          "piece.verticalTabs"
-        ],
-        "slots": [
-          {
-            "id": "city.common.roadside.random.0",
-            "x": 0,
-            "y": 5,
-            "width": 3,
-            "height": 2
-          },
-          {
-            "id": "city.common.roadside.random.1",
-            "x": 4,
-            "y": 5,
-            "width": 3,
-            "height": 2
-          }
-        ]
-      }
+      "generalStockId": "stock.general",
+      "regionalStockId": "stock.hub"
     }
   ],
   "regions": [
@@ -4233,5 +2752,145 @@
       "tradeHub": true
     }
   ],
-  "planningTargetCityId": "city.capital.finance"
+  "planningTargetCityId": "city.capital.finance",
+  "stockProfiles": [
+    {
+      "id": "stock.hub",
+      "pieceIds": [
+        "piece.beef",
+        "piece.box",
+        "piece.cow",
+        "piece.elbowLeft",
+        "piece.elbowRight",
+        "piece.fish",
+        "piece.fourNotches",
+        "piece.fruit",
+        "piece.meat",
+        "piece.saltSack",
+        "piece.topNotch",
+        "piece.uShape",
+        "piece.verticalPair",
+        "piece.verticalTabs"
+      ],
+      "slots": [
+        {
+          "id": "region",
+          "x": 4,
+          "y": 3,
+          "width": 3,
+          "height": 2
+        }
+      ]
+    },
+    {
+      "id": "stock.coast",
+      "pieceIds": [
+        "piece.fish"
+      ],
+      "slots": [
+        {
+          "id": "region",
+          "x": 4,
+          "y": 3,
+          "width": 3,
+          "height": 2
+        }
+      ]
+    },
+    {
+      "id": "stock.farm",
+      "pieceIds": [
+        "piece.fruit"
+      ],
+      "slots": [
+        {
+          "id": "region",
+          "x": 4,
+          "y": 3,
+          "width": 3,
+          "height": 2
+        }
+      ]
+    },
+    {
+      "id": "stock.general",
+      "pieceIds": [
+        "piece.beef",
+        "piece.box",
+        "piece.cow",
+        "piece.elbowLeft",
+        "piece.elbowRight",
+        "piece.fish",
+        "piece.fourNotches",
+        "piece.fruit",
+        "piece.meat",
+        "piece.saltSack",
+        "piece.topNotch",
+        "piece.uShape",
+        "piece.verticalPair",
+        "piece.verticalTabs"
+      ],
+      "slots": [
+        {
+          "id": "random.0",
+          "x": 0,
+          "y": 5,
+          "width": 3,
+          "height": 2
+        },
+        {
+          "id": "random.1",
+          "x": 4,
+          "y": 5,
+          "width": 3,
+          "height": 2
+        }
+      ]
+    },
+    {
+      "id": "stock.industry",
+      "pieceIds": [
+        "piece.uShape"
+      ],
+      "slots": [
+        {
+          "id": "region",
+          "x": 4,
+          "y": 3,
+          "width": 3,
+          "height": 2
+        }
+      ]
+    },
+    {
+      "id": "stock.mine",
+      "pieceIds": [
+        "piece.saltSack"
+      ],
+      "slots": [
+        {
+          "id": "region",
+          "x": 4,
+          "y": 3,
+          "width": 3,
+          "height": 2
+        }
+      ]
+    },
+    {
+      "id": "stock.ranch",
+      "pieceIds": [
+        "piece.cow"
+      ],
+      "slots": [
+        {
+          "id": "region",
+          "x": 4,
+          "y": 3,
+          "width": 3,
+          "height": 2
+        }
+      ]
+    }
+  ]
 }

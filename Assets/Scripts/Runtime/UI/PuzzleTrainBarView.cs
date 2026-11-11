@@ -6,10 +6,10 @@ using TMPro;
 [DisallowMultipleComponent]
 public sealed class PuzzleTrainBarView : MonoBehaviour
 {
-    static float WagonWidth => BasicData.Float("ui.PuzzleTrainBarView.WagonWidth");
-    static float WagonHeight => BasicData.Float("ui.PuzzleTrainBarView.WagonHeight");
-    static float WagonSpacing => BasicData.Float("ui.PuzzleTrainBarView.WagonSpacing");
-    static float WagonDragHoverScale => BasicData.Float("ui.PuzzleTrainBarView.WagonDragHoverScale");
+    static float WagonWidth => BasicData.Float("ui.PuzzleTrainBarView.wagonWidth");
+    static float WagonHeight => BasicData.Float("ui.PuzzleTrainBarView.wagonHeight");
+    static float WagonSpacing => BasicData.Float("ui.PuzzleTrainBarView.wagonSpacing");
+    static float WagonDragHoverScale => BasicData.Float("ui.PuzzleTrainBarView.wagonDragHoverScale");
 
     [Serializable]
     public sealed class WagonSlotUI
@@ -33,8 +33,8 @@ public sealed class PuzzleTrainBarView : MonoBehaviour
 
     int visibleWagonCount = -1;
 
-    float OriginX => BasicData.Float("ui.PuzzleTrainBarView.OriginX");
-    float OriginY => BasicData.Float("ui.PuzzleTrainBarView.OriginY");
+    float OriginX => BasicData.Float("ui.PuzzleTrainBarView.originX");
+    float OriginY => BasicData.Float("ui.PuzzleTrainBarView.originY");
 
     public event Action<int> WagonSelected;
     public event Action AddWagonClicked;
@@ -161,13 +161,13 @@ public sealed class PuzzleTrainBarView : MonoBehaviour
         {
             if (addWagonBox != null)
             {
-                addWagonBox.color = _canAfford ? Presentation.PuzzleAddWagonBox : Presentation.SharedColor("ui.PuzzleTrainBarView.Vector2.color1");
+                addWagonBox.color = _canAfford ? Presentation.PuzzleAddWagonBox : Presentation.SharedColor("ui.PuzzleTrainBarView.addWagonBoxcolorColor");
             }
 
             if (addWagonText != null)
             {
                 addWagonText.text = Presentation.PuzzleAddWagonLabel(_nextCost);
-                addWagonText.color = _canAfford ? Presentation.PuzzleUnmodifiedTint : Presentation.SharedColor("ui.PuzzleTrainBarView.Color.color1");
+                addWagonText.color = _canAfford ? Presentation.PuzzleUnmodifiedTint : Presentation.SharedColor("ui.PuzzleTrainBarView.addWagonTextcolorColor");
             }
 
             addWagonButton.interactable = _canAfford;

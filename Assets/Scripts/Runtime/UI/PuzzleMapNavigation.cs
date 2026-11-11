@@ -6,9 +6,9 @@ using UnityEngine.UI;
 // The viewport owns navigation; map objects remain authored in the prefab.
 public sealed class PuzzleMapNavigation : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
-    static float MinZoom => BasicData.Float("ui.PuzzleMapNavigation.MinZoom");
-    static float MaxZoom => BasicData.Float("ui.PuzzleMapNavigation.MaxZoom");
-    static float ZoomStep => BasicData.Float("ui.PuzzleMapNavigation.ZoomStep");
+    static float MinZoom => BasicData.Float("ui.PuzzleMapNavigation.minZoom");
+    static float MaxZoom => BasicData.Float("ui.PuzzleMapNavigation.maxZoom");
+    static float ZoomStep => BasicData.Float("ui.PuzzleMapNavigation.zoomStep");
 
     [SerializeField] InputActionAsset inputActions;
     [SerializeField] RectTransform content;
@@ -123,7 +123,7 @@ public sealed class PuzzleMapNavigation : MonoBehaviour, IBeginDragHandler, IDra
     {
         if (current)
         {
-            SetZoom(Mathf.Max(scale, BasicData.Float("ui.PuzzleMapNavigation.FocusCurrent.number1")), Vector2.zero);
+            SetZoom(Mathf.Max(scale, BasicData.Float("ui.PuzzleMapNavigation.focusCurrent")), Vector2.zero);
             content.anchoredPosition = -(Vector2)current.localPosition * scale;
             Clamp();
         }

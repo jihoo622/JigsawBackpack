@@ -44,9 +44,9 @@ public static class TooltipSceneSetup
         }
 
         var fontAsset = TMP_FontAsset.CreateFontAsset(
-            font, BasicData.Int("editor.tooltip.fontSamplingSize"), BasicData.Int("editor.TooltipSceneSetup.EnsureFontAsset.number1"),
+            font, BasicData.Int("editor.tooltip.fontSamplingSize"), BasicData.Int("editor.TooltipSceneSetup.ensureFontAsset"),
             UnityEngine.TextCore.LowLevel.GlyphRenderMode.SDFAA,
-            BasicData.Int("editor.TooltipSceneSetup.EnsureFontAsset.number2"), BasicData.Int("editor.TooltipSceneSetup.EnsureFontAsset.number3"),
+            BasicData.Int("editor.TooltipSceneSetup.ensureFontAsset2"), BasicData.Int("editor.TooltipSceneSetup.ensureFontAsset3"),
             AtlasPopulationMode.Dynamic, true);
 
         if (fontAsset == null)
@@ -215,7 +215,7 @@ public static class TooltipSceneSetup
         rootRect.pivot = new Vector2(0f, 1f);
         rootRect.anchorMin = new Vector2(0.5f, 0.5f);
         rootRect.anchorMax = new Vector2(0.5f, 0.5f);
-        rootRect.sizeDelta = new Vector2(BasicData.Float("editor.TooltipSceneSetup.Vector2.number1"), BasicData.Float("editor.TooltipSceneSetup.Vector2.number2"));
+        rootRect.sizeDelta = new Vector2(BasicData.Float("editor.TooltipSceneSetup.rootRectsizeDeltaWidth"), BasicData.Float("editor.TooltipSceneSetup.rootRectsizeDeltaHeight"));
 
         var rootGroup = root.GetComponent<CanvasGroup>();
         rootGroup.blocksRaycasts = false;
@@ -248,8 +248,8 @@ public static class TooltipSceneSetup
         headerImage.raycastTarget = false;
 
         var headerLayout = header.GetComponent<VerticalLayoutGroup>();
-        headerLayout.padding = new RectOffset(BasicData.Int("editor.TooltipSceneSetup.RectOffset.number1"), BasicData.Int("editor.TooltipSceneSetup.RectOffset.number2"), BasicData.Int("editor.TooltipSceneSetup.RectOffset.number3"), BasicData.Int("editor.TooltipSceneSetup.RectOffset.number4"));
-        headerLayout.spacing = BasicData.Int("editor.TooltipSceneSetup.RectOffset.number5");
+        headerLayout.padding = new RectOffset(BasicData.Int("editor.TooltipSceneSetup.headerLayoutpaddingPaddingLeft"), BasicData.Int("editor.TooltipSceneSetup.headerLayoutpaddingPaddingRight"), BasicData.Int("editor.TooltipSceneSetup.headerLayoutpaddingPaddingTop"), BasicData.Int("editor.TooltipSceneSetup.headerLayoutpaddingPaddingBottom"));
+        headerLayout.spacing = BasicData.Int("editor.TooltipSceneSetup.headerLayoutspacing");
         headerLayout.childAlignment = TextAnchor.UpperLeft;
         headerLayout.childControlWidth = true;
         headerLayout.childControlHeight = true;
@@ -268,7 +268,7 @@ public static class TooltipSceneSetup
         categoryRow.transform.SetParent(header.transform, false);
 
         var catRowLayout = categoryRow.GetComponent<HorizontalLayoutGroup>();
-        catRowLayout.spacing = BasicData.Int("editor.TooltipSceneSetup.GameObject.number1");
+        catRowLayout.spacing = BasicData.Int("editor.TooltipSceneSetup.catRowLayoutspacing");
         catRowLayout.childAlignment = TextAnchor.UpperLeft;
         catRowLayout.childControlWidth = true;
         catRowLayout.childControlHeight = true;
@@ -279,7 +279,7 @@ public static class TooltipSceneSetup
         catRowFitter.horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
         catRowFitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
 
-        int badgeCount = BasicData.Int("editor.TooltipSceneSetup.Badgecount");
+        int badgeCount = BasicData.Int("editor.TooltipSceneSetup.badgecount");
         var badgeImages = new Image[badgeCount];
         var badgeTexts = new TextMeshProUGUI[badgeCount];
         for (int i = 0; i < badgeCount; i++)
@@ -305,8 +305,8 @@ public static class TooltipSceneSetup
         body.transform.SetParent(root.transform, false);
 
         var bodyLayout = body.GetComponent<VerticalLayoutGroup>();
-        bodyLayout.padding = new RectOffset(BasicData.Int("editor.TooltipSceneSetup.RectOffset.number6"), BasicData.Int("editor.TooltipSceneSetup.RectOffset.number7"), BasicData.Int("editor.TooltipSceneSetup.RectOffset.number8"), BasicData.Int("editor.TooltipSceneSetup.RectOffset.number9"));
-        bodyLayout.spacing = BasicData.Int("editor.TooltipSceneSetup.RectOffset.number10");
+        bodyLayout.padding = new RectOffset(BasicData.Int("editor.TooltipSceneSetup.bodyLayoutpaddingPaddingLeft"), BasicData.Int("editor.TooltipSceneSetup.bodyLayoutpaddingPaddingRight"), BasicData.Int("editor.TooltipSceneSetup.bodyLayoutpaddingPaddingTop"), BasicData.Int("editor.TooltipSceneSetup.bodyLayoutpaddingPaddingBottom"));
+        bodyLayout.spacing = BasicData.Int("editor.TooltipSceneSetup.bodyLayoutspacing");
         bodyLayout.childControlWidth = true;
         bodyLayout.childControlHeight = true;
         bodyLayout.childForceExpandWidth = true;
@@ -328,8 +328,8 @@ public static class TooltipSceneSetup
         synergySection.transform.SetParent(body.transform, false);
 
         var synSectionLayout = synergySection.GetComponent<VerticalLayoutGroup>();
-        synSectionLayout.padding = new RectOffset(0, 0, BasicData.Int("editor.TooltipSceneSetup.RectOffset.number11"), 0);
-        synSectionLayout.spacing = BasicData.Int("editor.TooltipSceneSetup.RectOffset.number12");
+        synSectionLayout.padding = new RectOffset(0, 0, BasicData.Int("editor.TooltipSceneSetup.synSectionLayoutpaddingPaddingTop"), 0);
+        synSectionLayout.spacing = BasicData.Int("editor.TooltipSceneSetup.synSectionLayoutspacing");
         synSectionLayout.childControlWidth = true;
         synSectionLayout.childControlHeight = true;
         synSectionLayout.childForceExpandWidth = true;
@@ -348,7 +348,7 @@ public static class TooltipSceneSetup
         synListLayout.childForceExpandWidth = true;
         synListLayout.childForceExpandHeight = false;
 
-        var slots = new TextMeshProUGUI[BasicData.Int("editor.TooltipSceneSetup.GameObject.number2")];
+        var slots = new TextMeshProUGUI[BasicData.Int("editor.TooltipSceneSetup.createTooltipHierarchy")];
         for (int i = 0; i < slots.Length; i++)
         {
             slots[i] = CreateTextObject($"Slot_{i}", synergyList.transform, _fontAsset, "• 식량과 함께하면 가치가 올라갑니다.");
@@ -422,7 +422,7 @@ public static class TooltipSceneSetup
         _badgeImage.raycastTarget = false;
 
         var layout = badgeObj.GetComponent<HorizontalLayoutGroup>();
-        layout.padding = new RectOffset(BasicData.Int("editor.TooltipSceneSetup.RectOffset.number13"), BasicData.Int("editor.TooltipSceneSetup.RectOffset.number14"), BasicData.Int("editor.tooltip.badgeVerticalPadding"), BasicData.Int("editor.tooltip.badgeVerticalPadding"));
+        layout.padding = new RectOffset(BasicData.Int("editor.TooltipSceneSetup.layoutpaddingPaddingLeft"), BasicData.Int("editor.TooltipSceneSetup.layoutpaddingPaddingRight"), BasicData.Int("editor.tooltip.badgeVerticalPadding"), BasicData.Int("editor.tooltip.badgeVerticalPadding"));
         layout.childAlignment = TextAnchor.MiddleCenter;
         layout.childControlWidth = true;
         layout.childControlHeight = true;
@@ -449,10 +449,10 @@ public static class TooltipSceneSetup
             tmp.font = _fontAsset;
         }
         tmp.text = _sample;
-        tmp.fontSize = BasicData.Float("editor.TooltipSceneSetup.GameObject.number4");
+        tmp.fontSize = BasicData.Float("editor.TooltipSceneSetup.tmpfontSizeFontSize");
         tmp.enableAutoSizing = true;
-        tmp.fontSizeMin = BasicData.Float("editor.TooltipSceneSetup.GameObject.number5");
-        tmp.fontSizeMax = BasicData.Float("editor.TooltipSceneSetup.GameObject.number6");
+        tmp.fontSizeMin = BasicData.Float("editor.TooltipSceneSetup.tmpfontSizeMinFontSize");
+        tmp.fontSizeMax = BasicData.Float("editor.TooltipSceneSetup.tmpfontSizeMaxFontSize");
         tmp.textWrappingMode = TextWrappingModes.NoWrap;
         tmp.raycastTarget = false;
         tmp.color = Presentation.PuzzleTooltipText;

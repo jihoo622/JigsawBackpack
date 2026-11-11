@@ -16,7 +16,7 @@ public sealed class PuzzleSlotVisual : MonoBehaviour
 
     Sprite[] fillSprites;
     Sprite outlineSprite;
-    TextMeshProUGUI freshnessLabel;
+    [SerializeField] TextMeshProUGUI freshnessLabel;
 
     RectTransform Rect => (RectTransform)transform;
 
@@ -91,30 +91,19 @@ public sealed class PuzzleSlotVisual : MonoBehaviour
         float cellWidth = Rect.rect.width;
         if (!freshnessLabel)
         {
-            var label = new GameObject("Freshness", typeof(RectTransform), typeof(TextMeshProUGUI));
-            label.transform.SetParent(transform, false);
-            freshnessLabel = label.GetComponent<TextMeshProUGUI>();
-            freshnessLabel.font = _font;
-            freshnessLabel.fontStyle = FontStyles.Bold;
-            freshnessLabel.fontSharedMaterial = _material;
-            freshnessLabel.raycastTarget = false;
-            freshnessLabel.alignment = TextAlignmentOptions.BottomLeft;
-            freshnessLabel.textWrappingMode = TextWrappingModes.NoWrap;
-            freshnessLabel.fontSize = cellWidth * 0.21f;
-            freshnessLabel.rectTransform.pivot = Vector2.zero;
-            freshnessLabel.rectTransform.sizeDelta = new Vector2(cellWidth * 0.9f, cellWidth * 0.35f);
+            throw new System.InvalidOperationException("신선도 표시 슬롯을 프리팹에 먼저 연결하세요.");
         }
+        freshnessLabel.font = _font;
+        freshnessLabel.fontSharedMaterial = _material;
+        freshnessLabel.fontSize = cellWidth * BasicData.Float("ui.freshness.fontScale");
+        freshnessLabel.rectTransform.sizeDelta = new Vector2(cellWidth * BasicData.Float("ui.freshness.widthScale"),
+            cellWidth * BasicData.Float("ui.freshness.heightScale"));
 
         int percent = Mathf.Clamp(_freshness.Value, 0, 100);
-        freshnessLabel.SetText("{0:0} %", percent);
-        freshnessLabel.color = percent switch
-        {
-            0 => new Color32(148, 148, 148, 255),
-            <= 33 => new Color32(255, 102, 102, 255),
-            <= 66 => new Color32(255, 220, 80, 255),
-            _ => new Color32(120, 235, 125, 255)
-        };
-        freshnessLabel.rectTransform.anchoredPosition = (_cellOffset - Vector2.one * 0.43f) * cellWidth;
+        freshnessLabel.text = Presentation.PuzzleFreshnessText(percent);
+        freshnessLabel.color = Presentation.PuzzleFreshnessColor(percent);
+        freshnessLabel.rectTransform.anchoredPosition =
+            (_cellOffset - Vector2.one * BasicData.Float("ui.freshness.offsetScale")) * cellWidth;
         freshnessLabel.enabled = true;
     }
 

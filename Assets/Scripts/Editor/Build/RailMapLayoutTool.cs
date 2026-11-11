@@ -16,11 +16,11 @@ public static class RailMapLayoutTool
     const string LAYOUT_PATH = "Docs/Management/rail_map_layout_seed_20265146.json";
     const string MENU = "Tools/MyJG/Apply Rail Map Layout (seed 20265146)";
     const string TRACK_PARENT_NAME = "SubwayMapTracks";
-    static float BackboneThickness => BasicData.Float("editor.RailMapLayoutTool.Backbonethickness");
-    static float SideThickness => BasicData.Float("editor.RailMapLayoutTool.Sidethickness");
-    static float LabelNodeClearance => BasicData.Float("editor.RailMapLayoutTool.Labelnodeclearance");
-    static float LabelNudge => BasicData.Float("editor.RailMapLayoutTool.Labelnudge");
-    static float EndpointTolerance => BasicData.Float("editor.RailMapLayoutTool.Endpointtolerance");
+    static float BackboneThickness => BasicData.Float("editor.RailMapLayoutTool.backbonethickness");
+    static float SideThickness => BasicData.Float("editor.RailMapLayoutTool.sidethickness");
+    static float LabelNodeClearance => BasicData.Float("editor.RailMapLayoutTool.labelnodeclearance");
+    static float LabelNudge => BasicData.Float("editor.RailMapLayoutTool.labelnudge");
+    static float EndpointTolerance => BasicData.Float("editor.RailMapLayoutTool.endpointtolerance");
     static readonly string[] BACKBONE_CORRIDORS = {"trade_backbone", "express_backbone"};
 
     // JsonUtility가 리플렉션으로 값을 채우므로 컴파일러는 필드가 항상 기본값이라고 경고한다.
@@ -480,7 +480,7 @@ public static class RailMapLayoutTool
         }
 
         var away = _label - nearest.Value;
-        if (away.sqrMagnitude < BasicData.Float("editor.RailMapLayoutTool.Vector2.number1"))
+        if (away.sqrMagnitude < BasicData.Float("editor.RailMapLayoutTool.nudgeFromNodesBelowPercent"))
         {
             away = Vector2.up;
         }
