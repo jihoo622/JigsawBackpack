@@ -144,7 +144,7 @@ public static class MapPresentationTool
             outline.effectDistance = new Vector2(1f, -1f);
         }
 
-        Place(Find(panel, "Title"), new Vector2(-200f, 488f), new Vector2(1400f, 48f));
+        Place(Find(panel, "Title"), new Vector2(0f, 488f), new Vector2(1344f, 48f));
         Place(template.transform, new Vector2(816f, 488f), new Vector2(192f, 48f));
         Place(Find(panel, "Guide"), new Vector2(0f, 366f), new Vector2(1760f, 76f));
         Find(panel, "Guide").GetComponent<Text>().fontSize = 20;
@@ -196,7 +196,7 @@ public static class MapPresentationTool
         info.resizeTextForBestFit = true;
         info.resizeTextMinSize = 14;
         info.resizeTextMaxSize = 20;
-        Header(Find(panel, "Title"), 48f, 288f, 28f, 48f);
+        Header(Find(panel, "Title"), 288f, 288f, 28f, 48f);
         Header(Find(panel, "Guide"), 48f, 48f, 136f, 76f);
         var close = (RectTransform)template.transform;
         close.anchorMin = close.anchorMax = Vector2.one;
