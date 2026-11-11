@@ -639,13 +639,14 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         var rate = item == null ? default : session.RateFor(item);
         var effects = BuildEffectDescriptions(item, isTrain);
         long? previewMinutes = session.PreviewMinutes;
+        long? previewActivations = null;
         decimal? futureValue = null;
         if (isTrain && previewMinutes.HasValue)
         {
             try
             {
-                futureValue = checked(actualValue + (value.FinalValue - value.BaseValue) *
-                    previewMinutes.Value / PuzzleTimeManager.MINUTES_PER_HOUR);
+                previewActivations = session.SynergyActivationsFor(previewMinutes.Value);
+                futureValue = checked(actualValue + (value.FinalValue - value.BaseValue) * previewActivations.Value);
             }
             catch (System.OverflowException)
             {
@@ -658,7 +659,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             Vector2 pos = _position ?? hoverPosition.Value;
             int? freshness = item != null && item.HasDurability ? _placement.Durability : (int?)null;
             string previewName = session.PreviewCityId == null ? null : TableManager.Instance.CityPrice(session.PreviewCityId).displayName;
-            tooltipView.Show(item, actualValue, rate, effects, futureValue, pos, isTrain, freshness, previewMinutes, previewName);
+            tooltipView.Show(item, actualValue, rate, effects, futureValue, pos, isTrain, freshness, previewMinutes, previewName, previewActivations);
         }
 
         if (trainView)

@@ -98,6 +98,12 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         tables.TryGetRoute(CurrentCityId, PreviewCityId, out var route)
         ? PuzzleTimeManager.TravelMinutes(route, tables.PuzzleTime) : (long?)null;
 
+    internal long SynergyActivationsFor(long _minutes)
+    {
+        long interval = (long)tables.PuzzleSynergy.activationIntervalHours * PuzzleTimeManager.MINUTES_PER_HOUR;
+        return Time.IntervalCountAfter(_minutes, interval);
+    }
+
     internal void SetPreviewDestination(string _cityId)
     {
         if (_cityId != null && !tables.HasRoute(CurrentCityId, _cityId))
@@ -270,7 +276,7 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         }
         foreach (var wagon in trainWagons)
         {
-            if (!wagon.CanApplyTimeValueChange(travelTime))
+            if (!wagon.CanApplySynergyActivations(SynergyActivationsFor(travelTime)))
             {
                 return new PuzzleTravelResult(PuzzleTravelFailure.TimeOverflow);
             }
@@ -343,8 +349,13 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         }
         long previous = Time.ElapsedMinutes;
         Time.ArrivalAt(_minutes);
+        long activations = SynergyActivationsFor(_minutes);
         foreach (var wagon in trainWagons)
         {
+            if (!wagon.CanApplySynergyActivations(activations))
+            {
+                return false;
+            }
             foreach (var item in wagon.Placements)
             {
                 if (item.OwnedMinutes >= 0)
@@ -352,6 +363,10 @@ public sealed class PuzzleInventoryService : MonoBehaviour
                     _ = checked(item.OwnedMinutes + _minutes);
                 }
             }
+        }
+        foreach (var wagon in trainWagons)
+        {
+            wagon.ApplySynergyActivations(activations);
         }
         Time.Advance(_minutes);
         foreach (var wagon in trainWagons)
@@ -434,25 +449,19 @@ public sealed class PuzzleInventoryService : MonoBehaviour
             return evaluation;
         }
 
-        tables.TryGetRoute(evaluation.FromCityId, evaluation.ToCityId, out var route);
         long duration = evaluation.TravelMinutes;
         // 잘못된 시간이나 오버플로는 자금·배치·도시 변경 전에 검사한다.
         Time.ArrivalAt(duration);
         // 이동 비용은 출발 전에 낸다. 기차는 출발 직전까지의 배치로 계산한다. 이후의 도시 도착·턴 증가·가치 변화는 한 번에 확정한다.
         Funds -= evaluation.Cost;
-        // 출발 직전 인접 배치의 시간당 변화량을 소비 시간만큼 누적한다.
-        for (int i = 0; i < trainWagons.Count; i++)
-        {
-            trainWagons[i].ApplyTimeValueChange(duration);
-        }
         // 떠난 도시의 시장은 테이블의 시작 배치로 되돌린다. 기차는 그대로 두고, 목적지 시장은 손대지 않는다.
         markets[evaluation.FromCityId] = CreateMarket(evaluation.FromCityId);
         currentCityId = evaluation.ToCityId;
-        SetPreviewDestination(null);
         CityMoveCount++;
         visitedCities.Add(CurrentCityId);
         Market.RecalculateValue();
         AdvanceMinutes(duration);
+        SetPreviewDestination(null);
         GameEvents.RaiseCityArrived(CurrentCityId, CityMoveCount);
 
         // 테스트를 위해 빚 차감 및 빚으로 인한 승패 판정을 임시 비활성화한다.

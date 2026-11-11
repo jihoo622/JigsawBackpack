@@ -87,6 +87,15 @@ public sealed class PuzzleTimeManager
         return !HasDeadline || arrival <= DeadlineMinutes;
     }
 
+    public long IntervalCountAfter(long _durationMinutes, long _intervalMinutes)
+    {
+        if (_intervalMinutes <= 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(_intervalMinutes));
+        }
+        return ArrivalAt(_durationMinutes) / _intervalMinutes - ElapsedMinutes / _intervalMinutes;
+    }
+
     internal void Advance(long _minutes)
     {
         ElapsedMinutes = ArrivalAt(_minutes);

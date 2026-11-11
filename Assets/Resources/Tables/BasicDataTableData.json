@@ -1170,7 +1170,7 @@
       "value": 24.0,
       "whole": false,
       "positive": false,
-      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:230"
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:231"
     },
     {
       "id": "editor.StationActionsSetupTool.Vector2.number1",
@@ -1219,35 +1219,35 @@
       "value": 10.0,
       "whole": false,
       "positive": false,
-      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:59"
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:60"
     },
     {
       "id": "editor.StationActionsSetupTool.Vector2.number16",
       "value": 660.0,
       "whole": false,
       "positive": false,
-      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:59"
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:60"
     },
     {
       "id": "editor.StationActionsSetupTool.Vector2.number17",
       "value": 560.0,
       "whole": false,
       "positive": false,
-      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:59"
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:60"
     },
     {
       "id": "editor.StationActionsSetupTool.Vector2.number18",
       "value": 205.0,
       "whole": false,
       "positive": false,
-      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:60"
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:61"
     },
     {
       "id": "editor.StationActionsSetupTool.Vector2.number19",
       "value": 600.0,
       "whole": false,
       "positive": false,
-      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:60"
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:61"
     },
     {
       "id": "editor.StationActionsSetupTool.Vector2.number2",
@@ -1261,70 +1261,70 @@
       "value": 88.0,
       "whole": false,
       "positive": false,
-      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:60"
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:61"
     },
     {
       "id": "editor.StationActionsSetupTool.Vector2.number21",
       "value": 95.0,
       "whole": false,
       "positive": false,
-      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:61"
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:62"
     },
     {
       "id": "editor.StationActionsSetupTool.Vector2.number22",
       "value": 600.0,
       "whole": false,
       "positive": false,
-      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:61"
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:62"
     },
     {
       "id": "editor.StationActionsSetupTool.Vector2.number23",
       "value": 88.0,
       "whole": false,
       "positive": false,
-      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:61"
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:62"
     },
     {
       "id": "editor.StationActionsSetupTool.Vector2.number24",
       "value": 15.0,
       "whole": false,
       "positive": false,
-      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:65"
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:66"
     },
     {
       "id": "editor.StationActionsSetupTool.Vector2.number25",
       "value": 600.0,
       "whole": false,
       "positive": false,
-      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:65"
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:66"
     },
     {
       "id": "editor.StationActionsSetupTool.Vector2.number26",
       "value": 88.0,
       "whole": false,
       "positive": false,
-      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:65"
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:66"
     },
     {
       "id": "editor.StationActionsSetupTool.Vector2.number27",
       "value": 125.0,
       "whole": false,
       "positive": false,
-      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:66"
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:67"
     },
     {
       "id": "editor.StationActionsSetupTool.Vector2.number28",
       "value": 600.0,
       "whole": false,
       "positive": false,
-      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:66"
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:67"
     },
     {
       "id": "editor.StationActionsSetupTool.Vector2.number29",
       "value": 88.0,
       "whole": false,
       "positive": false,
-      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:66"
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:67"
     },
     {
       "id": "editor.StationActionsSetupTool.Vector2.number3",
@@ -1338,70 +1338,70 @@
       "value": 32.0,
       "whole": false,
       "positive": false,
-      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:67"
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:68"
     },
     {
       "id": "editor.StationActionsSetupTool.Vector2.number31",
       "value": 640.0,
       "whole": false,
       "positive": false,
-      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:67"
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:68"
     },
     {
       "id": "editor.StationActionsSetupTool.Vector2.number32",
       "value": 580.0,
       "whole": false,
       "positive": false,
-      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:67"
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:68"
     },
     {
       "id": "editor.StationActionsSetupTool.Vector2.number33",
       "value": 32.0,
       "whole": false,
       "positive": false,
-      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:69"
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:70"
     },
     {
       "id": "editor.StationActionsSetupTool.Vector2.number34",
       "value": 640.0,
       "whole": false,
       "positive": false,
-      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:69"
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:70"
     },
     {
       "id": "editor.StationActionsSetupTool.Vector2.number35",
       "value": 580.0,
       "whole": false,
       "positive": false,
-      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:69"
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:70"
     },
     {
       "id": "editor.StationActionsSetupTool.Vector2.number36",
       "value": 120.0,
       "whole": false,
       "positive": false,
-      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:70"
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:71"
     },
     {
       "id": "editor.StationActionsSetupTool.Vector2.number37",
       "value": 500.0,
       "whole": false,
       "positive": false,
-      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:70"
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:71"
     },
     {
       "id": "editor.StationActionsSetupTool.Vector2.number38",
       "value": 60.0,
       "whole": false,
       "positive": false,
-      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:70"
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:71"
     },
     {
       "id": "editor.StationActionsSetupTool.Vector2.number39",
       "value": 30.0,
       "whole": false,
       "positive": false,
-      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:74"
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:75"
     },
     {
       "id": "editor.StationActionsSetupTool.Vector2.number4",
@@ -1415,63 +1415,63 @@
       "value": 500.0,
       "whole": false,
       "positive": false,
-      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:75"
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:76"
     },
     {
       "id": "editor.StationActionsSetupTool.Vector2.number41",
       "value": 60.0,
       "whole": false,
       "positive": false,
-      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:75"
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:76"
     },
     {
       "id": "editor.StationActionsSetupTool.Vector2.number42",
       "value": 100.0,
       "whole": false,
       "positive": false,
-      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:76"
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:77"
     },
     {
       "id": "editor.StationActionsSetupTool.Vector2.number43",
       "value": 560.0,
       "whole": false,
       "positive": false,
-      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:76"
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:77"
     },
     {
       "id": "editor.StationActionsSetupTool.Vector2.number44",
       "value": 120.0,
       "whole": false,
       "positive": false,
-      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:76"
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:77"
     },
     {
       "id": "editor.StationActionsSetupTool.Vector2.number45",
       "value": 20.0,
       "whole": false,
       "positive": false,
-      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:76"
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:77"
     },
     {
       "id": "editor.StationActionsSetupTool.Vector2.number46",
       "value": 32.0,
       "whole": false,
       "positive": false,
-      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:78"
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:79"
     },
     {
       "id": "editor.StationActionsSetupTool.Vector2.number48",
       "value": 380.0,
       "whole": false,
       "positive": false,
-      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:96"
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:97"
     },
     {
       "id": "editor.StationActionsSetupTool.Vector2.number49",
       "value": 430.0,
       "whole": false,
       "positive": false,
-      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:96"
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:97"
     },
     {
       "id": "editor.StationActionsSetupTool.Vector2.number5",
@@ -1485,14 +1485,14 @@
       "value": 700.0,
       "whole": false,
       "positive": false,
-      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:97"
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:98"
     },
     {
       "id": "editor.StationActionsSetupTool.Vector2.number51",
       "value": 80.0,
       "whole": false,
       "positive": false,
-      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:97"
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:98"
     },
     {
       "id": "editor.StationActionsSetupTool.Vector2.number6",
@@ -1723,7 +1723,7 @@
       "value": 3,
       "whole": true,
       "positive": true,
-      "source": "Assets/Scripts/Editor/Build/TooltipSceneSetup.cs:263"
+      "source": "Assets/Scripts/Editor/Build/TooltipSceneSetup.cs:269"
     },
     {
       "id": "editor.TooltipSceneSetup.EnsureFontAsset.number1",
@@ -1751,147 +1751,147 @@
       "value": 6,
       "whole": true,
       "positive": false,
-      "source": "Assets/Scripts/Editor/Build/TooltipSceneSetup.cs:252"
+      "source": "Assets/Scripts/Editor/Build/TooltipSceneSetup.cs:258"
     },
     {
       "id": "editor.TooltipSceneSetup.GameObject.number2",
       "value": 6,
       "whole": true,
       "positive": false,
-      "source": "Assets/Scripts/Editor/Build/TooltipSceneSetup.cs:325"
+      "source": "Assets/Scripts/Editor/Build/TooltipSceneSetup.cs:338"
     },
     {
       "id": "editor.TooltipSceneSetup.GameObject.number4",
       "value": 18.0,
       "whole": false,
       "positive": false,
-      "source": "Assets/Scripts/Editor/Build/TooltipSceneSetup.cs:427"
+      "source": "Assets/Scripts/Editor/Build/TooltipSceneSetup.cs:446"
     },
     {
       "id": "editor.TooltipSceneSetup.GameObject.number5",
       "value": 18.0,
       "whole": false,
       "positive": false,
-      "source": "Assets/Scripts/Editor/Build/TooltipSceneSetup.cs:429"
+      "source": "Assets/Scripts/Editor/Build/TooltipSceneSetup.cs:448"
     },
     {
       "id": "editor.TooltipSceneSetup.GameObject.number6",
       "value": 24.0,
       "whole": false,
       "positive": false,
-      "source": "Assets/Scripts/Editor/Build/TooltipSceneSetup.cs:430"
+      "source": "Assets/Scripts/Editor/Build/TooltipSceneSetup.cs:449"
     },
     {
       "id": "editor.TooltipSceneSetup.RectOffset.number1",
       "value": 16,
       "whole": true,
       "positive": false,
-      "source": "Assets/Scripts/Editor/Build/TooltipSceneSetup.cs:233"
+      "source": "Assets/Scripts/Editor/Build/TooltipSceneSetup.cs:239"
     },
     {
       "id": "editor.TooltipSceneSetup.RectOffset.number10",
       "value": 10,
       "whole": true,
       "positive": false,
-      "source": "Assets/Scripts/Editor/Build/TooltipSceneSetup.cs:290"
+      "source": "Assets/Scripts/Editor/Build/TooltipSceneSetup.cs:296"
     },
     {
       "id": "editor.TooltipSceneSetup.RectOffset.number11",
       "value": 6,
       "whole": true,
       "positive": false,
-      "source": "Assets/Scripts/Editor/Build/TooltipSceneSetup.cs:306"
+      "source": "Assets/Scripts/Editor/Build/TooltipSceneSetup.cs:318"
     },
     {
       "id": "editor.TooltipSceneSetup.RectOffset.number12",
       "value": 6,
       "whole": true,
       "positive": false,
-      "source": "Assets/Scripts/Editor/Build/TooltipSceneSetup.cs:307"
+      "source": "Assets/Scripts/Editor/Build/TooltipSceneSetup.cs:319"
     },
     {
       "id": "editor.TooltipSceneSetup.RectOffset.number13",
       "value": 12,
       "whole": true,
       "positive": false,
-      "source": "Assets/Scripts/Editor/Build/TooltipSceneSetup.cs:400"
+      "source": "Assets/Scripts/Editor/Build/TooltipSceneSetup.cs:419"
     },
     {
       "id": "editor.TooltipSceneSetup.RectOffset.number14",
       "value": 12,
       "whole": true,
       "positive": false,
-      "source": "Assets/Scripts/Editor/Build/TooltipSceneSetup.cs:400"
+      "source": "Assets/Scripts/Editor/Build/TooltipSceneSetup.cs:419"
     },
     {
       "id": "editor.TooltipSceneSetup.RectOffset.number2",
       "value": 16,
       "whole": true,
       "positive": false,
-      "source": "Assets/Scripts/Editor/Build/TooltipSceneSetup.cs:233"
+      "source": "Assets/Scripts/Editor/Build/TooltipSceneSetup.cs:239"
     },
     {
       "id": "editor.TooltipSceneSetup.RectOffset.number3",
       "value": 12,
       "whole": true,
       "positive": false,
-      "source": "Assets/Scripts/Editor/Build/TooltipSceneSetup.cs:233"
+      "source": "Assets/Scripts/Editor/Build/TooltipSceneSetup.cs:239"
     },
     {
       "id": "editor.TooltipSceneSetup.RectOffset.number4",
       "value": 12,
       "whole": true,
       "positive": false,
-      "source": "Assets/Scripts/Editor/Build/TooltipSceneSetup.cs:233"
+      "source": "Assets/Scripts/Editor/Build/TooltipSceneSetup.cs:239"
     },
     {
       "id": "editor.TooltipSceneSetup.RectOffset.number5",
       "value": 8,
       "whole": true,
       "positive": false,
-      "source": "Assets/Scripts/Editor/Build/TooltipSceneSetup.cs:234"
+      "source": "Assets/Scripts/Editor/Build/TooltipSceneSetup.cs:240"
     },
     {
       "id": "editor.TooltipSceneSetup.RectOffset.number6",
       "value": 16,
       "whole": true,
       "positive": false,
-      "source": "Assets/Scripts/Editor/Build/TooltipSceneSetup.cs:289"
+      "source": "Assets/Scripts/Editor/Build/TooltipSceneSetup.cs:295"
     },
     {
       "id": "editor.TooltipSceneSetup.RectOffset.number7",
       "value": 16,
       "whole": true,
       "positive": false,
-      "source": "Assets/Scripts/Editor/Build/TooltipSceneSetup.cs:289"
+      "source": "Assets/Scripts/Editor/Build/TooltipSceneSetup.cs:295"
     },
     {
       "id": "editor.TooltipSceneSetup.RectOffset.number8",
       "value": 14,
       "whole": true,
       "positive": false,
-      "source": "Assets/Scripts/Editor/Build/TooltipSceneSetup.cs:289"
+      "source": "Assets/Scripts/Editor/Build/TooltipSceneSetup.cs:295"
     },
     {
       "id": "editor.TooltipSceneSetup.RectOffset.number9",
       "value": 16,
       "whole": true,
       "positive": false,
-      "source": "Assets/Scripts/Editor/Build/TooltipSceneSetup.cs:289"
+      "source": "Assets/Scripts/Editor/Build/TooltipSceneSetup.cs:295"
     },
     {
       "id": "editor.TooltipSceneSetup.Vector2.number1",
       "value": 300.0,
       "whole": false,
       "positive": false,
-      "source": "Assets/Scripts/Editor/Build/TooltipSceneSetup.cs:200"
+      "source": "Assets/Scripts/Editor/Build/TooltipSceneSetup.cs:206"
     },
     {
       "id": "editor.TooltipSceneSetup.Vector2.number2",
       "value": 200.0,
       "whole": false,
       "positive": false,
-      "source": "Assets/Scripts/Editor/Build/TooltipSceneSetup.cs:200"
+      "source": "Assets/Scripts/Editor/Build/TooltipSceneSetup.cs:206"
     },
     {
       "id": "editor.TrainBarSceneSetup.GameObject.number1",
@@ -2052,14 +2052,14 @@
       "value": 4,
       "whole": true,
       "positive": true,
-      "source": "Assets/Scripts/Editor/Build/TooltipSceneSetup.cs:400"
+      "source": "Assets/Scripts/Editor/Build/TooltipSceneSetup.cs:419"
     },
     {
       "id": "editor.tooltip.dividerHeight",
       "value": 2,
       "whole": true,
       "positive": true,
-      "source": "Assets/Scripts/Editor/Build/TooltipSceneSetup.cs:280"
+      "source": "Assets/Scripts/Editor/Build/TooltipSceneSetup.cs:286"
     },
     {
       "id": "editor.tooltip.fontSamplingSize",
@@ -2073,7 +2073,7 @@
       "value": 4,
       "whole": true,
       "positive": true,
-      "source": "Assets/Scripts/Editor/Build/TooltipSceneSetup.cs:319"
+      "source": "Assets/Scripts/Editor/Build/TooltipSceneSetup.cs:332"
     },
     {
       "id": "layers.GameLayers.EnemyLayerNumber",
@@ -2129,98 +2129,98 @@
       "value": 3,
       "whole": true,
       "positive": false,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:562"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:596"
     },
     {
       "id": "presentation.GetTagSortWeight.number10",
       "value": 21,
       "whole": true,
       "positive": false,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:572"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:606"
     },
     {
       "id": "presentation.GetTagSortWeight.number11",
       "value": 22,
       "whole": true,
       "positive": false,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:573"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:607"
     },
     {
       "id": "presentation.GetTagSortWeight.number12",
       "value": 10,
       "whole": true,
       "positive": false,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:574"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:608"
     },
     {
       "id": "presentation.GetTagSortWeight.number2",
       "value": 5,
       "whole": true,
       "positive": false,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:564"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:598"
     },
     {
       "id": "presentation.GetTagSortWeight.number3",
       "value": 5,
       "whole": true,
       "positive": false,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:565"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:599"
     },
     {
       "id": "presentation.GetTagSortWeight.number4",
       "value": 5,
       "whole": true,
       "positive": false,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:566"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:600"
     },
     {
       "id": "presentation.GetTagSortWeight.number5",
       "value": 8,
       "whole": true,
       "positive": false,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:567"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:601"
     },
     {
       "id": "presentation.GetTagSortWeight.number6",
       "value": 6,
       "whole": true,
       "positive": false,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:568"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:602"
     },
     {
       "id": "presentation.GetTagSortWeight.number7",
       "value": 7,
       "whole": true,
       "positive": false,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:569"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:603"
     },
     {
       "id": "presentation.GetTagSortWeight.number8",
       "value": 11,
       "whole": true,
       "positive": false,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:570"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:604"
     },
     {
       "id": "presentation.GetTagSortWeight.number9",
       "value": 20,
       "whole": true,
       "positive": false,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:571"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:605"
     },
     {
       "id": "presentation.PuzzleCityTagPreferences.number1",
       "value": 100,
       "whole": true,
       "positive": false,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:490"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:524"
     },
     {
       "id": "presentation.PuzzleCityTagPreferences.number2",
       "value": 100,
       "whole": true,
       "positive": false,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:490"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:524"
     },
     {
       "id": "presentation.PuzzleMapBadgeFontSize",
@@ -2304,14 +2304,14 @@
       "value": 100,
       "whole": true,
       "positive": false,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:360"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:370"
     },
     {
       "id": "presentation.RateValueColor.number2",
       "value": 100,
       "whole": true,
       "positive": false,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:364"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:374"
     },
     {
       "id": "presentation.if.number1",
@@ -2346,28 +2346,28 @@
       "value": 100,
       "whole": true,
       "positive": false,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:494"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:528"
     },
     {
       "id": "presentation.if.number6",
       "value": 100,
       "whole": true,
       "positive": false,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:494"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:528"
     },
     {
       "id": "presentation.tagSort.machinery",
       "value": 2,
       "whole": true,
       "positive": false,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:561"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:595"
     },
     {
       "id": "presentation.tagSort.wood",
       "value": 1,
       "whole": true,
       "positive": false,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:560"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:594"
     },
     {
       "id": "rules.durability.maximum",
@@ -2388,98 +2388,98 @@
       "value": 56,
       "whole": true,
       "positive": true,
-      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:138"
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:139"
     },
     {
       "id": "station.action.iconX",
       "value": -245,
       "whole": true,
       "positive": false,
-      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:138"
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:139"
     },
     {
       "id": "station.market.boardHeight",
       "value": 500,
       "whole": true,
       "positive": true,
-      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:84"
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:85"
     },
     {
       "id": "station.market.boardWidth",
       "value": 700,
       "whole": true,
       "positive": true,
-      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:84"
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:85"
     },
     {
       "id": "station.market.boardY",
       "value": -110,
       "whole": true,
       "positive": false,
-      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:83"
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:84"
     },
     {
       "id": "station.market.guideFontSize",
       "value": 16,
       "whole": true,
       "positive": true,
-      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:93"
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:94"
     },
     {
       "id": "station.market.guideHeight",
       "value": 32,
       "whole": true,
       "positive": true,
-      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:92"
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:93"
     },
     {
       "id": "station.market.guideWidth",
       "value": 600,
       "whole": true,
       "positive": true,
-      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:92"
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:93"
     },
     {
       "id": "station.market.guideY",
       "value": -290,
       "whole": true,
       "positive": false,
-      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:91"
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:92"
     },
     {
       "id": "station.market.valueFontSize",
       "value": 24,
       "whole": true,
       "positive": true,
-      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:89"
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:90"
     },
     {
       "id": "station.market.valueHeight",
       "value": 44,
       "whole": true,
       "positive": true,
-      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:88"
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:89"
     },
     {
       "id": "station.market.valueWidth",
       "value": 680,
       "whole": true,
       "positive": true,
-      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:88"
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:89"
     },
     {
       "id": "station.market.valueY",
       "value": 260,
       "whole": true,
       "positive": true,
-      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:87"
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:88"
     },
     {
       "id": "station.tavern.rumor.fontSize",
       "value": 28,
       "whole": true,
       "positive": true,
-      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:167"
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:168"
     },
     {
       "id": "station.tavern.rumor.height",
@@ -2528,7 +2528,7 @@
       "value": 30,
       "whole": true,
       "positive": true,
-      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:166"
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:167"
     },
     {
       "id": "station.tavern.title.height",
@@ -2563,7 +2563,7 @@
       "value": 0.5,
       "whole": false,
       "positive": true,
-      "source": "Assets/Scripts/Runtime/UI/PuzzleInventoryPresenter.cs:7"
+      "source": "Assets/Scripts/Runtime/UI/PuzzleInventoryPresenter.cs:9"
     },
     {
       "id": "ui.PuzzleInventoryView.CellGap",
@@ -3372,14 +3372,14 @@
     },
     {
       "id": "ui.layout.tooltipPointerOffset",
-      "source": "Assets/Scripts/Runtime/UI/PuzzleItemTooltipView.cs:321",
+      "source": "Assets/Scripts/Runtime/UI/PuzzleItemTooltipView.cs:320",
       "value": 24,
       "whole": true,
       "positive": true
     },
     {
       "id": "ui.layout.tooltipScreenMargin",
-      "source": "Assets/Scripts/Runtime/UI/PuzzleItemTooltipView.cs:326",
+      "source": "Assets/Scripts/Runtime/UI/PuzzleItemTooltipView.cs:325",
       "value": 20,
       "whole": true,
       "positive": true
@@ -3453,43 +3453,43 @@
       "id": "presentation.Accent.text1",
       "value": "<color={0}>{1}</color>",
       "arguments": 2,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:734"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:768"
     },
     {
       "id": "presentation.Card.text1",
       "value": "{0}\n{1}\n{2}",
       "arguments": 3,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:756"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:790"
     },
     {
       "id": "presentation.Card.text2",
       "value": "유효하지 않은 항목",
       "arguments": 0,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:754"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:788"
     },
     {
       "id": "presentation.Dim.text1",
       "value": "<color={0}>{1}</color>",
       "arguments": 2,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:738"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:772"
     },
     {
       "id": "presentation.DimTag",
       "value": "#AEB6C2",
       "arguments": 0,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:731"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:765"
     },
     {
       "id": "presentation.Heading.text1",
       "value": "<size=135%><b><color={0}>{1}</color></b></size>",
       "arguments": 2,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:742"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:776"
     },
     {
       "id": "presentation.Name.text1",
       "value": "비어 있음",
       "arguments": 0,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:712"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:746"
     },
     {
       "id": "presentation.PuzzleAddWagonLabel.text1",
@@ -3501,25 +3501,25 @@
       "id": "presentation.PuzzleCityTagPreferences.text1",
       "value": "<color=#{0}><b>흔한 자원</b></color>   {1}\n",
       "arguments": 2,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:504"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:538"
     },
     {
       "id": "presentation.PuzzleCityTagPreferences.text2",
       "value": "<color=#{0}><b>귀한 자원</b></color>   {1}",
       "arguments": 2,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:505"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:539"
     },
     {
       "id": "presentation.PuzzleCityTagPreferences.text3",
       "value": "없음",
       "arguments": 0,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:504"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:538"
     },
     {
       "id": "presentation.PuzzleCityTagPreferences.text4",
       "value": "없음",
       "arguments": 0,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:505"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:539"
     },
     {
       "id": "presentation.PuzzleCityTitle.text1",
@@ -3531,49 +3531,49 @@
       "id": "presentation.PuzzleClearButton.text1",
       "value": "상환하기 · {0:N0}$",
       "arguments": 1,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:582"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:616"
     },
     {
       "id": "presentation.PuzzleClearSummary.text1",
       "value": "남은 자금 {0:N0}$",
       "arguments": 1,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:587"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:621"
     },
     {
       "id": "presentation.PuzzleClearTitle",
       "value": "게임 완료",
       "arguments": 0,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:578"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:612"
     },
     {
       "id": "presentation.PuzzleFunds.text1",
       "value": "보유 자금 {0:N0}",
       "arguments": 1,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:475"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:509"
     },
     {
       "id": "presentation.PuzzleItemDetails.text1",
       "value": "{0}    {1}    실제 가치 {2:#,0.##}\n{3}",
       "arguments": 4,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:452"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:486"
     },
     {
       "id": "presentation.PuzzleItemDetails.text2",
       "value": "{0}\n인접 시너지 없음",
       "arguments": 1,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:459"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:493"
     },
     {
       "id": "presentation.PuzzleItemDetails.text3",
       "value": "{0} {1:+#,0.##;-#,0.##;0}% ({2:+#,0.##;-#,0.##;0})",
       "arguments": 3,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:463"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:497"
     },
     {
       "id": "presentation.PuzzleItemDetails.text4",
       "value": "{0}\n인접 시너지\n{1}",
       "arguments": 2,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:464"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:498"
     },
     {
       "id": "presentation.PuzzleMapClose",
@@ -3837,7 +3837,7 @@
       "id": "presentation.PuzzleRunStatusText.text1",
       "value": "빚을 갚지 못했습니다. 패배",
       "arguments": 0,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:595"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:629"
     },
     {
       "id": "presentation.PuzzleTagCommon",
@@ -3963,211 +3963,211 @@
       "id": "presentation.PuzzleTooltipActualValueLabel.text1",
       "value": "<color=#{0}>실제 가치</color>",
       "arguments": 1,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:360"
     },
     {
       "id": "presentation.PuzzleTooltipActualValueValue.text1",
       "value": "<color=#{0}>$ {1:#,0.##}</color>",
       "arguments": 2,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:365"
     },
     {
       "id": "presentation.PuzzleTooltipBuyRateLabel.text1",
       "value": "<color=#{0}>구매 배율</color>",
       "arguments": 1,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:406"
     },
     {
       "id": "presentation.PuzzleTooltipBuyRateValue.text1",
       "value": "<color=#{0}>{1}%</color>",
       "arguments": 2,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:411"
     },
     {
       "id": "presentation.PuzzleTooltipEffectDescription.text1",
       "value": "<color=#{0}>• {1}</color>",
       "arguments": 2,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:441"
     },
     {
       "id": "presentation.PuzzleTooltipEffectHeader.text1",
-      "value": "<color=#{0}>보유 효과</color>",
-      "arguments": 1,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs"
+      "value": "<color=#{0}>보유 효과 · {1}시간 주기</color>",
+      "arguments": 2,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:436"
     },
     {
       "id": "presentation.PuzzleTooltipFinalBuyPriceLabel.text1",
       "value": "<color=#{0}>구매 금액</color>",
       "arguments": 1,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:426"
     },
     {
       "id": "presentation.PuzzleTooltipFinalBuyPriceValue.text1",
       "value": "<color=#{0}>$ {1:#,0.##}</color>",
       "arguments": 2,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:431"
     },
     {
       "id": "presentation.PuzzleTooltipFinalSellPriceLabel.text1",
       "value": "<color=#{0}>판매 금액</color>",
       "arguments": 1,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:416"
     },
     {
       "id": "presentation.PuzzleTooltipFinalSellPriceValue.text1",
       "value": "<color=#{0}>$ {1:#,0.##}</color>",
       "arguments": 2,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:421"
     },
     {
       "id": "presentation.PuzzleTooltipFreshnessLabel.text1",
       "value": "<color=#{0}>신선도</color>",
       "arguments": 1,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:464"
     },
     {
       "id": "presentation.PuzzleTooltipFreshnessValue.text1",
       "value": "<color=#{0}>{1}</color>",
       "arguments": 2,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:469"
     },
     {
       "id": "presentation.PuzzleTooltipFutureValueLabel.text1",
-      "value": "<color=#{0}>{1} · {2} 후 가치</color>",
-      "arguments": 3,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs"
+      "value": "<color=#{0}>{1} · {2} 후 가치\n시너지 정산 {3:N0}회</color>",
+      "arguments": 4,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:451"
     },
     {
       "id": "presentation.PuzzleTooltipFutureValueValue.text1",
       "value": "<color=#{0}>$ {1:#,0.##}</color>",
       "arguments": 2,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:459"
     },
     {
       "id": "presentation.PuzzleTooltipNoEffect.text1",
       "value": "<color=#{0}>• 없음</color>",
       "arguments": 1,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:446"
     },
     {
       "id": "presentation.PuzzleTooltipSellRateLabel.text1",
       "value": "<color=#{0}>판매 배율</color>",
       "arguments": 1,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:396"
     },
     {
       "id": "presentation.PuzzleTooltipSellRateValue.text1",
       "value": "<color=#{0}>{1}%</color>",
       "arguments": 2,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:401"
     },
     {
       "id": "presentation.PuzzleTradeRateText.text1",
       "value": "현재 도시 배율 · {0} 구매 {1}% · 판매 {2}%",
       "arguments": 3,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:470"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:504"
     },
     {
       "id": "presentation.PuzzleTradeRateText.text2",
       "value": "기본",
       "arguments": 0,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:469"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:503"
     },
     {
       "id": "presentation.PuzzleTradeStatus.text1",
       "value": "{0} {1}",
       "arguments": 2,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:630"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:664"
     },
     {
       "id": "presentation.PuzzleTradeStatus.text10",
       "value": "판매가가 거래 한도를 초과합니다",
       "arguments": 0,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:648"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:682"
     },
     {
       "id": "presentation.PuzzleTradeStatus.text11",
       "value": "보유 자금 한도를 초과합니다",
       "arguments": 0,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:649"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:683"
     },
     {
       "id": "presentation.PuzzleTradeStatus.text12",
       "value": "원래 화물 배치가 변경됐습니다",
       "arguments": 0,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:652"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:686"
     },
     {
       "id": "presentation.PuzzleTradeStatus.text13",
       "value": "화물이 보드 경계를 넘습니다",
       "arguments": 0,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:653"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:687"
     },
     {
       "id": "presentation.PuzzleTradeStatus.text14",
       "value": "다른 화물과 겹칩니다",
       "arguments": 0,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:654"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:688"
     },
     {
       "id": "presentation.PuzzleTradeStatus.text15",
       "value": "상대 보드에 화물을 놓을 공간이 없습니다",
       "arguments": 0,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:655"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:689"
     },
     {
       "id": "presentation.PuzzleTradeStatus.text16",
       "value": "이 위치에 배치할 수 없습니다",
       "arguments": 0,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:656"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:690"
     },
     {
       "id": "presentation.PuzzleTradeStatus.text2",
       "value": " · ${0:N0}",
       "arguments": 1,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:634"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:668"
     },
     {
       "id": "presentation.PuzzleTradeStatus.text3",
       "value": "{0} {1} 완료 · ${2:N0}",
       "arguments": 3,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:639"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:673"
     },
     {
       "id": "presentation.PuzzleTradeStatus.text4",
       "value": "{0} {1} 예정 · ${2:N0}",
       "arguments": 3,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:640"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:674"
     },
     {
       "id": "presentation.PuzzleTradeStatus.text5",
       "value": "{0} · {1}",
       "arguments": 2,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:659"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:693"
     },
     {
       "id": "presentation.PuzzleTradeStatus.text6",
       "value": "구매",
       "arguments": 0,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:629"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:663"
     },
     {
       "id": "presentation.PuzzleTradeStatus.text7",
       "value": "판매",
       "arguments": 0,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:629"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:663"
     },
     {
       "id": "presentation.PuzzleTradeStatus.text8",
       "value": "이 도시에서는 허용되지 않습니다",
       "arguments": 0,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:645"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:679"
     },
     {
       "id": "presentation.PuzzleTradeStatus.text9",
       "value": "자금이 부족합니다",
       "arguments": 0,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:647"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:681"
     },
     {
       "id": "presentation.PuzzleTrainTitle",
@@ -4263,61 +4263,61 @@
       "id": "presentation.PuzzleTravelStatus.text1",
       "value": "{0} {1:N0}",
       "arguments": 2,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:607"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:641"
     },
     {
       "id": "presentation.PuzzleTravelStatus.text2",
       "value": " ({0})에 필요한 자금이 부족합니다",
       "arguments": 1,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:608"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:642"
     },
     {
       "id": "presentation.PuzzleTravelStatus.text3",
       "value": "현재 체류 중인 마을입니다",
       "arguments": 0,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:605"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:639"
     },
     {
       "id": "presentation.PuzzleTravelStatus.text4",
       "value": "유효하지 않은 마을입니다",
       "arguments": 0,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:606"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:640"
     },
     {
       "id": "presentation.PuzzleTravelStatus.text5",
       "value": "이동 비용이 거래 한도를 초과합니다",
       "arguments": 0,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:609"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:643"
     },
     {
       "id": "presentation.PuzzleTravelStatus.text6",
       "value": "소비 시간 또는 화물 가치가 계산 범위를 초과했습니다.",
       "arguments": 0,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:610"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:644"
     },
     {
       "id": "presentation.PuzzleTravelStatus.text7",
       "value": "두 도시를 잇는 직결 철로가 없습니다",
       "arguments": 0,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:611"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:645"
     },
     {
       "id": "presentation.PuzzleTravelStatus.text8",
       "value": "이동할 수 있는 도시가 없습니다",
       "arguments": 0,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:612"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:646"
     },
     {
       "id": "presentation.PuzzleTravelStatus.text9",
       "value": "게임이 종료되었습니다",
       "arguments": 0,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:613"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:647"
     },
     {
       "id": "presentation.PuzzleValueText.text1",
       "value": "화물 가치  ${0:#,0.##}  <size=18>기본 ${1:N0}</size>",
       "arguments": 2,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:440"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:474"
     },
     {
       "id": "presentation.PuzzleWagonPurchaseStatus.text1",
@@ -4369,8 +4369,8 @@
     },
     {
       "id": "presentation.StationRestHint",
-      "value": "휴식하면 시간이 흐릅니다.\n이동 요금과 이동 시너지 가치는 변하지 않습니다.",
-      "arguments": 0,
+      "value": "휴식 중에도 {0}시간마다 시너지가 적용됩니다.\n이동 요금과 시장 재고는 변하지 않습니다.",
+      "arguments": 1,
       "source": "Assets/Scripts/Runtime/Core/Presentation.cs:100"
     },
     {
@@ -4389,37 +4389,37 @@
       "id": "presentation.Title.text1",
       "value": "공격",
       "arguments": 0,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:689"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:723"
     },
     {
       "id": "presentation.Title.text2",
       "value": "이동",
       "arguments": 0,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:690"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:724"
     },
     {
       "id": "presentation.Title.text3",
       "value": "방어",
       "arguments": 0,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:691"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:725"
     },
     {
       "id": "presentation.Title.text4",
       "value": "기본 능력치",
       "arguments": 0,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:692"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:726"
     },
     {
       "id": "presentation.Title.text5",
       "value": "유틸",
       "arguments": 0,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:693"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:727"
     },
     {
       "id": "presentation.ValueTag",
       "value": "#FFE08A",
       "arguments": 0,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:730"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:764"
     },
     {
       "id": "presentation.tavern.noRumor",
@@ -4557,7 +4557,7 @@
       "g": 0.33,
       "b": 0.29,
       "a": 1.0,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:677"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:711"
     },
     {
       "id": "presentation.Color.color2",
@@ -4565,7 +4565,7 @@
       "g": 0.58,
       "b": 0.95,
       "a": 1.0,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:678"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:712"
     },
     {
       "id": "presentation.Color.color3",
@@ -4573,7 +4573,7 @@
       "g": 0.76,
       "b": 0.44,
       "a": 1.0,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:679"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:713"
     },
     {
       "id": "presentation.Color.color4",
@@ -4581,7 +4581,7 @@
       "g": 0.78,
       "b": 0.27,
       "a": 1.0,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:680"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:714"
     },
     {
       "id": "presentation.Color.color5",
@@ -4589,7 +4589,7 @@
       "g": 0.74,
       "b": 0.8,
       "a": 1.0,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:681"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:715"
     },
     {
       "id": "presentation.PuzzleAddWagonBox.color1",
@@ -4813,7 +4813,7 @@
       "g": 0.91,
       "b": 0.67,
       "a": 1.0,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:669"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:703"
     },
     {
       "id": "presentation.PuzzleOutline.color2",
@@ -4821,7 +4821,7 @@
       "g": 0.43,
       "b": 0.39,
       "a": 1.0,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:669"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:703"
     },
     {
       "id": "presentation.PuzzlePiece.color1",
@@ -4837,7 +4837,7 @@
       "g": 0.0,
       "b": 0.0,
       "a": 1.0,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:664"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:698"
     },
     {
       "id": "presentation.PuzzleSynergyArrow.color1",
@@ -4853,7 +4853,7 @@
       "g": 0.35294117647058826,
       "b": 0.18823529411764706,
       "a": 1.0,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:522"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:556"
     },
     {
       "id": "presentation.PuzzleTagBackgroundColor.color10",
@@ -4861,7 +4861,7 @@
       "g": 0.43137254901960786,
       "b": 0.38823529411764707,
       "a": 1.0,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:531"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:565"
     },
     {
       "id": "presentation.PuzzleTagBackgroundColor.color11",
@@ -4869,7 +4869,7 @@
       "g": 0.17647058823529413,
       "b": 0.22745098039215686,
       "a": 1.0,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:532"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:566"
     },
     {
       "id": "presentation.PuzzleTagBackgroundColor.color12",
@@ -4877,7 +4877,7 @@
       "g": 0.47058823529411764,
       "b": 0.2901960784313726,
       "a": 1.0,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:533"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:567"
     },
     {
       "id": "presentation.PuzzleTagBackgroundColor.color13",
@@ -4885,7 +4885,7 @@
       "g": 0.24705882352941178,
       "b": 0.24705882352941178,
       "a": 1.0,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:534"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:568"
     },
     {
       "id": "presentation.PuzzleTagBackgroundColor.color14",
@@ -4893,7 +4893,7 @@
       "g": 0.25098039215686274,
       "b": 0.14901960784313725,
       "a": 1.0,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:535"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:569"
     },
     {
       "id": "presentation.PuzzleTagBackgroundColor.color15",
@@ -4901,7 +4901,7 @@
       "g": 0.3333333333333333,
       "b": 0.4117647058823529,
       "a": 1.0,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:536"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:570"
     },
     {
       "id": "presentation.PuzzleTagBackgroundColor.color2",
@@ -4909,7 +4909,7 @@
       "g": 0.43137254901960786,
       "b": 0.47843137254901963,
       "a": 1.0,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:523"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:557"
     },
     {
       "id": "presentation.PuzzleTagBackgroundColor.color3",
@@ -4917,7 +4917,7 @@
       "g": 0.3254901960784314,
       "b": 0.03529411764705882,
       "a": 1.0,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:524"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:558"
     },
     {
       "id": "presentation.PuzzleTagBackgroundColor.color4",
@@ -4925,7 +4925,7 @@
       "g": 0.4666666666666667,
       "b": 0.023529411764705882,
       "a": 1.0,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:525"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:559"
     },
     {
       "id": "presentation.PuzzleTagBackgroundColor.color5",
@@ -4933,7 +4933,7 @@
       "g": 0.5176470588235295,
       "b": 0.7803921568627451,
       "a": 1.0,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:526"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:560"
     },
     {
       "id": "presentation.PuzzleTagBackgroundColor.color6",
@@ -4941,7 +4941,7 @@
       "g": 0.6470588235294118,
       "b": 0.9137254901960784,
       "a": 1.0,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:527"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:561"
     },
     {
       "id": "presentation.PuzzleTagBackgroundColor.color7",
@@ -4949,7 +4949,7 @@
       "g": 0.4549019607843137,
       "b": 0.5450980392156862,
       "a": 1.0,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:528"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:562"
     },
     {
       "id": "presentation.PuzzleTagBackgroundColor.color8",
@@ -4957,7 +4957,7 @@
       "g": 0.43137254901960786,
       "b": 0.38823529411764707,
       "a": 1.0,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:529"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:563"
     },
     {
       "id": "presentation.PuzzleTagBackgroundColor.color9",
@@ -4965,7 +4965,7 @@
       "g": 0.6392156862745098,
       "b": 0.2901960784313726,
       "a": 1.0,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:530"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:564"
     },
     {
       "id": "presentation.PuzzleTagTextColor.color1",
@@ -4973,7 +4973,7 @@
       "g": 1.0,
       "b": 1.0,
       "a": 1.0,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:543"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:577"
     },
     {
       "id": "presentation.PuzzleTextOutline",

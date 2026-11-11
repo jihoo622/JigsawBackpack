@@ -24,7 +24,7 @@
 | `BasicDataTableData` (기초데이터) | 공통 표시 문구·서식·색·UI 조정값·제작 치수·규칙 참조 ID·레이어 번호. [편집 계약](BASIC_DATA.md) |
 | `PuzzleTableData` | 화물 모양·복수 태그·표기 키, 시작 기차, 지역·생산 태그·물가, 도시·시장·특산품·재고·도시 배율 |
 | `PuzzleItemPriceTableData` | 화물 종류별 기본 가치 |
-| `PuzzleSynergyTableData` | 인접 시너지 조건·범위·배율 |
+| `PuzzleSynergyTableData` | 인접 시너지 조건·범위·배율·적용 주기 |
 | `PuzzleTradeTableData` | 시작 자금·공통 구매 배율 설정·증차 비용·클리어 비용·이동 연출 시간 |
 | `PuzzleTimeTableData` | 고정 폴라인의 픽셀/시간 비율·시작 및 일출 시각·일출/야간 길이·휴식 분수 |
 | `PuzzleRouteTableData` | 방향별 연결·고정 폴라인 좌표·기본 비용·거리·거리 및 적재 단가 |
@@ -60,10 +60,10 @@
 - `TableManager.TryGetRoute`·`HasRoute`는 개별 연결을 조회하고 `RoutesFrom(cityId)`는 도착 ID 오름차순 목록을 제공한다. 노출 정렬은 연결 관계가 아니다. 동일 방향의 복수 간선은 지원하지 않는다.
 - 반대 방향이 있으면 거리와 `highSpeed`가 같아야 한다. 방향별 기본요금은 달라도 된다. 같은 지역의 근거리에서는 보장 재고의 복수 태그와 거래 우선순위를 사용해 어느 방향으로든 공급·수요가 맞물리는 연결을 금지한다.
 - `distance`는 비용용 양수 게임 거리다. 시간은 `points`의 고정 폴라인 길이 ÷ `PuzzleTimeTableData.pixelsPerHour`를 분 단위로 올림한다. `points`는 유한한 x,y 쌍이 두 점 이상이며 왕복은 역순이다. 시간 가중치와 기본값 폴백은 제거했다. K=28은 잠정치다.
-- 경과 시간은 `PuzzleInventoryService.Time` 하나가 소유한다. `ElapsedTime`은 `Time.ElapsedMinutes` 조회 별칭이다. 이동당 `AdvanceMinutes`를 한 번 호출하며 보유 시간을 먼저 갱신한 후 이벤트를 발행한다. 일반 휴식은 `PuzzleTimeTableData.restMinutes`, 아침 대기는 다음 일출까지의 분수를 사용한다. 휴식은 이동 시너지 가치·요금·이동 횟수·재입고를 변경하지 않는다.
+- 경과 시간은 `PuzzleInventoryService.Time` 하나가 소유한다. `ElapsedTime`은 `Time.ElapsedMinutes` 조회 별칭이다. 이동당 `AdvanceMinutes`를 한 번 호출하며 보유 시간을 먼저 갱신한 후 이벤트를 발행한다. 일반 휴식은 `PuzzleTimeTableData.restMinutes`, 아침 대기는 다음 일출까지의 분수를 사용한다. 휴식도 공통 시계의 시너지 정산 경계를 넘으면 가치를 변경한다. 요금·이동 횟수·재입고는 변경하지 않는다.
 - `planningTargetCityId`는 등록된 도시 ID를 가리키는 선택적 지도 표식이다. 현재 `city.capital.finance`(금융마을)이며 실제 상환 장소 설정인 `PuzzleTradeTableData.debtCityId`와 분리한다. `debtCityId`도 같은 도시를 가리켜 금융마을에서만 상환할 수 있다.
 - `PuzzleTradeTableData.travelEffectSeconds`·`travelArrivalHoldSeconds`는 UI 이동 연출·도착 표시의 실제 초 단위 시간이며 유한한 양수여야 한다. 게임 내 소요 시간·기한과 분리한다.
-- 비용은 `cost + distance × costPerDistance + TotalTrainOccupiedCells × costPerCell`이다. 화물 가치 변화·보유 시간·견적·표시는 같은 소요 분을 사용하며, 가치 배수는 소요 분/60이다.
+- 비용은 `cost + distance × costPerDistance + TotalTrainOccupiedCells × costPerCell`이다. 보유 시간·견적·표시는 같은 소요 분을 사용한다. 가치 배수는 `floor(행동 후 경과 분 / 주기 분) − floor(행동 전 경과 분 / 주기 분)`이다. `PuzzleSynergyTableData.activationIntervalHours`는 양의 정수이며 현재 6이다. 현재 배율의 증감량을 정산 1회당 한 번 적용한다.
 - `highSpeed`는 이전 철도망 호환 필드이며 현 초안은 모두 false다. 노선도는 지역별 색·일반 길 회색·역 표식과 시간·일수 숫자를 사용한다.
 - 이동은 `EvaluateTravel(toCityId)`·`Travel(toCityId)`로 평가·확정한다. 자금 부족·연결 없음·종료 상태 등 실패 시 이동 상태를 보존한다.
 - 시장·노드·연결선은 프리팹에 사전 배치하므로 도시·노선을 수정하면 관련 프리팹·씬 참조도 함께 맞춘다. 표시·조작 계약은 게임 기획서를 따른다.

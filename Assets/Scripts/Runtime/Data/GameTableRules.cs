@@ -464,6 +464,8 @@ public sealed class GameTableRules
 
     void ValidatePuzzleSynergy(TableManager _tables)
     {
+        Check(_tables.PuzzleSynergy.activationIntervalHours > 0, "PuzzleSynergyTableData.activationIntervalHours",
+            "시너지 적용 주기는 양의 정수 시간이어야 합니다.");
         var tags = new HashSet<string>(_tables.Pieces.SelectMany(item => item.tags ?? Array.Empty<string>()),
             StringComparer.Ordinal);
         var rules = _tables.PuzzleSynergy.rules ?? Array.Empty<PuzzleSynergyRuleData>();

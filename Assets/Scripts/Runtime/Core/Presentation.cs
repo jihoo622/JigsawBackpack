@@ -97,7 +97,7 @@ public static class Presentation
     public static string StationRest => BasicData.Text("presentation.StationRest");
     public static string StationTravel => BasicData.Text("presentation.StationTravel");
     public static string StationBack => BasicData.Text("presentation.StationBack");
-    public static string StationRestHint => BasicData.Text("presentation.StationRestHint");
+    public static string StationRestHint => BasicData.Format("presentation.StationRestHint", TableManager.Instance.RequireValid().PuzzleSynergy.activationIntervalHours);
     public static string StationRestDuration(long _minutes)
     {
         return BasicData.Format("presentation.StationRestDuration.text1", PuzzleMapTime(_minutes));
@@ -433,7 +433,7 @@ public static class Presentation
 
     internal static string PuzzleTooltipEffectHeader()
     {
-        return BasicData.Format("presentation.PuzzleTooltipEffectHeader.text1", TooltipLabelHtml());
+        return BasicData.Format("presentation.PuzzleTooltipEffectHeader.text1", TooltipLabelHtml(), TableManager.Instance.RequireValid().PuzzleSynergy.activationIntervalHours);
     }
 
     internal static string PuzzleTooltipEffectDescription(string _description)
@@ -446,9 +446,9 @@ public static class Presentation
         return BasicData.Format("presentation.PuzzleTooltipNoEffect.text1", TooltipLabelHtml());
     }
 
-    internal static string PuzzleTooltipFutureValueLabel(long _minutes, string _cityName)
+    internal static string PuzzleTooltipFutureValueLabel(long _minutes, string _cityName, long _activations)
     {
-        return BasicData.Format("presentation.PuzzleTooltipFutureValueLabel.text1", TooltipLabelHtml(), _cityName, PuzzleMapTime(_minutes));
+        return BasicData.Format("presentation.PuzzleTooltipFutureValueLabel.text1", TooltipLabelHtml(), _cityName, PuzzleMapTime(_minutes), _activations);
     }
 
     internal static string PuzzleTooltipFutureValueValue(decimal _futureValue, decimal _actualValue)

@@ -55,6 +55,7 @@ public sealed class PuzzleItemPriceTableData
 public sealed class PuzzleSynergyTableData
 {
     public string status, note;
+    public int activationIntervalHours = -1;
     public PuzzleSynergyRuleData[] rules = Array.Empty<PuzzleSynergyRuleData>();
 }
 

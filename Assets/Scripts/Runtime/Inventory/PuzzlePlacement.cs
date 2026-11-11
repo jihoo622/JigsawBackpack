@@ -88,7 +88,7 @@ public sealed class PuzzlePlacement
     public PuzzleItemDefinition Definition { get; }
     public PuzzleInventory Owner { get; }
     public PuzzlePose Pose { get; }
-    // 도시 이동 턴마다 기존 시너지 변화량을 누적한 값. 인접 배치 변경만으로는 바뀌지 않는다.
+    // 공통 시계의 시너지 정산마다 변화량을 누적한다. 배치 변경만으로는 바뀌지 않는다.
     public decimal ActualValue { get; private set; }
     /// <summary>획득 후 보유 시간. 시작 지급·구매 시 0부터 시작하며 -1은 미소유·판매된 물건이다.</summary>
     public long OwnedMinutes { get; private set; }

@@ -92,7 +92,8 @@ public sealed class PuzzleItemTooltipView : PanelBase
 
     internal void Show(PuzzleItemDefinition _item, decimal _actualValue, PuzzleTradeRate _rate,
         IReadOnlyList<string> _effects, decimal? _futureValue, Vector2 _screenPosition,
-        bool _isTrainInventory = true, int? _freshness = null, long? _previewMinutes = null, string _previewCityName = null)
+        bool _isTrainInventory = true, int? _freshness = null, long? _previewMinutes = null, string _previewCityName = null,
+        long? _previewActivations = null)
     {
         if (_item == null)
         {
@@ -184,10 +185,10 @@ public sealed class PuzzleItemTooltipView : PanelBase
 
         if (futureValueLabelText || futureValueValueText)
         {
-            if (_isTrainInventory && _futureValue.HasValue && _previewMinutes.HasValue)
+            if (_isTrainInventory && _futureValue.HasValue && _previewMinutes.HasValue && _previewActivations.HasValue)
             {
                 SetRow(futureValueLabelText, futureValueValueText,
-                    Presentation.PuzzleTooltipFutureValueLabel(_previewMinutes.Value, _previewCityName),
+                    Presentation.PuzzleTooltipFutureValueLabel(_previewMinutes.Value, _previewCityName, _previewActivations.Value),
                     Presentation.PuzzleTooltipFutureValueValue(_futureValue.Value, _actualValue));
                 SetRowActive(futureValueLabelText, futureValueValueText, true);
             }
@@ -401,6 +402,10 @@ public sealed class PuzzleItemTooltipView : PanelBase
         ApplyBodyTextSettings(buyRateValueText);
         ApplyBodyTextSettings(synergyHeaderText);
         ApplyBodyTextSettings(futureValueLabelText);
+        if (futureValueLabelText)
+        {
+            futureValueLabelText.textWrappingMode = TextWrappingModes.Normal;
+        }
         ApplyBodyTextSettings(futureValueValueText);
         ApplyBodyTextSettings(freshnessLabelText);
         ApplyBodyTextSettings(freshnessValueText);
