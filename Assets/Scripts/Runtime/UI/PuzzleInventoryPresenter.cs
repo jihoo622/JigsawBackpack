@@ -24,6 +24,8 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
     float hoveredWagonStartTime;
     bool initialized;
     bool isMapOpen;
+    bool townPending;
+    bool InventoryBlocked => isMapOpen || cityView.IsTownOpen;
 
     void OnEnable()
     {
@@ -52,7 +54,9 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         trainView.Initialize(trainCapacity, dragCapacity, Presentation.PuzzleTrainTitle(session.CurrentWagonIndex + 1), session.ItemDefinitions, _showSynergies: true);
         marketView.Initialize(session.MarketCapacity, dragCapacity, Presentation.PUZZLE_MARKET_TITLE, session.ItemDefinitions, _showSynergies: false);
         cityView.Initialize(session.GameClearCost);
+        cityView.InitializeTown(GetTavernRumor);
         ShowCurrentCity();
+        cityView.SetTown(session.CityData.displayName, session.RunStatus == PuzzleRunStatus.InProgress);
         initialized = true;
 
         input.Pressed += OnPressed;
@@ -107,6 +111,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         }
         currentHoveredInstanceId = null;
         isMapOpen = false;
+        townPending = false;
         GameEvents.CityArrived -= OnCityArrived;
         GameEvents.TimeAdvanced -= OnTimeAdvanced;
         GameEvents.PanelVisibility -= OnPanelVisibility;
@@ -121,7 +126,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
 
     void Update()
     {
-        if (!initialized || isMapOpen || drag == null || !trainBarView || session == null ||
+        if (!initialized || InventoryBlocked || drag == null || !trainBarView || session == null ||
             session.RunStatus != PuzzleRunStatus.InProgress)
         {
             if (hoveredWagonIndex.HasValue)
@@ -183,7 +188,45 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
     void OnCityArrived(GameEvents.CityArrivalInfo _info)
     {
         ShowCurrentCity();
+        bool inProgress = session.RunStatus == PuzzleRunStatus.InProgress;
+        cityView.SetTown(session.CityData.displayName, inProgress);
+        townPending = inProgress && isMapOpen;
+        if (inProgress && !isMapOpen)
+        {
+            cityView.OpenTown();
+        }
     }
+
+    #region 술집 대화 생성
+
+    // 직접 연결된 미방문 도시의 가격 규칙을 조회해, 처음 찾은 고가 수요를 소식 한 줄로 만든다.
+    string GetTavernRumor()
+    {
+        // 1. 현재 도시에서 한 번에 갈 수 있는 도시를 순회한다.
+        var tables = TableManager.Instance;
+        foreach (var route in tables.RoutesFrom(session.CurrentCityId))
+        {
+            // 2. 이미 방문했거나 플레이어가 물건을 팔 수 없는 도시는 건너뛴다.
+            var city = tables.CityPrice(route.toCityId);
+            if (session.HasVisitedCity(city.id) || !city.sellEnabled)
+            {
+                continue;
+            }
+
+            // 3. 구매·판매 배율이 모두 100%를 넘는 첫 품목으로 소식을 만든다.
+            foreach (var rule in city.tagPrices)
+            {
+                if (rule.buyPercent > 100 && rule.sellPercent > 100)
+                {
+                    return $"{city.displayName}에선 {Presentation.PuzzleTagLabel(rule.tag)} 물건을 비싸게 사들인대요.";
+                }
+            }
+        }
+        // 4. 조건에 맞는 품목이 없으면 들은 소식이 없다고 답한다.
+        return "아직 가보지 않은 인근 마을 소식은 못 들었어요.";
+    }
+
+    #endregion
 
     void OnTimeAdvanced(GameEvents.TimeAdvanceInfo _info)
     {
@@ -197,19 +240,21 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         RenderValues();
         if (session.RunStatus != PuzzleRunStatus.InProgress)
         {
+            cityView.SetTown(session.CityData.displayName, false);
             cityView.ShowTradeStatus(Presentation.PuzzleRunStatusText(session.RunStatus));
         }
     }
 
     public void ClearGame()
     {
-        if (!initialized || !isActiveAndEnabled || isMapOpen || !pauseMenu || !pauseMenu.CanShowCompletion ||
+        if (!initialized || !isActiveAndEnabled || InventoryBlocked || !pauseMenu || !pauseMenu.CanShowCompletion ||
             !session.TryClearGame())
         {
             return;
         }
 
         pauseMenu.ShowCompletion(session.Funds);
+        cityView.SetTown(session.CityData.displayName, false);
         RefreshFunds();
         cityView.ShowTradeStatus(Presentation.PUZZLE_CLEAR_TITLE);
         RefreshTrainBar();
@@ -228,6 +273,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         }
 
         isMapOpen = _info.open;
+        cityView.SetTownInteraction(!isMapOpen);
         if (_info.open)
         {
             hoverPosition = null;
@@ -243,6 +289,11 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             }
             RenderBoards();
             ShowItemDetails(null, null);
+        }
+        else if (townPending)
+        {
+            townPending = false;
+            cityView.OpenTown();
         }
     }
 
@@ -265,7 +316,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
 
     void OnPressed(PointerEventData _eventData)
     {
-        if (isMapOpen || session.RunStatus != PuzzleRunStatus.InProgress)
+        if (InventoryBlocked || session.RunStatus != PuzzleRunStatus.InProgress)
         {
             return;
         }
@@ -294,7 +345,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
 
     void OnQuickTransferRequested(PointerEventData _eventData)
     {
-        if (isMapOpen || drag != null || session.RunStatus != PuzzleRunStatus.InProgress ||
+        if (InventoryBlocked || drag != null || session.RunStatus != PuzzleRunStatus.InProgress ||
             !trainView.isActiveAndEnabled || !marketView.isActiveAndEnabled ||
             !TryGetBoard(_eventData.position, out _, out var source, out var boardCell) ||
             !source.TryGetCell(boardCell, out var placement, out _))
@@ -316,7 +367,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
 
     void OnDragged(PointerEventData _eventData)
     {
-        if (isMapOpen)
+        if (InventoryBlocked)
         {
             return;
         }
@@ -328,7 +379,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
 
     void OnRotated()
     {
-        if (isMapOpen || drag == null || session.RunStatus != PuzzleRunStatus.InProgress)
+        if (InventoryBlocked || drag == null || session.RunStatus != PuzzleRunStatus.InProgress)
         {
             return;
         }
@@ -339,7 +390,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
 
     void OnReleased(PointerEventData _eventData)
     {
-        if (isMapOpen)
+        if (InventoryBlocked)
         {
             ClearDrag();
             return;
@@ -456,7 +507,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
 
     void OnHovered(Vector2 _position)
     {
-        if (isMapOpen)
+        if (InventoryBlocked)
         {
             return;
         }
@@ -494,7 +545,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
 
     void OnHoverEnded()
     {
-        if (isMapOpen)
+        if (InventoryBlocked)
         {
             return;
         }
@@ -507,7 +558,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
 
     void RefreshHover()
     {
-        if (isMapOpen || drag != null)
+        if (InventoryBlocked || drag != null)
         {
             currentHoveredInstanceId = null;
             if (tooltipView)
@@ -657,7 +708,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
 
     void OnWagonSelected(int _index)
     {
-        if (isMapOpen || session == null || session.RunStatus != PuzzleRunStatus.InProgress)
+        if (InventoryBlocked || session == null || session.RunStatus != PuzzleRunStatus.InProgress)
         {
             return;
         }
@@ -678,7 +729,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
 
     void OnAddWagonClicked()
     {
-        if (isMapOpen || session == null)
+        if (InventoryBlocked || session == null)
         {
             return;
         }

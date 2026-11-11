@@ -24,7 +24,6 @@ public static class Presentation
 
     public const string PUZZLE_MAP_TITLE = "지역 철도 노선도";
     public const string PUZZLE_MAP_PANEL_NAME = "PuzzleWorldMap";
-    public const string PUZZLE_MAP_OPEN = "지도";
     public const string PUZZLE_MAP_CLOSE = "닫기";
     public const string PUZZLE_MAP_CURRENT = "▼ 현재 위치";
     public const string PUZZLE_MAP_TARGET = "▼ 상환 목표";

@@ -201,6 +201,11 @@ public static class MapPresentationTool
         var close = (RectTransform)template.transform;
         close.anchorMin = close.anchorMax = Vector2.one;
         close.anchoredPosition = new Vector2(-144f, -52f);
+        var open = Find(_root.transform, "OpenMap");
+        open.anchorMin = close.anchorMin;
+        open.anchorMax = close.anchorMax;
+        open.pivot = close.pivot;
+        Place(open, close.anchoredPosition, close.sizeDelta);
         controls.anchorMin = new Vector2(0f, 0f);
         controls.anchorMax = new Vector2(1f, 0f);
         controls.anchoredPosition = new Vector2(0f, 192f);
