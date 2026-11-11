@@ -154,6 +154,10 @@ public sealed class PuzzleSynergyRuleData
 {
     public string id, targetTag, excludedTargetTag, neighborTag, excludedNeighborTag, scope;
     public int multiplierPercent;
+    // 주체 태그(targetTag) 아이템의 팝업에 표시할 시너지 설명.
+    public string description;
+    // description을 팝업에 표시할 태그. 비우면 주체 조건(targetTag)을 따른다.
+    public string descriptionTag;
 }
 
 [Serializable]

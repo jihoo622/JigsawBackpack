@@ -350,9 +350,19 @@ public static class Presentation
     public static Color PuzzleTooltipGreen => BasicData.Color("presentation.PuzzleTooltipGreen.color1");
     public static Color PuzzleTooltipRed => BasicData.Color("presentation.PuzzleTooltipRed.color1");
 
-    internal static string PuzzleTooltipActualValue(decimal _actualValue)
+    static string TooltipLabelHtml()
     {
-        return BasicData.Format("presentation.PuzzleTooltipActualValue.text1", ColorUtility.ToHtmlStringRGB(PuzzleTooltipText), ColorUtility.ToHtmlStringRGB(PuzzleTooltipGold), _actualValue);
+        return ColorUtility.ToHtmlStringRGB(PuzzleTooltipText);
+    }
+
+    internal static string PuzzleTooltipActualValueLabel()
+    {
+        return BasicData.Format("presentation.PuzzleTooltipActualValueLabel.text1", TooltipLabelHtml());
+    }
+
+    internal static string PuzzleTooltipActualValueValue(decimal _actualValue)
+    {
+        return BasicData.Format("presentation.PuzzleTooltipActualValueValue.text1", ColorUtility.ToHtmlStringRGB(PuzzleTooltipGold), _actualValue);
     }
 
     static Color RateValueColor(int _percent)
@@ -381,58 +391,82 @@ public static class Presentation
         return PuzzleTooltipText;
     }
 
-    internal static string PuzzleTooltipSellRate(int _percent)
+    internal static string PuzzleTooltipSellRateLabel()
     {
-        Color color = RateValueColor(_percent);
-        return BasicData.Format("presentation.PuzzleTooltipSellRate.text1", ColorUtility.ToHtmlStringRGB(PuzzleTooltipText), ColorUtility.ToHtmlStringRGB(color), _percent);
+        return BasicData.Format("presentation.PuzzleTooltipSellRateLabel.text1", TooltipLabelHtml());
     }
 
-    internal static string PuzzleTooltipBuyRate(int _percent)
+    internal static string PuzzleTooltipSellRateValue(int _percent)
     {
-        Color color = RateValueColor(_percent);
-        return BasicData.Format("presentation.PuzzleTooltipBuyRate.text1", ColorUtility.ToHtmlStringRGB(PuzzleTooltipText), ColorUtility.ToHtmlStringRGB(color), _percent);
+        return BasicData.Format("presentation.PuzzleTooltipSellRateValue.text1", ColorUtility.ToHtmlStringRGB(RateValueColor(_percent)), _percent);
     }
 
-    internal static string PuzzleTooltipFinalSellPrice(decimal _price, decimal _actualValue)
+    internal static string PuzzleTooltipBuyRateLabel()
     {
-        Color color = PriceValueColor(_price, _actualValue);
-        return BasicData.Format("presentation.PuzzleTooltipFinalSellPrice.text1", ColorUtility.ToHtmlStringRGB(PuzzleTooltipText), ColorUtility.ToHtmlStringRGB(color), _price);
+        return BasicData.Format("presentation.PuzzleTooltipBuyRateLabel.text1", TooltipLabelHtml());
     }
 
-    internal static string PuzzleTooltipFinalBuyPrice(decimal _price, decimal _actualValue)
+    internal static string PuzzleTooltipBuyRateValue(int _percent)
     {
-        Color color = PriceValueColor(_price, _actualValue);
-        return BasicData.Format("presentation.PuzzleTooltipFinalBuyPrice.text1", ColorUtility.ToHtmlStringRGB(PuzzleTooltipText), ColorUtility.ToHtmlStringRGB(color), _price);
+        return BasicData.Format("presentation.PuzzleTooltipBuyRateValue.text1", ColorUtility.ToHtmlStringRGB(RateValueColor(_percent)), _percent);
     }
 
-    public static string PuzzleTooltipSynergyHeader()
+    internal static string PuzzleTooltipFinalSellPriceLabel()
     {
-        return BasicData.Format("presentation.PuzzleTooltipSynergyHeader.text1", ColorUtility.ToHtmlStringRGB(PuzzleTooltipText));
+        return BasicData.Format("presentation.PuzzleTooltipFinalSellPriceLabel.text1", TooltipLabelHtml());
     }
 
-    internal static string PuzzleTooltipSynergyBonus(string _neighborName, decimal _percent)
+    internal static string PuzzleTooltipFinalSellPriceValue(decimal _price, decimal _actualValue)
     {
-        string sign = _percent >= 0 ? "+" : string.Empty;
-        Color color = _percent >= 0 ? PuzzleTooltipGreen : PuzzleTooltipRed;
-        return BasicData.Format("presentation.PuzzleTooltipSynergyBonus.text1", ColorUtility.ToHtmlStringRGB(PuzzleTooltipText), _neighborName, ColorUtility.ToHtmlStringRGB(color), sign, _percent);
+        return BasicData.Format("presentation.PuzzleTooltipFinalSellPriceValue.text1", ColorUtility.ToHtmlStringRGB(PriceValueColor(_price, _actualValue)), _price);
     }
 
-    internal static string PuzzleTooltipNoSynergy()
+    internal static string PuzzleTooltipFinalBuyPriceLabel()
     {
-        return BasicData.Format("presentation.PuzzleTooltipNoSynergy.text1", ColorUtility.ToHtmlStringRGB(PuzzleTooltipText));
+        return BasicData.Format("presentation.PuzzleTooltipFinalBuyPriceLabel.text1", TooltipLabelHtml());
     }
 
-    internal static string PuzzleTooltipFutureValue(decimal _futureValue, decimal _actualValue, long _minutes, string _cityName)
+    internal static string PuzzleTooltipFinalBuyPriceValue(decimal _price, decimal _actualValue)
+    {
+        return BasicData.Format("presentation.PuzzleTooltipFinalBuyPriceValue.text1", ColorUtility.ToHtmlStringRGB(PriceValueColor(_price, _actualValue)), _price);
+    }
+
+    internal static string PuzzleTooltipEffectHeader()
+    {
+        return BasicData.Format("presentation.PuzzleTooltipEffectHeader.text1", TooltipLabelHtml());
+    }
+
+    internal static string PuzzleTooltipEffectDescription(string _description)
+    {
+        return BasicData.Format("presentation.PuzzleTooltipEffectDescription.text1", TooltipLabelHtml(), _description);
+    }
+
+    internal static string PuzzleTooltipNoEffect()
+    {
+        return BasicData.Format("presentation.PuzzleTooltipNoEffect.text1", TooltipLabelHtml());
+    }
+
+    internal static string PuzzleTooltipFutureValueLabel(long _minutes, string _cityName)
+    {
+        return BasicData.Format("presentation.PuzzleTooltipFutureValueLabel.text1", TooltipLabelHtml(), _cityName, PuzzleMapTime(_minutes));
+    }
+
+    internal static string PuzzleTooltipFutureValueValue(decimal _futureValue, decimal _actualValue)
     {
         Color color = _futureValue > _actualValue
             ? PuzzleTooltipGreen
             : (_futureValue < _actualValue ? PuzzleTooltipRed : PuzzleTooltipGold);
-        return BasicData.Format("presentation.PuzzleTooltipFutureValue.text1", ColorUtility.ToHtmlStringRGB(PuzzleTooltipText), _cityName, PuzzleMapTime(_minutes), ColorUtility.ToHtmlStringRGB(color), _futureValue);
+        return BasicData.Format("presentation.PuzzleTooltipFutureValueValue.text1", ColorUtility.ToHtmlStringRGB(color), _futureValue);
     }
 
-    internal static string PuzzleTooltipFreshness(int _current)
+    internal static string PuzzleTooltipFreshnessLabel()
     {
-        return BasicData.Format("presentation.PuzzleTooltipFreshness.text1", ColorUtility.ToHtmlStringRGB(PuzzleTooltipText), ColorUtility.ToHtmlStringRGB(PuzzleTooltipGreen), _current);
+        return BasicData.Format("presentation.PuzzleTooltipFreshnessLabel.text1", TooltipLabelHtml());
+    }
+
+    internal static string PuzzleTooltipFreshnessValue(int _current)
+    {
+        return BasicData.Format("presentation.PuzzleTooltipFreshnessValue.text1", ColorUtility.ToHtmlStringRGB(PuzzleTooltipGreen), _current);
     }
 
     internal static string PuzzleValueText(PuzzleValue _value)

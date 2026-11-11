@@ -197,6 +197,7 @@
 | 시작·일출·야간 | `PuzzleTimeTableData.startHour`·`daylightStartHour`·`daylightHours`·`nightHours` |
 | 요금용 거리·단가 | `PuzzleRouteTableData`의 `distance`·`cost`·`costPerDistance`·`costPerCell` |
 | 기한 | `PuzzleTradeTableData.deadlineHours` |
+| 툴팁 문구 | `BasicDataTableData`의 `presentation.PuzzleTooltip*` 항목 |
 | HUD·시장 그룹·지도 시간 연결 | `Tools/MyJG/Apply Time Planning` |
 | 표 캐시 | `Tools/MyJG/Tables/Reload Tables` (플레이 중 제외) |
 

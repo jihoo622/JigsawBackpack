@@ -3960,64 +3960,106 @@
       "source": "Assets/Scripts/Runtime/Core/Presentation.cs:47"
     },
     {
-      "id": "presentation.PuzzleTooltipActualValue.text1",
-      "value": "<color=#{0}>실제 가치 : </color><color=#{1}>$ {2:#,0.##}</color>",
-      "arguments": 3,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:355"
-    },
-    {
-      "id": "presentation.PuzzleTooltipBuyRate.text1",
-      "value": "<color=#{0}>구매 배율 : </color><color=#{1}>{2}%</color>",
-      "arguments": 3,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:393"
-    },
-    {
-      "id": "presentation.PuzzleTooltipFinalBuyPrice.text1",
-      "value": "<color=#{0}>구매 금액 : </color><color=#{1}>$ {2:#,0.##}</color>",
-      "arguments": 3,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:405"
-    },
-    {
-      "id": "presentation.PuzzleTooltipFinalSellPrice.text1",
-      "value": "<color=#{0}>판매 금액 : </color><color=#{1}>$ {2:#,0.##}</color>",
-      "arguments": 3,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:399"
-    },
-    {
-      "id": "presentation.PuzzleTooltipFreshness.text1",
-      "value": "<color=#{0}>신선도 : </color><color=#{1}>{2}</color>",
-      "arguments": 3,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:435"
-    },
-    {
-      "id": "presentation.PuzzleTooltipFutureValue.text1",
-      "value": "<color=#{0}>{1} · {2} 후 가치 : </color><color=#{3}>$ {4:#,0.##}</color>",
-      "arguments": 5,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:430"
-    },
-    {
-      "id": "presentation.PuzzleTooltipNoSynergy.text1",
-      "value": "<color=#{0}>• 적용 중인 시너지 없음</color>",
+      "id": "presentation.PuzzleTooltipActualValueLabel.text1",
+      "value": "<color=#{0}>실제 가치</color>",
       "arguments": 1,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:422"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs"
     },
     {
-      "id": "presentation.PuzzleTooltipSellRate.text1",
-      "value": "<color=#{0}>판매 배율 : </color><color=#{1}>{2}%</color>",
-      "arguments": 3,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:387"
+      "id": "presentation.PuzzleTooltipActualValueValue.text1",
+      "value": "<color=#{0}>$ {1:#,0.##}</color>",
+      "arguments": 2,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs"
     },
     {
-      "id": "presentation.PuzzleTooltipSynergyBonus.text1",
-      "value": "<color=#{0}>• {1} : </color><color=#{2}>{3}{4:#,0.##}%</color>",
-      "arguments": 5,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:417"
-    },
-    {
-      "id": "presentation.PuzzleTooltipSynergyHeader.text1",
-      "value": "<color=#{0}>적용 중인 시너지 목록</color>",
+      "id": "presentation.PuzzleTooltipBuyRateLabel.text1",
+      "value": "<color=#{0}>구매 배율</color>",
       "arguments": 1,
-      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:410"
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs"
+    },
+    {
+      "id": "presentation.PuzzleTooltipBuyRateValue.text1",
+      "value": "<color=#{0}>{1}%</color>",
+      "arguments": 2,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs"
+    },
+    {
+      "id": "presentation.PuzzleTooltipEffectDescription.text1",
+      "value": "<color=#{0}>• {1}</color>",
+      "arguments": 2,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs"
+    },
+    {
+      "id": "presentation.PuzzleTooltipEffectHeader.text1",
+      "value": "<color=#{0}>보유 효과</color>",
+      "arguments": 1,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs"
+    },
+    {
+      "id": "presentation.PuzzleTooltipFinalBuyPriceLabel.text1",
+      "value": "<color=#{0}>구매 금액</color>",
+      "arguments": 1,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs"
+    },
+    {
+      "id": "presentation.PuzzleTooltipFinalBuyPriceValue.text1",
+      "value": "<color=#{0}>$ {1:#,0.##}</color>",
+      "arguments": 2,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs"
+    },
+    {
+      "id": "presentation.PuzzleTooltipFinalSellPriceLabel.text1",
+      "value": "<color=#{0}>판매 금액</color>",
+      "arguments": 1,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs"
+    },
+    {
+      "id": "presentation.PuzzleTooltipFinalSellPriceValue.text1",
+      "value": "<color=#{0}>$ {1:#,0.##}</color>",
+      "arguments": 2,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs"
+    },
+    {
+      "id": "presentation.PuzzleTooltipFreshnessLabel.text1",
+      "value": "<color=#{0}>신선도</color>",
+      "arguments": 1,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs"
+    },
+    {
+      "id": "presentation.PuzzleTooltipFreshnessValue.text1",
+      "value": "<color=#{0}>{1}</color>",
+      "arguments": 2,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs"
+    },
+    {
+      "id": "presentation.PuzzleTooltipFutureValueLabel.text1",
+      "value": "<color=#{0}>{1} · {2} 후 가치</color>",
+      "arguments": 3,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs"
+    },
+    {
+      "id": "presentation.PuzzleTooltipFutureValueValue.text1",
+      "value": "<color=#{0}>$ {1:#,0.##}</color>",
+      "arguments": 2,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs"
+    },
+    {
+      "id": "presentation.PuzzleTooltipNoEffect.text1",
+      "value": "<color=#{0}>• 없음</color>",
+      "arguments": 1,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs"
+    },
+    {
+      "id": "presentation.PuzzleTooltipSellRateLabel.text1",
+      "value": "<color=#{0}>판매 배율</color>",
+      "arguments": 1,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs"
+    },
+    {
+      "id": "presentation.PuzzleTooltipSellRateValue.text1",
+      "value": "<color=#{0}>{1}%</color>",
+      "arguments": 2,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs"
     },
     {
       "id": "presentation.PuzzleTradeRateText.text1",
