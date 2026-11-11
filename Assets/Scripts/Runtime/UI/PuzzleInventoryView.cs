@@ -286,7 +286,15 @@ public sealed class PuzzleInventoryView : MonoBehaviour
             originalMin = Vector2Int.Min(originalMin, cell.OriginalCell);
             originalMax = Vector2Int.Max(originalMax, cell.OriginalCell);
         }
-        Vector2 iconOffset = ((Vector2)min + max) * 0.5f - (Vector2)_pose.Cells[0].Position + _iconOffset;
+        Vector2 rotatedOffset = _pose.ClockwiseTurns switch
+        {
+            0 => _iconOffset,
+            1 => new Vector2(_iconOffset.y, -_iconOffset.x),
+            2 => -_iconOffset,
+            3 => new Vector2(-_iconOffset.y, _iconOffset.x),
+            _ => throw new ArgumentOutOfRangeException(nameof(_pose))
+        };
+        Vector2 iconOffset = ((Vector2)min + max) * 0.5f - (Vector2)_pose.Cells[0].Position + rotatedOffset;
         Vector2 iconSize = (_iconSize.x > 0f && _iconSize.y > 0f)
             ? _iconSize
             : (Vector2)(originalMax - originalMin + Vector2Int.one);

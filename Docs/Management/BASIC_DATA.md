@@ -11,7 +11,7 @@
 - `id`가 조회 키다. `source`는 사용 위치를 찾는 참고 정보이며 실행 로직에 쓰지 않는다. `whole`은 정수 여부, `positive`는 양수 제약, 문구의 `arguments`는 서식 인자 수다.
 - `GameTables`·`GameTableRecords` → `TableManager` 공통 로드·인덱스 → `GameTableRules` 검증을 따른다. `BasicData`는 이 조회 경로의 얇은 창구이며 별도 로더·캐시·기본값은 없다. 문구·색을 쓰는 UI는 계속 `Presentation`을 거친다.
 - `BasicDataContract`는 필수 ID와 서식 인자 수만 가진다. 키를 추가·삭제하면 소비 코드와 이 계약도 함께 수정한다. 누락·중복·범위 오류는 초기화를 막는다.
-- 값 수정 후 표 캐시는 JSON 저장 시 무효화된다. 수동 갱신은 `Tools/MyJG/Tables/Reload Tables`를 사용한다. `editor.*`와 `station.market.*` 배치 값은 제작 시 씬·프리팹에 저장되므로 관련 제작 메뉴도 다시 적용한다. 역 메뉴는 `Apply Station Actions UI`, 시간/HUD는 `Apply Time Planning`이다.
+- 값 수정 후 표 캐시는 JSON 저장 시 무효화된다. 수동 갱신은 `Tools/MyJG/Tables/Reload Tables`를 사용한다. `editor.*`와 `station.*` 배치 값은 제작 시 씬·프리팹에 저장되므로 관련 제작 메뉴도 다시 적용한다. 공통 HUD·역 메뉴 배치는 `ui.layout.*`가 원본이고 `Apply UI Overhaul`로 적용한다([배치 계약](UI_LAYOUT.md)). 시간/HUD·역 메뉴 제작 메뉴도 마지막에 같은 배치를 적용한다.
 - 이동 K·일출·야간·시작 시각·휴식 분수는 `PuzzleTimeTableData`, 거래·이동 연출 수치는 `PuzzleTradeTableData`, 화물·시장·가격·노선·시너지는 각 도메인 표가 원본이다.
 
 ## 코드에 남는 구조 값

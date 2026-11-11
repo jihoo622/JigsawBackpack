@@ -1,6 +1,6 @@
 # 기초데이터 추가 이관 후보
 
-아래 항목은 **아직 이관하지 않은 후보**다. 런타임·에디터 제작 코드와 Game 씬·인벤토리/지도 프리팹의 직렬화 설정을 점검했다. 이미 기초데이터에 있는 수치·문구·색상은 중복 후보로 세지 않는다.
+아래 항목은 **아직 이관하지 않은 후보**다. 런타임·에디터 제작 코드와 Game 씬·인벤토리/지도 프리팹의 직렬화 설정을 점검했다. 공통 게임 화면 배율·주요 버튼 테마·술집 버튼 스타일·본문 글자 배치는 `ui.layout.*`로 이관했다. 이미 기초데이터에 있는 수치·문구·색상은 중복 후보로 세지 않는다.
 
 ## 우선 이관 후보
 
@@ -9,10 +9,8 @@
 | 태그 표시 순위 일부 | `Presentation.GetTagSortWeight`: `fish => 4` | `presentation.tagSort.fish` | 나머지 태그 순위와 같은 방식으로 바로 이관 가능 |
 | 지도 이름 우선순위 | `PuzzleMapNodeView.LabelPriority`: 현재/선택/목표/직결/환승/기타에 5/4/3/2/1/0 | `map.labelPriorities` | 우선순위 숫자와 `PuzzleMapView`의 중요 라벨 기준을 함께 맞춰야 함 |
 | 지도 시간 라벨 우선순위 일부 | `PuzzleMapView.RoutePriority`: 현재 역 2, 선택 역 1, 기타 0. 현재+선택 값만 이미 표에 있음 | `map.routePriorities` | 정렬 기준을 한 묶음으로 관리 |
-| 버튼 공통 테마·전환 | `Game.unity`의 Button `m_Colors`, `m_Transition: 1`, `m_FadeDuration: 0.1` 및 제작 도구가 복제하는 버튼 원본 | `ui.buttonTheme.*` | 색·전환 시간을 제작 시 적용. disabled 색 등은 현재 Presentation으로 통일되지 않음 |
-| 인벤토리 제목·안내·금액 스타일 | `PuzzleInventoryUI.prefab`의 TMP 글자 크기 32/19/21/26과 `m_fontColor` | `ui.inventory.typography.*` | 텍스트 내용은 Presentation을 쓰지만 스타일 일부는 프리팹 고정값. 씬의 override도 함께 정리 |
-| 공통 화면 배율 | `Game.unity` Inventory Canvas의 CanvasScaler: 기준 1920×1080, match 0, scale 1 | `ui.canvas.*` | 제작 시 설정. 화면 기준 변경 시 HUD·지도·팝업 배치 영향 검토 필요 |
-| 술집 버튼 스타일 | 원격에서 추가된 `Talk to Guest` 버튼·Label의 폰트 크기·상태 색·전환 설정 | `ui.tavern.talkButton.*` 또는 공통 버튼 테마 | 소식 문구·제목·버튼 문구와 주요 영역 치수는 이번 작업에서 이미 표로 이관. 버튼 세부 스타일은 잔여 후보 |
+| 버튼 테마 잔여분 | 화물칸 선택/증차 버튼의 원본 ColorBlock, 비활성 구형 마을 화면과 제작 도구의 복제 원본 | `ui.layout.button.*` 재사용 | 현재 HUD·역 메뉴·지도·모달은 공통 테마 적용. 화물칸은 런타임 선택/드래그 강조와 함께 통합할 필요가 있음 |
+| 인벤토리 원본 프리팹 스타일 | `PuzzleInventoryUI.prefab`의 TMP 글자 크기 32/19/21/26과 `m_fontColor` | `ui.layout.*`를 프리팹 제작에도 적용 | Game 씬의 제목·안내·금액은 이미 공통 값으로 덮어쓴다. 원본 프리팹 기본 스타일 중복 정리가 잔여 후보 |
 
 ## 레코드 형태를 정한 뒤 이관할 후보
 

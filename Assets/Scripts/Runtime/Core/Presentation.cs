@@ -14,6 +14,11 @@ public enum EffectCategory
 
 public static class Presentation
 {
+    public static string LayoutText(string _key)
+    {
+        return BasicData.Text("ui.layout." + _key);
+    }
+
     public static Color SharedColor(string _id)
     {
         return BasicData.Color(_id);
