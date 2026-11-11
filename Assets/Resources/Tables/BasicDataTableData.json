@@ -3991,7 +3991,7 @@
     },
     {
       "id": "presentation.PuzzleTooltipEffectHeader.text1",
-      "value": "<color=#{0}>보유 효과 · {1}시간 주기</color>",
+      "value": "<color=#{0}>인접 효과 · {1}시간 주기</color>",
       "arguments": 2,
       "source": "Assets/Scripts/Runtime/Core/Presentation.cs:436"
     },
