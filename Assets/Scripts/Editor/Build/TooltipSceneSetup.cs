@@ -13,6 +13,7 @@ public static class TooltipSceneSetup
     const string OUTPUT_PATH = "Assets/TextMesh Pro/Resources/Fonts & Materials/NotoSansKR-Medium SDF.asset";
     const string BADGE_SPRITE_PATH = "Assets/Art/TooltipBadgeRoundedRect.png";
     const string SCENE_PATH = "Assets/Scenes/Game.unity";
+    const string TOOLTIP_PREFAB_PATH = "Assets/Art/PuzzleItemTooltip.prefab";
 
     [MenuItem("Tools/MyJG/Setup Tooltip in Game Scene")]
     public static void EnsureAll()
@@ -164,13 +165,24 @@ public static class TooltipSceneSetup
         }
         else
         {
-            tooltipObj = CreateTooltipHierarchy(canvas.transform, _fontAsset);
+            var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(TOOLTIP_PREFAB_PATH);
+            tooltipObj = prefab
+                ? (GameObject)PrefabUtility.InstantiatePrefab(prefab, canvas.transform)
+                : CreateTooltipHierarchy(canvas.transform, _fontAsset);
             sceneModified = true;
         }
 
         var tooltipView = tooltipObj.GetComponent<PuzzleItemTooltipView>();
         if (tooltipView)
         {
+            var viewSerialized = new SerializedObject(tooltipView);
+            var canvasProp = viewSerialized.FindProperty("canvas");
+            if (canvasProp.objectReferenceValue != canvas)
+            {
+                canvasProp.objectReferenceValue = canvas;
+                viewSerialized.ApplyModifiedProperties();
+                sceneModified = true;
+            }
             var presenterSerialized = new SerializedObject(presenter);
             var tooltipProp = presenterSerialized.FindProperty("tooltipView");
             if (tooltipProp != null && tooltipProp.objectReferenceValue != tooltipView)
@@ -249,6 +261,7 @@ public static class TooltipSceneSetup
         headerFitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
 
         var itemName = CreateTextObject("ItemName", header.transform, _fontAsset, string.Empty);
+        itemName.alignment = TextAlignmentOptions.TopLeft;
 
         // Category Row & Badges
         var categoryRow = new GameObject("CategoryRow", typeof(RectTransform), typeof(HorizontalLayoutGroup), typeof(ContentSizeFitter));
@@ -256,7 +269,7 @@ public static class TooltipSceneSetup
 
         var catRowLayout = categoryRow.GetComponent<HorizontalLayoutGroup>();
         catRowLayout.spacing = BasicData.Int("editor.TooltipSceneSetup.GameObject.number1");
-        catRowLayout.childAlignment = TextAnchor.MiddleLeft;
+        catRowLayout.childAlignment = TextAnchor.UpperLeft;
         catRowLayout.childControlWidth = true;
         catRowLayout.childControlHeight = true;
         catRowLayout.childForceExpandWidth = false;
