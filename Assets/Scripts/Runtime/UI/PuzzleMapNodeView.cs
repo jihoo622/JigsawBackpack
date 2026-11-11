@@ -86,7 +86,7 @@ public sealed class PuzzleMapNodeView : MonoBehaviour, IPointerEnterHandler, IPo
         }
         stationRing.rectTransform.localScale = Vector3.one * (emphasized ? BasicData.Float("ui.PuzzleMapNodeView.Show.number1") : 1f);
         stationRing.color = emphasized ? highlight :
-            interchange ? Presentation.PuzzleMapInterchange : Presentation.PuzzleMapLineColor(_city.regionId);
+            Presentation.PuzzleMapLineColor(_city.regionId);
         marker.color = Presentation.PuzzleMapNodeMarkerColor(_current, _visited, _connected, _canAfford);
     }
 

@@ -437,7 +437,7 @@ public sealed class PuzzleItemTooltipView : PanelBase
         {
             _text.font = fontAsset;
         }
-        _text.fontSize = BASE_FONT_SIZE;
+        _text.fontSize = BaseFontSize;
         _text.enableAutoSizing = false;
         _text.textWrappingMode = TextWrappingModes.NoWrap;
         _text.raycastTarget = false;
