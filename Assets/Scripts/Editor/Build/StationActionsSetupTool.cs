@@ -50,11 +50,13 @@ public static class StationActionsSetupTool
         var wait = (Button)cityData.FindProperty("waitButton").objectReferenceValue;
         var font = template.GetComponentInChildren<TMP_Text>(true).font;
         var canvas = inventory.GetComponentInParent<Canvas>();
-        var host = Rect(canvas.transform, "StationActionsPanel", new Vector2(BasicData.Float("editor.StationActionsSetupTool.Vector2.number1"), 0f), new Vector2(BasicData.Float("editor.StationActionsSetupTool.Vector2.number2"), BasicData.Float("editor.StationActionsSetupTool.Vector2.number3")));
+        var existing = _scene.GetRootGameObjects().SelectMany(_root => _root.GetComponentsInChildren<PuzzleStationActionsView>(true)).SingleOrDefault();
+        var host = existing ? (RectTransform)existing.transform : Rect(canvas.transform, "StationActionsPanel", new Vector2(BasicData.Float("editor.StationActionsSetupTool.Vector2.number1"), 0f), new Vector2(BasicData.Float("editor.StationActionsSetupTool.Vector2.number2"), BasicData.Float("editor.StationActionsSetupTool.Vector2.number3")));
         var surface = Rect(host, "StationSurface", Vector2.zero, new Vector2(BasicData.Float("editor.StationActionsSetupTool.Vector2.number4"), BasicData.Float("editor.StationActionsSetupTool.Vector2.number5")));
         Component<Image>(surface).color = Presentation.PuzzleTravelCard;
         var title = Label(surface, "StationTitle", font, Presentation.StationActionsTitle, new Vector2(-BasicData.Float("editor.StationActionsSetupTool.Vector2.number6"), BasicData.Float("editor.StationActionsSetupTool.Vector2.number7")), new Vector2(BasicData.Float("editor.StationActionsSetupTool.Vector2.number8"), BasicData.Float("editor.StationActionsSetupTool.Vector2.number9")), BasicData.Float("editor.StationActionsSetupTool.Vector2.number10"));
         var back = Button(surface, template, "StationBack", Presentation.StationBack, new Vector2(BasicData.Float("editor.StationActionsSetupTool.Vector2.number11"), BasicData.Float("editor.StationActionsSetupTool.Vector2.number12")), new Vector2(BasicData.Float("editor.StationActionsSetupTool.Vector2.number13"), BasicData.Float("editor.StationActionsSetupTool.Vector2.number14")));
+        back.interactable = true;
         var list = Rect(surface, "ActionsList", new Vector2(0f, -BasicData.Float("editor.StationActionsSetupTool.Vector2.number15")), new Vector2(BasicData.Float("editor.StationActionsSetupTool.Vector2.number16"), BasicData.Float("editor.StationActionsSetupTool.Vector2.number17")));
         var marketButton = Button(list, template, "MarketAction", Presentation.StationMarket, new Vector2(0f, BasicData.Float("editor.StationActionsSetupTool.Vector2.number18")), new Vector2(BasicData.Float("editor.StationActionsSetupTool.Vector2.number19"), BasicData.Float("editor.StationActionsSetupTool.Vector2.number20")));
         var tavernButton = Button(list, template, "TavernAction", Presentation.StationTavern, new Vector2(0f, BasicData.Float("editor.StationActionsSetupTool.Vector2.number21")), new Vector2(BasicData.Float("editor.StationActionsSetupTool.Vector2.number22"), BasicData.Float("editor.StationActionsSetupTool.Vector2.number23")));
@@ -128,6 +130,7 @@ public static class StationActionsSetupTool
         rest.gameObject.SetActive(false);
         tavern.gameObject.SetActive(false);
         back.gameObject.SetActive(false);
+        PuzzleUiLayoutTool.ApplyTo(_scene);
     }
 
     static void ApplyActionIcon(Button _button, string _spritePath)
@@ -198,6 +201,10 @@ public static class StationActionsSetupTool
     static RectTransform Rect(Transform _parent, string _name, Vector2 _position, Vector2 _size)
     {
         var rect = _parent.Find(_name) as RectTransform;
+        if (!rect)
+        {
+            rect = _parent.GetComponentsInChildren<RectTransform>(true).FirstOrDefault(_child => _child.name == _name);
+        }
         if (!rect)
         {
             rect = new GameObject(_name, typeof(RectTransform)).transform as RectTransform;

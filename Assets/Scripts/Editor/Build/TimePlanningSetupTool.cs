@@ -41,7 +41,11 @@ public static class TimePlanningSetupTool
                 new PuzzleTimeManager(TableManager.Instance.PuzzleTrade.deadlineHours, TableManager.Instance.PuzzleTime));
             Place((TMP_Text)data.FindProperty("funds").objectReferenceValue, new Vector2(BasicData.Float("editor.TimePlanningSetupTool.Vector2.number12"), BasicData.Float("editor.TimePlanningSetupTool.Vector2.number13")), new Vector2(BasicData.Float("editor.TimePlanningSetupTool.Vector2.number14"), BasicData.Float("editor.TimePlanningSetupTool.Vector2.number15")), BasicData.Int("editor.TimePlanningSetupTool.Vector2.number16"));
             Place((TMP_Text)data.FindProperty("tradeStatus").objectReferenceValue, new Vector2(0f, -BasicData.Float("editor.TimePlanningSetupTool.Vector2.number17")), new Vector2(BasicData.Float("editor.TimePlanningSetupTool.Vector2.number18"), BasicData.Float("editor.TimePlanningSetupTool.Vector2.number19")), BasicData.Int("editor.TimePlanningSetupTool.Vector2.number20"));
-            var preview = Button(header, template, "PreviewDestination", new Vector2(-BasicData.Float("editor.TimePlanningSetupTool.Vector2.number21"), -BasicData.Float("editor.TimePlanningSetupTool.Vector2.number22")), new Vector2(BasicData.Float("editor.TimePlanningSetupTool.Vector2.number23"), BasicData.Float("editor.TimePlanningSetupTool.Vector2.number24")));
+            var preview = data.FindProperty("previewButton").objectReferenceValue as Button;
+            if (!preview)
+            {
+                preview = Button(header, template, "PreviewDestination", new Vector2(-BasicData.Float("editor.TimePlanningSetupTool.Vector2.number21"), -BasicData.Float("editor.TimePlanningSetupTool.Vector2.number22")), new Vector2(BasicData.Float("editor.TimePlanningSetupTool.Vector2.number23"), BasicData.Float("editor.TimePlanningSetupTool.Vector2.number24")));
+            }
             var wait = data.FindProperty("waitButton").objectReferenceValue as Button;
             if (!wait)
             {
@@ -58,6 +62,7 @@ public static class TimePlanningSetupTool
             data.FindProperty("previewButton").objectReferenceValue = preview;
             data.FindProperty("previewLabel").objectReferenceValue = previewLabel;
             data.ApplyModifiedPropertiesWithoutUndo();
+            PuzzleUiLayoutTool.ApplyTo(scene);
             EditorSceneManager.MarkSceneDirty(scene);
             EditorSceneManager.SaveScene(scene);
         }

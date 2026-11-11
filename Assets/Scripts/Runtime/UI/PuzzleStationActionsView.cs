@@ -108,6 +108,7 @@ public sealed class PuzzleStationActionsView : PanelBase
         marketContent.SetActive(_content == marketContent);
         restContent.SetActive(_content == restContent);
         tavernContent.gameObject.SetActive(_content == tavernContent.gameObject);
+        backButton.interactable = true;
         backButton.gameObject.SetActive(_content != actionsList);
         title.text = _title;
     }

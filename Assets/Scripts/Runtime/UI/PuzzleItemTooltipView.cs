@@ -316,22 +316,25 @@ public sealed class PuzzleItemTooltipView : PanelBase
         float width = panelRect.rect.width;
         float height = panelRect.rect.height;
 
-        float posX = localPoint.x;
-        float posY = localPoint.y;
+        float offset = BasicData.Float("ui.layout.tooltipPointerOffset");
+        float posX = localPoint.x + offset;
+        float posY = localPoint.y - offset;
 
         Rect cRect = canvasRectTransform.rect;
+        float margin = BasicData.Float("ui.layout.tooltipScreenMargin");
+        cRect = Rect.MinMaxRect(cRect.xMin + margin, cRect.yMin + margin, cRect.xMax - margin, cRect.yMax - margin);
 
         // 화면 우측을 벗어나면 마우스 좌측으로 플립
         if (posX + width > cRect.xMax)
         {
-            posX -= width;
+            posX = localPoint.x - offset - width;
         }
         posX = Mathf.Clamp(posX, cRect.xMin, Mathf.Max(cRect.xMin, cRect.xMax - width));
 
         // 화면 하단을 벗어나면 마우스 상단으로 플립
         if (posY - height < cRect.yMin)
         {
-            posY += height;
+            posY = localPoint.y + offset + height;
         }
         posY = Mathf.Clamp(posY, Mathf.Min(cRect.yMax, cRect.yMin + height), cRect.yMax);
 
@@ -489,7 +492,8 @@ public sealed class PuzzleItemTooltipView : PanelBase
         _text.enableAutoSizing = true;
         _text.fontSizeMin = MinFontSize;
         _text.fontSizeMax = MaxFontSize;
-        _text.textWrappingMode = TextWrappingModes.NoWrap;
+        _text.textWrappingMode = categoryBadgeTexts != null && System.Array.IndexOf(categoryBadgeTexts, _text) >= 0
+            ? TextWrappingModes.NoWrap : TextWrappingModes.Normal;
         _text.raycastTarget = false;
     }
 }

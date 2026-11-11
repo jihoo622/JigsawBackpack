@@ -67,7 +67,7 @@ public sealed class PuzzleSlotVisual : MonoBehaviour
 
         itemIcon.sprite = _icon;
         itemIcon.enabled = hasFill && _icon;
-        itemIcon.preserveAspect = false;
+        itemIcon.preserveAspect = true;
         itemIcon.color = Presentation.PuzzleItemIcon(_color.a);
         itemIcon.rectTransform.localPosition = _iconOffset * Rect.rect.width;
         itemIcon.rectTransform.sizeDelta = _iconSize * Rect.rect.width;
