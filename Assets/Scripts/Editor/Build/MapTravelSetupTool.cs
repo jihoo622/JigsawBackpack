@@ -82,15 +82,25 @@ public static class MapTravelSetupTool
             graphic.sprite = wheelSprite;
             graphic.color = Presentation.PuzzleHeading;
         }
-        var progressBack = Rect(journey, "ProgressTrack", new Vector2(0f, -72f), new Vector2(520f, 8f));
-        Component<Image>(progressBack).color = Presentation.PuzzleBackground;
-        var progressRect = Rect(journey, "Progress", new Vector2(0f, -72f), new Vector2(520f, 8f));
+        var progressBack = Rect(journey, "ProgressTrack", new Vector2(0f, -72f), new Vector2(480f, 10f));
+        var progressBackImage = Component<Image>(progressBack);
+        progressBackImage.sprite = null;
+        progressBackImage.type = Image.Type.Simple;
+        progressBackImage.color = Presentation.PuzzleCell;
+        var legacyProgress = journey.Find("Progress");
+        if (legacyProgress)
+        {
+            legacyProgress.SetParent(progressBack, false);
+        }
+        var progressRect = Rect(progressBack, "Progress", Vector2.zero, Vector2.zero);
+        progressRect.anchorMin = Vector2.zero;
+        progressRect.anchorMax = new Vector2(0f, 1f);
+        progressRect.offsetMin = Vector2.zero;
+        progressRect.offsetMax = Vector2.zero;
         var progress = Component<Image>(progressRect);
-        progress.sprite = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/UISprite.psd");
-        progress.type = Image.Type.Filled;
-        progress.fillMethod = Image.FillMethod.Horizontal;
-        progress.fillOrigin = 0;
-        progress.fillAmount = 0f;
+        progress.sprite = null;
+        progress.type = Image.Type.Simple;
+        progress.fillAmount = 1f;
         progress.color = Presentation.PuzzleMapCurrent;
         var percent = Label(journey, "Percent", font, Presentation.PuzzleTravelProgress(0f), new Vector2(0f, -114f), new Vector2(240f, 36f), 20);
         foreach (var graphic in journey.GetComponentsInChildren<Graphic>(true))

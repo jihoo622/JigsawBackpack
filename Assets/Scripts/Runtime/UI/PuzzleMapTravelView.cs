@@ -94,7 +94,7 @@ public sealed class PuzzleMapTravelView : PanelBase
     internal void ShowProgress(float _progress)
     {
         float value = Mathf.Clamp01(_progress);
-        progress.fillAmount = value;
+        ApplyProgressFill(value);
         train.anchoredPosition = Vector2.Lerp(departure.anchoredPosition, destination.anchoredPosition, value);
         progressLabel.text = Presentation.PuzzleTravelProgress(value);
     }
@@ -103,6 +103,15 @@ public sealed class PuzzleMapTravelView : PanelBase
     {
         ShowProgress(1f);
         journeyTitle.text = Presentation.PUZZLE_TRAVEL_ARRIVED;
+    }
+
+    void ApplyProgressFill(float _value)
+    {
+        var fill = progress.rectTransform;
+        fill.anchorMin = Vector2.zero;
+        fill.anchorMax = new Vector2(_value, 1f);
+        fill.offsetMin = Vector2.zero;
+        fill.offsetMax = Vector2.zero;
     }
 
     protected override void OnShow()
@@ -120,7 +129,7 @@ public sealed class PuzzleMapTravelView : PanelBase
         confirming = false;
         confirmation.SetActive(false);
         journey.SetActive(false);
-        progress.fillAmount = 0f;
+        ApplyProgressFill(0f);
         if (selectionCaptured && EventSystem.current)
         {
             var selected = EventSystem.current.currentSelectedGameObject;
