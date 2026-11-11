@@ -46,6 +46,7 @@ public sealed class PuzzleInventoryView : MonoBehaviour
 
     readonly HashSet<Vector2Int> piecePositions = new();
     Dictionary<string, ItemIcon> iconIndex;
+    Material freshnessMaterial;
     Canvas canvas;
     Vector2Int gridSize;
     Vector2 gridMin;
@@ -118,6 +119,13 @@ public sealed class PuzzleInventoryView : MonoBehaviour
             itemDetails.gameObject.SetActive(false);
         }
         boardTitle.text = _title;
+        if (!freshnessMaterial)
+        {
+            freshnessMaterial = new Material(boardTitle.font.material);
+            freshnessMaterial.SetColor(ShaderUtilities.ID_OutlineColor, Color.black);
+            freshnessMaterial.SetFloat(ShaderUtilities.ID_OutlineWidth, 0.35f);
+            freshnessMaterial.EnableKeyword(ShaderUtilities.Keyword_Outline);
+        }
         ShowItemDetails(null, default, default, default);
 
         ConfigureSlots(placementSlots, flatOutline, fillSprites);
@@ -187,7 +195,8 @@ public sealed class PuzzleInventoryView : MonoBehaviour
                 ? Presentation.PuzzleMoveTarget
                 : Presentation.PuzzlePiece;
             index = RenderPose(placementSlots, index, placement.Pose, Vector2.zero, color,
-                iconIndex[placement.Definition.VisualKey].sprite, placement.Definition.IconSize, placement.Definition.IconOffset);
+                iconIndex[placement.Definition.VisualKey].sprite, placement.Definition.IconSize, placement.Definition.IconOffset,
+                placement.Definition.HasDurability ? placement.Durability : null);
         }
 
         HideSlots(placementSlots, index);
@@ -245,7 +254,8 @@ public sealed class PuzzleInventoryView : MonoBehaviour
         }
     }
 
-    public void ShowGhost(PuzzlePose _pose, PuzzleItemDefinition _item, Vector2Int _grabbedBoardCell, Vector2 _screenPosition)
+    public void ShowGhost(PuzzlePose _pose, PuzzleItemDefinition _item, Vector2Int _grabbedBoardCell, Vector2 _screenPosition,
+        int? _durability = null)
     {
         if (_pose == null || !RectTransformUtility.ScreenPointToLocalPointInRectangle(
                 (RectTransform)transform, _screenPosition, EventCamera, out var local))
@@ -255,7 +265,8 @@ public sealed class PuzzleInventoryView : MonoBehaviour
         }
 
         var offset = local - GetCellCenter(_grabbedBoardCell);
-        int used = RenderPose(ghostSlots, 0, _pose, offset, Presentation.PuzzleGhost, iconIndex[_item.VisualKey].sprite, _item.IconSize, _item.IconOffset);
+        int used = RenderPose(ghostSlots, 0, _pose, offset, Presentation.PuzzleGhost,
+            iconIndex[_item.VisualKey].sprite, _item.IconSize, _item.IconOffset, _item.HasDurability ? _durability : null);
         HideSlots(ghostSlots, used);
     }
 
@@ -266,7 +277,7 @@ public sealed class PuzzleInventoryView : MonoBehaviour
     }
 
     int RenderPose(PuzzleSlotVisual[] _slots, int _start, PuzzlePose _pose, Vector2 _offset, Color _color, Sprite _icon = null,
-        Vector2 _iconSize = default, Vector2 _iconOffset = default)
+        Vector2 _iconSize = default, Vector2 _iconOffset = default, int? _freshness = null)
     {
         piecePositions.Clear();
         foreach (var cell in _pose.Cells)
@@ -277,12 +288,18 @@ public sealed class PuzzleInventoryView : MonoBehaviour
         int index = _start;
         var min = _pose.Cells[0].Position;
         var max = min;
+        var bottomLeft = min;
         var originalMin = _pose.Cells[0].OriginalCell;
         var originalMax = originalMin;
         foreach (var cell in _pose.Cells)
         {
             min = Vector2Int.Min(min, cell.Position);
             max = Vector2Int.Max(max, cell.Position);
+            if (cell.Position.y < bottomLeft.y ||
+                (cell.Position.y == bottomLeft.y && cell.Position.x < bottomLeft.x))
+            {
+                bottomLeft = cell.Position;
+            }
             originalMin = Vector2Int.Min(originalMin, cell.OriginalCell);
             originalMax = Vector2Int.Max(originalMax, cell.OriginalCell);
         }
@@ -303,6 +320,8 @@ public sealed class PuzzleInventoryView : MonoBehaviour
             int hiddenEdges = GetHiddenEdges(cell.Position);
             _slots[index].Show(GetCellCenter(cell.Position) + _offset, cellSize, _color, hiddenEdges,
                 index == _start ? _icon : null, iconOffset, iconSize, _pose.ClockwiseTurns);
+            _slots[index].ShowFreshness(index == _start ? _freshness : null,
+                bottomLeft - cell.Position, boardTitle.font, freshnessMaterial);
             index++;
         }
         if (_icon && index > _start)
@@ -353,6 +372,14 @@ public sealed class PuzzleInventoryView : MonoBehaviour
             ClearDrag();
         }
         Disabled?.Invoke();
+    }
+
+    void OnDestroy()
+    {
+        if (freshnessMaterial)
+        {
+            Destroy(freshnessMaterial);
+        }
     }
 
     Vector2 GetCellCenter(Vector2Int _cell)

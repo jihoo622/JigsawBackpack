@@ -1,4 +1,5 @@
 using System.Linq;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -15,6 +16,7 @@ public sealed class PuzzleSlotVisual : MonoBehaviour
 
     Sprite[] fillSprites;
     Sprite outlineSprite;
+    TextMeshProUGUI freshnessLabel;
 
     RectTransform Rect => (RectTransform)transform;
 
@@ -73,6 +75,46 @@ public sealed class PuzzleSlotVisual : MonoBehaviour
         itemIcon.rectTransform.sizeDelta = _iconSize * Rect.rect.width;
         itemIcon.rectTransform.localRotation = Quaternion.Euler(0f, 0f, -90f * _clockwiseTurns);
         gameObject.SetActive(true);
+    }
+
+    internal void ShowFreshness(int? _freshness, Vector2 _cellOffset, TMP_FontAsset _font, Material _material)
+    {
+        if (!_freshness.HasValue)
+        {
+            if (freshnessLabel)
+            {
+                freshnessLabel.enabled = false;
+            }
+            return;
+        }
+
+        float cellWidth = Rect.rect.width;
+        if (!freshnessLabel)
+        {
+            var label = new GameObject("Freshness", typeof(RectTransform), typeof(TextMeshProUGUI));
+            label.transform.SetParent(transform, false);
+            freshnessLabel = label.GetComponent<TextMeshProUGUI>();
+            freshnessLabel.font = _font;
+            freshnessLabel.fontSharedMaterial = _material;
+            freshnessLabel.raycastTarget = false;
+            freshnessLabel.alignment = TextAlignmentOptions.BottomLeft;
+            freshnessLabel.textWrappingMode = TextWrappingModes.NoWrap;
+            freshnessLabel.fontSize = cellWidth * 0.21f;
+            freshnessLabel.rectTransform.pivot = Vector2.zero;
+            freshnessLabel.rectTransform.sizeDelta = new Vector2(cellWidth * 0.9f, cellWidth * 0.35f);
+        }
+
+        int percent = Mathf.Clamp(_freshness.Value, 0, 100);
+        freshnessLabel.SetText("{0:0} %", percent);
+        freshnessLabel.color = percent switch
+        {
+            0 => new Color32(148, 148, 148, 255),
+            <= 33 => new Color32(255, 102, 102, 255),
+            <= 66 => new Color32(255, 220, 80, 255),
+            _ => new Color32(120, 235, 125, 255)
+        };
+        freshnessLabel.rectTransform.anchoredPosition = (_cellOffset - Vector2.one * 0.43f) * cellWidth;
+        freshnessLabel.enabled = true;
     }
 
     internal void Hide()
