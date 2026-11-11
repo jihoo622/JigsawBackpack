@@ -50,7 +50,7 @@ public sealed class PuzzleInventory
     }
 
     // 현재 인접 배치의 시간당 변화량을 사용한다. 범위 검사는 모든 화물칸을 변경하기 전에 끝낸다.
-    internal bool CanApplyTimeValueChange(int _elapsedTime)
+    internal bool CanApplyTimeValueChange(long _elapsedMinutes)
     {
         RecalculateValue();
         try
@@ -58,7 +58,7 @@ public sealed class PuzzleInventory
             foreach (var placement in placements.Values)
             {
                 var value = valuation.ValueOf(placement.InstanceId);
-                _ = checked(placement.ActualValue + (value.FinalValue - value.BaseValue) * _elapsedTime);
+                _ = checked(placement.ActualValue + (value.FinalValue - value.BaseValue) * _elapsedMinutes / PuzzleTimeManager.MINUTES_PER_HOUR);
             }
         }
         catch (OverflowException)
@@ -68,13 +68,13 @@ public sealed class PuzzleInventory
         return true;
     }
 
-    internal void ApplyTurnValueChange(int _elapsedTime)
+    internal void ApplyTimeValueChange(long _elapsedMinutes)
     {
         RecalculateValue();
         foreach (var placement in placements.Values)
         {
             var value = valuation.ValueOf(placement.InstanceId);
-            placement.AddActualValue((value.FinalValue - value.BaseValue) * _elapsedTime);
+            placement.AddActualValue((value.FinalValue - value.BaseValue) * _elapsedMinutes / PuzzleTimeManager.MINUTES_PER_HOUR);
         }
     }
 
@@ -130,7 +130,7 @@ public sealed class PuzzleInventory
         {
             // 원본과 대상의 현재 점유를 확인한 뒤 같은 호출에서 소속과 점유를 함께 바꾼다.
             var placement = new PuzzlePlacement(_original.InstanceId, _original.Definition, _destination, result.Candidate,
-                _original.ActualValue, _original.OwnedHours, _original.Durability);
+                _original.ActualValue, _original.OwnedMinutes, _original.Durability);
             ClearOccupancy(_original);
             placements.Remove(_original.InstanceId);
             _destination.StorePlacement(placement);

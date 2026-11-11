@@ -12,7 +12,7 @@ public static class TrainBarSceneSetup
     const string SCENE_PATH = "Assets/Scenes/Game.unity";
     const string TRAIN_WAGON_SPRITE_PATH = "Assets/Art/TrainWagon.png";
     const string FONT_PATH = "Assets/TextMesh Pro/Resources/Fonts & Materials/NotoSansKR-Medium SDF.asset";
-    const int POOL_SIZE = 8;
+    static int PoolSize => BasicData.Int("editor.TrainBarSceneSetup.Poolsize");
 
     [MenuItem("Tools/MyJG/Setup Train Bar in Game Scene")]
     public static void EnsureAll()
@@ -80,8 +80,8 @@ public static class TrainBarSceneSetup
         rootRect.anchorMin = new Vector2(0.5f, 0.5f);
         rootRect.anchorMax = new Vector2(0.5f, 0.5f);
         rootRect.pivot = new Vector2(0.5f, 0.5f);
-        rootRect.anchoredPosition = new Vector2(0f, -430f);
-        rootRect.sizeDelta = new Vector2(1000f, 80f);
+        rootRect.anchoredPosition = new Vector2(0f, -BasicData.Float("editor.TrainBarSceneSetup.Vector2.number1"));
+        rootRect.sizeDelta = new Vector2(BasicData.Float("editor.TrainBarSceneSetup.Vector2.number2"), BasicData.Float("editor.TrainBarSceneSetup.Vector2.number3"));
 
         var trainBarView = root.GetComponent<PuzzleTrainBarView>();
         var serializedView = new SerializedObject(trainBarView);
@@ -91,17 +91,17 @@ public static class TrainBarSceneSetup
         addBtnObj.transform.SetParent(root.transform, false);
 
         var addBtnRect = addBtnObj.GetComponent<RectTransform>();
-        addBtnRect.sizeDelta = new Vector2(150f, 60f);
-        addBtnRect.anchoredPosition = new Vector2(650f, 0f);
+        addBtnRect.sizeDelta = new Vector2(BasicData.Float("editor.TrainBarSceneSetup.Vector2.number4"), BasicData.Float("editor.TrainBarSceneSetup.Vector2.number5"));
+        addBtnRect.anchoredPosition = new Vector2(BasicData.Float("editor.TrainBarSceneSetup.Vector2.number6"), 0f);
 
         var addBtnImg = addBtnObj.GetComponent<Image>();
         addBtnImg.color = Presentation.PuzzleAddWagonBox;
 
         var addBtn = addBtnObj.GetComponent<Button>();
         var addColors = addBtn.colors;
-        addColors.highlightedColor = new Color(0.24f, 0.72f, 0.36f, 1f);
-        addColors.pressedColor = new Color(0.12f, 0.42f, 0.20f, 1f);
-        addColors.disabledColor = new Color(0.18f, 0.55f, 0.28f, 0.35f);
+        addColors.highlightedColor = Presentation.SharedColor("editor.TrainBarSceneSetup.Vector2.color1");
+        addColors.pressedColor = Presentation.SharedColor("editor.TrainBarSceneSetup.Color.color1");
+        addColors.disabledColor = Presentation.SharedColor("editor.TrainBarSceneSetup.Color.color2");
         addBtn.colors = addColors;
 
         var addTextObj = new GameObject("Text", typeof(RectTransform), typeof(CanvasRenderer), typeof(TextMeshProUGUI));
@@ -117,25 +117,25 @@ public static class TrainBarSceneSetup
             addText.font = _fontAsset;
         }
         addText.alignment = TextAlignmentOptions.Center;
-        addText.fontSize = 18;
+        addText.fontSize = BasicData.Int("editor.TrainBarSceneSetup.GameObject.number1");
         addText.fontStyle = FontStyles.Bold;
-        addText.color = Color.white;
-        addText.text = "기차 화물칸 추가\n$50";
+        addText.color = Presentation.PuzzleUnmodifiedTint;
+        addText.text = Presentation.PuzzleAddWagonLabel(TableManager.Instance.PuzzleTrade.wagonAddCostBase);
 
         // 3. Wagon Slots Pool
         var slotsProp = serializedView.FindProperty("wagonSlots");
-        slotsProp.arraySize = POOL_SIZE;
+        slotsProp.arraySize = PoolSize;
 
-        for (int i = 0; i < POOL_SIZE; i++)
+        for (int i = 0; i < PoolSize; i++)
         {
             var slotObj = new GameObject($"WagonSlot_{i}", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Button));
             slotObj.transform.SetParent(root.transform, false);
 
             var slotRect = slotObj.GetComponent<RectTransform>();
-            slotRect.sizeDelta = new Vector2(150f, 60f);
+            slotRect.sizeDelta = new Vector2(BasicData.Float("editor.TrainBarSceneSetup.Vector2.number7"), BasicData.Float("editor.TrainBarSceneSetup.Vector2.number8"));
 
             var bgImg = slotObj.GetComponent<Image>();
-            bgImg.color = new Color(0f, 0f, 0f, 0.01f); // transparent raycast target
+            bgImg.color = Presentation.SharedColor("editor.TrainBarSceneSetup.Vector2.color2"); // transparent raycast target
 
             var slotBtn = slotObj.GetComponent<Button>();
 
@@ -143,7 +143,7 @@ public static class TrainBarSceneSetup
             var borderObj = new GameObject("HighlightBorder", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
             borderObj.transform.SetParent(slotObj.transform, false);
             var borderRect = borderObj.GetComponent<RectTransform>();
-            borderRect.sizeDelta = new Vector2(156f, 66f);
+            borderRect.sizeDelta = new Vector2(BasicData.Float("editor.TrainBarSceneSetup.Vector2.number9"), BasicData.Float("editor.TrainBarSceneSetup.Vector2.number10"));
             var borderImg = borderObj.GetComponent<Image>();
             borderImg.color = Presentation.PuzzleWagonSelectedBorder;
             borderImg.raycastTarget = false;
@@ -153,7 +153,7 @@ public static class TrainBarSceneSetup
             var imgObj = new GameObject("WagonImage", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
             imgObj.transform.SetParent(slotObj.transform, false);
             var imgRect = imgObj.GetComponent<RectTransform>();
-            imgRect.sizeDelta = new Vector2(150f, 60f);
+            imgRect.sizeDelta = new Vector2(BasicData.Float("editor.TrainBarSceneSetup.Vector2.number11"), BasicData.Float("editor.TrainBarSceneSetup.Vector2.number12"));
             var wagonImg = imgObj.GetComponent<Image>();
             wagonImg.sprite = _wagonSprite;
             wagonImg.preserveAspect = true;
@@ -163,8 +163,8 @@ public static class TrainBarSceneSetup
             var numObj = new GameObject("NumberText", typeof(RectTransform), typeof(CanvasRenderer), typeof(TextMeshProUGUI));
             numObj.transform.SetParent(slotObj.transform, false);
             var numRect = numObj.GetComponent<RectTransform>();
-            numRect.sizeDelta = new Vector2(60f, 40f);
-            numRect.anchoredPosition = new Vector2(0f, 8f); // 약간 위쪽 목재 벽 중앙
+            numRect.sizeDelta = new Vector2(BasicData.Float("editor.TrainBarSceneSetup.Vector2.number13"), BasicData.Float("editor.TrainBarSceneSetup.Vector2.number14"));
+            numRect.anchoredPosition = new Vector2(0f, BasicData.Float("editor.TrainBarSceneSetup.Vector2.number15")); // 약간 위쪽 목재 벽 중앙
 
             var numText = numObj.GetComponent<TextMeshProUGUI>();
             if (_fontAsset)
@@ -172,11 +172,11 @@ public static class TrainBarSceneSetup
                 numText.font = _fontAsset;
             }
             numText.alignment = TextAlignmentOptions.Center;
-            numText.fontSize = 28;
+            numText.fontSize = BasicData.Int("editor.TrainBarSceneSetup.Vector2.number16");
             numText.fontStyle = FontStyles.Bold;
-            numText.color = Color.white;
-            numText.outlineColor = Color.black;
-            numText.outlineWidth = 0.25f;
+            numText.color = Presentation.PuzzleUnmodifiedTint;
+            numText.outlineColor = Presentation.PuzzleTextOutline;
+            numText.outlineWidth = BasicData.Float("editor.TrainBarSceneSetup.Vector2.number17");
             numText.text = (i + 1).ToString();
             numText.raycastTarget = false;
 
@@ -196,11 +196,9 @@ public static class TrainBarSceneSetup
         serializedView.FindProperty("addWagonRect").objectReferenceValue = addBtnRect;
         serializedView.FindProperty("addWagonBox").objectReferenceValue = addBtnImg;
         serializedView.FindProperty("addWagonText").objectReferenceValue = addText;
-        serializedView.FindProperty("originX").floatValue = 400f;
-        serializedView.FindProperty("originY").floatValue = 0f;
 
         serializedView.ApplyModifiedProperties();
-        SetLayerRecursively(root, 5);
+        SetLayerRecursively(root, BasicData.Int("editor.TrainBarSceneSetup.Vector2.number19"));
         return root;
     }
 

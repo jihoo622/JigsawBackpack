@@ -16,11 +16,11 @@ public static class RailMapLayoutTool
     const string LAYOUT_PATH = "Docs/Management/rail_map_layout_seed_20265146.json";
     const string MENU = "Tools/MyJG/Apply Rail Map Layout (seed 20265146)";
     const string TRACK_PARENT_NAME = "SubwayMapTracks";
-    const float BACKBONE_THICKNESS = 7f;
-    const float SIDE_THICKNESS = 5f;
-    const float LABEL_NODE_CLEARANCE = 60f;
-    const float LABEL_NUDGE = 34f;
-    const float ENDPOINT_TOLERANCE = 2f;
+    static float BackboneThickness => BasicData.Float("editor.RailMapLayoutTool.Backbonethickness");
+    static float SideThickness => BasicData.Float("editor.RailMapLayoutTool.Sidethickness");
+    static float LabelNodeClearance => BasicData.Float("editor.RailMapLayoutTool.Labelnodeclearance");
+    static float LabelNudge => BasicData.Float("editor.RailMapLayoutTool.Labelnudge");
+    static float EndpointTolerance => BasicData.Float("editor.RailMapLayoutTool.Endpointtolerance");
     static readonly string[] BACKBONE_CORRIDORS = {"trade_backbone", "express_backbone"};
 
     // JsonUtility가 리플렉션으로 값을 채우므로 컴파일러는 필드가 항상 기본값이라고 경고한다.
@@ -50,7 +50,6 @@ public static class RailMapLayoutTool
         public string toCityId;
         public string regionId;
         public string corridorType;
-        public int travelTimeWeight;
         public int distance;
         public int cost;
         public float labelX;
@@ -214,7 +213,7 @@ public static class RailMapLayoutTool
 
             var legCount = points.Length / 2 - 1;
             var backbone = Array.IndexOf(BACKBONE_CORRIDORS, rail.corridorType) >= 0;
-            var thickness = backbone ? BACKBONE_THICKNESS : SIDE_THICKNESS;
+            var thickness = backbone ? BackboneThickness : SideThickness;
 
             for (var leg = 1; leg <= legCount; leg++)
             {
@@ -400,7 +399,8 @@ public static class RailMapLayoutTool
                 var text = label.objectReferenceValue as Text;
                 if (text != null)
                 {
-                    text.text = Presentation.PuzzleMapTime(PuzzleTimeManager.TravelHours(rail.travelTimeWeight));
+                    var route = new PuzzleRouteData { points = rail.points };
+                    text.text = Presentation.PuzzleMapTime(PuzzleTimeManager.TravelMinutes(route, TableManager.Instance.PuzzleTime));
                     text.color = Presentation.PuzzleHeading;
                 }
                 if (!label.objectReferenceValue)
@@ -453,7 +453,7 @@ public static class RailMapLayoutTool
         var tail = new Vector2(_rail.points[_rail.points.Length - 2], _rail.points[_rail.points.Length - 1]);
         var fromPos = new Vector2(_from.x, _from.y);
         var toPos = new Vector2(_to.x, _to.y);
-        if (Vector2.Distance(head, fromPos) > ENDPOINT_TOLERANCE || Vector2.Distance(tail, toPos) > ENDPOINT_TOLERANCE)
+        if (Vector2.Distance(head, fromPos) > EndpointTolerance || Vector2.Distance(tail, toPos) > EndpointTolerance)
         {
             Debug.LogWarning($"[RailMap] {_rail.sourceId}의 폴리라인 끝이 노드 좌표와 어긋납니다. head={head} from={fromPos} tail={tail} to={toPos}");
         }
@@ -474,17 +474,17 @@ public static class RailMapLayoutTool
             }
         }
 
-        if (nearest == null || best >= LABEL_NODE_CLEARANCE)
+        if (nearest == null || best >= LabelNodeClearance)
         {
             return false;
         }
 
         var away = _label - nearest.Value;
-        if (away.sqrMagnitude < 0.001f)
+        if (away.sqrMagnitude < BasicData.Float("editor.RailMapLayoutTool.Vector2.number1"))
         {
             away = Vector2.up;
         }
-        _nudged = nearest.Value + away.normalized * LABEL_NUDGE;
+        _nudged = nearest.Value + away.normalized * LabelNudge;
         return true;
     }
 

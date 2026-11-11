@@ -1,5 +1,28 @@
 using System;
 
+[Serializable]
+public sealed class BasicNumberData
+{
+    public string id, source;
+    public double value = double.NaN;
+    public bool whole;
+    public bool positive;
+}
+
+[Serializable]
+public sealed class BasicTextData
+{
+    public string id, value, source;
+    public int arguments;
+}
+
+[Serializable]
+public sealed class BasicColorData
+{
+    public string id, source;
+    public float r = -1f, g = -1f, b = -1f, a = -1f;
+}
+
 // 순수 직렬화 항목. 수치는 JSON에 두고 이 파일에는 필드만 둔다.
 // 검증 규칙이나 조회 로직을 여기 넣지 않는다(GameTableRules / TableManager).
 
@@ -161,8 +184,8 @@ public sealed class PuzzleRouteData
 {
     public string fromCityId, toCityId;
     public int distance = -1;
-    /// <summary>노선 시간 가중치. 1은 8시간. 기존 노선은 미지정 시 임시로 1을 사용한다.</summary>
-    public int travelTimeWeight = 1;
+    // 고정 지도 좌표의 폴라인. x,y 쌍이며 화면 줌·요금용 distance와 무관하다.
+    public float[] points = Array.Empty<float>();
     public bool highSpeed;
     // 누락된 값이 0이라는 정상값으로 위장되지 않도록 하는 검증용 값이다.
     public long cost = -1;

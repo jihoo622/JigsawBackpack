@@ -1,0 +1,4533 @@
+{
+  "displayName": "기초데이터",
+  "status": "active",
+  "note": "Shared UI, presentation and authoring data. Domain values remain in domain tables. Missing keys or invalid values block initialization.",
+  "numbers": [
+    {
+      "id": "editor.MapPresentationTool.Pixelspertile",
+      "value": 12,
+      "whole": true,
+      "positive": true,
+      "source": "Assets/Scripts/Editor/Build/MapPresentationTool.cs:20"
+    },
+    {
+      "id": "editor.MapPresentationTool.Texture2D.number1",
+      "value": 0.28,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapPresentationTool.cs:37"
+    },
+    {
+      "id": "editor.MapPresentationTool.Texture2D.number2",
+      "value": 0.82,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapPresentationTool.cs:39"
+    },
+    {
+      "id": "editor.MapPresentationTool.Texture2D.number3",
+      "value": 0.42,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapPresentationTool.cs:39"
+    },
+    {
+      "id": "editor.MapPresentationTool.Texture2D.number4",
+      "value": 0.35,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapPresentationTool.cs:48"
+    },
+    {
+      "id": "editor.MapPresentationTool.Texture2D.number5",
+      "value": 0.15,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapPresentationTool.cs:48"
+    },
+    {
+      "id": "editor.MapPresentationTool.Vector2.number1",
+      "value": 48.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapPresentationTool.cs:97"
+    },
+    {
+      "id": "editor.MapPresentationTool.Vector2.number10",
+      "value": 76.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapPresentationTool.cs:126"
+    },
+    {
+      "id": "editor.MapPresentationTool.Vector2.number11",
+      "value": 76.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapPresentationTool.cs:126"
+    },
+    {
+      "id": "editor.MapPresentationTool.Vector2.number12",
+      "value": 58.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapPresentationTool.cs:133"
+    },
+    {
+      "id": "editor.MapPresentationTool.Vector2.number13",
+      "value": 190.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapPresentationTool.cs:133"
+    },
+    {
+      "id": "editor.MapPresentationTool.Vector2.number14",
+      "value": 30.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapPresentationTool.cs:133"
+    },
+    {
+      "id": "editor.MapPresentationTool.Vector2.number15",
+      "value": 20,
+      "whole": true,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapPresentationTool.cs:133"
+    },
+    {
+      "id": "editor.MapPresentationTool.Vector2.number16",
+      "value": 488.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapPresentationTool.cs:147"
+    },
+    {
+      "id": "editor.MapPresentationTool.Vector2.number17",
+      "value": 1344.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapPresentationTool.cs:147"
+    },
+    {
+      "id": "editor.MapPresentationTool.Vector2.number18",
+      "value": 48.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapPresentationTool.cs:147"
+    },
+    {
+      "id": "editor.MapPresentationTool.Vector2.number19",
+      "value": 816.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapPresentationTool.cs:148"
+    },
+    {
+      "id": "editor.MapPresentationTool.Vector2.number2",
+      "value": 228.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapPresentationTool.cs:97"
+    },
+    {
+      "id": "editor.MapPresentationTool.Vector2.number20",
+      "value": 488.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapPresentationTool.cs:148"
+    },
+    {
+      "id": "editor.MapPresentationTool.Vector2.number21",
+      "value": 192.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapPresentationTool.cs:148"
+    },
+    {
+      "id": "editor.MapPresentationTool.Vector2.number22",
+      "value": 48.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapPresentationTool.cs:148"
+    },
+    {
+      "id": "editor.MapPresentationTool.Vector2.number23",
+      "value": 366.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapPresentationTool.cs:149"
+    },
+    {
+      "id": "editor.MapPresentationTool.Vector2.number24",
+      "value": 1760.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapPresentationTool.cs:149"
+    },
+    {
+      "id": "editor.MapPresentationTool.Vector2.number25",
+      "value": 76.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapPresentationTool.cs:149"
+    },
+    {
+      "id": "editor.MapPresentationTool.Vector2.number26",
+      "value": 20,
+      "whole": true,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapPresentationTool.cs:150"
+    },
+    {
+      "id": "editor.MapPresentationTool.Vector2.number27",
+      "value": 426.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapPresentationTool.cs:151"
+    },
+    {
+      "id": "editor.MapPresentationTool.Vector2.number28",
+      "value": 1744.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapPresentationTool.cs:151"
+    },
+    {
+      "id": "editor.MapPresentationTool.Vector2.number29",
+      "value": 796.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapPresentationTool.cs:155"
+    },
+    {
+      "id": "editor.MapPresentationTool.Vector2.number3",
+      "value": 48.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapPresentationTool.cs:98"
+    },
+    {
+      "id": "editor.MapPresentationTool.Vector2.number30",
+      "value": 252.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapPresentationTool.cs:155"
+    },
+    {
+      "id": "editor.MapPresentationTool.Vector2.number31",
+      "value": 432.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapPresentationTool.cs:156"
+    },
+    {
+      "id": "editor.MapPresentationTool.Vector2.number32",
+      "value": 20.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapPresentationTool.cs:156"
+    },
+    {
+      "id": "editor.MapPresentationTool.Vector2.number33",
+      "value": 6.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapPresentationTool.cs:156"
+    },
+    {
+      "id": "editor.MapPresentationTool.Vector2.number34",
+      "value": 116.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapPresentationTool.cs:158"
+    },
+    {
+      "id": "editor.MapPresentationTool.Vector2.number35",
+      "value": 432.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapPresentationTool.cs:158"
+    },
+    {
+      "id": "editor.MapPresentationTool.Vector2.number36",
+      "value": 202.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapPresentationTool.cs:158"
+    },
+    {
+      "id": "editor.MapPresentationTool.Vector2.number37",
+      "value": 30.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapPresentationTool.cs:158"
+    },
+    {
+      "id": "editor.MapPresentationTool.Vector2.number38",
+      "value": 19,
+      "whole": true,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapPresentationTool.cs:159"
+    },
+    {
+      "id": "editor.MapPresentationTool.Vector2.number39",
+      "value": 48.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapPresentationTool.cs:165"
+    },
+    {
+      "id": "editor.MapPresentationTool.Vector2.number4",
+      "value": 228.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapPresentationTool.cs:98"
+    },
+    {
+      "id": "editor.MapPresentationTool.Vector2.number40",
+      "value": 48.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapPresentationTool.cs:166"
+    },
+    {
+      "id": "editor.MapPresentationTool.Vector2.number41",
+      "value": 7.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapPresentationTool.cs:178"
+    },
+    {
+      "id": "editor.MapPresentationTool.Vector2.number42",
+      "value": 7.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapPresentationTool.cs:179"
+    },
+    {
+      "id": "editor.MapPresentationTool.Vector2.number43",
+      "value": 12.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapPresentationTool.cs:180"
+    },
+    {
+      "id": "editor.MapPresentationTool.Vector2.number44",
+      "value": 108.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapPresentationTool.cs:180"
+    },
+    {
+      "id": "editor.MapPresentationTool.Vector2.number45",
+      "value": 44.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapPresentationTool.cs:181"
+    },
+    {
+      "id": "editor.MapPresentationTool.Vector2.number46",
+      "value": 30.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapPresentationTool.cs:181"
+    },
+    {
+      "id": "editor.MapPresentationTool.Vector2.number47",
+      "value": 7.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapPresentationTool.cs:183"
+    },
+    {
+      "id": "editor.MapPresentationTool.Vector2.number48",
+      "value": 18.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapPresentationTool.cs:184"
+    },
+    {
+      "id": "editor.MapPresentationTool.Vector2.number49",
+      "value": 108.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapPresentationTool.cs:184"
+    },
+    {
+      "id": "editor.MapPresentationTool.Vector2.number5",
+      "value": 1760.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapPresentationTool.cs:103"
+    },
+    {
+      "id": "editor.MapPresentationTool.Vector2.number50",
+      "value": 348.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapPresentationTool.cs:187"
+    },
+    {
+      "id": "editor.MapPresentationTool.Vector2.number51",
+      "value": 1744.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapPresentationTool.cs:187"
+    },
+    {
+      "id": "editor.MapPresentationTool.Vector2.number52",
+      "value": 52.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapPresentationTool.cs:187"
+    },
+    {
+      "id": "editor.MapPresentationTool.Vector2.number53",
+      "value": 294.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapPresentationTool.cs:188"
+    },
+    {
+      "id": "editor.MapPresentationTool.Vector2.number54",
+      "value": 64.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapPresentationTool.cs:188"
+    },
+    {
+      "id": "editor.MapPresentationTool.Vector2.number55",
+      "value": 0.65,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapPresentationTool.cs:189"
+    },
+    {
+      "id": "editor.MapPresentationTool.Vector2.number56",
+      "value": 206.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapPresentationTool.cs:189"
+    },
+    {
+      "id": "editor.MapPresentationTool.Vector2.number57",
+      "value": 100.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapPresentationTool.cs:189"
+    },
+    {
+      "id": "editor.MapPresentationTool.Vector2.number58",
+      "value": 48.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapPresentationTool.cs:189"
+    },
+    {
+      "id": "editor.MapPresentationTool.Vector2.number59",
+      "value": 22,
+      "whole": true,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapPresentationTool.cs:189"
+    },
+    {
+      "id": "editor.MapPresentationTool.Vector2.number6",
+      "value": 960.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapPresentationTool.cs:103"
+    },
+    {
+      "id": "editor.MapPresentationTool.Vector2.number60",
+      "value": 118.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapPresentationTool.cs:190"
+    },
+    {
+      "id": "editor.MapPresentationTool.Vector2.number61",
+      "value": 64.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapPresentationTool.cs:190"
+    },
+    {
+      "id": "editor.MapPresentationTool.Vector2.number62",
+      "value": 56.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapPresentationTool.cs:191"
+    },
+    {
+      "id": "editor.MapPresentationTool.Vector2.number63",
+      "value": 216.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapPresentationTool.cs:191"
+    },
+    {
+      "id": "editor.MapPresentationTool.Vector2.number64",
+      "value": 304.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapPresentationTool.cs:192"
+    },
+    {
+      "id": "editor.MapPresentationTool.Vector2.number65",
+      "value": 216.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapPresentationTool.cs:192"
+    },
+    {
+      "id": "editor.MapPresentationTool.Vector2.number66",
+      "value": 458.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapPresentationTool.cs:193"
+    },
+    {
+      "id": "editor.MapPresentationTool.Vector2.number67",
+      "value": 1744.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapPresentationTool.cs:193"
+    },
+    {
+      "id": "editor.MapPresentationTool.Vector2.number68",
+      "value": 116.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapPresentationTool.cs:193"
+    },
+    {
+      "id": "editor.MapPresentationTool.Vector2.number69",
+      "value": 18,
+      "whole": true,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapPresentationTool.cs:195"
+    },
+    {
+      "id": "editor.MapPresentationTool.Vector2.number7",
+      "value": 0.65,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapPresentationTool.cs:104"
+    },
+    {
+      "id": "editor.MapPresentationTool.Vector2.number70",
+      "value": 14,
+      "whole": true,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapPresentationTool.cs:197"
+    },
+    {
+      "id": "editor.MapPresentationTool.Vector2.number71",
+      "value": 20,
+      "whole": true,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapPresentationTool.cs:198"
+    },
+    {
+      "id": "editor.MapPresentationTool.Vector2.number72",
+      "value": 288.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapPresentationTool.cs:199"
+    },
+    {
+      "id": "editor.MapPresentationTool.Vector2.number73",
+      "value": 288.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapPresentationTool.cs:199"
+    },
+    {
+      "id": "editor.MapPresentationTool.Vector2.number74",
+      "value": 28.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapPresentationTool.cs:199"
+    },
+    {
+      "id": "editor.MapPresentationTool.Vector2.number75",
+      "value": 48.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapPresentationTool.cs:199"
+    },
+    {
+      "id": "editor.MapPresentationTool.Vector2.number76",
+      "value": 48.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapPresentationTool.cs:200"
+    },
+    {
+      "id": "editor.MapPresentationTool.Vector2.number77",
+      "value": 48.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapPresentationTool.cs:200"
+    },
+    {
+      "id": "editor.MapPresentationTool.Vector2.number78",
+      "value": 136.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapPresentationTool.cs:200"
+    },
+    {
+      "id": "editor.MapPresentationTool.Vector2.number79",
+      "value": 76.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapPresentationTool.cs:200"
+    },
+    {
+      "id": "editor.MapPresentationTool.Vector2.number8",
+      "value": 1570.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapPresentationTool.cs:106"
+    },
+    {
+      "id": "editor.MapPresentationTool.Vector2.number80",
+      "value": 144.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapPresentationTool.cs:203"
+    },
+    {
+      "id": "editor.MapPresentationTool.Vector2.number81",
+      "value": 52.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapPresentationTool.cs:203"
+    },
+    {
+      "id": "editor.MapPresentationTool.Vector2.number82",
+      "value": 192.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapPresentationTool.cs:211"
+    },
+    {
+      "id": "editor.MapPresentationTool.Vector2.number83",
+      "value": 96.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapPresentationTool.cs:212"
+    },
+    {
+      "id": "editor.MapPresentationTool.Vector2.number84",
+      "value": 52.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapPresentationTool.cs:212"
+    },
+    {
+      "id": "editor.MapPresentationTool.Vector2.number85",
+      "value": 82.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapPresentationTool.cs:215"
+    },
+    {
+      "id": "editor.MapPresentationTool.Vector2.number86",
+      "value": 96.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapPresentationTool.cs:216"
+    },
+    {
+      "id": "editor.MapPresentationTool.Vector2.number87",
+      "value": 116.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapPresentationTool.cs:216"
+    },
+    {
+      "id": "editor.MapPresentationTool.Vector2.number88",
+      "value": 48.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapPresentationTool.cs:297"
+    },
+    {
+      "id": "editor.MapPresentationTool.Vector2.number9",
+      "value": 820.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapPresentationTool.cs:106"
+    },
+    {
+      "id": "editor.MapTravelSetupTool.ApplyTo.number1",
+      "value": 100,
+      "whole": true,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapTravelSetupTool.cs:39"
+    },
+    {
+      "id": "editor.MapTravelSetupTool.Vector2.number1",
+      "value": 680.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapTravelSetupTool.cs:47"
+    },
+    {
+      "id": "editor.MapTravelSetupTool.Vector2.number10",
+      "value": 22,
+      "whole": true,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapTravelSetupTool.cs:49"
+    },
+    {
+      "id": "editor.MapTravelSetupTool.Vector2.number11",
+      "value": 150.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapTravelSetupTool.cs:50"
+    },
+    {
+      "id": "editor.MapTravelSetupTool.Vector2.number12",
+      "value": 138.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapTravelSetupTool.cs:50"
+    },
+    {
+      "id": "editor.MapTravelSetupTool.Vector2.number13",
+      "value": 150.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapTravelSetupTool.cs:51"
+    },
+    {
+      "id": "editor.MapTravelSetupTool.Vector2.number14",
+      "value": 138.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapTravelSetupTool.cs:51"
+    },
+    {
+      "id": "editor.MapTravelSetupTool.Vector2.number15",
+      "value": 720.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapTravelSetupTool.cs:56"
+    },
+    {
+      "id": "editor.MapTravelSetupTool.Vector2.number16",
+      "value": 340.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapTravelSetupTool.cs:56"
+    },
+    {
+      "id": "editor.MapTravelSetupTool.Vector2.number17",
+      "value": 114.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapTravelSetupTool.cs:57"
+    },
+    {
+      "id": "editor.MapTravelSetupTool.Vector2.number18",
+      "value": 624.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapTravelSetupTool.cs:57"
+    },
+    {
+      "id": "editor.MapTravelSetupTool.Vector2.number19",
+      "value": 48.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapTravelSetupTool.cs:57"
+    },
+    {
+      "id": "editor.MapTravelSetupTool.Vector2.number2",
+      "value": 392.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapTravelSetupTool.cs:47"
+    },
+    {
+      "id": "editor.MapTravelSetupTool.Vector2.number20",
+      "value": 28,
+      "whole": true,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapTravelSetupTool.cs:57"
+    },
+    {
+      "id": "editor.MapTravelSetupTool.Vector2.number21",
+      "value": 56.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapTravelSetupTool.cs:58"
+    },
+    {
+      "id": "editor.MapTravelSetupTool.Vector2.number22",
+      "value": 624.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapTravelSetupTool.cs:58"
+    },
+    {
+      "id": "editor.MapTravelSetupTool.Vector2.number23",
+      "value": 40.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapTravelSetupTool.cs:58"
+    },
+    {
+      "id": "editor.MapTravelSetupTool.Vector2.number24",
+      "value": 22,
+      "whole": true,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapTravelSetupTool.cs:58"
+    },
+    {
+      "id": "editor.MapTravelSetupTool.Vector2.number25",
+      "value": 12.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapTravelSetupTool.cs:59"
+    },
+    {
+      "id": "editor.MapTravelSetupTool.Vector2.number26",
+      "value": 520.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapTravelSetupTool.cs:59"
+    },
+    {
+      "id": "editor.MapTravelSetupTool.Vector2.number27",
+      "value": 6.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapTravelSetupTool.cs:59"
+    },
+    {
+      "id": "editor.MapTravelSetupTool.Vector2.number28",
+      "value": 11,
+      "whole": true,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapTravelSetupTool.cs:61"
+    },
+    {
+      "id": "editor.MapTravelSetupTool.Vector2.number29",
+      "value": 240.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapTravelSetupTool.cs:63"
+    },
+    {
+      "id": "editor.MapTravelSetupTool.Vector2.number3",
+      "value": 132.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapTravelSetupTool.cs:48"
+    },
+    {
+      "id": "editor.MapTravelSetupTool.Vector2.number30",
+      "value": 48.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapTravelSetupTool.cs:63"
+    },
+    {
+      "id": "editor.MapTravelSetupTool.Vector2.number31",
+      "value": 12.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapTravelSetupTool.cs:63"
+    },
+    {
+      "id": "editor.MapTravelSetupTool.Vector2.number32",
+      "value": 5.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapTravelSetupTool.cs:63"
+    },
+    {
+      "id": "editor.MapTravelSetupTool.Vector2.number33",
+      "value": 18.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapTravelSetupTool.cs:63"
+    },
+    {
+      "id": "editor.MapTravelSetupTool.Vector2.number34",
+      "value": 240.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapTravelSetupTool.cs:68"
+    },
+    {
+      "id": "editor.MapTravelSetupTool.Vector2.number35",
+      "value": 6.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapTravelSetupTool.cs:68"
+    },
+    {
+      "id": "editor.MapTravelSetupTool.Vector2.number36",
+      "value": 240.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapTravelSetupTool.cs:69"
+    },
+    {
+      "id": "editor.MapTravelSetupTool.Vector2.number37",
+      "value": 6.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapTravelSetupTool.cs:69"
+    },
+    {
+      "id": "editor.MapTravelSetupTool.Vector2.number38",
+      "value": 64.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapTravelSetupTool.cs:70"
+    },
+    {
+      "id": "editor.MapTravelSetupTool.Vector2.number39",
+      "value": 44.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapTravelSetupTool.cs:70"
+    },
+    {
+      "id": "editor.MapTravelSetupTool.Vector2.number4",
+      "value": 592.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapTravelSetupTool.cs:48"
+    },
+    {
+      "id": "editor.MapTravelSetupTool.Vector2.number40",
+      "value": 6.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapTravelSetupTool.cs:71"
+    },
+    {
+      "id": "editor.MapTravelSetupTool.Vector2.number41",
+      "value": 42.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapTravelSetupTool.cs:71"
+    },
+    {
+      "id": "editor.MapTravelSetupTool.Vector2.number42",
+      "value": 24.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapTravelSetupTool.cs:71"
+    },
+    {
+      "id": "editor.MapTravelSetupTool.Vector2.number43",
+      "value": 20.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapTravelSetupTool.cs:73"
+    },
+    {
+      "id": "editor.MapTravelSetupTool.Vector2.number44",
+      "value": 6.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapTravelSetupTool.cs:73"
+    },
+    {
+      "id": "editor.MapTravelSetupTool.Vector2.number45",
+      "value": 16.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapTravelSetupTool.cs:73"
+    },
+    {
+      "id": "editor.MapTravelSetupTool.Vector2.number46",
+      "value": 36.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapTravelSetupTool.cs:73"
+    },
+    {
+      "id": "editor.MapTravelSetupTool.Vector2.number47",
+      "value": 20.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapTravelSetupTool.cs:75"
+    },
+    {
+      "id": "editor.MapTravelSetupTool.Vector2.number48",
+      "value": 14.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapTravelSetupTool.cs:75"
+    },
+    {
+      "id": "editor.MapTravelSetupTool.Vector2.number49",
+      "value": 10.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapTravelSetupTool.cs:75"
+    },
+    {
+      "id": "editor.MapTravelSetupTool.Vector2.number5",
+      "value": 48.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapTravelSetupTool.cs:48"
+    },
+    {
+      "id": "editor.MapTravelSetupTool.Vector2.number50",
+      "value": 12.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapTravelSetupTool.cs:75"
+    },
+    {
+      "id": "editor.MapTravelSetupTool.Vector2.number51",
+      "value": 3,
+      "whole": true,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapTravelSetupTool.cs:78"
+    },
+    {
+      "id": "editor.MapTravelSetupTool.Vector2.number52",
+      "value": 22.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapTravelSetupTool.cs:80"
+    },
+    {
+      "id": "editor.MapTravelSetupTool.Vector2.number53",
+      "value": 20.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapTravelSetupTool.cs:80"
+    },
+    {
+      "id": "editor.MapTravelSetupTool.Vector2.number54",
+      "value": 15.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapTravelSetupTool.cs:80"
+    },
+    {
+      "id": "editor.MapTravelSetupTool.Vector2.number55",
+      "value": 12.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapTravelSetupTool.cs:80"
+    },
+    {
+      "id": "editor.MapTravelSetupTool.Vector2.number56",
+      "value": 12.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapTravelSetupTool.cs:80"
+    },
+    {
+      "id": "editor.MapTravelSetupTool.Vector2.number57",
+      "value": 72.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapTravelSetupTool.cs:85"
+    },
+    {
+      "id": "editor.MapTravelSetupTool.Vector2.number58",
+      "value": 480.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapTravelSetupTool.cs:85"
+    },
+    {
+      "id": "editor.MapTravelSetupTool.Vector2.number59",
+      "value": 10.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapTravelSetupTool.cs:85"
+    },
+    {
+      "id": "editor.MapTravelSetupTool.Vector2.number6",
+      "value": 30,
+      "whole": true,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapTravelSetupTool.cs:48"
+    },
+    {
+      "id": "editor.MapTravelSetupTool.Vector2.number60",
+      "value": 114.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapTravelSetupTool.cs:105"
+    },
+    {
+      "id": "editor.MapTravelSetupTool.Vector2.number61",
+      "value": 240.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapTravelSetupTool.cs:105"
+    },
+    {
+      "id": "editor.MapTravelSetupTool.Vector2.number62",
+      "value": 36.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapTravelSetupTool.cs:105"
+    },
+    {
+      "id": "editor.MapTravelSetupTool.Vector2.number63",
+      "value": 20,
+      "whole": true,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapTravelSetupTool.cs:105"
+    },
+    {
+      "id": "editor.MapTravelSetupTool.Vector2.number64",
+      "value": 248.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapTravelSetupTool.cs:157"
+    },
+    {
+      "id": "editor.MapTravelSetupTool.Vector2.number65",
+      "value": 52.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapTravelSetupTool.cs:157"
+    },
+    {
+      "id": "editor.MapTravelSetupTool.Vector2.number7",
+      "value": 12.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapTravelSetupTool.cs:49"
+    },
+    {
+      "id": "editor.MapTravelSetupTool.Vector2.number8",
+      "value": 592.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapTravelSetupTool.cs:49"
+    },
+    {
+      "id": "editor.MapTravelSetupTool.Vector2.number9",
+      "value": 174.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/MapTravelSetupTool.cs:49"
+    },
+    {
+      "id": "editor.RailMapLayoutTool.Backbonethickness",
+      "value": 7.0,
+      "whole": false,
+      "positive": true,
+      "source": "Assets/Scripts/Editor/Build/RailMapLayoutTool.cs:19"
+    },
+    {
+      "id": "editor.RailMapLayoutTool.Endpointtolerance",
+      "value": 2.0,
+      "whole": false,
+      "positive": true,
+      "source": "Assets/Scripts/Editor/Build/RailMapLayoutTool.cs:23"
+    },
+    {
+      "id": "editor.RailMapLayoutTool.Labelnodeclearance",
+      "value": 60.0,
+      "whole": false,
+      "positive": true,
+      "source": "Assets/Scripts/Editor/Build/RailMapLayoutTool.cs:21"
+    },
+    {
+      "id": "editor.RailMapLayoutTool.Labelnudge",
+      "value": 34.0,
+      "whole": false,
+      "positive": true,
+      "source": "Assets/Scripts/Editor/Build/RailMapLayoutTool.cs:22"
+    },
+    {
+      "id": "editor.RailMapLayoutTool.Sidethickness",
+      "value": 5.0,
+      "whole": false,
+      "positive": true,
+      "source": "Assets/Scripts/Editor/Build/RailMapLayoutTool.cs:20"
+    },
+    {
+      "id": "editor.RailMapLayoutTool.Vector2.number1",
+      "value": 0.001,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/RailMapLayoutTool.cs:483"
+    },
+    {
+      "id": "editor.StationActionsSetupTool.Button.number1",
+      "value": 24.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:224"
+    },
+    {
+      "id": "editor.StationActionsSetupTool.Vector2.number1",
+      "value": 380.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:53"
+    },
+    {
+      "id": "editor.StationActionsSetupTool.Vector2.number10",
+      "value": 28.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:56"
+    },
+    {
+      "id": "editor.StationActionsSetupTool.Vector2.number11",
+      "value": 230.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:57"
+    },
+    {
+      "id": "editor.StationActionsSetupTool.Vector2.number12",
+      "value": 310.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:57"
+    },
+    {
+      "id": "editor.StationActionsSetupTool.Vector2.number13",
+      "value": 190.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:57"
+    },
+    {
+      "id": "editor.StationActionsSetupTool.Vector2.number14",
+      "value": 44.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:57"
+    },
+    {
+      "id": "editor.StationActionsSetupTool.Vector2.number15",
+      "value": 10.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:58"
+    },
+    {
+      "id": "editor.StationActionsSetupTool.Vector2.number16",
+      "value": 660.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:58"
+    },
+    {
+      "id": "editor.StationActionsSetupTool.Vector2.number17",
+      "value": 560.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:58"
+    },
+    {
+      "id": "editor.StationActionsSetupTool.Vector2.number18",
+      "value": 205.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:59"
+    },
+    {
+      "id": "editor.StationActionsSetupTool.Vector2.number19",
+      "value": 600.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:59"
+    },
+    {
+      "id": "editor.StationActionsSetupTool.Vector2.number2",
+      "value": 700.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:53"
+    },
+    {
+      "id": "editor.StationActionsSetupTool.Vector2.number20",
+      "value": 88.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:59"
+    },
+    {
+      "id": "editor.StationActionsSetupTool.Vector2.number21",
+      "value": 95.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:60"
+    },
+    {
+      "id": "editor.StationActionsSetupTool.Vector2.number22",
+      "value": 600.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:60"
+    },
+    {
+      "id": "editor.StationActionsSetupTool.Vector2.number23",
+      "value": 88.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:60"
+    },
+    {
+      "id": "editor.StationActionsSetupTool.Vector2.number24",
+      "value": 15.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:64"
+    },
+    {
+      "id": "editor.StationActionsSetupTool.Vector2.number25",
+      "value": 600.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:64"
+    },
+    {
+      "id": "editor.StationActionsSetupTool.Vector2.number26",
+      "value": 88.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:64"
+    },
+    {
+      "id": "editor.StationActionsSetupTool.Vector2.number27",
+      "value": 125.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:65"
+    },
+    {
+      "id": "editor.StationActionsSetupTool.Vector2.number28",
+      "value": 600.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:65"
+    },
+    {
+      "id": "editor.StationActionsSetupTool.Vector2.number29",
+      "value": 88.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:65"
+    },
+    {
+      "id": "editor.StationActionsSetupTool.Vector2.number3",
+      "value": 692.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:53"
+    },
+    {
+      "id": "editor.StationActionsSetupTool.Vector2.number30",
+      "value": 32.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:66"
+    },
+    {
+      "id": "editor.StationActionsSetupTool.Vector2.number31",
+      "value": 640.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:66"
+    },
+    {
+      "id": "editor.StationActionsSetupTool.Vector2.number32",
+      "value": 580.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:66"
+    },
+    {
+      "id": "editor.StationActionsSetupTool.Vector2.number33",
+      "value": 32.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:68"
+    },
+    {
+      "id": "editor.StationActionsSetupTool.Vector2.number34",
+      "value": 640.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:68"
+    },
+    {
+      "id": "editor.StationActionsSetupTool.Vector2.number35",
+      "value": 580.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:68"
+    },
+    {
+      "id": "editor.StationActionsSetupTool.Vector2.number36",
+      "value": 120.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:69"
+    },
+    {
+      "id": "editor.StationActionsSetupTool.Vector2.number37",
+      "value": 500.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:69"
+    },
+    {
+      "id": "editor.StationActionsSetupTool.Vector2.number38",
+      "value": 60.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:69"
+    },
+    {
+      "id": "editor.StationActionsSetupTool.Vector2.number39",
+      "value": 30.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:73"
+    },
+    {
+      "id": "editor.StationActionsSetupTool.Vector2.number4",
+      "value": 700.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:54"
+    },
+    {
+      "id": "editor.StationActionsSetupTool.Vector2.number40",
+      "value": 500.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:74"
+    },
+    {
+      "id": "editor.StationActionsSetupTool.Vector2.number41",
+      "value": 60.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:74"
+    },
+    {
+      "id": "editor.StationActionsSetupTool.Vector2.number42",
+      "value": 100.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:75"
+    },
+    {
+      "id": "editor.StationActionsSetupTool.Vector2.number43",
+      "value": 560.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:75"
+    },
+    {
+      "id": "editor.StationActionsSetupTool.Vector2.number44",
+      "value": 120.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:75"
+    },
+    {
+      "id": "editor.StationActionsSetupTool.Vector2.number45",
+      "value": 20.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:75"
+    },
+    {
+      "id": "editor.StationActionsSetupTool.Vector2.number46",
+      "value": 32.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:77"
+    },
+    {
+      "id": "editor.StationActionsSetupTool.Vector2.number48",
+      "value": 380.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:95"
+    },
+    {
+      "id": "editor.StationActionsSetupTool.Vector2.number49",
+      "value": 430.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:95"
+    },
+    {
+      "id": "editor.StationActionsSetupTool.Vector2.number5",
+      "value": 692.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:54"
+    },
+    {
+      "id": "editor.StationActionsSetupTool.Vector2.number50",
+      "value": 700.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:96"
+    },
+    {
+      "id": "editor.StationActionsSetupTool.Vector2.number51",
+      "value": 80.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:96"
+    },
+    {
+      "id": "editor.StationActionsSetupTool.Vector2.number6",
+      "value": 70.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:56"
+    },
+    {
+      "id": "editor.StationActionsSetupTool.Vector2.number7",
+      "value": 310.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:56"
+    },
+    {
+      "id": "editor.StationActionsSetupTool.Vector2.number8",
+      "value": 400.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:56"
+    },
+    {
+      "id": "editor.StationActionsSetupTool.Vector2.number9",
+      "value": 48.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:56"
+    },
+    {
+      "id": "editor.TimePlanningSetupTool.Vector2.number1",
+      "value": 192.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/TimePlanningSetupTool.cs:37"
+    },
+    {
+      "id": "editor.TimePlanningSetupTool.Vector2.number10",
+      "value": 48.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/TimePlanningSetupTool.cs:39"
+    },
+    {
+      "id": "editor.TimePlanningSetupTool.Vector2.number11",
+      "value": 24,
+      "whole": true,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/TimePlanningSetupTool.cs:39"
+    },
+    {
+      "id": "editor.TimePlanningSetupTool.Vector2.number12",
+      "value": 250.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/TimePlanningSetupTool.cs:42"
+    },
+    {
+      "id": "editor.TimePlanningSetupTool.Vector2.number13",
+      "value": 44.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/TimePlanningSetupTool.cs:42"
+    },
+    {
+      "id": "editor.TimePlanningSetupTool.Vector2.number14",
+      "value": 300.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/TimePlanningSetupTool.cs:42"
+    },
+    {
+      "id": "editor.TimePlanningSetupTool.Vector2.number15",
+      "value": 48.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/TimePlanningSetupTool.cs:42"
+    },
+    {
+      "id": "editor.TimePlanningSetupTool.Vector2.number16",
+      "value": 28,
+      "whole": true,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/TimePlanningSetupTool.cs:42"
+    },
+    {
+      "id": "editor.TimePlanningSetupTool.Vector2.number17",
+      "value": 64.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/TimePlanningSetupTool.cs:43"
+    },
+    {
+      "id": "editor.TimePlanningSetupTool.Vector2.number18",
+      "value": 1740.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/TimePlanningSetupTool.cs:43"
+    },
+    {
+      "id": "editor.TimePlanningSetupTool.Vector2.number19",
+      "value": 34.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/TimePlanningSetupTool.cs:43"
+    },
+    {
+      "id": "editor.TimePlanningSetupTool.Vector2.number2",
+      "value": 680.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/TimePlanningSetupTool.cs:38"
+    },
+    {
+      "id": "editor.TimePlanningSetupTool.Vector2.number20",
+      "value": 20,
+      "whole": true,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/TimePlanningSetupTool.cs:43"
+    },
+    {
+      "id": "editor.TimePlanningSetupTool.Vector2.number21",
+      "value": 572.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/TimePlanningSetupTool.cs:44"
+    },
+    {
+      "id": "editor.TimePlanningSetupTool.Vector2.number22",
+      "value": 12.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/TimePlanningSetupTool.cs:44"
+    },
+    {
+      "id": "editor.TimePlanningSetupTool.Vector2.number23",
+      "value": 680.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/TimePlanningSetupTool.cs:44"
+    },
+    {
+      "id": "editor.TimePlanningSetupTool.Vector2.number24",
+      "value": 40.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/TimePlanningSetupTool.cs:44"
+    },
+    {
+      "id": "editor.TimePlanningSetupTool.Vector2.number25",
+      "value": 24.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/TimePlanningSetupTool.cs:48"
+    },
+    {
+      "id": "editor.TimePlanningSetupTool.Vector2.number26",
+      "value": 12.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/TimePlanningSetupTool.cs:48"
+    },
+    {
+      "id": "editor.TimePlanningSetupTool.Vector2.number27",
+      "value": 40.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/TimePlanningSetupTool.cs:48"
+    },
+    {
+      "id": "editor.TimePlanningSetupTool.Vector2.number28",
+      "value": 20.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/TimePlanningSetupTool.cs:54"
+    },
+    {
+      "id": "editor.TimePlanningSetupTool.Vector2.number3",
+      "value": 44.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/TimePlanningSetupTool.cs:38"
+    },
+    {
+      "id": "editor.TimePlanningSetupTool.Vector2.number4",
+      "value": 450.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/TimePlanningSetupTool.cs:38"
+    },
+    {
+      "id": "editor.TimePlanningSetupTool.Vector2.number5",
+      "value": 48.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/TimePlanningSetupTool.cs:38"
+    },
+    {
+      "id": "editor.TimePlanningSetupTool.Vector2.number6",
+      "value": 30,
+      "whole": true,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/TimePlanningSetupTool.cs:38"
+    },
+    {
+      "id": "editor.TimePlanningSetupTool.Vector2.number7",
+      "value": 220.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/TimePlanningSetupTool.cs:39"
+    },
+    {
+      "id": "editor.TimePlanningSetupTool.Vector2.number8",
+      "value": 44.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/TimePlanningSetupTool.cs:39"
+    },
+    {
+      "id": "editor.TimePlanningSetupTool.Vector2.number9",
+      "value": 500.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/TimePlanningSetupTool.cs:39"
+    },
+    {
+      "id": "editor.TooltipSceneSetup.Badgecount",
+      "value": 3,
+      "whole": true,
+      "positive": true,
+      "source": "Assets/Scripts/Editor/Build/TooltipSceneSetup.cs:263"
+    },
+    {
+      "id": "editor.TooltipSceneSetup.EnsureFontAsset.number1",
+      "value": 9,
+      "whole": true,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/TooltipSceneSetup.cs:46"
+    },
+    {
+      "id": "editor.TooltipSceneSetup.EnsureFontAsset.number2",
+      "value": 1024,
+      "whole": true,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/TooltipSceneSetup.cs:48"
+    },
+    {
+      "id": "editor.TooltipSceneSetup.EnsureFontAsset.number3",
+      "value": 1024,
+      "whole": true,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/TooltipSceneSetup.cs:48"
+    },
+    {
+      "id": "editor.TooltipSceneSetup.GameObject.number1",
+      "value": 6,
+      "whole": true,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/TooltipSceneSetup.cs:252"
+    },
+    {
+      "id": "editor.TooltipSceneSetup.GameObject.number2",
+      "value": 6,
+      "whole": true,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/TooltipSceneSetup.cs:325"
+    },
+    {
+      "id": "editor.TooltipSceneSetup.GameObject.number4",
+      "value": 18.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/TooltipSceneSetup.cs:427"
+    },
+    {
+      "id": "editor.TooltipSceneSetup.GameObject.number5",
+      "value": 18.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/TooltipSceneSetup.cs:429"
+    },
+    {
+      "id": "editor.TooltipSceneSetup.GameObject.number6",
+      "value": 24.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/TooltipSceneSetup.cs:430"
+    },
+    {
+      "id": "editor.TooltipSceneSetup.RectOffset.number1",
+      "value": 16,
+      "whole": true,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/TooltipSceneSetup.cs:233"
+    },
+    {
+      "id": "editor.TooltipSceneSetup.RectOffset.number10",
+      "value": 10,
+      "whole": true,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/TooltipSceneSetup.cs:290"
+    },
+    {
+      "id": "editor.TooltipSceneSetup.RectOffset.number11",
+      "value": 6,
+      "whole": true,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/TooltipSceneSetup.cs:306"
+    },
+    {
+      "id": "editor.TooltipSceneSetup.RectOffset.number12",
+      "value": 6,
+      "whole": true,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/TooltipSceneSetup.cs:307"
+    },
+    {
+      "id": "editor.TooltipSceneSetup.RectOffset.number13",
+      "value": 12,
+      "whole": true,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/TooltipSceneSetup.cs:400"
+    },
+    {
+      "id": "editor.TooltipSceneSetup.RectOffset.number14",
+      "value": 12,
+      "whole": true,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/TooltipSceneSetup.cs:400"
+    },
+    {
+      "id": "editor.TooltipSceneSetup.RectOffset.number2",
+      "value": 16,
+      "whole": true,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/TooltipSceneSetup.cs:233"
+    },
+    {
+      "id": "editor.TooltipSceneSetup.RectOffset.number3",
+      "value": 12,
+      "whole": true,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/TooltipSceneSetup.cs:233"
+    },
+    {
+      "id": "editor.TooltipSceneSetup.RectOffset.number4",
+      "value": 12,
+      "whole": true,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/TooltipSceneSetup.cs:233"
+    },
+    {
+      "id": "editor.TooltipSceneSetup.RectOffset.number5",
+      "value": 8,
+      "whole": true,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/TooltipSceneSetup.cs:234"
+    },
+    {
+      "id": "editor.TooltipSceneSetup.RectOffset.number6",
+      "value": 16,
+      "whole": true,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/TooltipSceneSetup.cs:289"
+    },
+    {
+      "id": "editor.TooltipSceneSetup.RectOffset.number7",
+      "value": 16,
+      "whole": true,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/TooltipSceneSetup.cs:289"
+    },
+    {
+      "id": "editor.TooltipSceneSetup.RectOffset.number8",
+      "value": 14,
+      "whole": true,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/TooltipSceneSetup.cs:289"
+    },
+    {
+      "id": "editor.TooltipSceneSetup.RectOffset.number9",
+      "value": 16,
+      "whole": true,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/TooltipSceneSetup.cs:289"
+    },
+    {
+      "id": "editor.TooltipSceneSetup.Vector2.number1",
+      "value": 300.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/TooltipSceneSetup.cs:200"
+    },
+    {
+      "id": "editor.TooltipSceneSetup.Vector2.number2",
+      "value": 200.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/TooltipSceneSetup.cs:200"
+    },
+    {
+      "id": "editor.TrainBarSceneSetup.GameObject.number1",
+      "value": 18,
+      "whole": true,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/TrainBarSceneSetup.cs:120"
+    },
+    {
+      "id": "editor.TrainBarSceneSetup.Poolsize",
+      "value": 8,
+      "whole": true,
+      "positive": true,
+      "source": "Assets/Scripts/Editor/Build/TrainBarSceneSetup.cs:15"
+    },
+    {
+      "id": "editor.TrainBarSceneSetup.Vector2.number1",
+      "value": 430.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/TrainBarSceneSetup.cs:83"
+    },
+    {
+      "id": "editor.TrainBarSceneSetup.Vector2.number10",
+      "value": 66.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/TrainBarSceneSetup.cs:146"
+    },
+    {
+      "id": "editor.TrainBarSceneSetup.Vector2.number11",
+      "value": 150.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/TrainBarSceneSetup.cs:156"
+    },
+    {
+      "id": "editor.TrainBarSceneSetup.Vector2.number12",
+      "value": 60.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/TrainBarSceneSetup.cs:156"
+    },
+    {
+      "id": "editor.TrainBarSceneSetup.Vector2.number13",
+      "value": 60.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/TrainBarSceneSetup.cs:166"
+    },
+    {
+      "id": "editor.TrainBarSceneSetup.Vector2.number14",
+      "value": 40.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/TrainBarSceneSetup.cs:166"
+    },
+    {
+      "id": "editor.TrainBarSceneSetup.Vector2.number15",
+      "value": 8.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/TrainBarSceneSetup.cs:167"
+    },
+    {
+      "id": "editor.TrainBarSceneSetup.Vector2.number16",
+      "value": 28,
+      "whole": true,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/TrainBarSceneSetup.cs:175"
+    },
+    {
+      "id": "editor.TrainBarSceneSetup.Vector2.number17",
+      "value": 0.25,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/TrainBarSceneSetup.cs:179"
+    },
+    {
+      "id": "editor.TrainBarSceneSetup.Vector2.number18",
+      "value": 400.0,
+      "whole": false,
+      "positive": false,
+      "source": "Presentation tag labels"
+    },
+    {
+      "id": "editor.TrainBarSceneSetup.Vector2.number19",
+      "value": 5,
+      "whole": true,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/TrainBarSceneSetup.cs:201"
+    },
+    {
+      "id": "editor.TrainBarSceneSetup.Vector2.number2",
+      "value": 1000.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/TrainBarSceneSetup.cs:84"
+    },
+    {
+      "id": "editor.TrainBarSceneSetup.Vector2.number3",
+      "value": 80.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/TrainBarSceneSetup.cs:84"
+    },
+    {
+      "id": "editor.TrainBarSceneSetup.Vector2.number4",
+      "value": 150.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/TrainBarSceneSetup.cs:94"
+    },
+    {
+      "id": "editor.TrainBarSceneSetup.Vector2.number5",
+      "value": 60.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/TrainBarSceneSetup.cs:94"
+    },
+    {
+      "id": "editor.TrainBarSceneSetup.Vector2.number6",
+      "value": 650.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/TrainBarSceneSetup.cs:95"
+    },
+    {
+      "id": "editor.TrainBarSceneSetup.Vector2.number7",
+      "value": 150.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/TrainBarSceneSetup.cs:135"
+    },
+    {
+      "id": "editor.TrainBarSceneSetup.Vector2.number8",
+      "value": 60.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/TrainBarSceneSetup.cs:135"
+    },
+    {
+      "id": "editor.TrainBarSceneSetup.Vector2.number9",
+      "value": 156.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/TrainBarSceneSetup.cs:146"
+    },
+    {
+      "id": "editor.map.cityInformationHeight",
+      "value": 180,
+      "whole": true,
+      "positive": true,
+      "source": "Assets/Scripts/Editor/Build/MapPresentationTool.cs:151"
+    },
+    {
+      "id": "editor.tooltip.badgeVerticalPadding",
+      "value": 4,
+      "whole": true,
+      "positive": true,
+      "source": "Assets/Scripts/Editor/Build/TooltipSceneSetup.cs:400"
+    },
+    {
+      "id": "editor.tooltip.dividerHeight",
+      "value": 2,
+      "whole": true,
+      "positive": true,
+      "source": "Assets/Scripts/Editor/Build/TooltipSceneSetup.cs:280"
+    },
+    {
+      "id": "editor.tooltip.fontSamplingSize",
+      "value": 90,
+      "whole": true,
+      "positive": true,
+      "source": "Assets/Scripts/Editor/Build/TooltipSceneSetup.cs:46"
+    },
+    {
+      "id": "editor.tooltip.synergySpacing",
+      "value": 4,
+      "whole": true,
+      "positive": true,
+      "source": "Assets/Scripts/Editor/Build/TooltipSceneSetup.cs:319"
+    },
+    {
+      "id": "layers.GameLayers.EnemyLayerNumber",
+      "value": 10,
+      "whole": true,
+      "positive": true,
+      "source": "Assets/Scripts/Runtime/Core/GameLayers.cs:9"
+    },
+    {
+      "id": "layers.GameLayers.GroundLayerNumber",
+      "value": 7,
+      "whole": true,
+      "positive": true,
+      "source": "Assets/Scripts/Runtime/Core/GameLayers.cs:6"
+    },
+    {
+      "id": "layers.GameLayers.ObstacleLayerNumber",
+      "value": 8,
+      "whole": true,
+      "positive": true,
+      "source": "Assets/Scripts/Runtime/Core/GameLayers.cs:7"
+    },
+    {
+      "id": "layers.GameLayers.PlayerLayerNumber",
+      "value": 9,
+      "whole": true,
+      "positive": true,
+      "source": "Assets/Scripts/Runtime/Core/GameLayers.cs:8"
+    },
+    {
+      "id": "layers.GameLayers.ProjectileLayerNumber",
+      "value": 13,
+      "whole": true,
+      "positive": true,
+      "source": "Assets/Scripts/Runtime/Core/GameLayers.cs:12"
+    },
+    {
+      "id": "layers.GameLayers.PropLayerNumber",
+      "value": 11,
+      "whole": true,
+      "positive": true,
+      "source": "Assets/Scripts/Runtime/Core/GameLayers.cs:10"
+    },
+    {
+      "id": "layers.GameLayers.WeaponLayerNumber",
+      "value": 12,
+      "whole": true,
+      "positive": true,
+      "source": "Assets/Scripts/Runtime/Core/GameLayers.cs:11"
+    },
+    {
+      "id": "presentation.GetTagSortWeight.number1",
+      "value": 3,
+      "whole": true,
+      "positive": false,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:557"
+    },
+    {
+      "id": "presentation.GetTagSortWeight.number10",
+      "value": 21,
+      "whole": true,
+      "positive": false,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:567"
+    },
+    {
+      "id": "presentation.GetTagSortWeight.number11",
+      "value": 22,
+      "whole": true,
+      "positive": false,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:568"
+    },
+    {
+      "id": "presentation.GetTagSortWeight.number12",
+      "value": 10,
+      "whole": true,
+      "positive": false,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:569"
+    },
+    {
+      "id": "presentation.GetTagSortWeight.number2",
+      "value": 5,
+      "whole": true,
+      "positive": false,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:559"
+    },
+    {
+      "id": "presentation.GetTagSortWeight.number3",
+      "value": 5,
+      "whole": true,
+      "positive": false,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:560"
+    },
+    {
+      "id": "presentation.GetTagSortWeight.number4",
+      "value": 5,
+      "whole": true,
+      "positive": false,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:561"
+    },
+    {
+      "id": "presentation.GetTagSortWeight.number5",
+      "value": 8,
+      "whole": true,
+      "positive": false,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:562"
+    },
+    {
+      "id": "presentation.GetTagSortWeight.number6",
+      "value": 6,
+      "whole": true,
+      "positive": false,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:563"
+    },
+    {
+      "id": "presentation.GetTagSortWeight.number7",
+      "value": 7,
+      "whole": true,
+      "positive": false,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:564"
+    },
+    {
+      "id": "presentation.GetTagSortWeight.number8",
+      "value": 11,
+      "whole": true,
+      "positive": false,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:565"
+    },
+    {
+      "id": "presentation.GetTagSortWeight.number9",
+      "value": 20,
+      "whole": true,
+      "positive": false,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:566"
+    },
+    {
+      "id": "presentation.PuzzleCityTagPreferences.number1",
+      "value": 100,
+      "whole": true,
+      "positive": false,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:485"
+    },
+    {
+      "id": "presentation.PuzzleCityTagPreferences.number2",
+      "value": 100,
+      "whole": true,
+      "positive": false,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:485"
+    },
+    {
+      "id": "presentation.PuzzleMapBadgeFontSize",
+      "value": 16,
+      "whole": true,
+      "positive": true,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:110"
+    },
+    {
+      "id": "presentation.PuzzleMapHaloSize",
+      "value": 56.0,
+      "whole": false,
+      "positive": true,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:109"
+    },
+    {
+      "id": "presentation.PuzzleMapStationFontSize.number1",
+      "value": 24,
+      "whole": true,
+      "positive": false,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:114"
+    },
+    {
+      "id": "presentation.PuzzleMapStationFontSize.number2",
+      "value": 0.8,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:114"
+    },
+    {
+      "id": "presentation.PuzzleMapStationFontSize.number3",
+      "value": 18,
+      "whole": true,
+      "positive": false,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:114"
+    },
+    {
+      "id": "presentation.PuzzleMapStationFontSize.number4",
+      "value": 22,
+      "whole": true,
+      "positive": false,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:114"
+    },
+    {
+      "id": "presentation.PuzzleMapTimeFontSize",
+      "value": 18,
+      "whole": true,
+      "positive": true,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:111"
+    },
+    {
+      "id": "presentation.PuzzleMapTrackThickness.number1",
+      "value": 0.65,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:119"
+    },
+    {
+      "id": "presentation.PuzzleMapZoom.number1",
+      "value": 100.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:129"
+    },
+    {
+      "id": "presentation.PuzzleMarketClosedAlpha.number1",
+      "value": 0.45,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:101"
+    },
+    {
+      "id": "presentation.PuzzleTravelProgress.number1",
+      "value": 100.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:84"
+    },
+    {
+      "id": "presentation.RateValueColor.number1",
+      "value": 100,
+      "whole": true,
+      "positive": false,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:355"
+    },
+    {
+      "id": "presentation.RateValueColor.number2",
+      "value": 100,
+      "whole": true,
+      "positive": false,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:359"
+    },
+    {
+      "id": "presentation.if.number1",
+      "value": 100,
+      "whole": true,
+      "positive": false,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:208"
+    },
+    {
+      "id": "presentation.if.number2",
+      "value": 100,
+      "whole": true,
+      "positive": false,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:208"
+    },
+    {
+      "id": "presentation.if.number3",
+      "value": 100,
+      "whole": true,
+      "positive": false,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:211"
+    },
+    {
+      "id": "presentation.if.number4",
+      "value": 100,
+      "whole": true,
+      "positive": false,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:211"
+    },
+    {
+      "id": "presentation.if.number5",
+      "value": 100,
+      "whole": true,
+      "positive": false,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:489"
+    },
+    {
+      "id": "presentation.if.number6",
+      "value": 100,
+      "whole": true,
+      "positive": false,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:489"
+    },
+    {
+      "id": "presentation.tagSort.machinery",
+      "value": 2,
+      "whole": true,
+      "positive": false,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:556"
+    },
+    {
+      "id": "presentation.tagSort.wood",
+      "value": 1,
+      "whole": true,
+      "positive": false,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:555"
+    },
+    {
+      "id": "rules.durability.maximum",
+      "value": 100,
+      "whole": true,
+      "positive": true,
+      "source": "Shared configuration"
+    },
+    {
+      "id": "rules.player.dashChargesMaximum",
+      "value": 10,
+      "whole": true,
+      "positive": true,
+      "source": "Shared configuration"
+    },
+    {
+      "id": "station.action.iconSize",
+      "value": 56,
+      "whole": true,
+      "positive": true,
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:136"
+    },
+    {
+      "id": "station.action.iconX",
+      "value": -245,
+      "whole": true,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:136"
+    },
+    {
+      "id": "station.market.boardHeight",
+      "value": 500,
+      "whole": true,
+      "positive": true,
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:83"
+    },
+    {
+      "id": "station.market.boardWidth",
+      "value": 700,
+      "whole": true,
+      "positive": true,
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:83"
+    },
+    {
+      "id": "station.market.boardY",
+      "value": -110,
+      "whole": true,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:82"
+    },
+    {
+      "id": "station.market.guideFontSize",
+      "value": 16,
+      "whole": true,
+      "positive": true,
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:92"
+    },
+    {
+      "id": "station.market.guideHeight",
+      "value": 32,
+      "whole": true,
+      "positive": true,
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:91"
+    },
+    {
+      "id": "station.market.guideWidth",
+      "value": 600,
+      "whole": true,
+      "positive": true,
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:91"
+    },
+    {
+      "id": "station.market.guideY",
+      "value": -290,
+      "whole": true,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:90"
+    },
+    {
+      "id": "station.market.valueFontSize",
+      "value": 24,
+      "whole": true,
+      "positive": true,
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:88"
+    },
+    {
+      "id": "station.market.valueHeight",
+      "value": 44,
+      "whole": true,
+      "positive": true,
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:87"
+    },
+    {
+      "id": "station.market.valueWidth",
+      "value": 680,
+      "whole": true,
+      "positive": true,
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:87"
+    },
+    {
+      "id": "station.market.valueY",
+      "value": 260,
+      "whole": true,
+      "positive": true,
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:86"
+    },
+    {
+      "id": "station.tavern.rumor.fontSize",
+      "value": 28,
+      "whole": true,
+      "positive": true,
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:165"
+    },
+    {
+      "id": "station.tavern.rumor.height",
+      "value": 250,
+      "whole": true,
+      "positive": true,
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs"
+    },
+    {
+      "id": "station.tavern.rumor.width",
+      "value": 580,
+      "whole": true,
+      "positive": true,
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs"
+    },
+    {
+      "id": "station.tavern.rumor.y",
+      "value": 20,
+      "whole": true,
+      "positive": true,
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs"
+    },
+    {
+      "id": "station.tavern.talk.height",
+      "value": 76,
+      "whole": true,
+      "positive": true,
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs"
+    },
+    {
+      "id": "station.tavern.talk.width",
+      "value": 480,
+      "whole": true,
+      "positive": true,
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs"
+    },
+    {
+      "id": "station.tavern.talk.y",
+      "value": -215,
+      "whole": true,
+      "positive": false,
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs"
+    },
+    {
+      "id": "station.tavern.title.fontSize",
+      "value": 30,
+      "whole": true,
+      "positive": true,
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs:164"
+    },
+    {
+      "id": "station.tavern.title.height",
+      "value": 56,
+      "whole": true,
+      "positive": true,
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs"
+    },
+    {
+      "id": "station.tavern.title.width",
+      "value": 600,
+      "whole": true,
+      "positive": true,
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs"
+    },
+    {
+      "id": "station.tavern.title.y",
+      "value": 210,
+      "whole": true,
+      "positive": true,
+      "source": "Assets/Scripts/Editor/Build/StationActionsSetupTool.cs"
+    },
+    {
+      "id": "station.wait.width",
+      "value": 360,
+      "whole": true,
+      "positive": true,
+      "source": "Assets/Scripts/Editor/Build/TimePlanningSetupTool.cs:48"
+    },
+    {
+      "id": "ui.PuzzleInventoryPresenter.WagonDragHoverDelay",
+      "value": 0.5,
+      "whole": false,
+      "positive": true,
+      "source": "Assets/Scripts/Runtime/UI/PuzzleInventoryPresenter.cs:7"
+    },
+    {
+      "id": "ui.PuzzleInventoryView.CellGap",
+      "value": 2.0,
+      "whole": false,
+      "positive": true,
+      "source": "Assets/Scripts/Runtime/UI/PuzzleInventoryView.cs:11"
+    },
+    {
+      "id": "ui.PuzzleInventoryView.InvalidOperationException.number1",
+      "value": 8,
+      "whole": true,
+      "positive": false,
+      "source": "Assets/Scripts/Runtime/UI/PuzzleInventoryView.cs:104"
+    },
+    {
+      "id": "ui.PuzzleInventoryView.RenderSynergies.number1",
+      "value": 0.08,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Runtime/UI/PuzzleInventoryView.cs:225"
+    },
+    {
+      "id": "ui.PuzzleInventoryView.RenderSynergies.number2",
+      "value": 0.2,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Runtime/UI/PuzzleInventoryView.cs:225"
+    },
+    {
+      "id": "ui.PuzzleInventoryView.Vector2.number1",
+      "value": 1.8,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Runtime/UI/PuzzleInventoryView.cs:232"
+    },
+    {
+      "id": "ui.PuzzleInventoryView.Vector2.number2",
+      "value": 0.55,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Runtime/UI/PuzzleInventoryView.cs:232"
+    },
+    {
+      "id": "ui.PuzzleItemTooltipView.BaseFontSize",
+      "value": 18.0,
+      "whole": false,
+      "positive": true,
+      "source": "Assets/Scripts/Runtime/UI/PuzzleItemTooltipView.cs:9"
+    },
+    {
+      "id": "ui.PuzzleItemTooltipView.DefaultFollowSpeed",
+      "value": 25.0,
+      "whole": false,
+      "positive": true,
+      "source": "Assets/Scripts/Runtime/UI/PuzzleItemTooltipView.cs:12"
+    },
+    {
+      "id": "ui.PuzzleItemTooltipView.MaxFontSize",
+      "value": 24.0,
+      "whole": false,
+      "positive": true,
+      "source": "Assets/Scripts/Runtime/UI/PuzzleItemTooltipView.cs:11"
+    },
+    {
+      "id": "ui.PuzzleItemTooltipView.MinFontSize",
+      "value": 18.0,
+      "whole": false,
+      "positive": true,
+      "source": "Assets/Scripts/Runtime/UI/PuzzleItemTooltipView.cs:10"
+    },
+    {
+      "id": "ui.PuzzleMapNavigation.FocusCurrent.number1",
+      "value": 1.2,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Runtime/UI/PuzzleMapNavigation.cs:126"
+    },
+    {
+      "id": "ui.PuzzleMapNavigation.MaxZoom",
+      "value": 2.5,
+      "whole": false,
+      "positive": true,
+      "source": "Assets/Scripts/Runtime/UI/PuzzleMapNavigation.cs:10"
+    },
+    {
+      "id": "ui.PuzzleMapNavigation.MinZoom",
+      "value": 0.35,
+      "whole": false,
+      "positive": true,
+      "source": "Assets/Scripts/Runtime/UI/PuzzleMapNavigation.cs:9"
+    },
+    {
+      "id": "ui.PuzzleMapNavigation.ZoomStep",
+      "value": 1.2,
+      "whole": false,
+      "positive": true,
+      "source": "Assets/Scripts/Runtime/UI/PuzzleMapNavigation.cs:11"
+    },
+    {
+      "id": "ui.PuzzleMapNodeView.MarkerRadius.number1",
+      "value": 28.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Runtime/UI/PuzzleMapNodeView.cs:57"
+    },
+    {
+      "id": "ui.PuzzleMapNodeView.MarkerRadius.number2",
+      "value": 16.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Runtime/UI/PuzzleMapNodeView.cs:57"
+    },
+    {
+      "id": "ui.PuzzleMapNodeView.PrepareLayout.number1",
+      "value": 44.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Runtime/UI/PuzzleMapNodeView.cs:35"
+    },
+    {
+      "id": "ui.PuzzleMapNodeView.PrepareLayout.number2",
+      "value": 12.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Runtime/UI/PuzzleMapNodeView.cs:41"
+    },
+    {
+      "id": "ui.PuzzleMapNodeView.Show.number1",
+      "value": 1.5,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Runtime/UI/PuzzleMapNodeView.cs:87"
+    },
+    {
+      "id": "ui.PuzzleMapNodeView.Vector2.number1",
+      "value": 28.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Runtime/UI/PuzzleMapNodeView.cs:42"
+    },
+    {
+      "id": "ui.PuzzleMapNodeView.Vector2.number2",
+      "value": 12.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Runtime/UI/PuzzleMapNodeView.cs:47"
+    },
+    {
+      "id": "ui.PuzzleMapNodeView.Vector2.number3",
+      "value": 160.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Runtime/UI/PuzzleMapNodeView.cs:48"
+    },
+    {
+      "id": "ui.PuzzleMapNodeView.Vector2.number4",
+      "value": 24.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Runtime/UI/PuzzleMapNodeView.cs:48"
+    },
+    {
+      "id": "ui.PuzzleMapNodeView.Vector2.number5",
+      "value": 160.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Runtime/UI/PuzzleMapNodeView.cs:49"
+    },
+    {
+      "id": "ui.PuzzleMapNodeView.Vector2.number6",
+      "value": 54.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Runtime/UI/PuzzleMapNodeView.cs:49"
+    },
+    {
+      "id": "ui.PuzzleMapNodeView.Vector2.number7",
+      "value": 28.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Runtime/UI/PuzzleMapNodeView.cs:49"
+    },
+    {
+      "id": "ui.PuzzleMapNodeView.Vector2.number8",
+      "value": 13.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Runtime/UI/PuzzleMapNodeView.cs:63"
+    },
+    {
+      "id": "ui.PuzzleMapNodeView.Vector2.number9",
+      "value": 26.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Runtime/UI/PuzzleMapNodeView.cs:65"
+    },
+    {
+      "id": "ui.PuzzleMapView.LabelGap",
+      "value": 6.0,
+      "whole": false,
+      "positive": true,
+      "source": "Assets/Scripts/Runtime/UI/PuzzleMapView.cs:51"
+    },
+    {
+      "id": "ui.PuzzleMapView.RoutePriority.number1",
+      "value": 3,
+      "whole": true,
+      "positive": false,
+      "source": "Assets/Scripts/Runtime/UI/PuzzleMapView.cs:212"
+    },
+    {
+      "id": "ui.PuzzleMapView.UpdateMapLayout.number1",
+      "value": 8.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Runtime/UI/PuzzleMapView.cs:110"
+    },
+    {
+      "id": "ui.PuzzleMapView.UpdateMapLayout.number2",
+      "value": 8.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Runtime/UI/PuzzleMapView.cs:110"
+    },
+    {
+      "id": "ui.PuzzleMapView.UpdateMapLayout.number3",
+      "value": 8.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Runtime/UI/PuzzleMapView.cs:110"
+    },
+    {
+      "id": "ui.PuzzleMapView.UpdateMapLayout.number4",
+      "value": 8.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Runtime/UI/PuzzleMapView.cs:110"
+    },
+    {
+      "id": "ui.PuzzleMapView.UpdateMapLayout.number5",
+      "value": 3,
+      "whole": true,
+      "positive": false,
+      "source": "Assets/Scripts/Runtime/UI/PuzzleMapView.cs:141"
+    },
+    {
+      "id": "ui.PuzzleMapView.Vector2.number1",
+      "value": 24.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Runtime/UI/PuzzleMapView.cs:59"
+    },
+    {
+      "id": "ui.PuzzleMapView.Vector2.number2",
+      "value": 24.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Runtime/UI/PuzzleMapView.cs:59"
+    },
+    {
+      "id": "ui.PuzzleMapView.Vector2.number3",
+      "value": 28.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Runtime/UI/PuzzleMapView.cs:59"
+    },
+    {
+      "id": "ui.PuzzleMapView.Vector2.number4",
+      "value": 28.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Runtime/UI/PuzzleMapView.cs:59"
+    },
+    {
+      "id": "ui.PuzzleMapView.Vector2.number5",
+      "value": 16.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Runtime/UI/PuzzleMapView.cs:178"
+    },
+    {
+      "id": "ui.PuzzleMapView.Vector2.number6",
+      "value": 28.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Runtime/UI/PuzzleMapView.cs:178"
+    },
+    {
+      "id": "ui.PuzzleMapView.Vector2.number7",
+      "value": 0.85,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Runtime/UI/PuzzleMapView.cs:186"
+    },
+    {
+      "id": "ui.PuzzleTrainBarView.OriginX",
+      "value": 0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Runtime/UI/PuzzleTrainBarView.cs:34"
+    },
+    {
+      "id": "ui.PuzzleTrainBarView.OriginY",
+      "value": 0.0,
+      "whole": false,
+      "positive": false,
+      "source": "Assets/Scripts/Runtime/UI/PuzzleTrainBarView.cs:35"
+    },
+    {
+      "id": "ui.PuzzleTrainBarView.WagonDragHoverScale",
+      "value": 1.08,
+      "whole": false,
+      "positive": true,
+      "source": "Assets/Scripts/Runtime/UI/PuzzleTrainBarView.cs:12"
+    },
+    {
+      "id": "ui.PuzzleTrainBarView.WagonHeight",
+      "value": 60.0,
+      "whole": false,
+      "positive": true,
+      "source": "Assets/Scripts/Runtime/UI/PuzzleTrainBarView.cs:10"
+    },
+    {
+      "id": "ui.PuzzleTrainBarView.WagonSpacing",
+      "value": 50.0,
+      "whole": false,
+      "positive": true,
+      "source": "Assets/Scripts/Runtime/UI/PuzzleTrainBarView.cs:11"
+    },
+    {
+      "id": "ui.PuzzleTrainBarView.WagonWidth",
+      "value": 150.0,
+      "whole": false,
+      "positive": true,
+      "source": "Assets/Scripts/Runtime/UI/PuzzleTrainBarView.cs:9"
+    }
+  ],
+  "texts": [
+    {
+      "id": "presentation.Accent.text1",
+      "value": "<color={0}>{1}</color>",
+      "arguments": 2,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:729"
+    },
+    {
+      "id": "presentation.Card.text1",
+      "value": "{0}\n{1}\n{2}",
+      "arguments": 3,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:751"
+    },
+    {
+      "id": "presentation.Card.text2",
+      "value": "유효하지 않은 항목",
+      "arguments": 0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:749"
+    },
+    {
+      "id": "presentation.Dim.text1",
+      "value": "<color={0}>{1}</color>",
+      "arguments": 2,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:733"
+    },
+    {
+      "id": "presentation.DimTag",
+      "value": "#AEB6C2",
+      "arguments": 0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:726"
+    },
+    {
+      "id": "presentation.Heading.text1",
+      "value": "<size=135%><b><color={0}>{1}</color></b></size>",
+      "arguments": 2,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:737"
+    },
+    {
+      "id": "presentation.Name.text1",
+      "value": "비어 있음",
+      "arguments": 0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:707"
+    },
+    {
+      "id": "presentation.PuzzleAddWagonLabel.text1",
+      "value": "기차 화물칸 추가\n${0}",
+      "arguments": 1,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:297"
+    },
+    {
+      "id": "presentation.PuzzleCityTagPreferences.text1",
+      "value": "<color=#{0}><b>흔한 자원</b></color>   {1}\n",
+      "arguments": 2,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:499"
+    },
+    {
+      "id": "presentation.PuzzleCityTagPreferences.text2",
+      "value": "<color=#{0}><b>귀한 자원</b></color>   {1}",
+      "arguments": 2,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:500"
+    },
+    {
+      "id": "presentation.PuzzleCityTagPreferences.text3",
+      "value": "없음",
+      "arguments": 0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:499"
+    },
+    {
+      "id": "presentation.PuzzleCityTagPreferences.text4",
+      "value": "없음",
+      "arguments": 0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:500"
+    },
+    {
+      "id": "presentation.PuzzleCityTitle.text1",
+      "value": "{0} · {1}",
+      "arguments": 2,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:282"
+    },
+    {
+      "id": "presentation.PuzzleClearButton.text1",
+      "value": "게임 클리어  {0:N0}$",
+      "arguments": 1,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:577"
+    },
+    {
+      "id": "presentation.PuzzleClearSummary.text1",
+      "value": "남은 자금 {0:N0}$",
+      "arguments": 1,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:582"
+    },
+    {
+      "id": "presentation.PuzzleClearTitle",
+      "value": "게임 완료",
+      "arguments": 0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:573"
+    },
+    {
+      "id": "presentation.PuzzleFunds.text1",
+      "value": "보유 자금 {0:N0}",
+      "arguments": 1,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:470"
+    },
+    {
+      "id": "presentation.PuzzleItemDetails.text1",
+      "value": "{0}    {1}    실제 가치 {2:#,0.##}\n{3}",
+      "arguments": 4,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:447"
+    },
+    {
+      "id": "presentation.PuzzleItemDetails.text2",
+      "value": "{0}\n인접 시너지 없음",
+      "arguments": 1,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:454"
+    },
+    {
+      "id": "presentation.PuzzleItemDetails.text3",
+      "value": "{0} {1:+#,0.##;-#,0.##;0}% ({2:+#,0.##;-#,0.##;0})",
+      "arguments": 3,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:458"
+    },
+    {
+      "id": "presentation.PuzzleItemDetails.text4",
+      "value": "{0}\n인접 시너지\n{1}",
+      "arguments": 2,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:459"
+    },
+    {
+      "id": "presentation.PuzzleMapClose",
+      "value": "닫기",
+      "arguments": 0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:50"
+    },
+    {
+      "id": "presentation.PuzzleMapCurrent",
+      "value": "▼ 현재 위치",
+      "arguments": 0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:51"
+    },
+    {
+      "id": "presentation.PuzzleMapCurrentAndTarget",
+      "value": "▼ 현재 위치 · 목표",
+      "arguments": 0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:53"
+    },
+    {
+      "id": "presentation.PuzzleMapFit",
+      "value": "전체 보기",
+      "arguments": 0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:86"
+    },
+    {
+      "id": "presentation.PuzzleMapGuide",
+      "value": "역 클릭: 이동 · 휠: 확대/축소 · 드래그: 지도 이동 · 색 노선: 지역 내부 · 흰 노선: 지역 간",
+      "arguments": 0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:131"
+    },
+    {
+      "id": "presentation.PuzzleMapGuide.text1",
+      "value": "{0}\n숫자: 거리 비례 소요 시간 · ★: 상환 예정지 · 경과 {1}",
+      "arguments": 2,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:156"
+    },
+    {
+      "id": "presentation.PuzzleMapHint",
+      "value": "마을을 가리켜 거리·비용과 수집한 교역 정보를 확인하세요.",
+      "arguments": 0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:132"
+    },
+    {
+      "id": "presentation.PuzzleMapInformation.text1",
+      "value": "<size=28><b>{0}</b></size>",
+      "arguments": 1,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:175"
+    },
+    {
+      "id": "presentation.PuzzleMapInformation.text10",
+      "value": "<color=#{0}><b>귀한 자원</b></color>   {1}",
+      "arguments": 2,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:217"
+    },
+    {
+      "id": "presentation.PuzzleMapInformation.text11",
+      "value": "{0}  {1}\n{2}",
+      "arguments": 3,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:220"
+    },
+    {
+      "id": "presentation.PuzzleMapInformation.text12",
+      "value": "<size=20>미방문 · 정보 미수집</size>\n\n직접 방문하면 교역 정보가 기록됩니다.",
+      "arguments": 0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:202"
+    },
+    {
+      "id": "presentation.PuzzleMapInformation.text13",
+      "value": "집산품",
+      "arguments": 0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:215"
+    },
+    {
+      "id": "presentation.PuzzleMapInformation.text14",
+      "value": "없음",
+      "arguments": 0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:216"
+    },
+    {
+      "id": "presentation.PuzzleMapInformation.text15",
+      "value": "없음",
+      "arguments": 0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:217"
+    },
+    {
+      "id": "presentation.PuzzleMapInformation.text2",
+      "value": " <size=18>{0} · 물가 {1}%</size>",
+      "arguments": 2,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:176"
+    },
+    {
+      "id": "presentation.PuzzleMapInformation.text3",
+      "value": "<color=#{0}><b>현재 체류 중인 마을</b></color>",
+      "arguments": 1,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:180"
+    },
+    {
+      "id": "presentation.PuzzleMapInformation.text4",
+      "value": "<color=#{0}><b>직접 연결된 철로 없음 (이동 불가)</b></color>",
+      "arguments": 1,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:184"
+    },
+    {
+      "id": "presentation.PuzzleMapInformation.text5",
+      "value": "<color=#{0}><b>자금 부족</b> · {1}</color>",
+      "arguments": 2,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:188"
+    },
+    {
+      "id": "presentation.PuzzleMapInformation.text6",
+      "value": "<color=#{0}><b>이동 가능</b> · {1}</color>",
+      "arguments": 2,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:192"
+    },
+    {
+      "id": "presentation.PuzzleMapInformation.text7",
+      "value": "<color=#{0}>{1} · 소요: {2}</color>",
+      "arguments": 3,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:196"
+    },
+    {
+      "id": "presentation.PuzzleMapInformation.text8",
+      "value": "<size=20>특산품: {0} · 방문 완료</size>\n",
+      "arguments": 1,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:215"
+    },
+    {
+      "id": "presentation.PuzzleMapInformation.text9",
+      "value": "<color=#{0}><b>흔한 자원</b></color>   {1}\n",
+      "arguments": 2,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:216"
+    },
+    {
+      "id": "presentation.PuzzleMapLocate",
+      "value": "현재 위치",
+      "arguments": 0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:106"
+    },
+    {
+      "id": "presentation.PuzzleMapNodeLabel.text1",
+      "value": "\n<size=14>현재 위치</size>",
+      "arguments": 0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:163"
+    },
+    {
+      "id": "presentation.PuzzleMapNodeLabel.text2",
+      "value": "\n<size=14>이동 가능</size>",
+      "arguments": 0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:167"
+    },
+    {
+      "id": "presentation.PuzzleMapNodeLabel.text3",
+      "value": "\n<size=14>자금 부족</size>",
+      "arguments": 0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:167"
+    },
+    {
+      "id": "presentation.PuzzleMapNodeLabel.text4",
+      "value": "\n<size=14>방문 완료</size>",
+      "arguments": 0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:169"
+    },
+    {
+      "id": "presentation.PuzzleMapNodeLabel.text5",
+      "value": "\n<size=14>미방문</size>",
+      "arguments": 0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:169"
+    },
+    {
+      "id": "presentation.PuzzleMapOpen",
+      "value": "지도",
+      "arguments": 0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:49"
+    },
+    {
+      "id": "presentation.PuzzleMapRegionLabel.text1",
+      "value": "{0} · {1}",
+      "arguments": 2,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:237"
+    },
+    {
+      "id": "presentation.PuzzleMapTarget",
+      "value": "▼ 상환 목표",
+      "arguments": 0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:52"
+    },
+    {
+      "id": "presentation.PuzzleMapTime.text1",
+      "value": "{0}시간",
+      "arguments": 1,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:249"
+    },
+    {
+      "id": "presentation.PuzzleMapTime.text2",
+      "value": "{0}분",
+      "arguments": 1,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:249"
+    },
+    {
+      "id": "presentation.PuzzleMapTime.text3",
+      "value": "{0}시간 {1}분",
+      "arguments": 2,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:249"
+    },
+    {
+      "id": "presentation.PuzzleMapTitle",
+      "value": "지역 철도 노선도",
+      "arguments": 0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:47"
+    },
+    {
+      "id": "presentation.PuzzleMapZoom.text1",
+      "value": "{0:0}%",
+      "arguments": 1,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:129"
+    },
+    {
+      "id": "presentation.PuzzleMapZoomIn",
+      "value": "+",
+      "arguments": 0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:107"
+    },
+    {
+      "id": "presentation.PuzzleMapZoomOut",
+      "value": "−",
+      "arguments": 0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:108"
+    },
+    {
+      "id": "presentation.PuzzleMarketTitle",
+      "value": "도시 시장",
+      "arguments": 0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:307"
+    },
+    {
+      "id": "presentation.PuzzleMoveGuide",
+      "value": "드래그로 이동    R로 회전    Esc로 취소",
+      "arguments": 0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:308"
+    },
+    {
+      "id": "presentation.PuzzleNightMarket",
+      "value": "야간에는 시장을 이용할 수 없습니다. 이동하거나 아침까지 기다리세요.",
+      "arguments": 0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:100"
+    },
+    {
+      "id": "presentation.PuzzlePreviewDestination.text1",
+      "value": "예측: {0} · {1} ▶",
+      "arguments": 2,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:104"
+    },
+    {
+      "id": "presentation.PuzzlePreviewDestination.text2",
+      "value": "예측 목적지 선택 ▶",
+      "arguments": 0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:104"
+    },
+    {
+      "id": "presentation.PuzzleRunStatusText.text1",
+      "value": "빚을 갚지 못했습니다. 패배",
+      "arguments": 0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:590"
+    },
+    {
+      "id": "presentation.PuzzleTagCommon",
+      "value": "흔함",
+      "arguments": 0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:311"
+    },
+    {
+      "id": "presentation.PuzzleTagCommon.text1",
+      "value": "화물",
+      "arguments": 0,
+      "source": "Presentation tag labels"
+    },
+    {
+      "id": "presentation.PuzzleTagCommon.text10",
+      "value": "소금",
+      "arguments": 0,
+      "source": "Presentation tag labels"
+    },
+    {
+      "id": "presentation.PuzzleTagCommon.text11",
+      "value": "고기",
+      "arguments": 0,
+      "source": "Presentation tag labels"
+    },
+    {
+      "id": "presentation.PuzzleTagCommon.text12",
+      "value": "가축",
+      "arguments": 0,
+      "source": "Presentation tag labels"
+    },
+    {
+      "id": "presentation.PuzzleTagCommon.text13",
+      "value": "과일",
+      "arguments": 0,
+      "source": "Presentation tag labels"
+    },
+    {
+      "id": "presentation.PuzzleTagCommon.text14",
+      "value": "똥",
+      "arguments": 0,
+      "source": "Presentation tag labels"
+    },
+    {
+      "id": "presentation.PuzzleTagCommon.text15",
+      "value": "상자",
+      "arguments": 0,
+      "source": "Presentation tag labels"
+    },
+    {
+      "id": "presentation.PuzzleTagCommon.text2",
+      "value": "목재",
+      "arguments": 0,
+      "source": "Presentation tag labels"
+    },
+    {
+      "id": "presentation.PuzzleTagCommon.text3",
+      "value": "음식",
+      "arguments": 0,
+      "source": "Presentation tag labels"
+    },
+    {
+      "id": "presentation.PuzzleTagCommon.text4",
+      "value": "곡물",
+      "arguments": 0,
+      "source": "Presentation tag labels"
+    },
+    {
+      "id": "presentation.PuzzleTagCommon.text5",
+      "value": "보급품",
+      "arguments": 0,
+      "source": "Presentation tag labels"
+    },
+    {
+      "id": "presentation.PuzzleTagCommon.text6",
+      "value": "물",
+      "arguments": 0,
+      "source": "Presentation tag labels"
+    },
+    {
+      "id": "presentation.PuzzleTagCommon.text7",
+      "value": "기계",
+      "arguments": 0,
+      "source": "Presentation tag labels"
+    },
+    {
+      "id": "presentation.PuzzleTagCommon.text8",
+      "value": "금속",
+      "arguments": 0,
+      "source": "Presentation tag labels"
+    },
+    {
+      "id": "presentation.PuzzleTagCommon.text9",
+      "value": "물고기",
+      "arguments": 0,
+      "source": "Presentation tag labels"
+    },
+    {
+      "id": "presentation.PuzzleTagExpensive",
+      "value": "귀함",
+      "arguments": 0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:310"
+    },
+    {
+      "id": "presentation.PuzzleTime.text1",
+      "value": "Day {0} · {1:00}:{2:00} · {3}",
+      "arguments": 4,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:42"
+    },
+    {
+      "id": "presentation.PuzzleTime.text2",
+      "value": "야간 · 시장 휴업",
+      "arguments": 0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:42"
+    },
+    {
+      "id": "presentation.PuzzleTime.text3",
+      "value": "일출",
+      "arguments": 0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:42"
+    },
+    {
+      "id": "presentation.PuzzleTooltipActualValueLabel.text1",
+      "value": "<color=#{0}>실제 가치</color>",
+      "arguments": 1,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs"
+    },
+    {
+      "id": "presentation.PuzzleTooltipActualValueValue.text1",
+      "value": "<color=#{0}>$ {1:#,0.##}</color>",
+      "arguments": 2,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs"
+    },
+    {
+      "id": "presentation.PuzzleTooltipBuyRateLabel.text1",
+      "value": "<color=#{0}>구매 배율</color>",
+      "arguments": 1,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs"
+    },
+    {
+      "id": "presentation.PuzzleTooltipBuyRateValue.text1",
+      "value": "<color=#{0}>{1}%</color>",
+      "arguments": 2,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs"
+    },
+    {
+      "id": "presentation.PuzzleTooltipEffectDescription.text1",
+      "value": "<color=#{0}>• {1}</color>",
+      "arguments": 2,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs"
+    },
+    {
+      "id": "presentation.PuzzleTooltipEffectHeader.text1",
+      "value": "<color=#{0}>보유 효과</color>",
+      "arguments": 1,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs"
+    },
+    {
+      "id": "presentation.PuzzleTooltipFinalBuyPriceLabel.text1",
+      "value": "<color=#{0}>구매 금액</color>",
+      "arguments": 1,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs"
+    },
+    {
+      "id": "presentation.PuzzleTooltipFinalBuyPriceValue.text1",
+      "value": "<color=#{0}>$ {1:#,0.##}</color>",
+      "arguments": 2,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs"
+    },
+    {
+      "id": "presentation.PuzzleTooltipFinalSellPriceLabel.text1",
+      "value": "<color=#{0}>판매 금액</color>",
+      "arguments": 1,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs"
+    },
+    {
+      "id": "presentation.PuzzleTooltipFinalSellPriceValue.text1",
+      "value": "<color=#{0}>$ {1:#,0.##}</color>",
+      "arguments": 2,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs"
+    },
+    {
+      "id": "presentation.PuzzleTooltipFreshnessLabel.text1",
+      "value": "<color=#{0}>신선도</color>",
+      "arguments": 1,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs"
+    },
+    {
+      "id": "presentation.PuzzleTooltipFreshnessValue.text1",
+      "value": "<color=#{0}>{1}</color>",
+      "arguments": 2,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs"
+    },
+    {
+      "id": "presentation.PuzzleTooltipFutureValueLabel.text1",
+      "value": "<color=#{0}>{1} · {2} 후 가치</color>",
+      "arguments": 3,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs"
+    },
+    {
+      "id": "presentation.PuzzleTooltipFutureValueValue.text1",
+      "value": "<color=#{0}>$ {1:#,0.##}</color>",
+      "arguments": 2,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs"
+    },
+    {
+      "id": "presentation.PuzzleTooltipNoEffect.text1",
+      "value": "<color=#{0}>• 없음</color>",
+      "arguments": 1,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs"
+    },
+    {
+      "id": "presentation.PuzzleTooltipSellRateLabel.text1",
+      "value": "<color=#{0}>판매 배율</color>",
+      "arguments": 1,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs"
+    },
+    {
+      "id": "presentation.PuzzleTooltipSellRateValue.text1",
+      "value": "<color=#{0}>{1}%</color>",
+      "arguments": 2,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs"
+    },
+    {
+      "id": "presentation.PuzzleTradeRateText.text1",
+      "value": "현재 도시 배율 · {0} 구매 {1}% · 판매 {2}%",
+      "arguments": 3,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:465"
+    },
+    {
+      "id": "presentation.PuzzleTradeRateText.text2",
+      "value": "기본",
+      "arguments": 0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:464"
+    },
+    {
+      "id": "presentation.PuzzleTradeStatus.text1",
+      "value": "{0} {1}",
+      "arguments": 2,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:625"
+    },
+    {
+      "id": "presentation.PuzzleTradeStatus.text10",
+      "value": "판매가가 거래 한도를 초과합니다",
+      "arguments": 0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:643"
+    },
+    {
+      "id": "presentation.PuzzleTradeStatus.text11",
+      "value": "보유 자금 한도를 초과합니다",
+      "arguments": 0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:644"
+    },
+    {
+      "id": "presentation.PuzzleTradeStatus.text12",
+      "value": "원래 화물 배치가 변경됐습니다",
+      "arguments": 0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:647"
+    },
+    {
+      "id": "presentation.PuzzleTradeStatus.text13",
+      "value": "화물이 보드 경계를 넘습니다",
+      "arguments": 0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:648"
+    },
+    {
+      "id": "presentation.PuzzleTradeStatus.text14",
+      "value": "다른 화물과 겹칩니다",
+      "arguments": 0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:649"
+    },
+    {
+      "id": "presentation.PuzzleTradeStatus.text15",
+      "value": "상대 보드에 화물을 놓을 공간이 없습니다",
+      "arguments": 0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:650"
+    },
+    {
+      "id": "presentation.PuzzleTradeStatus.text16",
+      "value": "이 위치에 배치할 수 없습니다",
+      "arguments": 0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:651"
+    },
+    {
+      "id": "presentation.PuzzleTradeStatus.text2",
+      "value": " · ${0:N0}",
+      "arguments": 1,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:629"
+    },
+    {
+      "id": "presentation.PuzzleTradeStatus.text3",
+      "value": "{0} {1} 완료 · ${2:N0}",
+      "arguments": 3,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:634"
+    },
+    {
+      "id": "presentation.PuzzleTradeStatus.text4",
+      "value": "{0} {1} 예정 · ${2:N0}",
+      "arguments": 3,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:635"
+    },
+    {
+      "id": "presentation.PuzzleTradeStatus.text5",
+      "value": "{0} · {1}",
+      "arguments": 2,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:654"
+    },
+    {
+      "id": "presentation.PuzzleTradeStatus.text6",
+      "value": "구매",
+      "arguments": 0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:624"
+    },
+    {
+      "id": "presentation.PuzzleTradeStatus.text7",
+      "value": "판매",
+      "arguments": 0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:624"
+    },
+    {
+      "id": "presentation.PuzzleTradeStatus.text8",
+      "value": "이 도시에서는 허용되지 않습니다",
+      "arguments": 0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:640"
+    },
+    {
+      "id": "presentation.PuzzleTradeStatus.text9",
+      "value": "자금이 부족합니다",
+      "arguments": 0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:642"
+    },
+    {
+      "id": "presentation.PuzzleTrainTitle",
+      "value": "Train Inventory",
+      "arguments": 0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:290"
+    },
+    {
+      "id": "presentation.PuzzleTrainTitle.text1",
+      "value": "기차 화물 · {0}번 칸",
+      "arguments": 1,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:293"
+    },
+    {
+      "id": "presentation.PuzzleTravelArrived",
+      "value": "도착했습니다",
+      "arguments": 0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:68"
+    },
+    {
+      "id": "presentation.PuzzleTravelBreakdown.text1",
+      "value": "기본 {0:N0} + 거리 {1:N0} + 적재 {2:N0}",
+      "arguments": 3,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:226"
+    },
+    {
+      "id": "presentation.PuzzleTravelCancel",
+      "value": "취소",
+      "arguments": 0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:66"
+    },
+    {
+      "id": "presentation.PuzzleTravelConfirm",
+      "value": "확인",
+      "arguments": 0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:65"
+    },
+    {
+      "id": "presentation.PuzzleTravelConfirmation.text1",
+      "value": "<b>{0} → {1}</b>\n\n소요 시간  {2}\n도착  {3:00}:{4:00} · {5}\n이동 요금  {6:N0}\n이동 후 자금  {7:N0}",
+      "arguments": 8,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:74"
+    },
+    {
+      "id": "presentation.PuzzleTravelConfirmation.text2",
+      "value": "야간 · 시장 휴업",
+      "arguments": 0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:74"
+    },
+    {
+      "id": "presentation.PuzzleTravelConfirmation.text3",
+      "value": "일출",
+      "arguments": 0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:74"
+    },
+    {
+      "id": "presentation.PuzzleTravelCost",
+      "value": "비용",
+      "arguments": 0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:309"
+    },
+    {
+      "id": "presentation.PuzzleTravelInProgress",
+      "value": "기차가 이동 중입니다",
+      "arguments": 0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:67"
+    },
+    {
+      "id": "presentation.PuzzleTravelJourney.text1",
+      "value": "{0} → {1}",
+      "arguments": 2,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:79"
+    },
+    {
+      "id": "presentation.PuzzleTravelProgress.text1",
+      "value": "{0}%",
+      "arguments": 1,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:84"
+    },
+    {
+      "id": "presentation.PuzzleTravelQuestion",
+      "value": "이동하시겠습니까?",
+      "arguments": 0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:64"
+    },
+    {
+      "id": "presentation.PuzzleTravelQuote.text1",
+      "value": "거리 {0} · 소요 {1} · {2} {3:N0} ({4})",
+      "arguments": 5,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:231"
+    },
+    {
+      "id": "presentation.PuzzleTravelStatus.text1",
+      "value": "{0} {1:N0}",
+      "arguments": 2,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:602"
+    },
+    {
+      "id": "presentation.PuzzleTravelStatus.text2",
+      "value": " ({0})에 필요한 자금이 부족합니다",
+      "arguments": 1,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:603"
+    },
+    {
+      "id": "presentation.PuzzleTravelStatus.text3",
+      "value": "현재 체류 중인 마을입니다",
+      "arguments": 0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:600"
+    },
+    {
+      "id": "presentation.PuzzleTravelStatus.text4",
+      "value": "유효하지 않은 마을입니다",
+      "arguments": 0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:601"
+    },
+    {
+      "id": "presentation.PuzzleTravelStatus.text5",
+      "value": "이동 비용이 거래 한도를 초과합니다",
+      "arguments": 0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:604"
+    },
+    {
+      "id": "presentation.PuzzleTravelStatus.text6",
+      "value": "소비 시간 또는 화물 가치가 계산 범위를 초과했습니다.",
+      "arguments": 0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:605"
+    },
+    {
+      "id": "presentation.PuzzleTravelStatus.text7",
+      "value": "두 도시를 잇는 직결 철로가 없습니다",
+      "arguments": 0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:606"
+    },
+    {
+      "id": "presentation.PuzzleTravelStatus.text8",
+      "value": "이동할 수 있는 도시가 없습니다",
+      "arguments": 0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:607"
+    },
+    {
+      "id": "presentation.PuzzleTravelStatus.text9",
+      "value": "게임이 종료되었습니다",
+      "arguments": 0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:608"
+    },
+    {
+      "id": "presentation.PuzzleValueText.text1",
+      "value": "화물 가치  ${0:#,0.##}  <size=18>기본 ${1:N0}</size>",
+      "arguments": 2,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:435"
+    },
+    {
+      "id": "presentation.PuzzleWagonPurchaseStatus.text1",
+      "value": "화물칸 구매 완료 · ${0:N0} · {1}번 칸 추가",
+      "arguments": 2,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:301"
+    },
+    {
+      "id": "presentation.PuzzleWaitDaylight",
+      "value": "아침까지 대기",
+      "arguments": 0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:87"
+    },
+    {
+      "id": "presentation.StationActionsTitle",
+      "value": "역에서 할 일",
+      "arguments": 0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:88"
+    },
+    {
+      "id": "presentation.StationBack",
+      "value": "행동 목록으로",
+      "arguments": 0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:94"
+    },
+    {
+      "id": "presentation.StationMarket",
+      "value": "시장",
+      "arguments": 0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:89"
+    },
+    {
+      "id": "presentation.StationMarketClosed",
+      "value": "시장 · 야간 휴업",
+      "arguments": 0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:90"
+    },
+    {
+      "id": "presentation.StationRest",
+      "value": "휴식 · 시간 보내기",
+      "arguments": 0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:92"
+    },
+    {
+      "id": "presentation.StationRestDuration.text1",
+      "value": "{0} 휴식",
+      "arguments": 1,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:98"
+    },
+    {
+      "id": "presentation.StationRestHint",
+      "value": "휴식하면 시간이 흐릅니다.\n이동 요금과 이동 시너지 가치는 변하지 않습니다.",
+      "arguments": 0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:95"
+    },
+    {
+      "id": "presentation.StationTavern",
+      "value": "술집",
+      "arguments": 0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:91"
+    },
+    {
+      "id": "presentation.StationTravel",
+      "value": "다른 역으로 이동",
+      "arguments": 0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:93"
+    },
+    {
+      "id": "presentation.Title.text1",
+      "value": "공격",
+      "arguments": 0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:684"
+    },
+    {
+      "id": "presentation.Title.text2",
+      "value": "이동",
+      "arguments": 0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:685"
+    },
+    {
+      "id": "presentation.Title.text3",
+      "value": "방어",
+      "arguments": 0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:686"
+    },
+    {
+      "id": "presentation.Title.text4",
+      "value": "기본 능력치",
+      "arguments": 0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:687"
+    },
+    {
+      "id": "presentation.Title.text5",
+      "value": "유틸",
+      "arguments": 0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:688"
+    },
+    {
+      "id": "presentation.ValueTag",
+      "value": "#FFE08A",
+      "arguments": 0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:725"
+    },
+    {
+      "id": "presentation.tavern.noRumor",
+      "value": "아직 가보지 않은 인근 마을 소식은 못 들었어요.",
+      "arguments": 0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:35"
+    },
+    {
+      "id": "presentation.tavern.rumor",
+      "value": "{0}에선 {1} 물건을 비싸게 사들인대요.",
+      "arguments": 2,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:32"
+    },
+    {
+      "id": "presentation.tavern.talk",
+      "value": "손님에게 말 걸기",
+      "arguments": 0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:37"
+    },
+    {
+      "id": "presentation.tavern.title",
+      "value": "{0} 술집",
+      "arguments": 1,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:27"
+    },
+    {
+      "id": "presentation.tavern.unreadRumor",
+      "value": "아직 들은 소식이 없어요.",
+      "arguments": 0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:36"
+    },
+    {
+      "id": "rules.PuzzleInventoryService.AnimalTag",
+      "value": "Animal",
+      "arguments": 0,
+      "source": "Assets/Scripts/Runtime/Inventory/PuzzleInventoryService.cs:10"
+    },
+    {
+      "id": "rules.PuzzleInventoryService.AnimalWastePieceId",
+      "value": "piece.poo",
+      "arguments": 0,
+      "source": "Assets/Scripts/Runtime/Inventory/PuzzleInventoryService.cs:11"
+    },
+    {
+      "id": "rules.PuzzleInventoryValuation.PooTag",
+      "value": "Poo",
+      "arguments": 0,
+      "source": "Assets/Scripts/Runtime/Inventory/PuzzleInventoryValuation.cs:53"
+    },
+    {
+      "id": "rules.wagon.inProgressOnly",
+      "value": "진행 중인 게임에서만 화물칸을 증차할 수 있습니다.",
+      "arguments": 0,
+      "source": "Assets/Scripts/Runtime/Inventory/PuzzleInventoryService.cs:69"
+    },
+    {
+      "id": "rules.wagon.insufficientFunds",
+      "value": "자금이 부족합니다. (필요: ${0})",
+      "arguments": 1,
+      "source": "Assets/Scripts/Runtime/Inventory/PuzzleInventoryService.cs:75"
+    }
+  ],
+  "colors": [
+    {
+      "id": "editor.TrainBarSceneSetup.Color.color1",
+      "r": 0.12,
+      "g": 0.42,
+      "b": 0.2,
+      "a": 1.0,
+      "source": "Assets/Scripts/Editor/Build/TrainBarSceneSetup.cs:103"
+    },
+    {
+      "id": "editor.TrainBarSceneSetup.Color.color2",
+      "r": 0.18,
+      "g": 0.55,
+      "b": 0.28,
+      "a": 0.35,
+      "source": "Assets/Scripts/Editor/Build/TrainBarSceneSetup.cs:104"
+    },
+    {
+      "id": "editor.TrainBarSceneSetup.Vector2.color1",
+      "r": 0.24,
+      "g": 0.72,
+      "b": 0.36,
+      "a": 1.0,
+      "source": "Assets/Scripts/Editor/Build/TrainBarSceneSetup.cs:102"
+    },
+    {
+      "id": "editor.TrainBarSceneSetup.Vector2.color2",
+      "r": 0.0,
+      "g": 0.0,
+      "b": 0.0,
+      "a": 0.01,
+      "source": "Assets/Scripts/Editor/Build/TrainBarSceneSetup.cs:138"
+    },
+    {
+      "id": "presentation.Color.color1",
+      "r": 0.9,
+      "g": 0.33,
+      "b": 0.29,
+      "a": 1.0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:672"
+    },
+    {
+      "id": "presentation.Color.color2",
+      "r": 0.33,
+      "g": 0.58,
+      "b": 0.95,
+      "a": 1.0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:673"
+    },
+    {
+      "id": "presentation.Color.color3",
+      "r": 0.35,
+      "g": 0.76,
+      "b": 0.44,
+      "a": 1.0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:674"
+    },
+    {
+      "id": "presentation.Color.color4",
+      "r": 0.96,
+      "g": 0.78,
+      "b": 0.27,
+      "a": 1.0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:675"
+    },
+    {
+      "id": "presentation.Color.color5",
+      "r": 0.72,
+      "g": 0.74,
+      "b": 0.8,
+      "a": 1.0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:676"
+    },
+    {
+      "id": "presentation.PuzzleAddWagonBox.color1",
+      "r": 0.1568627450980392,
+      "g": 0.6549019607843137,
+      "b": 0.27058823529411763,
+      "a": 1.0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:303"
+    },
+    {
+      "id": "presentation.PuzzleBackground.color1",
+      "r": 0.1,
+      "g": 0.13,
+      "b": 0.17,
+      "a": 1.0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:333"
+    },
+    {
+      "id": "presentation.PuzzleCell.color1",
+      "r": 0.17,
+      "g": 0.21,
+      "b": 0.26,
+      "a": 1.0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:334"
+    },
+    {
+      "id": "presentation.PuzzleGhost.color1",
+      "r": 1.0,
+      "g": 1.0,
+      "b": 1.0,
+      "a": 0.42,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:337"
+    },
+    {
+      "id": "presentation.PuzzleHeading.color1",
+      "r": 0.92,
+      "g": 0.94,
+      "b": 0.97,
+      "a": 1.0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:335"
+    },
+    {
+      "id": "presentation.PuzzleItemIcon.color1",
+      "r": 1.0,
+      "g": 1.0,
+      "b": 1.0,
+      "a": 1.0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:287"
+    },
+    {
+      "id": "presentation.PuzzleMapConnected.color1",
+      "r": 0.39,
+      "g": 0.91,
+      "b": 0.67,
+      "a": 1.0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:138"
+    },
+    {
+      "id": "presentation.PuzzleMapConnectedDisabled.color1",
+      "r": 0.85,
+      "g": 0.45,
+      "b": 0.45,
+      "a": 1.0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:139"
+    },
+    {
+      "id": "presentation.PuzzleMapCurrent.color1",
+      "r": 1.0,
+      "g": 0.78,
+      "b": 0.3,
+      "a": 1.0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:133"
+    },
+    {
+      "id": "presentation.PuzzleMapCurrentHalo.color1",
+      "r": 1.0,
+      "g": 0.78,
+      "b": 0.3,
+      "a": 0.25,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:121"
+    },
+    {
+      "id": "presentation.PuzzleMapInterchange.color1",
+      "r": 0.8941176470588236,
+      "g": 0.9137254901960784,
+      "b": 0.9372549019607843,
+      "a": 1.0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:267"
+    },
+    {
+      "id": "presentation.PuzzleMapLand.color1",
+      "r": 0.16470588235294117,
+      "g": 0.21568627450980393,
+      "b": 0.22745098039215686,
+      "a": 1.0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:124"
+    },
+    {
+      "id": "presentation.PuzzleMapOcean.color1",
+      "r": 0.08235294117647059,
+      "g": 0.1607843137254902,
+      "b": 0.22745098039215686,
+      "a": 1.0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:123"
+    },
+    {
+      "id": "presentation.PuzzleMapRegionColor.color1",
+      "r": 0.3058823529411765,
+      "g": 0.5647058823529412,
+      "b": 0.8392156862745098,
+      "a": 0.11764705882352941,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:256"
+    },
+    {
+      "id": "presentation.PuzzleMapRegionColor.color2",
+      "r": 0.8392156862745098,
+      "g": 0.5568627450980392,
+      "b": 0.24313725490196078,
+      "a": 0.11764705882352941,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:257"
+    },
+    {
+      "id": "presentation.PuzzleMapRegionColor.color3",
+      "r": 0.26666666666666666,
+      "g": 0.7137254901960784,
+      "b": 0.4627450980392157,
+      "a": 0.11764705882352941,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:258"
+    },
+    {
+      "id": "presentation.PuzzleMapRegionColor.color4",
+      "r": 0.7764705882352941,
+      "g": 0.3843137254901961,
+      "b": 0.6588235294117647,
+      "a": 0.11764705882352941,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:259"
+    },
+    {
+      "id": "presentation.PuzzleMapRegionColor.color5",
+      "r": 0.49411764705882355,
+      "g": 0.4235294117647059,
+      "b": 0.8392156862745098,
+      "a": 0.11764705882352941,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:260"
+    },
+    {
+      "id": "presentation.PuzzleMapRegionColor.color6",
+      "r": 0.24313725490196078,
+      "g": 0.7215686274509804,
+      "b": 0.7137254901960784,
+      "a": 0.11764705882352941,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:261"
+    },
+    {
+      "id": "presentation.PuzzleMapRegionColor.color7",
+      "r": 0.5882352941176471,
+      "g": 0.6431372549019608,
+      "b": 0.7137254901960784,
+      "a": 0.11764705882352941,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:262"
+    },
+    {
+      "id": "presentation.PuzzleMapRegionColor.color8",
+      "r": 0,
+      "g": 0,
+      "b": 0,
+      "a": 0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:263"
+    },
+    {
+      "id": "presentation.PuzzleMapRiver.color1",
+      "r": 0.1411764705882353,
+      "g": 0.4470588235294118,
+      "b": 0.6588235294117647,
+      "a": 1.0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:125"
+    },
+    {
+      "id": "presentation.PuzzleMapRoute.color1",
+      "r": 0.3,
+      "g": 0.68,
+      "b": 0.82,
+      "a": 1.0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:137"
+    },
+    {
+      "id": "presentation.PuzzleMapTerrainBorder.color1",
+      "r": 0.44313725490196076,
+      "g": 0.5450980392156862,
+      "b": 0.5764705882352941,
+      "a": 1.0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:126"
+    },
+    {
+      "id": "presentation.PuzzleMapUnknown.color1",
+      "r": 0.4,
+      "g": 0.46,
+      "b": 0.55,
+      "a": 1.0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:136"
+    },
+    {
+      "id": "presentation.PuzzleMapVisited.color1",
+      "r": 0.34,
+      "g": 0.86,
+      "b": 0.72,
+      "a": 1.0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:135"
+    },
+    {
+      "id": "presentation.PuzzleMoveTarget.color1",
+      "r": 0.53,
+      "g": 0.79,
+      "b": 1.0,
+      "a": 1.0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:338"
+    },
+    {
+      "id": "presentation.PuzzleOutline.color1",
+      "r": 0.39,
+      "g": 0.91,
+      "b": 0.67,
+      "a": 1.0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:664"
+    },
+    {
+      "id": "presentation.PuzzleOutline.color2",
+      "r": 1.0,
+      "g": 0.43,
+      "b": 0.39,
+      "a": 1.0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:664"
+    },
+    {
+      "id": "presentation.PuzzlePiece.color1",
+      "r": 1,
+      "g": 1,
+      "b": 1,
+      "a": 1,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:336"
+    },
+    {
+      "id": "presentation.PuzzlePieceOutline.color1",
+      "r": 0.0,
+      "g": 0.0,
+      "b": 0.0,
+      "a": 1.0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:659"
+    },
+    {
+      "id": "presentation.PuzzleSynergyArrow.color1",
+      "r": 1,
+      "g": 1,
+      "b": 1,
+      "a": 1,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:289"
+    },
+    {
+      "id": "presentation.PuzzleTagBackgroundColor.color1",
+      "r": 0.5529411764705883,
+      "g": 0.35294117647058826,
+      "b": 0.18823529411764706,
+      "a": 1.0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:517"
+    },
+    {
+      "id": "presentation.PuzzleTagBackgroundColor.color10",
+      "r": 0.5529411764705883,
+      "g": 0.43137254901960786,
+      "b": 0.38823529411764707,
+      "a": 1.0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:526"
+    },
+    {
+      "id": "presentation.PuzzleTagBackgroundColor.color11",
+      "r": 0.6235294117647059,
+      "g": 0.17647058823529413,
+      "b": 0.22745098039215686,
+      "a": 1.0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:527"
+    },
+    {
+      "id": "presentation.PuzzleTagBackgroundColor.color12",
+      "r": 0.6274509803921569,
+      "g": 0.47058823529411764,
+      "b": 0.2901960784313726,
+      "a": 1.0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:528"
+    },
+    {
+      "id": "presentation.PuzzleTagBackgroundColor.color13",
+      "r": 0.7686274509803922,
+      "g": 0.24705882352941178,
+      "b": 0.24705882352941178,
+      "a": 1.0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:529"
+    },
+    {
+      "id": "presentation.PuzzleTagBackgroundColor.color14",
+      "r": 0.3764705882352941,
+      "g": 0.25098039215686274,
+      "b": 0.14901960784313725,
+      "a": 1.0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:530"
+    },
+    {
+      "id": "presentation.PuzzleTagBackgroundColor.color15",
+      "r": 0.2784313725490196,
+      "g": 0.3333333333333333,
+      "b": 0.4117647058823529,
+      "a": 1.0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:531"
+    },
+    {
+      "id": "presentation.PuzzleTagBackgroundColor.color2",
+      "r": 0.32941176470588235,
+      "g": 0.43137254901960786,
+      "b": 0.47843137254901963,
+      "a": 1.0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:518"
+    },
+    {
+      "id": "presentation.PuzzleTagBackgroundColor.color3",
+      "r": 0.7058823529411765,
+      "g": 0.3254901960784314,
+      "b": 0.03529411764705882,
+      "a": 1.0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:519"
+    },
+    {
+      "id": "presentation.PuzzleTagBackgroundColor.color4",
+      "r": 0.8509803921568627,
+      "g": 0.4666666666666667,
+      "b": 0.023529411764705882,
+      "a": 1.0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:520"
+    },
+    {
+      "id": "presentation.PuzzleTagBackgroundColor.color5",
+      "r": 0.00784313725490196,
+      "g": 0.5176470588235295,
+      "b": 0.7803921568627451,
+      "a": 1.0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:521"
+    },
+    {
+      "id": "presentation.PuzzleTagBackgroundColor.color6",
+      "r": 0.054901960784313725,
+      "g": 0.6470588235294118,
+      "b": 0.9137254901960784,
+      "a": 1.0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:522"
+    },
+    {
+      "id": "presentation.PuzzleTagBackgroundColor.color7",
+      "r": 0.39215686274509803,
+      "g": 0.4549019607843137,
+      "b": 0.5450980392156862,
+      "a": 1.0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:523"
+    },
+    {
+      "id": "presentation.PuzzleTagBackgroundColor.color8",
+      "r": 0.5529411764705883,
+      "g": 0.43137254901960786,
+      "b": 0.38823529411764707,
+      "a": 1.0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:524"
+    },
+    {
+      "id": "presentation.PuzzleTagBackgroundColor.color9",
+      "r": 0.08627450980392157,
+      "g": 0.6392156862745098,
+      "b": 0.2901960784313726,
+      "a": 1.0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:525"
+    },
+    {
+      "id": "presentation.PuzzleTagTextColor.color1",
+      "r": 1.0,
+      "g": 1.0,
+      "b": 1.0,
+      "a": 1.0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:538"
+    },
+    {
+      "id": "presentation.PuzzleTextOutline",
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:23",
+      "r": 0,
+      "g": 0,
+      "b": 0,
+      "a": 1
+    },
+    {
+      "id": "presentation.PuzzleTimeAccent.color1",
+      "r": 1.0,
+      "g": 0.82,
+      "b": 0.42,
+      "a": 1.0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:45"
+    },
+    {
+      "id": "presentation.PuzzleTooltipBodyBackground.color1",
+      "r": 0.8392156862745098,
+      "g": 0.8470588235294118,
+      "b": 0.8549019607843137,
+      "a": 1.0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:341"
+    },
+    {
+      "id": "presentation.PuzzleTooltipDivider.color1",
+      "r": 0.11764705882352941,
+      "g": 0.11764705882352941,
+      "b": 0.11764705882352941,
+      "a": 1.0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:342"
+    },
+    {
+      "id": "presentation.PuzzleTooltipGold.color1",
+      "r": 0.6235294117647059,
+      "g": 0.6392156862745098,
+      "b": 0.2823529411764706,
+      "a": 1.0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:344"
+    },
+    {
+      "id": "presentation.PuzzleTooltipGreen.color1",
+      "r": 0.12156862745098039,
+      "g": 0.6196078431372549,
+      "b": 0.23921568627450981,
+      "a": 1.0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:345"
+    },
+    {
+      "id": "presentation.PuzzleTooltipHeaderBackground.color1",
+      "r": 0.6901960784313725,
+      "g": 0.7058823529411765,
+      "b": 0.7215686274509804,
+      "a": 1.0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:340"
+    },
+    {
+      "id": "presentation.PuzzleTooltipRed.color1",
+      "r": 0.7529411764705882,
+      "g": 0.2235294117647059,
+      "b": 0.16862745098039217,
+      "a": 1.0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:346"
+    },
+    {
+      "id": "presentation.PuzzleTooltipText.color1",
+      "r": 0.11764705882352941,
+      "g": 0.11764705882352941,
+      "b": 0.11764705882352941,
+      "a": 1.0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:343"
+    },
+    {
+      "id": "presentation.PuzzleTravelCard.color1",
+      "r": 0.10588235294117647,
+      "g": 0.1411764705882353,
+      "b": 0.1843137254901961,
+      "a": 1.0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:70"
+    },
+    {
+      "id": "presentation.PuzzleTravelDim.color1",
+      "r": 0.023529411764705882,
+      "g": 0.043137254901960784,
+      "b": 0.07058823529411765,
+      "a": 0.8627450980392157,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:69"
+    },
+    {
+      "id": "presentation.PuzzleUnmodifiedTint",
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:22",
+      "r": 1,
+      "g": 1,
+      "b": 1,
+      "a": 1
+    },
+    {
+      "id": "presentation.PuzzleWagonDragHoverBorder.color1",
+      "r": 0.39,
+      "g": 0.91,
+      "b": 0.67,
+      "a": 1.0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:305"
+    },
+    {
+      "id": "presentation.PuzzleWagonNormalBorder.color1",
+      "r": 0.35294117647058826,
+      "g": 0.37254901960784315,
+      "b": 0.4117647058823529,
+      "a": 1.0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:306"
+    },
+    {
+      "id": "presentation.PuzzleWagonSelectedBorder.color1",
+      "r": 1.0,
+      "g": 0.8431372549019608,
+      "b": 0.0,
+      "a": 1.0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:304"
+    },
+    {
+      "id": "ui.PuzzleTrainBarView.Color.color1",
+      "r": 0.8,
+      "g": 0.8,
+      "b": 0.8,
+      "a": 0.6,
+      "source": "Assets/Scripts/Runtime/UI/PuzzleTrainBarView.cs:179"
+    },
+    {
+      "id": "ui.PuzzleTrainBarView.Vector2.color1",
+      "r": 0.18,
+      "g": 0.55,
+      "b": 0.28,
+      "a": 0.5,
+      "source": "Assets/Scripts/Runtime/UI/PuzzleTrainBarView.cs:173"
+    }
+  ]
+}

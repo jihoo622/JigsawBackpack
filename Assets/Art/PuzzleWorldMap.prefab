@@ -1736,7 +1736,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.4117647, g: 0.7019608, b: 0.5372549, a: 1}
+  m_Color: {r: 0.26666668, g: 0.7137255, b: 0.4627451, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -2163,7 +2163,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "8\uC2DC\uAC04"
+  m_Text: "4\uC2DC\uAC04 14\uBD84"
 --- !u!1 &311565966274062144
 GameObject:
   m_ObjectHideFlags: 0
@@ -2222,7 +2222,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.64705884, g: 0.6784314, b: 0.72156864, a: 1}
+  m_Color: {r: 0.5882353, g: 0.6431373, b: 0.7137255, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -2297,7 +2297,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.56078434, g: 0.5176471, b: 0.75686276, a: 1}
+  m_Color: {r: 0.49411765, g: 0.42352942, b: 0.8392157, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -2392,7 +2392,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "8\uC2DC\uAC04"
+  m_Text: "10\uC2DC\uAC04 13\uBD84"
 --- !u!1 &408539764695471210
 GameObject:
   m_ObjectHideFlags: 0
@@ -2817,7 +2817,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.41568628, g: 0.7058824, b: 0.7019608, a: 1}
+  m_Color: {r: 0.24313726, g: 0.72156864, b: 0.7137255, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -3088,7 +3088,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.56078434, g: 0.5176471, b: 0.75686276, a: 1}
+  m_Color: {r: 0.49411765, g: 0.42352942, b: 0.8392157, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -3242,7 +3242,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.56078434, g: 0.5176471, b: 0.75686276, a: 1}
+  m_Color: {r: 0.49411765, g: 0.42352942, b: 0.8392157, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -3317,7 +3317,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.7294118, g: 0.5019608, b: 0.6666667, a: 1}
+  m_Color: {r: 0.7764706, g: 0.38431373, b: 0.65882355, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -3467,7 +3467,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.78039217, g: 0.5921569, b: 0.38431373, a: 1}
+  m_Color: {r: 0.8392157, g: 0.5568628, b: 0.24313726, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -3562,7 +3562,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "8\uC2DC\uAC04"
+  m_Text: "7\uC2DC\uAC04 35\uBD84"
 --- !u!1 &613452936520982865
 GameObject:
   m_ObjectHideFlags: 0
@@ -3811,7 +3811,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "16\uC2DC\uAC04"
+  m_Text: "19\uC2DC\uAC04 50\uBD84"
 --- !u!1 &655030199638848238
 GameObject:
   m_ObjectHideFlags: 0
@@ -4403,7 +4403,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.4117647, g: 0.7019608, b: 0.5372549, a: 1}
+  m_Color: {r: 0.26666668, g: 0.7137255, b: 0.4627451, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -4995,7 +4995,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "8\uC2DC\uAC04"
+  m_Text: "5\uC2DC\uAC04 14\uBD84"
 --- !u!1 &989413340808152307
 GameObject:
   m_ObjectHideFlags: 0
@@ -5374,7 +5374,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.7294118, g: 0.5019608, b: 0.6666667, a: 1}
+  m_Color: {r: 0.7764706, g: 0.38431373, b: 0.65882355, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -6477,7 +6477,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "8\uC2DC\uAC04"
+  m_Text: "4\uC2DC\uAC04 13\uBD84"
 --- !u!1 &1367997273681494067
 GameObject:
   m_ObjectHideFlags: 0
@@ -8225,7 +8225,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.4117647, g: 0.7019608, b: 0.5372549, a: 1}
+  m_Color: {r: 0.26666668, g: 0.7137255, b: 0.4627451, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -8620,7 +8620,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "8\uC2DC\uAC04"
+  m_Text: "6\uC2DC\uAC04 50\uBD84"
 --- !u!1 &1949200343494495300
 GameObject:
   m_ObjectHideFlags: 0
@@ -9140,7 +9140,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.78039217, g: 0.5921569, b: 0.38431373, a: 1}
+  m_Color: {r: 0.8392157, g: 0.5568628, b: 0.24313726, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -9369,7 +9369,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.64705884, g: 0.6784314, b: 0.72156864, a: 1}
+  m_Color: {r: 0.5882353, g: 0.6431373, b: 0.7137255, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -9444,7 +9444,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.64705884, g: 0.6784314, b: 0.72156864, a: 1}
+  m_Color: {r: 0.5882353, g: 0.6431373, b: 0.7137255, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -9669,7 +9669,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.64705884, g: 0.6784314, b: 0.72156864, a: 1}
+  m_Color: {r: 0.5882353, g: 0.6431373, b: 0.7137255, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -9744,7 +9744,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.7294118, g: 0.5019608, b: 0.6666667, a: 1}
+  m_Color: {r: 0.7764706, g: 0.38431373, b: 0.65882355, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -9839,7 +9839,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "8\uC2DC\uAC04"
+  m_Text: "9\uC2DC\uAC04 20\uBD84"
 --- !u!1 &2361187625997096703
 GameObject:
   m_ObjectHideFlags: 0
@@ -9898,7 +9898,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.64705884, g: 0.6784314, b: 0.72156864, a: 1}
+  m_Color: {r: 0.5882353, g: 0.6431373, b: 0.7137255, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -10564,7 +10564,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "8\uC2DC\uAC04"
+  m_Text: "5\uC2DC\uAC04 33\uBD84"
 --- !u!1 &2500498816837197131
 GameObject:
   m_ObjectHideFlags: 0
@@ -10797,7 +10797,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "8\uC2DC\uAC04"
+  m_Text: "4\uC2DC\uAC04 21\uBD84"
 --- !u!1 &2545308844279342339
 GameObject:
   m_ObjectHideFlags: 0
@@ -10876,7 +10876,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "8\uC2DC\uAC04"
+  m_Text: "3\uC2DC\uAC04 19\uBD84"
 --- !u!1 &2569797613798714313
 GameObject:
   m_ObjectHideFlags: 0
@@ -11232,7 +11232,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.4117647, g: 0.7019608, b: 0.5372549, a: 1}
+  m_Color: {r: 0.26666668, g: 0.7137255, b: 0.4627451, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -11327,7 +11327,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "8\uC2DC\uAC04"
+  m_Text: "4\uC2DC\uAC04 31\uBD84"
 --- !u!1 &2630441872060127112
 GameObject:
   m_ObjectHideFlags: 0
@@ -11481,7 +11481,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.56078434, g: 0.5176471, b: 0.75686276, a: 1}
+  m_Color: {r: 0.49411765, g: 0.42352942, b: 0.8392157, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -11651,7 +11651,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "8\uC2DC\uAC04"
+  m_Text: "4\uC2DC\uAC04 32\uBD84"
 --- !u!1 &2776928395540856125
 GameObject:
   m_ObjectHideFlags: 0
@@ -11730,7 +11730,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "8\uC2DC\uAC04"
+  m_Text: "5\uC2DC\uAC04 26\uBD84"
 --- !u!1 &2777559989860131198
 GameObject:
   m_ObjectHideFlags: 0
@@ -11959,7 +11959,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "8\uC2DC\uAC04"
+  m_Text: "4\uC2DC\uAC04 20\uBD84"
 --- !u!1 &2889441194313723502
 GameObject:
   m_ObjectHideFlags: 0
@@ -12018,7 +12018,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.43529412, g: 0.61960787, b: 0.78039217, a: 1}
+  m_Color: {r: 0.30588236, g: 0.5647059, b: 0.8392157, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -12609,7 +12609,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "8\uC2DC\uAC04"
+  m_Text: "4\uC2DC\uAC04 19\uBD84"
 --- !u!1 &3001914203560667242
 GameObject:
   m_ObjectHideFlags: 0
@@ -13730,7 +13730,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.43529412, g: 0.61960787, b: 0.78039217, a: 1}
+  m_Color: {r: 0.30588236, g: 0.5647059, b: 0.8392157, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -13880,7 +13880,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.41568628, g: 0.7058824, b: 0.7019608, a: 1}
+  m_Color: {r: 0.24313726, g: 0.72156864, b: 0.7137255, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -13955,7 +13955,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.43529412, g: 0.61960787, b: 0.78039217, a: 1}
+  m_Color: {r: 0.30588236, g: 0.5647059, b: 0.8392157, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -14379,7 +14379,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.7294118, g: 0.5019608, b: 0.6666667, a: 1}
+  m_Color: {r: 0.7764706, g: 0.38431373, b: 0.65882355, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -14474,7 +14474,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "8\uC2DC\uAC04"
+  m_Text: "9\uC2DC\uAC04 1\uBD84"
 --- !u!1 &3492776560742738596
 GameObject:
   m_ObjectHideFlags: 0
@@ -15673,7 +15673,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "8\uC2DC\uAC04"
+  m_Text: "10\uC2DC\uAC04 13\uBD84"
 --- !u!1 &3758773161333976018
 GameObject:
   m_ObjectHideFlags: 0
@@ -16060,7 +16060,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "8\uC2DC\uAC04"
+  m_Text: "6\uC2DC\uAC04 29\uBD84"
 --- !u!1 &3863595143004834055
 GameObject:
   m_ObjectHideFlags: 0
@@ -16471,7 +16471,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.41568628, g: 0.7058824, b: 0.7019608, a: 1}
+  m_Color: {r: 0.24313726, g: 0.72156864, b: 0.7137255, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -16566,7 +16566,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "8\uC2DC\uAC04"
+  m_Text: "9\uC2DC\uAC04 9\uBD84"
 --- !u!1 &4060878720401309761
 GameObject:
   m_ObjectHideFlags: 0
@@ -17072,7 +17072,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "8\uC2DC\uAC04"
+  m_Text: "5\uC2DC\uAC04 34\uBD84"
 --- !u!1 &4166145453968810833
 GameObject:
   m_ObjectHideFlags: 0
@@ -18110,7 +18110,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.78039217, g: 0.5921569, b: 0.38431373, a: 1}
+  m_Color: {r: 0.8392157, g: 0.5568628, b: 0.24313726, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -18489,7 +18489,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.78039217, g: 0.5921569, b: 0.38431373, a: 1}
+  m_Color: {r: 0.8392157, g: 0.5568628, b: 0.24313726, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -19542,7 +19542,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.7294118, g: 0.5019608, b: 0.6666667, a: 1}
+  m_Color: {r: 0.7764706, g: 0.38431373, b: 0.65882355, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -19787,7 +19787,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.41568628, g: 0.7058824, b: 0.7019608, a: 1}
+  m_Color: {r: 0.24313726, g: 0.72156864, b: 0.7137255, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -20283,7 +20283,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "8\uC2DC\uAC04"
+  m_Text: "4\uC2DC\uAC04 50\uBD84"
 --- !u!1 &4795550445614563877
 GameObject:
   m_ObjectHideFlags: 0
@@ -20812,7 +20812,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.7294118, g: 0.5019608, b: 0.6666667, a: 1}
+  m_Color: {r: 0.7764706, g: 0.38431373, b: 0.65882355, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -21023,7 +21023,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.7294118, g: 0.5019608, b: 0.6666667, a: 1}
+  m_Color: {r: 0.7764706, g: 0.38431373, b: 0.65882355, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -21213,7 +21213,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "32\uC2DC\uAC04"
+  m_Text: "30\uC2DC\uAC04 51\uBD84"
 --- !u!1 &5056312844055850630
 GameObject:
   m_ObjectHideFlags: 0
@@ -21497,7 +21497,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.43529412, g: 0.61960787, b: 0.78039217, a: 1}
+  m_Color: {r: 0.30588236, g: 0.5647059, b: 0.8392157, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -21667,7 +21667,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "8\uC2DC\uAC04"
+  m_Text: "4\uC2DC\uAC04 58\uBD84"
 --- !u!1 &5176009589686253250
 GameObject:
   m_ObjectHideFlags: 0
@@ -21975,7 +21975,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "8\uC2DC\uAC04"
+  m_Text: "7\uC2DC\uAC04 41\uBD84"
 --- !u!1 &5244035930176399683
 GameObject:
   m_ObjectHideFlags: 0
@@ -22283,7 +22283,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "8\uC2DC\uAC04"
+  m_Text: "2\uC2DC\uAC04 54\uBD84"
 --- !u!1 &5400196292835368444
 GameObject:
   m_ObjectHideFlags: 0
@@ -22512,7 +22512,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.41568628, g: 0.7058824, b: 0.7019608, a: 1}
+  m_Color: {r: 0.24313726, g: 0.72156864, b: 0.7137255, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -23283,7 +23283,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.4117647, g: 0.7019608, b: 0.5372549, a: 1}
+  m_Color: {r: 0.26666668, g: 0.7137255, b: 0.4627451, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -23378,7 +23378,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "8\uC2DC\uAC04"
+  m_Text: "3\uC2DC\uAC04 26\uBD84"
 --- !u!1 &5683035124239981001
 GameObject:
   m_ObjectHideFlags: 0
@@ -23437,7 +23437,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.56078434, g: 0.5176471, b: 0.75686276, a: 1}
+  m_Color: {r: 0.49411765, g: 0.42352942, b: 0.8392157, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -23816,7 +23816,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.43529412, g: 0.61960787, b: 0.78039217, a: 1}
+  m_Color: {r: 0.30588236, g: 0.5647059, b: 0.8392157, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -23970,7 +23970,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.7294118, g: 0.5019608, b: 0.6666667, a: 1}
+  m_Color: {r: 0.7764706, g: 0.38431373, b: 0.65882355, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -24574,7 +24574,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.64705884, g: 0.6784314, b: 0.72156864, a: 1}
+  m_Color: {r: 0.5882353, g: 0.6431373, b: 0.7137255, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -25299,7 +25299,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "8\uC2DC\uAC04"
+  m_Text: "8\uC2DC\uAC04 53\uBD84"
 --- !u!1 &6050209758912328291
 GameObject:
   m_ObjectHideFlags: 0
@@ -25378,7 +25378,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "8\uC2DC\uAC04"
+  m_Text: "7\uC2DC\uAC04 51\uBD84"
 --- !u!1 &6060599198864381181
 GameObject:
   m_ObjectHideFlags: 0
@@ -26429,7 +26429,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "8\uC2DC\uAC04"
+  m_Text: "3\uC2DC\uAC04 36\uBD84"
 --- !u!1 &6243880399982122689
 GameObject:
   m_ObjectHideFlags: 0
@@ -26713,7 +26713,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.4117647, g: 0.7019608, b: 0.5372549, a: 1}
+  m_Color: {r: 0.26666668, g: 0.7137255, b: 0.4627451, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -27359,7 +27359,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "8\uC2DC\uAC04"
+  m_Text: "4\uC2DC\uAC04 57\uBD84"
 --- !u!1 &6499357398184178442
 GameObject:
   m_ObjectHideFlags: 0
@@ -27418,7 +27418,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.43529412, g: 0.61960787, b: 0.78039217, a: 1}
+  m_Color: {r: 0.30588236, g: 0.5647059, b: 0.8392157, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -27568,7 +27568,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.78039217, g: 0.5921569, b: 0.38431373, a: 1}
+  m_Color: {r: 0.8392157, g: 0.5568628, b: 0.24313726, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -28437,7 +28437,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "8\uC2DC\uAC04"
+  m_Text: "12\uC2DC\uAC04 12\uBD84"
 --- !u!1 &6757162788345020732
 GameObject:
   m_ObjectHideFlags: 0
@@ -28591,7 +28591,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.7294118, g: 0.5019608, b: 0.6666667, a: 1}
+  m_Color: {r: 0.7764706, g: 0.38431373, b: 0.65882355, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -28937,7 +28937,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.7294118, g: 0.5019608, b: 0.6666667, a: 1}
+  m_Color: {r: 0.7764706, g: 0.38431373, b: 0.65882355, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -29427,7 +29427,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "16\uC2DC\uAC04"
+  m_Text: "17\uC2DC\uAC04 6\uBD84"
 --- !u!1 &7077388438180016584
 GameObject:
   m_ObjectHideFlags: 0
@@ -29719,7 +29719,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.78039217, g: 0.5921569, b: 0.38431373, a: 1}
+  m_Color: {r: 0.8392157, g: 0.5568628, b: 0.24313726, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -29814,7 +29814,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "8\uC2DC\uAC04"
+  m_Text: "8\uC2DC\uAC04 25\uBD84"
 --- !u!1 &7133823568833083070
 GameObject:
   m_ObjectHideFlags: 0
@@ -30223,7 +30223,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "8\uC2DC\uAC04"
+  m_Text: "12\uC2DC\uAC04 3\uBD84"
 --- !u!1 &7211909872616344850
 GameObject:
   m_ObjectHideFlags: 0
@@ -30677,7 +30677,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "8\uC2DC\uAC04"
+  m_Text: "7\uC2DC\uAC04 32\uBD84"
 --- !u!1 &7266302453409552378
 GameObject:
   m_ObjectHideFlags: 0
@@ -30886,7 +30886,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.64705884, g: 0.6784314, b: 0.72156864, a: 1}
+  m_Color: {r: 0.5882353, g: 0.6431373, b: 0.7137255, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -31036,7 +31036,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.7294118, g: 0.5019608, b: 0.6666667, a: 1}
+  m_Color: {r: 0.7764706, g: 0.38431373, b: 0.65882355, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -31585,7 +31585,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.56078434, g: 0.5176471, b: 0.75686276, a: 1}
+  m_Color: {r: 0.49411765, g: 0.42352942, b: 0.8392157, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -32150,7 +32150,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "8\uC2DC\uAC04"
+  m_Text: "6\uC2DC\uAC04 1\uBD84"
 --- !u!1 &7818505328519104303
 GameObject:
   m_ObjectHideFlags: 0
@@ -32616,7 +32616,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "8\uC2DC\uAC04"
+  m_Text: "5\uC2DC\uAC04 16\uBD84"
 --- !u!1 &7887721919217807014
 GameObject:
   m_ObjectHideFlags: 0
@@ -32924,7 +32924,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.4117647, g: 0.7019608, b: 0.5372549, a: 1}
+  m_Color: {r: 0.26666668, g: 0.7137255, b: 0.4627451, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -33019,7 +33019,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "16\uC2DC\uAC04"
+  m_Text: "15\uC2DC\uAC04 47\uBD84"
 --- !u!1 &7964428118850226722
 GameObject:
   m_ObjectHideFlags: 0
@@ -33173,7 +33173,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "8\uC2DC\uAC04"
+  m_Text: "4\uC2DC\uAC04 8\uBD84"
 --- !u!1 &7977526071781008735
 GameObject:
   m_ObjectHideFlags: 0
@@ -33327,7 +33327,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "8\uC2DC\uAC04"
+  m_Text: "4\uC2DC\uAC04 41\uBD84"
 --- !u!1 &7998633720133019142
 GameObject:
   m_ObjectHideFlags: 0
@@ -33386,7 +33386,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.4117647, g: 0.7019608, b: 0.5372549, a: 1}
+  m_Color: {r: 0.26666668, g: 0.7137255, b: 0.4627451, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -33712,7 +33712,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.43529412, g: 0.61960787, b: 0.78039217, a: 1}
+  m_Color: {r: 0.30588236, g: 0.5647059, b: 0.8392157, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -33862,7 +33862,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.56078434, g: 0.5176471, b: 0.75686276, a: 1}
+  m_Color: {r: 0.49411765, g: 0.42352942, b: 0.8392157, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -34820,7 +34820,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "8\uC2DC\uAC04"
+  m_Text: "9\uC2DC\uAC04 28\uBD84"
 --- !u!1 &8392065093542081666
 GameObject:
   m_ObjectHideFlags: 0
@@ -35549,7 +35549,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.4117647, g: 0.7019608, b: 0.5372549, a: 1}
+  m_Color: {r: 0.26666668, g: 0.7137255, b: 0.4627451, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -35699,7 +35699,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.41568628, g: 0.7058824, b: 0.7019608, a: 1}
+  m_Color: {r: 0.24313726, g: 0.72156864, b: 0.7137255, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -36252,7 +36252,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.41568628, g: 0.7058824, b: 0.7019608, a: 1}
+  m_Color: {r: 0.24313726, g: 0.72156864, b: 0.7137255, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -36327,7 +36327,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.56078434, g: 0.5176471, b: 0.75686276, a: 1}
+  m_Color: {r: 0.49411765, g: 0.42352942, b: 0.8392157, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -36402,7 +36402,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.56078434, g: 0.5176471, b: 0.75686276, a: 1}
+  m_Color: {r: 0.49411765, g: 0.42352942, b: 0.8392157, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -36922,7 +36922,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "8\uC2DC\uAC04"
+  m_Text: "4\uC2DC\uAC04 32\uBD84"
 --- !u!1 &8998176301328109231
 GameObject:
   m_ObjectHideFlags: 0
@@ -37315,7 +37315,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.7294118, g: 0.5019608, b: 0.6666667, a: 1}
+  m_Color: {r: 0.7764706, g: 0.38431373, b: 0.65882355, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -37390,7 +37390,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.4117647, g: 0.7019608, b: 0.5372549, a: 1}
+  m_Color: {r: 0.26666668, g: 0.7137255, b: 0.4627451, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1

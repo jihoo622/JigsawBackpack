@@ -11,7 +11,8 @@ public enum PuzzlePlacementFailure
     InvalidRotation,
     CellOutsideBoard,
     CellOccupied,
-    NoSpace
+    NoSpace,
+    MarketClosed
 }
 
 public readonly struct PuzzleCell
@@ -90,19 +91,20 @@ public sealed class PuzzlePlacement
     // 도시 이동 턴마다 기존 시너지 변화량을 누적한 값. 인접 배치 변경만으로는 바뀌지 않는다.
     public decimal ActualValue { get; private set; }
     /// <summary>획득 후 보유 시간. 시작 지급·구매 시 0부터 시작하며 -1은 미소유·판매된 물건이다.</summary>
-    public long OwnedHours { get; private set; }
+    public long OwnedMinutes { get; private set; }
+    public decimal OwnedHours => OwnedMinutes < 0 ? -1 : OwnedMinutes / (decimal)PuzzleTimeManager.MINUTES_PER_HOUR;
     // 현재 내구도. 생성 시 정의의 시작값으로 초기화하고, 이동 시 보존한다. 감소는 외부 Manager가 담당한다.
     public int Durability { get; private set; }
 
     internal PuzzlePlacement(int _instanceId, PuzzleItemDefinition _definition, PuzzleInventory _owner, PuzzlePose _pose,
-        decimal _actualValue, long _ownedHours = -1, int _durability = -1)
+        decimal _actualValue, long _ownedMinutes = -1, int _durability = -1)
     {
         InstanceId = _instanceId;
         Definition = _definition;
         Owner = _owner;
         Pose = _pose;
         ActualValue = _actualValue;
-        OwnedHours = _ownedHours;
+        OwnedMinutes = _ownedMinutes;
         Durability = _durability >= 0 ? _durability : _definition.Durability;
     }
 
@@ -119,30 +121,22 @@ public sealed class PuzzlePlacement
     /// <summary>시작 지급·구매 시 보유 시간을 0으로 시작하고 판매 시 추적을 종료한다.</summary>
     internal void SetOwned(bool _owned)
     {
-        OwnedHours = _owned ? 0 : -1;
+        OwnedMinutes = _owned ? 0 : -1;
     }
 
-    /// <summary>획득 이후 경과 시간을 누적하고 로그를 출력한다. 부패·내구도 처리의 연결 지점이며 해당 상태 값은 변경하지 않는다.</summary>
-    /// <param name="_hours">이번 행동으로 경과한 시간. 0은 무변화이며 미소유 물건은 무시한다.</param>
+    /// <summary>획득 이후 경과 분을 누적한다. 부패·내구도 상태는 변경하지 않는다.</summary>
+    /// <param name="_minutes">이번 행동으로 경과한 분. 0은 무변화이며 미소유 물건은 무시한다.</param>
     /// <exception cref="ArgumentOutOfRangeException">시간이 음수일 때 발생한다.</exception>
     /// <exception cref="OverflowException">보유 시간이 long 범위를 초과할 때 발생한다.</exception>
-    internal void ApplyElapsedHours(long _hours)
+    internal void ApplyElapsedMinutes(long _minutes)
     {
-        if (_hours < 0)
+        if (_minutes < 0)
         {
-            throw new ArgumentOutOfRangeException(nameof(_hours));
+            throw new ArgumentOutOfRangeException(nameof(_minutes));
         }
-        if (OwnedHours < 0 || _hours == 0)
+        if (OwnedMinutes >= 0 && _minutes > 0)
         {
-            return;
-        }
-        long previous = OwnedHours;
-        OwnedHours = checked(previous + _hours);
-        Debug.Log($"[물건 시간] {Definition.DisplayName} #{InstanceId} · +{_hours}시간 · 획득 후 {OwnedHours}시간 경과");
-        long days = OwnedHours / PuzzleTimeManager.HOURS_PER_DAY - previous / PuzzleTimeManager.HOURS_PER_DAY;
-        if (days > 0)
-        {
-            Debug.Log($"[물건 시간] {Definition.DisplayName} #{InstanceId} · 획득 기준 {days}일 추가 경과 (총 {OwnedHours / PuzzleTimeManager.HOURS_PER_DAY}일)");
+            OwnedMinutes = checked(OwnedMinutes + _minutes);
         }
     }
 

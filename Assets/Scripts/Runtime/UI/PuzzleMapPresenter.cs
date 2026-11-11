@@ -33,6 +33,7 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
         }
         GameEvents.CityArrived += OnCityArrived;
         GameEvents.PanelVisibility += OnPanelVisibility;
+        GameEvents.MapRequested += OnMapRequested;
         travelView.Confirmed += ConfirmTravel;
         travelView.Canceled += AbortTravel;
         Refresh();
@@ -50,6 +51,7 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
         }
         GameEvents.CityArrived -= OnCityArrived;
         GameEvents.PanelVisibility -= OnPanelVisibility;
+        GameEvents.MapRequested -= OnMapRequested;
         travelView.Confirmed -= ConfirmTravel;
         travelView.Canceled -= AbortTravel;
         AbortTravel();
@@ -60,6 +62,14 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
     {
         Refresh();
         view.Open();
+    }
+
+    void OnMapRequested(GameEvents.MapRequestInfo _info)
+    {
+        if (_info.sceneHandle == gameObject.scene.handle && phase == TravelPhase.None)
+        {
+            OpenMap();
+        }
     }
 
     void CloseMap()
@@ -152,7 +162,7 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
             return;
         }
         view.HighlightCity(null);
-        view.ShowInformation(Presentation.PUZZLE_MAP_HINT);
+        view.ShowInformation(Presentation.PuzzleMapHint);
     }
 
     void OnNodeClicked(string _cityId)
@@ -171,6 +181,7 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
         }
 
         pendingCityId = _cityId;
+        session.SetPreviewDestination(_cityId);
         phase = TravelPhase.Confirming;
         view.SetInteraction(false);
         travelView.ShowConfirmation(Presentation.PuzzleTravelConfirmation(

@@ -32,21 +32,21 @@ public sealed class PuzzleMapNodeView : MonoBehaviour, IPointerEnterHandler, IPo
     internal void PrepareLayout(float _zoom)
     {
         transform.localScale = Vector3.one / _zoom;
-        ((RectTransform)transform).sizeDelta = Vector2.one * 44f;
+        ((RectTransform)transform).sizeDelta = Vector2.one * BasicData.Float("ui.PuzzleMapNodeView.PrepareLayout.number1");
         label.raycastTarget = false;
         label.fontSize = Presentation.PuzzleMapStationFontSize(_zoom, IsEmphasized);
         label.horizontalOverflow = HorizontalWrapMode.Overflow;
         label.verticalOverflow = VerticalWrapMode.Truncate;
         label.resizeTextForBestFit = false;
-        float width = Mathf.Ceil(label.preferredWidth) + 12f;
-        label.rectTransform.sizeDelta = new Vector2(width, 28f);
-        currentHalo.rectTransform.sizeDelta = Vector2.one * Presentation.PUZZLE_MAP_HALO_SIZE;
+        float width = Mathf.Ceil(label.preferredWidth) + BasicData.Float("ui.PuzzleMapNodeView.PrepareLayout.number2");
+        label.rectTransform.sizeDelta = new Vector2(width, BasicData.Float("ui.PuzzleMapNodeView.Vector2.number1"));
+        currentHalo.rectTransform.sizeDelta = Vector2.one * Presentation.PuzzleMapHaloSize;
         currentBadge.horizontalOverflow = HorizontalWrapMode.Overflow;
         currentBadge.verticalOverflow = VerticalWrapMode.Overflow;
-        currentBadge.fontSize = Presentation.PUZZLE_MAP_BADGE_FONT_SIZE;
-        float badgeWidth = Mathf.Ceil(currentBadge.preferredWidth) + 12f;
-        currentBadge.rectTransform.sizeDelta = new Vector2(Mathf.Max(badgeWidth, 160f), 24f);
-        LabelSize = new Vector2(IsEmphasized ? Mathf.Max(width, Mathf.Max(badgeWidth, 160f)) : width, IsEmphasized ? 54f : 28f);
+        currentBadge.fontSize = Presentation.PuzzleMapBadgeFontSize;
+        float badgeWidth = Mathf.Ceil(currentBadge.preferredWidth) + BasicData.Float("ui.PuzzleMapNodeView.Vector2.number2");
+        currentBadge.rectTransform.sizeDelta = new Vector2(Mathf.Max(badgeWidth, BasicData.Float("ui.PuzzleMapNodeView.Vector2.number3")), BasicData.Float("ui.PuzzleMapNodeView.Vector2.number4"));
+        LabelSize = new Vector2(IsEmphasized ? Mathf.Max(width, Mathf.Max(badgeWidth, BasicData.Float("ui.PuzzleMapNodeView.Vector2.number5"))) : width, IsEmphasized ? BasicData.Float("ui.PuzzleMapNodeView.Vector2.number6") : BasicData.Float("ui.PuzzleMapNodeView.Vector2.number7"));
     }
 
     internal Vector2 MarkerPosition(RectTransform _viewport)
@@ -54,15 +54,15 @@ public sealed class PuzzleMapNodeView : MonoBehaviour, IPointerEnterHandler, IPo
         return _viewport.InverseTransformPoint(stationRing.transform.position);
     }
 
-    internal float MarkerRadius => IsEmphasized ? 28f : 16f;
+    internal float MarkerRadius => IsEmphasized ? BasicData.Float("ui.PuzzleMapNodeView.MarkerRadius.number1") : BasicData.Float("ui.PuzzleMapNodeView.MarkerRadius.number2");
 
     internal void PlaceLabel(bool _visible, Vector2 _footprintOffset)
     {
         label.gameObject.SetActive(_visible);
         currentBadge.gameObject.SetActive(_visible && IsEmphasized);
-        Vector2 offset = _footprintOffset - (IsEmphasized ? new Vector2(0f, 13f) : Vector2.zero);
+        Vector2 offset = _footprintOffset - (IsEmphasized ? new Vector2(0f, BasicData.Float("ui.PuzzleMapNodeView.Vector2.number8")) : Vector2.zero);
         label.rectTransform.anchoredPosition = offset;
-        currentBadge.rectTransform.anchoredPosition = offset + new Vector2(0f, 26f);
+        currentBadge.rectTransform.anchoredPosition = offset + new Vector2(0f, BasicData.Float("ui.PuzzleMapNodeView.Vector2.number9"));
     }
 
     internal void Show(PuzzleCityData _city, bool _visited, bool _current, bool _connected, bool _canAfford, bool _planningTarget)
@@ -84,7 +84,7 @@ public sealed class PuzzleMapNodeView : MonoBehaviour, IPointerEnterHandler, IPo
         {
             transform.SetAsLastSibling();
         }
-        stationRing.rectTransform.localScale = Vector3.one * (emphasized ? 1.5f : 1f);
+        stationRing.rectTransform.localScale = Vector3.one * (emphasized ? BasicData.Float("ui.PuzzleMapNodeView.Show.number1") : 1f);
         stationRing.color = emphasized ? highlight :
             interchange ? Presentation.PuzzleMapInterchange : Presentation.PuzzleMapLineColor(_city.regionId);
         marker.color = Presentation.PuzzleMapNodeMarkerColor(_current, _visited, _connected, _canAfford);

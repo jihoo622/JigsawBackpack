@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 100002}
   - component: {fileID: 100269}
+  - component: {fileID: 5162449441332754863}
   m_Layer: 5
   m_Name: PuzzleInventoryUI
   m_TagString: Untagged
@@ -96,17 +97,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PuzzleInventoryView
   board: {fileID: 100018}
+  interaction: {fileID: 5162449441332754863}
   boardTitle: {fileID: 3257165482669291814}
   boardValue: {fileID: 1058165967395820605}
   moveGuide: {fileID: 8880014063230992501}
   itemDetails: {fileID: 820488757614130048}
   itemIcons:
-  - key: cargo.crate
-    sprite: {fileID: 21300000, guid: e61f8d318f354ab3af8a4b00d58c99e2, type: 3}
-  - key: cargo.machine
-    sprite: {fileID: 21300000, guid: ed53d75543d748bc8dc6ac37fe448d96, type: 3}
-  - key: cargo.supplies
-    sprite: {fileID: 21300000, guid: a29371f71f3d43e39336f67fb638178f, type: 3}
   - key: cargo.elbowLeft
     sprite: {fileID: 21300000, guid: 806cbaf4c36046c9ace88fac78f1a205, type: 3}
   - key: cargo.smallCrate
@@ -649,6 +645,18 @@ MonoBehaviour:
   - {fileID: 401343}
   increaseArrow: {fileID: 21300000, guid: acb2b9a51d51490da805e90620c0aa01, type: 3}
   decreaseArrow: {fileID: 21300000, guid: acb2b9a51d51490da805e90620c0aa03, type: 3}
+--- !u!225 &5162449441332754863
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 100001}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &100007
 GameObject:
   m_ObjectHideFlags: 0
@@ -714,7 +722,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 기차 화물 · 1번 칸
+  m_text: "\uAE30\uCC28 \uD654\uBB3C \xB7 1\uBC88 \uCE78"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: b2eeb73aa1ee10b48a7fe11797ba93c5, type: 2}
   m_sharedMaterial: {fileID: -3217437318264749832, guid: b2eeb73aa1ee10b48a7fe11797ba93c5, type: 2}
@@ -4538,7 +4546,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "드래그  배치    ·    R  회전    ·    Esc  취소"
+  m_text: "\uB4DC\uB798\uADF8  \uBC30\uCE58    \xB7    R  \uD68C\uC804    \xB7   
+    Esc  \uCDE8\uC18C"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: b2eeb73aa1ee10b48a7fe11797ba93c5, type: 2}
   m_sharedMaterial: {fileID: -3217437318264749832, guid: b2eeb73aa1ee10b48a7fe11797ba93c5, type: 2}
@@ -4812,7 +4821,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 화물 가치  $0
+  m_text: "\uD654\uBB3C \uAC00\uCE58  $0"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: b2eeb73aa1ee10b48a7fe11797ba93c5, type: 2}
   m_sharedMaterial: {fileID: -3217437318264749832, guid: b2eeb73aa1ee10b48a7fe11797ba93c5, type: 2}

@@ -48,15 +48,15 @@ public sealed class PuzzleMapView : PanelBase
     RouteTimeVisual[] layoutRoutes;
     string currentCityId;
     string selectedCityId;
-    const float LABEL_GAP = 6f;
+    static float LabelGap => BasicData.Float("ui.PuzzleMapView.LabelGap");
     static readonly Vector2[] LABEL_DIRECTIONS =
     {
         Vector2.up, Vector2.right, Vector2.down, Vector2.left,
         new Vector2(1f, 1f), new Vector2(-1f, 1f), new Vector2(1f, -1f), new Vector2(-1f, -1f)
     };
-    static readonly Vector2[] TIME_OFFSETS =
+    static Vector2[] TimeOffsets => new Vector2[]
     {
-        Vector2.zero, new Vector2(0f, 24f), new Vector2(0f, -24f), new Vector2(28f, 0f), new Vector2(-28f, 0f)
+        Vector2.zero, new Vector2(0f, BasicData.Float("ui.PuzzleMapView.Vector2.number1")), new Vector2(0f, -BasicData.Float("ui.PuzzleMapView.Vector2.number2")), new Vector2(BasicData.Float("ui.PuzzleMapView.Vector2.number3"), 0f), new Vector2(-BasicData.Float("ui.PuzzleMapView.Vector2.number4"), 0f)
     };
 
     internal PuzzleMapNodeView[] Nodes => nodes;
@@ -107,7 +107,7 @@ public sealed class PuzzleMapView : PanelBase
         PrepareLayout();
         occupied.Clear();
         Rect bounds = _viewport.rect;
-        bounds = Rect.MinMaxRect(bounds.xMin + 8f, bounds.yMin + 8f, bounds.xMax - 8f, bounds.yMax - 8f);
+        bounds = Rect.MinMaxRect(bounds.xMin + BasicData.Float("ui.PuzzleMapView.UpdateMapLayout.number1"), bounds.yMin + BasicData.Float("ui.PuzzleMapView.UpdateMapLayout.number2"), bounds.xMax - BasicData.Float("ui.PuzzleMapView.UpdateMapLayout.number3"), bounds.yMax - BasicData.Float("ui.PuzzleMapView.UpdateMapLayout.number4"));
         foreach (var node in layoutNodes)
         {
             node.PrepareLayout(_zoom);
@@ -129,7 +129,7 @@ public sealed class PuzzleMapView : PanelBase
             {
                 foreach (var direction in LABEL_DIRECTIONS)
                 {
-                    offset = Vector2.Scale(direction, size * 0.5f + Vector2.one * (node.MarkerRadius + LABEL_GAP));
+                    offset = Vector2.Scale(direction, size * 0.5f + Vector2.one * (node.MarkerRadius + LabelGap));
                     Rect candidate = Box(position + offset, size);
                     if (Available(candidate, bounds))
                     {
@@ -138,9 +138,9 @@ public sealed class PuzzleMapView : PanelBase
                         break;
                     }
                 }
-                if (!visible && node.LabelPriority(selectedCityId) >= 3)
+                if (!visible && node.LabelPriority(selectedCityId) >= BasicData.Int("ui.PuzzleMapView.UpdateMapLayout.number5"))
                 {
-                    Vector2 center = position + Vector2.up * (node.MarkerRadius + LABEL_GAP + size.y * 0.5f);
+                    Vector2 center = position + Vector2.up * (node.MarkerRadius + LabelGap + size.y * 0.5f);
                     center.x = Mathf.Clamp(center.x, bounds.xMin + size.x * 0.5f, bounds.xMax - size.x * 0.5f);
                     center.y = Mathf.Clamp(center.y, bounds.yMin + size.y * 0.5f, bounds.yMax - size.y * 0.5f);
                     offset = center - position;
@@ -172,10 +172,10 @@ public sealed class PuzzleMapView : PanelBase
             var label = route.label;
             label.rectTransform.localScale = Vector3.one / _zoom;
             label.rectTransform.anchoredPosition = route.position;
-            label.fontSize = Presentation.PUZZLE_MAP_TIME_FONT_SIZE;
+            label.fontSize = Presentation.PuzzleMapTimeFontSize;
             label.resizeTextForBestFit = false;
             label.horizontalOverflow = HorizontalWrapMode.Overflow;
-            Vector2 size = new Vector2(Mathf.Ceil(label.preferredWidth) + 16f, 28f);
+            Vector2 size = new Vector2(Mathf.Ceil(label.preferredWidth) + BasicData.Float("ui.PuzzleMapView.Vector2.number5"), BasicData.Float("ui.PuzzleMapView.Vector2.number6"));
             label.rectTransform.sizeDelta = size;
             bool visible = false;
             if (route.plate)
@@ -183,10 +183,10 @@ public sealed class PuzzleMapView : PanelBase
                 var plate = route.plate.rectTransform;
                 plate.localScale = Vector3.one / _zoom;
                 plate.sizeDelta = size;
-                if (_zoom >= 0.85f)
+                if (_zoom >= BasicData.Float("ui.PuzzleMapView.Vector2.number7"))
                 {
                     Vector2 origin = _viewport.InverseTransformPoint(label.transform.position);
-                    foreach (var offset in TIME_OFFSETS)
+                    foreach (var offset in TimeOffsets)
                     {
                         Rect candidate = Box(origin + offset, size);
                         if (Available(candidate, bounds))
@@ -209,7 +209,7 @@ public sealed class PuzzleMapView : PanelBase
     {
         bool current = _route.fromCityId == currentCityId || _route.toCityId == currentCityId;
         bool selected = _route.fromCityId == selectedCityId || _route.toCityId == selectedCityId;
-        return current && selected ? 3 : current ? 2 : selected ? 1 : 0;
+        return current && selected ? BasicData.Int("ui.PuzzleMapView.RoutePriority.number1") : current ? 2 : selected ? 1 : 0;
     }
 
     bool Available(Rect _candidate, Rect _bounds)
@@ -219,8 +219,8 @@ public sealed class PuzzleMapView : PanelBase
         {
             return false;
         }
-        Rect padded = Rect.MinMaxRect(_candidate.xMin - LABEL_GAP, _candidate.yMin - LABEL_GAP,
-            _candidate.xMax + LABEL_GAP, _candidate.yMax + LABEL_GAP);
+        Rect padded = Rect.MinMaxRect(_candidate.xMin - LabelGap, _candidate.yMin - LabelGap,
+            _candidate.xMax + LabelGap, _candidate.yMax + LabelGap);
         foreach (var rect in occupied)
         {
             if (padded.Overlaps(rect))
@@ -238,9 +238,9 @@ public sealed class PuzzleMapView : PanelBase
 
     protected override void Awake()
     {
-        title.text = Presentation.PUZZLE_MAP_TITLE;
-        guide.text = Presentation.PUZZLE_MAP_GUIDE;
-        closeLabel.text = Presentation.PUZZLE_MAP_CLOSE;
+        title.text = Presentation.PuzzleMapTitle;
+        guide.text = Presentation.PuzzleMapGuideText;
+        closeLabel.text = Presentation.PuzzleMapClose;
         title.color = guide.color = information.color = openLabel.color = closeLabel.color = Presentation.PuzzleHeading;
         background.color = Presentation.PuzzleBackground;
         if (lines != null)
@@ -265,7 +265,7 @@ public sealed class PuzzleMapView : PanelBase
         {
             if (tables.TryGetRoute(routeTime.fromCityId, routeTime.toCityId, out var route))
             {
-                routeTime.label.text = Presentation.PuzzleMapTime(PuzzleTimeManager.TravelHours(route.travelTimeWeight));
+                routeTime.label.text = Presentation.PuzzleMapTime(PuzzleTimeManager.TravelMinutes(route, tables.PuzzleTime));
             }
             routeTime.label.color = Presentation.PuzzleHeading;
         }
@@ -287,7 +287,7 @@ public sealed class PuzzleMapView : PanelBase
 
     protected override void OnShow()
     {
-        ShowInformation(Presentation.PUZZLE_MAP_HINT);
+        ShowInformation(Presentation.PuzzleMapHint);
         navigation.Open();
     }
 

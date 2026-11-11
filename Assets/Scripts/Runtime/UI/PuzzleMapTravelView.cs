@@ -36,9 +36,9 @@ public sealed class PuzzleMapTravelView : PanelBase
     {
         actions = Instantiate(inputActions);
         cancel = actions.FindAction("UI/Cancel", true);
-        question.text = Presentation.PUZZLE_TRAVEL_QUESTION;
-        confirmLabel.text = Presentation.PUZZLE_TRAVEL_CONFIRM;
-        cancelLabel.text = Presentation.PUZZLE_TRAVEL_CANCEL;
+        question.text = Presentation.PuzzleTravelQuestion;
+        confirmLabel.text = Presentation.PuzzleTravelConfirm;
+        cancelLabel.text = Presentation.PuzzleTravelCancel;
         base.Awake();
     }
 
@@ -82,7 +82,7 @@ public sealed class PuzzleMapTravelView : PanelBase
         confirming = false;
         confirmation.SetActive(false);
         journey.SetActive(true);
-        journeyTitle.text = Presentation.PUZZLE_TRAVEL_IN_PROGRESS;
+        journeyTitle.text = Presentation.PuzzleTravelInProgress;
         journeyRoute.text = _route;
         if (EventSystem.current)
         {
@@ -102,7 +102,7 @@ public sealed class PuzzleMapTravelView : PanelBase
     internal void ShowArrival()
     {
         ShowProgress(1f);
-        journeyTitle.text = Presentation.PUZZLE_TRAVEL_ARRIVED;
+        journeyTitle.text = Presentation.PuzzleTravelArrived;
     }
 
     void ApplyProgressFill(float _value)

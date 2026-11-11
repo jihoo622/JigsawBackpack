@@ -1,7 +1,6 @@
 using System;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.EventSystems;
 using TMPro;
 
 [DisallowMultipleComponent]
@@ -13,28 +12,67 @@ public sealed class PuzzleCityView : MonoBehaviour
     [SerializeField] TextMeshProUGUI tradeStatus;
     [SerializeField] Button clearButton;
     [SerializeField] TextMeshProUGUI clearLabel;
+    [SerializeField] Button waitButton;
+    [SerializeField] TextMeshProUGUI waitLabel;
+    [SerializeField] Button previewButton;
+    [SerializeField] TextMeshProUGUI previewLabel;
 
-    [SerializeField] CanvasGroup marketPage;
-    [SerializeField] CanvasGroup townMainPage;
-    [SerializeField] CanvasGroup tavernPage;
-    [SerializeField] Button townButton;
-    [SerializeField] Button marketButton;
-    [SerializeField] Button tavernButton;
+    internal event Action WaitRequested;
+    internal event Action PreviewRequested;
+
+    void OnEnable()
+    {
+        if (!waitButton || !previewButton || !talkButton)
+        {
+            Debug.LogError("도시 View에 대기·예측·술집 대화 버튼 참조가 필요합니다.", this);
+            enabled = false;
+            return;
+        }
+        waitButton.onClick.AddListener(OnWait);
+        previewButton.onClick.AddListener(OnPreview);
+        talkButton.onClick.AddListener(HearRumor);
+    }
+
+    void OnDisable()
+    {
+        if (waitButton)
+        {
+            waitButton.onClick.RemoveListener(OnWait);
+        }
+        if (previewButton)
+        {
+            previewButton.onClick.RemoveListener(OnPreview);
+        }
+        if (talkButton)
+        {
+            talkButton.onClick.RemoveListener(HearRumor);
+        }
+    }
+
+    void OnWait()
+    {
+        WaitRequested?.Invoke();
+    }
+
+    void OnPreview()
+    {
+        PreviewRequested?.Invoke();
+    }
+
+    internal void ShowTimeActions(bool _canWait, bool _inProgress, string _preview)
+    {
+        waitButton.interactable = _canWait;
+        waitLabel.text = Presentation.PuzzleWaitDaylight;
+        previewButton.interactable = _inProgress;
+        previewLabel.text = _preview;
+    }
+
     [SerializeField] Button talkButton;
-    [SerializeField] Button backButton;
-    [SerializeField] TextMeshProUGUI townTitle;
     [SerializeField] TextMeshProUGUI tavernTitle;
     [SerializeField] TextMeshProUGUI rumorLabel;
 
-    enum Page { Market, Town, Tavern }
-
-    Page page;
-    bool mapOpen;
     Func<string> getRumor;
     string heardRumor;
-    string unreadRumorText;
-
-    internal bool IsTownOpen => page != Page.Market;
 
     internal void Initialize(long _clearCost)
     {
@@ -50,77 +88,20 @@ public sealed class PuzzleCityView : MonoBehaviour
 
     internal void InitializeTown(Func<string> _getRumor)
     {
-        if (!marketPage || !townMainPage || !tavernPage || !townButton || !marketButton ||
-            !tavernButton || !talkButton || !backButton || !townTitle || !tavernTitle || !rumorLabel)
+        if (!talkButton || !tavernTitle || !rumorLabel)
         {
-            throw new InvalidOperationException("도시 View에 마을 메인과 술집의 씬 참조가 필요합니다.");
-        }
-
-        if (getRumor == null)
-        {
-            unreadRumorText = rumorLabel.text;
-            townButton.onClick.AddListener(OpenTown);
-            marketButton.onClick.AddListener(OpenMarket);
-            tavernButton.onClick.AddListener(OpenTavern);
-            talkButton.onClick.AddListener(HearRumor);
-            backButton.onClick.AddListener(OpenTown);
+            throw new InvalidOperationException("도시 View에 술집 대화 버튼·제목·소식 표시 참조가 필요합니다.");
         }
         getRumor = _getRumor;
-        mapOpen = false;
-        ShowPage(Page.Market);
+        talkButton.GetComponentInChildren<TextMeshProUGUI>(true).text = Presentation.TavernTalk;
     }
 
     internal void SetTown(string _name, bool _available)
     {
-        townTitle.text = _name;
-        tavernTitle.text = $"{_name} 술집";
+        tavernTitle.text = Presentation.TavernTitle(_name);
         heardRumor = null;
-        rumorLabel.text = unreadRumorText;
-        townButton.gameObject.SetActive(_available);
-        if (!_available)
-        {
-            ShowPage(Page.Market);
-        }
-    }
-
-    internal void OpenTown()
-    {
-        ShowPage(Page.Town);
-        Select(marketButton);
-    }
-
-    internal void SetTownInteraction(bool _enabled)
-    {
-        mapOpen = !_enabled;
-        UpdatePageInteraction();
-    }
-
-    void OpenMarket()
-    {
-        ShowPage(Page.Market);
-        Select(townButton);
-    }
-
-    void OpenTavern()
-    {
-        ShowPage(Page.Tavern);
-        Select(talkButton);
-    }
-
-    void ShowPage(Page _page)
-    {
-        page = _page;
-        marketPage.alpha = page == Page.Market ? 1f : 0f;
-        townMainPage.gameObject.SetActive(page == Page.Town);
-        tavernPage.gameObject.SetActive(page == Page.Tavern);
-        UpdatePageInteraction();
-    }
-
-    void UpdatePageInteraction()
-    {
-        marketPage.interactable = marketPage.blocksRaycasts = !mapOpen && page == Page.Market;
-        townMainPage.interactable = townMainPage.blocksRaycasts = !mapOpen && page == Page.Town;
-        tavernPage.interactable = tavernPage.blocksRaycasts = !mapOpen && page == Page.Tavern;
+        rumorLabel.text = Presentation.TavernUnreadRumor;
+        talkButton.interactable = _available;
     }
 
     #region 술집 대화 표시
@@ -136,14 +117,6 @@ public sealed class PuzzleCityView : MonoBehaviour
     }
 
     #endregion
-
-    static void Select(Button _button)
-    {
-        if (EventSystem.current)
-        {
-            EventSystem.current.SetSelectedGameObject(_button.gameObject);
-        }
-    }
 
     internal void ShowCity(string _name)
     {

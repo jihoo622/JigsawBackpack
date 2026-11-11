@@ -6,10 +6,10 @@ using TMPro;
 [DisallowMultipleComponent]
 public sealed class PuzzleTrainBarView : MonoBehaviour
 {
-    const float WAGON_WIDTH = 150f;
-    const float WAGON_HEIGHT = 60f;
-    const float WAGON_SPACING = 50f;
-    const float WAGON_DRAG_HOVER_SCALE = 1.08f;
+    static float WagonWidth => BasicData.Float("ui.PuzzleTrainBarView.WagonWidth");
+    static float WagonHeight => BasicData.Float("ui.PuzzleTrainBarView.WagonHeight");
+    static float WagonSpacing => BasicData.Float("ui.PuzzleTrainBarView.WagonSpacing");
+    static float WagonDragHoverScale => BasicData.Float("ui.PuzzleTrainBarView.WagonDragHoverScale");
 
     [Serializable]
     public sealed class WagonSlotUI
@@ -31,9 +31,8 @@ public sealed class PuzzleTrainBarView : MonoBehaviour
     [SerializeField] Image addWagonBox;
     [SerializeField] TextMeshProUGUI addWagonText;
 
-    [Header("Layout Settings")]
-    [SerializeField] float originX = 350f;
-    [SerializeField] float originY = 0f;
+    float OriginX => BasicData.Float("ui.PuzzleTrainBarView.OriginX");
+    float OriginY => BasicData.Float("ui.PuzzleTrainBarView.OriginY");
 
     public event Action<int> WagonSelected;
     public event Action AddWagonClicked;
@@ -119,7 +118,13 @@ public sealed class PuzzleTrainBarView : MonoBehaviour
             return;
         }
 
-        float step = WAGON_WIDTH + WAGON_SPACING;
+        int visibleCount = Mathf.Min(_wagonCount, wagonSlots.Length);
+        int count = visibleCount + 1;
+        float available = ((RectTransform)transform).rect.width;
+        float gap = Mathf.Min(WagonSpacing, available / (count * 2f));
+        float width = Mathf.Min(WagonWidth, (available - gap * (count - 1)) / count);
+        float step = width + gap;
+        float start = OriginX - (count - 1) * step * 0.5f;
 
         for (int i = 0; i < wagonSlots.Length; i++)
         {
@@ -136,12 +141,12 @@ public sealed class PuzzleTrainBarView : MonoBehaviour
             {
                 bool isSelected = i == _selectedIndex;
                 bool isDragHovered = _dragHoveredIndex == i;
-                float x = originX - (i * step);
+                float x = start + i * step;
                 if (slot.rectTransform != null)
                 {
-                    slot.rectTransform.anchoredPosition = new Vector2(x, originY);
-                    slot.rectTransform.sizeDelta = new Vector2(WAGON_WIDTH, WAGON_HEIGHT);
-                    slot.rectTransform.localScale = isDragHovered ? Vector3.one * WAGON_DRAG_HOVER_SCALE : Vector3.one;
+                    slot.rectTransform.anchoredPosition = new Vector2(x, OriginY);
+                    slot.rectTransform.sizeDelta = new Vector2(width, WagonHeight);
+                    slot.rectTransform.localScale = isDragHovered ? Vector3.one * WagonDragHoverScale : Vector3.one;
                 }
 
                 if (slot.numberText != null)
@@ -161,15 +166,17 @@ public sealed class PuzzleTrainBarView : MonoBehaviour
 
         if (addWagonButton != null && addWagonRect != null)
         {
+            addWagonRect.anchoredPosition = new Vector2(start + visibleCount * step, OriginY);
+            addWagonRect.sizeDelta = new Vector2(width, WagonHeight);
             if (addWagonBox != null)
             {
-                addWagonBox.color = _canAfford ? Presentation.PuzzleAddWagonBox : new Color(0.18f, 0.55f, 0.28f, 0.5f);
+                addWagonBox.color = _canAfford ? Presentation.PuzzleAddWagonBox : Presentation.SharedColor("ui.PuzzleTrainBarView.Vector2.color1");
             }
 
             if (addWagonText != null)
             {
                 addWagonText.text = Presentation.PuzzleAddWagonLabel(_nextCost);
-                addWagonText.color = _canAfford ? Color.white : new Color(0.8f, 0.8f, 0.8f, 0.6f);
+                addWagonText.color = _canAfford ? Presentation.PuzzleUnmodifiedTint : Presentation.SharedColor("ui.PuzzleTrainBarView.Color.color1");
             }
 
             addWagonButton.interactable = _canAfford;

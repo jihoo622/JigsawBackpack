@@ -305,27 +305,19 @@
       "durability": 100
     },
     {
-      "id": "piece.animal",
-      "displayName": "가축",
-      "description": "목장에서 거래하는 살아 있는 동물.",
+      "id": "piece.box",
+      "displayName": "빈 상자",
+      "description": "다른 상품과 구분되는 빈 운송 상자.",
       "tags": [
         "Cargo",
-        "Animal"
+        "Box"
       ],
-      "visualKey": "cargo.woodBundle",
-      "slotCount": 2,
+      "visualKey": "cargo.smallCrate",
+      "slotCount": 1,
       "cells": [
         {
           "x": 0,
           "y": 0,
-          "north": "Flat",
-          "east": "Flat",
-          "south": "Flat",
-          "west": "Flat"
-        },
-        {
-          "x": 0,
-          "y": 1,
           "north": "Flat",
           "east": "Flat",
           "south": "Flat",
@@ -343,28 +335,6 @@
         "Meat"
       ],
       "visualKey": "cargo.grainSack",
-      "slotCount": 1,
-      "cells": [
-        {
-          "x": 0,
-          "y": 0,
-          "north": "Flat",
-          "east": "Flat",
-          "south": "Flat",
-          "west": "Flat"
-        }
-      ],
-      "durability": 100
-    },
-    {
-      "id": "piece.box",
-      "displayName": "빈 상자",
-      "description": "다른 상품과 구분되는 빈 운송 상자.",
-      "tags": [
-        "Cargo",
-        "Box"
-      ],
-      "visualKey": "cargo.smallCrate",
       "slotCount": 1,
       "cells": [
         {
@@ -620,7 +590,7 @@
       },
       "generalStock": {
         "pieceIds": [
-          "piece.animal",
+          "piece.cow",
           "piece.box",
           "piece.elbowLeft",
           "piece.elbowRight",
@@ -628,6 +598,7 @@
           "piece.fourNotches",
           "piece.fruit",
           "piece.meat",
+          "piece.beef",
           "piece.saltSack",
           "piece.topNotch",
           "piece.uShape",
@@ -742,7 +713,7 @@
       },
       "generalStock": {
         "pieceIds": [
-          "piece.animal",
+          "piece.cow",
           "piece.box",
           "piece.elbowLeft",
           "piece.elbowRight",
@@ -750,6 +721,7 @@
           "piece.fourNotches",
           "piece.fruit",
           "piece.meat",
+          "piece.beef",
           "piece.saltSack",
           "piece.topNotch",
           "piece.uShape",
@@ -864,7 +836,7 @@
       },
       "generalStock": {
         "pieceIds": [
-          "piece.animal",
+          "piece.cow",
           "piece.box",
           "piece.elbowLeft",
           "piece.elbowRight",
@@ -872,6 +844,7 @@
           "piece.fourNotches",
           "piece.fruit",
           "piece.meat",
+          "piece.beef",
           "piece.saltSack",
           "piece.topNotch",
           "piece.uShape",
@@ -986,7 +959,7 @@
       },
       "generalStock": {
         "pieceIds": [
-          "piece.animal",
+          "piece.cow",
           "piece.box",
           "piece.elbowLeft",
           "piece.elbowRight",
@@ -994,6 +967,7 @@
           "piece.fourNotches",
           "piece.fruit",
           "piece.meat",
+          "piece.beef",
           "piece.saltSack",
           "piece.topNotch",
           "piece.uShape",
@@ -1071,21 +1045,21 @@
         "startingPlacements": [
           {
             "id": "city.ranch.pass.stock.0",
-            "pieceId": "piece.animal",
+            "pieceId": "piece.cow",
             "x": 0,
             "y": 1,
             "clockwiseTurns": 0
           },
           {
             "id": "city.ranch.pass.stock.1",
-            "pieceId": "piece.animal",
+            "pieceId": "piece.cow",
             "x": 4,
             "y": 1,
             "clockwiseTurns": 0
           },
           {
             "id": "city.ranch.pass.stock.2",
-            "pieceId": "piece.animal",
+            "pieceId": "piece.cow",
             "x": 0,
             "y": 3,
             "clockwiseTurns": 0
@@ -1094,7 +1068,7 @@
       },
       "regionalStock": {
         "pieceIds": [
-          "piece.animal"
+          "piece.cow"
         ],
         "slots": [
           {
@@ -1108,7 +1082,7 @@
       },
       "generalStock": {
         "pieceIds": [
-          "piece.animal",
+          "piece.cow",
           "piece.box",
           "piece.elbowLeft",
           "piece.elbowRight",
@@ -1116,6 +1090,7 @@
           "piece.fourNotches",
           "piece.fruit",
           "piece.meat",
+          "piece.beef",
           "piece.saltSack",
           "piece.topNotch",
           "piece.uShape",
@@ -1193,21 +1168,21 @@
         "startingPlacements": [
           {
             "id": "city.ranch.butcher.stock.0",
-            "pieceId": "piece.meat",
+            "pieceId": "piece.beef",
             "x": 0,
             "y": 1,
             "clockwiseTurns": 0
           },
           {
             "id": "city.ranch.butcher.stock.1",
-            "pieceId": "piece.meat",
+            "pieceId": "piece.beef",
             "x": 4,
             "y": 1,
             "clockwiseTurns": 0
           },
           {
             "id": "city.ranch.butcher.stock.2",
-            "pieceId": "piece.meat",
+            "pieceId": "piece.beef",
             "x": 0,
             "y": 3,
             "clockwiseTurns": 0
@@ -1216,7 +1191,7 @@
       },
       "regionalStock": {
         "pieceIds": [
-          "piece.animal"
+          "piece.cow"
         ],
         "slots": [
           {
@@ -1230,7 +1205,7 @@
       },
       "generalStock": {
         "pieceIds": [
-          "piece.animal",
+          "piece.cow",
           "piece.box",
           "piece.elbowLeft",
           "piece.elbowRight",
@@ -1238,6 +1213,7 @@
           "piece.fourNotches",
           "piece.fruit",
           "piece.meat",
+          "piece.beef",
           "piece.saltSack",
           "piece.topNotch",
           "piece.uShape",
@@ -1315,21 +1291,21 @@
         "startingPlacements": [
           {
             "id": "city.ranch.highland.stock.0",
-            "pieceId": "piece.animal",
+            "pieceId": "piece.cow",
             "x": 0,
             "y": 1,
             "clockwiseTurns": 0
           },
           {
             "id": "city.ranch.highland.stock.1",
-            "pieceId": "piece.animal",
+            "pieceId": "piece.cow",
             "x": 4,
             "y": 1,
             "clockwiseTurns": 0
           },
           {
             "id": "city.ranch.highland.stock.2",
-            "pieceId": "piece.animal",
+            "pieceId": "piece.cow",
             "x": 0,
             "y": 3,
             "clockwiseTurns": 0
@@ -1338,7 +1314,7 @@
       },
       "regionalStock": {
         "pieceIds": [
-          "piece.animal"
+          "piece.cow"
         ],
         "slots": [
           {
@@ -1352,7 +1328,7 @@
       },
       "generalStock": {
         "pieceIds": [
-          "piece.animal",
+          "piece.cow",
           "piece.box",
           "piece.elbowLeft",
           "piece.elbowRight",
@@ -1360,6 +1336,7 @@
           "piece.fourNotches",
           "piece.fruit",
           "piece.meat",
+          "piece.beef",
           "piece.saltSack",
           "piece.topNotch",
           "piece.uShape",
@@ -1437,21 +1414,21 @@
         "startingPlacements": [
           {
             "id": "city.ranch.jerky.stock.0",
-            "pieceId": "piece.meat",
+            "pieceId": "piece.beef",
             "x": 0,
             "y": 1,
             "clockwiseTurns": 0
           },
           {
             "id": "city.ranch.jerky.stock.1",
-            "pieceId": "piece.meat",
+            "pieceId": "piece.beef",
             "x": 4,
             "y": 1,
             "clockwiseTurns": 0
           },
           {
             "id": "city.ranch.jerky.stock.2",
-            "pieceId": "piece.meat",
+            "pieceId": "piece.beef",
             "x": 0,
             "y": 3,
             "clockwiseTurns": 0
@@ -1460,7 +1437,7 @@
       },
       "regionalStock": {
         "pieceIds": [
-          "piece.animal"
+          "piece.cow"
         ],
         "slots": [
           {
@@ -1474,7 +1451,7 @@
       },
       "generalStock": {
         "pieceIds": [
-          "piece.animal",
+          "piece.cow",
           "piece.box",
           "piece.elbowLeft",
           "piece.elbowRight",
@@ -1482,6 +1459,7 @@
           "piece.fourNotches",
           "piece.fruit",
           "piece.meat",
+          "piece.beef",
           "piece.saltSack",
           "piece.topNotch",
           "piece.uShape",
@@ -1596,7 +1574,7 @@
       },
       "generalStock": {
         "pieceIds": [
-          "piece.animal",
+          "piece.cow",
           "piece.box",
           "piece.elbowLeft",
           "piece.elbowRight",
@@ -1604,6 +1582,7 @@
           "piece.fourNotches",
           "piece.fruit",
           "piece.meat",
+          "piece.beef",
           "piece.saltSack",
           "piece.topNotch",
           "piece.uShape",
@@ -1718,7 +1697,7 @@
       },
       "generalStock": {
         "pieceIds": [
-          "piece.animal",
+          "piece.cow",
           "piece.box",
           "piece.elbowLeft",
           "piece.elbowRight",
@@ -1726,6 +1705,7 @@
           "piece.fourNotches",
           "piece.fruit",
           "piece.meat",
+          "piece.beef",
           "piece.saltSack",
           "piece.topNotch",
           "piece.uShape",
@@ -1840,7 +1820,7 @@
       },
       "generalStock": {
         "pieceIds": [
-          "piece.animal",
+          "piece.cow",
           "piece.box",
           "piece.elbowLeft",
           "piece.elbowRight",
@@ -1848,6 +1828,7 @@
           "piece.fourNotches",
           "piece.fruit",
           "piece.meat",
+          "piece.beef",
           "piece.saltSack",
           "piece.topNotch",
           "piece.uShape",
@@ -1962,7 +1943,7 @@
       },
       "generalStock": {
         "pieceIds": [
-          "piece.animal",
+          "piece.cow",
           "piece.box",
           "piece.elbowLeft",
           "piece.elbowRight",
@@ -1970,6 +1951,7 @@
           "piece.fourNotches",
           "piece.fruit",
           "piece.meat",
+          "piece.beef",
           "piece.saltSack",
           "piece.topNotch",
           "piece.uShape",
@@ -2070,7 +2052,7 @@
       },
       "regionalStock": {
         "pieceIds": [
-          "piece.animal",
+          "piece.cow",
           "piece.box",
           "piece.elbowLeft",
           "piece.elbowRight",
@@ -2078,6 +2060,7 @@
           "piece.fourNotches",
           "piece.fruit",
           "piece.meat",
+          "piece.beef",
           "piece.saltSack",
           "piece.topNotch",
           "piece.uShape",
@@ -2096,7 +2079,7 @@
       },
       "generalStock": {
         "pieceIds": [
-          "piece.animal",
+          "piece.cow",
           "piece.box",
           "piece.elbowLeft",
           "piece.elbowRight",
@@ -2104,6 +2087,7 @@
           "piece.fourNotches",
           "piece.fruit",
           "piece.meat",
+          "piece.beef",
           "piece.saltSack",
           "piece.topNotch",
           "piece.uShape",
@@ -2204,7 +2188,7 @@
       },
       "regionalStock": {
         "pieceIds": [
-          "piece.animal",
+          "piece.cow",
           "piece.box",
           "piece.elbowLeft",
           "piece.elbowRight",
@@ -2212,6 +2196,7 @@
           "piece.fourNotches",
           "piece.fruit",
           "piece.meat",
+          "piece.beef",
           "piece.saltSack",
           "piece.topNotch",
           "piece.uShape",
@@ -2230,7 +2215,7 @@
       },
       "generalStock": {
         "pieceIds": [
-          "piece.animal",
+          "piece.cow",
           "piece.box",
           "piece.elbowLeft",
           "piece.elbowRight",
@@ -2238,6 +2223,7 @@
           "piece.fourNotches",
           "piece.fruit",
           "piece.meat",
+          "piece.beef",
           "piece.saltSack",
           "piece.topNotch",
           "piece.uShape",
@@ -2338,7 +2324,7 @@
       },
       "regionalStock": {
         "pieceIds": [
-          "piece.animal",
+          "piece.cow",
           "piece.box",
           "piece.elbowLeft",
           "piece.elbowRight",
@@ -2346,6 +2332,7 @@
           "piece.fourNotches",
           "piece.fruit",
           "piece.meat",
+          "piece.beef",
           "piece.saltSack",
           "piece.topNotch",
           "piece.uShape",
@@ -2364,7 +2351,7 @@
       },
       "generalStock": {
         "pieceIds": [
-          "piece.animal",
+          "piece.cow",
           "piece.box",
           "piece.elbowLeft",
           "piece.elbowRight",
@@ -2372,6 +2359,7 @@
           "piece.fourNotches",
           "piece.fruit",
           "piece.meat",
+          "piece.beef",
           "piece.saltSack",
           "piece.topNotch",
           "piece.uShape",
@@ -2472,7 +2460,7 @@
       },
       "regionalStock": {
         "pieceIds": [
-          "piece.animal",
+          "piece.cow",
           "piece.box",
           "piece.elbowLeft",
           "piece.elbowRight",
@@ -2480,6 +2468,7 @@
           "piece.fourNotches",
           "piece.fruit",
           "piece.meat",
+          "piece.beef",
           "piece.saltSack",
           "piece.topNotch",
           "piece.uShape",
@@ -2498,7 +2487,7 @@
       },
       "generalStock": {
         "pieceIds": [
-          "piece.animal",
+          "piece.cow",
           "piece.box",
           "piece.elbowLeft",
           "piece.elbowRight",
@@ -2506,6 +2495,7 @@
           "piece.fourNotches",
           "piece.fruit",
           "piece.meat",
+          "piece.beef",
           "piece.saltSack",
           "piece.topNotch",
           "piece.uShape",
@@ -2620,7 +2610,7 @@
       },
       "generalStock": {
         "pieceIds": [
-          "piece.animal",
+          "piece.cow",
           "piece.box",
           "piece.elbowLeft",
           "piece.elbowRight",
@@ -2628,6 +2618,7 @@
           "piece.fourNotches",
           "piece.fruit",
           "piece.meat",
+          "piece.beef",
           "piece.saltSack",
           "piece.topNotch",
           "piece.uShape",
@@ -2742,7 +2733,7 @@
       },
       "generalStock": {
         "pieceIds": [
-          "piece.animal",
+          "piece.cow",
           "piece.box",
           "piece.elbowLeft",
           "piece.elbowRight",
@@ -2750,6 +2741,7 @@
           "piece.fourNotches",
           "piece.fruit",
           "piece.meat",
+          "piece.beef",
           "piece.saltSack",
           "piece.topNotch",
           "piece.uShape",
@@ -2864,7 +2856,7 @@
       },
       "generalStock": {
         "pieceIds": [
-          "piece.animal",
+          "piece.cow",
           "piece.box",
           "piece.elbowLeft",
           "piece.elbowRight",
@@ -2872,6 +2864,7 @@
           "piece.fourNotches",
           "piece.fruit",
           "piece.meat",
+          "piece.beef",
           "piece.saltSack",
           "piece.topNotch",
           "piece.uShape",
@@ -2986,7 +2979,7 @@
       },
       "generalStock": {
         "pieceIds": [
-          "piece.animal",
+          "piece.cow",
           "piece.box",
           "piece.elbowLeft",
           "piece.elbowRight",
@@ -2994,6 +2987,7 @@
           "piece.fourNotches",
           "piece.fruit",
           "piece.meat",
+          "piece.beef",
           "piece.saltSack",
           "piece.topNotch",
           "piece.uShape",
@@ -3108,7 +3102,7 @@
       },
       "generalStock": {
         "pieceIds": [
-          "piece.animal",
+          "piece.cow",
           "piece.box",
           "piece.elbowLeft",
           "piece.elbowRight",
@@ -3116,6 +3110,7 @@
           "piece.fourNotches",
           "piece.fruit",
           "piece.meat",
+          "piece.beef",
           "piece.saltSack",
           "piece.topNotch",
           "piece.uShape",
@@ -3230,7 +3225,7 @@
       },
       "generalStock": {
         "pieceIds": [
-          "piece.animal",
+          "piece.cow",
           "piece.box",
           "piece.elbowLeft",
           "piece.elbowRight",
@@ -3238,6 +3233,7 @@
           "piece.fourNotches",
           "piece.fruit",
           "piece.meat",
+          "piece.beef",
           "piece.saltSack",
           "piece.topNotch",
           "piece.uShape",
@@ -3352,7 +3348,7 @@
       },
       "generalStock": {
         "pieceIds": [
-          "piece.animal",
+          "piece.cow",
           "piece.box",
           "piece.elbowLeft",
           "piece.elbowRight",
@@ -3360,6 +3356,7 @@
           "piece.fourNotches",
           "piece.fruit",
           "piece.meat",
+          "piece.beef",
           "piece.saltSack",
           "piece.topNotch",
           "piece.uShape",
@@ -3474,7 +3471,7 @@
       },
       "generalStock": {
         "pieceIds": [
-          "piece.animal",
+          "piece.cow",
           "piece.box",
           "piece.elbowLeft",
           "piece.elbowRight",
@@ -3482,6 +3479,7 @@
           "piece.fourNotches",
           "piece.fruit",
           "piece.meat",
+          "piece.beef",
           "piece.saltSack",
           "piece.topNotch",
           "piece.uShape",
@@ -3596,7 +3594,7 @@
       },
       "generalStock": {
         "pieceIds": [
-          "piece.animal",
+          "piece.cow",
           "piece.box",
           "piece.elbowLeft",
           "piece.elbowRight",
@@ -3604,6 +3602,7 @@
           "piece.fourNotches",
           "piece.fruit",
           "piece.meat",
+          "piece.beef",
           "piece.saltSack",
           "piece.topNotch",
           "piece.uShape",
@@ -3704,7 +3703,7 @@
       },
       "regionalStock": {
         "pieceIds": [
-          "piece.animal",
+          "piece.cow",
           "piece.box",
           "piece.elbowLeft",
           "piece.elbowRight",
@@ -3712,6 +3711,7 @@
           "piece.fourNotches",
           "piece.fruit",
           "piece.meat",
+          "piece.beef",
           "piece.saltSack",
           "piece.topNotch",
           "piece.uShape",
@@ -3730,7 +3730,7 @@
       },
       "generalStock": {
         "pieceIds": [
-          "piece.animal",
+          "piece.cow",
           "piece.box",
           "piece.elbowLeft",
           "piece.elbowRight",
@@ -3738,6 +3738,7 @@
           "piece.fourNotches",
           "piece.fruit",
           "piece.meat",
+          "piece.beef",
           "piece.saltSack",
           "piece.topNotch",
           "piece.uShape",
@@ -3801,7 +3802,7 @@
       },
       "regionalStock": {
         "pieceIds": [
-          "piece.animal",
+          "piece.cow",
           "piece.box",
           "piece.elbowLeft",
           "piece.elbowRight",
@@ -3809,6 +3810,7 @@
           "piece.fourNotches",
           "piece.fruit",
           "piece.meat",
+          "piece.beef",
           "piece.saltSack",
           "piece.topNotch",
           "piece.uShape",
@@ -3827,7 +3829,7 @@
       },
       "generalStock": {
         "pieceIds": [
-          "piece.animal",
+          "piece.cow",
           "piece.box",
           "piece.elbowLeft",
           "piece.elbowRight",
@@ -3835,6 +3837,7 @@
           "piece.fourNotches",
           "piece.fruit",
           "piece.meat",
+          "piece.beef",
           "piece.saltSack",
           "piece.topNotch",
           "piece.uShape",
@@ -3898,7 +3901,7 @@
       },
       "regionalStock": {
         "pieceIds": [
-          "piece.animal",
+          "piece.cow",
           "piece.box",
           "piece.elbowLeft",
           "piece.elbowRight",
@@ -3906,6 +3909,7 @@
           "piece.fourNotches",
           "piece.fruit",
           "piece.meat",
+          "piece.beef",
           "piece.saltSack",
           "piece.topNotch",
           "piece.uShape",
@@ -3924,7 +3928,7 @@
       },
       "generalStock": {
         "pieceIds": [
-          "piece.animal",
+          "piece.cow",
           "piece.box",
           "piece.elbowLeft",
           "piece.elbowRight",
@@ -3932,6 +3936,7 @@
           "piece.fourNotches",
           "piece.fruit",
           "piece.meat",
+          "piece.beef",
           "piece.saltSack",
           "piece.topNotch",
           "piece.uShape",
@@ -3995,7 +4000,7 @@
       },
       "regionalStock": {
         "pieceIds": [
-          "piece.animal",
+          "piece.cow",
           "piece.box",
           "piece.elbowLeft",
           "piece.elbowRight",
@@ -4003,6 +4008,7 @@
           "piece.fourNotches",
           "piece.fruit",
           "piece.meat",
+          "piece.beef",
           "piece.saltSack",
           "piece.topNotch",
           "piece.uShape",
@@ -4021,7 +4027,7 @@
       },
       "generalStock": {
         "pieceIds": [
-          "piece.animal",
+          "piece.cow",
           "piece.box",
           "piece.elbowLeft",
           "piece.elbowRight",
@@ -4029,6 +4035,7 @@
           "piece.fourNotches",
           "piece.fruit",
           "piece.meat",
+          "piece.beef",
           "piece.saltSack",
           "piece.topNotch",
           "piece.uShape",
@@ -4092,7 +4099,7 @@
       },
       "regionalStock": {
         "pieceIds": [
-          "piece.animal",
+          "piece.cow",
           "piece.box",
           "piece.elbowLeft",
           "piece.elbowRight",
@@ -4100,6 +4107,7 @@
           "piece.fourNotches",
           "piece.fruit",
           "piece.meat",
+          "piece.beef",
           "piece.saltSack",
           "piece.topNotch",
           "piece.uShape",
@@ -4118,7 +4126,7 @@
       },
       "generalStock": {
         "pieceIds": [
-          "piece.animal",
+          "piece.cow",
           "piece.box",
           "piece.elbowLeft",
           "piece.elbowRight",
@@ -4126,6 +4134,7 @@
           "piece.fourNotches",
           "piece.fruit",
           "piece.meat",
+          "piece.beef",
           "piece.saltSack",
           "piece.topNotch",
           "piece.uShape",

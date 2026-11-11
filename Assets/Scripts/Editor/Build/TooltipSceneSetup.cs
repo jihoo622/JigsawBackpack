@@ -43,9 +43,9 @@ public static class TooltipSceneSetup
         }
 
         var fontAsset = TMP_FontAsset.CreateFontAsset(
-            font, 90, 9,
+            font, BasicData.Int("editor.tooltip.fontSamplingSize"), BasicData.Int("editor.TooltipSceneSetup.EnsureFontAsset.number1"),
             UnityEngine.TextCore.LowLevel.GlyphRenderMode.SDFAA,
-            1024, 1024,
+            BasicData.Int("editor.TooltipSceneSetup.EnsureFontAsset.number2"), BasicData.Int("editor.TooltipSceneSetup.EnsureFontAsset.number3"),
             AtlasPopulationMode.Dynamic, true);
 
         if (fontAsset == null)
@@ -199,7 +199,7 @@ public static class TooltipSceneSetup
         rootRect.pivot = new Vector2(0f, 1f);
         rootRect.anchorMin = new Vector2(0.5f, 0.5f);
         rootRect.anchorMax = new Vector2(0.5f, 0.5f);
-        rootRect.sizeDelta = new Vector2(300f, 200f);
+        rootRect.sizeDelta = new Vector2(BasicData.Float("editor.TooltipSceneSetup.Vector2.number1"), BasicData.Float("editor.TooltipSceneSetup.Vector2.number2"));
 
         var rootGroup = root.GetComponent<CanvasGroup>();
         rootGroup.blocksRaycasts = false;
@@ -232,8 +232,8 @@ public static class TooltipSceneSetup
         headerImage.raycastTarget = false;
 
         var headerLayout = header.GetComponent<VerticalLayoutGroup>();
-        headerLayout.padding = new RectOffset(16, 16, 12, 12);
-        headerLayout.spacing = 8;
+        headerLayout.padding = new RectOffset(BasicData.Int("editor.TooltipSceneSetup.RectOffset.number1"), BasicData.Int("editor.TooltipSceneSetup.RectOffset.number2"), BasicData.Int("editor.TooltipSceneSetup.RectOffset.number3"), BasicData.Int("editor.TooltipSceneSetup.RectOffset.number4"));
+        headerLayout.spacing = BasicData.Int("editor.TooltipSceneSetup.RectOffset.number5");
         headerLayout.childAlignment = TextAnchor.UpperLeft;
         headerLayout.childControlWidth = true;
         headerLayout.childControlHeight = true;
@@ -244,14 +244,14 @@ public static class TooltipSceneSetup
         headerFitter.horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
         headerFitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
 
-        var itemName = CreateTextObject("ItemName", header.transform, _fontAsset, "물건 이름");
+        var itemName = CreateTextObject("ItemName", header.transform, _fontAsset, string.Empty);
 
         // Category Row & Badges
         var categoryRow = new GameObject("CategoryRow", typeof(RectTransform), typeof(HorizontalLayoutGroup), typeof(ContentSizeFitter));
         categoryRow.transform.SetParent(header.transform, false);
 
         var catRowLayout = categoryRow.GetComponent<HorizontalLayoutGroup>();
-        catRowLayout.spacing = 6;
+        catRowLayout.spacing = BasicData.Int("editor.TooltipSceneSetup.GameObject.number1");
         catRowLayout.childAlignment = TextAnchor.MiddleLeft;
         catRowLayout.childControlWidth = true;
         catRowLayout.childControlHeight = true;
@@ -262,12 +262,12 @@ public static class TooltipSceneSetup
         catRowFitter.horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
         catRowFitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
 
-        const int BADGE_COUNT = 3;
-        var badgeImages = new Image[BADGE_COUNT];
-        var badgeTexts = new TextMeshProUGUI[BADGE_COUNT];
-        for (int i = 0; i < BADGE_COUNT; i++)
+        int badgeCount = BasicData.Int("editor.TooltipSceneSetup.Badgecount");
+        var badgeImages = new Image[badgeCount];
+        var badgeTexts = new TextMeshProUGUI[badgeCount];
+        for (int i = 0; i < badgeCount; i++)
         {
-            CreateBadgeObject($"Badge_{i}", categoryRow.transform, badgeSprite, _fontAsset, "목재", out badgeImages[i], out badgeTexts[i]);
+            CreateBadgeObject($"Badge_{i}", categoryRow.transform, badgeSprite, _fontAsset, string.Empty, out badgeImages[i], out badgeTexts[i]);
         }
 
         // 3. Divider
@@ -279,8 +279,8 @@ public static class TooltipSceneSetup
         dividerImage.raycastTarget = false;
 
         var dividerLayout = divider.GetComponent<LayoutElement>();
-        dividerLayout.minHeight = 2;
-        dividerLayout.preferredHeight = 2;
+        dividerLayout.minHeight = BasicData.Int("editor.tooltip.dividerHeight");
+        dividerLayout.preferredHeight = BasicData.Int("editor.tooltip.dividerHeight");
         dividerLayout.flexibleWidth = 1;
 
         // 4. Body
@@ -288,8 +288,8 @@ public static class TooltipSceneSetup
         body.transform.SetParent(root.transform, false);
 
         var bodyLayout = body.GetComponent<VerticalLayoutGroup>();
-        bodyLayout.padding = new RectOffset(16, 16, 14, 16);
-        bodyLayout.spacing = 10;
+        bodyLayout.padding = new RectOffset(BasicData.Int("editor.TooltipSceneSetup.RectOffset.number6"), BasicData.Int("editor.TooltipSceneSetup.RectOffset.number7"), BasicData.Int("editor.TooltipSceneSetup.RectOffset.number8"), BasicData.Int("editor.TooltipSceneSetup.RectOffset.number9"));
+        bodyLayout.spacing = BasicData.Int("editor.TooltipSceneSetup.RectOffset.number10");
         bodyLayout.childControlWidth = true;
         bodyLayout.childControlHeight = true;
         bodyLayout.childForceExpandWidth = true;
@@ -309,8 +309,8 @@ public static class TooltipSceneSetup
         synergySection.transform.SetParent(body.transform, false);
 
         var synSectionLayout = synergySection.GetComponent<VerticalLayoutGroup>();
-        synSectionLayout.padding = new RectOffset(0, 0, 6, 0);
-        synSectionLayout.spacing = 6;
+        synSectionLayout.padding = new RectOffset(0, 0, BasicData.Int("editor.TooltipSceneSetup.RectOffset.number11"), 0);
+        synSectionLayout.spacing = BasicData.Int("editor.TooltipSceneSetup.RectOffset.number12");
         synSectionLayout.childControlWidth = true;
         synSectionLayout.childControlHeight = true;
         synSectionLayout.childForceExpandWidth = true;
@@ -323,14 +323,14 @@ public static class TooltipSceneSetup
         synergyList.transform.SetParent(synergySection.transform, false);
 
         var synListLayout = synergyList.GetComponent<VerticalLayoutGroup>();
-        synListLayout.spacing = 4;
+        synListLayout.spacing = BasicData.Int("editor.tooltip.synergySpacing");
         synListLayout.childControlWidth = true;
         synListLayout.childControlHeight = true;
         synListLayout.childForceExpandWidth = true;
         synListLayout.childForceExpandHeight = false;
 
-        var slots = new TextMeshProUGUI[6];
-        for (int i = 0; i < 6; i++)
+        var slots = new TextMeshProUGUI[BasicData.Int("editor.TooltipSceneSetup.GameObject.number2")];
+        for (int i = 0; i < slots.Length; i++)
         {
             slots[i] = CreateTextObject($"Slot_{i}", synergyList.transform, _fontAsset, "• 식량과 함께하면 가치가 올라갑니다.");
             slots[i].enableAutoSizing = false;
@@ -413,7 +413,7 @@ public static class TooltipSceneSetup
         _badgeImage.raycastTarget = false;
 
         var layout = badgeObj.GetComponent<HorizontalLayoutGroup>();
-        layout.padding = new RectOffset(12, 12, 4, 4);
+        layout.padding = new RectOffset(BasicData.Int("editor.TooltipSceneSetup.RectOffset.number13"), BasicData.Int("editor.TooltipSceneSetup.RectOffset.number14"), BasicData.Int("editor.tooltip.badgeVerticalPadding"), BasicData.Int("editor.tooltip.badgeVerticalPadding"));
         layout.childAlignment = TextAnchor.MiddleCenter;
         layout.childControlWidth = true;
         layout.childControlHeight = true;
@@ -440,10 +440,10 @@ public static class TooltipSceneSetup
             tmp.font = _fontAsset;
         }
         tmp.text = _sample;
-        tmp.fontSize = 18f;
+        tmp.fontSize = BasicData.Float("editor.TooltipSceneSetup.GameObject.number4");
         tmp.enableAutoSizing = true;
-        tmp.fontSizeMin = 18f;
-        tmp.fontSizeMax = 24f;
+        tmp.fontSizeMin = BasicData.Float("editor.TooltipSceneSetup.GameObject.number5");
+        tmp.fontSizeMax = BasicData.Float("editor.TooltipSceneSetup.GameObject.number6");
         tmp.textWrappingMode = TextWrappingModes.NoWrap;
         tmp.raycastTarget = false;
         tmp.color = Presentation.PuzzleTooltipText;

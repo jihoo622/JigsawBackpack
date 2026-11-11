@@ -6,9 +6,9 @@ using UnityEngine.UI;
 // The viewport owns navigation; map objects remain authored in the prefab.
 public sealed class PuzzleMapNavigation : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
-    const float MIN_ZOOM = 0.35f;
-    const float MAX_ZOOM = 2.5f;
-    const float ZOOM_STEP = 1.2f;
+    static float MinZoom => BasicData.Float("ui.PuzzleMapNavigation.MinZoom");
+    static float MaxZoom => BasicData.Float("ui.PuzzleMapNavigation.MaxZoom");
+    static float ZoomStep => BasicData.Float("ui.PuzzleMapNavigation.ZoomStep");
 
     [SerializeField] InputActionAsset inputActions;
     [SerializeField] RectTransform content;
@@ -97,18 +97,18 @@ public sealed class PuzzleMapNavigation : MonoBehaviour, IBeginDragHandler, IDra
         float value = _context.ReadValue<float>();
         if (Mathf.Abs(value) > 0f)
         {
-            SetZoom(scale * (value > 0f ? ZOOM_STEP : 1f / ZOOM_STEP), local);
+            SetZoom(scale * (value > 0f ? ZoomStep : 1f / ZoomStep), local);
         }
     }
 
     void ZoomIn()
     {
-        SetZoom(scale * ZOOM_STEP, Vector2.zero);
+        SetZoom(scale * ZoomStep, Vector2.zero);
     }
 
     void ZoomOut()
     {
-        SetZoom(scale / ZOOM_STEP, Vector2.zero);
+        SetZoom(scale / ZoomStep, Vector2.zero);
     }
 
     void Fit()
@@ -123,7 +123,7 @@ public sealed class PuzzleMapNavigation : MonoBehaviour, IBeginDragHandler, IDra
     {
         if (current)
         {
-            SetZoom(Mathf.Max(scale, 1.2f), Vector2.zero);
+            SetZoom(Mathf.Max(scale, BasicData.Float("ui.PuzzleMapNavigation.FocusCurrent.number1")), Vector2.zero);
             content.anchoredPosition = -(Vector2)current.localPosition * scale;
             Clamp();
         }
@@ -131,13 +131,13 @@ public sealed class PuzzleMapNavigation : MonoBehaviour, IBeginDragHandler, IDra
 
     void SetZoom(float _scale, Vector2 _anchor)
     {
-        float next = Mathf.Clamp(_scale, MIN_ZOOM, MAX_ZOOM);
+        float next = Mathf.Clamp(_scale, MinZoom, MaxZoom);
         content.anchoredPosition = _anchor - (_anchor - content.anchoredPosition) * (next / scale);
         scale = next;
         content.localScale = Vector3.one * scale;
         zoomLabel.text = Presentation.PuzzleMapZoom(scale);
-        zoomIn.interactable = scale < MAX_ZOOM;
-        zoomOut.interactable = scale > MIN_ZOOM;
+        zoomIn.interactable = scale < MaxZoom;
+        zoomOut.interactable = scale > MinZoom;
         Clamp();
     }
 

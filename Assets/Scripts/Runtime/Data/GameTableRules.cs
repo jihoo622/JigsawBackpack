@@ -143,18 +143,94 @@ public sealed class GameTableRules
 
     public void Validate(TableManager _tables)
     {
+        ValidateBasic(_tables);
         Inspect(_tables.Gameplay, nameof(GameplayTableData));
         Inspect(_tables.Flow, nameof(FlowTableData));
 
-        ValidatePlayer(_tables.Gameplay.player);
+        ValidatePlayer(_tables.Gameplay.player, _tables);
         ValidateUpgrades(_tables);
         ValidateScenes(_tables);
         ValidatePuzzle(_tables);
         ValidateItemPrices(_tables);
         ValidatePuzzleSynergy(_tables);
         ValidatePuzzleTrade(_tables);
+        ValidateTime(_tables.PuzzleTime);
         ValidateRoutes(_tables);
         ValidateDebtSchedule(_tables.PuzzleTurn);
+    }
+
+    void ValidateBasic(TableManager _tables)
+    {
+        foreach (var id in BasicDataContract.Numbers)
+        {
+            Check(_tables.HasBasicNumber(id), "BasicDataTableData.numbers." + id, "필수 수치가 누락되었습니다.");
+        }
+        foreach (var id in BasicDataContract.Texts)
+        {
+            Check(_tables.HasBasicText(id), "BasicDataTableData.texts." + id, "필수 문구가 누락되었습니다.");
+        }
+        foreach (var id in BasicDataContract.Colors)
+        {
+            Check(_tables.HasBasicColor(id), "BasicDataTableData.colors." + id, "필수 색이 누락되었습니다.");
+        }
+        foreach (var row in _tables.Basic.numbers ?? Array.Empty<BasicNumberData>())
+        {
+            if (row == null)
+            {
+                continue;
+            }
+            bool finite = !double.IsNaN(row.value) && !double.IsInfinity(row.value) && Math.Abs(row.value) <= float.MaxValue;
+            Check(finite, "BasicDataTableData.numbers." + row.id, "유한한 수치가 필요합니다.");
+            Check(!row.whole || (row.value >= int.MinValue && row.value <= int.MaxValue && row.value == Math.Truncate(row.value)),
+                "BasicDataTableData.numbers." + row.id, "정수 범위의 값이 필요합니다.");
+            Check(!row.positive || row.value > 0, "BasicDataTableData.numbers." + row.id, "양수가 필요합니다.");
+            if (row.id.StartsWith("layers.GameLayers.", StringComparison.Ordinal))
+            {
+                Check(row.value >= 0 && row.value < 32, "BasicDataTableData.numbers." + row.id, "Unity 레이어 번호 범위를 벗어났습니다.");
+            }
+        }
+        foreach (var row in _tables.Basic.texts ?? Array.Empty<BasicTextData>())
+        {
+            if (row == null)
+            {
+                continue;
+            }
+            bool argumentsValid = BasicDataContract.TextArgumentCounts.TryGetValue(row.id, out var expected) && row.arguments == expected;
+            Check(row.value != null && argumentsValid, "BasicDataTableData.texts." + row.id, "문구와 서식 인자 수가 필요합니다.");
+            if (row.value != null && argumentsValid)
+            {
+                try
+                {
+                    string.Format(row.value, new object[row.arguments]);
+                }
+                catch (FormatException)
+                {
+                    Check(false, "BasicDataTableData.texts." + row.id, "문구의 서식 인자가 올바르지 않습니다.");
+                }
+            }
+        }
+        foreach (var row in _tables.Basic.colors ?? Array.Empty<BasicColorData>())
+        {
+            if (row != null)
+            {
+                Check(new[] { row.r, row.g, row.b, row.a }.All(_value => !float.IsNaN(_value) && _value >= 0 && _value <= 1),
+                    "BasicDataTableData.colors." + row.id, "RGBA는 0~1 범위여야 합니다.");
+            }
+        }
+        const string MIN_ZOOM = "ui.PuzzleMapNavigation.MinZoom";
+        const string MAX_ZOOM = "ui.PuzzleMapNavigation.MaxZoom";
+        if (_tables.HasBasicNumber(MIN_ZOOM) && _tables.HasBasicNumber(MAX_ZOOM))
+        {
+            double min = _tables.BasicNumber(MIN_ZOOM).value;
+            double max = _tables.BasicNumber(MAX_ZOOM).value;
+            Check(min > 0 && min <= max, "BasicDataTableData.numbers.zoom", "줌 범위는 0보다 크고 최소값이 최대값 이하여야 합니다.");
+        }
+        const string WASTE_PIECE = "rules.PuzzleInventoryService.AnimalWastePieceId";
+        if (_tables.HasBasicText(WASTE_PIECE))
+        {
+            string pieceId = _tables.BasicText(WASTE_PIECE).value;
+            Reference(pieceId, "BasicDataTableData.texts." + WASTE_PIECE, _tables.TryGetPiece(pieceId, out _), "화물");
+        }
     }
 
     void ValidateDebtSchedule(PuzzleTurnTableData _turn)
@@ -225,6 +301,24 @@ public sealed class GameTableRules
     }
 
     // 노선은 방향 그래프다. 시작 도시에서 모든 도시로 도달할 수 있어야 한다.
+    void ValidateTime(PuzzleTimeTableData _time)
+    {
+        const string PATH = nameof(PuzzleTimeTableData);
+        Check(_time != null, PATH, "시간 테이블이 필요합니다.");
+        if (_time == null)
+        {
+            return;
+        }
+        Check(!double.IsNaN(_time.pixelsPerHour) && !double.IsInfinity(_time.pixelsPerHour) && _time.pixelsPerHour > 0,
+            PATH + ".pixelsPerHour", "픽셀/시간 환산값은 유한한 양수여야 합니다.");
+        Check(_time.daylightHours > 0 && _time.nightHours > 0 &&
+            _time.daylightHours + _time.nightHours == PuzzleTimeManager.HOURS_PER_DAY, PATH, "일출·야간 합은 하루여야 합니다.");
+        Check(_time.startHour >= 0 && _time.startHour < PuzzleTimeManager.HOURS_PER_DAY, PATH + ".startHour", "시작 시각이 범위를 벗어났습니다.");
+        Check(_time.restMinutes > 0, PATH + ".restMinutes", "휴식 시간은 양수여야 합니다.");
+        Check(_time.daylightStartHour >= 0 && _time.daylightStartHour < PuzzleTimeManager.HOURS_PER_DAY,
+            PATH + ".daylightStartHour", "일출 시각이 범위를 벗어났습니다.");
+    }
+
     void ValidateRoutes(TableManager _tables)
     {
         const string PATH = nameof(PuzzleRouteTableData);
@@ -248,7 +342,24 @@ public sealed class GameTableRules
             Check(route.fromCityId != route.toCityId, path, "출발 도시와 도착 도시는 달라야 합니다.");
             Check(route.cost >= 0, path + ".cost", "이동 비용은 0 이상이어야 합니다.");
             Check(route.distance > 0, path + ".distance", "노선 거리는 0보다 커야 합니다.");
-            Check(route.travelTimeWeight > 0, path + ".travelTimeWeight", "노선 시간 가중치는 1 이상이어야 합니다.");
+            bool validPoints = route.points != null && route.points.Length >= 4 && route.points.Length % 2 == 0 &&
+                route.points.All(_value => !float.IsNaN(_value) && !float.IsInfinity(_value));
+            Check(validPoints, path + ".points", "유한한 좌표의 폴라인 x,y 쌍이 두 점 이상 필요합니다.");
+            if (validPoints)
+            {
+                Check(PuzzleTimeManager.PolylineLength(route.points) > 0, path + ".points", "노선 길이는 0보다 커야 합니다.");
+                try
+                {
+                    if (_tables.PuzzleTime != null)
+                    {
+                        PuzzleTimeManager.TravelMinutes(route, _tables.PuzzleTime);
+                    }
+                }
+                catch (OverflowException)
+                {
+                    Check(false, path + ".points", "노선 시간이 계산 범위를 초과합니다.");
+                }
+            }
             if (_tables.HasCity(route.fromCityId) && _tables.HasCity(route.toCityId))
             {
                 var from = _tables.CityPrice(route.fromCityId);
@@ -263,6 +374,12 @@ public sealed class GameTableRules
             {
                 Check(route.distance == reverse.distance, path + ".distance", "같은 철도의 왕복 거리는 같아야 합니다.");
                 Check(route.highSpeed == reverse.highSpeed, path + ".highSpeed", "같은 철도의 왕복 고속선 구분은 같아야 합니다.");
+                Check(route.points != null && reverse.points != null &&
+                    route.points.Length % 2 == 0 && route.points.Length == reverse.points.Length &&
+                    Enumerable.Range(0, route.points.Length / 2).All(_index =>
+                        route.points[_index * 2] == reverse.points[reverse.points.Length - 2 - _index * 2] &&
+                        route.points[_index * 2 + 1] == reverse.points[reverse.points.Length - 1 - _index * 2]),
+                    path + ".points", "왕복 폴라인은 역순으로 일치해야 합니다.");
             }
             if (!string.IsNullOrEmpty(route.fromCityId) && !string.IsNullOrEmpty(route.toCityId))
             {
@@ -391,7 +508,7 @@ public sealed class GameTableRules
             var piece = pieces[i];
             if (piece != null)
             {
-                var shape = ValidatePiece(piece, maxSide, $"{PATH}.pieces[{i}]");
+                var shape = ValidatePiece(piece, maxSide, $"{PATH}.pieces[{i}]", _tables);
                 if (shape != null)
                 {
                     shapes[piece] = shape;
@@ -654,7 +771,7 @@ public sealed class GameTableRules
         return _board == null ? 0 : Math.Max(_board.width, _board.height);
     }
 
-    Vector2Int[] ValidatePiece(PuzzlePieceData _piece, int _maxSide, string _path)
+    Vector2Int[] ValidatePiece(PuzzlePieceData _piece, int _maxSide, string _path, TableManager _tables)
     {
         Check(!string.IsNullOrWhiteSpace(_piece.displayName), _path + ".displayName", "아이템 이름이 필요합니다.");
         Check(!string.IsNullOrWhiteSpace(_piece.description), _path + ".description", "조각 설명이 필요합니다.");
@@ -665,8 +782,12 @@ public sealed class GameTableRules
         Check(cells.Length > 0, path, "슬롯이 하나 이상 필요합니다.");
         Check(_piece.slotCount > 0 && _piece.slotCount == cells.Length, _path + ".slotCount",
             $"슬롯 수는 1 이상이며 cells 항목 수({cells.Length})와 일치해야 합니다.");
-        Check(_piece.durability >= 1 && _piece.durability <= 100, _path + ".durability",
-            "내구도 시작값은 1 이상 100 이하여야 합니다.");
+        const string DURABILITY_MAX = "rules.durability.maximum";
+        if (_tables.HasBasicNumber(DURABILITY_MAX))
+        {
+            Check(_piece.durability >= 1 && _piece.durability <= _tables.BasicNumber(DURABILITY_MAX).value,
+                _path + ".durability", "내구도 시작값은 1 이상이며 기초데이터의 상한 이하여야 합니다.");
+        }
 
         var positions = new HashSet<Vector2Int>();
         bool hasZeroX = false;
@@ -840,7 +961,7 @@ public sealed class GameTableRules
         return unvisited.Count == 0;
     }
 
-    void ValidatePlayer(PlayerData _player)
+    void ValidatePlayer(PlayerData _player, TableManager _tables)
     {
         if (_player == null)
         {
@@ -849,7 +970,12 @@ public sealed class GameTableRules
         }
         Positive(_player.maxHealth, "Gameplay.player.maxHealth");
         Positive(_player.moveSpeed, "Gameplay.player.moveSpeed");
-        IntRange(_player.dashCharges, 0, 10, "Gameplay.player.dashCharges");
+        const string DASH_MAX = "rules.player.dashChargesMaximum";
+        if (_tables.HasBasicNumber(DASH_MAX))
+        {
+            Check(_player.dashCharges >= 0 && _player.dashCharges <= _tables.BasicNumber(DASH_MAX).value,
+                "Gameplay.player.dashCharges", "대시 횟수는 0 이상이며 기초데이터의 상한 이하여야 합니다.");
+        }
         Nonnegative(_player.dashCooldown, "Gameplay.player.dashCooldown");
         Positive(_player.interactRange, "Gameplay.player.interactRange");
     }

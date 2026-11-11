@@ -6,7 +6,7 @@ using UnityEngine.EventSystems;
 [DisallowMultipleComponent]
 public sealed class PuzzleInventoryPresenter : MonoBehaviour
 {
-    const float WAGON_DRAG_HOVER_DELAY = 0.5f;
+    static float WagonDragHoverDelay => BasicData.Float("ui.PuzzleInventoryPresenter.WagonDragHoverDelay");
 
     [SerializeField] PuzzleInventoryView trainView;
     [SerializeField] PuzzleInventoryView marketView;
@@ -26,8 +26,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
     float hoveredWagonStartTime;
     bool initialized;
     bool isMapOpen;
-    bool townPending;
-    bool InventoryBlocked => isMapOpen || cityView.IsTownOpen;
+    bool InventoryBlocked => isMapOpen;
 
     void OnEnable()
     {
@@ -54,7 +53,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         long trainCapacity = (long)session.Train.Width * session.Train.Height;
         long dragCapacity = System.Math.Max(trainCapacity, session.MarketCapacity);
         trainView.Initialize(trainCapacity, dragCapacity, Presentation.PuzzleTrainTitle(session.CurrentWagonIndex + 1), session.ItemDefinitions, _showSynergies: true);
-        marketView.Initialize(session.MarketCapacity, dragCapacity, Presentation.PUZZLE_MARKET_TITLE, session.ItemDefinitions, _showSynergies: false);
+        marketView.Initialize(session.MarketCapacity, dragCapacity, Presentation.PuzzleMarketTitle, session.ItemDefinitions, _showSynergies: false);
         cityView.Initialize(session.GameClearCost);
         cityView.InitializeTown(GetTavernRumor);
         ShowCurrentCity();
@@ -74,6 +73,9 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         GameEvents.CityArrived += OnCityArrived;
         GameEvents.TimeAdvanced += OnTimeAdvanced;
         GameEvents.PanelVisibility += OnPanelVisibility;
+        GameEvents.TravelPreviewChanged += OnTravelPreviewChanged;
+        cityView.WaitRequested += WaitForDaylight;
+        cityView.PreviewRequested += CyclePreview;
         if (trainBarView)
         {
             trainBarView.WagonSelected += OnWagonSelected;
@@ -113,10 +115,12 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         }
         currentHoveredInstanceId = null;
         isMapOpen = false;
-        townPending = false;
         GameEvents.CityArrived -= OnCityArrived;
         GameEvents.TimeAdvanced -= OnTimeAdvanced;
         GameEvents.PanelVisibility -= OnPanelVisibility;
+        GameEvents.TravelPreviewChanged -= OnTravelPreviewChanged;
+        cityView.WaitRequested -= WaitForDaylight;
+        cityView.PreviewRequested -= CyclePreview;
         if (trainBarView)
         {
             trainBarView.WagonSelected -= OnWagonSelected;
@@ -149,7 +153,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
                 RefreshTrainBar();
             }
             else if (wagonIndex != session.CurrentWagonIndex &&
-                     Time.unscaledTime - hoveredWagonStartTime >= WAGON_DRAG_HOVER_DELAY)
+                     Time.unscaledTime - hoveredWagonStartTime >= WagonDragHoverDelay)
             {
                 SwitchWagonDuringDrag(wagonIndex);
             }
@@ -192,11 +196,6 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         ShowCurrentCity();
         bool inProgress = session.RunStatus == PuzzleRunStatus.InProgress;
         cityView.SetTown(session.CityData.displayName, inProgress);
-        townPending = inProgress && isMapOpen;
-        if (inProgress && !isMapOpen)
-        {
-            cityView.OpenTown();
-        }
     }
 
     #region 술집 대화 생성
@@ -218,14 +217,14 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             // 3. 구매·판매 배율이 모두 100%를 넘는 첫 품목으로 소식을 만든다.
             foreach (var rule in city.tagPrices)
             {
-                if (rule.buyPercent > 100 && rule.sellPercent > 100)
+                if (rule.buyPercent > PuzzleInventoryValuation.BASE_PERCENT && rule.sellPercent > PuzzleInventoryValuation.BASE_PERCENT)
                 {
-                    return $"{city.displayName}에선 {Presentation.PuzzleTagLabel(rule.tag)} 물건을 비싸게 사들인대요.";
+                    return Presentation.TavernRumor(city.displayName, rule.tag);
                 }
             }
         }
         // 4. 조건에 맞는 품목이 없으면 들은 소식이 없다고 답한다.
-        return "아직 가보지 않은 인근 마을 소식은 못 들었어요.";
+        return Presentation.TavernNoRumor;
     }
 
     #endregion
@@ -236,14 +235,47 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         {
             return;
         }
-        cityView.ShowTime(session.Time);
-        RefreshFunds();
-        RenderBoards();
-        RenderValues();
+        input.CancelCapture();
+        ClearDrag();
+        ShowCurrentCity();
         if (session.RunStatus != PuzzleRunStatus.InProgress)
         {
             cityView.SetTown(session.CityData.displayName, false);
             cityView.ShowTradeStatus(Presentation.PuzzleRunStatusText(session.RunStatus));
+        }
+    }
+
+    void OnTravelPreviewChanged(GameEvents.TravelPreviewInfo _info)
+    {
+        if (_info.session == session)
+        {
+            RefreshTimeActions();
+            RefreshHover();
+        }
+    }
+
+    void RefreshTimeActions()
+    {
+        string name = session.PreviewCityId == null ? null : TableManager.Instance.CityPrice(session.PreviewCityId).displayName;
+        cityView.ShowTimeActions(session.CanWaitForDaylight, session.RunStatus == PuzzleRunStatus.InProgress,
+            Presentation.PuzzlePreviewDestination(name, session.PreviewMinutes));
+    }
+
+    void WaitForDaylight()
+    {
+        if (!isMapOpen && session.CanWaitForDaylight)
+        {
+            input.CancelCapture();
+            ClearDrag();
+            session.WaitForDaylight();
+        }
+    }
+
+    void CyclePreview()
+    {
+        if (!isMapOpen && session.RunStatus == PuzzleRunStatus.InProgress)
+        {
+            session.CyclePreviewDestination();
         }
     }
 
@@ -258,7 +290,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         pauseMenu.ShowCompletion(session.Funds);
         cityView.SetTown(session.CityData.displayName, false);
         RefreshFunds();
-        cityView.ShowTradeStatus(Presentation.PUZZLE_CLEAR_TITLE);
+        cityView.ShowTradeStatus(Presentation.PuzzleClearTitle);
         RefreshTrainBar();
     }
 
@@ -275,7 +307,6 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         }
 
         isMapOpen = _info.open;
-        cityView.SetTownInteraction(!isMapOpen);
         if (_info.open)
         {
             hoverPosition = null;
@@ -292,11 +323,6 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             RenderBoards();
             ShowItemDetails(null, null);
         }
-        else if (townPending)
-        {
-            townPending = false;
-            cityView.OpenTown();
-        }
     }
 
     void ShowCurrentCity()
@@ -306,8 +332,10 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         cityView.ShowTime(session.Time);
         RefreshFunds();
         cityView.ShowTradeStatus(inProgress
-            ? string.Empty
+            ? session.IsMarketOpen ? string.Empty : Presentation.PuzzleNightMarket
             : Presentation.PuzzleRunStatusText(session.RunStatus));
+        marketView.SetMarketOpen(session.IsMarketOpen);
+        RefreshTimeActions();
         marketView.SetBoardSize(session.Market.Width, session.Market.Height);
         trainView.SetBoardSize(session.Train.Width, session.Train.Height);
         RenderBoards();
@@ -493,7 +521,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
                 _inventory = session.Train;
                 return true;
             }
-            if (marketView && marketView.isActiveAndEnabled && marketView.TryGetBoardCell(_position, out _cell))
+            if (session.IsMarketOpen && marketView && marketView.isActiveAndEnabled && marketView.TryGetBoardCell(_position, out _cell))
             {
                 _view = marketView;
                 _inventory = session.Market;
@@ -610,13 +638,27 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         decimal actualValue = isTrain ? _placement.ActualValue : _placement.Definition.BaseValue;
         var rate = item == null ? default : session.RateFor(item);
         var effects = BuildEffectDescriptions(item, isTrain);
-        decimal? futureValue = isTrain ? actualValue + (value.FinalValue - value.BaseValue) : null;
+        long? previewMinutes = session.PreviewMinutes;
+        decimal? futureValue = null;
+        if (isTrain && previewMinutes.HasValue)
+        {
+            try
+            {
+                futureValue = checked(actualValue + (value.FinalValue - value.BaseValue) *
+                    previewMinutes.Value / PuzzleTimeManager.MINUTES_PER_HOUR);
+            }
+            catch (System.OverflowException)
+            {
+                futureValue = null;
+            }
+        }
 
         if (tooltipView && drag == null && (_position.HasValue || hoverPosition.HasValue))
         {
             Vector2 pos = _position ?? hoverPosition.Value;
             int? freshness = item != null && item.HasDurability ? _placement.Durability : (int?)null;
-            tooltipView.Show(item, actualValue, rate, effects, futureValue, pos, isTrain, freshness);
+            string previewName = session.PreviewCityId == null ? null : TableManager.Instance.CityPrice(session.PreviewCityId).displayName;
+            tooltipView.Show(item, actualValue, rate, effects, futureValue, pos, isTrain, freshness, previewMinutes, previewName);
         }
 
         if (trainView)
