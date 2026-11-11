@@ -1,0 +1,20 @@
+{
+  "status": "sample",
+  "note": "마을별 추가 행동. cityIds에 지정한 마을의 역에서만 버튼이 보인다. 작업 시간·변환 관계는 이 표가 원본이다.",
+  "actions": [
+    {
+      "id": "action.butchery",
+      "type": "Butchery",
+      "cityIds": ["city.ranch.highland"],
+      "title": "도축하기",
+      "description": "동물 태그 화물을 맡기면 시간이 지나 고기로 돌려줍니다.",
+      "board": { "width": 3, "height": 3, "startingPlacements": [] },
+      "workMinutes": 360,
+      "inputTag": "Animal",
+      "outputTag": "Meat",
+      "conversions": [
+        { "inputPieceId": "piece.cow", "outputPieceId": "piece.beef", "outputCount": 2 }
+      ]
+    }
+  ]
+}

@@ -25,6 +25,8 @@ public sealed class PuzzleInventoryService : MonoBehaviour
     }
 
     readonly List<PuzzleInventory> trainWagons = new List<PuzzleInventory>();
+    // 도시별 도축대. 행동이 없는 도시는 항목을 만들지 않는다.
+    readonly Dictionary<string, PuzzleButcheryState> butcheries = new Dictionary<string, PuzzleButcheryState>(StringComparer.Ordinal);
     public IReadOnlyList<PuzzleInventory> TrainWagons => trainWagons;
     public int CurrentWagonIndex { get; private set; }
     public PuzzleInventory CurrentTrainWagon => (trainWagons.Count > CurrentWagonIndex && CurrentWagonIndex >= 0) ? trainWagons[CurrentWagonIndex] : null;
@@ -188,6 +190,8 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         trainWagons.Clear();
         trainWagons.Add(train);
         CurrentWagonIndex = 0;
+        butcheries.Clear();
+        IsButcheryOpen = false;
     }
 
     // 도시 시장의 유일한 생성 경로. 처음 만들 때와 떠난 도시를 되돌릴 때 같은 경로를 쓴다.
@@ -224,6 +228,12 @@ public sealed class PuzzleInventoryService : MonoBehaviour
     // 기본 요금·거리 요금·출발 직전 전체 기차 적재 요금을 같은 경로에서 평가한다.
     internal PuzzleTravelResult EvaluateTravel(string _cityId)
     {
+        return EvaluateTravel(_cityId, out _);
+    }
+
+    PuzzleTravelResult EvaluateTravel(string _cityId, out List<PuzzleGrowth> _growth)
+    {
+        _growth = null;
         if (RunStatus != PuzzleRunStatus.InProgress)
         {
             return new PuzzleTravelResult(PuzzleTravelFailure.Blocked);
@@ -280,7 +290,17 @@ public sealed class PuzzleInventoryService : MonoBehaviour
             }
         }
 
-        return new PuzzleTravelResult(Funds < cost ? PuzzleTravelFailure.InsufficientFunds : PuzzleTravelFailure.None,
+        var failure = PuzzleTravelFailure.None;
+        if (!TryPlanGrowth(travelTime, out _growth))
+        {
+            failure = PuzzleTravelFailure.GrowthBlocked;
+        }
+        else if (Funds < cost)
+        {
+            failure = PuzzleTravelFailure.InsufficientFunds;
+        }
+
+        return new PuzzleTravelResult(failure,
             cost, fromCityId, _cityId, _baseCost: route.cost, _cells: cells,
             _distance: route.distance, _distanceCost: distanceCost, _travelMinutes: travelTime, _fundsAfter: Funds >= cost ? Funds - cost : Funds,
             _arrivalClockMinutes: (int)((Time.MinuteOfDay + travelTime % PuzzleTimeManager.MINUTES_PER_DAY) % PuzzleTimeManager.MINUTES_PER_DAY),
@@ -291,7 +311,8 @@ public sealed class PuzzleInventoryService : MonoBehaviour
     internal long? NextRouteCost(string _cityId)
     {
         var evaluation = EvaluateTravel(_cityId);
-        return evaluation.Failure == PuzzleTravelFailure.None || evaluation.Failure == PuzzleTravelFailure.InsufficientFunds
+        return evaluation.Failure == PuzzleTravelFailure.None || evaluation.Failure == PuzzleTravelFailure.InsufficientFunds ||
+            evaluation.Failure == PuzzleTravelFailure.GrowthBlocked
             ? (long?)evaluation.Cost
             : null;
     }
@@ -332,7 +353,7 @@ public sealed class PuzzleInventoryService : MonoBehaviour
     /// 이동은 목적지를 확정한 뒤 호출하며, 보유 시간을 갱신한 후 이벤트를 발행한다.
     /// </summary>
     /// <param name="_minutes">추가 경과 분. 0은 이벤트를 발행하지 않는다.</param>
-    /// <returns>진행 중이며 시계가 초기화됐으면 true, 그 외에는 변경 없이 false.</returns>
+    /// <returns>시간 진행에 성공하면 true, 행동할 수 없거나 성장 공간이 부족하면 변경 없이 false.</returns>
     /// <exception cref="ArgumentOutOfRangeException">진행 가능한 상태에서 시간이 음수일 때 발생한다.</exception>
     /// <exception cref="OverflowException">누적 시간이 long 범위를 초과할 때 발생한다.</exception>
     public bool AdvanceMinutes(long _minutes)
@@ -341,8 +362,11 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         {
             return false;
         }
-        long previous = Time.ElapsedMinutes;
         Time.ArrivalAt(_minutes);
+        if (!TryPlanGrowth(_minutes, out var growth))
+        {
+            return false;
+        }
         foreach (var wagon in trainWagons)
         {
             foreach (var item in wagon.Placements)
@@ -353,6 +377,32 @@ public sealed class PuzzleInventoryService : MonoBehaviour
                 }
             }
         }
+        CommitTimeAdvance(_minutes, growth);
+        return true;
+    }
+
+    bool TryPlanGrowth(long _minutes, out List<PuzzleGrowth> _growth)
+    {
+        _growth = new List<PuzzleGrowth>();
+        if (_minutes == 0)
+        {
+            return true;
+        }
+
+        foreach (var wagon in trainWagons)
+        {
+            if (!wagon.TryPlanGrowth(_minutes, _growth))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    void CommitTimeAdvance(long _minutes, List<PuzzleGrowth> _growth)
+    {
+        long previous = Time.ElapsedMinutes;
         Time.Advance(_minutes);
         foreach (var wagon in trainWagons)
         {
@@ -361,6 +411,10 @@ public sealed class PuzzleInventoryService : MonoBehaviour
                 item.ApplyElapsedMinutes(_minutes);
             }
         }
+        foreach (var growth in _growth)
+        {
+            growth.Item.Owner.ApplyGrowth(growth);
+        }
         if (Time.IsOverdue)
         {
             RunStatus = PuzzleRunStatus.Lost;
@@ -368,9 +422,9 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         if (_minutes > 0)
         {
             SpawnAnimalWaste(previous, Time.ElapsedMinutes);
+            CheckButcheryReady();
             GameEvents.RaiseTimeAdvanced(previous, Time.ElapsedMinutes, this);
         }
-        return true;
     }
 
     /// <summary>
@@ -428,7 +482,7 @@ public sealed class PuzzleInventoryService : MonoBehaviour
 
     internal PuzzleTravelResult Travel(string _cityId)
     {
-        var evaluation = EvaluateTravel(_cityId);
+        var evaluation = EvaluateTravel(_cityId, out var growth);
         if (!evaluation.IsSuccess)
         {
             return evaluation;
@@ -448,11 +502,18 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         // 떠난 도시의 시장은 테이블의 시작 배치로 되돌린다. 기차는 그대로 두고, 목적지 시장은 손대지 않는다.
         markets[evaluation.FromCityId] = CreateMarket(evaluation.FromCityId);
         currentCityId = evaluation.ToCityId;
-        SetPreviewDestination(null);
+        // 떠난 도시의 도축대는 조작 대상이 아니다. 도착 후 패널을 다시 열 때 열어 준다.
+        IsButcheryOpen = false;
+        bool previewChanged = PreviewCityId != null;
+        PreviewCityId = null;
         CityMoveCount++;
         visitedCities.Add(CurrentCityId);
         Market.RecalculateValue();
-        AdvanceMinutes(duration);
+        CommitTimeAdvance(duration, growth);
+        if (previewChanged)
+        {
+            GameEvents.RaiseTravelPreviewChanged(this);
+        }
         GameEvents.RaiseCityArrived(CurrentCityId, CityMoveCount);
 
         // 테스트를 위해 빚 차감 및 빚으로 인한 승패 판정을 임시 비활성화한다.
@@ -495,6 +556,18 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         var market = Market;
         bool sourceIsTrain = IsTrainWagon(source);
         bool destIsTrain = IsTrainWagon(_destination);
+        // 도축대가 관계한 이동은 거래가 아니다. 상태가 허용하는 방향만 받아 배치 결과만 돌려준다.
+        if (IsButchery(source) || IsButchery(_destination))
+        {
+            if (sourceIsTrain && _original.Definition.IsBaby)
+            {
+                return new PuzzleDropResult(new PuzzlePlacementResult(PuzzlePlacementFailure.BabyCannotButcher));
+            }
+            var butcheryPlacement = source != null && CanMoveToButchery(source, _destination)
+                ? source.EvaluateMove(_original, _destination, _grabbedCell, _targetCell, _clockwiseTurns)
+                : new PuzzlePlacementResult(PuzzlePlacementFailure.InvalidDestination);
+            return new PuzzleDropResult(butcheryPlacement);
+        }
         if ((source == market || _destination == market) && !IsMarketOpen)
         {
             return new PuzzleDropResult(new PuzzlePlacementResult(PuzzlePlacementFailure.MarketClosed),
@@ -657,7 +730,8 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         var evaluation = EvaluateDrop(_original, _destination, grabbedCell, Vector2Int.zero, startRotation);
         if (evaluation.TradeFailure != PuzzleTradeFailure.None ||
             evaluation.Placement.Failure == PuzzlePlacementFailure.StaleSource ||
-            evaluation.Placement.Failure == PuzzlePlacementFailure.InvalidDestination)
+            evaluation.Placement.Failure == PuzzlePlacementFailure.InvalidDestination ||
+            evaluation.Placement.Failure == PuzzlePlacementFailure.BabyCannotButcher)
         {
             return evaluation;
         }
@@ -705,6 +779,10 @@ public sealed class PuzzleInventoryService : MonoBehaviour
             // Move는 새 배치 객체를 만들므로 이동 완료된 인스턴스의 구매 시계를 갱신한다.
             _destination.TryGetCell(move.Candidate.Cells[0].Position, out var movedItem, out _);
             movedItem.SetOwned(result.Direction == PuzzleTradeDirection.Buy);
+            if (result.Direction == PuzzleTradeDirection.Sell && movedItem.Definition.ExcludeFromMarket)
+            {
+                _destination.Remove(movedItem);
+            }
             Funds += result.Direction == PuzzleTradeDirection.Buy ? -result.Price : result.Price;
             GameEvents.RaiseTradeCompleted(new GameEvents.TradeInfo(CurrentCityId, _original.Definition.Id,
                 _original.InstanceId, result.Direction, result.Price, Funds, move.Candidate.Origin,
@@ -712,6 +790,361 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         }
         return result;
     }
+
+    #region 마을별 행동 · 도축
+
+    // 도축 패널이 열려 보드 조작을 받는 여부. 반입·반출 허용 범위는 CanMoveToButchery가 결정한다.
+    internal bool IsButcheryOpen { get; private set; }
+
+    // 현재 도시(또는 지정한 도시)의 도축 행동 정의. 없는 도시면 null.
+    internal PuzzleCityActionData ButcheryAction(string _cityId = null)
+    {
+        return tables != null &&
+            tables.TryGetCityAction(string.IsNullOrEmpty(_cityId) ? CurrentCityId : _cityId,
+                PuzzleCityActionType.Butchery, out var action)
+            ? action
+            : null;
+    }
+
+    internal bool HasButchery(string _cityId = null)
+    {
+        return ButcheryAction(_cityId) != null;
+    }
+
+    // 도축대를 처음 다룰 때 만든다. 기차·시장과 같은 인스턴스 발급 경로를 쓰기 위해 지연 생성한다.
+    PuzzleButcheryState EnsureButchery(string _cityId)
+    {
+        if (definitions == null || tables == null || string.IsNullOrEmpty(_cityId) ||
+            !tables.TryGetCityAction(_cityId, PuzzleCityActionType.Butchery, out var action))
+        {
+            return null;
+        }
+        if (butcheries.TryGetValue(_cityId, out var existing))
+        {
+            return RefreshButcheryReady(existing);
+        }
+
+        var board = new PuzzleInventory(action.board, Array.Empty<PuzzleStartingPlacementData>(), definitions,
+            marketRules, ref lastInstanceId);
+        var state = new PuzzleButcheryState(_cityId, action, board);
+        butcheries.Add(_cityId, state);
+        return state;
+    }
+
+    internal PuzzleInventory ButcheryBoard(string _cityId = null)
+    {
+        var state = EnsureButchery(string.IsNullOrEmpty(_cityId) ? CurrentCityId : _cityId);
+        return state?.Board;
+    }
+
+    internal PuzzleButcheryPhase ButcheryPhase(string _cityId = null)
+    {
+        var state = EnsureButchery(string.IsNullOrEmpty(_cityId) ? CurrentCityId : _cityId);
+        return state == null ? PuzzleButcheryPhase.Idle : state.Phase;
+    }
+
+    // 작업 중일 때 remaining, 그 외에는 -1.
+    internal long ButcheryRemainingMinutes(string _cityId = null)
+    {
+        var state = EnsureButchery(string.IsNullOrEmpty(_cityId) ? CurrentCityId : _cityId);
+        if (state == null || state.Phase != PuzzleButcheryPhase.Working || Time == null)
+        {
+            return -1;
+        }
+        return Math.Max(0, state.ReadyAtMinutes - Time.ElapsedMinutes);
+    }
+
+    internal bool IsButchery(PuzzleInventory _inventory)
+    {
+        return ButcheryStateOf(_inventory) != null;
+    }
+
+    // 보드가 어느 도시의 도축대인지 되찾는다. 기차·시장은 null.
+    PuzzleButcheryState ButcheryStateOf(PuzzleInventory _board)
+    {
+        if (_board == null)
+        {
+            return null;
+        }
+        foreach (var state in butcheries.Values)
+        {
+            if (ReferenceEquals(state.Board, _board))
+            {
+                return state;
+            }
+        }
+
+        return null;
+    }
+
+    internal bool OpenButchery()
+    {
+        var state = EnsureButchery(CurrentCityId);
+        if (state == null || RunStatus != PuzzleRunStatus.InProgress ||
+            state.Phase == PuzzleButcheryPhase.Working)
+        {
+            IsButcheryOpen = false;
+            return false;
+        }
+
+        IsButcheryOpen = true;
+        NotifyButchery(state);
+        return true;
+    }
+
+    internal void CloseButchery()
+    {
+        IsButcheryOpen = false;
+    }
+
+    // 닫을 수 있는지. Ready는 산출물을 도시에 남긴 채 닫고, Idle은 보드를 비운 뒤에만 닫는다.
+    internal bool TryLeaveButchery(out string _reason)
+    {
+        _reason = null;
+        var state = EnsureButchery(CurrentCityId);
+        if (state == null || state.Phase == PuzzleButcheryPhase.Ready)
+        {
+            return true;
+        }
+        if (state.Board.Placements.Count > 0)
+        {
+            _reason = BasicData.Text("rules.butchery.returnItems");
+            return false;
+        }
+
+        return true;
+    }
+
+    internal bool ButcheryConfirmable(string _cityId = null)
+    {
+        return TryEvaluateButchery(string.IsNullOrEmpty(_cityId) ? CurrentCityId : _cityId, out _, out _);
+    }
+
+    // 확인 버튼의 조건과 사유를 한 곳에서 정한다. View가 독자적으로 판단하지 않는다.
+    bool TryEvaluateButchery(string _cityId, out IReadOnlyList<string> _outputs, out string _reason)
+    {
+        _outputs = null;
+        _reason = null;
+        if (RunStatus != PuzzleRunStatus.InProgress || Time == null)
+        {
+            _reason = BasicData.Text("rules.butchery.blocked");
+            return false;
+        }
+
+        var state = EnsureButchery(_cityId);
+        if (state == null)
+        {
+            _reason = BasicData.Text("rules.butchery.unavailable");
+            return false;
+        }
+        if (state.Phase == PuzzleButcheryPhase.Working)
+        {
+            _reason = BasicData.Text("rules.butchery.inProgress");
+            return false;
+        }
+        if (state.Phase == PuzzleButcheryPhase.Ready)
+        {
+            _reason = BasicData.Text("rules.butchery.awaitingPickup");
+            return false;
+        }
+        if (state.Board.Placements.Count == 0)
+        {
+            _reason = BasicData.Text("rules.butchery.empty");
+            return false;
+        }
+
+        var outputs = new List<string>();
+        foreach (var placement in state.Board.Placements)
+        {
+            if (placement.Definition.IsBaby)
+            {
+                _reason = Presentation.PuzzleBabyCannotButcher;
+                return false;
+            }
+            if (!placement.Definition.Tags.Contains(state.Action.inputTag))
+            {
+                _reason = BasicData.Format("rules.butchery.notAnimal", placement.Definition.DisplayName);
+                return false;
+            }
+            if (!TryCollectOutputs(state.Action, placement.Definition.Id, outputs))
+            {
+                _reason = BasicData.Format("rules.butchery.noConversion", placement.Definition.DisplayName);
+                return false;
+            }
+        }
+
+        if (!TryFitsOutputs(state.Action, outputs))
+        {
+            _reason = BasicData.Text("rules.butchery.noSpace");
+            return false;
+        }
+
+        _outputs = outputs;
+        return true;
+    }
+
+    internal bool TryConfirmButchery(out string _reason)
+    {
+        if (!TryEvaluateButchery(CurrentCityId, out var outputs, out _reason))
+        {
+            return false;
+        }
+
+        var state = EnsureButchery(CurrentCityId);
+        var inputs = state.Board.Placements.ToArray();
+        foreach (var placement in inputs)
+        {
+            _ = state.Board.Remove(placement);
+        }
+
+        state.PendingOutputs.Clear();
+        state.PendingOutputs.AddRange(outputs);
+        state.OutputCount = outputs.Count;
+        state.ReadyAtMinutes = checked(Time.ElapsedMinutes + state.Action.workMinutes);
+        state.Phase = PuzzleButcheryPhase.Working;
+        NotifyButchery(state);
+        GameEvents.RaiseButcheryCommitted(state.Action.id, state.CityId, inputs.Length, state.ReadyAtMinutes);
+        return true;
+    }
+
+    // 입력 화물 하나의 산출물을 목록에 더한다. 변환 규칙이 없으면 false.
+    static bool TryCollectOutputs(PuzzleCityActionData _action, string _pieceId, List<string> _outputs)
+    {
+        foreach (var conversion in _action.conversions ?? Array.Empty<PuzzleActionConversionData>())
+        {
+            if (conversion == null || !string.Equals(conversion.inputPieceId, _pieceId, StringComparison.Ordinal))
+            {
+                continue;
+            }
+            for (int i = 0; i < conversion.outputCount; i++)
+            {
+                _outputs.Add(conversion.outputPieceId);
+            }
+            return true;
+        }
+
+        return false;
+    }
+
+    // 빈 작업 보드에 산출물을 전부 놓을 수 있는지 미리 본다. 확인 직후 실패가 없도록 검증만 하고 상태는 바꾸지 않는다.
+    bool TryFitsOutputs(PuzzleCityActionData _action, List<string> _outputs)
+    {
+        int probeId = 0;
+        var probe = new PuzzleInventory(_action.board, Array.Empty<PuzzleStartingPlacementData>(), definitions,
+            marketRules, ref probeId);
+        foreach (string pieceId in _outputs)
+        {
+            if (!definitions.TryGetValue(pieceId, out var definition) ||
+                !probe.TryAutoPlace(definition, checked(--probeId), out _))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    // 시간이 흐른 뒤 완료된 도축을 처리한다. 조회 시점에도 같은 판정을 하므로 지연 판정이다.
+    void CheckButcheryReady()
+    {
+        // 완료 발행 중 구독자가 도축대를 새로 만들 수 있어 스냅샷을 순회한다.
+        foreach (var state in butcheries.Values.ToArray())
+        {
+            RefreshButcheryReady(state);
+        }
+    }
+
+    PuzzleButcheryState RefreshButcheryReady(PuzzleButcheryState _state)
+    {
+        if (_state.Phase != PuzzleButcheryPhase.Working || Time == null ||
+            Time.ElapsedMinutes < _state.ReadyAtMinutes)
+        {
+            return _state;
+        }
+
+        bool changed = false;
+        foreach (string pieceId in _state.PendingOutputs.ToArray())
+        {
+            if (definitions.TryGetValue(pieceId, out var definition) &&
+                _state.Board.TryAutoPlace(definition, checked(++lastInstanceId), out _))
+            {
+                _state.PendingOutputs.Remove(pieceId);
+                changed = true;
+            }
+        }
+
+        bool becameReady = false;
+        if (_state.PendingOutputs.Count == 0)
+        {
+            _state.Phase = PuzzleButcheryPhase.Ready;
+            _state.ReadyAtMinutes = -1;
+            changed = becameReady = true;
+        }
+        if (changed)
+        {
+            NotifyButchery(_state);
+        }
+        if (becameReady)
+        {
+            GameEvents.RaiseButcheryReady(_state.Action.id, _state.CityId, _state.OutputCount);
+        }
+        return _state;
+    }
+
+    // 도축 보드가 관계하는 이동의 허용 범위. 거래는 없고 상태별 방향만 검사한다.
+    internal bool CanMoveToButchery(PuzzleInventory _source, PuzzleInventory _destination)
+    {
+        if (!IsButcheryOpen)
+        {
+            return false;
+        }
+        var state = ButcheryStateOf(_source) ?? ButcheryStateOf(_destination);
+        if (state == null || !ReferenceEquals(state.Action, ButcheryAction()))
+        {
+            return false;
+        }
+
+        bool sameBoard = ReferenceEquals(state.Board, _source) && ReferenceEquals(state.Board, _destination);
+        switch (state.Phase)
+        {
+            case PuzzleButcheryPhase.Idle:
+                // 맡기러 넣는 이동과 기차로 되 빼내는 이동, 보드 안 재배치를 모두 허용한다.
+                return sameBoard || (ReferenceEquals(state.Board, _destination)
+                    ? IsTrainWagon(_source)
+                    : IsTrainWagon(_destination));
+            case PuzzleButcheryPhase.Ready:
+                // 산출물 회수와 보드 안 재배치만 허용한다. 새 화물은 넣지 못한다.
+                return sameBoard || ReferenceEquals(state.Board, _source) && IsTrainWagon(_destination);
+            default:
+                return false;
+        }
+    }
+
+    // 드래그 확정 후 호출한다. Ready에서 산출물을 모두 꺼내면 다시 맡길 수 있는 Idle로 돌아간다.
+    internal void RefreshButcheryAfterMove(PuzzleInventory _board)
+    {
+        var state = ButcheryStateOf(_board);
+        if (state == null)
+        {
+            return;
+        }
+
+        RefreshButcheryReady(state);
+        if (state.Phase == PuzzleButcheryPhase.Ready && state.Board.Placements.Count == 0)
+        {
+            state.Phase = PuzzleButcheryPhase.Idle;
+        }
+        NotifyButchery(state);
+    }
+
+    // 도축대는 UI가 상태를 조회해 스스로 그린다. 변화가 있을 때 발행지 한 곳에서만 알린다.
+    void NotifyButchery(PuzzleButcheryState _state)
+    {
+        GameEvents.RaiseButcheryChanged(this, _state.CityId, _state.Phase,
+            IsButcheryOpen && string.Equals(_state.CityId, CurrentCityId, StringComparison.Ordinal));
+    }
+
+    #endregion
 }
 
 public enum PuzzleRunStatus
@@ -731,7 +1164,8 @@ internal enum PuzzleTravelFailure
     MissingRoute,
     InsufficientFunds,
     CostOverflow,
-    TimeOverflow
+    TimeOverflow,
+    GrowthBlocked
 }
 
 // 이동 미리보기와 확정의 공통 결과. 실패하면 도시·턴·시장·자금 어느 것도 바뀌지 않는다.

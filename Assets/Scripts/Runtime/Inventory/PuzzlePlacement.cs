@@ -12,7 +12,8 @@ public enum PuzzlePlacementFailure
     CellOutsideBoard,
     CellOccupied,
     NoSpace,
-    MarketClosed
+    MarketClosed,
+    BabyCannotButcher
 }
 
 public readonly struct PuzzleCell

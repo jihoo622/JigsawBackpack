@@ -12,6 +12,8 @@ public static class TelemetryEvents
     public const string UPGRADE_GRANTED = "upgrade_granted";
     public const string PANEL_VISIBILITY = "panel_visibility";
     public const string TRADE_COMPLETED = "trade_completed";
+    public const string BUTCHERY_COMMITTED = "butchery_committed";
+    public const string BUTCHERY_READY = "butchery_ready";
 }
 
 // payload 자료형은 [Serializable] 구조체로 둔다(JsonUtility는 익명 타입을 직렬화하지 않는다).
@@ -62,6 +64,23 @@ public struct TradePayload
     public string cityId, itemId, direction;
     public int instanceId, x, y, clockwiseTurns;
     public long price, fundsAfter;
+}
+
+[Serializable]
+public struct ButcheryCommittedPayload
+{
+    public string actionId, cityId;
+    public int inputCount;
+    public long readyAtMinutes;
+    public double time;
+}
+
+[Serializable]
+public struct ButcheryReadyPayload
+{
+    public string actionId, cityId;
+    public int outputCount;
+    public double time;
 }
 
 // 좌표는 히트맵에 충분한 1cm 단위로 줄여 행 크기를 낮춘다.
@@ -136,6 +155,28 @@ public static class TelemetryPayload
             clockwiseTurns = _info.clockwiseTurns,
             price = _info.price,
             fundsAfter = _info.fundsAfter
+        };
+    }
+
+    public static ButcheryCommittedPayload ButcheryCommitted(GameEvents.ButcheryCommittedInfo _info)
+    {
+        return new ButcheryCommittedPayload
+        {
+            actionId = _info.actionId,
+            cityId = _info.cityId,
+            inputCount = _info.inputCount,
+            readyAtMinutes = _info.readyAtMinutes,
+            time = _info.time
+        };
+    }
+
+    public static ButcheryReadyPayload ButcheryReady(GameEvents.ButcheryReadyInfo _info)
+    {
+        return new ButcheryReadyPayload
+        {
+            actionId = _info.actionId,
+            cityId = _info.cityId,
+            outputCount = _info.outputCount
         };
     }
 

@@ -102,6 +102,19 @@ public static class Presentation
     {
         return BasicData.Format("presentation.StationRestDuration.text1", PuzzleMapTime(_minutes));
     }
+    public static string StationButchery => BasicData.Text("presentation.StationButchery");
+    public static string StationButcheryConfirm => BasicData.Text("presentation.StationButcheryConfirm");
+    public static string PuzzleButcheryTitle => BasicData.Text("presentation.PuzzleButcheryTitle");
+    // 도축대 상태 문구의 단일 출처. 버튼·보드·hint가 같은 문구를 읽는다.
+    public static string StationButcheryStatus(PuzzleButcheryPhase _phase, long _remainingMinutes)
+    {
+        return _phase switch
+        {
+            PuzzleButcheryPhase.Working => BasicData.Format("presentation.StationButcheryCountdown.text1", PuzzleMapTime(_remainingMinutes)),
+            PuzzleButcheryPhase.Ready => BasicData.Text("presentation.StationButcheryReady"),
+            _ => BasicData.Text("presentation.StationButcheryIdleHint")
+        };
+    }
     public static string PuzzleNightMarket => BasicData.Text("presentation.PuzzleNightMarket");
     public static float PuzzleMarketClosedAlpha => BasicData.Float("presentation.PuzzleMarketClosedAlpha.number1");
     public static string PuzzlePreviewDestination(string _cityName, long? _minutes)
@@ -332,6 +345,7 @@ public static class Presentation
         { "Fruit", "presentation.PuzzleTagCommon.text13" },
         { "Poo", "presentation.PuzzleTagCommon.text14" },
         { "Box", "presentation.PuzzleTagCommon.text15" },
+        { PuzzleItemDefinition.BABY_TAG, "presentation.PuzzleTagCommon.baby" },
 
     };
 
@@ -610,6 +624,8 @@ public static class Presentation
     }
 
     internal static string PuzzleClearTitle => BasicData.Text("presentation.PuzzleClearTitle");
+    internal static string PuzzleGrowthBlocked => BasicData.Text("presentation.PuzzleGrowthBlocked");
+    internal static string PuzzleBabyCannotButcher => BasicData.Text("presentation.PuzzleBabyCannotButcher");
 
     internal static string PuzzleClearButton(long _cost)
     {
@@ -642,6 +658,7 @@ public static class Presentation
                 + BasicData.Format("presentation.PuzzleTravelStatus.text2", PuzzleTravelBreakdown(_result)),
             PuzzleTravelFailure.CostOverflow => BasicData.Text("presentation.PuzzleTravelStatus.text5"),
             PuzzleTravelFailure.TimeOverflow => BasicData.Text("presentation.PuzzleTravelStatus.text6"),
+            PuzzleTravelFailure.GrowthBlocked => PuzzleGrowthBlocked,
             PuzzleTravelFailure.MissingRoute => BasicData.Text("presentation.PuzzleTravelStatus.text7"),
             PuzzleTravelFailure.NotAvailable => BasicData.Text("presentation.PuzzleTravelStatus.text8"),
             PuzzleTravelFailure.Blocked => BasicData.Text("presentation.PuzzleTravelStatus.text9"),
@@ -654,6 +671,10 @@ public static class Presentation
         if (_result.TradeFailure == PuzzleTradeFailure.MarketClosed)
         {
             return PuzzleNightMarket;
+        }
+        if (_result.Placement.Failure == PuzzlePlacementFailure.BabyCannotButcher)
+        {
+            return PuzzleBabyCannotButcher;
         }
         if (_result.Direction == PuzzleTradeDirection.None)
         {

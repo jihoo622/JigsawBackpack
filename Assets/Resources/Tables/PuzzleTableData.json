@@ -379,6 +379,40 @@
       ]
     },
     {
+      "id": "piece.babyCow",
+      "displayName": "송아지",
+      "description": "시간이 지나면 소로 자란다. 성장하려면 같은 객차에 성체가 들어갈 공간이 필요하다.",
+      "tags": [
+        "Animal",
+        "Baby"
+      ],
+      "visualKey": "cargo.babyCow",
+      "slotCount": 2,
+      "durability": 100,
+      "excludeFromMarket": true,
+      "adultPieceId": "piece.cow",
+      "growthHours": 48,
+      "growthBlockedHours": 1,
+      "cells": [
+        {
+          "x": 0,
+          "y": 0,
+          "north": "Flat",
+          "east": "Flat",
+          "south": "Flat",
+          "west": "Flat"
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "north": "Flat",
+          "east": "Flat",
+          "south": "Flat",
+          "west": "Flat"
+        }
+      ]
+    },
+    {
       "id": "piece.cow",
       "displayName": "소",
       "description": "두 칸에 한 칸이 덧붙은 다섯 칸 가축 화물.",
@@ -482,6 +516,13 @@
     "width": 5,
     "height": 5,
     "startingPlacements": [
+      {
+        "id": "train.babyCow",
+        "pieceId": "piece.babyCow",
+        "x": 0,
+        "y": 4,
+        "clockwiseTurns": 0
+      },
       {
         "id": "sample.verticalPair",
         "pieceId": "piece.verticalPair",

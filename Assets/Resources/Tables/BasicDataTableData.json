@@ -2979,6 +2979,48 @@
       "positive": true
     },
     {
+      "id": "ui.layout.butcheryBoardSize",
+      "source": "Assets/Scripts/Editor/Build/PuzzleUiLayoutTool.cs",
+      "value": 396,
+      "whole": true,
+      "positive": true
+    },
+    {
+      "id": "ui.layout.butcheryBoardTop",
+      "source": "Assets/Scripts/Editor/Build/PuzzleUiLayoutTool.cs",
+      "value": 104,
+      "whole": true,
+      "positive": true
+    },
+    {
+      "id": "ui.layout.butcheryButtonBottom",
+      "source": "Assets/Scripts/Editor/Build/PuzzleUiLayoutTool.cs",
+      "value": 24,
+      "whole": true,
+      "positive": true
+    },
+    {
+      "id": "ui.layout.butcheryButtonHeight",
+      "source": "Assets/Scripts/Editor/Build/PuzzleUiLayoutTool.cs",
+      "value": 84,
+      "whole": true,
+      "positive": true
+    },
+    {
+      "id": "ui.layout.butcheryInfoHeight",
+      "source": "Assets/Scripts/Editor/Build/PuzzleUiLayoutTool.cs",
+      "value": 64,
+      "whole": true,
+      "positive": true
+    },
+    {
+      "id": "ui.layout.butcheryInfoY",
+      "source": "Assets/Scripts/Editor/Build/PuzzleUiLayoutTool.cs",
+      "value": 32,
+      "whole": true,
+      "positive": true
+    },
+    {
       "id": "ui.layout.bodyBottom",
       "source": "Assets/Scripts/Editor/Build/PuzzleUiLayoutTool.cs",
       "value": 112,
@@ -3498,6 +3540,12 @@
       "source": "Assets/Scripts/Runtime/Core/Presentation.cs:302"
     },
     {
+      "id": "presentation.PuzzleButcheryTitle",
+      "value": "도축대",
+      "arguments": 0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:107"
+    },
+    {
       "id": "presentation.PuzzleCityTagPreferences.text1",
       "value": "<color=#{0}><b>흔한 자원</b></color>   {1}\n",
       "arguments": 2,
@@ -3880,6 +3928,24 @@
       "value": "똥",
       "arguments": 0,
       "source": "Presentation tag labels"
+    },
+    {
+      "id": "presentation.PuzzleTagCommon.baby",
+      "value": "애기",
+      "arguments": 0,
+      "source": "Presentation tag labels"
+    },
+    {
+      "id": "presentation.PuzzleGrowthBlocked",
+      "value": "성체가 들어갈 공간이 부족합니다. 송아지가 있는 객차의 공간을 확보하세요.",
+      "arguments": 0,
+      "source": "Presentation"
+    },
+    {
+      "id": "presentation.PuzzleBabyCannotButcher",
+      "value": "애기 태그가 있는 동물은 도축할 수 없습니다.",
+      "arguments": 0,
+      "source": "Presentation"
     },
     {
       "id": "presentation.PuzzleTagCommon.text15",
@@ -4344,6 +4410,36 @@
       "source": "Assets/Scripts/Runtime/Core/Presentation.cs:99"
     },
     {
+      "id": "presentation.StationButchery",
+      "value": "도축",
+      "arguments": 0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:105"
+    },
+    {
+      "id": "presentation.StationButcheryConfirm",
+      "value": "도축하기",
+      "arguments": 0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:106"
+    },
+    {
+      "id": "presentation.StationButcheryCountdown.text1",
+      "value": "{0} 후 마무리",
+      "arguments": 1,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:113"
+    },
+    {
+      "id": "presentation.StationButcheryIdleHint",
+      "value": "동물을 도축대에 놓은 뒤 확인을 누르세요",
+      "arguments": 0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:115"
+    },
+    {
+      "id": "presentation.StationButcheryReady",
+      "value": "물건을 받아가세요",
+      "arguments": 0,
+      "source": "Assets/Scripts/Runtime/Core/Presentation.cs:114"
+    },
+    {
       "id": "presentation.StationMarket",
       "value": "시장",
       "arguments": 0,
@@ -4480,6 +4576,60 @@
       "value": "자금이 부족합니다. (필요: ${0})",
       "arguments": 1,
       "source": "Assets/Scripts/Runtime/Inventory/PuzzleInventoryService.cs:75"
+    },
+    {
+      "id": "rules.butchery.blocked",
+      "value": "지금은 도축을 진행할 수 없습니다.",
+      "arguments": 0,
+      "source": "Assets/Scripts/Runtime/Inventory/PuzzleInventoryService.cs"
+    },
+    {
+      "id": "rules.butchery.unavailable",
+      "value": "이 마을에서는 도축할 수 없습니다.",
+      "arguments": 0,
+      "source": "Assets/Scripts/Runtime/Inventory/PuzzleInventoryService.cs"
+    },
+    {
+      "id": "rules.butchery.inProgress",
+      "value": "도축이 진행 중입니다. 시간이 지나면 완료됩니다.",
+      "arguments": 0,
+      "source": "Assets/Scripts/Runtime/Inventory/PuzzleInventoryService.cs"
+    },
+    {
+      "id": "rules.butchery.awaitingPickup",
+      "value": "받을 준비가 되었습니다. 화물을 기차로 옮기세요.",
+      "arguments": 0,
+      "source": "Assets/Scripts/Runtime/Inventory/PuzzleInventoryService.cs"
+    },
+    {
+      "id": "rules.butchery.empty",
+      "value": "도축할 동물을 도축대에 놓으세요.",
+      "arguments": 0,
+      "source": "Assets/Scripts/Runtime/Inventory/PuzzleInventoryService.cs"
+    },
+    {
+      "id": "rules.butchery.notAnimal",
+      "value": "{0}은(는) 동물 태그가 아니라 도축할 수 없습니다.",
+      "arguments": 1,
+      "source": "Assets/Scripts/Runtime/Inventory/PuzzleInventoryService.cs"
+    },
+    {
+      "id": "rules.butchery.noConversion",
+      "value": "{0}을(를) 어떻게 도축할지 정해지지 않았습니다.",
+      "arguments": 1,
+      "source": "Assets/Scripts/Runtime/Inventory/PuzzleInventoryService.cs"
+    },
+    {
+      "id": "rules.butchery.noSpace",
+      "value": "도축대가 부족해 결과를 모두 놓을 수 없습니다.",
+      "arguments": 0,
+      "source": "Assets/Scripts/Runtime/Inventory/PuzzleInventoryService.cs"
+    },
+    {
+      "id": "rules.butchery.returnItems",
+      "value": "도축대에 남은 화물을 먼저 기차로 옮기세요.",
+      "arguments": 0,
+      "source": "Assets/Scripts/Runtime/Inventory/PuzzleInventoryService.cs"
     },
     {
       "id": "ui.layout.marketDescription",

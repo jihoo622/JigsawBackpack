@@ -95,6 +95,78 @@ public sealed class PuzzleInventory
     // 이 보드가 지금 점유한 칸 수. 노선 이동 비용의 보유량 계산에 쓴다.
     internal int OccupiedCells => occupancy.Count;
 
+    internal bool TryPlanGrowth(long _minutes, List<PuzzleGrowth> _growth)
+    {
+        var approachingGrowth = placements.Values
+            .Where(_item => _item.OwnedMinutes >= 0 && _item.Definition.GrowthMinutes > 0 &&
+                _minutes > _item.Definition.GrowthMinutes - _item.Definition.GrowthBlockedMinutes - _item.OwnedMinutes)
+            .OrderBy(_item => _item.Definition.GrowthMinutes - _item.OwnedMinutes);
+        HashSet<Vector2Int> occupied = null;
+        foreach (var item in approachingGrowth)
+        {
+            occupied ??= new HashSet<Vector2Int>(occupancy.Keys);
+            occupied.ExceptWith(item.Pose.Cells.Select(_cell => _cell.Position));
+            var adult = definitions[item.Definition.AdultPieceId];
+            if (!TryFindGrowthPose(item.Pose, adult, occupied, out var pose))
+            {
+                return false;
+            }
+
+            occupied.UnionWith(pose.Cells.Select(_cell => _cell.Position));
+            if (_minutes >= item.Definition.GrowthMinutes - item.OwnedMinutes)
+            {
+                _growth.Add(new PuzzleGrowth(item, adult, pose));
+            }
+        }
+
+        return true;
+    }
+
+    bool TryFindGrowthPose(PuzzlePose _current, PuzzleItemDefinition _adult, HashSet<Vector2Int> _occupied,
+        out PuzzlePose _pose)
+    {
+        var currentRotation = new PuzzleRotation(_adult.Cells, _current.ClockwiseTurns);
+        if (TryCreateGrowthPose(_adult.Cells, _current.Origin, currentRotation, _occupied, out _pose))
+        {
+            return true;
+        }
+
+        for (int turn = 0; turn < PuzzleRotation.TURN_COUNT; turn++)
+        {
+            var rotation = new PuzzleRotation(_adult.Cells, (_current.ClockwiseTurns + turn) % PuzzleRotation.TURN_COUNT);
+            for (int y = Height - 1; y >= 0; y--)
+            {
+                for (int x = 0; x < Width; x++)
+                {
+                    if (TryCreateGrowthPose(_adult.Cells, new Vector2Int(x, y), rotation, _occupied, out _pose))
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
+    bool TryCreateGrowthPose(IReadOnlyList<Vector2Int> _cells, Vector2Int _origin, PuzzleRotation _rotation,
+        HashSet<Vector2Int> _occupied, out PuzzlePose _pose)
+    {
+        return TryCreatePose(_cells, _origin, _rotation, out _pose) &&
+            _pose.Cells.All(_cell => InBounds(_cell.Position) && !_occupied.Contains(_cell.Position));
+    }
+
+    internal void ApplyGrowth(PuzzleGrowth _growth)
+    {
+        var item = _growth.Item;
+        var adult = _growth.Adult;
+        var grown = new PuzzlePlacement(item.InstanceId, adult, this, _growth.Pose,
+            item.ActualValue + (adult.BaseValue - (decimal)item.Definition.BaseValue), item.OwnedMinutes);
+        ClearOccupancy(item);
+        StorePlacement(grown);
+        RecalculateValue();
+    }
+
     internal PuzzlePlacementResult EvaluateMove(PuzzlePlacement _original, PuzzleInventory _destination,
         Vector2Int _grabbedCell, Vector2Int _targetCell, int _clockwiseTurns)
     {
@@ -182,6 +254,21 @@ public sealed class PuzzleInventory
         }
 
         return false;
+    }
+
+    // 이 보드에서 배치 하나를 완전히 제거한다. 도축처럼 소멸시키는 행동만 사용하고, 반환값은 소속이 맞는 경우에만 true다.
+    internal bool Remove(PuzzlePlacement _placement)
+    {
+        if (_placement == null || !placements.TryGetValue(_placement.InstanceId, out var current) ||
+            !ReferenceEquals(current, _placement))
+        {
+            return false;
+        }
+
+        ClearOccupancy(_placement);
+        placements.Remove(_placement.InstanceId);
+        RecalculateValue();
+        return true;
     }
 
     internal PuzzlePose GetDragPose(PuzzleItemDefinition _definition, Vector2Int _grabbedCell, int _clockwiseTurns)
@@ -290,5 +377,19 @@ public sealed class PuzzleInventory
 
         _position = new Vector2Int((int)x, (int)y);
         return true;
+    }
+}
+
+internal readonly struct PuzzleGrowth
+{
+    internal PuzzlePlacement Item { get; }
+    internal PuzzleItemDefinition Adult { get; }
+    internal PuzzlePose Pose { get; }
+
+    internal PuzzleGrowth(PuzzlePlacement _item, PuzzleItemDefinition _adult, PuzzlePose _pose)
+    {
+        Item = _item;
+        Adult = _adult;
+        Pose = _pose;
     }
 }

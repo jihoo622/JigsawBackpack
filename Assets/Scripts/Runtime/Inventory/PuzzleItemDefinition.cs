@@ -5,6 +5,8 @@ using UnityEngine;
 
 public sealed class PuzzleItemDefinition
 {
+    internal const string BABY_TAG = "Baby";
+
     public string Id { get; }
     public string DisplayName { get; }
     public string Description { get; }
@@ -17,6 +19,11 @@ public sealed class PuzzleItemDefinition
     public Vector2 IconOffset { get; }
     public IReadOnlyList<string> Tags { get; }
     public IReadOnlyList<Vector2Int> Cells { get; }
+    internal bool IsBaby { get; }
+    internal bool ExcludeFromMarket { get; }
+    internal string AdultPieceId { get; }
+    internal long GrowthMinutes { get; }
+    internal long GrowthBlockedMinutes { get; }
 
     // Food 태그 아이템만 신선도를 표시·관리 대상으로 본다.
     public bool HasDurability { get; }
@@ -34,6 +41,11 @@ public sealed class PuzzleItemDefinition
             : Vector2.zero;
         IconOffset = new Vector2(_item.iconOffsetX, _item.iconOffsetY);
         Tags = Array.AsReadOnly(_item.tags.OrderBy(tag => tag, StringComparer.Ordinal).ToArray());
+        IsBaby = Tags.Contains(BABY_TAG);
+        ExcludeFromMarket = _item.excludeFromMarket;
+        AdultPieceId = _item.adultPieceId;
+        GrowthMinutes = (long)_item.growthHours * PuzzleTimeManager.MINUTES_PER_HOUR;
+        GrowthBlockedMinutes = (long)_item.growthBlockedHours * PuzzleTimeManager.MINUTES_PER_HOUR;
         HasDurability = Tags.Contains("Food");
         Cells = Array.AsReadOnly(_item.cells.OrderBy(cell => cell.y).ThenBy(cell => cell.x)
             .Select(cell => new Vector2Int(cell.x, cell.y)).ToArray());

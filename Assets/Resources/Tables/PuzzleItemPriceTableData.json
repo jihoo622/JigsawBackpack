@@ -55,6 +55,10 @@
       "baseValue": 20
     },
     {
+      "pieceId": "piece.babyCow",
+      "baseValue": 40
+    },
+    {
       "pieceId": "piece.cow",
       "baseValue": 65
     },

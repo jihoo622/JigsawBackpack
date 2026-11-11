@@ -35,6 +35,7 @@
 - `purchaseMarkupPercent: 110`은 저장·검증만 하며 가격에 미적용이다. 적용 또는 제거는 기획 결정이 필요하다.
 - 추가 수요는 마을별 임시 고정값이다. 랜덤 재추첨 방식은 미정이다.
 - 상품 정의는 16개다. 최신 develop의 일반 가축 제거·소/소고기 재고 교체와 사용하지 않는 아이콘 삭제를 반영했다. 내구도 초기값·아이콘 배치 필드·음수 가격·희귀 단가 처리를 유지한다. 표시 크기 안에서 아이콘 종횡비를 보존하고, 소처럼 표시 오프셋이 있는 아이콘도 물품과 함께 회전하도록 실제 표시와 드래그 미리보기의 공통 계산을 수정했다.
+- 도축은 `PuzzleInventoryService`의 도시별 `PuzzleButcheryState`(3×3 보드·`Idle/Working/Ready`·`ReadyAtMinutes`·`PendingOutputs`)가 상태 원본이며 인스턴스 ID도 기차·시장과 같은 발급 경로를 쓴다. 확인 시 동물을 소멸시키고 산출물을 기한과 함께 대기 목록에 넣은 뒤 `Working`, `ElapsedMinutes ≥ ReadyAtMinutes`를 조회 시점에 지연 판정해 보드에 산출물을 올리고 `Ready`로 바꾼다. 산출물을 모두 회수하면 `Idle`로 돌아오고, Ready 상태에서 도시를 떠나면 산출물은 그 도시의 도축대에 남는다. `CanMoveToButchery`가 상태별 반입·반출 방향을 정하고 드래그·우클릭 경로가 도축대를 인식한다. View·Presenter(역할 목록의 도축 항목, 3×3 content, 확인 버튼, 상태 문구)와 5단계 에디터 배선(`StationActionsSetupTool`이 씬의 시장 보드를 복제한 `Butchery` 객체를 만들고 View·`butcheryView` 참조를 연결, `PuzzleUiLayoutTool.ApplyButchery`가 레이아웃)까지 코드 구현은 끝났다. 씬 반영은 `Tools/MyJG/Apply Station Actions UI` 실행이 필요하며, 배선 전 View에는 `butcheryContent`가 없어 `ButcheryWired`가 false라 도축 UI만 나타나지 않는다. 상태·화물 변화는 `GameEvents.ButcheryChanged`로 두 Presenter에 흐르고, 확인·완료 순간은 `butchery_committed`·`butchery_ready`로 분석 파일(JSONL)에만 남는다.
 - Game 씬에서 바로 시작하며 재시작 시 해당 판을 초기화한다. 영구 저장·재개와 타이틀 진입 흐름은 미연결이다.
 
 ## 경로 계산과 확인 범위

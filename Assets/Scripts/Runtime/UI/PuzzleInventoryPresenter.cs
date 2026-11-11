@@ -10,6 +10,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
 
     [SerializeField] PuzzleInventoryView trainView;
     [SerializeField] PuzzleInventoryView marketView;
+    [SerializeField] PuzzleInventoryView butcheryView;
     [SerializeField] PuzzleCityView cityView;
     [SerializeField] PuzzleItemTooltipView tooltipView;
     [SerializeField] PuzzleTrainBarView trainBarView;
@@ -26,15 +27,20 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
     float hoveredWagonStartTime;
     bool initialized;
     bool isMapOpen;
+    bool butcheryConfigured;
     bool InventoryBlocked => isMapOpen;
+    // 도축대는 세션이 조작을 허용하고 패널에 View가 나와 있을 때만 드래그·표시 대상이 된다.
+    bool ButcheryViewReady => session != null && session.IsButcheryOpen && butcheryView != null &&
+        butcheryView.gameObject.activeInHierarchy;
 
     void OnEnable()
     {
         if (!TryGetComponent(out input) || !trainView || !marketView || trainView == marketView || !cityView || !pauseMenu ||
+            (butcheryView && (butcheryView == trainView || butcheryView == marketView)) ||
             !trainView.transform.IsChildOf(transform) || !marketView.transform.IsChildOf(transform) ||
             !cityView.transform.IsChildOf(transform))
         {
-            Debug.LogError("화물 인벤토리 Presenter에는 Input, 기차·시장·도시 View와 일시 정지 메뉴가 필요합니다.", this);
+            Debug.LogError("화물 인벤토리 Presenter에는 Input, 기차·시장·도시 View와 일시 정지 메뉴가 필요합니다. 도축대 View는 기차·시장과 다른 View여야 합니다.", this);
             enabled = false;
             return;
         }
@@ -54,6 +60,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         long dragCapacity = System.Math.Max(trainCapacity, session.MarketCapacity);
         trainView.Initialize(trainCapacity, dragCapacity, Presentation.PuzzleTrainTitle(session.CurrentWagonIndex + 1), session.ItemDefinitions, _showSynergies: true);
         marketView.Initialize(session.MarketCapacity, dragCapacity, Presentation.PuzzleMarketTitle, session.ItemDefinitions, _showSynergies: false);
+        ConfigureButcheryView();
         cityView.Initialize(session.GameClearCost);
         cityView.InitializeTown(GetTavernRumor);
         ShowCurrentCity();
@@ -70,10 +77,15 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         input.HoverEnded += OnHoverEnded;
         trainView.Disabled += OnViewDisabled;
         marketView.Disabled += OnViewDisabled;
+        if (butcheryView)
+        {
+            butcheryView.Disabled += OnViewDisabled;
+        }
         GameEvents.CityArrived += OnCityArrived;
         GameEvents.TimeAdvanced += OnTimeAdvanced;
         GameEvents.PanelVisibility += OnPanelVisibility;
         GameEvents.TravelPreviewChanged += OnTravelPreviewChanged;
+        GameEvents.ButcheryChanged += OnButcheryChanged;
         cityView.WaitRequested += WaitForDaylight;
         cityView.PreviewRequested += CyclePreview;
         if (trainBarView)
@@ -98,6 +110,10 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         {
             marketView.Disabled -= OnViewDisabled;
         }
+        if (butcheryView)
+        {
+            butcheryView.Disabled -= OnViewDisabled;
+        }
         if (input)
         {
             input.Pressed -= OnPressed;
@@ -119,6 +135,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         GameEvents.TimeAdvanced -= OnTimeAdvanced;
         GameEvents.PanelVisibility -= OnPanelVisibility;
         GameEvents.TravelPreviewChanged -= OnTravelPreviewChanged;
+        GameEvents.ButcheryChanged -= OnButcheryChanged;
         cityView.WaitRequested -= WaitForDaylight;
         cityView.PreviewRequested -= CyclePreview;
         if (trainBarView)
@@ -267,7 +284,10 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         {
             input.CancelCapture();
             ClearDrag();
-            session.WaitForDaylight();
+            if (!session.WaitForDaylight())
+            {
+                cityView.ShowTradeStatus(Presentation.PuzzleGrowthBlocked);
+            }
         }
     }
 
@@ -387,6 +407,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         var result = session.QuickTransfer(placement);
         if (result.CanDrop)
         {
+            session.RefreshButcheryAfterMove(source);
             RenderValues();
             RefreshFunds();
             RefreshTrainBar();
@@ -437,6 +458,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
                 result = activeDrag.DropOnBoard(session, destination, targetCell);
                 if (result.CanDrop)
                 {
+                    RefreshButcheryAfter(activeDrag.Source, destination);
                     RenderValues();
                     RefreshFunds();
                     RefreshTrainBar();
@@ -449,6 +471,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
                 result = activeDrag.QuickDropToWagon(session, droppedWagonIndex);
                 if (result.CanDrop)
                 {
+                    RefreshButcheryAfter(activeDrag.Source, session.TrainWagons[droppedWagonIndex]);
                     RenderValues();
                     RefreshFunds();
                     RefreshTrainBar();
@@ -490,7 +513,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             return;
         }
 
-        var sourceView = session.IsTrainWagon(drag.Source) ? trainView : marketView;
+        var sourceView = ViewFor(drag.Source);
         SetDragView(sourceView);
         sourceView.ShowGhost(drag.GetGhostPose(), drag.Definition, Vector2Int.zero, pointerPosition);
         sourceView.ShowPreview(null, false);
@@ -525,6 +548,12 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             {
                 _view = marketView;
                 _inventory = session.Market;
+                return true;
+            }
+            if (ButcheryViewReady && butcheryView.TryGetBoardCell(_position, out _cell))
+            {
+                _view = butcheryView;
+                _inventory = session.ButcheryBoard();
                 return true;
             }
         }
@@ -629,15 +658,21 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             {
                 marketView.ShowItemDetails(null, default, default, default);
             }
+            if (butcheryView)
+            {
+                butcheryView.ShowItemDetails(null, default, default, default);
+            }
             return;
         }
 
         var item = _placement.Definition;
         var value = _placement.Owner.ValueOf(_placement.InstanceId);
-        bool isTrain = _view == trainView || session.IsTrainWagon(_placement.Owner);
+        // 도축대 화물은 보관 공간이 아니므로 시너지 표시가 없다.
+        bool isButchery = session.IsButchery(_placement.Owner);
+        bool isTrain = !isButchery && (_view == trainView || session.IsTrainWagon(_placement.Owner));
         decimal actualValue = isTrain ? _placement.ActualValue : _placement.Definition.BaseValue;
         var rate = item == null ? default : session.RateFor(item);
-        var effects = BuildEffectDescriptions(item, isTrain);
+        var effects = isButchery ? null : BuildEffectDescriptions(item, isTrain);
         long? previewMinutes = session.PreviewMinutes;
         decimal? futureValue = null;
         if (isTrain && previewMinutes.HasValue)
@@ -668,6 +703,10 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         if (marketView)
         {
             marketView.ShowItemDetails(_view == marketView ? item : null, value, actualValue, rate);
+        }
+        if (butcheryView)
+        {
+            butcheryView.ShowItemDetails(_view == butcheryView ? item : null, value, actualValue, rate);
         }
     }
 
@@ -706,6 +745,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         {
             marketView.ShowBoardInfo(Presentation.PuzzleCityTagPreferences(session.CityData, session.RegionData));
         }
+        ShowButcheryStatus();
     }
 
     void RenderBoards(int? _highlightedInstanceId = null)
@@ -718,6 +758,73 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         {
             marketView.RenderPlacements(session.Market, drag?.InstanceId, _highlightedInstanceId);
         }
+        if (ButcheryViewReady)
+        {
+            butcheryView.RenderPlacements(session.ButcheryBoard(), drag?.InstanceId, _highlightedInstanceId);
+        }
+    }
+
+    PuzzleInventoryView ViewFor(PuzzleInventory _inventory)
+    {
+        if (session.IsButchery(_inventory) && butcheryView)
+        {
+            return butcheryView;
+        }
+        return session.IsTrainWagon(_inventory) ? trainView : marketView;
+    }
+
+    // 도축대 View는 한 번 구성하면 된다. 열 때마다 크기와 상태 문구만 갱신한다.
+    void ConfigureButcheryView()
+    {
+        if (!butcheryView)
+        {
+            return;
+        }
+        var board = session.ButcheryBoard();
+        if (board == null)
+        {
+            return;
+        }
+        if (!butcheryConfigured)
+        {
+            long capacity = (long)board.Width * board.Height;
+            long dragCapacity = System.Math.Max(System.Math.Max((long)session.Train.Width * session.Train.Height,
+                session.MarketCapacity), capacity);
+            butcheryView.Initialize(capacity, dragCapacity, Presentation.PuzzleButcheryTitle, session.ItemDefinitions,
+                _showSynergies: false);
+            butcheryConfigured = true;
+        }
+        butcheryView.SetBoardSize(board.Width, board.Height);
+    }
+
+    void ShowButcheryStatus()
+    {
+        if (butcheryView && butcheryConfigured)
+        {
+            butcheryView.ShowBoardInfo(Presentation.StationButcheryStatus(session.ButcheryPhase(),
+                session.ButcheryRemainingMinutes()));
+        }
+    }
+
+    void OnButcheryChanged(GameEvents.ButcheryInfo _info)
+    {
+        if (_info.session != session)
+        {
+            return;
+        }
+        if (_info.open)
+        {
+            ConfigureButcheryView();
+        }
+        ShowButcheryStatus();
+        RenderBoards();
+    }
+
+    // 확정된 이동이 도축대에 있었는지 확인해 상태를 갱신한다. ClearDrag의 다시 그리기가 이 결과를 그대로 표시한다.
+    void RefreshButcheryAfter(PuzzleInventory _source, PuzzleInventory _destination)
+    {
+        session.RefreshButcheryAfterMove(_source);
+        session.RefreshButcheryAfterMove(_destination);
     }
 
     void OnViewDisabled()

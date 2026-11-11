@@ -72,6 +72,9 @@ public sealed class PuzzlePieceData
     public int slotCount = -1;
     // 내구도 시작값. 누락이 정상값으로 위장되지 않도록 검증용 값으로 둔다.
     public int durability = -1;
+    public bool excludeFromMarket;
+    public string adultPieceId;
+    public int growthHours, growthBlockedHours;
     public PuzzleCellData[] cells = Array.Empty<PuzzleCellData>();
 }
 
@@ -176,6 +179,32 @@ public sealed class PuzzleDebtPaymentData
 {
     public int moveCount;
     public long amount;
+}
+
+// 마을 역에서 추가 동작으로 진입하는 행동의 종류. 테이블의 type 문자열과 이름이 같아야 한다.
+public enum PuzzleCityActionType
+{
+    Butchery
+}
+
+// 도시별 추가 행동. cityIds에 지정한 마을의 역에서만 버튼이 보인다.
+[Serializable]
+public sealed class PuzzleCityActionData
+{
+    public string id, type, title, description, inputTag, outputTag;
+    public string[] cityIds = Array.Empty<string>();
+    public PuzzleBoardData board;
+    // 확인 버튼을 누른 시점부터 완성에 걸리는 분. 누락이 0으로 위장되지 않도록 검증용 값으로 둔다.
+    public long workMinutes = -1;
+    public PuzzleActionConversionData[] conversions = Array.Empty<PuzzleActionConversionData>();
+}
+
+// 행동의 입력 아이템 하나를 산출물로 바꾸는 대응. inputPieceId 기준 고유하다.
+[Serializable]
+public sealed class PuzzleActionConversionData
+{
+    public string inputPieceId, outputPieceId;
+    public int outputCount = -1;
 }
 
 // 한 방향 노선. fromCityId에서 toCityId로 떠날 때의 비용이고 반대 방향은 별개 행이다.

@@ -22,6 +22,8 @@ public sealed class TelemetryRecorder : MonoBehaviour
         GameEvents.UpgradeGranted += OnUpgradeGranted;
         GameEvents.PanelVisibility += OnPanelVisibility;
         GameEvents.TradeCompleted += OnTradeCompleted;
+        GameEvents.ButcheryCommitted += OnButcheryCommitted;
+        GameEvents.ButcheryReady += OnButcheryReady;
     }
 
     void OnDisable()
@@ -32,6 +34,8 @@ public sealed class TelemetryRecorder : MonoBehaviour
         GameEvents.UpgradeGranted -= OnUpgradeGranted;
         GameEvents.PanelVisibility -= OnPanelVisibility;
         GameEvents.TradeCompleted -= OnTradeCompleted;
+        GameEvents.ButcheryCommitted -= OnButcheryCommitted;
+        GameEvents.ButcheryReady -= OnButcheryReady;
     }
 
     void OnRunStarted(GameEvents.RunInfo _info)
@@ -62,5 +66,15 @@ public sealed class TelemetryRecorder : MonoBehaviour
     void OnTradeCompleted(GameEvents.TradeInfo _info)
     {
         TelemetryLog.Write(TelemetryEvents.TRADE_COMPLETED, TelemetryPayload.Trade(_info));
+    }
+
+    void OnButcheryCommitted(GameEvents.ButcheryCommittedInfo _info)
+    {
+        TelemetryLog.Write(TelemetryEvents.BUTCHERY_COMMITTED, TelemetryPayload.ButcheryCommitted(_info));
+    }
+
+    void OnButcheryReady(GameEvents.ButcheryReadyInfo _info)
+    {
+        TelemetryLog.Write(TelemetryEvents.BUTCHERY_READY, TelemetryPayload.ButcheryReady(_info));
     }
 }

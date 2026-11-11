@@ -25,6 +25,7 @@
 | `PuzzleTableData` | 화물 모양·복수 태그·표기 키, 시작 기차, 지역·생산 태그·물가, 도시·시장·특산품·재고·도시 배율 |
 | `PuzzleItemPriceTableData` | 화물 종류별 기본 가치 |
 | `PuzzleSynergyTableData` | 인접 시너지 조건·범위·배율 |
+| `PuzzleCityActionTableData` | 마을 역의 추가 행동·진입 도시·작업 보드·소요 분·입력/산출 태그·화물 변환 |
 | `PuzzleTradeTableData` | 시작 자금·공통 구매 배율 설정·증차 비용·클리어 비용·이동 연출 시간 |
 | `PuzzleTimeTableData` | 고정 폴라인의 픽셀/시간 비율·시작 및 일출 시각·일출/야간 길이·휴식 분수 |
 | `PuzzleRouteTableData` | 방향별 연결·고정 폴라인 좌표·기본 비용·거리·거리 및 적재 단가 |
@@ -68,6 +69,13 @@
 - 이동은 `EvaluateTravel(toCityId)`·`Travel(toCityId)`로 평가·확정한다. 자금 부족·연결 없음·종료 상태 등 실패 시 이동 상태를 보존한다.
 - 시장·노드·연결선은 프리팹에 사전 배치하므로 도시·노선을 수정하면 관련 프리팹·씬 참조도 함께 맞춘다. 표시·조작 계약은 게임 기획서를 따른다.
 - `PuzzleTurnTableData`의 `debtInterval`·각 `moveCount`·`amount`는 양수다. 일정은 중복 없이 주기마다 존재해야 하며 `DebtSchedule`은 이동 횟수 순으로 제공한다. 옛 이동횟수 기반 빚 실행 코드는 비활성이다. 최신 시간 기한·조기 상환은 거래 테이블의 deadlineHours·debtCityId·gameClearCost를 사용한다. 현재 deadlineHours는 336이고 `debtCityId`는 `city.capital.finance`로 상환 장소가 제한된다.
+
+## 마을별 행동
+
+- `actions` 행은 고유 `id`, 알려진 `type`(`Butchery`), 비어 있지 않은 `title`·`description`, 양의 `workMinutes`(분), 빈 `board.startingPlacements`와 양수 `width`·`height`, 등록된 `inputTag`·`outputTag`를 가진다.
+- `cityIds`는 등록된 도시 참조이며 같은 도시에서 같은 `type`의 행동은 하나만 쓸 수 있다. `TableManager.CityActionsOf(cityId)`는 action id 오름차순 목록을 주고 `TryGetCityAction(cityId, type, out row)`으로 하나를 조회한다. 전체 목록은 `CityActions` 속성(id 오름차순)이다.
+- `conversions`의 `inputPieceId`는 `inputTag`를, `outputPieceId`는 `outputTag`를 가진 등록된 화물이어야 하고 `inputPieceId`는 고유하며 `outputCount`는 양수다. 현재 행은 `action.butchery` 하나이고 `city.ranch.highland`(다르폴)에서 `piece.cow` 1개를 `piece.beef` 2개로 360분간 작업한다.
+- 표·검증, 씬 로컬 상태 전이(`Idle`→`Working`→`Ready`, 완료 지연 판정), 드래그 경로 통합, View·Presenter까지 코드 구현은 끝났고 씬·프리팹 배선(5단계) 전에는 버튼이 나타나지 않는다. 문구 원본은 `BasicDataTableData`이며 상태·사유는 `rules.butchery.*`, 버튼·보드는 `presentation.StationButchery*`·`presentation.PuzzleButcheryTitle`를 쓴다(진행 상황은 `Docs/Management/CURRENT_STATE.md`와 `~Docs/마을별 행동 추가 구현 계획.md`).
 
 ## 씬·분석 설정
 

@@ -156,6 +156,61 @@ public static class GameEvents
         }
     }
 
+    /// <summary>마을 도축대의 상태·화물 변화. 확인·완료·회수 직후 발행된다.</summary>
+    public readonly struct ButcheryInfo
+    {
+        /// <summary>도축대를 소유한 세션. 다른 씬의 이벤트를 구분하는 데 사용한다.</summary>
+        public readonly PuzzleInventoryService session;
+        /// <summary>도축대가 있는 도시.</summary>
+        public readonly string cityId;
+        /// <summary>변화 후 상태.</summary>
+        public readonly PuzzleButcheryPhase phase;
+        /// <summary>변화 후 보드 조작을 받는 여부.</summary>
+        public readonly bool open;
+
+        public ButcheryInfo(PuzzleInventoryService _session, string _cityId, PuzzleButcheryPhase _phase, bool _open)
+        {
+            session = _session;
+            cityId = _cityId;
+            phase = _phase;
+            open = _open;
+        }
+    }
+
+    /// <summary>도축 확정 사건. 입력 화물을 소진하고 작업이 시작된 시점의 스냅샷이다.</summary>
+    public readonly struct ButcheryCommittedInfo
+    {
+        public readonly string actionId, cityId;
+        public readonly int inputCount;
+        public readonly long readyAtMinutes;
+        public readonly double time;
+
+        public ButcheryCommittedInfo(string _actionId, string _cityId, int _inputCount, long _readyAtMinutes, double _time)
+        {
+            actionId = _actionId;
+            cityId = _cityId;
+            inputCount = _inputCount;
+            readyAtMinutes = _readyAtMinutes;
+            time = _time;
+        }
+    }
+
+    /// <summary>도축 완료 사건. 산출물이 보드에 놓여 회수 대기 상태가 된 시점의 스냅샷이다.</summary>
+    public readonly struct ButcheryReadyInfo
+    {
+        public readonly string actionId, cityId;
+        public readonly int outputCount;
+        public readonly double time;
+
+        public ButcheryReadyInfo(string _actionId, string _cityId, int _outputCount, double _time)
+        {
+            actionId = _actionId;
+            cityId = _cityId;
+            outputCount = _outputCount;
+            time = _time;
+        }
+    }
+
     // ── 이벤트 ──
     public static event Action<RunInfo> RunStarted;
     public static event Action<RunInfo> RunEnded;
@@ -163,6 +218,9 @@ public static class GameEvents
     public static event Action<UpgradeInfo> UpgradeGranted;
     public static event Action<PanelInfo> PanelVisibility;
     public static event Action<TradeInfo> TradeCompleted;
+    public static event Action<ButcheryInfo> ButcheryChanged;
+    public static event Action<ButcheryCommittedInfo> ButcheryCommitted;
+    public static event Action<ButcheryReadyInfo> ButcheryReady;
 
     // ── 발행 ──
     public static void RaiseRunStarted(string _scene, double _time)
@@ -188,6 +246,19 @@ public static class GameEvents
     public static void RaiseTradeCompleted(TradeInfo _info)
     {
         Emit(TradeCompleted, _info);
+    }
+    public static void RaiseButcheryChanged(PuzzleInventoryService _session, string _cityId,
+        PuzzleButcheryPhase _phase, bool _open)
+    {
+        Emit(ButcheryChanged, new ButcheryInfo(_session, _cityId, _phase, _open));
+    }
+    public static void RaiseButcheryCommitted(string _actionId, string _cityId, int _inputCount, long _readyAtMinutes)
+    {
+        Emit(ButcheryCommitted, new ButcheryCommittedInfo(_actionId, _cityId, _inputCount, _readyAtMinutes, TelemetryLog.GameTime));
+    }
+    public static void RaiseButcheryReady(string _actionId, string _cityId, int _outputCount)
+    {
+        Emit(ButcheryReady, new ButcheryReadyInfo(_actionId, _cityId, _outputCount, TelemetryLog.GameTime));
     }
 
     // 구독자 하나가 예외를 던져도 나머지 구독자와 게임 진행은 멈추지 않는다.
@@ -232,6 +303,9 @@ public static class GameEvents
         TimeAdvanced = null;
         TravelPreviewChanged = null;
         MapRequested = null;
+        ButcheryChanged = null;
+        ButcheryCommitted = null;
+        ButcheryReady = null;
         sequence = 0;
         SceneManager.sceneLoaded -= OnSceneLoaded;
         hooked = false;

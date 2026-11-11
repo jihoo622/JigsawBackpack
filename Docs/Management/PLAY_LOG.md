@@ -25,10 +25,13 @@
 | `upgrade_granted` | `UpgradeManager.Grant` → `GameEvents.RaiseUpgradeGranted` | `UpgradePayload` | `id`, `displayName` |
 | `panel_visibility` | `PanelBase.SetOpen` → `GameEvents.RaisePanelVisibility` | `PanelPayload` | `panel`, `open` |
 | `trade_completed` | `PuzzleInventoryService.Drop` → `GameEvents.RaiseTradeCompleted` | `TradePayload` | `cityId`, `itemId`, `instanceId`, `direction`(`buy` / `sell`), `price`, `fundsAfter`, `x`, `y`, `clockwiseTurns` |
+| `butchery_committed` | `PuzzleInventoryService.TryConfirmButchery` → `GameEvents.RaiseButcheryCommitted` | `ButcheryCommittedPayload` | `actionId`, `cityId`, `inputCount`, `readyAtMinutes`, `time` |
+| `butchery_ready` | `PuzzleInventoryService.RefreshButcheryReady` → `GameEvents.RaiseButcheryReady` | `ButcheryReadyPayload` | `actionId`, `cityId`, `outputCount`, `time` |
 | `summary` | 게임 쪽 `TelemetryLog.WriteSummary` | (집계 자료형) | `summaryId`, `revision` |
 | `session_end` | 종료 훅(`TelemetryLog.Close`) | `SessionPayload` | `reason`(`shutdown` / `application_quit`) |
 
 `trade_completed`는 보드 간 구매·판매가 확정될 때 기록한다. `x`·`y`는 대상 보드에서 회전한 화물의 왼쪽 위 기준점이다.
+`butchery_committed`는 확인 버튼으로 입력 화물을 소진하고 작업이 시작된 때, `butchery_ready`는 산출물이 보드에 놓여 회수 대기가 된 때 기록한다. `inputCount`는 확인 때 사라진 입력 화물 수, `readyAtMinutes`는 완료 예정 시점(누적 경과 분), `outputCount`는 이번 도축으로 확정된 산출물 총개수다.
 
 ## 이벤트 추가할 때
 
