@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -438,7 +439,12 @@ public static class Presentation
 
     internal static string PuzzleTooltipEffectDescription(string _description)
     {
-        return BasicData.Format("presentation.PuzzleTooltipEffectDescription.text1", TooltipLabelHtml(), _description);
+        string highlighted = Regex.Replace(_description, @"[+−-]\d+(?:[.,]\d+)?%", match =>
+        {
+            Color color = match.Value[0] == '+' ? PuzzleTooltipGreen : PuzzleTooltipRed;
+            return $"<color=#{ColorUtility.ToHtmlStringRGB(color)}>{match.Value}</color>";
+        });
+        return BasicData.Format("presentation.PuzzleTooltipEffectDescription.text1", TooltipLabelHtml(), highlighted);
     }
 
     internal static string PuzzleTooltipNoEffect()

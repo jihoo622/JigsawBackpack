@@ -9,7 +9,7 @@
       "excludedNeighborTag": "Grain,Fish",
       "scope": "Both",
       "multiplierPercent": 120,
-      "description": "식량이 함께 실리면 화물의 가치가 올라갑니다. 곡물 태그는 수송 부담으로, 생선 태그는 악취 오염으로 제외됩니다."
+      "description": "음식 인접 시 가치 +20% (곡물·물고기 제외)"
     },
     {
       "id": "sample.machineryNearWood",
@@ -17,7 +17,7 @@
       "neighborTag": "Wood",
       "scope": "Both",
       "multiplierPercent": 110,
-      "description": "목재와 나란히 놓이면 나무 포장의 완충으로 기계의 가치가 올라갑니다."
+      "description": "목재 인접 시 가치 +10%"
     },
     {
       "id": "foodNearSalt",
@@ -25,7 +25,7 @@
       "neighborTag": "Salt",
       "scope": "Both",
       "multiplierPercent": 120,
-      "description": "소금과 가까이 있으면 절임 보관이 쉬워져 음식의 가치가 올라갑니다."
+      "description": "소금 인접 시 가치 +20%"
     },
     {
       "id": "woodNearWater",
@@ -34,7 +34,7 @@
       "scope": "Both",
       "multiplierPercent": 90,
       "descriptionTag": "Water",
-      "description": "근처의 목재는 습기와 부식으로 가치가 떨어집니다."
+      "description": "인접한 목재의 가치 -10%"
     },
     {
       "id": "woodNearFish",
@@ -43,7 +43,7 @@
       "scope": "Both",
       "multiplierPercent": 90,
       "descriptionTag": "Fish",
-      "description": "근처의 목재는 얼룩과 악취로 가치가 떨어집니다."
+      "description": "인접한 목재의 가치 -10%"
     },
     {
       "id": "metalNearWater",
@@ -52,7 +52,7 @@
       "scope": "Both",
       "multiplierPercent": 80,
       "descriptionTag": "Water",
-      "description": "근처의 금속은 접촉 부식으로 가치가 크게 떨어집니다."
+      "description": "인접한 금속의 가치 -20%"
     },
     {
       "id": "metalNearFish",
@@ -61,7 +61,7 @@
       "scope": "Both",
       "multiplierPercent": 80,
       "descriptionTag": "Fish",
-      "description": "근처의 금속은 비린내 오염으로 가치가 크게 떨어집니다."
+      "description": "인접한 금속의 가치 -20%"
     },
     {
       "id": "fishNearWater",
@@ -69,7 +69,7 @@
       "neighborTag": "Water",
       "scope": "Both",
       "multiplierPercent": 130,
-      "description": "물과 가까이 있으면 신선도가 오래 유지되어Fish의 가치가 크게 올라갑니다."
+      "description": "물 인접 시 가치 +30%"
     },
     {
       "id": "pooNearbyPenalty",
@@ -78,7 +78,7 @@
       "scope": "Both",
       "multiplierPercent": 50,
       "descriptionTag": "Poo",
-      "description": "근처에 있는 아이템은 악취와 오염으로 가치가 절반으로 떨어집니다."
+      "description": "인접한 화물의 가치 -50%"
     }
   ],
   "activationIntervalHours": 6

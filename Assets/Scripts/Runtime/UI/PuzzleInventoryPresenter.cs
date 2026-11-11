@@ -484,7 +484,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             SetDragView(targetView);
             var candidate = preview.Placement.Candidate;
             var grabbedBoardCell = candidate != null ? targetCell : Vector2Int.zero;
-            targetView.ShowGhost(candidate ?? drag.GetGhostPose(), drag.Definition, grabbedBoardCell, pointerPosition);
+            targetView.ShowGhost(candidate ?? drag.GetGhostPose(), drag.Definition, grabbedBoardCell, pointerPosition, drag.Durability);
             targetView.ShowPreview(candidate, preview.CanDrop);
             cityView.ShowTradeStatus(Presentation.PuzzleTradeStatus(preview, drag.Definition, _committed: false));
             return;
@@ -492,7 +492,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
 
         var sourceView = session.IsTrainWagon(drag.Source) ? trainView : marketView;
         SetDragView(sourceView);
-        sourceView.ShowGhost(drag.GetGhostPose(), drag.Definition, Vector2Int.zero, pointerPosition);
+        sourceView.ShowGhost(drag.GetGhostPose(), drag.Definition, Vector2Int.zero, pointerPosition, drag.Durability);
         sourceView.ShowPreview(null, false);
         cityView.ShowTradeStatus(string.Empty);
     }

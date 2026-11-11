@@ -8,6 +8,7 @@ internal sealed class PuzzleInventoryDrag
 
     public PuzzleInventory Source => original.Owner;
     public PuzzleItemDefinition Definition => original.Definition;
+    public int Durability => original.Durability;
     public int InstanceId => original.InstanceId;
 
     public PuzzleInventoryDrag(PuzzlePlacement _placement, PuzzleCell _cell)

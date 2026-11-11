@@ -17,6 +17,7 @@ public sealed class PuzzleItemTooltipView : PanelBase
     [SerializeField] Image headerBackground;
     [SerializeField] Image dividerImage;
     [SerializeField] Image bodyBackground;
+    [SerializeField] RectTransform pointer;
     [SerializeField] TextMeshProUGUI itemNameText;
     [SerializeField] RectTransform categoryRow;
     [SerializeField] Image[] categoryBadgeImages;
@@ -41,6 +42,7 @@ public sealed class PuzzleItemTooltipView : PanelBase
 
     RectTransform canvasRectTransform;
     Vector2 targetCanvasPosition;
+    bool pointerFlipped;
     bool needsSnap;
     bool initialized;
 
@@ -78,6 +80,7 @@ public sealed class PuzzleItemTooltipView : PanelBase
 
         if (!initialized)
         {
+            BuildPanelDecoration();
             ConfigureFontAndAutoSizing();
             ApplyThemeColors();
             initialized = true;
@@ -243,12 +246,13 @@ public sealed class PuzzleItemTooltipView : PanelBase
                 if (badgeImage)
                 {
                     badgeImage.gameObject.SetActive(true);
-                    badgeImage.color = Presentation.PuzzleTagBackgroundColor(tag);
+                    badgeImage.color = Color.Lerp(Presentation.PuzzleTagBackgroundColor(tag),
+                        Presentation.PuzzleTooltipBodyBackground, 0.35f);
                 }
                 if (badgeText)
                 {
                     badgeText.text = Presentation.PuzzleTagLabel(tag);
-                    badgeText.color = Presentation.PuzzleTagTextColor(tag);
+                    badgeText.color = Presentation.PuzzleTooltipText;
                 }
             }
             else
@@ -319,25 +323,33 @@ public sealed class PuzzleItemTooltipView : PanelBase
 
         float offset = BasicData.Float("ui.layout.tooltipPointerOffset");
         float posX = localPoint.x + offset;
-        float posY = localPoint.y - offset;
+        const float pointerTopInset = 32f;
+        float posY = localPoint.y + pointerTopInset;
 
         Rect cRect = canvasRectTransform.rect;
         float margin = BasicData.Float("ui.layout.tooltipScreenMargin");
         cRect = Rect.MinMaxRect(cRect.xMin + margin, cRect.yMin + margin, cRect.xMax - margin, cRect.yMax - margin);
 
         // 화면 우측을 벗어나면 마우스 좌측으로 플립
-        if (posX + width > cRect.xMax)
+        bool flipped = posX + width > cRect.xMax;
+        if (flipped)
         {
             posX = localPoint.x - offset - width;
         }
         posX = Mathf.Clamp(posX, cRect.xMin, Mathf.Max(cRect.xMin, cRect.xMax - width));
 
-        // 화면 하단을 벗어나면 마우스 상단으로 플립
-        if (posY - height < cRect.yMin)
-        {
-            posY = localPoint.y + offset + height;
-        }
         posY = Mathf.Clamp(posY, Mathf.Min(cRect.yMax, cRect.yMin + height), cRect.yMax);
+
+        if (pointer)
+        {
+            needsSnap |= pointerFlipped != flipped;
+            pointerFlipped = flipped;
+            float edge = flipped ? 1f : 0f;
+            pointer.anchorMin = pointer.anchorMax = new Vector2(edge, 1f);
+            pointer.localScale = new Vector3(flipped ? -1f : 1f, 1f, 1f);
+            pointer.anchoredPosition = new Vector2(0f,
+                Mathf.Clamp(localPoint.y - posY, -height + 20f, -20f));
+        }
 
         targetCanvasPosition = new Vector2(posX, posY);
 
@@ -382,6 +394,99 @@ public sealed class PuzzleItemTooltipView : PanelBase
         }
     }
 
+    void BuildPanelDecoration()
+    {
+        Color frameColor = new Color32(191, 174, 147, 255);
+        Sprite roundedSprite = null;
+        foreach (var badge in categoryBadgeImages ?? System.Array.Empty<Image>())
+        {
+            if (badge && badge.sprite)
+            {
+                roundedSprite = badge.sprite;
+                break;
+            }
+        }
+
+        if (bodyBackground)
+        {
+            // The root image forms the frame, with a matching inset surface over it.
+            var frame = bodyBackground;
+            frame.sprite = roundedSprite;
+            frame.type = Image.Type.Sliced;
+            // The badge sprite uses smaller borders so it does not dictate the badge height.
+            float panelBorderScale = roundedSprite ? 64f / roundedSprite.pixelsPerUnit : 1f;
+            frame.pixelsPerUnitMultiplier = panelBorderScale;
+            frame.color = frameColor;
+            var shadow = frame.gameObject.AddComponent<Shadow>();
+            shadow.effectColor = new Color(0f, 0f, 0f, 0.45f);
+            shadow.effectDistance = new Vector2(3f, -5f);
+
+            bodyBackground = CreateDecoration("Panel Surface", panelRect, Presentation.PuzzleTooltipBodyBackground);
+            bodyBackground.sprite = roundedSprite;
+            bodyBackground.type = Image.Type.Sliced;
+            bodyBackground.pixelsPerUnitMultiplier = panelBorderScale;
+            Stretch(bodyBackground.rectTransform, 2f);
+            bodyBackground.transform.SetAsFirstSibling();
+
+            if (pointer)
+            {
+                pointer.SetSiblingIndex(1);
+            }
+        }
+
+        if (panelRect.TryGetComponent<VerticalLayoutGroup>(out var panelLayout))
+        {
+            panelLayout.padding = new RectOffset(16, 16, 12, 14);
+        }
+        if (headerBackground && headerBackground.TryGetComponent<VerticalLayoutGroup>(out var headerLayout))
+        {
+            headerLayout.padding = new RectOffset(0, 0, 0, 10);
+            headerLayout.spacing = 6f;
+            if (headerBackground.TryGetComponent<ContentSizeFitter>(out var headerFitter))
+            {
+                headerFitter.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
+            }
+        }
+        if (bodyRect && bodyRect.TryGetComponent<VerticalLayoutGroup>(out var bodyLayout))
+        {
+            bodyLayout.padding = new RectOffset(0, 0, 6, 0);
+            bodyLayout.spacing = 10f;
+            // Decorate rows in their scene order. Hidden rows also hide their rules.
+            foreach (Transform row in bodyRect)
+            {
+                if (synergySection && row == synergySection.transform)
+                {
+                    continue;
+                }
+                var rule = CreateDecoration("Bottom Rule", row, Presentation.PuzzleTooltipDivider);
+                var rect = rule.rectTransform;
+                rect.anchorMin = Vector2.zero;
+                rect.anchorMax = Vector2.right;
+                rect.sizeDelta = new Vector2(0f, 1f);
+                rect.anchoredPosition = new Vector2(0f, -5f);
+            }
+        }
+    }
+
+    static Image CreateDecoration(string _name, Transform _parent, Color _color)
+    {
+        var decoration = new GameObject(_name, typeof(RectTransform), typeof(Image), typeof(LayoutElement));
+        decoration.transform.SetParent(_parent, false);
+        decoration.GetComponent<LayoutElement>().ignoreLayout = true;
+        var image = decoration.GetComponent<Image>();
+        image.color = _color;
+        image.raycastTarget = false;
+        return image;
+    }
+
+    static void Stretch(RectTransform _rect, float _inset)
+    {
+        _rect.anchorMin = Vector2.zero;
+        _rect.anchorMax = Vector2.one;
+        _rect.offsetMin = Vector2.one * _inset;
+        _rect.offsetMax = -Vector2.one * _inset;
+    }
+
     void ConfigureFontAndAutoSizing()
     {
         if (!fontAsset)
@@ -409,12 +514,28 @@ public sealed class PuzzleItemTooltipView : PanelBase
         ApplyBodyTextSettings(futureValueValueText);
         ApplyBodyTextSettings(freshnessLabelText);
         ApplyBodyTextSettings(freshnessValueText);
+        if (itemNameText)
+        {
+            itemNameText.enableAutoSizing = false;
+            itemNameText.fontSize = BaseFontSize * 1.45f;
+            itemNameText.fontStyle = FontStyles.Bold;
+        }
+        if (synergyHeaderText)
+        {
+            synergyHeaderText.fontStyle = FontStyles.Bold;
+        }
 
         if (categoryBadgeTexts != null)
         {
             foreach (var badgeText in categoryBadgeTexts)
             {
                 ApplyTextSettings(badgeText);
+                if (badgeText)
+                {
+                    badgeText.enableAutoSizing = false;
+                    badgeText.fontSize = BaseFontSize * 0.85f;
+                    badgeText.fontStyle = FontStyles.Bold;
+                }
             }
         }
 
@@ -453,10 +574,13 @@ public sealed class PuzzleItemTooltipView : PanelBase
         if (_label)
         {
             _label.text = _labelText;
+            _label.textWrappingMode = TextWrappingModes.Normal;
+            _label.alignment = TextAlignmentOptions.MidlineLeft;
         }
         if (_value)
         {
             _value.text = _valueText;
+            _value.alignment = TextAlignmentOptions.MidlineRight;
         }
     }
 

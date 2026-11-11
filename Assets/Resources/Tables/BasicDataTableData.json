@@ -1811,14 +1811,14 @@
     },
     {
       "id": "editor.TooltipSceneSetup.RectOffset.number13",
-      "value": 12,
+      "value": 16,
       "whole": true,
       "positive": false,
       "source": "Assets/Scripts/Editor/Build/TooltipSceneSetup.cs:419"
     },
     {
       "id": "editor.TooltipSceneSetup.RectOffset.number14",
-      "value": 12,
+      "value": 16,
       "whole": true,
       "positive": false,
       "source": "Assets/Scripts/Editor/Build/TooltipSceneSetup.cs:419"
@@ -2049,7 +2049,7 @@
     },
     {
       "id": "editor.tooltip.badgeVerticalPadding",
-      "value": 4,
+      "value": 2,
       "whole": true,
       "positive": true,
       "source": "Assets/Scripts/Editor/Build/TooltipSceneSetup.cs:419"
@@ -3387,7 +3387,7 @@
     {
       "id": "ui.layout.tooltipWidth",
       "source": "Assets/Scripts/Editor/Build/PuzzleUiLayoutTool.cs",
-      "value": 640,
+      "value": 300,
       "whole": true,
       "positive": true
     },
@@ -3967,7 +3967,7 @@
     },
     {
       "id": "presentation.PuzzleTooltipActualValueValue.text1",
-      "value": "<color=#{0}>$ {1:#,0.##}</color>",
+      "value": "<color=#{0}>{1:#,0.##} $</color>",
       "arguments": 2,
       "source": "Assets/Scripts/Runtime/Core/Presentation.cs:365"
     },
@@ -3979,7 +3979,7 @@
     },
     {
       "id": "presentation.PuzzleTooltipBuyRateValue.text1",
-      "value": "<color=#{0}>{1}%</color>",
+      "value": "<color=#{0}>{1} <size=80%>%</size></color>",
       "arguments": 2,
       "source": "Assets/Scripts/Runtime/Core/Presentation.cs:411"
     },
@@ -4003,7 +4003,7 @@
     },
     {
       "id": "presentation.PuzzleTooltipFinalBuyPriceValue.text1",
-      "value": "<color=#{0}>$ {1:#,0.##}</color>",
+      "value": "<color=#{0}>{1:#,0.##} $</color>",
       "arguments": 2,
       "source": "Assets/Scripts/Runtime/Core/Presentation.cs:431"
     },
@@ -4015,7 +4015,7 @@
     },
     {
       "id": "presentation.PuzzleTooltipFinalSellPriceValue.text1",
-      "value": "<color=#{0}>$ {1:#,0.##}</color>",
+      "value": "<color=#{0}>{1:#,0.##} $</color>",
       "arguments": 2,
       "source": "Assets/Scripts/Runtime/Core/Presentation.cs:421"
     },
@@ -4027,7 +4027,7 @@
     },
     {
       "id": "presentation.PuzzleTooltipFreshnessValue.text1",
-      "value": "<color=#{0}>{1}</color>",
+      "value": "<color=#{0}>{1} <size=80%>%</size></color>",
       "arguments": 2,
       "source": "Assets/Scripts/Runtime/Core/Presentation.cs:469"
     },
@@ -4039,7 +4039,7 @@
     },
     {
       "id": "presentation.PuzzleTooltipFutureValueValue.text1",
-      "value": "<color=#{0}>$ {1:#,0.##}</color>",
+      "value": "<color=#{0}>{1:#,0.##} $</color>",
       "arguments": 2,
       "source": "Assets/Scripts/Runtime/Core/Presentation.cs:459"
     },
@@ -4057,7 +4057,7 @@
     },
     {
       "id": "presentation.PuzzleTooltipSellRateValue.text1",
-      "value": "<color=#{0}>{1}%</color>",
+      "value": "<color=#{0}>{1} <size=80%>%</size></color>",
       "arguments": 2,
       "source": "Assets/Scripts/Runtime/Core/Presentation.cs:401"
     },
@@ -4993,57 +4993,57 @@
     },
     {
       "id": "presentation.PuzzleTooltipBodyBackground.color1",
-      "r": 0.8392156862745098,
-      "g": 0.8470588235294118,
-      "b": 0.8549019607843137,
+      "r": 0.117647,
+      "g": 0.12549,
+      "b": 0.160784,
       "a": 1.0,
       "source": "Assets/Scripts/Runtime/Core/Presentation.cs:346"
     },
     {
       "id": "presentation.PuzzleTooltipDivider.color1",
-      "r": 0.11764705882352941,
-      "g": 0.11764705882352941,
-      "b": 0.11764705882352941,
+      "r": 0.427451,
+      "g": 0.403922,
+      "b": 0.392157,
       "a": 1.0,
       "source": "Assets/Scripts/Runtime/Core/Presentation.cs:347"
     },
     {
       "id": "presentation.PuzzleTooltipGold.color1",
-      "r": 0.6235294117647059,
-      "g": 0.6392156862745098,
-      "b": 0.2823529411764706,
+      "r": 0.960784,
+      "g": 0.87451,
+      "b": 0.752941,
       "a": 1.0,
       "source": "Assets/Scripts/Runtime/Core/Presentation.cs:349"
     },
     {
       "id": "presentation.PuzzleTooltipGreen.color1",
-      "r": 0.12156862745098039,
-      "g": 0.6196078431372549,
-      "b": 0.23921568627450981,
+      "r": 0.67451,
+      "g": 0.929412,
+      "b": 0.603922,
       "a": 1.0,
       "source": "Assets/Scripts/Runtime/Core/Presentation.cs:350"
     },
     {
       "id": "presentation.PuzzleTooltipHeaderBackground.color1",
-      "r": 0.6901960784313725,
-      "g": 0.7058823529411765,
-      "b": 0.7215686274509804,
+      "r": 0.117647,
+      "g": 0.12549,
+      "b": 0.160784,
       "a": 1.0,
       "source": "Assets/Scripts/Runtime/Core/Presentation.cs:345"
     },
     {
       "id": "presentation.PuzzleTooltipRed.color1",
-      "r": 0.7529411764705882,
-      "g": 0.2235294117647059,
-      "b": 0.16862745098039217,
+      "r": 1,
+      "g": 0.619608,
+      "b": 0.580392,
       "a": 1.0,
       "source": "Assets/Scripts/Runtime/Core/Presentation.cs:351"
     },
     {
       "id": "presentation.PuzzleTooltipText.color1",
-      "r": 0.11764705882352941,
-      "g": 0.11764705882352941,
-      "b": 0.11764705882352941,
+      "r": 0.964706,
+      "g": 0.937255,
+      "b": 0.87451,
       "a": 1.0,
       "source": "Assets/Scripts/Runtime/Core/Presentation.cs:348"
     },
