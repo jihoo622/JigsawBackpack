@@ -242,6 +242,10 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         {
             cityView.SetTown(session.CityData.displayName, false);
             cityView.ShowTradeStatus(Presentation.PuzzleRunStatusText(session.RunStatus));
+            if (session.RunStatus == PuzzleRunStatus.Lost)
+            {
+                pauseMenu.ShowCompletion(PuzzleRunStatus.Lost, session.Funds);
+            }
         }
     }
 
@@ -287,7 +291,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             return;
         }
 
-        pauseMenu.ShowCompletion(session.Funds);
+        pauseMenu.ShowCompletion(PuzzleRunStatus.Won, session.Funds);
         cityView.SetTown(session.CityData.displayName, false);
         RefreshFunds();
         cityView.ShowTradeStatus(Presentation.PuzzleClearTitle);
@@ -635,7 +639,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         var item = _placement.Definition;
         var value = _placement.Owner.ValueOf(_placement.InstanceId);
         bool isTrain = _view == trainView || session.IsTrainWagon(_placement.Owner);
-        decimal actualValue = isTrain ? _placement.ActualValue : _placement.Definition.BaseValue;
+        decimal actualValue = _placement.ActualValue;
         var rate = item == null ? default : session.RateFor(item);
         var effects = BuildEffectDescriptions(item, isTrain);
         long? previewMinutes = session.PreviewMinutes;
@@ -659,7 +663,10 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             Vector2 pos = _position ?? hoverPosition.Value;
             int? freshness = item != null && item.HasDurability ? _placement.Durability : (int?)null;
             string previewName = session.PreviewCityId == null ? null : TableManager.Instance.CityPrice(session.PreviewCityId).displayName;
-            tooltipView.Show(item, actualValue, rate, effects, futureValue, pos, isTrain, freshness, previewMinutes, previewName, previewActivations);
+            var direction = isTrain ? PuzzleTradeDirection.Sell : PuzzleTradeDirection.Buy;
+            long? price = session.TryQuoteTrade(_placement, direction, out long quote) ? quote : (long?)null;
+            tooltipView.Show(item, actualValue, rate, effects, futureValue, pos, isTrain, freshness, previewMinutes,
+                previewName, previewActivations, price, isTrain ? Presentation.PuzzleActiveEffects(value) : Presentation.PuzzleMarketNoSettlement);
         }
 
         if (trainView)
@@ -701,7 +708,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
     {
         if (trainView)
         {
-            trainView.ShowBoardValue(session.Train.Value);
+            trainView.ShowBoardValue(session.Train.Placements.Sum(_item => _item.ActualValue), session.Train.Value.BaseValue);
         }
         if (marketView)
         {

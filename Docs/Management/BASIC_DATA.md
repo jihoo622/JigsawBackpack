@@ -4,7 +4,7 @@
 
 ## 그룹과 조회
 
-현재 35개 그룹에 673개 항목을 관리한다. `groups`의 각 항목은 `id`와 `numbers`·`texts`·`colors` 배열을 가진다. 빈 배열과 기본값인 제약 필드는 생략할 수 있다.
+현재 35개 그룹에 683개 항목을 관리한다. `groups`의 각 항목은 `id`와 `numbers`·`texts`·`colors` 배열을 가진다. 빈 배열과 기본값인 제약 필드는 생략할 수 있다.
 
 ```json
 {
@@ -31,6 +31,8 @@
 - `ui.layout.*`는 HUD·역 메뉴 공통 배치의 원본이다. `Tools/MyJG/Apply UI Overhaul`로 씬에 저장한다([UI 배치](UI_LAYOUT.md)). 역 메뉴·시간 UI 제작 도구도 마지막에 같은 배치 도구를 호출하며 중복 치수는 갖지 않는다.
 - 신선도 표시의 색·구간·치수는 `presentation.freshness.*`·`ui.freshness.*`, 툴팁 포인터는 `ui.tooltip.*`에서 읽는다. 신선도 슬롯을 새로 제작하면 `Tools/MyJG/Apply Freshness Display`를 실행한다. 최신 툴팁의 삭제된 런타임 글자 크기 설정은 표에서도 제거했다.
 - 다른 `editor.*` 제작 수치는 관련 제작 메뉴를 다시 적용해야 씬·프리팹에 반영된다. 씬/프리팹은 제작 결과이며 별도의 밸런스 원본이 아니다.
+
+- 기본 가치·현재 적용 효과 행은 `Tools/MyJG/Apply Tooltip Trade Details`로 기존 툴팁 프리팹과 Game 씬에 연결한다.
 
 ## 소유권과 잔여 후보
 

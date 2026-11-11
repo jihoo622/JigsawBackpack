@@ -168,8 +168,6 @@ public sealed class PuzzleCityTagPriceData
     // 도시 안에서 고유해야 하며, 여러 태그가 맞으면 가장 큰 값의 규칙 하나를 쓴다.
     public int priority = -1;
     public int buyPercent = -1, sellPercent = -1;
-    // 희귀 판정: set(기본과 다르면)면 배율 계산 대신 이 값으로 거래 단가를 고정한다. 기본값은 미지정 sentinel.
-    public int rareValue = int.MinValue;
 }
 
 // 한 방향 노선. fromCityId에서 toCityId로 떠날 때의 비용이고 반대 방향은 별개 행이다.

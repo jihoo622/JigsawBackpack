@@ -1496,6 +1496,16 @@
         {
           "id": "waitDaylight",
           "value": "아침까지 대기"
+        },
+        {
+          "id": "boardActualValue",
+          "value": "화물 실제 가치  ${0:#,0.##}  <size=18>기본 ${1:N0}</size>",
+          "arguments": 2
+        },
+        {
+          "id": "lossSummary",
+          "value": "상환 기한이 지났습니다.\n남은 자금 ${0:N0}\n재시작하거나 종료하세요.",
+          "arguments": 1
         }
       ]
     },
@@ -1858,6 +1868,11 @@
         {
           "id": "zoomOut",
           "value": "−"
+        },
+        {
+          "id": "regionOnly",
+          "value": " <size=18>{0}</size>",
+          "arguments": 1
         }
       ]
     },
@@ -2307,7 +2322,7 @@
         },
         {
           "id": "effectHeader",
-          "value": "<color=#{0}>인접 효과 · {1}시간 주기</color>",
+          "value": "<color=#{0}>가능 인접 효과 · {1}시간 주기</color>",
           "arguments": 2
         },
         {
@@ -2352,7 +2367,7 @@
         },
         {
           "id": "noEffect",
-          "value": "<color=#{0}>• 없음</color>",
+          "value": "<color=#{0}>가능한 인접 효과 없음</color>",
           "arguments": 1
         },
         {
@@ -2364,6 +2379,36 @@
           "id": "sellRateValue",
           "value": "<color=#{0}>{1} <size=80%>%</size></color>",
           "arguments": 2
+        },
+        {
+          "id": "baseValueLabel",
+          "value": "기본 가치",
+          "arguments": 0
+        },
+        {
+          "id": "priceUnavailable",
+          "value": "계산 불가",
+          "arguments": 0
+        },
+        {
+          "id": "marketNoSettlement",
+          "value": "시장의 화물은 시간 경과로 시너지를 정산하지 않습니다.",
+          "arguments": 0
+        },
+        {
+          "id": "activeEffectsNone",
+          "value": "현재 적용 효과: 없음",
+          "arguments": 0
+        },
+        {
+          "id": "activeEffect",
+          "value": "• {0}: {1:+0.##;-0.##;0} $",
+          "arguments": 2
+        },
+        {
+          "id": "activeEffects",
+          "value": "현재 적용 효과 · 정산 1회 기준\n{0}",
+          "arguments": 1
         }
       ]
     },
@@ -2482,6 +2527,11 @@
         {
           "id": "tradeStatusText9",
           "value": "자금이 부족합니다"
+        },
+        {
+          "id": "regionPrice",
+          "value": "\n지역 물가 {0}%",
+          "arguments": 1
         }
       ]
     },
@@ -3154,13 +3204,13 @@
         },
         {
           "id": "marketBoardHeight",
-          "value": 528,
+          "value": 496,
           "whole": true,
           "positive": true
         },
         {
           "id": "marketBoardTop",
-          "value": 104,
+          "value": 136,
           "whole": true,
           "positive": true
         },
@@ -3178,7 +3228,7 @@
         },
         {
           "id": "marketInfoHeight",
-          "value": 64,
+          "value": 96,
           "whole": true,
           "positive": true
         },

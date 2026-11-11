@@ -42,13 +42,14 @@
 - `visualKey`는 `PuzzleInventoryUI.itemIcons`의 스프라이트 키다. 새 표시 키를 쓰면 프리팹 참조도 함께 추가한다. View는 초기화 시 모든 정의의 참조와 사전 배치 용량을 확인한다.
 - 각 도시는 등록된 `regionId`를 참조한다. 지역은 고유 ID·표시 이름·양의 `pricePercent`, 대표 `specialtyTag`·`productionTags`를 가진다. `tradeHub` 지역은 생산 특산품 없이 집산품을 사용한다.
 - 생산 도시의 `specialtyTag`는 대표 생산품이다. 고정 특산품이 이 태그를 가져야 하고 해당 태그의 구매·판매 배율이 모두 100 미만이어야 한다. 같은 대표 특산품의 직결을 허용하되 근거리 공급·수요 일치 연결은 금지한다. 일반 물품이나 공통 분류 태그의 중복을 금지하는 규칙은 아니다.
-- 도시의 `generalStockId`·`regionalStockId`는 `stockProfiles`의 고유 ID를 참조한다. 현재 일반 재고 1개·생산 지역 5개·집산 재고 1개로 7개 프로필을 공유한다. 프로필의 `pieceIds`는 중복 없는 후보, `slots`는 예약 영역이다. 후보는 모든 슬롯에 회전 없이 들어가야 하며 고정 배치·두 프로필의 영역이 겹치면 안 된다. 생산 지역 후보는 대표 특산품 태그를 가져야 한다. 슬롯 ID는 프로필 내부에서 고유하며 실제 배치 ID는 `도시 ID.슬롯 ID`다. 슬롯 순서를 결정적으로 정렬하고 중복 허용 추첨한다. 고정 특산품은 `market.startingPlacements`에 둔다.
+- 도시의 `generalStockId`·`regionalStockId`는 `stockProfiles`의 고유 ID를 참조한다. 현재 일반 재고 1개·생산 지역 5개·집산 재고 1개로 7개 프로필을 공유한다. 일반·집산 후보에는 한 칸 사과도 포함한다. 프로필의 `pieceIds`는 중복 없는 후보, `slots`는 예약 영역이다. 후보는 모든 슬롯에 회전 없이 들어가야 하며 고정 배치·두 프로필의 영역이 겹치면 안 된다. 생산 지역 후보는 대표 특산품 태그를 가져야 한다. 슬롯 ID는 프로필 내부에서 고유하며 실제 배치 ID는 `도시 ID.슬롯 ID`다. 슬롯 순서를 결정적으로 정렬하고 중복 허용 추첨한다. 고정 특산품은 `market.startingPlacements`에 둔다.
 - 정의는 공유하고 실제 화물 인스턴스는 씬 로컬 세션이 소유한다. 보드 간 이동 시 인스턴스 ID와 실제 가치를 보존하며 시장 재생성 때는 새 ID를 발급한다.
 
 ## 가치·거래
 
 - 기본 가치는 `pieces[].baseValue`에 통합했다. 기존 음수 가치도 유지하며 누락 센티널 `-1`은 오류다. 별도 가격 표와 중복 참조는 두지 않는다.
 - 도시의 `tagPrices`는 등록된 `tag`, 고유 `priority`, 양의 `buyPercent`·`sellPercent`를 가진다. 일치 태그 중 최고 우선순위 하나를 사용하고 없으면 `buyPercentOfBaseValue`·`sellPercentOfFinalValue`를 쓴다.
+- 거래 모델과 툴팁 견적은 `PuzzleInventoryService.TryQuoteTrade`를 공유하며 기획에 없는 고정 단가 예외는 두지 않는다.
 - 현재 거래가는 구매 시 기본 가치, 판매 시 인스턴스의 `ActualValue`에 선택된 도시 배율을 곱한다. 도시 배율과 지역의 `pricePercent`를 중간 반올림 없이 곱한 최종 금액을 `MidpointRounding.AwayFromZero`로 정수화한다. 범위 초과는 거래 실패로 처리한다. 미리보기와 확정 모두 `EvaluateDrop` 경로를 쓰고 확정 직전에 다시 평가한다.
 - `startingFunds`는 0 이상, `wagonAddCostBase`·`gameClearCost`는 양수다. 가격 계산에 사용하지 않던 공통 구매 할증 필드는 제거했다. 현재 구매/판매 배율은 도시와 지역 표에서 읽는다.
 - 시너지 규칙은 고유 `id`, 등록된 `neighborTag`, `scope`(`Train`, `Market`, `Both`), 양의 `multiplierPercent`, 비어 있지 않은 `description`과 대상 조건을 가진다. `targetTag` 또는 `excludedTargetTag` 중 하나로 대상을 정한다. `description`은 아이템 팝업에 표시할 시너지 설명이며, `descriptionTag`를 지정하면 그 태그를 가진 아이템의 팝업에만 표시한다(미지정 시 주체 조건을 따른다).

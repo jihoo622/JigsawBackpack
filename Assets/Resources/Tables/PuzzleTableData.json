@@ -2757,6 +2757,7 @@
     {
       "id": "stock.hub",
       "pieceIds": [
+        "piece.apple",
         "piece.beef",
         "piece.box",
         "piece.cow",
@@ -2815,6 +2816,7 @@
     {
       "id": "stock.general",
       "pieceIds": [
+        "piece.apple",
         "piece.beef",
         "piece.box",
         "piece.cow",

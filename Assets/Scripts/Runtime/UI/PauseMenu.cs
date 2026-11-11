@@ -77,11 +77,17 @@ public sealed class PauseMenu : PanelBase
         }
     }
 
-    internal void ShowCompletion(long _funds)
+    internal void ShowCompletion(PuzzleRunStatus _status, long _funds)
     {
+        if (_status == PuzzleRunStatus.InProgress || showingCompletion)
+        {
+            return;
+        }
         showingCompletion = true;
-        panelTitle.text = Presentation.PuzzleClearTitle;
-        panelHint.text = Presentation.PuzzleClearSummary(_funds);
+        panelTitle.text = Presentation.PuzzleRunStatusText(_status);
+        panelHint.text = _status == PuzzleRunStatus.Won
+            ? Presentation.PuzzleClearSummary(_funds)
+            : Presentation.PuzzleLossSummary(_funds);
         Open();
     }
 

@@ -17,6 +17,9 @@ public sealed class PuzzleItemTooltipView : PanelBase
     [SerializeField] Image[] categoryBadgeImages;
     [SerializeField] TextMeshProUGUI[] categoryBadgeTexts;
     [SerializeField] RectTransform bodyRect;
+    [SerializeField] TextMeshProUGUI baseValueLabelText;
+    [SerializeField] TextMeshProUGUI baseValueValueText;
+    [SerializeField] TextMeshProUGUI activeEffectsText;
     [SerializeField] TextMeshProUGUI actualValueLabelText;
     [SerializeField] TextMeshProUGUI actualValueValueText;
     [SerializeField] TextMeshProUGUI sellRateLabelText;
@@ -72,15 +75,9 @@ public sealed class PuzzleItemTooltipView : PanelBase
     }
 
     internal void Show(PuzzleItemDefinition _item, decimal _actualValue, PuzzleTradeRate _rate,
-        IReadOnlyList<string> _effects, Vector2 _screenPosition, bool _isTrainInventory = true)
-    {
-        Show(_item, _actualValue, _rate, _effects, null, _screenPosition, _isTrainInventory);
-    }
-
-    internal void Show(PuzzleItemDefinition _item, decimal _actualValue, PuzzleTradeRate _rate,
         IReadOnlyList<string> _effects, decimal? _futureValue, Vector2 _screenPosition,
-        bool _isTrainInventory = true, int? _freshness = null, long? _previewMinutes = null, string _previewCityName = null,
-        long? _previewActivations = null)
+        bool _isTrainInventory, int? _freshness, long? _previewMinutes, string _previewCityName,
+        long? _previewActivations, long? _tradePrice, string _activeEffects)
     {
         if (_item == null)
         {
@@ -105,28 +102,33 @@ public sealed class PuzzleItemTooltipView : PanelBase
 
         UpdateCategoryBadges(_item);
 
+        SetRow(baseValueLabelText, baseValueValueText,
+            Presentation.PuzzleTooltipBaseValueLabel, Presentation.PuzzleTooltipActualValueValue(_item.BaseValue));
+        activeEffectsText.text = _activeEffects;
         SetRow(actualValueLabelText, actualValueValueText,
             Presentation.PuzzleTooltipActualValueLabel(), Presentation.PuzzleTooltipActualValueValue(_actualValue));
 
         if (_isTrainInventory)
         {
             int sellPercent = _rate.SellPercent;
-            decimal finalSellPrice = _rate.HasRareValue ? _rate.RareValue
-                : System.Math.Round(_actualValue * (decimal)sellPercent / PuzzleInventoryValuation.BASE_PERCENT, System.MidpointRounding.AwayFromZero);
+            string price = _tradePrice.HasValue
+                ? Presentation.PuzzleTooltipFinalSellPriceValue(_tradePrice.Value, _actualValue)
+                : Presentation.PuzzleTooltipPriceUnavailable;
             SetRow(sellRateLabelText, sellRateValueText,
                 Presentation.PuzzleTooltipSellRateLabel(), Presentation.PuzzleTooltipSellRateValue(sellPercent));
             SetRow(buyRateLabelText, buyRateValueText,
-                Presentation.PuzzleTooltipFinalSellPriceLabel(), Presentation.PuzzleTooltipFinalSellPriceValue(finalSellPrice, _actualValue));
+                Presentation.PuzzleTooltipFinalSellPriceLabel(), price);
         }
         else
         {
             int buyPercent = _rate.BuyPercent;
-            decimal finalBuyPrice = _rate.HasRareValue ? _rate.RareValue
-                : System.Math.Round(_actualValue * (decimal)buyPercent / PuzzleInventoryValuation.BASE_PERCENT, System.MidpointRounding.AwayFromZero);
+            string price = _tradePrice.HasValue
+                ? Presentation.PuzzleTooltipFinalBuyPriceValue(_tradePrice.Value, _item.BaseValue)
+                : Presentation.PuzzleTooltipPriceUnavailable;
             SetRow(sellRateLabelText, sellRateValueText,
                 Presentation.PuzzleTooltipBuyRateLabel(), Presentation.PuzzleTooltipBuyRateValue(buyPercent));
             SetRow(buyRateLabelText, buyRateValueText,
-                Presentation.PuzzleTooltipFinalBuyPriceLabel(), Presentation.PuzzleTooltipFinalBuyPriceValue(finalBuyPrice, _actualValue));
+                Presentation.PuzzleTooltipFinalBuyPriceLabel(), price);
         }
 
         if (synergySection)

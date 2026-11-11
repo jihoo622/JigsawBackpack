@@ -179,7 +179,9 @@ public static class Presentation
         PuzzleTravelResult _evaluation, PuzzleRegionData _region)
     {
         string heading = BasicData.Format("presentation.map.information", _city.displayName);
-        heading += BasicData.Format("presentation.map.informationText2", _region.displayName, _region.pricePercent);
+        heading += _visited
+            ? BasicData.Format("presentation.map.informationText2", _region.displayName, _region.pricePercent)
+            : BasicData.Format("presentation.map.regionOnly", _region.displayName);
         string status;
         if (_current)
         {
@@ -354,6 +356,28 @@ public static class Presentation
     static string TooltipLabelHtml()
     {
         return ColorUtility.ToHtmlStringRGB(PuzzleTooltipText);
+    }
+
+    public static string PuzzleTooltipBaseValueLabel => BasicData.Text("presentation.tooltip.baseValueLabel");
+    internal static string PuzzleTooltipPriceUnavailable => BasicData.Text("presentation.tooltip.priceUnavailable");
+    internal static string PuzzleMarketNoSettlement => BasicData.Text("presentation.tooltip.marketNoSettlement");
+
+    internal static string PuzzleBoardActualValue(decimal _actualValue, long _baseValue)
+    {
+        return BasicData.Format("presentation.inventory.boardActualValue", _actualValue, _baseValue);
+    }
+
+    public static string PuzzleNoActiveEffects => BasicData.Text("presentation.tooltip.activeEffectsNone");
+
+    internal static string PuzzleActiveEffects(PuzzleValue _value)
+    {
+        if (_value.SynergyBonuses.Count == 0)
+        {
+            return PuzzleNoActiveEffects;
+        }
+        string effects = string.Join("\n", _value.SynergyBonuses.Select(_bonus =>
+            BasicData.Format("presentation.tooltip.activeEffect", _bonus.NeighborName, _bonus.Amount)));
+        return BasicData.Format("presentation.tooltip.activeEffects", effects);
     }
 
     internal static string PuzzleTooltipActualValueLabel()
@@ -566,7 +590,8 @@ public static class Presentation
         string commonColor = ColorUtility.ToHtmlStringRGB(PuzzleMapVisited);
         string rareColor = ColorUtility.ToHtmlStringRGB(PuzzleMapCurrent);
         return BasicData.Format("presentation.trade.cityTagPreferences", commonColor, (string.IsNullOrEmpty(commonText) ? BasicData.Text("presentation.trade.cityTagPreferencesText3") : commonText)) +
-            BasicData.Format("presentation.trade.cityTagPreferencesText2", rareColor, (string.IsNullOrEmpty(rareText) ? BasicData.Text("presentation.trade.cityTagPreferencesText4") : rareText));
+            BasicData.Format("presentation.trade.cityTagPreferencesText2", rareColor, (string.IsNullOrEmpty(rareText) ? BasicData.Text("presentation.trade.cityTagPreferencesText4") : rareText)) +
+            BasicData.Format("presentation.trade.regionPrice", _region.pricePercent);
 
     }
 
@@ -637,6 +662,11 @@ public static class Presentation
             "poo" => BasicData.Int("presentation.tags.pooPriority"),
             _ => BasicData.Int("presentation.tags.defaultPriority")
         };
+    }
+
+    internal static string PuzzleLossSummary(long _funds)
+    {
+        return BasicData.Format("presentation.inventory.lossSummary", _funds);
     }
 
     internal static string PuzzleClearTitle => BasicData.Text("presentation.inventory.clearTitle");

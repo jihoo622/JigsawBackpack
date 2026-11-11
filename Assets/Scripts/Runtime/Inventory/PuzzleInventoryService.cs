@@ -505,14 +505,7 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         int percent = rate.PercentFor(direction);
         string tag = rate.Tag;
         long price;
-        if (rate.HasRareValue)
-        {
-            // 희귀 판정: 가치×배율 대신 도시가 지정한 단가로 확정한다. 배율 표시는 생략한다.
-            price = rate.RareValue;
-            percent = 0;
-        }
-        else if (!TryGetTradePrice(buying ? _original.Definition.BaseValue : _original.ActualValue,
-            percent, tables.Region(city.regionId).pricePercent, out price))
+        if (!TryQuoteTrade(_original, direction, out price))
         {
             return new PuzzleDropResult(placement, direction, _tradeFailure: PuzzleTradeFailure.PriceOverflow,
                 _percent: percent, _tag: tag);
@@ -556,7 +549,7 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         var best = BestTagRule(_item);
         return best == null
             ? new PuzzleTradeRate(null, _city.buyPercentOfBaseValue, _city.sellPercentOfFinalValue)
-            : new PuzzleTradeRate(best.tag, best.buyPercent, best.sellPercent, best.rareValue);
+            : new PuzzleTradeRate(best.tag, best.buyPercent, best.sellPercent);
     }
 
     // 아이템 태그와 맞는 규칙 중 priority가 가장 높은 하나를 고른다. 맞는 규칙이 없으면 null.
@@ -572,6 +565,19 @@ public sealed class PuzzleInventoryService : MonoBehaviour
             }
         }
         return best;
+    }
+
+    // 툴팁과 실제 거래가 공유한다. 배치·자금 검사 없이 현재 도시의 정확한 금액만 산출한다.
+    internal bool TryQuoteTrade(PuzzlePlacement _item, PuzzleTradeDirection _direction, out long _price)
+    {
+        _price = 0;
+        if (_item == null || _direction == PuzzleTradeDirection.None)
+        {
+            return false;
+        }
+        var rate = RateFor(_item.Definition);
+        decimal value = _direction == PuzzleTradeDirection.Buy ? _item.Definition.BaseValue : _item.ActualValue;
+        return TryGetTradePrice(value, rate.PercentFor(_direction), RegionData.pricePercent, out _price);
     }
 
     static bool TryGetTradePrice(decimal _value, int _percent, int _regionPercent, out long _price)
@@ -775,16 +781,11 @@ internal readonly struct PuzzleTradeRate
     internal string Tag { get; }
     internal int BuyPercent { get; }
     internal int SellPercent { get; }
-    // 도시 태그 규칙의 희귀 판정 단가. HasRareValue가 참이면 배율 계산 대신 이 값으로 확정한다.
-    internal int RareValue { get; }
-    internal bool HasRareValue => RareValue != int.MinValue;
-
-    internal PuzzleTradeRate(string _tag, int _buyPercent, int _sellPercent, int _rareValue = int.MinValue)
+    internal PuzzleTradeRate(string _tag, int _buyPercent, int _sellPercent)
     {
         Tag = _tag;
         BuyPercent = _buyPercent;
         SellPercent = _sellPercent;
-        RareValue = _rareValue;
     }
 
     internal int PercentFor(PuzzleTradeDirection _direction)

@@ -25,6 +25,7 @@ public static class TooltipSceneSetup
 
         var fontAsset = EnsureFontAsset();
         SetupGameScene(fontAsset);
+        TooltipDetailsSetupTool.Apply();
     }
 
     public static TMP_FontAsset EnsureFontAsset()
@@ -403,6 +404,7 @@ public static class TooltipSceneSetup
         viewSerialized.FindProperty("futureValueValueText").objectReferenceValue = futureValue;
 
         viewSerialized.ApplyModifiedProperties();
+        TooltipDetailsSetupTool.ApplyTo(view);
 
         root.SetActive(false);
         return root;

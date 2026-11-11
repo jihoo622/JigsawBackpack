@@ -346,9 +346,9 @@ public sealed class PuzzleInventoryView : MonoBehaviour
         HideSlots(outlineSlots);
     }
 
-    internal void ShowBoardValue(PuzzleValue _value)
+    internal void ShowBoardValue(decimal _actualValue, long _baseValue)
     {
-        boardValue.text = Presentation.PuzzleValueText(_value);
+        boardValue.text = Presentation.PuzzleBoardActualValue(_actualValue, _baseValue);
     }
 
     internal void ShowBoardInfo(string _text)

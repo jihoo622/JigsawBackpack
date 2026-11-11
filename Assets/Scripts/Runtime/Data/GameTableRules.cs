@@ -431,12 +431,8 @@ public sealed class GameTableRules
                     $"우선순위 {entry.priority}가 도시 안에서 중복되었습니다.");
             }
 
-            bool rare = entry.rareValue != int.MinValue;
-            if (!rare)
-            {
-                Check(entry.buyPercent > 0, path + ".buyPercent", "구매 배율은 0보다 커야 합니다.");
-                Check(entry.sellPercent > 0, path + ".sellPercent", "판매 배율은 0보다 커야 합니다.");
-            }
+            Check(entry.buyPercent > 0, path + ".buyPercent", "구매 배율은 0보다 커야 합니다.");
+            Check(entry.sellPercent > 0, path + ".sellPercent", "판매 배율은 0보다 커야 합니다.");
         }
     }
 
