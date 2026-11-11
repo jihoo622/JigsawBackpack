@@ -26,7 +26,8 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
     float hoveredWagonStartTime;
     bool initialized;
     bool isMapOpen;
-    bool InventoryBlocked => isMapOpen;
+    bool isNotebookOpen;
+    bool InventoryBlocked => isMapOpen || isNotebookOpen;
 
     void OnEnable()
     {
@@ -115,6 +116,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         }
         currentHoveredInstanceId = null;
         isMapOpen = false;
+        isNotebookOpen = false;
         GameEvents.CityArrived -= OnCityArrived;
         GameEvents.TimeAdvanced -= OnTimeAdvanced;
         GameEvents.PanelVisibility -= OnPanelVisibility;
@@ -219,7 +221,9 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             {
                 if (rule.buyPercent > PuzzleInventoryValuation.BASE_PERCENT && rule.sellPercent > PuzzleInventoryValuation.BASE_PERCENT)
                 {
-                    return Presentation.TavernRumor(city.displayName, rule.tag);
+                    string message = Presentation.TavernRumor(city.displayName, rule.tag);
+                    session.RecordTavernRumor(city.id, message);
+                    return message;
                 }
             }
         }
@@ -263,7 +267,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
 
     void WaitForDaylight()
     {
-        if (!isMapOpen && session.CanWaitForDaylight)
+        if (!InventoryBlocked && session.CanWaitForDaylight)
         {
             input.CancelCapture();
             ClearDrag();
@@ -273,7 +277,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
 
     void CyclePreview()
     {
-        if (!isMapOpen && session.RunStatus == PuzzleRunStatus.InProgress)
+        if (!InventoryBlocked && session.RunStatus == PuzzleRunStatus.InProgress)
         {
             session.CyclePreviewDestination();
         }
@@ -301,12 +305,19 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
 
     void OnPanelVisibility(GameEvents.PanelInfo _info)
     {
-        if (_info.panel != Presentation.PUZZLE_MAP_PANEL_NAME)
+        if (_info.panel == PuzzleTradeNotebookView.PanelName)
+        {
+            isNotebookOpen = _info.open;
+        }
+        else if (_info.panel == Presentation.PUZZLE_MAP_PANEL_NAME)
+        {
+            isMapOpen = _info.open;
+        }
+        else
         {
             return;
         }
 
-        isMapOpen = _info.open;
         if (_info.open)
         {
             hoverPosition = null;
