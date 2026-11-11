@@ -103,12 +103,6 @@ MonoBehaviour:
   moveGuide: {fileID: 8880014063230992501}
   itemDetails: {fileID: 820488757614130048}
   itemIcons:
-  - key: cargo.crate
-    sprite: {fileID: 21300000, guid: e61f8d318f354ab3af8a4b00d58c99e2, type: 3}
-  - key: cargo.machine
-    sprite: {fileID: 21300000, guid: ed53d75543d748bc8dc6ac37fe448d96, type: 3}
-  - key: cargo.supplies
-    sprite: {fileID: 21300000, guid: a29371f71f3d43e39336f67fb638178f, type: 3}
   - key: cargo.elbowLeft
     sprite: {fileID: 21300000, guid: 806cbaf4c36046c9ace88fac78f1a205, type: 3}
   - key: cargo.smallCrate

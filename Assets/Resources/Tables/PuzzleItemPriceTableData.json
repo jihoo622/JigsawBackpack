@@ -43,16 +43,12 @@
       "baseValue": 20
     },
     {
-      "pieceId": "piece.animal",
-      "baseValue": 45
+      "pieceId": "piece.box",
+      "baseValue": 10
     },
     {
       "pieceId": "piece.meat",
       "baseValue": 24
-    },
-    {
-      "pieceId": "piece.box",
-      "baseValue": 10
     },
     {
       "pieceId": "piece.beef",
