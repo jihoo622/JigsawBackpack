@@ -9,7 +9,7 @@
       "excludedNeighborTag": "Grain,Fish",
       "scope": "Both",
       "multiplierPercent": 120,
-      "description": "음식 인접 시 가치 +20% (곡물·물고기 제외)"
+      "description": "음식과 인접 시 +20% (곡물·물고기 제외)"
     },
     {
       "id": "sample.machineryNearWood",
@@ -17,7 +17,7 @@
       "neighborTag": "Wood",
       "scope": "Both",
       "multiplierPercent": 110,
-      "description": "목재 인접 시 가치 +10%"
+      "description": "목재와 인접 시 +10%"
     },
     {
       "id": "foodNearSalt",
@@ -25,7 +25,7 @@
       "neighborTag": "Salt",
       "scope": "Both",
       "multiplierPercent": 120,
-      "description": "소금 인접 시 가치 +20%"
+      "description": "소금과 인접 시 +20%"
     },
     {
       "id": "woodNearWater",
@@ -34,7 +34,7 @@
       "scope": "Both",
       "multiplierPercent": 90,
       "descriptionTag": "Water",
-      "description": "인접한 목재의 가치 -10%"
+      "description": "인접한 목재에게 -10%"
     },
     {
       "id": "woodNearFish",
@@ -43,7 +43,7 @@
       "scope": "Both",
       "multiplierPercent": 90,
       "descriptionTag": "Fish",
-      "description": "인접한 목재의 가치 -10%"
+      "description": "인접한 목재에게 -10%"
     },
     {
       "id": "metalNearWater",
@@ -52,7 +52,7 @@
       "scope": "Both",
       "multiplierPercent": 80,
       "descriptionTag": "Water",
-      "description": "인접한 금속의 가치 -20%"
+      "description": "인접한 금속에게 -20%"
     },
     {
       "id": "metalNearFish",
@@ -61,7 +61,7 @@
       "scope": "Both",
       "multiplierPercent": 80,
       "descriptionTag": "Fish",
-      "description": "인접한 금속의 가치 -20%"
+      "description": "인접한 금속에게 -20%"
     },
     {
       "id": "fishNearWater",
@@ -69,7 +69,7 @@
       "neighborTag": "Water",
       "scope": "Both",
       "multiplierPercent": 130,
-      "description": "물 인접 시 가치 +30%"
+      "description": "물과 인접 시 +30%"
     },
     {
       "id": "pooNearbyPenalty",
@@ -78,7 +78,7 @@
       "scope": "Both",
       "multiplierPercent": 50,
       "descriptionTag": "Poo",
-      "description": "인접한 화물의 가치 -50%"
+      "description": "인접한 화물에게 -50%"
     }
   ],
   "activationIntervalHours": 6
