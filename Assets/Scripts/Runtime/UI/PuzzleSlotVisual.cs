@@ -1,4 +1,5 @@
 using System.Linq;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -15,6 +16,7 @@ public sealed class PuzzleSlotVisual : MonoBehaviour
 
     Sprite[] fillSprites;
     Sprite outlineSprite;
+    [SerializeField] TextMeshProUGUI freshnessLabel;
 
     RectTransform Rect => (RectTransform)transform;
 
@@ -73,6 +75,36 @@ public sealed class PuzzleSlotVisual : MonoBehaviour
         itemIcon.rectTransform.sizeDelta = _iconSize * Rect.rect.width;
         itemIcon.rectTransform.localRotation = Quaternion.Euler(0f, 0f, -90f * _clockwiseTurns);
         gameObject.SetActive(true);
+    }
+
+    internal void ShowFreshness(int? _freshness, Vector2 _cellOffset, TMP_FontAsset _font, Material _material)
+    {
+        if (!_freshness.HasValue)
+        {
+            if (freshnessLabel)
+            {
+                freshnessLabel.enabled = false;
+            }
+            return;
+        }
+
+        float cellWidth = Rect.rect.width;
+        if (!freshnessLabel)
+        {
+            throw new System.InvalidOperationException("신선도 표시 슬롯을 프리팹에 먼저 연결하세요.");
+        }
+        freshnessLabel.font = _font;
+        freshnessLabel.fontSharedMaterial = _material;
+        freshnessLabel.fontSize = cellWidth * BasicData.Float("ui.freshness.fontScale");
+        freshnessLabel.rectTransform.sizeDelta = new Vector2(cellWidth * BasicData.Float("ui.freshness.widthScale"),
+            cellWidth * BasicData.Float("ui.freshness.heightScale"));
+
+        int percent = Mathf.Clamp(_freshness.Value, 0, 100);
+        freshnessLabel.text = Presentation.PuzzleFreshnessText(percent);
+        freshnessLabel.color = Presentation.PuzzleFreshnessColor(percent);
+        freshnessLabel.rectTransform.anchoredPosition =
+            (_cellOffset - Vector2.one * BasicData.Float("ui.freshness.offsetScale")) * cellWidth;
+        freshnessLabel.enabled = true;
     }
 
     internal void Hide()

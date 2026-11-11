@@ -1,5 +1,5 @@
 {
-  "note": "ProjectWorldData.json(seed 20265146)의 projectMapData에서 지도 그림에 필요한 값만 옮긴 기록이다. 좌표는 MapPanel(1920x1080) 중심 기준 RectTransform anchoredPosition이고 points는 레일 폴리라인의 연결점(x,y 짝)이다. 레일 index는 sourceId 숫자 순서로 Track_/Time_/TimePlate_ 접미수와 같아진다. Tables의 값은 PuzzleTableData·PuzzleRouteTableData가 원본이고 이 파일은 표시층 좌표만 담는다.",
+  "note": "고정 역 좌표와 원본 points는 seed 20265146의 레일 기록이다. 게임 소요 시간은 PuzzleRouteTableData.routes[].points가 원본이며 displayPoints는 지도에만 쓰는 선택적 우회선이다. displayPoints가 없으면 원본 points로 그린다. 표시 우회선은 역 연결·운임·게임 시간을 바꾸지 않는다. labelX/Y는 표시 경로의 시간 라벨 위치다.",
   "seed": 20265146,
   "source": "ProjectWorldData.json / railatlas-jigsaw-tables/1 (sourceFormat rail-world/3)",
   "layoutReference": {
@@ -433,13 +433,27 @@
       "corridorType": "trade_backbone",
       "distance": 9,
       "cost": 6,
-      "labelX": 159.51,
-      "labelY": 279,
+      "labelX": 101.95,
+      "labelY": 313.0,
       "points": [
         -272.22,
         265,
         280.12,
         265,
+        500.12,
+        45
+      ],
+      "displayPoints": [
+        -272.22,
+        265,
+        -224.22,
+        265,
+        -176.22,
+        313,
+        380.12,
+        313,
+        500.12,
+        193,
         500.12,
         45
       ]
@@ -453,13 +467,27 @@
       "corridorType": "trade_backbone",
       "distance": 6,
       "cost": 6,
-      "labelX": 313.72,
-      "labelY": -161.2,
+      "labelX": 252.22,
+      "labelY": -255.0,
       "points": [
         500.12,
         45,
         260.12,
         -195,
+        44.31,
+        -195
+      ],
+      "displayPoints": [
+        500.12,
+        45,
+        450.12,
+        -5,
+        450.12,
+        -205,
+        400.12,
+        -255,
+        104.31,
+        -255,
         44.31,
         -195
       ]
@@ -473,13 +501,21 @@
       "corridorType": "trade_backbone",
       "distance": 4,
       "cost": 6,
-      "labelX": 148.66,
-      "labelY": -116.1,
+      "labelX": 129.31,
+      "labelY": -110.0,
       "points": [
         44.31,
         -195,
         89.56,
         -195,
+        259.56,
+        -25
+      ],
+      "displayPoints": [
+        44.31,
+        -195,
+        214.31,
+        -25,
         259.56,
         -25
       ]
@@ -533,12 +569,24 @@
       "corridorType": "express_backbone",
       "distance": 3,
       "cost": 6,
-      "labelX": -323.67,
-      "labelY": -85.68,
+      "labelX": -374.15,
+      "labelY": -80,
       "points": [
         -424.15,
         -5,
         -264.15,
+        -165,
+        -234.23,
+        -165
+      ],
+      "displayPoints": [
+        -424.15,
+        -5,
+        -374.15,
+        -55,
+        -374.15,
+        -105,
+        -314.15,
         -165,
         -234.23,
         -165
@@ -553,13 +601,25 @@
       "corridorType": "express_backbone",
       "distance": 3,
       "cost": 6,
-      "labelX": -135.14,
-      "labelY": -98.69,
+      "labelX": -31.65,
+      "labelY": -75.0,
       "points": [
         -234.23,
         -165,
         -181.65,
         -165,
+        -31.65,
+        -15
+      ],
+      "displayPoints": [
+        -234.23,
+        -165,
+        -194.23,
+        -205,
+        -101.65,
+        -205,
+        -31.65,
+        -135,
         -31.65,
         -15
       ]
@@ -613,13 +673,25 @@
       "corridorType": "recommended_trade",
       "distance": 5,
       "cost": 6,
-      "labelX": -425.55,
-      "labelY": -128.81,
+      "labelX": -394.56,
+      "labelY": -210.0,
       "points": [
         -259.56,
         -275,
         -469.56,
         -65,
+        -614.07,
+        -65
+      ],
+      "displayPoints": [
+        -259.56,
+        -275,
+        -329.56,
+        -275,
+        -459.56,
+        -145,
+        -614.07,
+        -145,
         -614.07,
         -65
       ]
@@ -891,13 +963,21 @@
       "corridorType": "recommended_trade",
       "distance": 1,
       "cost": 6,
-      "labelX": -229.6,
-      "labelY": -67.82,
+      "labelX": -216.25,
+      "labelY": -65.0,
       "points": [
         -272.22,
         -45,
         -232.22,
         -85,
+        -196.25,
+        -85
+      ],
+      "displayPoints": [
+        -272.22,
+        -45,
+        -236.25,
+        -45,
         -196.25,
         -85
       ]
@@ -1031,13 +1111,21 @@
       "corridorType": "recommended_trade",
       "distance": 2,
       "cost": 6,
-      "labelX": -153.89,
-      "labelY": -139,
+      "labelX": -165.61,
+      "labelY": -85.0,
       "points": [
         -94.96,
         -125,
         -156.25,
         -125,
+        -196.25,
+        -85
+      ],
+      "displayPoints": [
+        -94.96,
+        -125,
+        -134.96,
+        -85,
         -196.25,
         -85
       ]
@@ -1051,13 +1139,21 @@
       "corridorType": "hub",
       "distance": 3,
       "cost": 6,
-      "labelX": 289.41,
-      "labelY": 21.64,
+      "labelX": 331.17,
+      "labelY": 40.0,
       "points": [
         196.25,
         95,
         306.25,
         -15,
+        386.17,
+        -15
+      ],
+      "displayPoints": [
+        196.25,
+        95,
+        276.17,
+        95,
         386.17,
         -15
       ]
@@ -1131,13 +1227,21 @@
       "corridorType": "economy_extra",
       "distance": 2,
       "cost": 6,
-      "labelX": -220.2,
-      "labelY": -128.75,
+      "labelX": -234.23,
+      "labelY": -125.0,
       "points": [
         -196.25,
         -85,
         -234.23,
         -122.98,
+        -234.23,
+        -165
+      ],
+      "displayPoints": [
+        -196.25,
+        -85,
+        -234.23,
+        -85,
         -234.23,
         -165
       ]
@@ -1251,13 +1355,21 @@
       "corridorType": "recommended_trade",
       "distance": 2,
       "cost": 6,
-      "labelX": -67.33,
-      "labelY": 31.85,
+      "labelX": -71.65,
+      "labelY": 25.0,
       "points": [
         -120.28,
         65,
         -40.28,
         -15,
+        -31.65,
+        -15
+      ],
+      "displayPoints": [
+        -120.28,
+        65,
+        -111.65,
+        65,
         -31.65,
         -15
       ]

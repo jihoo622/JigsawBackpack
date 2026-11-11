@@ -1,9 +1,18 @@
 using System;
 
 [Serializable]
+public sealed class BasicDataGroupData
+{
+    public string id;
+    public BasicNumberData[] numbers = Array.Empty<BasicNumberData>();
+    public BasicTextData[] texts = Array.Empty<BasicTextData>();
+    public BasicColorData[] colors = Array.Empty<BasicColorData>();
+}
+
+[Serializable]
 public sealed class BasicNumberData
 {
-    public string id, source;
+    public string id;
     public double value = double.NaN;
     public bool whole;
     public bool positive;
@@ -12,14 +21,14 @@ public sealed class BasicNumberData
 [Serializable]
 public sealed class BasicTextData
 {
-    public string id, value, source;
+    public string id, value;
     public int arguments;
 }
 
 [Serializable]
 public sealed class BasicColorData
 {
-    public string id, source;
+    public string id;
     public float r = -1f, g = -1f, b = -1f, a = -1f;
 }
 
@@ -63,6 +72,7 @@ public sealed class SceneLinkData
 public sealed class PuzzlePieceData
 {
     public string id, displayName, description, visualKey;
+    public int baseValue = -1;
     // 아이콘 표시 크기(칸 단위). 0 이하면 외접 사각형 크기를 쓴다. 삐져나오는 이미지를 조정한다.
     public float iconWidth = -1, iconHeight = -1;
     // 아이콘 중심을 외접 사각형 중심에서 칸 단위로 어긋나게 옮긴다.
@@ -76,15 +86,6 @@ public sealed class PuzzlePieceData
     public string adultPieceId;
     public int growthHours, growthBlockedHours;
     public PuzzleCellData[] cells = Array.Empty<PuzzleCellData>();
-}
-
-// 아이템 기본 가격의 단일 원본. pieceId는 PuzzlePieceData.id를 참조한다.
-[Serializable]
-public sealed class PuzzleItemPriceData
-{
-    public string pieceId;
-    // 누락된 금액이 유효한 0으로 위장되지 않도록 하는 검증용 값이다.
-    public int baseValue = -1;
 }
 
 [Serializable]
@@ -116,13 +117,13 @@ public sealed class PuzzleCityData
     public int buyPercentOfBaseValue = -1, sellPercentOfFinalValue = -1;
     public PuzzleCityTagPriceData[] tagPrices = Array.Empty<PuzzleCityTagPriceData>();
     public PuzzleBoardData market;
-    public PuzzleMarketStockData generalStock;
-    public PuzzleMarketStockData regionalStock;
+    public string generalStockId, regionalStockId;
 }
 
 [Serializable]
 public sealed class PuzzleMarketStockData
 {
+    public string id;
     public string[] pieceIds = Array.Empty<string>();
     public PuzzleMarketStockSlotData[] slots = Array.Empty<PuzzleMarketStockSlotData>();
 }
@@ -170,15 +171,6 @@ public sealed class PuzzleCityTagPriceData
     // 도시 안에서 고유해야 하며, 여러 태그가 맞으면 가장 큰 값의 규칙 하나를 쓴다.
     public int priority = -1;
     public int buyPercent = -1, sellPercent = -1;
-    // 희귀 판정: set(기본과 다르면)면 배율 계산 대신 이 값으로 거래 단가를 고정한다. 기본값은 미지정 sentinel.
-    public int rareValue = int.MinValue;
-}
-
-[Serializable]
-public sealed class PuzzleDebtPaymentData
-{
-    public int moveCount;
-    public long amount;
 }
 
 // 마을 역에서 추가 동작으로 진입하는 행동의 종류. 테이블의 type 문자열과 이름이 같아야 한다.

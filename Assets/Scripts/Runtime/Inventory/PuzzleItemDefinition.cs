@@ -28,12 +28,12 @@ public sealed class PuzzleItemDefinition
     // Food 태그 아이템만 신선도를 표시·관리 대상으로 본다.
     public bool HasDurability { get; }
 
-    internal PuzzleItemDefinition(PuzzlePieceData _item, int _baseValue)
+    internal PuzzleItemDefinition(PuzzlePieceData _item)
     {
         Id = _item.id;
         DisplayName = _item.displayName;
         Description = _item.description;
-        BaseValue = _baseValue;
+        BaseValue = _item.baseValue;
         VisualKey = _item.visualKey;
         Durability = _item.durability;
         IconSize = _item.iconWidth > 0f && _item.iconHeight > 0f
@@ -46,7 +46,7 @@ public sealed class PuzzleItemDefinition
         AdultPieceId = _item.adultPieceId;
         GrowthMinutes = (long)_item.growthHours * PuzzleTimeManager.MINUTES_PER_HOUR;
         GrowthBlockedMinutes = (long)_item.growthBlockedHours * PuzzleTimeManager.MINUTES_PER_HOUR;
-        HasDurability = Tags.Contains("Food");
+        HasDurability = Tags.Contains(BasicData.Text("rules.items.durabilityTag"));
         Cells = Array.AsReadOnly(_item.cells.OrderBy(cell => cell.y).ThenBy(cell => cell.x)
             .Select(cell => new Vector2Int(cell.x, cell.y)).ToArray());
     }

@@ -25,18 +25,14 @@ public sealed class TableManager
     public BasicDataTableData Basic { get; }
     public FlowTableData Flow { get; }
     public PuzzleTableData Puzzle { get; }
-    public PuzzleItemPriceTableData PuzzleItemPrice { get; }
     public PuzzleSynergyTableData PuzzleSynergy { get; }
     public PuzzleCityActionTableData PuzzleCityAction { get; }
     public PuzzleTradeTableData PuzzleTrade { get; }
     public PuzzleRouteTableData PuzzleRoute { get; }
     public PuzzleTimeTableData PuzzleTime { get; }
-    public PuzzleTurnTableData PuzzleTurn { get; }
-    public IReadOnlyList<PuzzleDebtPaymentData> DebtSchedule { get; }
     public IReadOnlyList<PuzzleSynergyRuleData> SynergyRules { get; }
     public IReadOnlyList<PuzzleCityActionData> CityActions { get; }
     public IReadOnlyList<PuzzlePieceData> Pieces { get; }
-    public IReadOnlyList<PuzzleItemPriceData> ItemPrices { get; }
     public IReadOnlyList<PuzzleCityData> Cities { get; }
     public IReadOnlyList<PuzzleStartingPlacementData> TrainStartingPlacements { get; }
     public bool IsValid { get; }
@@ -45,11 +41,14 @@ public sealed class TableManager
     readonly Dictionary<string, BasicNumberData> basicNumbers;
     readonly Dictionary<string, BasicTextData> basicTexts;
     readonly Dictionary<string, BasicColorData> basicColors;
+    internal IReadOnlyDictionary<string, BasicNumberData> BasicNumbers => basicNumbers;
+    internal IReadOnlyDictionary<string, BasicTextData> BasicTexts => basicTexts;
+    internal IReadOnlyDictionary<string, BasicColorData> BasicColors => basicColors;
     readonly Dictionary<string, SceneLinkData> scenes;
     readonly Dictionary<string, PuzzlePieceData> pieces;
-    readonly Dictionary<string, PuzzleItemPriceData> itemPrices;
     readonly Dictionary<string, PuzzleCityData> cities;
     readonly Dictionary<string, PuzzleRegionData> regions;
+    readonly Dictionary<string, PuzzleMarketStockData> stockProfiles;
     readonly Dictionary<string, Dictionary<string, PuzzleCityTagPriceData>> cityTagPrices;
     readonly Dictionary<string, PuzzleCityActionData> cityActions;
     readonly Dictionary<string, List<PuzzleCityActionData>> actionsByCity;
@@ -63,24 +62,23 @@ public sealed class TableManager
         Gameplay = Load<GameplayTableData>(ref loaded);
         Flow = Load<FlowTableData>(ref loaded);
         Puzzle = Load<PuzzleTableData>(ref loaded);
-        PuzzleItemPrice = Load<PuzzleItemPriceTableData>(ref loaded);
         PuzzleSynergy = Load<PuzzleSynergyTableData>(ref loaded);
         PuzzleCityAction = Load<PuzzleCityActionTableData>(ref loaded);
         PuzzleTrade = Load<PuzzleTradeTableData>(ref loaded);
         PuzzleRoute = Load<PuzzleRouteTableData>(ref loaded);
         PuzzleTime = Load<PuzzleTimeTableData>(ref loaded);
-        PuzzleTurn = Load<PuzzleTurnTableData>(ref loaded);
 
         var rules = new GameTableRules();
-        basicNumbers = rules.Index(Basic.numbers, _entry => _entry.id, "BasicDataTableData.numbers");
-        basicTexts = rules.Index(Basic.texts, _entry => _entry.id, "BasicDataTableData.texts");
-        basicColors = rules.Index(Basic.colors, _entry => _entry.id, "BasicDataTableData.colors");
+        var basicGroups = rules.Index(Basic.groups, _group => _group.id, "BasicDataTableData.groups");
+        basicNumbers = IndexBasic(basicGroups.Values, _group => _group.numbers, _row => _row.id, "numbers", rules);
+        basicTexts = IndexBasic(basicGroups.Values, _group => _group.texts, _row => _row.id, "texts", rules);
+        basicColors = IndexBasic(basicGroups.Values, _group => _group.colors, _row => _row.id, "colors", rules);
         upgrades = rules.Index(Gameplay.upgrades, e => e.id, "GameplayTableData.upgrades");
         scenes = rules.Index(Flow.scenes, e => e.scene, "FlowTableData.scenes");
         pieces = rules.Index(Puzzle.pieces, e => e.id, "PuzzleTableData.pieces");
-        itemPrices = rules.Index(PuzzleItemPrice.prices, e => e.pieceId, "PuzzleItemPriceTableData.prices");
         cities = rules.Index(Puzzle.cities, e => e.id, "PuzzleTableData.cities");
         regions = rules.Index(Puzzle.regions, entry => entry.id, "PuzzleTableData.regions");
+        stockProfiles = rules.Index(Puzzle.stockProfiles, _entry => _entry.id, "PuzzleTableData.stockProfiles");
         cityTagPrices = IndexCityTagPrices(Puzzle.cities);
         routes = IndexRoutes(PuzzleRoute.routes);
         routesFrom = IndexRoutesFrom(routes);
@@ -90,10 +88,7 @@ public sealed class TableManager
         actionsByCity = IndexActionsByCity(cityActions);
         CityActions = Array.AsReadOnly(cityActions.Values.OrderBy(entry => entry.id, StringComparer.Ordinal).ToArray());
         Pieces = Array.AsReadOnly(pieces.Values.OrderBy(entry => entry.id, StringComparer.Ordinal).ToArray());
-        ItemPrices = Array.AsReadOnly(itemPrices.Values.OrderBy(entry => entry.pieceId, StringComparer.Ordinal).ToArray());
         TrainStartingPlacements = SortStartingPlacements(Puzzle.train);
-        DebtSchedule = Array.AsReadOnly((PuzzleTurn.debtPayments ?? Array.Empty<PuzzleDebtPaymentData>())
-            .Where(entry => entry != null).OrderBy(entry => entry.moveCount).ToArray());
         Cities = Array.AsReadOnly(cities.Values.OrderBy(entry => entry.id == Puzzle.startCity ? 0 : 1)
             .ThenBy(entry => entry.id, StringComparer.Ordinal).ToArray());
         // 노출용 목록은 배열 순서에 의존하지 않는다. 사슬의 첫 항목 우선, 이후 id 오름차순의 결정적 순서.
@@ -116,6 +111,32 @@ public sealed class TableManager
             return false;
         }
         return regions.TryGetValue(_id, out _region);
+    }
+
+    sealed class ScopedBasicData<T> where T : class
+    {
+        public string id;
+        public T value;
+    }
+
+    static Dictionary<string, T> IndexBasic<T>(IEnumerable<BasicDataGroupData> _groups,
+        Func<BasicDataGroupData, T[]> _entries, Func<T, string> _id, string _kind, GameTableRules _rules) where T : class
+    {
+        var scoped = new List<ScopedBasicData<T>>();
+        foreach (var group in _groups)
+        {
+            var entries = _rules.Index(_entries(group), _id, "BasicDataTableData.groups." + group.id + "." + _kind);
+            foreach (var pair in entries)
+            {
+                scoped.Add(new ScopedBasicData<T>
+                {
+                    id = group.id + "." + pair.Key,
+                    value = pair.Value
+                });
+            }
+        }
+        return _rules.Index(scoped.ToArray(), _row => _row.id, "BasicDataTableData." + _kind)
+            .ToDictionary(_pair => _pair.Key, _pair => _pair.Value.value, StringComparer.Ordinal);
     }
 
     internal PuzzleRegionData Region(string _id)
@@ -314,14 +335,17 @@ public sealed class TableManager
         _piece = null;
         return false;
     }
-    internal bool HasItemPrice(string _pieceId)
+    internal bool TryGetStockProfile(string _id, out PuzzleMarketStockData _profile)
     {
-        return !string.IsNullOrEmpty(_pieceId) && itemPrices.ContainsKey(_pieceId);
+        _profile = null;
+        return !string.IsNullOrWhiteSpace(_id) && stockProfiles.TryGetValue(_id, out _profile);
     }
-    internal PuzzleItemPriceData ItemPrice(string _pieceId)
+
+    internal PuzzleMarketStockData StockProfile(string _id)
     {
-        return Find(itemPrices, _pieceId, "아이템 가격");
+        return Find(stockProfiles, _id, "시장 재고 프로필");
     }
+
     public bool HasCity(string _id)
     {
         return !string.IsNullOrWhiteSpace(_id) && cities.ContainsKey(_id);
@@ -477,6 +501,17 @@ public sealed class TableManager
     }
 
 #if UNITY_EDITOR
+    public static T ReadSourceForAuthoring<T>() where T : class, new()
+    {
+        bool loaded = true;
+        var data = Load<T>(ref loaded);
+        if (!loaded)
+        {
+            throw new InvalidOperationException("테이블 원본을 읽을 수 없습니다: " + typeof(T).Name);
+        }
+        return data;
+    }
+
     public static string EditorAssetPath<T>()
     {
         return "Assets/Resources/" + RESOURCE_FOLDER + typeof(T).Name + ".json";

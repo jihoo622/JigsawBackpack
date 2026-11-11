@@ -3,13 +3,13 @@
 public static class GameLayers
 {
     // 레이어 번호(TagManager.asset 순서 기준, 0부터 시작).
-    public static int GroundLayerNumber => BasicData.Int("layers.GameLayers.GroundLayerNumber");
-    public static int ObstacleLayerNumber => BasicData.Int("layers.GameLayers.ObstacleLayerNumber");
-    public static int PlayerLayerNumber => BasicData.Int("layers.GameLayers.PlayerLayerNumber");
-    public static int EnemyLayerNumber => BasicData.Int("layers.GameLayers.EnemyLayerNumber");
-    public static int PropLayerNumber => BasicData.Int("layers.GameLayers.PropLayerNumber");
-    public static int WeaponLayerNumber => BasicData.Int("layers.GameLayers.WeaponLayerNumber");
-    public static int ProjectileLayerNumber => BasicData.Int("layers.GameLayers.ProjectileLayerNumber");
+    public static int GroundLayerNumber => BasicData.Int("layers.GameLayers.groundLayerNumber");
+    public static int ObstacleLayerNumber => BasicData.Int("layers.GameLayers.obstacleLayerNumber");
+    public static int PlayerLayerNumber => BasicData.Int("layers.GameLayers.playerLayerNumber");
+    public static int EnemyLayerNumber => BasicData.Int("layers.GameLayers.enemyLayerNumber");
+    public static int PropLayerNumber => BasicData.Int("layers.GameLayers.propLayerNumber");
+    public static int WeaponLayerNumber => BasicData.Int("layers.GameLayers.weaponLayerNumber");
+    public static int ProjectileLayerNumber => BasicData.Int("layers.GameLayers.projectileLayerNumber");
 
     // Physics 질의에 쓰는 비트마스크. 기초데이터의 번호에서 파생한다.
     public static int GroundMask => 1 << GroundLayerNumber;

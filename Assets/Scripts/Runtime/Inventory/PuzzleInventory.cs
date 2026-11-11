@@ -49,8 +49,8 @@ public sealed class PuzzleInventory
         valuation.Recalculate(this, synergyRules);
     }
 
-    // 현재 인접 배치의 시간당 변화량을 사용한다. 범위 검사는 모든 화물칸을 변경하기 전에 끝낸다.
-    internal bool CanApplyTimeValueChange(long _elapsedMinutes)
+    // 현재 인접 배치의 1회 변화량을 정산 횟수만큼 적용한다.
+    internal bool CanApplySynergyActivations(long _count)
     {
         RecalculateValue();
         try
@@ -58,7 +58,7 @@ public sealed class PuzzleInventory
             foreach (var placement in placements.Values)
             {
                 var value = valuation.ValueOf(placement.InstanceId);
-                _ = checked(placement.ActualValue + (value.FinalValue - value.BaseValue) * _elapsedMinutes / PuzzleTimeManager.MINUTES_PER_HOUR);
+                _ = checked(placement.ActualValue + (value.FinalValue - value.BaseValue) * _count);
             }
         }
         catch (OverflowException)
@@ -68,13 +68,13 @@ public sealed class PuzzleInventory
         return true;
     }
 
-    internal void ApplyTimeValueChange(long _elapsedMinutes)
+    internal void ApplySynergyActivations(long _count)
     {
         RecalculateValue();
         foreach (var placement in placements.Values)
         {
             var value = valuation.ValueOf(placement.InstanceId);
-            placement.AddActualValue((value.FinalValue - value.BaseValue) * _elapsedMinutes / PuzzleTimeManager.MINUTES_PER_HOUR);
+            placement.AddActualValue((value.FinalValue - value.BaseValue) * _count);
         }
     }
 

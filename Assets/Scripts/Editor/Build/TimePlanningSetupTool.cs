@@ -34,33 +34,20 @@ public static class TimePlanningSetupTool
             var data = new SerializedObject(view);
             var template = (Button)data.FindProperty("clearButton").objectReferenceValue;
             var header = (RectTransform)view.transform;
-            header.sizeDelta = new Vector2(header.sizeDelta.x, BasicData.Float("editor.TimePlanningSetupTool.Vector2.number1"));
-            Place((TMP_Text)data.FindProperty("cityName").objectReferenceValue, new Vector2(-BasicData.Float("editor.TimePlanningSetupTool.Vector2.number2"), BasicData.Float("editor.TimePlanningSetupTool.Vector2.number3")), new Vector2(BasicData.Float("editor.TimePlanningSetupTool.Vector2.number4"), BasicData.Float("editor.TimePlanningSetupTool.Vector2.number5")), BasicData.Int("editor.TimePlanningSetupTool.Vector2.number6"));
-            Place((TMP_Text)data.FindProperty("timeLabel").objectReferenceValue, new Vector2(-BasicData.Float("editor.TimePlanningSetupTool.Vector2.number7"), BasicData.Float("editor.TimePlanningSetupTool.Vector2.number8")), new Vector2(BasicData.Float("editor.TimePlanningSetupTool.Vector2.number9"), BasicData.Float("editor.TimePlanningSetupTool.Vector2.number10")), BasicData.Int("editor.TimePlanningSetupTool.Vector2.number11"));
             ((TMP_Text)data.FindProperty("timeLabel").objectReferenceValue).text = Presentation.PuzzleTime(
                 new PuzzleTimeManager(TableManager.Instance.PuzzleTrade.deadlineHours, TableManager.Instance.PuzzleTime));
-            Place((TMP_Text)data.FindProperty("funds").objectReferenceValue, new Vector2(BasicData.Float("editor.TimePlanningSetupTool.Vector2.number12"), BasicData.Float("editor.TimePlanningSetupTool.Vector2.number13")), new Vector2(BasicData.Float("editor.TimePlanningSetupTool.Vector2.number14"), BasicData.Float("editor.TimePlanningSetupTool.Vector2.number15")), BasicData.Int("editor.TimePlanningSetupTool.Vector2.number16"));
-            Place((TMP_Text)data.FindProperty("tradeStatus").objectReferenceValue, new Vector2(0f, -BasicData.Float("editor.TimePlanningSetupTool.Vector2.number17")), new Vector2(BasicData.Float("editor.TimePlanningSetupTool.Vector2.number18"), BasicData.Float("editor.TimePlanningSetupTool.Vector2.number19")), BasicData.Int("editor.TimePlanningSetupTool.Vector2.number20"));
-            var preview = data.FindProperty("previewButton").objectReferenceValue as Button;
-            if (!preview)
-            {
-                preview = Button(header, template, "PreviewDestination", new Vector2(-BasicData.Float("editor.TimePlanningSetupTool.Vector2.number21"), -BasicData.Float("editor.TimePlanningSetupTool.Vector2.number22")), new Vector2(BasicData.Float("editor.TimePlanningSetupTool.Vector2.number23"), BasicData.Float("editor.TimePlanningSetupTool.Vector2.number24")));
-            }
             var wait = data.FindProperty("waitButton").objectReferenceValue as Button;
             if (!wait)
             {
-                wait = Button(header, template, "WaitForDaylight", new Vector2(-BasicData.Float("editor.TimePlanningSetupTool.Vector2.number25"), -BasicData.Float("editor.TimePlanningSetupTool.Vector2.number26")), new Vector2(BasicData.Float("station.wait.width"), BasicData.Float("editor.TimePlanningSetupTool.Vector2.number27")));
+                wait = Button(header, template, "WaitForDaylight");
             }
-            var previewLabel = preview.GetComponentInChildren<TextMeshProUGUI>(true);
             var waitLabel = wait.GetComponentInChildren<TextMeshProUGUI>(true);
-            previewLabel.text = Presentation.PuzzlePreviewDestination(null, null);
             waitLabel.text = Presentation.PuzzleWaitDaylight;
-            previewLabel.fontSize = waitLabel.fontSize = BasicData.Float("editor.TimePlanningSetupTool.Vector2.number28");
+            ((TMP_Text)data.FindProperty("clearLabel").objectReferenceValue).text =
+                Presentation.PuzzleClearButton(TableManager.Instance.PuzzleTrade.gameClearCost);
             wait.interactable = false;
             data.FindProperty("waitButton").objectReferenceValue = wait;
             data.FindProperty("waitLabel").objectReferenceValue = waitLabel;
-            data.FindProperty("previewButton").objectReferenceValue = preview;
-            data.FindProperty("previewLabel").objectReferenceValue = previewLabel;
             data.ApplyModifiedPropertiesWithoutUndo();
             PuzzleUiLayoutTool.ApplyTo(scene);
             EditorSceneManager.MarkSceneDirty(scene);
@@ -101,22 +88,13 @@ public static class TimePlanningSetupTool
         }
     }
 
-    static void Place(TMP_Text _text, Vector2 _position, Vector2 _size, float _fontSize)
-    {
-        _text.rectTransform.anchoredPosition = _position;
-        _text.rectTransform.sizeDelta = _size;
-        _text.fontSize = _fontSize;
-    }
-
-    static Button Button(Transform _parent, Button _template, string _name, Vector2 _position, Vector2 _size)
+    static Button Button(Transform _parent, Button _template, string _name)
     {
         var existing = _parent.Find(_name);
         var button = existing ? existing.GetComponent<Button>() : Object.Instantiate(_template, _parent);
         button.name = _name;
         var rect = (RectTransform)button.transform;
         rect.anchorMin = rect.anchorMax = rect.pivot = Vector2.one * 0.5f;
-        rect.anchoredPosition = _position;
-        rect.sizeDelta = _size;
         button.onClick = new Button.ButtonClickedEvent();
         return button;
     }

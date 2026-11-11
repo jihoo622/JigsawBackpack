@@ -150,14 +150,13 @@ public sealed class GameTableRules
         ValidatePlayer(_tables.Gameplay.player, _tables);
         ValidateUpgrades(_tables);
         ValidateScenes(_tables);
+        ValidateStockProfiles(_tables);
         ValidatePuzzle(_tables);
-        ValidateItemPrices(_tables);
         ValidatePuzzleSynergy(_tables);
         ValidateCityActions(_tables);
         ValidatePuzzleTrade(_tables);
         ValidateTime(_tables.PuzzleTime);
         ValidateRoutes(_tables);
-        ValidateDebtSchedule(_tables.PuzzleTurn);
     }
 
     void ValidateBasic(TableManager _tables)
@@ -174,30 +173,34 @@ public sealed class GameTableRules
         {
             Check(_tables.HasBasicColor(id), "BasicDataTableData.colors." + id, "필수 색이 누락되었습니다.");
         }
-        foreach (var row in _tables.Basic.numbers ?? Array.Empty<BasicNumberData>())
+        foreach (var pair in _tables.BasicNumbers)
         {
+            var row = pair.Value;
+            string id = pair.Key;
             if (row == null)
             {
                 continue;
             }
             bool finite = !double.IsNaN(row.value) && !double.IsInfinity(row.value) && Math.Abs(row.value) <= float.MaxValue;
-            Check(finite, "BasicDataTableData.numbers." + row.id, "유한한 수치가 필요합니다.");
+            Check(finite, "BasicDataTableData.numbers." + id, "유한한 수치가 필요합니다.");
             Check(!row.whole || (row.value >= int.MinValue && row.value <= int.MaxValue && row.value == Math.Truncate(row.value)),
-                "BasicDataTableData.numbers." + row.id, "정수 범위의 값이 필요합니다.");
-            Check(!row.positive || row.value > 0, "BasicDataTableData.numbers." + row.id, "양수가 필요합니다.");
-            if (row.id.StartsWith("layers.GameLayers.", StringComparison.Ordinal))
+                "BasicDataTableData.numbers." + id, "정수 범위의 값이 필요합니다.");
+            Check(!row.positive || row.value > 0, "BasicDataTableData.numbers." + id, "양수가 필요합니다.");
+            if (id.StartsWith("layers.GameLayers.", StringComparison.Ordinal))
             {
-                Check(row.value >= 0 && row.value < 32, "BasicDataTableData.numbers." + row.id, "Unity 레이어 번호 범위를 벗어났습니다.");
+                Check(row.value >= 0 && row.value < 32, "BasicDataTableData.numbers." + id, "Unity 레이어 번호 범위를 벗어났습니다.");
             }
         }
-        foreach (var row in _tables.Basic.texts ?? Array.Empty<BasicTextData>())
+        foreach (var pair in _tables.BasicTexts)
         {
+            var row = pair.Value;
+            string id = pair.Key;
             if (row == null)
             {
                 continue;
             }
-            bool argumentsValid = BasicDataContract.TextArgumentCounts.TryGetValue(row.id, out var expected) && row.arguments == expected;
-            Check(row.value != null && argumentsValid, "BasicDataTableData.texts." + row.id, "문구와 서식 인자 수가 필요합니다.");
+            bool argumentsValid = BasicDataContract.TextArgumentCounts.TryGetValue(id, out var expected) && row.arguments == expected;
+            Check(row.value != null && argumentsValid, "BasicDataTableData.texts." + id, "문구와 서식 인자 수가 필요합니다.");
             if (row.value != null && argumentsValid)
             {
                 try
@@ -206,72 +209,49 @@ public sealed class GameTableRules
                 }
                 catch (FormatException)
                 {
-                    Check(false, "BasicDataTableData.texts." + row.id, "문구의 서식 인자가 올바르지 않습니다.");
+                    Check(false, "BasicDataTableData.texts." + id, "문구의 서식 인자가 올바르지 않습니다.");
                 }
             }
         }
-        foreach (var row in _tables.Basic.colors ?? Array.Empty<BasicColorData>())
+        foreach (var pair in _tables.BasicColors)
         {
+            var row = pair.Value;
+            string id = pair.Key;
             if (row != null)
             {
                 Check(new[] { row.r, row.g, row.b, row.a }.All(_value => !float.IsNaN(_value) && _value >= 0 && _value <= 1),
-                    "BasicDataTableData.colors." + row.id, "RGBA는 0~1 범위여야 합니다.");
+                    "BasicDataTableData.colors." + id, "RGBA는 0~1 범위여야 합니다.");
             }
         }
-        const string MIN_ZOOM = "ui.PuzzleMapNavigation.MinZoom";
-        const string MAX_ZOOM = "ui.PuzzleMapNavigation.MaxZoom";
+        const string MIN_ZOOM = "ui.PuzzleMapNavigation.minZoom";
+        const string MAX_ZOOM = "ui.PuzzleMapNavigation.maxZoom";
         if (_tables.HasBasicNumber(MIN_ZOOM) && _tables.HasBasicNumber(MAX_ZOOM))
         {
             double min = _tables.BasicNumber(MIN_ZOOM).value;
             double max = _tables.BasicNumber(MAX_ZOOM).value;
             Check(min > 0 && min <= max, "BasicDataTableData.numbers.zoom", "줌 범위는 0보다 크고 최소값이 최대값 이하여야 합니다.");
         }
-        const string WASTE_PIECE = "rules.PuzzleInventoryService.AnimalWastePieceId";
+        const string WASTE_PIECE = "rules.PuzzleInventoryService.animalWastePieceId";
         if (_tables.HasBasicText(WASTE_PIECE))
         {
             string pieceId = _tables.BasicText(WASTE_PIECE).value;
             Reference(pieceId, "BasicDataTableData.texts." + WASTE_PIECE, _tables.TryGetPiece(pieceId, out _), "화물");
         }
-    }
-
-    void ValidateDebtSchedule(PuzzleTurnTableData _turn)
-    {
-        const string PATH = nameof(PuzzleTurnTableData);
-        const string PAYMENTS_PATH = PATH + ".debtPayments";
-        int interval = _turn.debtInterval;
-        Check(interval > 0, PATH + ".debtInterval", "차감 주기는 0보다 커야 합니다.");
-        var payments = _turn.debtPayments ?? Array.Empty<PuzzleDebtPaymentData>();
-        Check(payments.Length > 0, PAYMENTS_PATH, "빚 차감 일정이 하나 이상 필요합니다.");
-
-        long lastMove = (long)interval * payments.Length;
-        Check(lastMove <= int.MaxValue, PAYMENTS_PATH, "마지막 차감 시점이 이동 횟수의 범위를 초과합니다.");
-        var seenMoves = new HashSet<int>();
-        for (int i = 0; i < payments.Length; i++)
+        const string LOW_FRESHNESS = "ui.freshness.lowThreshold";
+        const string MEDIUM_FRESHNESS = "ui.freshness.mediumThreshold";
+        if (_tables.HasBasicNumber(LOW_FRESHNESS) && _tables.HasBasicNumber(MEDIUM_FRESHNESS))
         {
-            var payment = payments[i];
-            string path = $"{PAYMENTS_PATH}[{i}]";
-            if (payment == null)
-            {
-                Check(false, path, "빚 차감 항목이 필요합니다.");
-                continue;
-            }
-
-            int move = payment.moveCount;
-            Check(move > 0, path + ".moveCount", "이동 횟수는 0보다 커야 합니다.");
-            Check(payment.amount > 0, path + ".amount", "차감액은 0보다 커야 합니다.");
-            Check(seenMoves.Add(move), path + ".moveCount", $"이동 {move}회 차감이 중복되었습니다.");
-            if (interval > 0 && move > 0)
-            {
-                Check(move % interval == 0 && move <= lastMove, path + ".moveCount",
-                    $"이동 횟수는 {interval}회 주기에 맞고 마지막 차감 시점({lastMove}회) 이내여야 합니다.");
-            }
+            double low = _tables.BasicNumber(LOW_FRESHNESS).value;
+            double medium = _tables.BasicNumber(MEDIUM_FRESHNESS).value;
+            Check(low >= 0 && low < medium && medium < 100,
+                "BasicDataTableData.ui.freshness", "신선도 구간은 0 이상이며 낮음 < 중간 < 100이어야 합니다.");
         }
-
-        if (interval > 0)
+        foreach (string id in new[] { "ui.tooltip.badgeBlend", "ui.freshness.outlineWidth" })
         {
-            for (long move = interval; move <= lastMove && move <= int.MaxValue; move += interval)
+            if (_tables.HasBasicNumber(id))
             {
-                Check(seenMoves.Contains((int)move), PAYMENTS_PATH, $"이동 {move}회의 차감 일정이 누락되었습니다.");
+                double value = _tables.BasicNumber(id).value;
+                Check(value >= 0 && value <= 1, "BasicDataTableData.numbers." + id, "비율은 0~1 범위여야 합니다.");
             }
         }
     }
@@ -286,8 +266,6 @@ public sealed class GameTableRules
         {
             Reference(_tables.PuzzleTrade.debtCityId, PATH + ".debtCityId", _tables.HasCity(_tables.PuzzleTrade.debtCityId), "상환 도시");
         }
-        Check(_tables.PuzzleTrade.purchaseMarkupPercent > 0, PATH + ".purchaseMarkupPercent",
-            "공통 구매 배율은 0보다 커야 합니다.");
         Check(_tables.PuzzleTrade.wagonAddCostBase > 0, PATH + ".wagonAddCostBase",
             "화물칸 증차 기본 비용은 0보다 커야 합니다.");
         Check(IsFinitePositive(_tables.PuzzleTrade.travelEffectSeconds), PATH + ".travelEffectSeconds",
@@ -454,17 +432,15 @@ public sealed class GameTableRules
                     $"우선순위 {entry.priority}가 도시 안에서 중복되었습니다.");
             }
 
-            bool rare = entry.rareValue != int.MinValue;
-            if (!rare)
-            {
-                Check(entry.buyPercent > 0, path + ".buyPercent", "구매 배율은 0보다 커야 합니다.");
-                Check(entry.sellPercent > 0, path + ".sellPercent", "판매 배율은 0보다 커야 합니다.");
-            }
+            Check(entry.buyPercent > 0, path + ".buyPercent", "구매 배율은 0보다 커야 합니다.");
+            Check(entry.sellPercent > 0, path + ".sellPercent", "판매 배율은 0보다 커야 합니다.");
         }
     }
 
     void ValidatePuzzleSynergy(TableManager _tables)
     {
+        Check(_tables.PuzzleSynergy.activationIntervalHours > 0, "PuzzleSynergyTableData.activationIntervalHours",
+            "시너지 적용 주기는 양의 정수 시간이어야 합니다.");
         var tags = new HashSet<string>(_tables.Pieces.SelectMany(item => item.tags ?? Array.Empty<string>()),
             StringComparer.Ordinal);
         var rules = _tables.PuzzleSynergy.rules ?? Array.Empty<PuzzleSynergyRuleData>();
@@ -583,6 +559,39 @@ public sealed class GameTableRules
         }
     }
 
+    void ValidateStockProfiles(TableManager _tables)
+    {
+        foreach (var profile in _tables.Puzzle.stockProfiles ?? Array.Empty<PuzzleMarketStockData>())
+        {
+            if (profile == null)
+            {
+                continue;
+            }
+            string path = "PuzzleTableData.stockProfiles." + profile.id;
+            var candidates = profile.pieceIds ?? Array.Empty<string>();
+            Check(candidates.Length > 0 && candidates.Distinct(StringComparer.Ordinal).Count() == candidates.Length,
+                path + ".pieceIds", "중복 없는 상품 후보가 필요합니다.");
+            foreach (string id in candidates)
+            {
+                Reference(id, path + ".pieceIds", _tables.TryGetPiece(id, out _), "상품");
+            }
+            var slots = profile.slots ?? Array.Empty<PuzzleMarketStockSlotData>();
+            Check(slots.Length > 0, path + ".slots", "재고 배치 슬롯이 필요합니다.");
+            var ids = new HashSet<string>(StringComparer.Ordinal);
+            foreach (var slot in slots)
+            {
+                Check(slot != null, path + ".slots", "슬롯 항목이 필요합니다.");
+                if (slot == null)
+                {
+                    continue;
+                }
+                Check(!string.IsNullOrWhiteSpace(slot.id) && ids.Add(slot.id), path + ".slots.id", "프로필 안에서 고유한 슬롯 ID가 필요합니다.");
+                Check(slot.x >= 0 && slot.y >= 0 && slot.width > 0 && slot.height > 0,
+                    path + ".slots." + slot.id, "슬롯 좌표와 크기가 올바르지 않습니다.");
+            }
+        }
+    }
+
     void ValidatePuzzle(TableManager _tables)
     {
         const string PATH = nameof(PuzzleTableData);
@@ -655,7 +664,7 @@ public sealed class GameTableRules
             ValidateCityTagPrices(city, knownTags, cityPath + ".tagPrices");
             ValidateCitySpecialty(_tables, city, knownTags, cityPath);
             ValidateBoard(_tables, city.market, shapes, placementIds, cityPath + ".market");
-            ValidateGeneralStock(_tables, city, shapes, placementIds, cityPath + ".generalStock");
+            ValidateGeneralStock(_tables, city, shapes, placementIds, cityPath + ".stock");
         }
     }
 
@@ -682,9 +691,10 @@ public sealed class GameTableRules
 
     static bool HasNearbyTradeMatch(TableManager _tables, PuzzleCityData _from, PuzzleCityData _to)
     {
+        _tables.TryGetStockProfile(_from.regionalStockId, out var regional);
         var supply = (_from.market?.startingPlacements ?? Array.Empty<PuzzleStartingPlacementData>())
             .Where(_placement => _placement != null).Select(_placement => _placement.pieceId)
-            .Concat(_from.regionalStock?.pieceIds ?? Array.Empty<string>()).Distinct(StringComparer.Ordinal);
+            .Concat(regional?.pieceIds ?? Array.Empty<string>()).Distinct(StringComparer.Ordinal);
         _tables.TryGetRegion(_from.regionId, out var region);
         foreach (string id in supply)
         {
@@ -750,8 +760,10 @@ public sealed class GameTableRules
     void ValidateGeneralStock(TableManager _tables, PuzzleCityData _city,
         Dictionary<PuzzlePieceData, Vector2Int[]> _shapes, HashSet<string> _placementIds, string _path)
     {
-        var general = _city.generalStock;
-        var regional = _city.regionalStock;
+        bool hasGeneral = _tables.TryGetStockProfile(_city.generalStockId, out var general);
+        bool hasRegional = _tables.TryGetStockProfile(_city.regionalStockId, out var regional);
+        Reference(_city.generalStockId, _path + ".generalStockId", hasGeneral, "일반 재고 프로필");
+        Reference(_city.regionalStockId, _path + ".regionalStockId", hasRegional, "지역 재고 프로필");
         Check(general != null && regional != null, _path, "지역 재고와 일반 재고 설정이 필요합니다.");
         if (general == null || regional == null)
         {
@@ -836,7 +848,7 @@ public sealed class GameTableRules
             {
                 continue;
             }
-            Check(!string.IsNullOrWhiteSpace(slot.id) && _placementIds.Add(slot.id), path + ".id",
+            Check(!string.IsNullOrWhiteSpace(slot.id) && _placementIds.Add(_city.id + "." + slot.id), path + ".id",
                 "모든 시작 배치와 슬롯에서 고유한 ID가 필요합니다.");
             bool valid = slot.width > 0 && slot.height > 0 && slot.x >= 0 && slot.y >= 0 &&
                 (long)slot.x + slot.width <= _city.market.width && slot.y < _city.market.height &&
@@ -863,30 +875,6 @@ public sealed class GameTableRules
         }
     }
 
-    void ValidateItemPrices(TableManager _tables)
-    {
-        const string PATH = nameof(PuzzleItemPriceTableData) + ".prices";
-        var prices = _tables.PuzzleItemPrice.prices ?? Array.Empty<PuzzleItemPriceData>();
-        for (int i = 0; i < prices.Length; i++)
-        {
-            var price = prices[i];
-            string path = $"{PATH}[{i}]";
-            if (price == null)
-            {
-                Check(false, path, "아이템 가격 항목이 필요합니다.");
-                continue;
-            }
-
-            Reference(price.pieceId, path + ".pieceId", _tables.TryGetPiece(price.pieceId, out _), "아이템");
-            Check(price.baseValue != -1, path + ".baseValue", "아이템 기본 가격이 누락되었습니다.");
-        }
-
-        foreach (var piece in _tables.Pieces)
-        {
-            Check(_tables.HasItemPrice(piece.id), PATH, $"아이템 '{piece.id}'의 가격이 필요합니다.");
-        }
-    }
-
     static int MaxBoardSide(PuzzleBoardData _board)
     {
         return _board == null ? 0 : Math.Max(_board.width, _board.height);
@@ -894,6 +882,7 @@ public sealed class GameTableRules
 
     Vector2Int[] ValidatePiece(PuzzlePieceData _piece, int _maxSide, string _path, TableManager _tables)
     {
+        Check(_piece.baseValue != -1, _path + ".baseValue", "상품 기본 가치가 필요합니다.");
         Check(!string.IsNullOrWhiteSpace(_piece.displayName), _path + ".displayName", "아이템 이름이 필요합니다.");
         Check(!string.IsNullOrWhiteSpace(_piece.description), _path + ".description", "조각 설명이 필요합니다.");
         Check(!string.IsNullOrWhiteSpace(_piece.visualKey), _path + ".visualKey", "표시 에셋 키가 필요합니다.");

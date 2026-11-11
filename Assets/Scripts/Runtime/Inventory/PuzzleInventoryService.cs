@@ -7,8 +7,8 @@ using UnityEngine;
 public sealed class PuzzleInventoryService : MonoBehaviour
 {
     const int PERCENT_SCALE = 100;
-    static string AnimalTag => BasicData.Text("rules.PuzzleInventoryService.AnimalTag");
-    static string AnimalWastePieceId => BasicData.Text("rules.PuzzleInventoryService.AnimalWastePieceId");
+    static string AnimalTag => BasicData.Text("rules.PuzzleInventoryService.animalTag");
+    static string AnimalWastePieceId => BasicData.Text("rules.PuzzleInventoryService.animalWastePieceId");
 
     TableManager tables;
     Dictionary<string, PuzzleInventory> markets;
@@ -17,7 +17,38 @@ public sealed class PuzzleInventoryService : MonoBehaviour
     int lastInstanceId;
     string currentCityId;
     readonly HashSet<string> visitedCities = new HashSet<string>(StringComparer.Ordinal);
+    readonly List<TavernRumor> tavernRumors = new List<TavernRumor>();
+    int lastRumorVisit = -1;
     readonly System.Random stockRandom = new System.Random();
+
+    internal readonly struct TavernRumor
+    {
+        public readonly string TargetCityId;
+        public readonly string SourceCityId;
+        public readonly string Message;
+        public readonly long RecordedMinutes;
+        public readonly string RecordedTime;
+
+        public TavernRumor(string _targetCityId, string _sourceCityId, string _message, long _recordedMinutes, string _recordedTime)
+        {
+            TargetCityId = _targetCityId;
+            SourceCityId = _sourceCityId;
+            Message = _message;
+            RecordedMinutes = _recordedMinutes;
+            RecordedTime = _recordedTime;
+        }
+    }
+
+    internal IReadOnlyList<TavernRumor> TavernRumors => tavernRumors;
+
+    internal void RecordTavernRumor(string _targetCityId, string _message)
+    {
+        if (lastRumorVisit != CityMoveCount)
+        {
+            tavernRumors.Add(new TavernRumor(_targetCityId, CurrentCityId, _message, Time.ElapsedMinutes, Presentation.PuzzleTime(Time)));
+            lastRumorVisit = CityMoveCount;
+        }
+    }
 
     internal bool HasVisitedCity(string _cityId)
     {
@@ -100,6 +131,12 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         tables.TryGetRoute(CurrentCityId, PreviewCityId, out var route)
         ? PuzzleTimeManager.TravelMinutes(route, tables.PuzzleTime) : (long?)null;
 
+    internal long SynergyActivationsFor(long _minutes)
+    {
+        long interval = (long)tables.PuzzleSynergy.activationIntervalHours * PuzzleTimeManager.MINUTES_PER_HOUR;
+        return Time.IntervalCountAfter(_minutes, interval);
+    }
+
     internal void SetPreviewDestination(string _cityId)
     {
         if (_cityId != null && !tables.HasRoute(CurrentCityId, _cityId))
@@ -114,14 +151,6 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         GameEvents.RaiseTravelPreviewChanged(this);
     }
 
-    internal void CyclePreviewDestination()
-    {
-        var cities = tables.RoutesFrom(CurrentCityId).Select(_route => _route.toCityId)
-            .OrderBy(_id => _id, StringComparer.Ordinal).ToArray();
-        int index = Array.IndexOf(cities, PreviewCityId) + 1;
-        SetPreviewDestination(index < cities.Length ? cities[index] : null);
-    }
-
     internal bool WaitForDaylight()
     {
         return CanWaitForDaylight && AdvanceMinutes(Time.MinutesUntilDaylight);
@@ -130,12 +159,8 @@ public sealed class PuzzleInventoryService : MonoBehaviour
     public bool CanClearGame => tables != null && RunStatus == PuzzleRunStatus.InProgress && Funds >= GameClearCost
         && !Time.IsOverdue && (string.IsNullOrEmpty(DebtCityId) || CurrentCityId == DebtCityId);
     public int CityMoveCount { get; private set; }
-    public int PaidDebtCount { get; private set; }
     public PuzzleRunStatus RunStatus { get; private set; }
     internal string CurrentCityName => CityData.displayName;
-    internal PuzzleDebtPaymentData NextDebt => PaidDebtCount < tables.DebtSchedule.Count
-        ? tables.DebtSchedule[PaidDebtCount]
-        : null;
     internal bool CanTravel => tables != null && !string.IsNullOrEmpty(currentCityId) && tables.RoutesFrom(currentCityId).Count > 0;
     internal long ElapsedTime => Time.ElapsedMinutes;
     internal PuzzleRegionData RegionData => tables.Region(CityData.regionId);
@@ -153,7 +178,7 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         definitions = new Dictionary<string, PuzzleItemDefinition>(StringComparer.Ordinal);
         foreach (var item in validatedTables.Pieces)
         {
-            definitions.Add(item.id, new PuzzleItemDefinition(item, validatedTables.ItemPrice(item.id).baseValue));
+            definitions.Add(item.id, new PuzzleItemDefinition(item));
         }
 
         tables = validatedTables;
@@ -183,9 +208,10 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         currentCityId = tables.Puzzle.startCity;
         visitedCities.Clear();
         visitedCities.Add(currentCityId);
+        tavernRumors.Clear();
+        lastRumorVisit = -1;
         Funds = tables.PuzzleTrade.startingFunds;
         CityMoveCount = 0;
-        PaidDebtCount = 0;
         RunStatus = PuzzleRunStatus.InProgress;
         trainWagons.Clear();
         trainWagons.Add(train);
@@ -200,13 +226,13 @@ public sealed class PuzzleInventoryService : MonoBehaviour
     {
         var city = tables.CityPrice(_cityId);
         var placements = new List<PuzzleStartingPlacementData>(tables.MarketStartingPlacements(_cityId));
-        AddStock(city.regionalStock, placements);
-        AddStock(city.generalStock, placements);
+        AddStock(_cityId, tables.StockProfile(city.regionalStockId), placements);
+        AddStock(_cityId, tables.StockProfile(city.generalStockId), placements);
         return new PuzzleInventory(city.market, placements, definitions, marketRules,
             ref lastInstanceId);
     }
 
-    void AddStock(PuzzleMarketStockData _stock, List<PuzzleStartingPlacementData> _placements)
+    void AddStock(string _cityId, PuzzleMarketStockData _stock, List<PuzzleStartingPlacementData> _placements)
     {
         var candidates = new List<string>(_stock.pieceIds);
         candidates.Sort(StringComparer.Ordinal);
@@ -216,7 +242,7 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         {
             _placements.Add(new PuzzleStartingPlacementData
             {
-                id = slot.id,
+                id = _cityId + "." + slot.id,
                 pieceId = candidates[stockRandom.Next(candidates.Count)],
                 x = slot.x,
                 y = slot.y,
@@ -280,7 +306,7 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         }
         foreach (var wagon in trainWagons)
         {
-            if (!wagon.CanApplyTimeValueChange(travelTime))
+            if (!wagon.CanApplySynergyActivations(SynergyActivationsFor(travelTime)))
             {
                 return new PuzzleTravelResult(PuzzleTravelFailure.TimeOverflow);
             }
@@ -367,8 +393,13 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         {
             return false;
         }
+        long activations = SynergyActivationsFor(_minutes);
         foreach (var wagon in trainWagons)
         {
+            if (!wagon.CanApplySynergyActivations(activations))
+            {
+                return false;
+            }
             foreach (var item in wagon.Placements)
             {
                 if (item.OwnedMinutes >= 0)
@@ -377,7 +408,7 @@ public sealed class PuzzleInventoryService : MonoBehaviour
                 }
             }
         }
-        CommitTimeAdvance(_minutes, growth);
+        CommitTimeAdvance(_minutes, activations, growth);
         return true;
     }
 
@@ -400,9 +431,13 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         return true;
     }
 
-    void CommitTimeAdvance(long _minutes, List<PuzzleGrowth> _growth)
+    void CommitTimeAdvance(long _minutes, long _activations, List<PuzzleGrowth> _growth)
     {
         long previous = Time.ElapsedMinutes;
+        foreach (var wagon in trainWagons)
+        {
+            wagon.ApplySynergyActivations(_activations);
+        }
         Time.Advance(_minutes);
         foreach (var wagon in trainWagons)
         {
@@ -488,17 +523,11 @@ public sealed class PuzzleInventoryService : MonoBehaviour
             return evaluation;
         }
 
-        tables.TryGetRoute(evaluation.FromCityId, evaluation.ToCityId, out var route);
         long duration = evaluation.TravelMinutes;
         // 잘못된 시간이나 오버플로는 자금·배치·도시 변경 전에 검사한다.
         Time.ArrivalAt(duration);
         // 이동 비용은 출발 전에 낸다. 기차는 출발 직전까지의 배치로 계산한다. 이후의 도시 도착·턴 증가·가치 변화는 한 번에 확정한다.
         Funds -= evaluation.Cost;
-        // 출발 직전 인접 배치의 시간당 변화량을 소비 시간만큼 누적한다.
-        for (int i = 0; i < trainWagons.Count; i++)
-        {
-            trainWagons[i].ApplyTimeValueChange(duration);
-        }
         // 떠난 도시의 시장은 테이블의 시작 배치로 되돌린다. 기차는 그대로 두고, 목적지 시장은 손대지 않는다.
         markets[evaluation.FromCityId] = CreateMarket(evaluation.FromCityId);
         currentCityId = evaluation.ToCityId;
@@ -509,35 +538,12 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         CityMoveCount++;
         visitedCities.Add(CurrentCityId);
         Market.RecalculateValue();
-        CommitTimeAdvance(duration, growth);
+        CommitTimeAdvance(duration, SynergyActivationsFor(duration), growth);
         if (previewChanged)
         {
             GameEvents.RaiseTravelPreviewChanged(this);
         }
         GameEvents.RaiseCityArrived(CurrentCityId, CityMoveCount);
-
-        // 테스트를 위해 빚 차감 및 빚으로 인한 승패 판정을 임시 비활성화한다.
-        /*
-        // 빚은 도착 후에 차감한다.
-        var debt = NextDebt;
-        if (debt != null && debt.moveCount == CityMoveCount)
-        {
-            if (Funds < debt.amount)
-            {
-                RunStatus = PuzzleRunStatus.Lost;
-            }
-            else
-            {
-                Funds -= debt.amount;
-                PaidDebtCount++;
-                if (PaidDebtCount == tables.DebtSchedule.Count)
-                {
-                    RunStatus = PuzzleRunStatus.Won;
-                }
-            }
-        }
-
-        */
 
         return new PuzzleTravelResult(PuzzleTravelFailure.None, evaluation.Cost, evaluation.FromCityId,
             evaluation.ToCityId, Funds, evaluation.BaseCost, evaluation.Cells, evaluation.Distance, evaluation.DistanceCost,
@@ -597,14 +603,7 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         int percent = rate.PercentFor(direction);
         string tag = rate.Tag;
         long price;
-        if (rate.HasRareValue)
-        {
-            // 희귀 판정: 가치×배율 대신 도시가 지정한 단가로 확정한다. 배율 표시는 생략한다.
-            price = rate.RareValue;
-            percent = 0;
-        }
-        else if (!TryGetTradePrice(buying ? _original.Definition.BaseValue : _original.ActualValue,
-            percent, tables.Region(city.regionId).pricePercent, out price))
+        if (!TryQuoteTrade(_original, direction, out price))
         {
             return new PuzzleDropResult(placement, direction, _tradeFailure: PuzzleTradeFailure.PriceOverflow,
                 _percent: percent, _tag: tag);
@@ -648,7 +647,7 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         var best = BestTagRule(_item);
         return best == null
             ? new PuzzleTradeRate(null, _city.buyPercentOfBaseValue, _city.sellPercentOfFinalValue)
-            : new PuzzleTradeRate(best.tag, best.buyPercent, best.sellPercent, best.rareValue);
+            : new PuzzleTradeRate(best.tag, best.buyPercent, best.sellPercent);
     }
 
     // 아이템 태그와 맞는 규칙 중 priority가 가장 높은 하나를 고른다. 맞는 규칙이 없으면 null.
@@ -664,6 +663,19 @@ public sealed class PuzzleInventoryService : MonoBehaviour
             }
         }
         return best;
+    }
+
+    // 툴팁과 실제 거래가 공유한다. 배치·자금 검사 없이 현재 도시의 정확한 금액만 산출한다.
+    internal bool TryQuoteTrade(PuzzlePlacement _item, PuzzleTradeDirection _direction, out long _price)
+    {
+        _price = 0;
+        if (_item == null || _direction == PuzzleTradeDirection.None)
+        {
+            return false;
+        }
+        var rate = RateFor(_item.Definition);
+        decimal value = _direction == PuzzleTradeDirection.Buy ? _item.Definition.BaseValue : _item.ActualValue;
+        return TryGetTradePrice(value, rate.PercentFor(_direction), RegionData.pricePercent, out _price);
     }
 
     static bool TryGetTradePrice(decimal _value, int _percent, int _regionPercent, out long _price)
@@ -1228,16 +1240,11 @@ internal readonly struct PuzzleTradeRate
     internal string Tag { get; }
     internal int BuyPercent { get; }
     internal int SellPercent { get; }
-    // 도시 태그 규칙의 희귀 판정 단가. HasRareValue가 참이면 배율 계산 대신 이 값으로 확정한다.
-    internal int RareValue { get; }
-    internal bool HasRareValue => RareValue != int.MinValue;
-
-    internal PuzzleTradeRate(string _tag, int _buyPercent, int _sellPercent, int _rareValue = int.MinValue)
+    internal PuzzleTradeRate(string _tag, int _buyPercent, int _sellPercent)
     {
         Tag = _tag;
         BuyPercent = _buyPercent;
         SellPercent = _sellPercent;
-        RareValue = _rareValue;
     }
 
     internal int PercentFor(PuzzleTradeDirection _direction)

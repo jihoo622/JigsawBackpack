@@ -50,7 +50,7 @@ internal sealed class PuzzleInventoryValuation
 {
     internal const int BASE_PERCENT = 100;
     // 시너지 대상에서 항상 제외하는 면역 태그.
-    static string PooTag => BasicData.Text("rules.PuzzleInventoryValuation.PooTag");
+    static string PooTag => BasicData.Text("rules.PuzzleInventoryValuation.pooTag");
     // 반대편 슬롯에서 같은 경계를 다시 조회하지 않도록 오른쪽과 위만 확인한다.
     static readonly Vector2Int[] FORWARD_OFFSETS = { Vector2Int.right, Vector2Int.up };
 

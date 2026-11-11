@@ -14,22 +14,18 @@ public sealed class PuzzleCityView : MonoBehaviour
     [SerializeField] TextMeshProUGUI clearLabel;
     [SerializeField] Button waitButton;
     [SerializeField] TextMeshProUGUI waitLabel;
-    [SerializeField] Button previewButton;
-    [SerializeField] TextMeshProUGUI previewLabel;
 
     internal event Action WaitRequested;
-    internal event Action PreviewRequested;
 
     void OnEnable()
     {
-        if (!waitButton || !previewButton || !talkButton)
+        if (!waitButton || !talkButton)
         {
-            Debug.LogError("도시 View에 대기·예측·술집 대화 버튼 참조가 필요합니다.", this);
+            Debug.LogError("도시 View에 대기·술집 대화 버튼 참조가 필요합니다.", this);
             enabled = false;
             return;
         }
         waitButton.onClick.AddListener(OnWait);
-        previewButton.onClick.AddListener(OnPreview);
         talkButton.onClick.AddListener(HearRumor);
     }
 
@@ -38,10 +34,6 @@ public sealed class PuzzleCityView : MonoBehaviour
         if (waitButton)
         {
             waitButton.onClick.RemoveListener(OnWait);
-        }
-        if (previewButton)
-        {
-            previewButton.onClick.RemoveListener(OnPreview);
         }
         if (talkButton)
         {
@@ -54,17 +46,10 @@ public sealed class PuzzleCityView : MonoBehaviour
         WaitRequested?.Invoke();
     }
 
-    void OnPreview()
-    {
-        PreviewRequested?.Invoke();
-    }
-
-    internal void ShowTimeActions(bool _canWait, bool _inProgress, string _preview)
+    internal void ShowWaitAction(bool _canWait)
     {
         waitButton.interactable = _canWait;
         waitLabel.text = Presentation.PuzzleWaitDaylight;
-        previewButton.interactable = _inProgress;
-        previewLabel.text = _preview;
     }
 
     [SerializeField] Button talkButton;
@@ -106,7 +91,7 @@ public sealed class PuzzleCityView : MonoBehaviour
 
     #region 술집 대화 표시
 
-    // 이번 방문의 첫 대화에서 소식을 받아 저장하고, 다시 말을 걸면 저장한 소식을 표시한다.
+    // 이번 방문의 소식을 받아 표시한 뒤, 다음 마을에 도착할 때까지 대화 버튼을 비활성화한다.
     void HearRumor()
     {
         // 1. 이번 방문에서 아직 소식을 듣지 않았다면 새 소식을 받아 저장한다.
@@ -114,6 +99,9 @@ public sealed class PuzzleCityView : MonoBehaviour
 
         // 2. 저장된 소식을 대화 영역에 표시한다.
         rumorLabel.text = heardRumor;
+
+        // 3. 같은 방문에서 대화를 반복할 수 없도록 버튼을 비활성화한다.
+        talkButton.interactable = false;
     }
 
     #endregion
