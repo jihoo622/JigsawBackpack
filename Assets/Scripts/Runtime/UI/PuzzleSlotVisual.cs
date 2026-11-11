@@ -95,6 +95,7 @@ public sealed class PuzzleSlotVisual : MonoBehaviour
             label.transform.SetParent(transform, false);
             freshnessLabel = label.GetComponent<TextMeshProUGUI>();
             freshnessLabel.font = _font;
+            freshnessLabel.fontStyle = FontStyles.Bold;
             freshnessLabel.fontSharedMaterial = _material;
             freshnessLabel.raycastTarget = false;
             freshnessLabel.alignment = TextAlignmentOptions.BottomLeft;

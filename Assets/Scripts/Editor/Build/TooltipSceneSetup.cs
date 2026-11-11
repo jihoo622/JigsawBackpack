@@ -362,9 +362,6 @@ public static class TooltipSceneSetup
         viewSerialized.FindProperty("canvas").objectReferenceValue = _canvasTransform.GetComponent<Canvas>();
         viewSerialized.FindProperty("panelRect").objectReferenceValue = rootRect;
         viewSerialized.FindProperty("canvasGroup").objectReferenceValue = rootGroup;
-        viewSerialized.FindProperty("headerBackground").objectReferenceValue = headerImage;
-        viewSerialized.FindProperty("dividerImage").objectReferenceValue = dividerImage;
-        viewSerialized.FindProperty("bodyBackground").objectReferenceValue = rootImage;
         viewSerialized.FindProperty("itemNameText").objectReferenceValue = itemName;
 
         viewSerialized.FindProperty("categoryRow").objectReferenceValue = categoryRow.GetComponent<RectTransform>();
@@ -405,10 +402,6 @@ public static class TooltipSceneSetup
         viewSerialized.FindProperty("futureValueLabelText").objectReferenceValue = futureLabel;
         viewSerialized.FindProperty("futureValueValueText").objectReferenceValue = futureValue;
 
-        if (_fontAsset != null)
-        {
-            viewSerialized.FindProperty("fontAsset").objectReferenceValue = _fontAsset;
-        }
         viewSerialized.ApplyModifiedProperties();
 
         root.SetActive(false);

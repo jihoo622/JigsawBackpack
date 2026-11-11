@@ -6,17 +6,11 @@ using UnityEngine.UI;
 [DisallowMultipleComponent]
 public sealed class PuzzleItemTooltipView : PanelBase
 {
-    static float BaseFontSize => BasicData.Float("ui.PuzzleItemTooltipView.BaseFontSize");
-    static float MinFontSize => BasicData.Float("ui.PuzzleItemTooltipView.MinFontSize");
-    static float MaxFontSize => BasicData.Float("ui.PuzzleItemTooltipView.MaxFontSize");
     static float DefaultFollowSpeed => BasicData.Float("ui.PuzzleItemTooltipView.DefaultFollowSpeed");
 
     [SerializeField] Canvas canvas;
     [SerializeField] RectTransform panelRect;
     [SerializeField] CanvasGroup canvasGroup;
-    [SerializeField] Image headerBackground;
-    [SerializeField] Image dividerImage;
-    [SerializeField] Image bodyBackground;
     [SerializeField] RectTransform pointer;
     [SerializeField] TextMeshProUGUI itemNameText;
     [SerializeField] RectTransform categoryRow;
@@ -37,14 +31,12 @@ public sealed class PuzzleItemTooltipView : PanelBase
     [SerializeField] TextMeshProUGUI futureValueValueText;
     [SerializeField] TextMeshProUGUI freshnessLabelText;
     [SerializeField] TextMeshProUGUI freshnessValueText;
-    [SerializeField] TMP_FontAsset fontAsset;
     float FollowSpeed => DefaultFollowSpeed;
 
     RectTransform canvasRectTransform;
     Vector2 targetCanvasPosition;
     bool pointerFlipped;
     bool needsSnap;
-    bool initialized;
 
     protected override void Awake()
     {
@@ -77,14 +69,6 @@ public sealed class PuzzleItemTooltipView : PanelBase
 
         canvasGroup.blocksRaycasts = false;
         canvasGroup.interactable = false;
-
-        if (!initialized)
-        {
-            BuildPanelDecoration();
-            ConfigureFontAndAutoSizing();
-            ApplyThemeColors();
-            initialized = true;
-        }
     }
 
     internal void Show(PuzzleItemDefinition _item, decimal _actualValue, PuzzleTradeRate _rate,
@@ -113,8 +97,6 @@ public sealed class PuzzleItemTooltipView : PanelBase
             panelRect.SetAsLastSibling();
         }
 
-        ConfigureFontAndAutoSizing();
-        ApplyThemeColors();
 
         if (itemNameText)
         {
@@ -370,217 +352,15 @@ public sealed class PuzzleItemTooltipView : PanelBase
         panelRect.anchoredPosition = Vector2.Lerp(panelRect.anchoredPosition, targetCanvasPosition, Time.unscaledDeltaTime * FollowSpeed);
     }
 
-    void ApplyThemeColors()
-    {
-        if (headerBackground)
-        {
-            headerBackground.color = Presentation.PuzzleTooltipHeaderBackground;
-        }
-        if (bodyBackground)
-        {
-            bodyBackground.color = Presentation.PuzzleTooltipBodyBackground;
-        }
-        if (dividerImage)
-        {
-            dividerImage.color = Presentation.PuzzleTooltipDivider;
-        }
-        if (itemNameText)
-        {
-            itemNameText.color = Presentation.PuzzleTooltipText;
-        }
-        if (synergyHeaderText)
-        {
-            synergyHeaderText.color = Presentation.PuzzleTooltipText;
-        }
-    }
-
-    void BuildPanelDecoration()
-    {
-        Color frameColor = new Color32(191, 174, 147, 255);
-        Sprite roundedSprite = null;
-        foreach (var badge in categoryBadgeImages ?? System.Array.Empty<Image>())
-        {
-            if (badge && badge.sprite)
-            {
-                roundedSprite = badge.sprite;
-                break;
-            }
-        }
-
-        if (bodyBackground)
-        {
-            // The root image forms the frame, with a matching inset surface over it.
-            var frame = bodyBackground;
-            frame.sprite = roundedSprite;
-            frame.type = Image.Type.Sliced;
-            // The badge sprite uses smaller borders so it does not dictate the badge height.
-            float panelBorderScale = roundedSprite ? 64f / roundedSprite.pixelsPerUnit : 1f;
-            frame.pixelsPerUnitMultiplier = panelBorderScale;
-            frame.color = frameColor;
-            var shadow = frame.gameObject.AddComponent<Shadow>();
-            shadow.effectColor = new Color(0f, 0f, 0f, 0.45f);
-            shadow.effectDistance = new Vector2(3f, -5f);
-
-            bodyBackground = CreateDecoration("Panel Surface", panelRect, Presentation.PuzzleTooltipBodyBackground);
-            bodyBackground.sprite = roundedSprite;
-            bodyBackground.type = Image.Type.Sliced;
-            bodyBackground.pixelsPerUnitMultiplier = panelBorderScale;
-            Stretch(bodyBackground.rectTransform, 2f);
-            bodyBackground.transform.SetAsFirstSibling();
-
-            if (pointer)
-            {
-                pointer.SetSiblingIndex(1);
-            }
-        }
-
-        if (panelRect.TryGetComponent<VerticalLayoutGroup>(out var panelLayout))
-        {
-            panelLayout.padding = new RectOffset(16, 16, 12, 14);
-        }
-        if (headerBackground && headerBackground.TryGetComponent<VerticalLayoutGroup>(out var headerLayout))
-        {
-            headerLayout.padding = new RectOffset(0, 0, 0, 10);
-            headerLayout.spacing = 6f;
-            if (headerBackground.TryGetComponent<ContentSizeFitter>(out var headerFitter))
-            {
-                headerFitter.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
-            }
-        }
-        if (bodyRect && bodyRect.TryGetComponent<VerticalLayoutGroup>(out var bodyLayout))
-        {
-            bodyLayout.padding = new RectOffset(0, 0, 6, 0);
-            bodyLayout.spacing = 10f;
-            // Decorate rows in their scene order. Hidden rows also hide their rules.
-            foreach (Transform row in bodyRect)
-            {
-                if (synergySection && row == synergySection.transform)
-                {
-                    continue;
-                }
-                var rule = CreateDecoration("Bottom Rule", row, Presentation.PuzzleTooltipDivider);
-                var rect = rule.rectTransform;
-                rect.anchorMin = Vector2.zero;
-                rect.anchorMax = Vector2.right;
-                rect.sizeDelta = new Vector2(0f, 1f);
-                rect.anchoredPosition = new Vector2(0f, -5f);
-            }
-        }
-    }
-
-    static Image CreateDecoration(string _name, Transform _parent, Color _color)
-    {
-        var decoration = new GameObject(_name, typeof(RectTransform), typeof(Image), typeof(LayoutElement));
-        decoration.transform.SetParent(_parent, false);
-        decoration.GetComponent<LayoutElement>().ignoreLayout = true;
-        var image = decoration.GetComponent<Image>();
-        image.color = _color;
-        image.raycastTarget = false;
-        return image;
-    }
-
-    static void Stretch(RectTransform _rect, float _inset)
-    {
-        _rect.anchorMin = Vector2.zero;
-        _rect.anchorMax = Vector2.one;
-        _rect.offsetMin = Vector2.one * _inset;
-        _rect.offsetMax = -Vector2.one * _inset;
-    }
-
-    void ConfigureFontAndAutoSizing()
-    {
-        if (!fontAsset)
-        {
-            fontAsset = Resources.Load<TMP_FontAsset>("Fonts & Materials/NotoSansKR-Medium SDF");
-            if (!fontAsset)
-            {
-                fontAsset = TMP_Settings.defaultFontAsset;
-            }
-        }
-
-        ApplyTextSettings(itemNameText);
-        ApplyBodyTextSettings(actualValueLabelText);
-        ApplyBodyTextSettings(actualValueValueText);
-        ApplyBodyTextSettings(sellRateLabelText);
-        ApplyBodyTextSettings(sellRateValueText);
-        ApplyBodyTextSettings(buyRateLabelText);
-        ApplyBodyTextSettings(buyRateValueText);
-        ApplyBodyTextSettings(synergyHeaderText);
-        ApplyBodyTextSettings(futureValueLabelText);
-        if (futureValueLabelText)
-        {
-            futureValueLabelText.textWrappingMode = TextWrappingModes.Normal;
-        }
-        ApplyBodyTextSettings(futureValueValueText);
-        ApplyBodyTextSettings(freshnessLabelText);
-        ApplyBodyTextSettings(freshnessValueText);
-        if (itemNameText)
-        {
-            itemNameText.enableAutoSizing = false;
-            itemNameText.fontSize = BaseFontSize * 1.45f;
-            itemNameText.fontStyle = FontStyles.Bold;
-        }
-        if (synergyHeaderText)
-        {
-            synergyHeaderText.fontStyle = FontStyles.Bold;
-        }
-
-        if (categoryBadgeTexts != null)
-        {
-            foreach (var badgeText in categoryBadgeTexts)
-            {
-                ApplyTextSettings(badgeText);
-                if (badgeText)
-                {
-                    badgeText.enableAutoSizing = false;
-                    badgeText.fontSize = BaseFontSize * 0.85f;
-                    badgeText.fontStyle = FontStyles.Bold;
-                }
-            }
-        }
-
-        if (synergySlots != null)
-        {
-            foreach (var slot in synergySlots)
-            {
-                ApplyBodyTextSettings(slot);
-                if (slot)
-                {
-                    slot.textWrappingMode = TextWrappingModes.Normal;
-                }
-            }
-        }
-    }
-
-    void ApplyBodyTextSettings(TextMeshProUGUI _text)
-    {
-        if (!_text)
-        {
-            return;
-        }
-
-        if (fontAsset && _text.font != fontAsset)
-        {
-            _text.font = fontAsset;
-        }
-        _text.fontSize = BaseFontSize;
-        _text.enableAutoSizing = false;
-        _text.textWrappingMode = TextWrappingModes.NoWrap;
-        _text.raycastTarget = false;
-    }
-
     void SetRow(TextMeshProUGUI _label, TextMeshProUGUI _value, string _labelText, string _valueText)
     {
         if (_label)
         {
             _label.text = _labelText;
-            _label.textWrappingMode = TextWrappingModes.Normal;
-            _label.alignment = TextAlignmentOptions.MidlineLeft;
         }
         if (_value)
         {
             _value.text = _valueText;
-            _value.alignment = TextAlignmentOptions.MidlineRight;
         }
     }
 
@@ -606,23 +386,4 @@ public sealed class PuzzleItemTooltipView : PanelBase
         }
     }
 
-    void ApplyTextSettings(TextMeshProUGUI _text)
-    {
-        if (!_text)
-        {
-            return;
-        }
-
-        if (fontAsset && _text.font != fontAsset)
-        {
-            _text.font = fontAsset;
-        }
-        _text.fontSize = BaseFontSize;
-        _text.enableAutoSizing = true;
-        _text.fontSizeMin = MinFontSize;
-        _text.fontSizeMax = MaxFontSize;
-        _text.textWrappingMode = categoryBadgeTexts != null && System.Array.IndexOf(categoryBadgeTexts, _text) >= 0
-            ? TextWrappingModes.NoWrap : TextWrappingModes.Normal;
-        _text.raycastTarget = false;
-    }
 }
