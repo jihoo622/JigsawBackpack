@@ -3493,7 +3493,7 @@
     },
     {
       "id": "presentation.PuzzleAddWagonLabel.text1",
-      "value": "증차\n${0:N0}",
+      "value": "증차 ${0:N0}",
       "arguments": 1,
       "source": "Assets/Scripts/Runtime/Core/Presentation.cs:302"
     },
