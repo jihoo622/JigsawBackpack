@@ -36,25 +36,18 @@ public static class TimePlanningSetupTool
             var header = (RectTransform)view.transform;
             ((TMP_Text)data.FindProperty("timeLabel").objectReferenceValue).text = Presentation.PuzzleTime(
                 new PuzzleTimeManager(TableManager.Instance.PuzzleTrade.deadlineHours, TableManager.Instance.PuzzleTime));
-            var preview = data.FindProperty("previewButton").objectReferenceValue as Button;
-            if (!preview)
-            {
-                preview = Button(header, template, "PreviewDestination");
-            }
             var wait = data.FindProperty("waitButton").objectReferenceValue as Button;
             if (!wait)
             {
                 wait = Button(header, template, "WaitForDaylight");
             }
-            var previewLabel = preview.GetComponentInChildren<TextMeshProUGUI>(true);
             var waitLabel = wait.GetComponentInChildren<TextMeshProUGUI>(true);
-            previewLabel.text = Presentation.PuzzlePreviewDestination(null, null);
             waitLabel.text = Presentation.PuzzleWaitDaylight;
+            ((TMP_Text)data.FindProperty("clearLabel").objectReferenceValue).text =
+                Presentation.PuzzleClearButton(TableManager.Instance.PuzzleTrade.gameClearCost);
             wait.interactable = false;
             data.FindProperty("waitButton").objectReferenceValue = wait;
             data.FindProperty("waitLabel").objectReferenceValue = waitLabel;
-            data.FindProperty("previewButton").objectReferenceValue = preview;
-            data.FindProperty("previewLabel").objectReferenceValue = previewLabel;
             data.ApplyModifiedPropertiesWithoutUndo();
             PuzzleUiLayoutTool.ApplyTo(scene);
             EditorSceneManager.MarkSceneDirty(scene);

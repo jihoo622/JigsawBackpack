@@ -3,7 +3,7 @@
   "note": "시작 자금·증차 비용·상환 목표·기한 및 이동 연출 설정. 도시별 거래 설정은 PuzzleTableData.cities가 원본이다.",
   "startingFunds": 200,
   "wagonAddCostBase": 50,
-  "gameClearCost": 500,
+  "gameClearCost": 1500,
   "deadlineHours": 336,
   "debtCityId": "city.capital.finance",
   "travelEffectSeconds": 1.25,

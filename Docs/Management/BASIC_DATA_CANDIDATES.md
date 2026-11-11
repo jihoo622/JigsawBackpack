@@ -9,6 +9,8 @@
 | 버튼 테마 잔여분 | 화물칸 선택/증차 버튼의 원본 ColorBlock, 비활성 구형 마을 화면과 제작 도구의 복제 원본 | `ui.layout.button.*` 재사용 | 현재 HUD·역 메뉴·지도·모달은 공통 테마 적용. 화물칸은 런타임 선택/드래그 강조와 함께 통합할 필요가 있음 |
 | 인벤토리 원본 프리팹 스타일 | `PuzzleInventoryUI.prefab`의 TMP 글자 크기 32/19/21/26과 `m_fontColor` | `ui.layout.*`를 프리팹 제작에도 적용 | Game 씬의 제목·안내·금액은 이미 공통 값으로 덮어쓴다. 원본 프리팹 기본 스타일 중복 정리가 잔여 후보 |
 
+- 새 소문 수첩의 펼침 시간(0.16초)·시작 폭 비율(0.72)·빈 기록/출처/건수 문구는 아직 `PuzzleTradeNotebookView`에 있다. 다음 기초데이터 이관 후보로 남긴다.
+
 ## 레코드 형태를 정한 뒤 이관할 후보
 
 | 항목 | 남아 있는 데이터·위치 | 권장 소유권·이유 |
@@ -17,7 +19,7 @@
 | 지역 색 매핑·범례 순서 | `Presentation.PuzzleMapRegionColor`의 지역 ID switch, `MapPresentationTool.Apply`의 7개 지역 배열 | 기초데이터의 지역 표시 레코드에 색 키·범례 순위 저장. 지역 ID는 도메인 표와 참조 검증 |
 | 라벨 배치 방향·시도 순서 | `PuzzleMapView.LABEL_DIRECTIONS`: 상/우/하/좌/대각선 8방향 | 배치 튜닝이 필요하면 기초데이터에 순서 필드가 있는 좌표 레코드 추가. 단위 방향 자체보다 시도 우선순위가 조정 대상 |
 | 날짜 변경 부산물 정책 | `PuzzleInventoryService.SpawnAnimalWaste`: 동물 1마리당 1개, 여러 날짜를 지나도 호출당 1회, 빈자리 없으면 중단 | 게임 규칙이므로 시간/부산물 도메인 표 권장. 수량·여러 날 처리 정책을 먼저 확정. 기초데이터로 옮긴 동물 태그·부산물 ID와는 별개 |
-| 술집 소식 선택 정책 | `PuzzleInventoryPresenter.GetTavernRumor` 및 `PuzzleCityView.HearRumor`: 미방문 직결 도시·판매 허용·고가 수요 필터, 처음 찾은 한 항목, 방문당 동일 소식 | 술집 도메인 표 권장. 소식 개수·선택 순서·재방문 갱신 기준을 먼저 확정. 문구는 이미 기초데이터 사용 |
+| 술집 소식 선택 정책 | `PuzzleInventoryPresenter.GetTavernRumor` 및 `PuzzleCityView.HearRumor`: 전체 미방문 도시·판매 허용·고가 수요 필터, 마을·품목 조합 무작위 한 항목, 방문당 한 번·수첩 기록 | 술집 도메인 표 권장. 소식 개수·선택 순서·재방문 갱신 기준을 먼저 확정. 문구는 이미 기초데이터 사용 |
 
 ## 표 구조의 추가 간소화 후보
 

@@ -310,11 +310,13 @@ public static class PuzzleUiLayoutTool
         Image(footer, "surface");
         var layout = Add<HorizontalLayoutGroup>(footer);
         Configure(layout, N("gap"), (int)N("footerPadding"));
-        var preview = (Button)_fields.FindProperty("previewButton").objectReferenceValue;
-        preview.transform.SetParent(footer, false);
-        preview.transform.SetAsFirstSibling();
-        FixedWidth((RectTransform)preview.transform, N("previewWidth"));
-        Button(preview);
+        foreach (var button in _canvas.GetComponentsInChildren<Button>(true))
+        {
+            if (button.name == "PreviewDestination")
+            {
+                Object.DestroyImmediate(button.gameObject);
+            }
+        }
         var status = (TMP_Text)_fields.FindProperty("tradeStatus").objectReferenceValue;
         status.transform.SetParent(footer, false);
         Flex(status.rectTransform);

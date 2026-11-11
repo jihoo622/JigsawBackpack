@@ -170,6 +170,15 @@ public sealed class PuzzleMapView : PanelBase
         foreach (var route in layoutRoutes)
         {
             var label = route.label;
+            if (!IsReachableRoute(route))
+            {
+                label.gameObject.SetActive(false);
+                if (route.plate)
+                {
+                    route.plate.gameObject.SetActive(false);
+                }
+                continue;
+            }
             label.rectTransform.localScale = Vector3.one / _zoom;
             label.rectTransform.anchoredPosition = route.position;
             label.fontSize = Presentation.PuzzleMapTimeFontSize;
@@ -203,6 +212,18 @@ public sealed class PuzzleMapView : PanelBase
             }
             label.gameObject.SetActive(visible);
         }
+    }
+
+    bool IsReachableRoute(RouteTimeVisual _route)
+    {
+        if (string.IsNullOrEmpty(currentCityId))
+        {
+            return false;
+        }
+        var tables = TableManager.Instance;
+        return _route.fromCityId == currentCityId
+            ? tables.HasRoute(currentCityId, _route.toCityId)
+            : _route.toCityId == currentCityId && tables.HasRoute(currentCityId, _route.fromCityId);
     }
 
     int RoutePriority(RouteTimeVisual _route)

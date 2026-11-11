@@ -675,7 +675,7 @@
       "numbers": [
         {
           "id": "backbonethickness",
-          "value": 7.0,
+          "value": 5,
           "positive": true
         },
         {
@@ -701,6 +701,33 @@
           "id": "sidethickness",
           "value": 5.0,
           "positive": true
+        },
+        {
+          "id": "crossingGap",
+          "value": 12,
+          "whole": true,
+          "positive": true
+        },
+        {
+          "id": "crossingNodeClearance",
+          "value": 18,
+          "whole": true,
+          "positive": true
+        },
+        {
+          "id": "interregionalOrder",
+          "value": 0,
+          "whole": true
+        },
+        {
+          "id": "neutralOrder",
+          "value": 1,
+          "whole": true
+        },
+        {
+          "id": "regionalOrder",
+          "value": 2,
+          "whole": true
         }
       ]
     },
@@ -1353,15 +1380,6 @@
           "value": "야간에는 시장을 이용할 수 없습니다. 이동하거나 아침까지 기다리세요."
         },
         {
-          "id": "previewDestination",
-          "value": "예측: {0} · {1} ▶",
-          "arguments": 2
-        },
-        {
-          "id": "previewDestinationText2",
-          "value": "이동 후 가치 · 목적지 선택 ▶"
-        },
-        {
           "id": "runStatusText",
           "value": "빚을 갚지 못했습니다. 패배"
         },
@@ -1651,6 +1669,13 @@
           "g": 0.86,
           "b": 0.72,
           "a": 1.0
+        },
+        {
+          "id": "neutralLine",
+          "r": 0.75,
+          "g": 0.8,
+          "b": 0.86,
+          "a": 1
         }
       ],
       "numbers": [
@@ -1897,7 +1922,7 @@
         },
         {
           "id": "noRumor",
-          "value": "아직 가보지 않은 인근 마을 소식은 못 들었어요."
+          "value": "아직 가보지 않은 마을 소식은 못 들었어요."
         },
         {
           "id": "rest",
@@ -2570,7 +2595,7 @@
       "texts": [
         {
           "id": "addWagonLabel",
-          "value": "증차\n${0:N0}",
+          "value": "증차 ${0:N0}",
           "arguments": 1
         },
         {
@@ -3319,12 +3344,6 @@
         {
           "id": "pauseOrder",
           "value": 300,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "previewWidth",
-          "value": 660,
           "whole": true,
           "positive": true
         },

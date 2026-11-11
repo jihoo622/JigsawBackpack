@@ -55,6 +55,7 @@ public static class RailMapLayoutTool
         public float labelX;
         public float labelY;
         public float[] points;
+        public float[] displayPoints;
     }
 
     [Serializable]
@@ -196,9 +197,11 @@ public static class RailMapLayoutTool
         var imagesByRegion = new Dictionary<string, List<Image>>();
         var activeLegs = new List<Image>();
 
-        foreach (var rail in _layout.rails)
+        var orderedRails = (LayoutRail[])_layout.rails.Clone();
+        Array.Sort(orderedRails, CompareDrawingOrder);
+        foreach (var rail in orderedRails)
         {
-            var points = rail.points;
+            var points = DrawingPoints(rail);
             if (points == null || points.Length < 4 || points.Length % 2 != 0)
             {
                 Debug.LogError($"[RailMap] {rail.sourceId}의 points가 폴리라인으로 맞지 않습니다(원소 {points?.Length ?? 0}).");
@@ -211,14 +214,15 @@ public static class RailMapLayoutTool
                 continue;
             }
 
-            var legCount = points.Length / 2 - 1;
+            var parts = BuildDrawingSegments(rail, orderedRails);
+            var legCount = parts.Count;
             var backbone = Array.IndexOf(BACKBONE_CORRIDORS, rail.corridorType) >= 0;
             var thickness = backbone ? BackboneThickness : SideThickness;
 
             for (var leg = 1; leg <= legCount; leg++)
             {
-                var start = new Vector2(points[(leg - 1) * 2], points[(leg - 1) * 2 + 1]);
-                var end = new Vector2(points[leg * 2], points[leg * 2 + 1]);
+                var start = parts[leg - 1].start;
+                var end = parts[leg - 1].end;
                 var name = $"Track_{rail.railIndex}_{leg}";
                 if (!segments.TryGetValue(name, out var segment))
                 {
@@ -230,6 +234,7 @@ public static class RailMapLayoutTool
                 }
 
                 segment.gameObject.SetActive(true);
+                segment.SetAsLastSibling();
                 var length = Vector2.Distance(start, end);
                 segment.anchoredPosition = (start + end) * 0.5f;
                 segment.localRotation = Quaternion.Euler(0f, 0f, Mathf.Atan2(end.y - start.y, end.x - start.x) * Mathf.Rad2Deg);
@@ -399,7 +404,12 @@ public static class RailMapLayoutTool
                 var text = label.objectReferenceValue as Text;
                 if (text != null)
                 {
-                    var route = new PuzzleRouteData { points = rail.points };
+                    var route = Array.Find(TableManager.Instance.RequireValid().PuzzleRoute.routes,
+                        _row => _row.fromCityId == rail.fromCityId && _row.toCityId == rail.toCityId);
+                    if (route == null)
+                    {
+                        throw new InvalidOperationException("노선 시간의 원본이 없습니다: " + rail.sourceId);
+                    }
                     text.text = Presentation.PuzzleMapTime(PuzzleTimeManager.TravelMinutes(route, TableManager.Instance.PuzzleTime));
                     text.color = Presentation.PuzzleHeading;
                 }
@@ -447,10 +457,110 @@ public static class RailMapLayoutTool
         serialized.ApplyModifiedPropertiesWithoutUndo();
     }
 
+    static float[] DrawingPoints(LayoutRail _rail)
+    {
+        return _rail.displayPoints != null && _rail.displayPoints.Length > 0 ? _rail.displayPoints : _rail.points;
+    }
+
+    static int DrawingOrder(LayoutRail _rail)
+    {
+        string key = _rail.regionId == "line.regional" ? "interregionalOrder"
+            : _rail.regionId == "region.common" ? "neutralOrder" : "regionalOrder";
+        return BasicData.Int("editor.RailMapLayoutTool." + key);
+    }
+
+    static int CompareDrawingOrder(LayoutRail _a, LayoutRail _b)
+    {
+        int order = DrawingOrder(_a).CompareTo(DrawingOrder(_b));
+        return order != 0 ? order : string.CompareOrdinal(_a.sourceId, _b.sourceId);
+    }
+
+    // 역이 아닌 교차점에서 아래 노선을 끊는다. 이 조각들은 프리팹에 저장하며 런타임에 생성하지 않는다.
+    static List<(Vector2 start, Vector2 end)> BuildDrawingSegments(LayoutRail _rail, LayoutRail[] _rails)
+    {
+        var result = new List<(Vector2 start, Vector2 end)>();
+        var points = DrawingPoints(_rail);
+        float gap = BasicData.Float("editor.RailMapLayoutTool.crossingGap");
+        for (int i = 2; i < points.Length; i += 2)
+        {
+            var start = new Vector2(points[i - 2], points[i - 1]);
+            var end = new Vector2(points[i], points[i + 1]);
+            var direction = end - start;
+            float length = direction.magnitude;
+            if (length <= Mathf.Epsilon)
+            {
+                continue;
+            }
+            var gaps = new List<(float start, float end)>();
+            foreach (var other in _rails)
+            {
+                if (CompareDrawingOrder(other, _rail) <= 0)
+                {
+                    continue;
+                }
+                var otherPoints = DrawingPoints(other);
+                for (int j = 2; j < otherPoints.Length; j += 2)
+                {
+                    var otherStart = new Vector2(otherPoints[j - 2], otherPoints[j - 1]);
+                    var otherDirection = new Vector2(otherPoints[j], otherPoints[j + 1]) - otherStart;
+                    float cross = Cross(direction, otherDirection);
+                    float sine = Mathf.Abs(cross) / (length * otherDirection.magnitude);
+                    if (float.IsNaN(sine) || sine < 0.01f)
+                    {
+                        continue;
+                    }
+                    var delta = otherStart - start;
+                    float t = Cross(delta, otherDirection) / cross;
+                    float u = Cross(delta, direction) / cross;
+                    if (t < 0f || t > 1f || u < 0f || u > 1f)
+                    {
+                        continue;
+                    }
+                    var crossing = start + direction * t;
+                    if (NearStationEndpoint(crossing, _rail) || NearStationEndpoint(crossing, other))
+                    {
+                        continue;
+                    }
+                    float halfGap = gap * 0.5f / (length * sine);
+                    gaps.Add((Mathf.Clamp01(t - halfGap), Mathf.Clamp01(t + halfGap)));
+                }
+            }
+            gaps.Sort((_a, _b) => _a.start.CompareTo(_b.start));
+            float cursor = 0f;
+            foreach (var interval in gaps)
+            {
+                if (interval.start > cursor)
+                {
+                    result.Add((start + direction * cursor, start + direction * interval.start));
+                }
+                cursor = Mathf.Max(cursor, interval.end);
+            }
+            if (cursor < 1f)
+            {
+                result.Add((start + direction * cursor, end));
+            }
+        }
+        return result;
+    }
+
+    static float Cross(Vector2 _a, Vector2 _b)
+    {
+        return _a.x * _b.y - _a.y * _b.x;
+    }
+
+    static bool NearStationEndpoint(Vector2 _point, LayoutRail _rail)
+    {
+        var points = DrawingPoints(_rail);
+        float clearance = BasicData.Float("editor.RailMapLayoutTool.crossingNodeClearance");
+        return Vector2.Distance(_point, new Vector2(points[0], points[1])) < clearance ||
+            Vector2.Distance(_point, new Vector2(points[points.Length - 2], points[points.Length - 1])) < clearance;
+    }
+
     static void CheckEndpoints(LayoutRail _rail, LayoutNode _from, LayoutNode _to)
     {
-        var head = new Vector2(_rail.points[0], _rail.points[1]);
-        var tail = new Vector2(_rail.points[_rail.points.Length - 2], _rail.points[_rail.points.Length - 1]);
+        var points = DrawingPoints(_rail);
+        var head = new Vector2(points[0], points[1]);
+        var tail = new Vector2(points[points.Length - 2], points[points.Length - 1]);
         var fromPos = new Vector2(_from.x, _from.y);
         var toPos = new Vector2(_to.x, _to.y);
         if (Vector2.Distance(head, fromPos) > EndpointTolerance || Vector2.Distance(tail, toPos) > EndpointTolerance)

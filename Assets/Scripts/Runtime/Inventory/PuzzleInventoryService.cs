@@ -17,7 +17,38 @@ public sealed class PuzzleInventoryService : MonoBehaviour
     int lastInstanceId;
     string currentCityId;
     readonly HashSet<string> visitedCities = new HashSet<string>(StringComparer.Ordinal);
+    readonly List<TavernRumor> tavernRumors = new List<TavernRumor>();
+    int lastRumorVisit = -1;
     readonly System.Random stockRandom = new System.Random();
+
+    internal readonly struct TavernRumor
+    {
+        public readonly string TargetCityId;
+        public readonly string SourceCityId;
+        public readonly string Message;
+        public readonly long RecordedMinutes;
+        public readonly string RecordedTime;
+
+        public TavernRumor(string _targetCityId, string _sourceCityId, string _message, long _recordedMinutes, string _recordedTime)
+        {
+            TargetCityId = _targetCityId;
+            SourceCityId = _sourceCityId;
+            Message = _message;
+            RecordedMinutes = _recordedMinutes;
+            RecordedTime = _recordedTime;
+        }
+    }
+
+    internal IReadOnlyList<TavernRumor> TavernRumors => tavernRumors;
+
+    internal void RecordTavernRumor(string _targetCityId, string _message)
+    {
+        if (lastRumorVisit != CityMoveCount)
+        {
+            tavernRumors.Add(new TavernRumor(_targetCityId, CurrentCityId, _message, Time.ElapsedMinutes, Presentation.PuzzleTime(Time)));
+            lastRumorVisit = CityMoveCount;
+        }
+    }
 
     internal bool HasVisitedCity(string _cityId)
     {
@@ -118,14 +149,6 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         GameEvents.RaiseTravelPreviewChanged(this);
     }
 
-    internal void CyclePreviewDestination()
-    {
-        var cities = tables.RoutesFrom(CurrentCityId).Select(_route => _route.toCityId)
-            .OrderBy(_id => _id, StringComparer.Ordinal).ToArray();
-        int index = Array.IndexOf(cities, PreviewCityId) + 1;
-        SetPreviewDestination(index < cities.Length ? cities[index] : null);
-    }
-
     internal bool WaitForDaylight()
     {
         return CanWaitForDaylight && AdvanceMinutes(Time.MinutesUntilDaylight);
@@ -183,6 +206,8 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         currentCityId = tables.Puzzle.startCity;
         visitedCities.Clear();
         visitedCities.Add(currentCityId);
+        tavernRumors.Clear();
+        lastRumorVisit = -1;
         Funds = tables.PuzzleTrade.startingFunds;
         CityMoveCount = 0;
         RunStatus = PuzzleRunStatus.InProgress;
