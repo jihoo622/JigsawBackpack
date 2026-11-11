@@ -202,33 +202,40 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
 
     #region 술집 대화 생성
 
-    // 직접 연결된 미방문 도시의 가격 규칙을 조회해, 처음 찾은 고가 수요를 소식 한 줄로 만든다.
+    // 지도 전체의 미방문 도시에서 고가 수요를 모아, 마을·품목 조합 하나를 동일한 확률로 고른다.
     string GetTavernRumor()
     {
-        // 1. 현재 도시에서 한 번에 갈 수 있는 도시를 순회한다.
+        // 1. 지도에 있는 모든 도시를 소문 후보로 살펴본다.
         var tables = TableManager.Instance;
-        foreach (var route in tables.RoutesFrom(session.CurrentCityId))
+        var candidates = new List<(PuzzleCityData city, string tag)>();
+        foreach (var city in tables.Cities)
         {
             // 2. 이미 방문했거나 플레이어가 물건을 팔 수 없는 도시는 건너뛴다.
-            var city = tables.CityPrice(route.toCityId);
             if (session.HasVisitedCity(city.id) || !city.sellEnabled)
             {
                 continue;
             }
 
-            // 3. 구매·판매 배율이 모두 100%를 넘는 첫 품목으로 소식을 만든다.
+            // 3. 구매·판매 배율이 모두 100%를 넘는 품목을 후보에 넣는다.
             foreach (var rule in city.tagPrices)
             {
                 if (rule.buyPercent > PuzzleInventoryValuation.BASE_PERCENT && rule.sellPercent > PuzzleInventoryValuation.BASE_PERCENT)
                 {
-                    string message = Presentation.TavernRumor(city.displayName, rule.tag);
-                    session.RecordTavernRumor(city.id, message);
-                    return message;
+                    candidates.Add((city, rule.tag));
                 }
             }
         }
         // 4. 조건에 맞는 품목이 없으면 들은 소식이 없다고 답한다.
-        return Presentation.TavernNoRumor;
+        if (candidates.Count == 0)
+        {
+            return Presentation.TavernNoRumor;
+        }
+
+        // 5. 후보 하나를 무작위로 골라 대사를 만들고 수첩에 기록한다.
+        var selected = candidates[Random.Range(0, candidates.Count)];
+        string message = Presentation.TavernRumor(selected.city.displayName, selected.tag);
+        session.RecordTavernRumor(selected.city.id, message);
+        return message;
     }
 
     #endregion
