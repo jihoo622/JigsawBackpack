@@ -21,15 +21,21 @@ public sealed class PuzzleItemTooltipView : PanelBase
     [SerializeField] RectTransform categoryRow;
     [SerializeField] Image[] categoryBadgeImages;
     [SerializeField] TextMeshProUGUI[] categoryBadgeTexts;
-    [SerializeField] TextMeshProUGUI actualValueText;
-    [SerializeField] TextMeshProUGUI sellRateText;
-    [SerializeField] TextMeshProUGUI buyRateText;
+    [SerializeField] RectTransform bodyRect;
+    [SerializeField] TextMeshProUGUI actualValueLabelText;
+    [SerializeField] TextMeshProUGUI actualValueValueText;
+    [SerializeField] TextMeshProUGUI sellRateLabelText;
+    [SerializeField] TextMeshProUGUI sellRateValueText;
+    [SerializeField] TextMeshProUGUI buyRateLabelText;
+    [SerializeField] TextMeshProUGUI buyRateValueText;
     [SerializeField] GameObject synergySection;
     [SerializeField] TextMeshProUGUI synergyHeaderText;
     [SerializeField] RectTransform synergyListRoot;
     [SerializeField] TextMeshProUGUI[] synergySlots;
-    [SerializeField] TextMeshProUGUI futureValueText;
-    [SerializeField] TextMeshProUGUI freshnessText;
+    [SerializeField] TextMeshProUGUI futureValueLabelText;
+    [SerializeField] TextMeshProUGUI futureValueValueText;
+    [SerializeField] TextMeshProUGUI freshnessLabelText;
+    [SerializeField] TextMeshProUGUI freshnessValueText;
     [SerializeField] TMP_FontAsset fontAsset;
     [SerializeField] float followSpeed = DEFAULT_FOLLOW_SPEED;
 
@@ -79,13 +85,13 @@ public sealed class PuzzleItemTooltipView : PanelBase
     }
 
     internal void Show(PuzzleItemDefinition _item, decimal _actualValue, PuzzleTradeRate _rate,
-        IReadOnlyList<PuzzleSynergyBonus> _bonuses, Vector2 _screenPosition, bool _isTrainInventory = true)
+        IReadOnlyList<string> _effects, Vector2 _screenPosition, bool _isTrainInventory = true)
     {
-        Show(_item, _actualValue, _rate, _bonuses, null, _screenPosition, _isTrainInventory);
+        Show(_item, _actualValue, _rate, _effects, null, _screenPosition, _isTrainInventory);
     }
 
     internal void Show(PuzzleItemDefinition _item, decimal _actualValue, PuzzleTradeRate _rate,
-        IReadOnlyList<PuzzleSynergyBonus> _bonuses, decimal? _futureValue, Vector2 _screenPosition,
+        IReadOnlyList<string> _effects, decimal? _futureValue, Vector2 _screenPosition,
         bool _isTrainInventory = true, int? _freshness = null)
     {
         if (_item == null)
@@ -113,56 +119,46 @@ public sealed class PuzzleItemTooltipView : PanelBase
 
         UpdateCategoryBadges(_item);
 
-        if (actualValueText)
-        {
-            actualValueText.text = Presentation.PuzzleTooltipActualValue(_actualValue);
-        }
+        SetRow(actualValueLabelText, actualValueValueText,
+            Presentation.PuzzleTooltipActualValueLabel(), Presentation.PuzzleTooltipActualValueValue(_actualValue));
 
         if (_isTrainInventory)
         {
             int sellPercent = _rate.SellPercent > 0 ? _rate.SellPercent : 100;
             decimal finalSellPrice = _rate.HasRareValue ? _rate.RareValue
                 : System.Math.Round(_actualValue * (decimal)sellPercent / 100m, System.MidpointRounding.AwayFromZero);
-            if (sellRateText)
-            {
-                sellRateText.text = Presentation.PuzzleTooltipSellRate(sellPercent);
-            }
-            if (buyRateText)
-            {
-                buyRateText.text = Presentation.PuzzleTooltipFinalSellPrice(finalSellPrice, _actualValue);
-            }
+            SetRow(sellRateLabelText, sellRateValueText,
+                Presentation.PuzzleTooltipSellRateLabel(), Presentation.PuzzleTooltipSellRateValue(sellPercent));
+            SetRow(buyRateLabelText, buyRateValueText,
+                Presentation.PuzzleTooltipFinalSellPriceLabel(), Presentation.PuzzleTooltipFinalSellPriceValue(finalSellPrice, _actualValue));
         }
         else
         {
             int buyPercent = _rate.BuyPercent > 0 ? _rate.BuyPercent : 100;
             decimal finalBuyPrice = _rate.HasRareValue ? _rate.RareValue
                 : System.Math.Round(_actualValue * (decimal)buyPercent / 100m, System.MidpointRounding.AwayFromZero);
-            if (sellRateText)
-            {
-                sellRateText.text = Presentation.PuzzleTooltipBuyRate(buyPercent);
-            }
-            if (buyRateText)
-            {
-                buyRateText.text = Presentation.PuzzleTooltipFinalBuyPrice(finalBuyPrice, _actualValue);
-            }
+            SetRow(sellRateLabelText, sellRateValueText,
+                Presentation.PuzzleTooltipBuyRateLabel(), Presentation.PuzzleTooltipBuyRateValue(buyPercent));
+            SetRow(buyRateLabelText, buyRateValueText,
+                Presentation.PuzzleTooltipFinalBuyPriceLabel(), Presentation.PuzzleTooltipFinalBuyPriceValue(finalBuyPrice, _actualValue));
         }
 
-        bool showSynergy = _bonuses != null;
         if (synergySection)
         {
-            synergySection.SetActive(showSynergy);
+            synergySection.SetActive(true);
         }
 
-        if (showSynergy && synergySlots != null && synergySlots.Length > 0)
+        if (synergyHeaderText)
         {
-            if (synergyHeaderText)
-            {
-                synergyHeaderText.text = Presentation.PuzzleTooltipSynergyHeader();
-            }
+            synergyHeaderText.text = Presentation.PuzzleTooltipEffectHeader();
+        }
 
-            if (_bonuses.Count == 0)
+        if (synergySlots != null && synergySlots.Length > 0)
+        {
+            int effectCount = _effects?.Count ?? 0;
+            if (effectCount == 0)
             {
-                synergySlots[0].text = Presentation.PuzzleTooltipNoSynergy();
+                synergySlots[0].text = Presentation.PuzzleTooltipNoEffect();
                 synergySlots[0].gameObject.SetActive(true);
                 for (int i = 1; i < synergySlots.Length; i++)
                 {
@@ -173,10 +169,9 @@ public sealed class PuzzleItemTooltipView : PanelBase
             {
                 for (int i = 0; i < synergySlots.Length; i++)
                 {
-                    if (i < _bonuses.Count)
+                    if (i < effectCount)
                     {
-                        var bonus = _bonuses[i];
-                        synergySlots[i].text = Presentation.PuzzleTooltipSynergyBonus(bonus.NeighborName, bonus.Percent);
+                        synergySlots[i].text = Presentation.PuzzleTooltipEffectDescription(_effects[i]);
                         synergySlots[i].gameObject.SetActive(true);
                     }
                     else
@@ -187,29 +182,31 @@ public sealed class PuzzleItemTooltipView : PanelBase
             }
         }
 
-        if (futureValueText)
+        if (futureValueLabelText || futureValueValueText)
         {
-            if (showSynergy && _futureValue.HasValue)
+            if (_isTrainInventory && _futureValue.HasValue)
             {
-                futureValueText.text = Presentation.PuzzleTooltipFutureValue(_futureValue.Value, _actualValue);
-                futureValueText.gameObject.SetActive(true);
+                SetRow(futureValueLabelText, futureValueValueText,
+                    Presentation.PuzzleTooltipFutureValueLabel(), Presentation.PuzzleTooltipFutureValueValue(_futureValue.Value, _actualValue));
+                SetRowActive(futureValueLabelText, futureValueValueText, true);
             }
             else
             {
-                futureValueText.gameObject.SetActive(false);
+                SetRowActive(futureValueLabelText, futureValueValueText, false);
             }
         }
 
-        if (freshnessText)
+        if (freshnessLabelText || freshnessValueText)
         {
             if (_freshness.HasValue)
             {
-                freshnessText.text = Presentation.PuzzleTooltipFreshness(_freshness.Value);
-                freshnessText.gameObject.SetActive(true);
+                SetRow(freshnessLabelText, freshnessValueText,
+                    Presentation.PuzzleTooltipFreshnessLabel(), Presentation.PuzzleTooltipFreshnessValue(_freshness.Value));
+                SetRowActive(freshnessLabelText, freshnessValueText, true);
             }
             else
             {
-                freshnessText.gameObject.SetActive(false);
+                SetRowActive(freshnessLabelText, freshnessValueText, false);
             }
         }
 
@@ -287,7 +284,7 @@ public sealed class PuzzleItemTooltipView : PanelBase
         {
             LayoutRebuilder.ForceRebuildLayoutImmediate(synRect);
         }
-        if (actualValueText && actualValueText.transform.parent is RectTransform bodyRect)
+        if (bodyRect)
         {
             LayoutRebuilder.ForceRebuildLayoutImmediate(bodyRect);
         }
@@ -392,12 +389,17 @@ public sealed class PuzzleItemTooltipView : PanelBase
         }
 
         ApplyTextSettings(itemNameText);
-        ApplyTextSettings(actualValueText);
-        ApplyTextSettings(sellRateText);
-        ApplyTextSettings(buyRateText);
-        ApplyTextSettings(synergyHeaderText);
-        ApplyTextSettings(futureValueText);
-        ApplyTextSettings(freshnessText);
+        ApplyBodyTextSettings(actualValueLabelText);
+        ApplyBodyTextSettings(actualValueValueText);
+        ApplyBodyTextSettings(sellRateLabelText);
+        ApplyBodyTextSettings(sellRateValueText);
+        ApplyBodyTextSettings(buyRateLabelText);
+        ApplyBodyTextSettings(buyRateValueText);
+        ApplyBodyTextSettings(synergyHeaderText);
+        ApplyBodyTextSettings(futureValueLabelText);
+        ApplyBodyTextSettings(futureValueValueText);
+        ApplyBodyTextSettings(freshnessLabelText);
+        ApplyBodyTextSettings(freshnessValueText);
 
         if (categoryBadgeTexts != null)
         {
@@ -411,7 +413,62 @@ public sealed class PuzzleItemTooltipView : PanelBase
         {
             foreach (var slot in synergySlots)
             {
-                ApplyTextSettings(slot);
+                ApplyBodyTextSettings(slot);
+                if (slot)
+                {
+                    slot.textWrappingMode = TextWrappingModes.Normal;
+                }
+            }
+        }
+    }
+
+    void ApplyBodyTextSettings(TextMeshProUGUI _text)
+    {
+        if (!_text)
+        {
+            return;
+        }
+
+        if (fontAsset && _text.font != fontAsset)
+        {
+            _text.font = fontAsset;
+        }
+        _text.fontSize = BASE_FONT_SIZE;
+        _text.enableAutoSizing = false;
+        _text.textWrappingMode = TextWrappingModes.NoWrap;
+        _text.raycastTarget = false;
+    }
+
+    void SetRow(TextMeshProUGUI _label, TextMeshProUGUI _value, string _labelText, string _valueText)
+    {
+        if (_label)
+        {
+            _label.text = _labelText;
+        }
+        if (_value)
+        {
+            _value.text = _valueText;
+        }
+    }
+
+    void SetRowActive(TextMeshProUGUI _label, TextMeshProUGUI _value, bool _active)
+    {
+        Transform row = _label ? _label.transform.parent : _value ? _value.transform.parent : null;
+        if (!row)
+        {
+            return;
+        }
+
+        row.gameObject.SetActive(_active);
+        if (_active)
+        {
+            if (_label)
+            {
+                _label.gameObject.SetActive(true);
+            }
+            if (_value)
+            {
+                _value.gameObject.SetActive(true);
             }
         }
     }

@@ -303,9 +303,24 @@ public static class Presentation
     public static Color PuzzleTooltipGreen => new Color32(31, 158, 61, 255);
     public static Color PuzzleTooltipRed => new Color32(192, 57, 43, 255);
 
-    internal static string PuzzleTooltipActualValue(decimal _actualValue)
+    static string TooltipLabelText(string _label)
     {
-        return $"<color=#{ColorUtility.ToHtmlStringRGB(PuzzleTooltipText)}>실제 가치 : </color><color=#{ColorUtility.ToHtmlStringRGB(PuzzleTooltipGold)}>$ {_actualValue:#,0.##}</color>";
+        return $"<color=#{ColorUtility.ToHtmlStringRGB(PuzzleTooltipText)}>{_label}</color>";
+    }
+
+    static string TooltipValueText(string _value, Color _color)
+    {
+        return $"<color=#{ColorUtility.ToHtmlStringRGB(_color)}>{_value}</color>";
+    }
+
+    internal static string PuzzleTooltipActualValueLabel()
+    {
+        return TooltipLabelText("실제 가치");
+    }
+
+    internal static string PuzzleTooltipActualValueValue(decimal _actualValue)
+    {
+        return TooltipValueText($"$ {_actualValue:#,0.##}", PuzzleTooltipGold);
     }
 
     static Color RateValueColor(int _percent)
@@ -334,58 +349,82 @@ public static class Presentation
         return PuzzleTooltipText;
     }
 
-    internal static string PuzzleTooltipSellRate(int _percent)
+    internal static string PuzzleTooltipSellRateLabel()
     {
-        Color color = RateValueColor(_percent);
-        return $"<color=#{ColorUtility.ToHtmlStringRGB(PuzzleTooltipText)}>판매 배율 : </color><color=#{ColorUtility.ToHtmlStringRGB(color)}>{_percent}%</color>";
+        return TooltipLabelText("판매 배율");
     }
 
-    internal static string PuzzleTooltipBuyRate(int _percent)
+    internal static string PuzzleTooltipSellRateValue(int _percent)
     {
-        Color color = RateValueColor(_percent);
-        return $"<color=#{ColorUtility.ToHtmlStringRGB(PuzzleTooltipText)}>구매 배율 : </color><color=#{ColorUtility.ToHtmlStringRGB(color)}>{_percent}%</color>";
+        return TooltipValueText($"{_percent}%", RateValueColor(_percent));
     }
 
-    internal static string PuzzleTooltipFinalSellPrice(decimal _price, decimal _actualValue)
+    internal static string PuzzleTooltipBuyRateLabel()
     {
-        Color color = PriceValueColor(_price, _actualValue);
-        return $"<color=#{ColorUtility.ToHtmlStringRGB(PuzzleTooltipText)}>판매 금액 : </color><color=#{ColorUtility.ToHtmlStringRGB(color)}>$ {_price:#,0.##}</color>";
+        return TooltipLabelText("구매 배율");
     }
 
-    internal static string PuzzleTooltipFinalBuyPrice(decimal _price, decimal _actualValue)
+    internal static string PuzzleTooltipBuyRateValue(int _percent)
     {
-        Color color = PriceValueColor(_price, _actualValue);
-        return $"<color=#{ColorUtility.ToHtmlStringRGB(PuzzleTooltipText)}>구매 금액 : </color><color=#{ColorUtility.ToHtmlStringRGB(color)}>$ {_price:#,0.##}</color>";
+        return TooltipValueText($"{_percent}%", RateValueColor(_percent));
     }
 
-    internal static string PuzzleTooltipSynergyHeader()
+    internal static string PuzzleTooltipFinalSellPriceLabel()
     {
-        return $"<color=#{ColorUtility.ToHtmlStringRGB(PuzzleTooltipText)}>적용 중인 시너지 목록</color>";
+        return TooltipLabelText("판매 금액");
     }
 
-    internal static string PuzzleTooltipSynergyBonus(string _neighborName, decimal _percent)
+    internal static string PuzzleTooltipFinalSellPriceValue(decimal _price, decimal _actualValue)
     {
-        string sign = _percent >= 0 ? "+" : string.Empty;
-        Color color = _percent >= 0 ? PuzzleTooltipGreen : PuzzleTooltipRed;
-        return $"<color=#{ColorUtility.ToHtmlStringRGB(PuzzleTooltipText)}>• {_neighborName} : </color><color=#{ColorUtility.ToHtmlStringRGB(color)}>{sign}{_percent:#,0.##}%</color>";
+        return TooltipValueText($"$ {_price:#,0.##}", PriceValueColor(_price, _actualValue));
     }
 
-    internal static string PuzzleTooltipNoSynergy()
+    internal static string PuzzleTooltipFinalBuyPriceLabel()
     {
-        return $"<color=#{ColorUtility.ToHtmlStringRGB(PuzzleTooltipText)}>• 적용 중인 시너지 없음</color>";
+        return TooltipLabelText("구매 금액");
     }
 
-    internal static string PuzzleTooltipFutureValue(decimal _futureValue, decimal _actualValue)
+    internal static string PuzzleTooltipFinalBuyPriceValue(decimal _price, decimal _actualValue)
+    {
+        return TooltipValueText($"$ {_price:#,0.##}", PriceValueColor(_price, _actualValue));
+    }
+
+    internal static string PuzzleTooltipEffectHeader()
+    {
+        return TooltipLabelText("보유 효과");
+    }
+
+    internal static string PuzzleTooltipEffectDescription(string _description)
+    {
+        return TooltipLabelText($"• {_description}");
+    }
+
+    internal static string PuzzleTooltipNoEffect()
+    {
+        return TooltipLabelText("• 없음");
+    }
+
+    internal static string PuzzleTooltipFutureValueLabel()
+    {
+        return TooltipLabelText($"{PuzzleTimeManager.HOURS_PER_TRAVEL_WEIGHT}시간 후 가치");
+    }
+
+    internal static string PuzzleTooltipFutureValueValue(decimal _futureValue, decimal _actualValue)
     {
         Color color = _futureValue > _actualValue
             ? PuzzleTooltipGreen
             : (_futureValue < _actualValue ? PuzzleTooltipRed : PuzzleTooltipGold);
-        return $"<color=#{ColorUtility.ToHtmlStringRGB(PuzzleTooltipText)}>{PuzzleTimeManager.HOURS_PER_TRAVEL_WEIGHT}시간 후 가치 : </color><color=#{ColorUtility.ToHtmlStringRGB(color)}>$ {_futureValue:#,0.##}</color>";
+        return TooltipValueText($"$ {_futureValue:#,0.##}", color);
     }
 
-    internal static string PuzzleTooltipFreshness(int _current)
+    internal static string PuzzleTooltipFreshnessLabel()
     {
-        return $"<color=#{ColorUtility.ToHtmlStringRGB(PuzzleTooltipText)}>신선도 : </color><color=#{ColorUtility.ToHtmlStringRGB(PuzzleTooltipGreen)}>{_current}</color>";
+        return TooltipLabelText("신선도");
+    }
+
+    internal static string PuzzleTooltipFreshnessValue(int _current)
+    {
+        return TooltipValueText(_current.ToString(), PuzzleTooltipGreen);
     }
 
     internal static string PuzzleValueText(PuzzleValue _value)

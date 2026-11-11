@@ -140,11 +140,13 @@ public static class TooltipSceneSetup
         {
             var existingView = tooltipTransform.GetComponent<PuzzleItemTooltipView>();
             var catRowProp = existingView ? new SerializedObject(existingView).FindProperty("categoryRow") : null;
-            var futureValProp = existingView ? new SerializedObject(existingView).FindProperty("futureValueText") : null;
-            var freshnessProp = existingView ? new SerializedObject(existingView).FindProperty("freshnessText") : null;
+            var futureValProp = existingView ? new SerializedObject(existingView).FindProperty("futureValueLabelText") : null;
+            var freshnessProp = existingView ? new SerializedObject(existingView).FindProperty("freshnessLabelText") : null;
+            var splitRowProp = existingView ? new SerializedObject(existingView).FindProperty("actualValueLabelText") : null;
             if (catRowProp == null || catRowProp.objectReferenceValue == null ||
                 futureValProp == null || futureValProp.objectReferenceValue == null ||
-                freshnessProp == null || freshnessProp.objectReferenceValue == null)
+                freshnessProp == null || freshnessProp.objectReferenceValue == null ||
+                splitRowProp == null || splitRowProp.objectReferenceValue == null)
             {
                 UnityEngine.Object.DestroyImmediate(tooltipTransform.gameObject);
                 tooltipTransform = null;
@@ -217,7 +219,7 @@ public static class TooltipSceneSetup
         rootLayout.childForceExpandHeight = false;
 
         var rootFitter = root.GetComponent<ContentSizeFitter>();
-        rootFitter.horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
+        rootFitter.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
         rootFitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
 
         // 2. Header
@@ -293,10 +295,14 @@ public static class TooltipSceneSetup
         bodyLayout.childForceExpandWidth = true;
         bodyLayout.childForceExpandHeight = false;
 
-        var actualVal = CreateTextObject("ActualValue", body.transform, _fontAsset, "실제 가치 : $ 100");
-        var freshness = CreateTextObject("Freshness", body.transform, _fontAsset, "신선도 : 100");
-        var sellRate = CreateTextObject("SellRate", body.transform, _fontAsset, "판매 배율 : 100%");
-        var buyRate = CreateTextObject("BuyRate", body.transform, _fontAsset, "최종 판매 금액(이 도시 기준) : $ 100");
+        CreateValueRow("ActualValueRow", body.transform, _fontAsset, "실제 가치", "$ 100",
+            out TextMeshProUGUI actualValLabel, out TextMeshProUGUI actualValValue);
+        CreateValueRow("FreshnessRow", body.transform, _fontAsset, "신선도", "100",
+            out TextMeshProUGUI freshnessLabel, out TextMeshProUGUI freshnessValue);
+        CreateValueRow("SellRateRow", body.transform, _fontAsset, "판매 배율", "100%",
+            out TextMeshProUGUI sellRateLabel, out TextMeshProUGUI sellRateValue);
+        CreateValueRow("BuyRateRow", body.transform, _fontAsset, "판매 금액", "$ 100",
+            out TextMeshProUGUI buyRateLabel, out TextMeshProUGUI buyRateValue);
 
         // 5. Synergy Section
         var synergySection = new GameObject("SynergySection", typeof(RectTransform), typeof(VerticalLayoutGroup));
@@ -310,7 +316,8 @@ public static class TooltipSceneSetup
         synSectionLayout.childForceExpandWidth = true;
         synSectionLayout.childForceExpandHeight = false;
 
-        var synHeader = CreateTextObject("SynergyHeader", synergySection.transform, _fontAsset, "적용 중인 시너지 목록");
+        var synHeader = CreateTextObject("SynergyHeader", synergySection.transform, _fontAsset, "보유 효과");
+        synHeader.enableAutoSizing = false;
 
         var synergyList = new GameObject("SynergyList", typeof(RectTransform), typeof(VerticalLayoutGroup));
         synergyList.transform.SetParent(synergySection.transform, false);
@@ -325,10 +332,13 @@ public static class TooltipSceneSetup
         var slots = new TextMeshProUGUI[6];
         for (int i = 0; i < 6; i++)
         {
-            slots[i] = CreateTextObject($"Slot_{i}", synergyList.transform, _fontAsset, "• 아이템 이름 : +20%");
+            slots[i] = CreateTextObject($"Slot_{i}", synergyList.transform, _fontAsset, "• 식량과 함께하면 가치가 올라갑니다.");
+            slots[i].enableAutoSizing = false;
+            slots[i].textWrappingMode = TextWrappingModes.Normal;
         }
 
-        var futureValue = CreateTextObject("FutureValue", synergySection.transform, _fontAsset, "미래 가치 : $ 100");
+        CreateValueRow("FutureValueRow", synergySection.transform, _fontAsset, "미래 가치", "$ 100",
+            out TextMeshProUGUI futureLabel, out TextMeshProUGUI futureValue);
 
         // Wire serialized fields on PuzzleItemTooltipView
         var view = root.GetComponent<PuzzleItemTooltipView>();
@@ -355,11 +365,16 @@ public static class TooltipSceneSetup
             badgeTextsProp.GetArrayElementAtIndex(i).objectReferenceValue = badgeTexts[i];
         }
 
-        viewSerialized.FindProperty("actualValueText").objectReferenceValue = actualVal;
-        viewSerialized.FindProperty("freshnessText").objectReferenceValue = freshness;
-        freshness.gameObject.SetActive(false);
-        viewSerialized.FindProperty("sellRateText").objectReferenceValue = sellRate;
-        viewSerialized.FindProperty("buyRateText").objectReferenceValue = buyRate;
+        viewSerialized.FindProperty("bodyRect").objectReferenceValue = body.GetComponent<RectTransform>();
+        viewSerialized.FindProperty("actualValueLabelText").objectReferenceValue = actualValLabel;
+        viewSerialized.FindProperty("actualValueValueText").objectReferenceValue = actualValValue;
+        viewSerialized.FindProperty("freshnessLabelText").objectReferenceValue = freshnessLabel;
+        viewSerialized.FindProperty("freshnessValueText").objectReferenceValue = freshnessValue;
+        freshnessLabel.transform.parent.gameObject.SetActive(false);
+        viewSerialized.FindProperty("sellRateLabelText").objectReferenceValue = sellRateLabel;
+        viewSerialized.FindProperty("sellRateValueText").objectReferenceValue = sellRateValue;
+        viewSerialized.FindProperty("buyRateLabelText").objectReferenceValue = buyRateLabel;
+        viewSerialized.FindProperty("buyRateValueText").objectReferenceValue = buyRateValue;
         viewSerialized.FindProperty("synergySection").objectReferenceValue = synergySection;
         viewSerialized.FindProperty("synergyHeaderText").objectReferenceValue = synHeader;
         viewSerialized.FindProperty("synergyListRoot").objectReferenceValue = synergyList.GetComponent<RectTransform>();
@@ -371,7 +386,8 @@ public static class TooltipSceneSetup
             slotsProp.GetArrayElementAtIndex(i).objectReferenceValue = slots[i];
         }
 
-        viewSerialized.FindProperty("futureValueText").objectReferenceValue = futureValue;
+        viewSerialized.FindProperty("futureValueLabelText").objectReferenceValue = futureLabel;
+        viewSerialized.FindProperty("futureValueValueText").objectReferenceValue = futureValue;
 
         if (_fontAsset != null)
         {
@@ -432,5 +448,31 @@ public static class TooltipSceneSetup
         tmp.raycastTarget = false;
         tmp.color = Presentation.PuzzleTooltipText;
         return tmp;
+    }
+
+    // 라벨은 왼쪽, 수치는 오른쪽으로 붙이는 2-텍스트 행.
+    static void CreateValueRow(string _name, Transform _parent, TMP_FontAsset _fontAsset, string _label, string _value,
+        out TextMeshProUGUI _labelText, out TextMeshProUGUI _valueText)
+    {
+        var row = new GameObject(_name, typeof(RectTransform), typeof(HorizontalLayoutGroup));
+        row.transform.SetParent(_parent, false);
+
+        var layout = row.GetComponent<HorizontalLayoutGroup>();
+        layout.spacing = 8;
+        layout.childAlignment = TextAnchor.MiddleLeft;
+        layout.childControlWidth = true;
+        layout.childControlHeight = true;
+        layout.childForceExpandWidth = false;
+        layout.childForceExpandHeight = false;
+
+        _labelText = CreateTextObject("Label", row.transform, _fontAsset, _label);
+        _labelText.alignment = TextAlignmentOptions.MidlineLeft;
+        _labelText.enableAutoSizing = false;
+        var labelLayout = _labelText.gameObject.AddComponent<LayoutElement>();
+        labelLayout.flexibleWidth = 1f;
+
+        _valueText = CreateTextObject("Value", row.transform, _fontAsset, _value);
+        _valueText.alignment = TextAlignmentOptions.MidlineRight;
+        _valueText.enableAutoSizing = false;
     }
 }

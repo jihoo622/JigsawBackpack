@@ -238,7 +238,7 @@
 | 지역 간 선 | `regionId == "line.regional"`일 때 `PuzzleMapInterchange`(228,233,239). 프리팹 `lines`의 특수 키와 짝을 이룬다 |
 | 상태 색 | 현재(255,199,77) · 방문(87,219,184) · 미탐색(102,117,140) · 이동가능(99,232,171) · 자금부족(217,115,115) |
 | 안내문 | `PuzzleMapGuide`가 `"근거리 {HOURS_PER_TRAVEL_WEIGHT}시간 · 숫자: 소요 시간 · ★: 상환 예정지 · 경과 N일 M시간"` |
-| 미래 가치 | `PuzzleTooltipFutureValue`가 `"{HOURS_PER_TRAVEL_WEIGHT}시간 후 가치"` |
+| 미래 가치 | `PuzzleTooltipFutureValueLabel`이 `"{HOURS_PER_TRAVEL_WEIGHT}시간 후 가치"` |
 
 **`HOURS_PER_TRAVEL_WEIGHT`를 바꾸면 이 문자열 2곳이 자동으로 따라간다. 대신 "8시간"이라는 단어를 하드코딩한 기획서·문서와 어긋난다.**
 

@@ -49,7 +49,7 @@
 - 도시의 `tagPrices`는 등록된 `tag`, 고유 `priority`, 양의 `buyPercent`·`sellPercent`를 가진다. 일치 태그 중 최고 우선순위 하나를 사용하고 없으면 `buyPercentOfBaseValue`·`sellPercentOfFinalValue`를 쓴다.
 - 현재 거래가는 구매 시 기본 가치, 판매 시 인스턴스의 `ActualValue`에 선택된 도시 배율을 곱한다. 도시 배율과 지역의 `pricePercent`를 중간 반올림 없이 곱한 최종 금액을 `MidpointRounding.AwayFromZero`로 정수화한다. 범위 초과는 거래 실패로 처리한다. 미리보기와 확정 모두 `EvaluateDrop` 경로를 쓰고 확정 직전에 다시 평가한다.
 - `startingFunds`는 0 이상, `purchaseMarkupPercent`, `wagonAddCostBase`, `gameClearCost`는 양수다. **공통 구매 배율은 저장·검증만 하며 현재 가격 계산에는 사용되지 않는다.** 설정 존재를 구현 완료로 해석하지 않는다.
-- 시너지 규칙은 고유 `id`, 등록된 `neighborTag`, `scope`(`Train`, `Market`, `Both`), 양의 `multiplierPercent`와 대상 조건을 가진다. `targetTag` 또는 `excludedTargetTag` 중 하나로 대상을 정한다.
+- 시너지 규칙은 고유 `id`, 등록된 `neighborTag`, `scope`(`Train`, `Market`, `Both`), 양의 `multiplierPercent`, 비어 있지 않은 `description`과 대상 조건을 가진다. `targetTag` 또는 `excludedTargetTag` 중 하나로 대상을 정한다. `description`은 아이템 팝업에 표시할 시너지 설명이며, `descriptionTag`를 지정하면 그 태그를 가진 아이템의 팝업에만 표시한다(미지정 시 주체 조건을 따른다).
 - 같은 이웃과 여러 면이 접해도 한 번 평가한다. 규칙 ID 순서로 기본 가치 기준 증가분을 합산한 뒤 감소 배율을 곱한다. 인접 정보 갱신과 실제 가치 누적을 분리하며 가치의 누적 경계 정책은 게임 기획서 10장을 따른다.
 
 ## 노선·턴

@@ -367,9 +367,12 @@ public sealed class GameTableRules
             Reference(rule.neighborTag, path + ".neighborTag", tags.Contains(rule.neighborTag), "이웃 태그");
             Reference(rule.excludedNeighborTag, path + ".excludedNeighborTag", tags.Contains(rule.excludedNeighborTag),
                 "제외 이웃 태그", _allowEmpty: true);
+            Reference(rule.descriptionTag, path + ".descriptionTag", tags.Contains(rule.descriptionTag),
+                "설명 표시 태그", _allowEmpty: true);
             Check(rule.scope is nameof(PuzzleSynergyScope.Train) or nameof(PuzzleSynergyScope.Market)
                 or nameof(PuzzleSynergyScope.Both), path + ".scope", "적용 범위는 Train, Market, Both 중 하나여야 합니다.");
             Check(rule.multiplierPercent > 0, path + ".multiplierPercent", "배율은 양의 정수 백분율이어야 합니다.");
+            Check(!string.IsNullOrWhiteSpace(rule.description), path + ".description", "시너지 설명이 필요합니다.");
         }
     }
 

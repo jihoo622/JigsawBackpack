@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -607,14 +609,14 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         bool isTrain = _view == trainView || session.IsTrainWagon(_placement.Owner);
         decimal actualValue = isTrain ? _placement.ActualValue : _placement.Definition.BaseValue;
         var rate = item == null ? default : session.RateFor(item);
-        var bonuses = isTrain ? value.SynergyBonuses : null;
+        var effects = BuildEffectDescriptions(item, isTrain);
         decimal? futureValue = isTrain ? actualValue + (value.FinalValue - value.BaseValue) : null;
 
         if (tooltipView && drag == null && (_position.HasValue || hoverPosition.HasValue))
         {
             Vector2 pos = _position ?? hoverPosition.Value;
             int? freshness = item != null && item.HasDurability ? _placement.Durability : (int?)null;
-            tooltipView.Show(item, actualValue, rate, bonuses, futureValue, pos, isTrain, freshness);
+            tooltipView.Show(item, actualValue, rate, effects, futureValue, pos, isTrain, freshness);
         }
 
         if (trainView)
@@ -625,6 +627,31 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         {
             marketView.ShowItemDetails(_view == marketView ? item : null, value, actualValue, rate);
         }
+    }
+
+    IReadOnlyList<string> BuildEffectDescriptions(PuzzleItemDefinition _item, bool _isTrain)
+    {
+        if (_item == null)
+        {
+            return null;
+        }
+
+        PuzzleSynergyScope scope = _isTrain ? PuzzleSynergyScope.Train : PuzzleSynergyScope.Market;
+        var descriptions = new List<string>();
+        foreach (var rule in TableManager.Instance.SynergiesFor(scope))
+        {
+            bool isSubject = !string.IsNullOrEmpty(rule.descriptionTag)
+                ? _item.Tags.Contains(rule.descriptionTag)
+                : !string.IsNullOrEmpty(rule.targetTag)
+                    ? _item.Tags.Contains(rule.targetTag)
+                    : !string.IsNullOrEmpty(rule.excludedTargetTag) && !_item.Tags.Contains(rule.excludedTargetTag);
+            if (isSubject && !string.IsNullOrWhiteSpace(rule.description))
+            {
+                descriptions.Add(rule.description);
+            }
+        }
+
+        return descriptions;
     }
 
     void RenderValues()
