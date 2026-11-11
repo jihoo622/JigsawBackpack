@@ -34,7 +34,7 @@ public static class MapPresentationTool
                     int region = (int)data["regionIndex"][index];
                     Color tint = region < 0 ? Presentation.PuzzleMapLand :
                         Presentation.PuzzleMapLineColor((string)data["regionIndexToId"][region]);
-                    color = Color.Lerp(Presentation.PuzzleMapLand, tint, 0.16f);
+                    color = Color.Lerp(Presentation.PuzzleMapLand, tint, 0.28f);
                     float elevation = (float)layers["elevationNormalized"][index];
                     color *= 0.82f + elevation * 0.42f;
                     if ((int)layers["river"][index] == 1)

@@ -70,6 +70,7 @@ public sealed class PuzzleMapView : PanelBase
     {
         currentCityId = _node.CityId;
         navigation.SetCurrent(_node.transform as RectTransform);
+        _node.transform.SetAsLastSibling();
     }
 
     internal void RefreshLayout()
@@ -137,7 +138,7 @@ public sealed class PuzzleMapView : PanelBase
                         break;
                     }
                 }
-                if (!visible && node.LabelPriority(selectedCityId) >= 4)
+                if (!visible && node.LabelPriority(selectedCityId) >= 3)
                 {
                     Vector2 center = position + Vector2.up * (node.MarkerRadius + LABEL_GAP + size.y * 0.5f);
                     center.x = Mathf.Clamp(center.x, bounds.xMin + size.x * 0.5f, bounds.xMax - size.x * 0.5f);

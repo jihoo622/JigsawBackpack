@@ -16,6 +16,7 @@ public sealed class PuzzleMapNodeView : MonoBehaviour, IPointerEnterHandler, IPo
     bool isCurrent;
     bool isTarget;
     bool isConnected;
+    bool IsEmphasized => isCurrent || isTarget;
     internal Vector2 LabelSize { get; private set; }
 
     internal string CityId => cityId;
@@ -33,16 +34,19 @@ public sealed class PuzzleMapNodeView : MonoBehaviour, IPointerEnterHandler, IPo
         transform.localScale = Vector3.one / _zoom;
         ((RectTransform)transform).sizeDelta = Vector2.one * 44f;
         label.raycastTarget = false;
-        label.fontSize = Presentation.PuzzleMapStationFontSize(_zoom, isCurrent);
+        label.fontSize = Presentation.PuzzleMapStationFontSize(_zoom, IsEmphasized);
         label.horizontalOverflow = HorizontalWrapMode.Overflow;
         label.verticalOverflow = VerticalWrapMode.Truncate;
         label.resizeTextForBestFit = false;
         float width = Mathf.Ceil(label.preferredWidth) + 12f;
         label.rectTransform.sizeDelta = new Vector2(width, 28f);
         currentHalo.rectTransform.sizeDelta = Vector2.one * Presentation.PUZZLE_MAP_HALO_SIZE;
+        currentBadge.horizontalOverflow = HorizontalWrapMode.Overflow;
+        currentBadge.verticalOverflow = VerticalWrapMode.Overflow;
         currentBadge.fontSize = Presentation.PUZZLE_MAP_BADGE_FONT_SIZE;
-        currentBadge.rectTransform.sizeDelta = new Vector2(160f, 24f);
-        LabelSize = new Vector2(isCurrent ? Mathf.Max(width, 160f) : width, isCurrent ? 54f : 28f);
+        float badgeWidth = Mathf.Ceil(currentBadge.preferredWidth) + 12f;
+        currentBadge.rectTransform.sizeDelta = new Vector2(Mathf.Max(badgeWidth, 160f), 24f);
+        LabelSize = new Vector2(IsEmphasized ? Mathf.Max(width, Mathf.Max(badgeWidth, 160f)) : width, IsEmphasized ? 54f : 28f);
     }
 
     internal Vector2 MarkerPosition(RectTransform _viewport)
@@ -50,13 +54,13 @@ public sealed class PuzzleMapNodeView : MonoBehaviour, IPointerEnterHandler, IPo
         return _viewport.InverseTransformPoint(stationRing.transform.position);
     }
 
-    internal float MarkerRadius => isCurrent ? 28f : 16f;
+    internal float MarkerRadius => IsEmphasized ? 28f : 16f;
 
     internal void PlaceLabel(bool _visible, Vector2 _footprintOffset)
     {
         label.gameObject.SetActive(_visible);
-        currentBadge.gameObject.SetActive(_visible && isCurrent);
-        Vector2 offset = _footprintOffset - (isCurrent ? new Vector2(0f, 13f) : Vector2.zero);
+        currentBadge.gameObject.SetActive(_visible && IsEmphasized);
+        Vector2 offset = _footprintOffset - (IsEmphasized ? new Vector2(0f, 13f) : Vector2.zero);
         label.rectTransform.anchoredPosition = offset;
         currentBadge.rectTransform.anchoredPosition = offset + new Vector2(0f, 26f);
     }
@@ -66,20 +70,22 @@ public sealed class PuzzleMapNodeView : MonoBehaviour, IPointerEnterHandler, IPo
         isCurrent = _current;
         isTarget = _planningTarget;
         isConnected = _connected;
+        bool emphasized = IsEmphasized;
+        Color highlight = _current ? Presentation.PuzzleMapCurrent : Presentation.PuzzleMapTarget;
         label.text = Presentation.PuzzleMapStationName(_city.displayName, _planningTarget);
-        label.color = _current ? Presentation.PuzzleMapCurrent : Presentation.PuzzleHeading;
-        label.fontStyle = _current ? FontStyle.Bold : FontStyle.Normal;
-        currentHalo.gameObject.SetActive(_current);
-        currentHalo.color = Presentation.PuzzleMapCurrentHalo;
-        currentBadge.gameObject.SetActive(_current);
-        currentBadge.text = Presentation.PUZZLE_MAP_CURRENT;
-        currentBadge.color = Presentation.PuzzleMapCurrent;
-        if (_current)
+        label.color = emphasized ? highlight : Presentation.PuzzleHeading;
+        label.fontStyle = emphasized ? FontStyle.Bold : FontStyle.Normal;
+        currentHalo.gameObject.SetActive(emphasized);
+        currentHalo.color = _current ? Presentation.PuzzleMapCurrentHalo : Presentation.PuzzleMapTargetHalo;
+        currentBadge.gameObject.SetActive(emphasized);
+        currentBadge.text = Presentation.PuzzleMapBadgeText(_current, _planningTarget);
+        currentBadge.color = highlight;
+        if (emphasized)
         {
             transform.SetAsLastSibling();
         }
-        stationRing.rectTransform.localScale = Vector3.one * (_current ? 1.5f : 1f);
-        stationRing.color = _current ? Presentation.PuzzleMapCurrent : _planningTarget ? Presentation.PuzzleMapCurrent :
+        stationRing.rectTransform.localScale = Vector3.one * (emphasized ? 1.5f : 1f);
+        stationRing.color = emphasized ? highlight :
             interchange ? Presentation.PuzzleMapInterchange : Presentation.PuzzleMapLineColor(_city.regionId);
         marker.color = Presentation.PuzzleMapNodeMarkerColor(_current, _visited, _connected, _canAfford);
     }

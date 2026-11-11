@@ -27,6 +27,17 @@ public static class Presentation
     public const string PUZZLE_MAP_OPEN = "지도";
     public const string PUZZLE_MAP_CLOSE = "닫기";
     public const string PUZZLE_MAP_CURRENT = "▼ 현재 위치";
+    public const string PUZZLE_MAP_TARGET = "▼ 상환 목표";
+    public const string PUZZLE_MAP_CURRENT_AND_TARGET = "▼ 현재 위치 · 목표";
+
+    internal static string PuzzleMapBadgeText(bool _current, bool _planningTarget)
+    {
+        if (_current && _planningTarget)
+        {
+            return PUZZLE_MAP_CURRENT_AND_TARGET;
+        }
+        return _current ? PUZZLE_MAP_CURRENT : PUZZLE_MAP_TARGET;
+    }
     public const string PUZZLE_TRAVEL_PANEL_NAME = "MapTravelPanel";
     public const string PUZZLE_TRAVEL_QUESTION = "이동하시겠습니까?";
     public const string PUZZLE_TRAVEL_CONFIRM = "확인";
@@ -57,9 +68,9 @@ public static class Presentation
     public const float PUZZLE_MAP_HALO_SIZE = 56f;
     public const int PUZZLE_MAP_BADGE_FONT_SIZE = 16;
     public const int PUZZLE_MAP_TIME_FONT_SIZE = 18;
-    public static int PuzzleMapStationFontSize(float _zoom, bool _current)
+    public static int PuzzleMapStationFontSize(float _zoom, bool _emphasized)
     {
-        return _current ? 24 : _zoom < 0.8f ? 18 : 22;
+        return _emphasized ? 24 : _zoom < 0.8f ? 18 : 22;
     }
 
     public static float PuzzleMapTrackThickness(float _authoredThickness)
@@ -67,9 +78,10 @@ public static class Presentation
         return _authoredThickness * 0.65f;
     }
     public static Color PuzzleMapCurrentHalo => new(1f, 0.78f, 0.30f, 0.25f);
+    public static Color PuzzleMapTargetHalo => PuzzleMapCurrentHalo;
     public static Color PuzzleMapOcean => new Color32(21, 41, 58, 255);
     public static Color PuzzleMapLand => new Color32(42, 55, 58, 255);
-    public static Color PuzzleMapRiver => new Color32(43, 90, 112, 255);
+    public static Color PuzzleMapRiver => new Color32(36, 114, 168, 255);
     public static Color PuzzleMapTerrainBorder => new Color32(113, 139, 147, 255);
     public static string PuzzleMapZoom(float _scale)
     {
@@ -78,6 +90,7 @@ public static class Presentation
     public const string PUZZLE_MAP_GUIDE = "역 클릭: 이동 · 휠: 확대/축소 · 드래그: 지도 이동 · 색 노선: 지역 내부 · 흰 노선: 지역 간";
     public const string PUZZLE_MAP_HINT = "마을을 가리켜 거리·비용과 수집한 교역 정보를 확인하세요.";
     public static Color PuzzleMapCurrent => new(1f, 0.78f, 0.30f);
+    public static Color PuzzleMapTarget => PuzzleMapCurrent;
     public static Color PuzzleMapVisited => new(0.34f, 0.86f, 0.72f);
     public static Color PuzzleMapUnknown => new(0.40f, 0.46f, 0.55f);
     public static Color PuzzleMapRoute => new(0.30f, 0.68f, 0.82f);
@@ -199,13 +212,13 @@ public static class Presentation
     {
         return _regionId switch
         {
-            "region.mine" => new Color32(111, 158, 199, 30),
-            "region.ranch" => new Color32(199, 151, 98, 30),
-            "region.industry" => new Color32(105, 179, 137, 30),
-            "region.capital" => new Color32(186, 128, 170, 30),
-            "region.coast" => new Color32(143, 132, 193, 30),
-            "region.farm" => new Color32(106, 180, 179, 30),
-            "region.common" => new Color32(165, 173, 184, 30),
+            "region.mine" => new Color32(78, 144, 214, 30),
+            "region.ranch" => new Color32(214, 142, 62, 30),
+            "region.industry" => new Color32(68, 182, 118, 30),
+            "region.capital" => new Color32(198, 98, 168, 30),
+            "region.coast" => new Color32(126, 108, 214, 30),
+            "region.farm" => new Color32(62, 184, 182, 30),
+            "region.common" => new Color32(150, 164, 182, 30),
             _ => UnityEngine.Color.clear
         };
     }

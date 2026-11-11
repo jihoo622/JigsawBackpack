@@ -362,7 +362,7 @@ public static class RailMapLayoutTool
             var ring = serialized.FindProperty("stationRing").objectReferenceValue as Image;
             if (ring != null)
             {
-                ring.color = cityId == _planningTargetCityId ? Presentation.PuzzleMapCurrent :
+                ring.color = cityId == _planningTargetCityId ? Presentation.PuzzleMapTarget :
                     layout.interchange ? Presentation.PuzzleMapInterchange : Presentation.PuzzleMapLineColor(layout.regionId);
             }
             moved++;

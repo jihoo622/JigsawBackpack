@@ -79,6 +79,8 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
     void Refresh()
     {
         view.ShowGuide(Presentation.PuzzleMapGuide(session.ElapsedTime));
+        string targetCityId = TableManager.Instance.Puzzle.planningTargetCityId;
+        PuzzleMapNodeView currentNode = null;
         string currentCityId = session.CurrentCityId;
         foreach (var node in view.Nodes)
         {
@@ -86,7 +88,7 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
             bool isCurrent = string.Equals(cityId, currentCityId, System.StringComparison.Ordinal);
             if (isCurrent)
             {
-                view.ShowCurrentLocation(node);
+                currentNode = node;
             }
             bool isConnected = false;
             bool canAfford = false;
@@ -105,7 +107,11 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
                 isCurrent,
                 isConnected,
                 canAfford,
-                cityId == TableManager.Instance.Puzzle.planningTargetCityId);
+                !string.IsNullOrEmpty(targetCityId) && string.Equals(cityId, targetCityId, System.StringComparison.Ordinal));
+        }
+        if (currentNode)
+        {
+            view.ShowCurrentLocation(currentNode);
         }
         view.RefreshLayout();
     }
