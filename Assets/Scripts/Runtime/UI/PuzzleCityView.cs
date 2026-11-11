@@ -106,7 +106,7 @@ public sealed class PuzzleCityView : MonoBehaviour
 
     #region 술집 대화 표시
 
-    // 이번 방문의 첫 대화에서 소식을 받아 저장하고, 다시 말을 걸면 저장한 소식을 표시한다.
+    // 이번 방문의 소식을 받아 표시한 뒤, 다음 마을에 도착할 때까지 대화 버튼을 비활성화한다.
     void HearRumor()
     {
         // 1. 이번 방문에서 아직 소식을 듣지 않았다면 새 소식을 받아 저장한다.
@@ -114,6 +114,9 @@ public sealed class PuzzleCityView : MonoBehaviour
 
         // 2. 저장된 소식을 대화 영역에 표시한다.
         rumorLabel.text = heardRumor;
+
+        // 3. 같은 방문에서 대화를 반복할 수 없도록 버튼을 비활성화한다.
+        talkButton.interactable = false;
     }
 
     #endregion
