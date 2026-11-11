@@ -4423,7 +4423,7 @@
     },
     {
       "id": "presentation.tavern.noRumor",
-      "value": "아직 가보지 않은 인근 마을 소식은 못 들었어요.",
+      "value": "아직 가보지 않은 마을 소식은 못 들었어요.",
       "arguments": 0,
       "source": "Assets/Scripts/Runtime/Core/Presentation.cs:40"
     },

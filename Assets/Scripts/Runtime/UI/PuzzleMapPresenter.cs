@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using System.Collections;
 
@@ -8,6 +9,9 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
     [SerializeField] Button openButton;
     [SerializeField] Button closeButton;
     [SerializeField] PuzzleMapTravelView travelView;
+    [SerializeField] CanvasGroup mapControls;
+    [SerializeField] Button notebookButton;
+    [SerializeField] PuzzleTradeNotebookView notebook;
 
     PuzzleInventoryService session;
     string pendingCityId;
@@ -25,6 +29,8 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
         session.Initialize();
         openButton.onClick.AddListener(OpenMap);
         closeButton.onClick.AddListener(CloseMap);
+        notebook.Initialize(session.TavernRumors, CloseNotebook);
+        notebookButton.onClick.AddListener(OpenNotebook);
         foreach (var node in view.Nodes)
         {
             node.Hovered += ShowCity;
@@ -43,6 +49,7 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
     {
         openButton.onClick.RemoveListener(OpenMap);
         closeButton.onClick.RemoveListener(CloseMap);
+        notebookButton.onClick.RemoveListener(OpenNotebook);
         foreach (var node in view.Nodes)
         {
             node.Hovered -= ShowCity;
@@ -54,6 +61,7 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
         GameEvents.MapRequested -= OnMapRequested;
         travelView.Confirmed -= ConfirmTravel;
         travelView.Canceled -= AbortTravel;
+        SetNotebookOpen(false);
         AbortTravel();
         view.Close();
     }
@@ -66,7 +74,7 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
 
     void OnMapRequested(GameEvents.MapRequestInfo _info)
     {
-        if (_info.sceneHandle == gameObject.scene.handle && phase == TravelPhase.None)
+        if (_info.sceneHandle == gameObject.scene.handle && phase == TravelPhase.None && !notebook.gameObject.activeSelf)
         {
             OpenMap();
         }
@@ -74,10 +82,39 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
 
     void CloseMap()
     {
-        if (phase == TravelPhase.None)
+        if (phase == TravelPhase.None && !notebook.gameObject.activeSelf)
         {
             view.Close();
         }
+    }
+
+    void OpenNotebook()
+    {
+        if (!view.IsOpen || phase != TravelPhase.None || notebook.gameObject.activeSelf)
+        {
+            return;
+        }
+
+        SetNotebookOpen(true);
+        notebook.ShowRecords();
+    }
+
+    void CloseNotebook()
+    {
+        SetNotebookOpen(false);
+        if (view.IsOpen && EventSystem.current)
+        {
+            EventSystem.current.SetSelectedGameObject(notebookButton.gameObject);
+        }
+    }
+
+    void SetNotebookOpen(bool _open)
+    {
+        notebook.gameObject.SetActive(_open);
+        notebook.SetInteraction(_open);
+        mapControls.interactable = mapControls.blocksRaycasts = !_open;
+        openButton.interactable = !_open;
+        view.SetInteraction(!_open && phase == TravelPhase.None);
     }
 
     void OnCityArrived(GameEvents.CityArrivalInfo _info)
@@ -167,7 +204,8 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
 
     void OnNodeClicked(string _cityId)
     {
-        if (phase != TravelPhase.None || !view.IsOpen || session.RunStatus != PuzzleRunStatus.InProgress ||
+        if (phase != TravelPhase.None || notebook.gameObject.activeSelf ||
+            !view.IsOpen || session.RunStatus != PuzzleRunStatus.InProgress ||
             string.Equals(_cityId, session.CurrentCityId, System.StringComparison.Ordinal))
         {
             return;
@@ -183,6 +221,7 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
         pendingCityId = _cityId;
         session.SetPreviewDestination(_cityId);
         phase = TravelPhase.Confirming;
+        notebookButton.interactable = false;
         view.SetInteraction(false);
         travelView.ShowConfirmation(Presentation.PuzzleTravelConfirmation(
             TableManager.Instance.CityPrice(session.CurrentCityId).displayName,
@@ -255,11 +294,16 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
         phase = TravelPhase.None;
         pendingCityId = null;
         travelView.Close();
-        view.SetInteraction(true);
+        notebookButton.interactable = true;
+        view.SetInteraction(!notebook.gameObject.activeSelf);
     }
 
     void OnPanelVisibility(GameEvents.PanelInfo _info)
     {
+        if (!_info.open && _info.panel == view.PanelName)
+        {
+            SetNotebookOpen(false);
+        }
         if (!_info.open && (_info.panel == view.PanelName ||
             (_info.panel == Presentation.PUZZLE_TRAVEL_PANEL_NAME && phase != TravelPhase.None)))
         {
