@@ -140,8 +140,10 @@ public sealed class UpgradeManager : MonoBehaviour
     void RefreshNextUpgrade()
     {
         nextUpgrade = Tables.FirstUpgradeId;
-        int guard = 0;
-        while (!string.IsNullOrEmpty(nextUpgrade) && IsUnlocked(nextUpgrade) && guard++ < 1000)
+        var visited = new HashSet<string>(StringComparer.Ordinal);
+        while (!string.IsNullOrEmpty(nextUpgrade) && IsUnlocked(nextUpgrade) && visited.Add(nextUpgrade))
+        {
             nextUpgrade = Tables.TryGetUpgrade(nextUpgrade, out var node) ? node.nextUpgrade : null;
+        }
     }
 }

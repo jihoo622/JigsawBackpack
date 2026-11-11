@@ -4,15 +4,16 @@
 
 ## 1. 맵을 구성하는 저장소
 
-맵은 **테이블 3종 + 지도 프리팹 + 지형 배경 이미지 + 코드 상수**로 구성한다.
+맵은 **테이블 4종 + 지도 프리팹 + 지형 배경 이미지 + 시간 계산 코드**로 구성한다.
 
 | 저장소 | 경로 | 맵에서 담당하는 것 |
 |---|---|---|
 | 노드 테이블 | `Assets/Resources/Tables/PuzzleTableData.json` | 마을 30·지역 7·`startCity`·`planningTargetCityId`, 각 마을의 시장 격자와 재고 |
-| 노선 테이블 | `Assets/Resources/Tables/PuzzleRouteTableData.json` | 방향 노선 86항목(= 왕복 43철도)의 `travelTimeWeight`·`distance`·`cost`·`highSpeed`, `costPerDistance`·`costPerCell` |
+| 노선 테이블 | `Assets/Resources/Tables/PuzzleRouteTableData.json` | 방향 노선 86항목의 고정 `points`·요금용 `distance`·`cost`·`highSpeed`, 거리·적재 단가 |
+| 시간 테이블 | `Assets/Resources/Tables/PuzzleTimeTableData.json` | K·시작 시각·일출 시각·일출/야간 길이 |
 | 시간·판정 테이블 | `Assets/Resources/Tables/PuzzleTradeTableData.json` | `deadlineHours` 336(지도 경로 설계의 시간 총량)·`debtCityId` |
 | 지도 프리팹 | `Assets/Art/PuzzleWorldMap.prefab`<br>guid `ab2441b70b1c4490988e4eb2ca06784a` | 화면 좌표·선분·라벨 등 모든 시각 요소, 그리고 Presenter/View/NodeView 컴포넌트 자체 |
-| 코드 상수 | `Assets/Scripts/Runtime/Core/PuzzleTimeManager.cs` | `HOURS_PER_DAY = 24` · `HOURS_PER_TRAVEL_WEIGHT = 8` · `DEFAULT_DEADLINE_HOURS = 14 * 24` |
+| 시간 계산 | `Assets/Scripts/Runtime/Core/PuzzleTimeManager.cs` | 분 단위 시계·폴라인 길이 계산·야간 판정. 밸런스는 시간 테이블이 원본 |
 
 - 맵 UI 스크립트(PuzzleMapPresenter 1·PuzzleMapView 1·PuzzleMapNavigation 1·PuzzleMapTravelView 1·PuzzleMapNodeView 30)는 **전부 프리팹 안에 자기 완결로 들어 있다.** `Assets/Scenes/Game.unity`는 프리팹 인스턴스 하나를 사용한다.
 - `Game.unity`의 인스턴스는 루트 RectTransform(fileID 700011)에 프로퍼티 오버라이드 11개(pivot·anchor·sizeDelta·localScale)를 저장한다. 노드·선분·라벨 좌표는 전부 프리팹에 있고 씬 오버라이드는 없다.
@@ -75,88 +76,25 @@
 | `city.common.roadside` | 메르트 | common | — | 100/90 | 0 | 메르트 `S30` | 74, 57 | 3 |
 | `city.common.wayfarer` | 세르아 | common | — | 100/90 | 0 | 세르아 `S28` | 43, 57 | 5 |
 
-## 3. 노선 — `PuzzleRouteTableData.json`
+## 3. 노선과 소요 시간 — 잠정
 
-생성 원본의 철도 43개(방향 86항목)를 값 그대로 옮겼다. `projectMapData.rails`가 마을 ID로 직접 준 값이며 역→마을 추측은 쓰지 않는다. `travelTimeWeight`와 `distance`는 원본에서 이미 분리된 두 필드다(km 약 190당 1 / km 약 80당 1).
+- `PuzzleRouteTableData.routes[].points`가 게임 시간 계산용 고정 폴라인 좌표다. 방향 86개(왕복 43철도)를 기록하며 역방향은 같은 점의 역순이다. 기존 `travelTimeWeight`는 제거했다.
+- `PuzzleTimeTableData.pixelsPerHour`가 환산 비율 K다. 현재 28픽셀/시간은 잠정치이며, 소요 분은 `ceil(구간 길이 합 / K × 60)`이다. 화면 줌·UI 배율은 계산에 참여하지 않는다.
+- 소요 시간 범위는 잠정 K 기준 2시간 54분~30시간 51분이다. 요금용 `distance` 1~9, 기본요금 6, 거리·적재 단가 1은 변경하지 않았다.
+- `PuzzleTimeManager`가 분 단위 시계를 보유하고 표시·이동·물품 보유 시간·가치 누적이 같은 소요 분을 사용한다. 시작 06:00, 일출 06:00~24:00, 야간 00:00~06:00이다.
+- `Tools/MyJG/Apply Time Planning`은 표 캐시를 갱신하고 지도 시간 라벨·시장 입력 그룹·Game 씬의 아침 대기·예측 목적지 버튼을 연결한다. 원본 레이아웃의 좌표와 노선 연결은 유지했다.
 
-| 필드 | 원본 | 현재 값 |
-|---|---|---|
-| `travelTimeWeight` | `travelTimeWeight` | 1×39 · 2×3 · 4×1 |
-| `distance` | `distance` | 1×2 · 2×21 · 3×12 · 4×4 · 5×1 · 6×2 · 9×1 (레일 기준 1×39 · 2×3 · 4×1) |
-| `cost` | `railFareBase` | 전 항목 6 |
-| `highSpeed` | 없음 | 전 항목 false. 시간 계산에 참여하지 않음 |
-| `costPerDistance` / `costPerCell` | `ratePerDistanceUnit` / `ratePerOccupiedGridCell` | 1 / 1 |
+### 금융마을까지 최단 이동 시간 — K=28 잠정 산출
 
-- 소요 시간 = `가중치 × 8시간` → 8시간(39레일) · 16시간(3레일) · 32시간(1레일).
-- 이동 요금 = `cost + distance × costPerDistance + 기차 점유 칸 수 × costPerCell`. 레일 평균 기본+거리 요금 8.84.
-- 지역 내 22 · 지역 간 21. 막다른 역(차수 1) 8개, 차수 최대는 이브트 6.
+| 출발 마을 | 이동 시간만 합산 |
+|---|---|
+| 카르포트 | 25시간 36분 |
+| 노르노바 | 36시간 26분 |
+| 에른아 공업역 | 39시간 53분 |
+| 헤일포드 | 45시간 26분 |
+| 포르베르 | 54시간 46분 |
 
-### 전 레일 목록 (43)
-
-표의 방향 86항목은 아래 43레일을 왕복 2항목으로 펼친 것이다. `sourceId` 숫자 순서가 프리팹의 `Track_<n>`·`Time_<n>` 번호(`railIndex` = 0~42)와 같다.
-
-| 출발 | 도착 | 가중치 | 시간 | 거리 | 기본요금 | 구분 · `sourceId` · 원본 용도 |
-|---|---|---:|---:|---:|---:|---|
-| 에른아 공업역 `city.industry.ironworks` | 라센턴 `city.mine.dig` | 2 | 16h | 6 | 6 | 지역 간 · `R01` · 교역 간선 |
-| 라센턴 `city.mine.dig` | 피오아 항 `city.coast.port` | 4 | 32h | 9 | 6 | 지역 간 · `R02` · 교역 간선 |
-| 피오아 항 `city.coast.port` | 이브트 `city.farm.grain` | 2 | 16h | 6 | 6 | 지역 간 · `R03` · 교역 간선 |
-| 이브트 `city.farm.grain` | 아이포트 중앙 `city.capital.central` | 1 | 8h | 4 | 6 | 지역 간 · `R04` · 교역 간선 |
-| 아이포트 중앙 `city.capital.central` | 금융마을 `city.capital.finance` | 1 | 8h | 2 | 6 | 지역 내 · `R05` · 교역 간선 |
-| 에른아 공업역 `city.industry.ironworks` | 테라그라드 `city.common.crossing` | 1 | 8h | 3 | 6 | 지역 간 · `R06` · 통과 간선 |
-| 테라그라드 `city.common.crossing` | 세르아 `city.common.wayfarer` | 1 | 8h | 3 | 6 | 지역 내 · `R07` · 통과 간선 |
-| 세르아 `city.common.wayfarer` | 오스베르 `city.common.rest` | 1 | 8h | 3 | 6 | 지역 내 · `R08` · 통과 간선 |
-| 오스베르 `city.common.rest` | 메르트 `city.common.roadside` | 1 | 8h | 3 | 6 | 지역 내 · `R09` · 권장 교역 |
-| 메르트 `city.common.roadside` | 금융마을 `city.capital.finance` | 1 | 8h | 3 | 6 | 지역 간 · `R10` · 권장 교역 |
-| 다르폴 `city.ranch.highland` | 에른아 공업역 `city.industry.ironworks` | 2 | 16h | 5 | 6 | 지역 간 · `R11` · 권장 교역 |
-| 다르폴 `city.ranch.highland` | 이브트 `city.farm.grain` | 1 | 8h | 4 | 6 | 지역 간 · `R12` · 권장 교역 |
-| 아이포트 중앙 `city.capital.central` | 트렌포드 `city.capital.wholesale` | 1 | 8h | 2 | 6 | 지역 내 · `R13` · 최소신장 |
-| 이브트 `city.farm.grain` | 테라폴 `city.farm.orchard` | 1 | 8h | 2 | 6 | 지역 내 · `R14` · 권장 교역 |
-| 아이포트 중앙 `city.capital.central` | 디아안 `city.capital.outskirts` | 1 | 8h | 2 | 6 | 지역 내 · `R15` · 최소신장 |
-| 테라폴 `city.farm.orchard` | 베르스카 `city.farm.lumber` | 1 | 8h | 2 | 6 | 지역 내 · `R16` · 최소신장 |
-| 라센턴 `city.mine.dig` | 리오브루크 `city.mine.iron` | 1 | 8h | 2 | 6 | 지역 내 · `R17` · 최소신장 |
-| 트렌포드 `city.capital.wholesale` | 세르그라드 `city.capital.merchant` | 1 | 8h | 2 | 6 | 지역 내 · `R18` · 최소신장 |
-| 다르폴 `city.ranch.highland` | 오스그라드 `city.ranch.jerky` | 1 | 8h | 2 | 6 | 지역 내 · `R19` · 최소신장 |
-| 에른아 공업역 `city.industry.ironworks` | 헤일포드 `city.industry.logistics` | 1 | 8h | 2 | 6 | 지역 내 · `R20` · 최소신장 |
-| 피오아 항 `city.coast.port` | 테라티아 `city.coast.fish` | 1 | 8h | 3 | 6 | 지역 내 · `R21` · 최소신장 |
-| 테라티아 `city.coast.fish` | 테라카 `city.coast.spring` | 1 | 8h | 3 | 6 | 지역 내 · `R22` · 최소신장 |
-| 에른아 공업역 `city.industry.ironworks` | 노르노바 `city.industry.engine` | 1 | 8h | 3 | 6 | 지역 내 · `R23` · 최소신장 |
-| 베르스카 `city.farm.lumber` | 헤일하임 `city.ranch.butcher` | 1 | 8h | 1 | 6 | 지역 간 · `R24` · 최소신장 |
-| 카르포트 `city.industry.meatlover` | 헤일하임 `city.ranch.butcher` | 1 | 8h | 1 | 6 | 지역 간 · `R25` · 권장 교역 |
-| 이브트 `city.farm.grain` | 다르트 `city.farm.field` | 1 | 8h | 3 | 6 | 지역 내 · `R26` · 최소신장 |
-| 헤일하임 `city.ranch.butcher` | 라센폴 `city.ranch.pass` | 1 | 8h | 3 | 6 | 지역 내 · `R27` · 최소신장 |
-| 다르안 `city.mine.salt` | 베르스카 `city.farm.lumber` | 1 | 8h | 2 | 6 | 지역 간 · `R28` · 권장 교역 |
-| 포르베르 `city.industry.assembly` | 헤일포드 `city.industry.logistics` | 1 | 8h | 3 | 6 | 지역 내 · `R29` · 최소신장 |
-| 피오아 항 `city.coast.port` | 발렌리에 `city.coast.sea` | 1 | 8h | 4 | 6 | 지역 내 · `R30` · 최소신장 |
-| 라센턴 `city.mine.dig` | 카르카 `city.mine.cave` | 1 | 8h | 4 | 6 | 지역 내 · `R31` · 최소신장 |
-| 테라폴 `city.farm.orchard` | 헤일하임 `city.ranch.butcher` | 1 | 8h | 2 | 6 | 지역 간 · `R32` · 권장 교역 |
-| 트렌포드 `city.capital.wholesale` | 디아안 `city.capital.outskirts` | 1 | 8h | 3 | 6 | 지역 내 · `R33` · 허브 |
-| 금융마을 `city.capital.finance` | 디아안 `city.capital.outskirts` | 1 | 8h | 2 | 6 | 지역 내 · `R34` · 경제 보조 |
-| 카르포트 `city.industry.meatlover` | 베르스카 `city.farm.lumber` | 1 | 8h | 2 | 6 | 지역 간 · `R35` · 권장 교역 |
-| 이브트 `city.farm.grain` | 메르트 `city.common.roadside` | 1 | 8h | 2 | 6 | 지역 간 · `R36` · 경제 보조 |
-| 헤일하임 `city.ranch.butcher` | 세르아 `city.common.wayfarer` | 1 | 8h | 2 | 6 | 지역 간 · `R37` · 경제 보조 |
-| 노르노바 `city.industry.engine` | 라센폴 `city.ranch.pass` | 1 | 8h | 2 | 6 | 지역 간 · `R38` · 경제 보조 |
-| 베르스카 `city.farm.lumber` | 오스베르 `city.common.rest` | 1 | 8h | 2 | 6 | 지역 간 · `R39` · 경제 보조 |
-| 피오아 항 `city.coast.port` | 디아안 `city.capital.outskirts` | 1 | 8h | 2 | 6 | 지역 간 · `R40` · 경제 보조 |
-| 다르폴 `city.ranch.highland` | 세르아 `city.common.wayfarer` | 1 | 8h | 2 | 6 | 지역 간 · `R41` · 경제 보조 |
-| 테라폴 `city.farm.orchard` | 세르아 `city.common.wayfarer` | 1 | 8h | 2 | 6 | 지역 간 · `R42` · 경제 보조 |
-| 다르안 `city.mine.salt` | 오스베르 `city.common.rest` | 1 | 8h | 2 | 6 | 지역 간 · `R43` · 권장 교역 |
-
-### 경로 참고 값 (재계산 결과)
-
-- 에른아 공업역 → 금융마을 최단 = **5 가중치 = 40시간(1일 16시간)**. 기한 336시간 대비 8.4배 여유.
-- 기한은 가중치 42 단위와 같다. 평균 레일 가중치 1.14이므로 이론상 약 37회 이동에 해당한다.
-- 시작역에서 전 마을 도달 최대는 7 가중치(56시간, 포르베르).
-- 상환 장소가 금융마을로 고정돼(`debtCityId`) 있어 공업 지역 출발점별 최소 소요가 그대로 플레이 하한이 된다.
-
-| 공업 마을 | 금융마을까지 최단 |
-|---|---:|
-| 노르노바 | 48h |
-| 에른아 공업역 | 40h |
-| 카르포트 | 32h |
-| 포르베르 | 56h |
-| 헤일포드 | 48h |
-- 원본 권장 동선은 11역 88시간(4일차 16:00 도착, 목표 구간 72~96시간): 에른아 공업역 → 다르폴 → 이브트 → 테라폴 → 헤일하임 → 카르포트 → 베르스카 → 다르안 → 오스베르 → 메르트 → 금융마을.
-- 레일 차수는 이브트 6이 최대이고 차수 1이 8개다. 기존 맵은 차수 최소 2였다.
+고정 좌표의 경로 합산값이며 대기·거래·자금·화물 상태와 플레이 가능성을 검증한 결과가 아니다.
 
 ## 4. 프리팹 — `Assets/Art/PuzzleWorldMap.prefab`
 
@@ -221,82 +159,49 @@
 
 ### 코드에서 읽는 경로
 
-- `PuzzleMapView.Awake` — `regions` 라벨·색, `lines` 세그먼트 색, `routeTimes` 라벨 텍스트(`Presentation.PuzzleMapTime(PuzzleTimeManager.TravelHours(route.travelTimeWeight))`)를 채운다. `TryGetRoute`가 실패하면 **라벨을 갱신하지 않고 조용히 넘어간다.**
+- `PuzzleMapView.Awake`는 지역 라벨·노선 색과 폴라인 기반 소요 분 라벨을 채운다. 표에 없는 노선 바인딩은 갱신하지 않는다.
 - `PuzzleMapPresenter` — `SceneServices.For<PuzzleInventoryService>`로 세션을 얻고, 노드 Hover/Click을 구독한다. Click → `EvaluateTravel` → 확인·취소 모달 → 확인 시 재판정 → 이동 연출 → `Travel` 1회 → 도착 표시 → 지도 Close 순서다. 실패는 지도 `information`에 표시한다.
 - `PuzzleMapTravelView : PanelBase`는 `MapPanel/MapTravelPanel` 아래에 사전 배치한 확인 카드·이동 카드·기차·진행 막대를 제어한다. 기본 선택은 취소이며 `UI/Cancel`도 취소다. 이동 중에는 확인·취소·지도 조작을 막는다. 패널이 닫히거나 비활성화되면 Presenter의 대기 코루틴을 중단한다. 이동 확정 전 중단은 도시·시간·자금을 바꾸지 않는다.
 - `Tools/MyJG/Apply Map Travel UI`(`MapTravelSetupTool`)로 모달·연출·Presenter 참조를 다시 저장한다. 연출 실제 초 단위 시간은 `PuzzleTradeTableData.travelEffectSeconds`·`travelArrivalHoldSeconds`, 문구·색은 `Presentation`이 원본이다. 실제 게임 시간·요금 계산은 기존 `PuzzleInventoryService.Travel`만 수행한다.
 - 노드 상태는 `HasRoute(현재, target)` + `EvaluateTravel` + `session.HasVisitedCity` + `planningTargetCityId` 비교로 계산한다. **화면 좌표와 선분은 프리팹에 있고, 인접 관계·시간·비용·방문 여부는 전부 테이블과 세션 조회 결과다.** 프리팹에 인접 목록이 중복 저장되지는 않는다.
 - `GameEvents.CityArrived`를 받아 도착 후 다시 갱신한다.
-- 노선 라벨은 `PuzzleMapTime`이 24의 배수면 "N일"로 나머지는 "N시간"으로 표기한다. 현재 가중치는 8시간 · 16시간 · 32시간으로 표시된다.
+- 노선 라벨은 `PuzzleMapTime(소요 분)`으로 시간·분을 표시한다.
 
-## 5. 표시 규칙 — `Presentation.cs`
+## 5. 표시와 입력
 
-| 항목 | 값·위치 |
+- 문구·색·시간 서식은 `Presentation`이 원본이다. 지도·견적·호버에서 계산된 같은 소요 분을 사용한다.
+- 이동 확인창은 목적지·시간·도착 시각과 야간 여부·요금·이동 후 자금을 표시한다.
+- Game 씬 HUD의 예측 목적지 버튼은 직접 연결된 도시를 ID 순서로 순환 선택한다. 미선택 시 미래 가치만 숨기고, 지도에서 역을 선택하면 같은 예측 목적지로 기록한다.
+- 야간 시장은 `CanvasGroup`으로 흐리게 표시하고 입력을 끈다. 모델의 `EvaluateDrop`도 시장을 오가는 거래와 시장 내 재배치를 거부한다. 기차 내 조작과 다른 역으로 이동은 허용한다.
+- 아침 대기는 다음 일출까지 시간·보유 시간을 진행한다. 이동 횟수·요금·이동 시너지 가치와 시장 재고는 변경하지 않는다.
+
+## 6. 세션 시간
+
+- `PuzzleInventoryService.Time.ElapsedMinutes`가 단일 게임 시간이다. UI 시계는 시작 시각을 더해 시·분을 표시하고, 날짜는 자정 경계에서 바뀐다. 기한은 시작부터의 경과 분으로 비교한다.
+- 소요 시간은 `PuzzleTimeManager.TravelMinutes(route, timeRules)`이며 환산 후 분 미만을 올림한다. `Time.ArrivalAt`은 누적 범위를 먼저 검사한다.
+- 이동은 가치·보유 시간 범위를 검사한 후 비용·도시·시간을 한 번 확정한다. 가치 변화는 `(시너지−기본 가치) × 소요 분 / 60`이다.
+- 보유 시간은 상태 확정 중 갱신하고, 날짜 변경 부산물을 생성한 뒤 `TimeAdvanced`를 발행한다. 새 부산물의 보유 시간은 0에서 시작한다. 이벤트는 `previousMinutes`·`elapsedMinutes`·`DeltaMinutes`를 제공한다.
+
+## 7. 표 검증
+
+- 환산 K는 유한한 양수다. 일출·야간은 양수이며 합이 24시간이어야 한다. 시작·일출 시각은 0~23 범위다.
+- 폴라인은 유한한 x,y 쌍이 두 점 이상이고 길이가 양수여야 한다. 왕복 폴라인은 정확한 역순이다. 계산 가능한 소요 분인지도 검사한다.
+- 기존 도시 참조·노선 중복·거리·비용·양방향 연결과 근거리 교역 제한 검증을 유지한다. 테이블 오류는 모아서 보고하고 사용 전에 `RequireValid()`로 차단한다.
+
+## 8. 변경 위치
+
+| 변경 | 원본 |
 |---|---|
-| 패널 이름 | `PUZZLE_MAP_PANEL_NAME = "PuzzleWorldMap"` |
-| 지역 색 | `PuzzleMapLineColor(regionId)` → `PuzzleMapRegionColor`의 7색(알파 30 → 255), 미등록 ID는 `Color.clear` |
-| 지역 간 선 | `regionId == "line.regional"`일 때 `PuzzleMapInterchange`(228,233,239). 프리팹 `lines`의 특수 키와 짝을 이룬다 |
-| 상태 색 | 현재(255,199,77) · 방문(87,219,184) · 미탐색(102,117,140) · 이동가능(99,232,171) · 자금부족(217,115,115) |
-| 안내문 | `PuzzleMapGuide`가 `"근거리 {HOURS_PER_TRAVEL_WEIGHT}시간 · 숫자: 소요 시간 · ★: 상환 예정지 · 경과 N일 M시간"` |
-| 미래 가치 | `PuzzleTooltipFutureValue`가 `"{HOURS_PER_TRAVEL_WEIGHT}시간 후 가치"` |
+| 마을 위치·노선 모양 | 레이아웃 JSON과 노선 표 `points`를 함께 갱신한 뒤 레이아웃 적용 |
+| 이동 환산 비율 | `PuzzleTimeTableData.pixelsPerHour` |
+| 시작·일출·야간 | `PuzzleTimeTableData.startHour`·`daylightStartHour`·`daylightHours`·`nightHours` |
+| 요금용 거리·단가 | `PuzzleRouteTableData`의 `distance`·`cost`·`costPerDistance`·`costPerCell` |
+| 기한 | `PuzzleTradeTableData.deadlineHours` |
+| HUD·시장 그룹·지도 시간 연결 | `Tools/MyJG/Apply Time Planning` |
+| 표 캐시 | `Tools/MyJG/Tables/Reload Tables` (플레이 중 제외) |
 
-**`HOURS_PER_TRAVEL_WEIGHT`를 바꾸면 이 문자열 2곳이 자동으로 따라간다. 대신 "8시간"이라는 단어를 하드코딩한 기획서·문서와 어긋난다.**
+## 9. 남은 확인
 
-## 6. 시간 변환과 코드 상수
-
-| 상수 | 위치 | 값 |
-|---|---|---|
-| `HOURS_PER_DAY` | `PuzzleTimeManager` | 24 |
-| `HOURS_PER_TRAVEL_WEIGHT` | `PuzzleTimeManager` | 8 (**테이블 아닌 코드 `const`**) |
-| `DEFAULT_DEADLINE_HOURS` | `PuzzleTimeManager` | 336 (14일) |
-| `deadlineHours` | `PuzzleTradeTableData.json` | 336 |
-
-- 변환은 `PuzzleTimeManager.TravelHours(weight)` 단일 경로다. 가중치 1 미만은 예외, 결과는 `checked`다.
-- 당일 시각은 0시·8시·16시 3칸만 지난다(전 가중치가 8의 배수). Day는 `ElapsedHours / 24`.
-- 조회 API: `Time.ElapsedHours`·`Day`·`Hour`·`RemainingHours`·`HasDeadline`·`ArrivalAt(h)`·`CanArriveBeforeDeadline(h)`.
-- 진행 API: `session.AdvanceTravelTime(weight)`(외부 이동 시스템용), `session.AdvanceHours(h)`(대기·작업용). `Travel(toCityId)`은 내부에서 한 번 진행하므로 추가 호출하면 중복이다.
-- **가치 변동은 가중치 단위, 보유 시간은 실제 hour 단위다.** `wagon.ApplyTurnValueChange(route.travelTimeWeight)` vs `placement.ApplyElapsedHours(실제 시간)`. 기준 배율을 바꾸면 두 축이 어긋난다.
-- 노선 조회: `TableManager.TryGetRoute` / `HasRoute` / `RoutesFrom(cityId)`(도착 ID 오름차순, 노출 정렬일 뿐 연결 관계 아님). 동일 방향 복수 간선은 미지원.
-
-## 7. 검증이 잡는 것과 못 잡는 것
-
-`GameTableRules.ValidateRoutes`·`ValidateCities`가 잡는 것:
-
-- 미등록 도시 참조, 자기 자신 연결, 방향 중복, `cost < 0`, `distance <= 0`, `travelTimeWeight < 1`
-- 반대 방향 항목의 `distance`·`highSpeed` 대칭
-- 같은 지역 근거리 직결에서 보장 재고의 공급·수요가 어느 한 방향이라도 맞물리는 연결
-- `startCity`에서 전 도시 도달 가능성 (BFS)
-
-잡지 못하는 것:
-
-- **`travelTimeWeight`의 왕복 대칭** — `distance`·`highSpeed`와 달리 검사문이 없다. 지금은 86/86 일치하지만 수동 리밸런싱 시 왕복 시간이 달라져도 조용하다.
-- 프리팹 바인딩 누락·오탈자 (`nodes`의 cityId, `routeTimes`의 쌍, `lines`의 regionId). 레이아웃 도구는 잘못된 `cityId`·`regionId`를 로그로 남기지만, 도구를 실행하지 않은 상태는 아무도 잡지 못한다.
-- `Track_<n>`과 노선의 시각적 대응. **코드는 `Track_`를 참조하지 않는다.** 레이아웃 도구를 돌려 `railIndex`(sourceId 숫자 순서) 기준으로 다시 그리기 전까지 그림과 표는 다른 세상에 산다.
-- `highSpeed`는 필드와 왕복 대칭 검사만 있고 시간·요금 계산에 미사용이다(전 항목 false).
-- 시간과 거리의 값 중복 여부. 지금 표는 두 값을 다르게 쓰지만(km 환산 기준이 다름), 검사는 값의 범위와 왕복 대칭만 본다.
-- `Game.unity`의 루트 RectTransform scale 0 오버라이드 11개(§1).
-
-## 8. 편집 체크리스트
-
-| 변경 | 손댈 곳 |
-|---|---|
-| 마을 추가 | `PuzzleTableData.cities` + `regions` 참조 유지 + `PuzzleRouteTableData.routes`(왕복 2항목) + 레이아웃 JSON의 `nodes`·`rails` + 레이아웃 도구 실행(노드 오브젝트는 미리 있어야 함) |
-| 노선 추가·삭제 | `routes` 왕복 2항목 + 레이아웃 JSON의 `rails` + `Tools/MyJG/Apply Rail Map Layout` 실행(선분·라벨·색 그룹 재생성) |
-| 거리만 바꾸기 | `routes.distance` (요금에만 영향. 시간은 그대로) |
-| 시간만 바꾸기 | `routes.travelTimeWeight` (시간·**가치 변동 배수**에 영향. 요금 그대로) |
-| 기준 배율 8시간 변경 | `PuzzleTimeManager.HOURS_PER_TRAVEL_WEIGHT` + `PuzzleTradeTableData.deadlineHours`(난이도 연동) + 기획서 3장 표·6장 수식·7장 수치표. 8시간 문자열은 `Presentation`이 상수를 읽으므로 자동 |
-| 기한 변경 | `PuzzleTradeTableData.deadlineHours`(시간 단위) + `PuzzleTimeManager.DEFAULT_DEADLINE_HOURS`는 생성자 기본값임을 기억 |
-| 지도 색·표기 | `Presentation` 한 곳. 개별 View·프리팹에 색을 두지 않는다 |
-
-- 테이블 JSON을 저장하면 `TableEditor`가 캐시를 무너뜨린다. 수동 갱신은 `Tools/MyJG/Tables/Reload Tables`(플레이 중 제외).
-- 프리팹·씬을 건드린 뒤에는 `Tools/MyJG/Validate Project`로 컴파일 경고와 표-씬 참조를 확인한다.
-- 맵 UI는 실행 시 프로시저럴 생성을 하지 않는다. 노드·선·라벨을 코드에서 만들지 않고, 에디터 도구가 프리팹에 결과를 저장하는 방식만 쓴다.
-
-## 9. 미결
-
-- `highSpeed`를 시간 단축으로 쓸지, 삭제할지. 지금은 죽은 필드다.
-- 막다른 역(차수 1) 8개를 용인할지. 왕복 2회의 시간 비용이 드는 구조는 이번 판에서 처음이다.
-- `HOURS_PER_TRAVEL_WEIGHT`를 코드 상수에서 테이블 필드로 옮길지. AGENTS의 "밸런스 수치는 테이블이 원본"을 현재는 지키지 않는다.
-- `travelTimeWeight` 왕복 대칭 검증(§7)을 추가할지.
-- 상환 장소를 금융마을로 고정한 값(`debtCityId`)을 유지할지. 도착 후 상환까지의 시간이 플레이 길이에 드러난다.
-- `CityArrived`·`TimeAdvanced`는 분석 로그에 없다. `TelemetryRecorder`는 run·scene·upgrade·panel·trade 5개만 구독하고, 물건 보유 시간은 `Debug.Log`만 남긴다(`TelemetryEvents`에 이동·시간 사건 정의 없음).
+- K=28과 거리 비례 가치 누적의 경제 밸런스는 잠정이며 플레이 검증이 필요하다.
+- 일출 안의 연속 정차 수, 야간 대기와 상환 기한·자금 압박은 실제 플레이로 확인하지 않았다.
+- `highSpeed`는 시간 계산에 참여하지 않는 기존 필드다.

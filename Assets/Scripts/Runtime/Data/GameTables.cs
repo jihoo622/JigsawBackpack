@@ -1,5 +1,14 @@
 using System;
 
+[Serializable]
+public sealed class BasicDataTableData
+{
+    public string displayName, status, note;
+    public BasicNumberData[] numbers = Array.Empty<BasicNumberData>();
+    public BasicTextData[] texts = Array.Empty<BasicTextData>();
+    public BasicColorData[] colors = Array.Empty<BasicColorData>();
+}
+
 // 테이블 원본은 Assets/Resources/Tables에만 두고, 이 클래스들은 직렬화 필드만 가진다.
 // 조회는 TableManager, 검증·파생 값 계산은 GameTableRules가 담당한다.
 // 파일명은 데이터 클래스명과 일치시켜야 한다(TableManager.Load가 그 이름으로 읽는다).
@@ -74,6 +83,18 @@ public sealed class PuzzleRouteTableData
     public int costPerCell = -1;
     public int costPerDistance = -1;
     public PuzzleRouteData[] routes = Array.Empty<PuzzleRouteData>();
+}
+
+[Serializable]
+public sealed class PuzzleTimeTableData
+{
+    public string status, note;
+    public double pixelsPerHour = -1;
+    public int daylightHours = -1;
+    public int nightHours = -1;
+    public int daylightStartHour = -1;
+    public int startHour = -1;
+    public long restMinutes = -1;
 }
 
 [Serializable]

@@ -22,12 +22,14 @@ public sealed class TableManager
     const string RESOURCE_FOLDER = "Tables/";
 
     public GameplayTableData Gameplay { get; }
+    public BasicDataTableData Basic { get; }
     public FlowTableData Flow { get; }
     public PuzzleTableData Puzzle { get; }
     public PuzzleItemPriceTableData PuzzleItemPrice { get; }
     public PuzzleSynergyTableData PuzzleSynergy { get; }
     public PuzzleTradeTableData PuzzleTrade { get; }
     public PuzzleRouteTableData PuzzleRoute { get; }
+    public PuzzleTimeTableData PuzzleTime { get; }
     public PuzzleTurnTableData PuzzleTurn { get; }
     public IReadOnlyList<PuzzleDebtPaymentData> DebtSchedule { get; }
     public IReadOnlyList<PuzzleSynergyRuleData> SynergyRules { get; }
@@ -38,6 +40,9 @@ public sealed class TableManager
     public bool IsValid { get; }
 
     readonly Dictionary<string, UpgradeData> upgrades;
+    readonly Dictionary<string, BasicNumberData> basicNumbers;
+    readonly Dictionary<string, BasicTextData> basicTexts;
+    readonly Dictionary<string, BasicColorData> basicColors;
     readonly Dictionary<string, SceneLinkData> scenes;
     readonly Dictionary<string, PuzzlePieceData> pieces;
     readonly Dictionary<string, PuzzleItemPriceData> itemPrices;
@@ -50,6 +55,7 @@ public sealed class TableManager
     TableManager()
     {
         bool loaded = true;
+        Basic = Load<BasicDataTableData>(ref loaded);
         Gameplay = Load<GameplayTableData>(ref loaded);
         Flow = Load<FlowTableData>(ref loaded);
         Puzzle = Load<PuzzleTableData>(ref loaded);
@@ -57,9 +63,13 @@ public sealed class TableManager
         PuzzleSynergy = Load<PuzzleSynergyTableData>(ref loaded);
         PuzzleTrade = Load<PuzzleTradeTableData>(ref loaded);
         PuzzleRoute = Load<PuzzleRouteTableData>(ref loaded);
+        PuzzleTime = Load<PuzzleTimeTableData>(ref loaded);
         PuzzleTurn = Load<PuzzleTurnTableData>(ref loaded);
 
         var rules = new GameTableRules();
+        basicNumbers = rules.Index(Basic.numbers, _entry => _entry.id, "BasicDataTableData.numbers");
+        basicTexts = rules.Index(Basic.texts, _entry => _entry.id, "BasicDataTableData.texts");
+        basicColors = rules.Index(Basic.colors, _entry => _entry.id, "BasicDataTableData.colors");
         upgrades = rules.Index(Gameplay.upgrades, e => e.id, "GameplayTableData.upgrades");
         scenes = rules.Index(Flow.scenes, e => e.scene, "FlowTableData.scenes");
         pieces = rules.Index(Puzzle.pieces, e => e.id, "PuzzleTableData.pieces");
@@ -195,6 +205,13 @@ public sealed class TableManager
         }
         return this;
     }
+
+    public BasicNumberData BasicNumber(string _id) => Find(basicNumbers, _id, "BasicDataTableData.numbers");
+    public BasicTextData BasicText(string _id) => Find(basicTexts, _id, "BasicDataTableData.texts");
+    public BasicColorData BasicColor(string _id) => Find(basicColors, _id, "BasicDataTableData.colors");
+    public bool HasBasicNumber(string _id) => basicNumbers.ContainsKey(_id);
+    public bool HasBasicText(string _id) => basicTexts.ContainsKey(_id);
+    public bool HasBasicColor(string _id) => basicColors.ContainsKey(_id);
 
     public UpgradeData Upgrade(string _id)
     {

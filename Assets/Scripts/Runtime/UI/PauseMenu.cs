@@ -80,7 +80,7 @@ public sealed class PauseMenu : PanelBase
     internal void ShowCompletion(long _funds)
     {
         showingCompletion = true;
-        panelTitle.text = Presentation.PUZZLE_CLEAR_TITLE;
+        panelTitle.text = Presentation.PuzzleClearTitle;
         panelHint.text = Presentation.PuzzleClearSummary(_funds);
         Open();
     }

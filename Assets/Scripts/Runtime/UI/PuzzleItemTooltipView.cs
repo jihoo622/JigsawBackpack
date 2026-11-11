@@ -6,10 +6,10 @@ using UnityEngine.UI;
 [DisallowMultipleComponent]
 public sealed class PuzzleItemTooltipView : PanelBase
 {
-    const float BASE_FONT_SIZE = 18f;
-    const float MIN_FONT_SIZE = 18f;
-    const float MAX_FONT_SIZE = 24f;
-    const float DEFAULT_FOLLOW_SPEED = 25f;
+    static float BaseFontSize => BasicData.Float("ui.PuzzleItemTooltipView.BaseFontSize");
+    static float MinFontSize => BasicData.Float("ui.PuzzleItemTooltipView.MinFontSize");
+    static float MaxFontSize => BasicData.Float("ui.PuzzleItemTooltipView.MaxFontSize");
+    static float DefaultFollowSpeed => BasicData.Float("ui.PuzzleItemTooltipView.DefaultFollowSpeed");
 
     [SerializeField] Canvas canvas;
     [SerializeField] RectTransform panelRect;
@@ -31,7 +31,7 @@ public sealed class PuzzleItemTooltipView : PanelBase
     [SerializeField] TextMeshProUGUI futureValueText;
     [SerializeField] TextMeshProUGUI freshnessText;
     [SerializeField] TMP_FontAsset fontAsset;
-    [SerializeField] float followSpeed = DEFAULT_FOLLOW_SPEED;
+    float FollowSpeed => DefaultFollowSpeed;
 
     RectTransform canvasRectTransform;
     Vector2 targetCanvasPosition;
@@ -86,7 +86,7 @@ public sealed class PuzzleItemTooltipView : PanelBase
 
     internal void Show(PuzzleItemDefinition _item, decimal _actualValue, PuzzleTradeRate _rate,
         IReadOnlyList<PuzzleSynergyBonus> _bonuses, decimal? _futureValue, Vector2 _screenPosition,
-        bool _isTrainInventory = true, int? _freshness = null)
+        bool _isTrainInventory = true, int? _freshness = null, long? _previewMinutes = null, string _previewCityName = null)
     {
         if (_item == null)
         {
@@ -120,9 +120,9 @@ public sealed class PuzzleItemTooltipView : PanelBase
 
         if (_isTrainInventory)
         {
-            int sellPercent = _rate.SellPercent > 0 ? _rate.SellPercent : 100;
+            int sellPercent = _rate.SellPercent;
             decimal finalSellPrice = _rate.HasRareValue ? _rate.RareValue
-                : System.Math.Round(_actualValue * (decimal)sellPercent / 100m, System.MidpointRounding.AwayFromZero);
+                : System.Math.Round(_actualValue * (decimal)sellPercent / PuzzleInventoryValuation.BASE_PERCENT, System.MidpointRounding.AwayFromZero);
             if (sellRateText)
             {
                 sellRateText.text = Presentation.PuzzleTooltipSellRate(sellPercent);
@@ -134,9 +134,9 @@ public sealed class PuzzleItemTooltipView : PanelBase
         }
         else
         {
-            int buyPercent = _rate.BuyPercent > 0 ? _rate.BuyPercent : 100;
+            int buyPercent = _rate.BuyPercent;
             decimal finalBuyPrice = _rate.HasRareValue ? _rate.RareValue
-                : System.Math.Round(_actualValue * (decimal)buyPercent / 100m, System.MidpointRounding.AwayFromZero);
+                : System.Math.Round(_actualValue * (decimal)buyPercent / PuzzleInventoryValuation.BASE_PERCENT, System.MidpointRounding.AwayFromZero);
             if (sellRateText)
             {
                 sellRateText.text = Presentation.PuzzleTooltipBuyRate(buyPercent);
@@ -189,9 +189,9 @@ public sealed class PuzzleItemTooltipView : PanelBase
 
         if (futureValueText)
         {
-            if (showSynergy && _futureValue.HasValue)
+            if (showSynergy && _futureValue.HasValue && _previewMinutes.HasValue)
             {
-                futureValueText.text = Presentation.PuzzleTooltipFutureValue(_futureValue.Value, _actualValue);
+                futureValueText.text = Presentation.PuzzleTooltipFutureValue(_futureValue.Value, _actualValue, _previewMinutes.Value, _previewCityName);
                 futureValueText.gameObject.SetActive(true);
             }
             else
@@ -353,7 +353,7 @@ public sealed class PuzzleItemTooltipView : PanelBase
             return;
         }
 
-        panelRect.anchoredPosition = Vector2.Lerp(panelRect.anchoredPosition, targetCanvasPosition, Time.unscaledDeltaTime * followSpeed);
+        panelRect.anchoredPosition = Vector2.Lerp(panelRect.anchoredPosition, targetCanvasPosition, Time.unscaledDeltaTime * FollowSpeed);
     }
 
     void ApplyThemeColors()
@@ -427,10 +427,10 @@ public sealed class PuzzleItemTooltipView : PanelBase
         {
             _text.font = fontAsset;
         }
-        _text.fontSize = BASE_FONT_SIZE;
+        _text.fontSize = BaseFontSize;
         _text.enableAutoSizing = true;
-        _text.fontSizeMin = MIN_FONT_SIZE;
-        _text.fontSizeMax = MAX_FONT_SIZE;
+        _text.fontSizeMin = MinFontSize;
+        _text.fontSizeMax = MaxFontSize;
         _text.textWrappingMode = TextWrappingModes.NoWrap;
         _text.raycastTarget = false;
     }

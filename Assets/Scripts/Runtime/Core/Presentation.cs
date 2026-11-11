@@ -14,87 +14,129 @@ public enum EffectCategory
 
 public static class Presentation
 {
-    // 날짜 표기 도입 시 시간 데이터와 분리해 이 표시 경로만 교체한다.
-    internal static string PuzzleTime(PuzzleTimeManager _time)
+    public static Color SharedColor(string _id)
     {
-        return $"Day {_time.Day} · {_time.Hour:00}:00";
+        return BasicData.Color(_id);
     }
 
-    public static Color PuzzleTimeAccent => new(1f, 0.82f, 0.42f);
+    public static Color PuzzleUnmodifiedTint => BasicData.Color("presentation.PuzzleUnmodifiedTint");
+    public static Color PuzzleTextOutline => BasicData.Color("presentation.PuzzleTextOutline");
 
-    public const string PUZZLE_MAP_TITLE = "지역 철도 노선도";
+    public static string TavernTitle(string _cityName)
+    {
+        return BasicData.Format("presentation.tavern.title", _cityName);
+    }
+
+    public static string TavernRumor(string _cityName, string _tag)
+    {
+        return BasicData.Format("presentation.tavern.rumor", _cityName, PuzzleTagLabel(_tag));
+    }
+
+    public static string TavernNoRumor => BasicData.Text("presentation.tavern.noRumor");
+    public static string TavernUnreadRumor => BasicData.Text("presentation.tavern.unreadRumor");
+    public static string TavernTalk => BasicData.Text("presentation.tavern.talk");
+
+    // 날짜 표기 도입 시 시간 데이터와 분리해 이 표시 경로만 교체한다.
+    public static string PuzzleTime(PuzzleTimeManager _time)
+    {
+        return BasicData.Format("presentation.PuzzleTime.text1", _time.Day, _time.Hour, _time.Minute, (_time.IsNight ? BasicData.Text("presentation.PuzzleTime.text2") : BasicData.Text("presentation.PuzzleTime.text3")));
+    }
+
+    public static Color PuzzleTimeAccent => BasicData.Color("presentation.PuzzleTimeAccent.color1");
+
+    public static string PuzzleMapTitle => BasicData.Text("presentation.PuzzleMapTitle");
     public const string PUZZLE_MAP_PANEL_NAME = "PuzzleWorldMap";
-    public const string PUZZLE_MAP_CLOSE = "닫기";
-    public const string PUZZLE_MAP_CURRENT = "▼ 현재 위치";
-    public const string PUZZLE_MAP_TARGET = "▼ 상환 목표";
-    public const string PUZZLE_MAP_CURRENT_AND_TARGET = "▼ 현재 위치 · 목표";
+    public static string PuzzleMapOpen => BasicData.Text("presentation.PuzzleMapOpen");
+    public static string PuzzleMapClose => BasicData.Text("presentation.PuzzleMapClose");
+    public static string PuzzleMapCurrentText => BasicData.Text("presentation.PuzzleMapCurrent");
+    public static string PuzzleMapTargetText => BasicData.Text("presentation.PuzzleMapTarget");
+    public static string PuzzleMapCurrentAndTarget => BasicData.Text("presentation.PuzzleMapCurrentAndTarget");
 
     internal static string PuzzleMapBadgeText(bool _current, bool _planningTarget)
     {
         if (_current && _planningTarget)
         {
-            return PUZZLE_MAP_CURRENT_AND_TARGET;
+            return PuzzleMapCurrentAndTarget;
         }
-        return _current ? PUZZLE_MAP_CURRENT : PUZZLE_MAP_TARGET;
+        return _current ? PuzzleMapCurrentText : PuzzleMapTargetText;
     }
     public const string PUZZLE_TRAVEL_PANEL_NAME = "MapTravelPanel";
-    public const string PUZZLE_TRAVEL_QUESTION = "이동하시겠습니까?";
-    public const string PUZZLE_TRAVEL_CONFIRM = "확인";
-    public const string PUZZLE_TRAVEL_CANCEL = "취소";
-    public const string PUZZLE_TRAVEL_IN_PROGRESS = "기차가 이동 중입니다";
-    public const string PUZZLE_TRAVEL_ARRIVED = "도착했습니다";
-    public static Color PuzzleTravelDim => new Color32(6, 11, 18, 220);
-    public static Color PuzzleTravelCard => new Color32(27, 36, 47, 255);
+    public static string PuzzleTravelQuestion => BasicData.Text("presentation.PuzzleTravelQuestion");
+    public static string PuzzleTravelConfirm => BasicData.Text("presentation.PuzzleTravelConfirm");
+    public static string PuzzleTravelCancel => BasicData.Text("presentation.PuzzleTravelCancel");
+    public static string PuzzleTravelInProgress => BasicData.Text("presentation.PuzzleTravelInProgress");
+    public static string PuzzleTravelArrived => BasicData.Text("presentation.PuzzleTravelArrived");
+    public static Color PuzzleTravelDim => BasicData.Color("presentation.PuzzleTravelDim.color1");
+    public static Color PuzzleTravelCard => BasicData.Color("presentation.PuzzleTravelCard.color1");
 
     internal static string PuzzleTravelConfirmation(string _fromName, string _toName, PuzzleTravelResult _quote)
     {
-        return $"<b>{_fromName} → {_toName}</b>\n\n소요 시간  {PuzzleMapTime(_quote.TravelTime)}\n이동 요금  {_quote.Cost:N0}\n이동 후 자금  {_quote.FundsAfter:N0}";
+        return BasicData.Format("presentation.PuzzleTravelConfirmation.text1", _fromName, _toName, PuzzleMapTime(_quote.TravelMinutes), _quote.ArrivalClockMinutes / PuzzleTimeManager.MINUTES_PER_HOUR, _quote.ArrivalClockMinutes % PuzzleTimeManager.MINUTES_PER_HOUR, (_quote.ArrivalIsNight ? BasicData.Text("presentation.PuzzleTravelConfirmation.text2") : BasicData.Text("presentation.PuzzleTravelConfirmation.text3")), _quote.Cost, _quote.FundsAfter);
     }
 
     internal static string PuzzleTravelJourney(string _fromName, string _toName)
     {
-        return $"{_fromName} → {_toName}";
+        return BasicData.Format("presentation.PuzzleTravelJourney.text1", _fromName, _toName);
     }
 
     public static string PuzzleTravelProgress(float _progress)
     {
-        return $"{Mathf.RoundToInt(_progress * 100f)}%";
+        return BasicData.Format("presentation.PuzzleTravelProgress.text1", Mathf.RoundToInt(_progress * BasicData.Float("presentation.PuzzleTravelProgress.number1")));
     }
-    public const string PUZZLE_MAP_FIT = "전체 보기";
-    public const string PUZZLE_MAP_LOCATE = "현재 위치";
-    public const string PUZZLE_MAP_ZOOM_IN = "+";
-    public const string PUZZLE_MAP_ZOOM_OUT = "−";
-    public const float PUZZLE_MAP_HALO_SIZE = 56f;
-    public const int PUZZLE_MAP_BADGE_FONT_SIZE = 16;
-    public const int PUZZLE_MAP_TIME_FONT_SIZE = 18;
+    public static string PuzzleMapFit => BasicData.Text("presentation.PuzzleMapFit");
+    public static string PuzzleWaitDaylight => BasicData.Text("presentation.PuzzleWaitDaylight");
+    public static string StationActionsTitle => BasicData.Text("presentation.StationActionsTitle");
+    public static string StationMarket => BasicData.Text("presentation.StationMarket");
+    public static string StationMarketClosed => BasicData.Text("presentation.StationMarketClosed");
+    public static string StationTavern => BasicData.Text("presentation.StationTavern");
+    public static string StationRest => BasicData.Text("presentation.StationRest");
+    public static string StationTravel => BasicData.Text("presentation.StationTravel");
+    public static string StationBack => BasicData.Text("presentation.StationBack");
+    public static string StationRestHint => BasicData.Text("presentation.StationRestHint");
+    public static string StationRestDuration(long _minutes)
+    {
+        return BasicData.Format("presentation.StationRestDuration.text1", PuzzleMapTime(_minutes));
+    }
+    public static string PuzzleNightMarket => BasicData.Text("presentation.PuzzleNightMarket");
+    public static float PuzzleMarketClosedAlpha => BasicData.Float("presentation.PuzzleMarketClosedAlpha.number1");
+    public static string PuzzlePreviewDestination(string _cityName, long? _minutes)
+    {
+        return _minutes.HasValue ? BasicData.Format("presentation.PuzzlePreviewDestination.text1", _cityName, PuzzleMapTime(_minutes.Value)) : BasicData.Text("presentation.PuzzlePreviewDestination.text2");
+    }
+    public static string PuzzleMapLocate => BasicData.Text("presentation.PuzzleMapLocate");
+    public static string PuzzleMapZoomIn => BasicData.Text("presentation.PuzzleMapZoomIn");
+    public static string PuzzleMapZoomOut => BasicData.Text("presentation.PuzzleMapZoomOut");
+    public static float PuzzleMapHaloSize => BasicData.Float("presentation.PuzzleMapHaloSize");
+    public static int PuzzleMapBadgeFontSize => BasicData.Int("presentation.PuzzleMapBadgeFontSize");
+    public static int PuzzleMapTimeFontSize => BasicData.Int("presentation.PuzzleMapTimeFontSize");
     public static int PuzzleMapStationFontSize(float _zoom, bool _emphasized)
     {
-        return _emphasized ? 24 : _zoom < 0.8f ? 18 : 22;
+        return _emphasized ? BasicData.Int("presentation.PuzzleMapStationFontSize.number1") : _zoom < BasicData.Float("presentation.PuzzleMapStationFontSize.number2") ? BasicData.Int("presentation.PuzzleMapStationFontSize.number3") : BasicData.Int("presentation.PuzzleMapStationFontSize.number4");
     }
 
     public static float PuzzleMapTrackThickness(float _authoredThickness)
     {
-        return _authoredThickness * 0.65f;
+        return _authoredThickness * BasicData.Float("presentation.PuzzleMapTrackThickness.number1");
     }
-    public static Color PuzzleMapCurrentHalo => new(1f, 0.78f, 0.30f, 0.25f);
+    public static Color PuzzleMapCurrentHalo => BasicData.Color("presentation.PuzzleMapCurrentHalo.color1");
     public static Color PuzzleMapTargetHalo => PuzzleMapCurrentHalo;
-    public static Color PuzzleMapOcean => new Color32(21, 41, 58, 255);
-    public static Color PuzzleMapLand => new Color32(42, 55, 58, 255);
-    public static Color PuzzleMapRiver => new Color32(36, 114, 168, 255);
-    public static Color PuzzleMapTerrainBorder => new Color32(113, 139, 147, 255);
+    public static Color PuzzleMapOcean => BasicData.Color("presentation.PuzzleMapOcean.color1");
+    public static Color PuzzleMapLand => BasicData.Color("presentation.PuzzleMapLand.color1");
+    public static Color PuzzleMapRiver => BasicData.Color("presentation.PuzzleMapRiver.color1");
+    public static Color PuzzleMapTerrainBorder => BasicData.Color("presentation.PuzzleMapTerrainBorder.color1");
     public static string PuzzleMapZoom(float _scale)
     {
-        return $"{_scale * 100f:0}%";
+        return BasicData.Format("presentation.PuzzleMapZoom.text1", _scale * BasicData.Float("presentation.PuzzleMapZoom.number1"));
     }
-    public const string PUZZLE_MAP_GUIDE = "역 클릭: 이동 · 휠: 확대/축소 · 드래그: 지도 이동 · 색 노선: 지역 내부 · 흰 노선: 지역 간";
-    public const string PUZZLE_MAP_HINT = "마을을 가리켜 거리·비용과 수집한 교역 정보를 확인하세요.";
-    public static Color PuzzleMapCurrent => new(1f, 0.78f, 0.30f);
+    public static string PuzzleMapGuideText => BasicData.Text("presentation.PuzzleMapGuide");
+    public static string PuzzleMapHint => BasicData.Text("presentation.PuzzleMapHint");
+    public static Color PuzzleMapCurrent => BasicData.Color("presentation.PuzzleMapCurrent.color1");
     public static Color PuzzleMapTarget => PuzzleMapCurrent;
-    public static Color PuzzleMapVisited => new(0.34f, 0.86f, 0.72f);
-    public static Color PuzzleMapUnknown => new(0.40f, 0.46f, 0.55f);
-    public static Color PuzzleMapRoute => new(0.30f, 0.68f, 0.82f);
-    public static Color PuzzleMapConnected => new(0.39f, 0.91f, 0.67f);
-    public static Color PuzzleMapConnectedDisabled => new(0.85f, 0.45f, 0.45f);
+    public static Color PuzzleMapVisited => BasicData.Color("presentation.PuzzleMapVisited.color1");
+    public static Color PuzzleMapUnknown => BasicData.Color("presentation.PuzzleMapUnknown.color1");
+    public static Color PuzzleMapRoute => BasicData.Color("presentation.PuzzleMapRoute.color1");
+    public static Color PuzzleMapConnected => BasicData.Color("presentation.PuzzleMapConnected.color1");
+    public static Color PuzzleMapConnectedDisabled => BasicData.Color("presentation.PuzzleMapConnectedDisabled.color1");
 
     public static Color PuzzleMapNodeMarkerColor(bool _current, bool _visited, bool _connected, bool _canAfford)
     {
@@ -109,90 +151,90 @@ public static class Presentation
         return _visited ? PuzzleMapVisited : PuzzleMapUnknown;
     }
 
-    internal static string PuzzleMapGuide(long _elapsedTime)
+    internal static string PuzzleMapGuide(long _elapsedMinutes)
     {
-        return $"{PUZZLE_MAP_GUIDE}\n근거리 {PuzzleTimeManager.HOURS_PER_TRAVEL_WEIGHT}시간 · 숫자: 소요 시간 · ★: 상환 예정지 · 경과 {_elapsedTime / PuzzleTimeManager.HOURS_PER_DAY}일 {_elapsedTime % PuzzleTimeManager.HOURS_PER_DAY}시간";
+        return BasicData.Format("presentation.PuzzleMapGuide.text1", PuzzleMapGuideText, PuzzleMapTime(_elapsedMinutes));
     }
 
     internal static string PuzzleMapNodeLabel(string _name, bool _visited, bool _current, bool _connected, bool _canAfford)
     {
         if (_current)
         {
-            return _name + "\n<size=14>현재 위치</size>";
+            return _name + BasicData.Text("presentation.PuzzleMapNodeLabel.text1");
         }
         if (_connected)
         {
-            return _name + (_canAfford ? "\n<size=14>이동 가능</size>" : "\n<size=14>자금 부족</size>");
+            return _name + (_canAfford ? BasicData.Text("presentation.PuzzleMapNodeLabel.text2") : BasicData.Text("presentation.PuzzleMapNodeLabel.text3"));
         }
-        return _name + (_visited ? "\n<size=14>방문 완료</size>" : "\n<size=14>미방문</size>");
+        return _name + (_visited ? BasicData.Text("presentation.PuzzleMapNodeLabel.text4") : BasicData.Text("presentation.PuzzleMapNodeLabel.text5"));
     }
 
     internal static string PuzzleMapInformation(PuzzleCityData _city, bool _visited, bool _current, bool _connected,
         PuzzleTravelResult _evaluation, PuzzleRegionData _region)
     {
-        string heading = $"<size=28><b>{_city.displayName}</b></size>";
-        heading += $" <size=18>{_region.displayName} · 물가 {_region.pricePercent}%</size>";
+        string heading = BasicData.Format("presentation.PuzzleMapInformation.text1", _city.displayName);
+        heading += BasicData.Format("presentation.PuzzleMapInformation.text2", _region.displayName, _region.pricePercent);
         string status;
         if (_current)
         {
-            status = $"<color=#{ColorUtility.ToHtmlStringRGB(PuzzleMapCurrent)}><b>현재 체류 중인 마을</b></color>";
+            status = BasicData.Format("presentation.PuzzleMapInformation.text3", ColorUtility.ToHtmlStringRGB(PuzzleMapCurrent));
         }
         else if (!_connected)
         {
-            status = $"<color=#{ColorUtility.ToHtmlStringRGB(PuzzleMapUnknown)}><b>직접 연결된 철로 없음 (이동 불가)</b></color>";
+            status = BasicData.Format("presentation.PuzzleMapInformation.text4", ColorUtility.ToHtmlStringRGB(PuzzleMapUnknown));
         }
         else if (_evaluation.Failure == PuzzleTravelFailure.InsufficientFunds)
         {
-            status = $"<color=#{ColorUtility.ToHtmlStringRGB(PuzzleMapConnectedDisabled)}><b>자금 부족</b> · {PuzzleTravelQuote(_evaluation)}</color>";
+            status = BasicData.Format("presentation.PuzzleMapInformation.text5", ColorUtility.ToHtmlStringRGB(PuzzleMapConnectedDisabled), PuzzleTravelQuote(_evaluation));
         }
         else if (_evaluation.IsSuccess)
         {
-            status = $"<color=#{ColorUtility.ToHtmlStringRGB(PuzzleMapConnected)}><b>이동 가능</b> · {PuzzleTravelQuote(_evaluation)}</color>";
+            status = BasicData.Format("presentation.PuzzleMapInformation.text6", ColorUtility.ToHtmlStringRGB(PuzzleMapConnected), PuzzleTravelQuote(_evaluation));
         }
         else
         {
-            status = $"<color=#{ColorUtility.ToHtmlStringRGB(PuzzleMapConnectedDisabled)}>{PuzzleTravelStatus(_evaluation)} · 소요: {_evaluation.TravelTime}시간</color>";
+            status = BasicData.Format("presentation.PuzzleMapInformation.text7", ColorUtility.ToHtmlStringRGB(PuzzleMapConnectedDisabled), PuzzleTravelStatus(_evaluation), PuzzleMapTime(_evaluation.TravelMinutes));
         }
 
         string trade;
         if (!_visited)
         {
-            trade = "<size=20>미방문 · 정보 미수집</size>\n\n직접 방문하면 교역 정보가 기록됩니다.";
+            trade = BasicData.Text("presentation.PuzzleMapInformation.text12");
         }
         else
         {
             var rules = _city.tagPrices ?? Array.Empty<PuzzleCityTagPriceData>();
             string common = string.Join(" · ", rules
-                .Where(rule => rule != null && rule.buyPercent < 100 && rule.sellPercent < 100)
+                .Where(rule => rule != null && rule.buyPercent < BasicData.Int("presentation.if.number1") && rule.sellPercent < BasicData.Int("presentation.if.number2"))
                 .OrderBy(rule => rule.tag, StringComparer.Ordinal).Select(rule => PuzzleTagLabel(rule.tag)));
             string rare = string.Join(" · ", rules
-                .Where(rule => rule != null && rule.buyPercent > 100 && rule.sellPercent > 100)
+                .Where(rule => rule != null && rule.buyPercent > BasicData.Int("presentation.if.number3") && rule.sellPercent > BasicData.Int("presentation.if.number4"))
                 .OrderBy(rule => rule.tag, StringComparer.Ordinal).Select(rule => PuzzleTagLabel(rule.tag)));
             string commonColor = ColorUtility.ToHtmlStringRGB(PuzzleMapVisited);
             string rareColor = ColorUtility.ToHtmlStringRGB(PuzzleMapCurrent);
-            trade = $"<size=20>특산품: {(_region.tradeHub ? "집산품" : PuzzleTagLabel(_city.specialtyTag))} · 방문 완료</size>\n" +
-                $"<color=#{commonColor}><b>흔한 자원</b></color>   {(string.IsNullOrEmpty(common) ? "없음" : common)}\n" +
-                $"<color=#{rareColor}><b>귀한 자원</b></color>   {(string.IsNullOrEmpty(rare) ? "없음" : rare)}";
+            trade = BasicData.Format("presentation.PuzzleMapInformation.text8", (_region.tradeHub ? BasicData.Text("presentation.PuzzleMapInformation.text13") : PuzzleTagLabel(_city.specialtyTag))) +
+                BasicData.Format("presentation.PuzzleMapInformation.text9", commonColor, (string.IsNullOrEmpty(common) ? BasicData.Text("presentation.PuzzleMapInformation.text14") : common)) +
+                BasicData.Format("presentation.PuzzleMapInformation.text10", rareColor, (string.IsNullOrEmpty(rare) ? BasicData.Text("presentation.PuzzleMapInformation.text15") : rare));
         }
 
-        return $"{heading}  {status}\n{trade}";
+        return BasicData.Format("presentation.PuzzleMapInformation.text11", heading, status, trade);
     }
 
     static string PuzzleTravelBreakdown(PuzzleTravelResult _result)
     {
         long cargoCost = _result.Cost - _result.BaseCost - _result.DistanceCost;
-        return $"기본 {_result.BaseCost:N0} + 거리 {_result.DistanceCost:N0} + 적재 {cargoCost:N0}";
+        return BasicData.Format("presentation.PuzzleTravelBreakdown.text1", _result.BaseCost, _result.DistanceCost, cargoCost);
     }
 
     static string PuzzleTravelQuote(PuzzleTravelResult _result)
     {
-        return $"거리 {_result.Distance} · 소요 {_result.TravelTime}시간 · {PUZZLE_TRAVEL_COST} {_result.Cost:N0} ({PuzzleTravelBreakdown(_result)})";
+        return BasicData.Format("presentation.PuzzleTravelQuote.text1", _result.Distance, PuzzleMapTime(_result.TravelMinutes), PuzzleTravelCost, _result.Cost, PuzzleTravelBreakdown(_result));
     }
 
     public static string PuzzleMapRegionLabel(PuzzleRegionData _region)
     {
         return string.IsNullOrEmpty(_region.specialtyTag) ? _region.displayName :
-            $"{_region.displayName} · {PuzzleTagLabel(_region.specialtyTag)}";
+            BasicData.Format("presentation.PuzzleMapRegionLabel.text1", _region.displayName, PuzzleTagLabel(_region.specialtyTag));
     }
 
     public static string PuzzleMapStationName(string _name, bool _planningTarget)
@@ -200,29 +242,29 @@ public static class Presentation
         return _planningTarget ? _name + " ★" : _name;
     }
 
-    public static string PuzzleMapTime(long _time)
+    public static string PuzzleMapTime(long _minutes)
     {
-        return _time % PuzzleTimeManager.HOURS_PER_DAY == 0
-            ? $"{_time / PuzzleTimeManager.HOURS_PER_DAY}일"
-            : $"{_time}시간";
+        long hours = _minutes / PuzzleTimeManager.MINUTES_PER_HOUR;
+        long minutes = _minutes % PuzzleTimeManager.MINUTES_PER_HOUR;
+        return minutes == 0 ? BasicData.Format("presentation.PuzzleMapTime.text1", hours) : hours == 0 ? BasicData.Format("presentation.PuzzleMapTime.text2", minutes) : BasicData.Format("presentation.PuzzleMapTime.text3", hours, minutes);
     }
 
     public static Color PuzzleMapRegionColor(string _regionId)
     {
         return _regionId switch
         {
-            "region.mine" => new Color32(78, 144, 214, 30),
-            "region.ranch" => new Color32(214, 142, 62, 30),
-            "region.industry" => new Color32(68, 182, 118, 30),
-            "region.capital" => new Color32(198, 98, 168, 30),
-            "region.coast" => new Color32(126, 108, 214, 30),
-            "region.farm" => new Color32(62, 184, 182, 30),
-            "region.common" => new Color32(150, 164, 182, 30),
-            _ => UnityEngine.Color.clear
+            "region.mine" => BasicData.Color("presentation.PuzzleMapRegionColor.color1"),
+            "region.ranch" => BasicData.Color("presentation.PuzzleMapRegionColor.color2"),
+            "region.industry" => BasicData.Color("presentation.PuzzleMapRegionColor.color3"),
+            "region.capital" => BasicData.Color("presentation.PuzzleMapRegionColor.color4"),
+            "region.coast" => BasicData.Color("presentation.PuzzleMapRegionColor.color5"),
+            "region.farm" => BasicData.Color("presentation.PuzzleMapRegionColor.color6"),
+            "region.common" => BasicData.Color("presentation.PuzzleMapRegionColor.color7"),
+            _ => BasicData.Color("presentation.PuzzleMapRegionColor.color8")
         };
     }
 
-    public static Color PuzzleMapInterchange => new Color32(228, 233, 239, 255);
+    public static Color PuzzleMapInterchange => BasicData.Color("presentation.PuzzleMapInterchange.color1");
 
     public static Color PuzzleMapLineColor(string _regionId)
     {
@@ -237,84 +279,84 @@ public static class Presentation
 
     internal static string PuzzleCityTitle(PuzzleCityData _city, PuzzleRegionData _region)
     {
-        return $"{_city.displayName} · {_region.displayName}";
+        return BasicData.Format("presentation.PuzzleCityTitle.text1", _city.displayName, _region.displayName);
     }
 
     public static Color PuzzleItemIcon(float _alpha)
     {
-        return new Color(1f, 1f, 1f, _alpha);
+        return BasicData.Color("presentation.PuzzleItemIcon.color1", _alpha);
     }
-    public static Color PuzzleSynergyArrow => UnityEngine.Color.white;
-    public const string PUZZLE_TRAIN_TITLE = "Train Inventory";
+    public static Color PuzzleSynergyArrow => BasicData.Color("presentation.PuzzleSynergyArrow.color1");
+    public static string PuzzleTrainTitleText => BasicData.Text("presentation.PuzzleTrainTitle");
     internal static string PuzzleTrainTitle(int _wagonNumber)
     {
-        return $"기차 화물 · {_wagonNumber}번 칸";
+        return BasicData.Format("presentation.PuzzleTrainTitle.text1", _wagonNumber);
     }
-    internal static string PuzzleAddWagonLabel(long _cost)
+    public static string PuzzleAddWagonLabel(long _cost)
     {
-        return $"기차 화물칸 추가\n${_cost}";
+        return BasicData.Format("presentation.PuzzleAddWagonLabel.text1", _cost);
     }
     internal static string PuzzleWagonPurchaseStatus(int _wagonNumber, long _cost)
     {
-        return $"화물칸 구매 완료 · ${_cost:N0} · {_wagonNumber}번 칸 추가";
+        return BasicData.Format("presentation.PuzzleWagonPurchaseStatus.text1", _cost, _wagonNumber);
     }
-    public static Color PuzzleAddWagonBox => new Color32(40, 167, 69, 255);
-    public static Color PuzzleWagonSelectedBorder => new Color32(255, 215, 0, 255);
-    public static Color PuzzleWagonDragHoverBorder => new Color(0.39f, 0.91f, 0.67f);
-    public static Color PuzzleWagonNormalBorder => new Color32(90, 95, 105, 255);
-    public const string PUZZLE_MARKET_TITLE = "도시 시장";
-    public const string PUZZLE_MOVE_GUIDE = "드래그로 이동    R로 회전    Esc로 취소";
-    public const string PUZZLE_TRAVEL_COST = "비용";
-    public const string PUZZLE_TAG_EXPENSIVE = "귀함";
-    public const string PUZZLE_TAG_COMMON = "흔함";
+    public static Color PuzzleAddWagonBox => BasicData.Color("presentation.PuzzleAddWagonBox.color1");
+    public static Color PuzzleWagonSelectedBorder => BasicData.Color("presentation.PuzzleWagonSelectedBorder.color1");
+    public static Color PuzzleWagonDragHoverBorder => BasicData.Color("presentation.PuzzleWagonDragHoverBorder.color1");
+    public static Color PuzzleWagonNormalBorder => BasicData.Color("presentation.PuzzleWagonNormalBorder.color1");
+    public static string PuzzleMarketTitle => BasicData.Text("presentation.PuzzleMarketTitle");
+    public static string PuzzleMoveGuide => BasicData.Text("presentation.PuzzleMoveGuide");
+    public static string PuzzleTravelCost => BasicData.Text("presentation.PuzzleTravelCost");
+    public static string PuzzleTagExpensive => BasicData.Text("presentation.PuzzleTagExpensive");
+    public static string PuzzleTagCommon => BasicData.Text("presentation.PuzzleTagCommon");
 
     static readonly Dictionary<string, string> PUZZLE_TAG_LABELS = new Dictionary<string, string>
     {
-        { "Cargo", "화물" },
-        { "Wood", "목재" },
-        { "Food", "음식" },
-        { "Grain", "곡물" },
-        { "Supply", "보급품" },
-        { "Water", "물" },
-        { "Machinery", "기계" },
-        { "Metal", "금속" },
-        { "Fish", "물고기" },
-        { "Salt", "소금" },
-        { "Meat", "고기" },
-        { "Animal", "가축" },
-        { "Fruit", "과일" },
-        { "Poo", "똥" },
-        { "Box", "\uC0C1\uC790" },
+        { "Cargo", "presentation.PuzzleTagCommon.text1" },
+        { "Wood", "presentation.PuzzleTagCommon.text2" },
+        { "Food", "presentation.PuzzleTagCommon.text3" },
+        { "Grain", "presentation.PuzzleTagCommon.text4" },
+        { "Supply", "presentation.PuzzleTagCommon.text5" },
+        { "Water", "presentation.PuzzleTagCommon.text6" },
+        { "Machinery", "presentation.PuzzleTagCommon.text7" },
+        { "Metal", "presentation.PuzzleTagCommon.text8" },
+        { "Fish", "presentation.PuzzleTagCommon.text9" },
+        { "Salt", "presentation.PuzzleTagCommon.text10" },
+        { "Meat", "presentation.PuzzleTagCommon.text11" },
+        { "Animal", "presentation.PuzzleTagCommon.text12" },
+        { "Fruit", "presentation.PuzzleTagCommon.text13" },
+        { "Poo", "presentation.PuzzleTagCommon.text14" },
+        { "Box", "presentation.PuzzleTagCommon.text15" },
 
     };
 
-    public static Color PuzzleBackground => new(0.10f, 0.13f, 0.17f);
-    public static Color PuzzleCell => new(0.17f, 0.21f, 0.26f);
-    public static Color PuzzleHeading => new(0.92f, 0.94f, 0.97f);
-    public static Color PuzzlePiece => UnityEngine.Color.white;
-    public static Color PuzzleGhost => new(1f, 1f, 1f, 0.42f);
-    public static Color PuzzleMoveTarget => new(0.53f, 0.79f, 1f);
+    public static Color PuzzleBackground => BasicData.Color("presentation.PuzzleBackground.color1");
+    public static Color PuzzleCell => BasicData.Color("presentation.PuzzleCell.color1");
+    public static Color PuzzleHeading => BasicData.Color("presentation.PuzzleHeading.color1");
+    public static Color PuzzlePiece => BasicData.Color("presentation.PuzzlePiece.color1");
+    public static Color PuzzleGhost => BasicData.Color("presentation.PuzzleGhost.color1");
+    public static Color PuzzleMoveTarget => BasicData.Color("presentation.PuzzleMoveTarget.color1");
 
-    public static Color PuzzleTooltipHeaderBackground => new Color32(176, 180, 184, 255);
-    public static Color PuzzleTooltipBodyBackground => new Color32(214, 216, 218, 255);
-    public static Color PuzzleTooltipDivider => new Color32(30, 30, 30, 255);
-    public static Color PuzzleTooltipText => new Color32(30, 30, 30, 255);
-    public static Color PuzzleTooltipGold => new Color32(159, 163, 72, 255);
-    public static Color PuzzleTooltipGreen => new Color32(31, 158, 61, 255);
-    public static Color PuzzleTooltipRed => new Color32(192, 57, 43, 255);
+    public static Color PuzzleTooltipHeaderBackground => BasicData.Color("presentation.PuzzleTooltipHeaderBackground.color1");
+    public static Color PuzzleTooltipBodyBackground => BasicData.Color("presentation.PuzzleTooltipBodyBackground.color1");
+    public static Color PuzzleTooltipDivider => BasicData.Color("presentation.PuzzleTooltipDivider.color1");
+    public static Color PuzzleTooltipText => BasicData.Color("presentation.PuzzleTooltipText.color1");
+    public static Color PuzzleTooltipGold => BasicData.Color("presentation.PuzzleTooltipGold.color1");
+    public static Color PuzzleTooltipGreen => BasicData.Color("presentation.PuzzleTooltipGreen.color1");
+    public static Color PuzzleTooltipRed => BasicData.Color("presentation.PuzzleTooltipRed.color1");
 
     internal static string PuzzleTooltipActualValue(decimal _actualValue)
     {
-        return $"<color=#{ColorUtility.ToHtmlStringRGB(PuzzleTooltipText)}>실제 가치 : </color><color=#{ColorUtility.ToHtmlStringRGB(PuzzleTooltipGold)}>$ {_actualValue:#,0.##}</color>";
+        return BasicData.Format("presentation.PuzzleTooltipActualValue.text1", ColorUtility.ToHtmlStringRGB(PuzzleTooltipText), ColorUtility.ToHtmlStringRGB(PuzzleTooltipGold), _actualValue);
     }
 
     static Color RateValueColor(int _percent)
     {
-        if (_percent > 100)
+        if (_percent > BasicData.Int("presentation.RateValueColor.number1"))
         {
             return PuzzleTooltipGreen;
         }
-        if (_percent < 100)
+        if (_percent < BasicData.Int("presentation.RateValueColor.number2"))
         {
             return PuzzleTooltipRed;
         }
@@ -337,60 +379,60 @@ public static class Presentation
     internal static string PuzzleTooltipSellRate(int _percent)
     {
         Color color = RateValueColor(_percent);
-        return $"<color=#{ColorUtility.ToHtmlStringRGB(PuzzleTooltipText)}>판매 배율 : </color><color=#{ColorUtility.ToHtmlStringRGB(color)}>{_percent}%</color>";
+        return BasicData.Format("presentation.PuzzleTooltipSellRate.text1", ColorUtility.ToHtmlStringRGB(PuzzleTooltipText), ColorUtility.ToHtmlStringRGB(color), _percent);
     }
 
     internal static string PuzzleTooltipBuyRate(int _percent)
     {
         Color color = RateValueColor(_percent);
-        return $"<color=#{ColorUtility.ToHtmlStringRGB(PuzzleTooltipText)}>구매 배율 : </color><color=#{ColorUtility.ToHtmlStringRGB(color)}>{_percent}%</color>";
+        return BasicData.Format("presentation.PuzzleTooltipBuyRate.text1", ColorUtility.ToHtmlStringRGB(PuzzleTooltipText), ColorUtility.ToHtmlStringRGB(color), _percent);
     }
 
     internal static string PuzzleTooltipFinalSellPrice(decimal _price, decimal _actualValue)
     {
         Color color = PriceValueColor(_price, _actualValue);
-        return $"<color=#{ColorUtility.ToHtmlStringRGB(PuzzleTooltipText)}>판매 금액 : </color><color=#{ColorUtility.ToHtmlStringRGB(color)}>$ {_price:#,0.##}</color>";
+        return BasicData.Format("presentation.PuzzleTooltipFinalSellPrice.text1", ColorUtility.ToHtmlStringRGB(PuzzleTooltipText), ColorUtility.ToHtmlStringRGB(color), _price);
     }
 
     internal static string PuzzleTooltipFinalBuyPrice(decimal _price, decimal _actualValue)
     {
         Color color = PriceValueColor(_price, _actualValue);
-        return $"<color=#{ColorUtility.ToHtmlStringRGB(PuzzleTooltipText)}>구매 금액 : </color><color=#{ColorUtility.ToHtmlStringRGB(color)}>$ {_price:#,0.##}</color>";
+        return BasicData.Format("presentation.PuzzleTooltipFinalBuyPrice.text1", ColorUtility.ToHtmlStringRGB(PuzzleTooltipText), ColorUtility.ToHtmlStringRGB(color), _price);
     }
 
-    internal static string PuzzleTooltipSynergyHeader()
+    public static string PuzzleTooltipSynergyHeader()
     {
-        return $"<color=#{ColorUtility.ToHtmlStringRGB(PuzzleTooltipText)}>적용 중인 시너지 목록</color>";
+        return BasicData.Format("presentation.PuzzleTooltipSynergyHeader.text1", ColorUtility.ToHtmlStringRGB(PuzzleTooltipText));
     }
 
     internal static string PuzzleTooltipSynergyBonus(string _neighborName, decimal _percent)
     {
         string sign = _percent >= 0 ? "+" : string.Empty;
         Color color = _percent >= 0 ? PuzzleTooltipGreen : PuzzleTooltipRed;
-        return $"<color=#{ColorUtility.ToHtmlStringRGB(PuzzleTooltipText)}>• {_neighborName} : </color><color=#{ColorUtility.ToHtmlStringRGB(color)}>{sign}{_percent:#,0.##}%</color>";
+        return BasicData.Format("presentation.PuzzleTooltipSynergyBonus.text1", ColorUtility.ToHtmlStringRGB(PuzzleTooltipText), _neighborName, ColorUtility.ToHtmlStringRGB(color), sign, _percent);
     }
 
     internal static string PuzzleTooltipNoSynergy()
     {
-        return $"<color=#{ColorUtility.ToHtmlStringRGB(PuzzleTooltipText)}>• 적용 중인 시너지 없음</color>";
+        return BasicData.Format("presentation.PuzzleTooltipNoSynergy.text1", ColorUtility.ToHtmlStringRGB(PuzzleTooltipText));
     }
 
-    internal static string PuzzleTooltipFutureValue(decimal _futureValue, decimal _actualValue)
+    internal static string PuzzleTooltipFutureValue(decimal _futureValue, decimal _actualValue, long _minutes, string _cityName)
     {
         Color color = _futureValue > _actualValue
             ? PuzzleTooltipGreen
             : (_futureValue < _actualValue ? PuzzleTooltipRed : PuzzleTooltipGold);
-        return $"<color=#{ColorUtility.ToHtmlStringRGB(PuzzleTooltipText)}>{PuzzleTimeManager.HOURS_PER_TRAVEL_WEIGHT}시간 후 가치 : </color><color=#{ColorUtility.ToHtmlStringRGB(color)}>$ {_futureValue:#,0.##}</color>";
+        return BasicData.Format("presentation.PuzzleTooltipFutureValue.text1", ColorUtility.ToHtmlStringRGB(PuzzleTooltipText), _cityName, PuzzleMapTime(_minutes), ColorUtility.ToHtmlStringRGB(color), _futureValue);
     }
 
     internal static string PuzzleTooltipFreshness(int _current)
     {
-        return $"<color=#{ColorUtility.ToHtmlStringRGB(PuzzleTooltipText)}>신선도 : </color><color=#{ColorUtility.ToHtmlStringRGB(PuzzleTooltipGreen)}>{_current}</color>";
+        return BasicData.Format("presentation.PuzzleTooltipFreshness.text1", ColorUtility.ToHtmlStringRGB(PuzzleTooltipText), ColorUtility.ToHtmlStringRGB(PuzzleTooltipGreen), _current);
     }
 
     internal static string PuzzleValueText(PuzzleValue _value)
     {
-        return $"화물 가치  ${_value.FinalValue:#,0.##}  <size=18>기본 ${_value.BaseValue:N0}</size>";
+        return BasicData.Format("presentation.PuzzleValueText.text1", _value.FinalValue, _value.BaseValue);
     }
 
     internal static string PuzzleItemDetails(PuzzleItemDefinition _item, PuzzleValue _value, decimal _actualValue,
@@ -402,30 +444,30 @@ public static class Presentation
         }
 
         string details =
-            $"{_item.DisplayName}    {PuzzleValueText(_value)}    실제 가치 {_actualValue:#,0.##}\n{_item.Description}";
+            BasicData.Format("presentation.PuzzleItemDetails.text1", _item.DisplayName, PuzzleValueText(_value), _actualValue, _item.Description);
         if (_rate.BuyPercent > 0 || _rate.SellPercent > 0)
         {
             details += "\n" + PuzzleTradeRateText(_rate);
         }
         if (_value.SynergyBonuses.Count == 0)
         {
-            return $"{details}\n인접 시너지 없음";
+            return BasicData.Format("presentation.PuzzleItemDetails.text2", details);
         }
 
         var bonuses = _value.SynergyBonuses.Select(bonus =>
-            $"{bonus.NeighborName} {bonus.Percent:+#,0.##;-#,0.##;0}% ({bonus.Amount:+#,0.##;-#,0.##;0})");
-        return $"{details}\n인접 시너지\n{string.Join("  ·  ", bonuses)}";
+            BasicData.Format("presentation.PuzzleItemDetails.text3", bonus.NeighborName, bonus.Percent, bonus.Amount));
+        return BasicData.Format("presentation.PuzzleItemDetails.text4", details, string.Join("  ·  ", bonuses));
     }
 
     internal static string PuzzleTradeRateText(PuzzleTradeRate _rate)
     {
-        string rule = string.IsNullOrEmpty(_rate.Tag) ? "기본" : _rate.Tag;
-        return $"현재 도시 배율 · {rule} 구매 {_rate.BuyPercent}% · 판매 {_rate.SellPercent}%";
+        string rule = string.IsNullOrEmpty(_rate.Tag) ? BasicData.Text("presentation.PuzzleTradeRateText.text2") : _rate.Tag;
+        return BasicData.Format("presentation.PuzzleTradeRateText.text1", rule, _rate.BuyPercent, _rate.SellPercent);
     }
 
     internal static string PuzzleFunds(long _funds)
     {
-        return $"보유 자금 {_funds:N0}";
+        return BasicData.Format("presentation.PuzzleFunds.text1", _funds);
     }
 
     // 도시의 태그 규칙을 구매·판매 비율 기준으로 귀함/흔함으로 묶는다.
@@ -440,11 +482,11 @@ public static class Presentation
             {
                 continue;
             }
-            if (rule.buyPercent > 100 && rule.sellPercent > 100)
+            if (rule.buyPercent > BasicData.Int("presentation.PuzzleCityTagPreferences.number1") && rule.sellPercent > BasicData.Int("presentation.PuzzleCityTagPreferences.number2"))
             {
                 expensive.Add(rule.tag);
             }
-            else if (rule.buyPercent < 100 && rule.sellPercent < 100)
+            else if (rule.buyPercent < BasicData.Int("presentation.if.number5") && rule.sellPercent < BasicData.Int("presentation.if.number6"))
             {
                 common.Add(rule.tag);
             }
@@ -454,8 +496,8 @@ public static class Presentation
         string rareText = string.Join(" · ", expensive.OrderBy(tag => tag, StringComparer.Ordinal).Select(PuzzleTagLabel));
         string commonColor = ColorUtility.ToHtmlStringRGB(PuzzleMapVisited);
         string rareColor = ColorUtility.ToHtmlStringRGB(PuzzleMapCurrent);
-        return $"<color=#{commonColor}><b>흔한 자원</b></color>   {(string.IsNullOrEmpty(commonText) ? "없음" : commonText)}\n" +
-            $"<color=#{rareColor}><b>귀한 자원</b></color>   {(string.IsNullOrEmpty(rareText) ? "없음" : rareText)}";
+        return BasicData.Format("presentation.PuzzleCityTagPreferences.text1", commonColor, (string.IsNullOrEmpty(commonText) ? BasicData.Text("presentation.PuzzleCityTagPreferences.text3") : commonText)) +
+            BasicData.Format("presentation.PuzzleCityTagPreferences.text2", rareColor, (string.IsNullOrEmpty(rareText) ? BasicData.Text("presentation.PuzzleCityTagPreferences.text4") : rareText));
 
     }
 
@@ -465,35 +507,35 @@ public static class Presentation
         {
             return string.Empty;
         }
-        return PUZZLE_TAG_LABELS.TryGetValue(_tag, out string label) ? label : _tag;
+        return PUZZLE_TAG_LABELS.TryGetValue(_tag, out string label) ? BasicData.Text(label) : _tag;
     }
 
     public static Color PuzzleTagBackgroundColor(string _tag)
     {
         return (_tag ?? string.Empty).ToLowerInvariant() switch
         {
-            "wood" => new Color32(141, 90, 48, 255),       // 목재: 팔레트같은 따뜻한 브라운
-            "metal" => new Color32(84, 110, 122, 255),     // 금속: 메탈릭 스틸 슬레이트
-            "machinery" => new Color32(180, 83, 9, 255),   // 기계: 산업용 앰버/브론즈
-            "food" => new Color32(217, 119, 6, 255),       // 식품/음식: 수확 웜 오렌지
-            "fish" => new Color32(2, 132, 199, 255),       // 물고기/수산물: 딥 오션 블루
-            "water" => new Color32(14, 165, 233, 255),     // 물/식수: 맑은 아쿠아 블루
-            "salt" => new Color32(100, 116, 139, 255),     // 소금: 미네랄 실버 슬레이트
-            "box" => new Color32(141, 110, 99, 255),
-            "supply" => new Color32(22, 163, 74, 255),     // 보급품: 포레스트 그린
-            "cargo" => new Color32(141, 110, 99, 255),      // 화물/상자: 가죽/카톤 브라운
-            "meat" => new Color32(159, 45, 58, 255),       // 고기: 딥 레드
-            "animal" => new Color32(160, 120, 74, 255),    // 가축: 탄/레더 탠
-            "fruit" => new Color32(196, 63, 63, 255),      // 과일: 사과 레드
-            "poo" => new Color32(96, 64, 38, 255),         // 똥: 다크 브라운
-            _ => new Color32(71, 85, 105, 255)
+            "wood" => BasicData.Color("presentation.PuzzleTagBackgroundColor.color1"),       // 목재: 팔레트같은 따뜻한 브라운
+            "metal" => BasicData.Color("presentation.PuzzleTagBackgroundColor.color2"),     // 금속: 메탈릭 스틸 슬레이트
+            "machinery" => BasicData.Color("presentation.PuzzleTagBackgroundColor.color3"),   // 기계: 산업용 앰버/브론즈
+            "food" => BasicData.Color("presentation.PuzzleTagBackgroundColor.color4"),       // 식품/음식: 수확 웜 오렌지
+            "fish" => BasicData.Color("presentation.PuzzleTagBackgroundColor.color5"),       // 물고기/수산물: 딥 오션 블루
+            "water" => BasicData.Color("presentation.PuzzleTagBackgroundColor.color6"),     // 물/식수: 맑은 아쿠아 블루
+            "salt" => BasicData.Color("presentation.PuzzleTagBackgroundColor.color7"),     // 소금: 미네랄 실버 슬레이트
+            "box" => BasicData.Color("presentation.PuzzleTagBackgroundColor.color8"),
+            "supply" => BasicData.Color("presentation.PuzzleTagBackgroundColor.color9"),     // 보급품: 포레스트 그린
+            "cargo" => BasicData.Color("presentation.PuzzleTagBackgroundColor.color10"),      // 화물/상자: 가죽/카톤 브라운
+            "meat" => BasicData.Color("presentation.PuzzleTagBackgroundColor.color11"),       // 고기: 딥 레드
+            "animal" => BasicData.Color("presentation.PuzzleTagBackgroundColor.color12"),    // 가축: 탄/레더 탠
+            "fruit" => BasicData.Color("presentation.PuzzleTagBackgroundColor.color13"),      // 과일: 사과 레드
+            "poo" => BasicData.Color("presentation.PuzzleTagBackgroundColor.color14"),         // 똥: 다크 브라운
+            _ => BasicData.Color("presentation.PuzzleTagBackgroundColor.color15")
         };
     }
 
     public static Color PuzzleTagTextColor(string _tag)
     {
         // 다크/미디엄 톤 테마 배경 위에서 선명하게 읽히는 흰색
-        return new Color32(255, 255, 255, 255);
+        return BasicData.Color("presentation.PuzzleTagTextColor.color1");
     }
 
     public static IReadOnlyList<string> PrioritizeTags(IEnumerable<string> _tags)
@@ -510,42 +552,42 @@ public static class Presentation
     {
         return (_tag ?? string.Empty).ToLowerInvariant() switch
         {
-            "wood" => 1,
-            "machinery" => 2,
-            "metal" => 3,
+            "wood" => BasicData.Int("presentation.tagSort.wood"),
+            "machinery" => BasicData.Int("presentation.tagSort.machinery"),
+            "metal" => BasicData.Int("presentation.GetTagSortWeight.number1"),
             "fish" => 4,
-            "food" => 5,
-            "meat" => 5,
-            "fruit" => 5,
-            "animal" => 8,
-            "water" => 6,
-            "salt" => 7,
-            "box" => 11,
-            "supply" => 20,
-            "cargo" => 21,
-            "poo" => 22,
-            _ => 10
+            "food" => BasicData.Int("presentation.GetTagSortWeight.number2"),
+            "meat" => BasicData.Int("presentation.GetTagSortWeight.number3"),
+            "fruit" => BasicData.Int("presentation.GetTagSortWeight.number4"),
+            "animal" => BasicData.Int("presentation.GetTagSortWeight.number5"),
+            "water" => BasicData.Int("presentation.GetTagSortWeight.number6"),
+            "salt" => BasicData.Int("presentation.GetTagSortWeight.number7"),
+            "box" => BasicData.Int("presentation.GetTagSortWeight.number8"),
+            "supply" => BasicData.Int("presentation.GetTagSortWeight.number9"),
+            "cargo" => BasicData.Int("presentation.GetTagSortWeight.number10"),
+            "poo" => BasicData.Int("presentation.GetTagSortWeight.number11"),
+            _ => BasicData.Int("presentation.GetTagSortWeight.number12")
         };
     }
 
-    internal const string PUZZLE_CLEAR_TITLE = "게임 완료";
+    internal static string PuzzleClearTitle => BasicData.Text("presentation.PuzzleClearTitle");
 
     internal static string PuzzleClearButton(long _cost)
     {
-        return $"게임 클리어  {_cost:N0}$";
+        return BasicData.Format("presentation.PuzzleClearButton.text1", _cost);
     }
 
     internal static string PuzzleClearSummary(long _funds)
     {
-        return $"남은 자금 {_funds:N0}$";
+        return BasicData.Format("presentation.PuzzleClearSummary.text1", _funds);
     }
 
     internal static string PuzzleRunStatusText(PuzzleRunStatus _status)
     {
         return _status switch
         {
-            PuzzleRunStatus.Won => PUZZLE_CLEAR_TITLE,
-            PuzzleRunStatus.Lost => "빚을 갚지 못했습니다. 패배",
+            PuzzleRunStatus.Won => PuzzleClearTitle,
+            PuzzleRunStatus.Lost => BasicData.Text("presentation.PuzzleRunStatusText.text1"),
             _ => string.Empty
         };
     }
@@ -555,66 +597,71 @@ public static class Presentation
     {
         return _result.Failure switch
         {
-            PuzzleTravelFailure.SameCity => "현재 체류 중인 마을입니다",
-            PuzzleTravelFailure.InvalidCity => "유효하지 않은 마을입니다",
-            PuzzleTravelFailure.InsufficientFunds => $"{PUZZLE_TRAVEL_COST} {_result.Cost:N0}"
-                + $" ({PuzzleTravelBreakdown(_result)})에 필요한 자금이 부족합니다",
-            PuzzleTravelFailure.CostOverflow => "이동 비용이 거래 한도를 초과합니다",
-            PuzzleTravelFailure.TimeOverflow => "소비 시간 또는 화물 가치가 계산 범위를 초과했습니다.",
-            PuzzleTravelFailure.MissingRoute => "두 도시를 잇는 직결 철로가 없습니다",
-            PuzzleTravelFailure.NotAvailable => "이동할 수 있는 도시가 없습니다",
-            PuzzleTravelFailure.Blocked => "게임이 종료되었습니다",
+            PuzzleTravelFailure.SameCity => BasicData.Text("presentation.PuzzleTravelStatus.text3"),
+            PuzzleTravelFailure.InvalidCity => BasicData.Text("presentation.PuzzleTravelStatus.text4"),
+            PuzzleTravelFailure.InsufficientFunds => BasicData.Format("presentation.PuzzleTravelStatus.text1", PuzzleTravelCost, _result.Cost)
+                + BasicData.Format("presentation.PuzzleTravelStatus.text2", PuzzleTravelBreakdown(_result)),
+            PuzzleTravelFailure.CostOverflow => BasicData.Text("presentation.PuzzleTravelStatus.text5"),
+            PuzzleTravelFailure.TimeOverflow => BasicData.Text("presentation.PuzzleTravelStatus.text6"),
+            PuzzleTravelFailure.MissingRoute => BasicData.Text("presentation.PuzzleTravelStatus.text7"),
+            PuzzleTravelFailure.NotAvailable => BasicData.Text("presentation.PuzzleTravelStatus.text8"),
+            PuzzleTravelFailure.Blocked => BasicData.Text("presentation.PuzzleTravelStatus.text9"),
             _ => string.Empty
         };
     }
 
     internal static string PuzzleTradeStatus(PuzzleDropResult _result, PuzzleItemDefinition _item, bool _committed)
     {
+        if (_result.TradeFailure == PuzzleTradeFailure.MarketClosed)
+        {
+            return PuzzleNightMarket;
+        }
         if (_result.Direction == PuzzleTradeDirection.None)
         {
             return string.Empty;
         }
 
-        string direction = _result.Direction == PuzzleTradeDirection.Buy ? "구매" : "판매";
-        string quote = $"{_item.DisplayName} {direction}";
+        string direction = _result.Direction == PuzzleTradeDirection.Buy ? BasicData.Text("presentation.PuzzleTradeStatus.text6") : BasicData.Text("presentation.PuzzleTradeStatus.text7");
+        string quote = BasicData.Format("presentation.PuzzleTradeStatus.text1", _item.DisplayName, direction);
         if (_result.Placement.Failure != PuzzlePlacementFailure.StaleSource &&
             _result.TradeFailure != PuzzleTradeFailure.PriceOverflow)
         {
-            quote += $" · ${_result.Price:N0}";
+            quote += BasicData.Format("presentation.PuzzleTradeStatus.text2", _result.Price);
         }
         if (_result.CanDrop)
         {
             return _committed
-                ? $"{_item.DisplayName} {direction} 완료 · ${_result.Price:N0}"
-                : $"{_item.DisplayName} {direction} 예정 · ${_result.Price:N0}";
+                ? BasicData.Format("presentation.PuzzleTradeStatus.text3", _item.DisplayName, direction, _result.Price)
+                : BasicData.Format("presentation.PuzzleTradeStatus.text4", _item.DisplayName, direction, _result.Price);
         }
 
         string reason = _result.TradeFailure switch
         {
-            PuzzleTradeFailure.Disabled => "이 도시에서는 허용되지 않습니다",
-            PuzzleTradeFailure.InsufficientFunds => "자금이 부족합니다",
-            PuzzleTradeFailure.PriceOverflow => "판매가가 거래 한도를 초과합니다",
-            PuzzleTradeFailure.BalanceOverflow => "보유 자금 한도를 초과합니다",
+            PuzzleTradeFailure.Disabled => BasicData.Text("presentation.PuzzleTradeStatus.text8"),
+            PuzzleTradeFailure.MarketClosed => PuzzleNightMarket,
+            PuzzleTradeFailure.InsufficientFunds => BasicData.Text("presentation.PuzzleTradeStatus.text9"),
+            PuzzleTradeFailure.PriceOverflow => BasicData.Text("presentation.PuzzleTradeStatus.text10"),
+            PuzzleTradeFailure.BalanceOverflow => BasicData.Text("presentation.PuzzleTradeStatus.text11"),
             _ => _result.Placement.Failure switch
             {
-                PuzzlePlacementFailure.StaleSource => "원래 화물 배치가 변경됐습니다",
-                PuzzlePlacementFailure.CellOutsideBoard => "화물이 보드 경계를 넘습니다",
-                PuzzlePlacementFailure.CellOccupied => "다른 화물과 겹칩니다",
-                PuzzlePlacementFailure.NoSpace => "상대 보드에 화물을 놓을 공간이 없습니다",
-                _ => "이 위치에 배치할 수 없습니다"
+                PuzzlePlacementFailure.StaleSource => BasicData.Text("presentation.PuzzleTradeStatus.text12"),
+                PuzzlePlacementFailure.CellOutsideBoard => BasicData.Text("presentation.PuzzleTradeStatus.text13"),
+                PuzzlePlacementFailure.CellOccupied => BasicData.Text("presentation.PuzzleTradeStatus.text14"),
+                PuzzlePlacementFailure.NoSpace => BasicData.Text("presentation.PuzzleTradeStatus.text15"),
+                _ => BasicData.Text("presentation.PuzzleTradeStatus.text16")
             }
         };
-        return $"{quote} · {reason}";
+        return BasicData.Format("presentation.PuzzleTradeStatus.text5", quote, reason);
     }
 
     public static Color PuzzlePieceOutline(float _alpha)
     {
-        return new Color(0f, 0f, 0f, _alpha);
+        return BasicData.Color("presentation.PuzzlePieceOutline.color1", _alpha);
     }
 
     public static Color PuzzleOutline(bool _canPlace)
     {
-        return _canPlace ? new Color(0.39f, 0.91f, 0.67f) : new Color(1f, 0.43f, 0.39f);
+        return _canPlace ? BasicData.Color("presentation.PuzzleOutline.color1") : BasicData.Color("presentation.PuzzleOutline.color2");
     }
 
     // 범주 팔레트. 새 범주를 추가하면 여기 색과 Title을 함께 추가한다.
@@ -622,11 +669,11 @@ public static class Presentation
     {
         return _category switch
         {
-            EffectCategory.Offense => new Color(0.90f, 0.33f, 0.29f),
-            EffectCategory.Mobility => new Color(0.33f, 0.58f, 0.95f),
-            EffectCategory.Defense => new Color(0.35f, 0.76f, 0.44f),
-            EffectCategory.BaseStat => new Color(0.96f, 0.78f, 0.27f),
-            _ => new Color(0.72f, 0.74f, 0.80f),
+            EffectCategory.Offense => BasicData.Color("presentation.Color.color1"),
+            EffectCategory.Mobility => BasicData.Color("presentation.Color.color2"),
+            EffectCategory.Defense => BasicData.Color("presentation.Color.color3"),
+            EffectCategory.BaseStat => BasicData.Color("presentation.Color.color4"),
+            _ => BasicData.Color("presentation.Color.color5"),
         };
     }
 
@@ -634,11 +681,11 @@ public static class Presentation
     {
         return _category switch
         {
-            EffectCategory.Offense => "공격",
-            EffectCategory.Mobility => "이동",
-            EffectCategory.Defense => "방어",
-            EffectCategory.BaseStat => "기본 능력치",
-            _ => "유틸",
+            EffectCategory.Offense => BasicData.Text("presentation.Title.text1"),
+            EffectCategory.Mobility => BasicData.Text("presentation.Title.text2"),
+            EffectCategory.Defense => BasicData.Text("presentation.Title.text3"),
+            EffectCategory.BaseStat => BasicData.Text("presentation.Title.text4"),
+            _ => BasicData.Text("presentation.Title.text5"),
         };
     }
 
@@ -657,7 +704,7 @@ public static class Presentation
 
     public static string Name(UpgradeData _upgrade)
     {
-        return _upgrade == null ? "비어 있음" : string.IsNullOrEmpty(_upgrade.displayName) ? _upgrade.id : _upgrade.displayName;
+        return _upgrade == null ? BasicData.Text("presentation.Name.text1") : string.IsNullOrEmpty(_upgrade.displayName) ? _upgrade.id : _upgrade.displayName;
     }
 
     // 설명은 테이블 원본. 비어 있으면 GameTableRules가 테이블 오류로 보고하므로 여기서 폴백 문구를 두지 않는다.
@@ -675,19 +722,19 @@ public static class Presentation
 
     // ── 리치 텍스트 표기 ──
     // 값 강조·Dim·제목 서식을 카드와 패널이 같이 쓴다. 서식 문자열을 개별 UI에 복사하지 않는다.
-    const string VALUE_TAG = "#FFE08A";
-    const string DIM_TAG = "#AEB6C2";
+    static string ValueTag => BasicData.Text("presentation.ValueTag");
+    static string DimTag => BasicData.Text("presentation.DimTag");
     public static string Accent(string _value)
     {
-        return $"<color={VALUE_TAG}>{_value}</color>";
+        return BasicData.Format("presentation.Accent.text1", ValueTag, _value);
     }
     public static string Dim(string _value)
     {
-        return $"<color={DIM_TAG}>{_value}</color>";
+        return BasicData.Format("presentation.Dim.text1", DimTag, _value);
     }
     public static string Heading(string _title, Color _color)
     {
-        return $"<size=135%><b><color={Hex(_color)}>{_title}</color></b></size>";
+        return BasicData.Format("presentation.Heading.text1", Hex(_color), _title);
     }
     public static string Hex(Color _color)
     {
@@ -699,8 +746,8 @@ public static class Presentation
     {
         if (_upgrade == null)
         {
-            return Dim("유효하지 않은 항목");
+            return Dim(BasicData.Text("presentation.Card.text2"));
         }
-        return $"{Heading(Name(_upgrade), Color(_upgrade))}\n{Dim(Title(_upgrade))}\n{Describe(_upgrade)}";
+        return BasicData.Format("presentation.Card.text1", Heading(Name(_upgrade), Color(_upgrade)), Dim(Title(_upgrade)), Describe(_upgrade));
     }
 }

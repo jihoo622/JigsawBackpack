@@ -8,7 +8,7 @@ using TMPro;
 [DisallowMultipleComponent]
 public sealed class PuzzleInventoryView : MonoBehaviour
 {
-    const float CELL_GAP = 2f;
+    static float CellGap => BasicData.Float("ui.PuzzleInventoryView.CellGap");
     const string ITEM_ICON_PATH = "PuzzleInventoryUI.itemIcons";
 
     [Serializable]
@@ -25,6 +25,7 @@ public sealed class PuzzleInventoryView : MonoBehaviour
     };
 
     [SerializeField] Image board;
+    [SerializeField] CanvasGroup interaction;
     [SerializeField] TextMeshProUGUI boardTitle;
     [SerializeField] TextMeshProUGUI boardValue;
     [SerializeField] TextMeshProUGUI moveGuide;
@@ -55,12 +56,19 @@ public sealed class PuzzleInventoryView : MonoBehaviour
 
     internal event Action Disabled;
 
+    internal void SetMarketOpen(bool _open)
+    {
+        interaction.alpha = _open ? 1f : Presentation.PuzzleMarketClosedAlpha;
+        interaction.interactable = _open;
+        interaction.blocksRaycasts = _open;
+    }
+
     internal void Initialize(long _boardCapacity, long _dragCapacity, string _title,
         IReadOnlyCollection<PuzzleItemDefinition> _items, bool _showSynergies)
     {
         showSynergies = _showSynergies;
         var parentCanvas = GetComponentInParent<Canvas>();
-        if (!parentCanvas || !board || !boardTitle || !boardTitle.font || !boardValue || !boardValue.font ||
+        if (!interaction || !parentCanvas || !board || !boardTitle || !boardTitle.font || !boardValue || !boardValue.font ||
             !moveGuide || !moveGuide.font ||
 
             !flatTriangle || boardCells == null || boardCells.Distinct().Count() != boardCells.Length ||
@@ -93,7 +101,7 @@ public sealed class PuzzleInventoryView : MonoBehaviour
 
         if (_boardCapacity > boardCells.Length || _boardCapacity > placementSlots.Length ||
             _dragCapacity > ghostSlots.Length || _dragCapacity > outlineSlots.Length ||
-            _boardCapacity * 8 > synergyArrows.Length)
+            _boardCapacity * BasicData.Int("ui.PuzzleInventoryView.InvalidOperationException.number1") > synergyArrows.Length)
         {
             throw new InvalidOperationException("화물 테이블과 인벤토리 프리팹의 표시 용량이 맞지 않습니다.");
         }
@@ -141,7 +149,7 @@ public sealed class PuzzleInventoryView : MonoBehaviour
             {
                 cell.color = Presentation.PuzzleCell;
                 cell.rectTransform.localPosition = GetCellCenter(new Vector2Int(i % _width, i / _width));
-                cell.rectTransform.sizeDelta = Vector2.one * (cellSize - CELL_GAP);
+                cell.rectTransform.sizeDelta = Vector2.one * (cellSize - CellGap);
             }
         }
 
@@ -214,14 +222,14 @@ public sealed class PuzzleInventoryView : MonoBehaviour
                 bool forward = direction.x > 0 || direction.y > 0;
                 bool increase = effect.Percent > 0;
                 Vector2 axis = direction.x != 0 ? Vector2.up : Vector2.right;
-                float lane = (forward ? 1f : -1f) * (increase ? 0.08f : 0.2f);
+                float lane = (forward ? 1f : -1f) * (increase ? BasicData.Float("ui.PuzzleInventoryView.RenderSynergies.number1") : BasicData.Float("ui.PuzzleInventoryView.RenderSynergies.number2"));
                 var arrow = synergyArrows[index++];
                 arrow.sprite = increase ? increaseArrow : decreaseArrow;
                 arrow.color = Presentation.PuzzleSynergyArrow;
                 arrow.rectTransform.localPosition = (GetCellCenter(effect.TargetCell) +
                     GetCellCenter(effect.NeighborCell)) * 0.5f + axis * (lane * cellSize);
                 // 원본 스프라이트의 투명 여백을 포함한 크기다.
-                arrow.rectTransform.sizeDelta = new Vector2(cellSize * 1.8f, cellSize * 0.55f);
+                arrow.rectTransform.sizeDelta = new Vector2(cellSize * BasicData.Float("ui.PuzzleInventoryView.Vector2.number1"), cellSize * BasicData.Float("ui.PuzzleInventoryView.Vector2.number2"));
                 arrow.rectTransform.localRotation = Quaternion.Euler(0f, 0f, Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg);
                 arrow.enabled = true;
             }
