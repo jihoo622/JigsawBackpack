@@ -240,7 +240,6 @@ public sealed class PuzzleMapView : PanelBase
     {
         title.text = Presentation.PUZZLE_MAP_TITLE;
         guide.text = Presentation.PUZZLE_MAP_GUIDE;
-        openLabel.text = Presentation.PUZZLE_MAP_OPEN;
         closeLabel.text = Presentation.PUZZLE_MAP_CLOSE;
         title.color = guide.color = information.color = openLabel.color = closeLabel.color = Presentation.PuzzleHeading;
         background.color = Presentation.PuzzleBackground;

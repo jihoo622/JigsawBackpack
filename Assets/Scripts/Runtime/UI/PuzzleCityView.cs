@@ -32,6 +32,7 @@ public sealed class PuzzleCityView : MonoBehaviour
     bool mapOpen;
     Func<string> getRumor;
     string heardRumor;
+    string unreadRumorText;
 
     internal bool IsTownOpen => page != Page.Market;
 
@@ -57,6 +58,7 @@ public sealed class PuzzleCityView : MonoBehaviour
 
         if (getRumor == null)
         {
+            unreadRumorText = rumorLabel.text;
             townButton.onClick.AddListener(OpenTown);
             marketButton.onClick.AddListener(OpenMarket);
             tavernButton.onClick.AddListener(OpenTavern);
@@ -73,7 +75,7 @@ public sealed class PuzzleCityView : MonoBehaviour
         townTitle.text = _name;
         tavernTitle.text = $"{_name} 술집";
         heardRumor = null;
-        rumorLabel.text = string.Empty;
+        rumorLabel.text = unreadRumorText;
         townButton.gameObject.SetActive(_available);
         if (!_available)
         {
