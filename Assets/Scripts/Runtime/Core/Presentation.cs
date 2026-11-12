@@ -369,6 +369,24 @@ public static class Presentation
 
     public static string PuzzleNoActiveEffects => BasicData.Text("presentation.tooltip.activeEffectsNone");
 
+    static Color ComparisonColor(decimal _value, decimal _baseline, Color _neutralColor, bool _invert = false)
+    {
+        return ComparisonColor(_value, _baseline, _baseline, _neutralColor, _invert);
+    }
+
+    static Color ComparisonColor(decimal _value, decimal _lowThreshold, decimal _highThreshold, Color _neutralColor, bool _invert = false)
+    {
+        if (_value > _highThreshold)
+        {
+            return _invert ? PuzzleTooltipRed : PuzzleTooltipGreen;
+        }
+        if (_value < _lowThreshold)
+        {
+            return _invert ? PuzzleTooltipGreen : PuzzleTooltipRed;
+        }
+        return _neutralColor;
+    }
+
     internal static string PuzzleActiveEffects(PuzzleValue _value)
     {
         if (_value.SynergyBonuses.Count == 0)
@@ -376,7 +394,8 @@ public static class Presentation
             return PuzzleNoActiveEffects;
         }
         string effects = string.Join("\n", _value.SynergyBonuses.Select(_bonus =>
-            BasicData.Format("presentation.tooltip.activeEffect", _bonus.NeighborName, _bonus.Amount)));
+            BasicData.Format("presentation.tooltip.activeEffect", _bonus.NeighborName,
+                ColorUtility.ToHtmlStringRGB(ComparisonColor(_bonus.Amount, 0m, PuzzleTooltipText)), _bonus.Amount)));
         return BasicData.Format("presentation.tooltip.activeEffects", effects);
     }
 
@@ -392,28 +411,17 @@ public static class Presentation
 
     static Color RateValueColor(int _percent, bool _isBuying)
     {
-        if (_percent > BasicData.Int("presentation.tooltip.rateValueColorAbovePercent"))
-        {
-            return _isBuying ? PuzzleTooltipRed : PuzzleTooltipGreen;
-        }
-        if (_percent < BasicData.Int("presentation.tooltip.rateValueColorBelowPercent"))
-        {
-            return _isBuying ? PuzzleTooltipGreen : PuzzleTooltipRed;
-        }
-        return PuzzleTooltipText;
+        return ComparisonColor(
+            _percent,
+            BasicData.Int("presentation.tooltip.rateValueColorBelowPercent"),
+            BasicData.Int("presentation.tooltip.rateValueColorAbovePercent"),
+            PuzzleTooltipText,
+            _isBuying);
     }
 
     static Color PriceValueColor(decimal _price, decimal _actualValue, bool _isBuying)
     {
-        if (_price > _actualValue)
-        {
-            return _isBuying ? PuzzleTooltipRed : PuzzleTooltipGreen;
-        }
-        if (_price < _actualValue)
-        {
-            return _isBuying ? PuzzleTooltipGreen : PuzzleTooltipRed;
-        }
-        return PuzzleTooltipText;
+        return ComparisonColor(_price, _actualValue, PuzzleTooltipText, _isBuying);
     }
 
     internal static string PuzzleTooltipSellRateLabel()
@@ -507,9 +515,7 @@ public static class Presentation
 
     internal static string PuzzleTooltipFutureValueValue(decimal _futureValue, decimal _actualValue)
     {
-        Color color = _futureValue > _actualValue
-            ? PuzzleTooltipGreen
-            : (_futureValue < _actualValue ? PuzzleTooltipRed : PuzzleTooltipGold);
+        Color color = ComparisonColor(_futureValue, _actualValue, PuzzleTooltipGold);
         return BasicData.Format("presentation.tooltip.futureValueValue", ColorUtility.ToHtmlStringRGB(color), _futureValue);
     }
 

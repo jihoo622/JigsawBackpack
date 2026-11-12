@@ -824,7 +824,7 @@ public static class BasicDataContract
             { "presentation.time.clock", 4 },
             { "presentation.time.clockText2", 0 },
             { "presentation.time.clockText3", 0 },
-            { "presentation.tooltip.activeEffect", 2 },
+            { "presentation.tooltip.activeEffect", 3 },
             { "presentation.tooltip.activeEffects", 1 },
             { "presentation.tooltip.activeEffectsNone", 0 },
             { "presentation.tooltip.actualValueLabel", 1 },

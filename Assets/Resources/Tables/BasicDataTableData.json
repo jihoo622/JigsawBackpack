@@ -2347,7 +2347,7 @@
         },
         {
           "id": "effectHeader",
-          "value": "<color=#{0}>가능 인접 효과 · {1}시간 주기</color>",
+          "value": "<color=#{0}>가능 인접 효과 <size=70%>({1}시간 주기)</size></color>",
           "arguments": 2
         },
         {
@@ -2417,7 +2417,7 @@
         },
         {
           "id": "marketNoSettlement",
-          "value": "시장의 화물은 시간 경과로 시너지를 정산하지 않습니다.",
+          "value": "시장에서는 인접 효과가 적용되지 않습니다.",
           "arguments": 0
         },
         {
@@ -2427,12 +2427,12 @@
         },
         {
           "id": "activeEffect",
-          "value": "• {0}: {1:+0.##;-0.##;0} $",
-          "arguments": 2
+          "value": "• {0}: <color=#{1}>{2:+0.##;-0.##;0} $</color>",
+          "arguments": 3
         },
         {
           "id": "activeEffects",
-          "value": "현재 적용 효과 · 정산 1회 기준\n{0}",
+          "value": "현재 적용 효과 <size=70%>(정산 1회기준)</size>\n{0}",
           "arguments": 1
         }
       ]
