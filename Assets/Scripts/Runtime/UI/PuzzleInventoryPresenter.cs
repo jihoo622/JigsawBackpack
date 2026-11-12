@@ -36,6 +36,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
     bool ModificationViewReady => session != null && session.IsModificationOpen && modificationView != null &&
         modificationView.gameObject.activeInHierarchy;
     decimal? pendingSettlementValue;
+    decimal? pendingFreshnessLossValue;
     bool InventoryBlocked => isMapOpen;
 
     void OnEnable()
@@ -149,6 +150,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         currentHoveredInstanceId = null;
         isMapOpen = false;
         pendingSettlementValue = null;
+        pendingFreshnessLossValue = null;
         GameEvents.CityArrived -= OnCityArrived;
         GameEvents.TimeAdvanced -= OnTimeAdvanced;
         GameEvents.PanelVisibility -= OnPanelVisibility;
@@ -229,7 +231,6 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
 
     void OnCityArrived(GameEvents.CityArrivalInfo _info)
     {
-        ShowCurrentCity();
         bool inProgress = session.RunStatus == PuzzleRunStatus.InProgress;
         cityView.SetTown(session.CityData.displayName, inProgress);
     }
@@ -284,6 +285,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         ClearDrag();
         ShowCurrentCity();
         pendingSettlementValue = _info.cargoValueBeforeSettlement;
+        pendingFreshnessLossValue = _info.cargoValueBeforeFreshnessLoss;
         PlayPendingSettlement();
         if (session.RunStatus != PuzzleRunStatus.InProgress)
         {
@@ -374,14 +376,15 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
 
     void PlayPendingSettlement()
     {
-        if (InventoryBlocked || !pendingSettlementValue.HasValue)
+        if (InventoryBlocked || (!pendingSettlementValue.HasValue && !pendingFreshnessLossValue.HasValue))
         {
             return;
         }
 
-        trainView.ShowSynergySettlement(pendingSettlementValue.Value,
+        trainView.ShowCargoValueFeedback(pendingSettlementValue, pendingFreshnessLossValue,
             session.Train.Placements.Sum(item => item.FreshnessAdjustedValue), session.Train.Value.BaseValue);
         pendingSettlementValue = null;
+        pendingFreshnessLossValue = null;
     }
 
     void ShowCurrentCity()

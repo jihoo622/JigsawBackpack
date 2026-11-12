@@ -475,6 +475,7 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         internal Dictionary<(int First, int Second), long> breedingProgress;
         internal int lastInstanceId;
         internal decimal? cargoValueBeforeSettlement;
+        internal decimal? cargoValueBeforeFreshnessLoss;
 
         internal TimeAdvancePlan(PuzzleInventory[] _wagons, Dictionary<(int First, int Second), long> _breedingProgress,
             int _lastInstanceId)
@@ -506,6 +507,7 @@ public sealed class PuzzleInventoryService : MonoBehaviour
             var growth = new List<PuzzleGrowth>();
             var selectedWagon = wagons[CurrentWagonIndex];
             bool settledSelectedWagon = false;
+            decimal freshnessDelta = 0;
 
             while (cursor < arrival)
             {
@@ -532,7 +534,13 @@ public sealed class PuzzleInventoryService : MonoBehaviour
                     }
                     foreach (var item in wagon.Placements)
                     {
+                        bool trackFreshness = wagon == selectedWagon && item.RemainingShelfLifeMinutes.HasValue;
+                        decimal valueBefore = trackFreshness ? item.FreshnessAdjustedValue : 0;
                         item.ApplyElapsedMinutes(step, ShelfLifeDecayRate(wagon, item, freshness), freshnessInterval);
+                        if (trackFreshness)
+                        {
+                            freshnessDelta += item.FreshnessAdjustedValue - valueBefore;
+                        }
                     }
                 }
 
@@ -547,7 +555,13 @@ public sealed class PuzzleInventoryService : MonoBehaviour
                 growth.Clear();
                 foreach (var wagon in wagons)
                 {
+                    decimal valueBeforeExpiry = wagon == selectedWagon
+                        ? wagon.Placements.Sum(_item => _item.FreshnessAdjustedValue) : 0;
                     wagon.ReplaceExpiredFood(expiredFood);
+                    if (wagon == selectedWagon)
+                    {
+                        freshnessDelta += wagon.Placements.Sum(_item => _item.FreshnessAdjustedValue) - valueBeforeExpiry;
+                    }
                     if (!wagon.TryPlanGrowth(0, growth))
                     {
                         return PuzzleTravelFailure.GrowthBlocked;
@@ -565,6 +579,11 @@ public sealed class PuzzleInventoryService : MonoBehaviour
             if (settledSelectedWagon)
             {
                 plan.cargoValueBeforeSettlement = Train.Placements.Sum(_item => _item.FreshnessAdjustedValue);
+            }
+            if (freshnessDelta < 0)
+            {
+                plan.cargoValueBeforeFreshnessLoss =
+                    selectedWagon.Placements.Sum(_item => _item.FreshnessAdjustedValue) - freshnessDelta;
             }
             _plan = plan;
             return PuzzleTravelFailure.None;
@@ -769,7 +788,8 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         if (_minutes > 0)
         {
             CheckButcheryReady();
-            GameEvents.RaiseTimeAdvanced(previous, Time.ElapsedMinutes, this, _plan.cargoValueBeforeSettlement);
+            GameEvents.RaiseTimeAdvanced(previous, Time.ElapsedMinutes, this, _plan.cargoValueBeforeSettlement,
+                _plan.cargoValueBeforeFreshnessLoss);
         }
     }
 
