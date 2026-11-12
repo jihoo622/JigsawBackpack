@@ -1068,9 +1068,8 @@
       "id": "presentation.freshness",
       "texts": [
         {
-          "id": "percent",
-          "value": "{0:0} %",
-          "arguments": 1
+          "id": "dot",
+          "value": "•"
         }
       ],
       "colors": [
@@ -2446,7 +2445,7 @@
         },
         {
           "id": "freshnessValue",
-          "value": "<color=#{0}>{1} <size=80%>%</size></color>",
+          "value": "<color=#{0}>{1}</color>",
           "arguments": 2
         },
         {
@@ -3021,7 +3020,7 @@
         },
         {
           "id": "fontScale",
-          "value": 0.21,
+          "value": 0.30,
           "positive": true
         },
         {
