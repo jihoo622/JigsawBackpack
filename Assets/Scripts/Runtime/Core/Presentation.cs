@@ -387,16 +387,20 @@ public static class Presentation
         return _neutralColor;
     }
 
-    internal static string PuzzleActiveEffects(PuzzleValue _value)
+    public static string PuzzleTooltipActiveEffectsHeader()
     {
-        if (_value.SynergyBonuses.Count == 0)
-        {
-            return PuzzleNoActiveEffects;
-        }
-        string effects = string.Join("\n", _value.SynergyBonuses.Select(_bonus =>
-            BasicData.Format("presentation.tooltip.activeEffect", _bonus.NeighborName,
-                ColorUtility.ToHtmlStringRGB(ComparisonColor(_bonus.Amount, 0m, PuzzleTooltipText)), _bonus.Amount)));
-        return BasicData.Format("presentation.tooltip.activeEffects", effects);
+        return BasicData.Text("presentation.tooltip.activeEffectsHeader");
+    }
+
+    internal static string PuzzleTooltipActiveEffectLabel(PuzzleSynergyBonus _bonus)
+    {
+        return BasicData.Format("presentation.tooltip.activeEffectLabel", TooltipLabelHtml(), _bonus.NeighborName);
+    }
+
+    internal static string PuzzleTooltipActiveEffectValue(PuzzleSynergyBonus _bonus)
+    {
+        return BasicData.Format("presentation.tooltip.activeEffectValue",
+            ColorUtility.ToHtmlStringRGB(ComparisonColor(_bonus.Amount, 0m, PuzzleTooltipText)), _bonus.Amount);
     }
 
     internal static string PuzzleTooltipActualValueLabel()
@@ -415,13 +419,13 @@ public static class Presentation
             _percent,
             BasicData.Int("presentation.tooltip.rateValueColorBelowPercent"),
             BasicData.Int("presentation.tooltip.rateValueColorAbovePercent"),
-            PuzzleTooltipText,
+            PuzzleTooltipGold,
             _isBuying);
     }
 
     static Color PriceValueColor(decimal _price, decimal _actualValue, bool _isBuying)
     {
-        return ComparisonColor(_price, _actualValue, PuzzleTooltipText, _isBuying);
+        return ComparisonColor(_price, _actualValue, PuzzleTooltipGold, _isBuying);
     }
 
     internal static string PuzzleTooltipSellRateLabel()
@@ -498,8 +502,9 @@ public static class Presentation
         string highlighted = Regex.Replace(_description, @"[+−-]\d+(?:[.,]\d+)?%", match =>
         {
             Color color = match.Value[0] == '+' ? PuzzleTooltipGreen : PuzzleTooltipRed;
-            return $"<color=#{ColorUtility.ToHtmlStringRGB(color)}>{match.Value}</color>";
+            return $"<color=#{ColorUtility.ToHtmlStringRGB(color)}><b>{match.Value}</b></color>";
         });
+        highlighted = Regex.Replace(highlighted, @"\([^)]*\)", match => $"<size=70%>{match.Value}</size>");
         return BasicData.Format("presentation.tooltip.effectDescription", TooltipLabelHtml(), highlighted);
     }
 

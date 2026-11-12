@@ -672,7 +672,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             var direction = isTrain ? PuzzleTradeDirection.Sell : PuzzleTradeDirection.Buy;
             long? price = session.TryQuoteTrade(_placement, direction, out long quote) ? quote : (long?)null;
             tooltipView.Show(item, actualValue, rate, effects, futureValue, pos, isTrain, freshness, previewMinutes,
-                previewName, previewActivations, price, isTrain ? Presentation.PuzzleActiveEffects(value) : Presentation.PuzzleMarketNoSettlement);
+                previewName, previewActivations, price, isTrain ? value.SynergyBonuses : null);
         }
 
         if (trainView)

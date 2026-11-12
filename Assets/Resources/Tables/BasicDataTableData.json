@@ -1517,7 +1517,7 @@
         },
         {
           "id": "boardActualValue",
-          "value": "화물 실제 가치  ${0:#,0.##}  <size=18>기본 ${1:N0}</size>",
+          "value": "화물 현재 가치  ${0:#,0.##}  <size=18>기본 ${1:N0}</size>",
           "arguments": 2
         },
         {
@@ -2322,7 +2322,7 @@
       "texts": [
         {
           "id": "actualValueLabel",
-          "value": "<color=#{0}>실제 가치</color>",
+          "value": "<color=#{0}>현재 가치</color>",
           "arguments": 1
         },
         {
@@ -2342,12 +2342,12 @@
         },
         {
           "id": "effectDescription",
-          "value": "<color=#{0}>• {1}</color>",
+          "value": "<color=#{0}><size=85%>• {1}</size></color>",
           "arguments": 2
         },
         {
           "id": "effectHeader",
-          "value": "<color=#{0}>가능 인접 효과 <size=70%>({1}시간 주기)</size></color>",
+          "value": "<color=#{0}><b>가능 인접 효과</b> <size=70%>({1}시간 주기)</size></color>",
           "arguments": 2
         },
         {
@@ -2392,7 +2392,7 @@
         },
         {
           "id": "noEffect",
-          "value": "<color=#{0}>가능한 인접 효과 없음</color>",
+          "value": "<color=#{0}><size=85%>가능한 인접 효과 없음</size></color>",
           "arguments": 1
         },
         {
@@ -2422,18 +2422,23 @@
         },
         {
           "id": "activeEffectsNone",
-          "value": "현재 적용 효과: 없음",
+          "value": "<b>현재 적용 효과</b>: 없음",
           "arguments": 0
         },
         {
-          "id": "activeEffect",
-          "value": "• {0}: <color=#{1}>{2:+0.##;-0.##;0} $</color>",
-          "arguments": 3
+          "id": "activeEffectsHeader",
+          "value": "<b>현재 적용 효과</b> <size=70%>(정산 1회 기준)</size>",
+          "arguments": 0
         },
         {
-          "id": "activeEffects",
-          "value": "현재 적용 효과 <size=70%>(정산 1회기준)</size>\n{0}",
-          "arguments": 1
+          "id": "activeEffectLabel",
+          "value": "<color=#{0}>• {1}</color>",
+          "arguments": 2
+        },
+        {
+          "id": "activeEffectValue",
+          "value": "<color=#{0}><b>{1:+0.##;-0.##;0} $</b></color>",
+          "arguments": 2
         }
       ]
     },
