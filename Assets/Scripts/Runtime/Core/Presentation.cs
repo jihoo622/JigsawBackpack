@@ -27,6 +27,7 @@ public static class Presentation
 
     public static Color PuzzleUnmodifiedTint => BasicData.Color("presentation.inventory.unmodifiedTint");
     public static Color PuzzleTextOutline => BasicData.Color("presentation.inventory.textOutline");
+    public static Color PuzzleSynergyNotice => BasicData.Color("presentation.inventory.synergyNotice");
 
     public static string TavernTitle(string _cityName)
     {

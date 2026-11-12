@@ -736,6 +736,7 @@ public static class BasicDataContract
         "presentation.inventory.pieceOutline",
         "presentation.inventory.refrigerationArrow",
         "presentation.inventory.synergyArrow",
+        "presentation.inventory.synergyNotice",
         "presentation.inventory.textOutline",
         "presentation.inventory.travelCard",
         "presentation.inventory.travelDim",

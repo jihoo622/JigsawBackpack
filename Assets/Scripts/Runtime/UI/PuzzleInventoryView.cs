@@ -392,7 +392,7 @@ public sealed class PuzzleInventoryView : MonoBehaviour
             _slots[index].ShowFreshness(index == _start ? _freshness : null,
                 bottomLeft - cell.Position, boardTitle.font, freshnessMaterial);
             _slots[index].ShowSynergyNotice(index == _start && _showSynergyNotice,
-                topRight - cell.Position, boardTitle.font);
+                topRight - cell.Position);
             index++;
         }
         if (_icon && index > _start)
