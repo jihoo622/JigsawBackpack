@@ -75,10 +75,11 @@
 
 ## 마을별 행동
 
-- `actions` 행은 고유 `id`, 알려진 `type`(`Butchery`), 비어 있지 않은 `title`·`description`, 양의 `workMinutes`(분), 빈 `board.startingPlacements`와 양수 `width`·`height`, 등록된 `inputTag`·`outputTag`를 가진다.
-- `cityIds`는 등록된 도시 참조이며 같은 도시에서 같은 `type`의 행동은 하나만 쓸 수 있다. `TableManager.CityActionsOf(cityId)`는 action id 오름차순 목록을 주고 `TryGetCityAction(cityId, type, out row)`으로 하나를 조회한다. 전체 목록은 `CityActions` 속성(id 오름차순)이다.
-- `conversions`의 `inputPieceId`는 `inputTag`를, `outputPieceId`는 `outputTag`를 가진 등록된 화물이어야 하고 `inputPieceId`는 고유하며 `outputCount`는 양수다. 현재 행은 `action.butchery` 하나이고 `city.ranch.highland`(다르폴)에서 `piece.cow` 1개를 `piece.beef` 2개로 360분간 작업한다.
-- 도축대와 버튼은 Game 씬에 연결했다. 문구 원본은 `BasicDataTableData`이며 상태·사유는 `rules.butchery.*`, 버튼·보드는 `presentation.StationButchery*`·`presentation.PuzzleButcheryTitle`를 쓴다.
+- `actions` 행은 고유 `id`, 알려진 `type`(`Butchery`·`Modification`), 비어 있지 않은 `title`·`description`, `Butchery`의 양의 `workMinutes`와 `Modification`의 0, 빈 `board.startingPlacements`와 양수 `width`·`height`, 등록된 `inputTag`·`outputTag` 또는 `modes`를 가진다.
+- `cityIds`는 등록된 도시 참조이며 같은 도시에서 같은 `type`의 행동은 하나만 쓸 수 있다. `TableManager.CityActionsOf(cityId)`는 action id 오름차순 목록을 주고 `TryGetCityAction(cityId, type, out row)`으로 하나를 조회한다. 전체 목록은 `CityActions` 속성(id 오름차순)이다. `modes`의 `id`·`displayName`·`description`·태그·`conversions`도 참조 무결성을 검증한다.
+- `conversions`의 `inputPieceId`는 `inputTag`를, `outputPieceId`는 `outputTag`를 가진 등록된 화물이어야 하고 `inputPieceId`는 고유하며 `outputCount`는 양수다. 현재 `action.butchery`는 `city.ranch.highland`(다르폴)에서 `piece.cow` 1개를 `piece.beef` 2개로 360분간 작업하고, `action.modification`은 `city.industry.ironworks`의 `mode.refrigeration`으로 `piece.uShape` 1개를 `piece.refrigeratedFrame` 1개로 즉시 바꾼다.
+- 개조 원자 교체의 보존 원본은 `InstanceId`, 회전 후 `Pose`, `ActualValue`, `OwnedMinutes`, `Durability`이며 `BaseValue`와 로컬 점유 셀을 같게 유지해 변환으로 이후 시너지 기준액이 바뀌지 않게 한다. `Refrigerator` 태그와 결과는 후속 신선도 시스템의 입력 계약이며, -50% 감소율·시간당 내구도 감소·냉장 범위는 아직 계산하지 않는다.
+- 도축대는 Game 씬에 연결했고 개조대 버튼·View는 `Tools/MyJG/Apply Station Actions UI`로 씬에 재적용한다. 문구 원본은 `BasicDataTableData`이며 상태·사유는 `rules.butchery.*`·`rules.modification.*`, 버튼·보드는 `presentation.StationButchery*`·`presentation.PuzzleButcheryTitle`·`presentation.StationModification*`·`presentation.PuzzleModification*`를 쓴다.
 
 ## 씬·분석 설정
 

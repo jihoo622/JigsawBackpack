@@ -251,6 +251,76 @@ public sealed class PuzzleInventory
         return result;
     }
 
+    internal bool TryPlanDefinitionSwaps(IReadOnlyList<PuzzleDefinitionSwap> _swaps)
+    {
+        if (_swaps == null || _swaps.Count == 0)
+        {
+            return false;
+        }
+
+        var claimed = new HashSet<int>();
+        foreach (var swap in _swaps)
+        {
+            PuzzlePlacement original = swap.Placement;
+            PuzzleItemDefinition result = swap.Result;
+            if (original == null || result == null || original.Owner != this ||
+                !placements.TryGetValue(original.InstanceId, out var current) ||
+                !ReferenceEquals(current, original) || !claimed.Add(original.InstanceId) ||
+                ReferenceEquals(current.Definition, result) ||
+                current.Definition.BaseValue != result.BaseValue ||
+                !SameLocalCells(current.Definition.Cells, result.Cells))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    internal bool TrySwapDefinitions(IReadOnlyList<PuzzleDefinitionSwap> _swaps,
+        out IReadOnlyList<PuzzlePlacement> _replacements)
+    {
+        _replacements = null;
+        if (!TryPlanDefinitionSwaps(_swaps))
+        {
+            return false;
+        }
+
+        var replacements = new List<PuzzlePlacement>(_swaps.Count);
+        foreach (var swap in _swaps)
+        {
+            var original = swap.Placement;
+            var replacement = new PuzzlePlacement(original.InstanceId, swap.Result, this, original.Pose,
+                original.ActualValue, original.OwnedMinutes, original.Durability);
+            ClearOccupancy(original);
+            StorePlacement(replacement);
+            replacements.Add(replacement);
+        }
+
+        RecalculateValue();
+        _replacements = replacements;
+        return true;
+    }
+
+    static bool SameLocalCells(IReadOnlyList<Vector2Int> _left, IReadOnlyList<Vector2Int> _right)
+    {
+        if (_left == null || _right == null || _left.Count != _right.Count)
+        {
+            return false;
+        }
+
+        var cells = new HashSet<Vector2Int>(_left);
+        foreach (var cell in _right)
+        {
+            if (!cells.Remove(cell))
+            {
+                return false;
+            }
+        }
+
+        return cells.Count == 0;
+    }
+
     // 비어 있는 첫 칸에 조각을 새로 올려 배치한다. 마땅한 빈 칸이 없으면 false.
     internal bool TryAutoPlace(PuzzleItemDefinition _definition, int _instanceId, out PuzzlePlacement _placement)
     {
@@ -432,6 +502,18 @@ public sealed class PuzzleInventory
 
         _position = new Vector2Int((int)x, (int)y);
         return true;
+    }
+}
+
+internal readonly struct PuzzleDefinitionSwap
+{
+    internal PuzzlePlacement Placement { get; }
+    internal PuzzleItemDefinition Result { get; }
+
+    internal PuzzleDefinitionSwap(PuzzlePlacement _placement, PuzzleItemDefinition _result)
+    {
+        Placement = _placement;
+        Result = _result;
     }
 }
 

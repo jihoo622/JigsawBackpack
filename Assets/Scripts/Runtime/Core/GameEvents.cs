@@ -177,6 +177,27 @@ public static class GameEvents
         }
     }
 
+    /// <summary>마을 개조대의 상태·화물 변화. 모드 선택·확정 직후 발행된다.</summary>
+    public readonly struct ModificationInfo
+    {
+        /// <summary>개조대를 소유한 세션. 다른 씬의 이벤트를 구분하는 데 사용한다.</summary>
+        public readonly PuzzleInventoryService session;
+        /// <summary>개조대가 있는 도시.</summary>
+        public readonly string cityId;
+        /// <summary>변화 후 개조 모드가 선택된 상태인지 여부.</summary>
+        public readonly bool modeSelected;
+        /// <summary>변화 후 보드 조작을 받는 여부.</summary>
+        public readonly bool open;
+
+        public ModificationInfo(PuzzleInventoryService _session, string _cityId, bool _modeSelected, bool _open)
+        {
+            session = _session;
+            cityId = _cityId;
+            modeSelected = _modeSelected;
+            open = _open;
+        }
+    }
+
     /// <summary>도축 확정 사건. 입력 화물을 소진하고 작업이 시작된 시점의 스냅샷이다.</summary>
     public readonly struct ButcheryCommittedInfo
     {
@@ -219,6 +240,7 @@ public static class GameEvents
     public static event Action<PanelInfo> PanelVisibility;
     public static event Action<TradeInfo> TradeCompleted;
     public static event Action<ButcheryInfo> ButcheryChanged;
+    public static event Action<ModificationInfo> ModificationChanged;
     public static event Action<ButcheryCommittedInfo> ButcheryCommitted;
     public static event Action<ButcheryReadyInfo> ButcheryReady;
 
@@ -251,6 +273,11 @@ public static class GameEvents
         PuzzleButcheryPhase _phase, bool _open)
     {
         Emit(ButcheryChanged, new ButcheryInfo(_session, _cityId, _phase, _open));
+    }
+    public static void RaiseModificationChanged(PuzzleInventoryService _session, string _cityId,
+        bool _modeSelected, bool _open)
+    {
+        Emit(ModificationChanged, new ModificationInfo(_session, _cityId, _modeSelected, _open));
     }
     public static void RaiseButcheryCommitted(string _actionId, string _cityId, int _inputCount, long _readyAtMinutes)
     {
@@ -304,6 +331,7 @@ public static class GameEvents
         TravelPreviewChanged = null;
         MapRequested = null;
         ButcheryChanged = null;
+        ModificationChanged = null;
         ButcheryCommitted = null;
         ButcheryReady = null;
         sequence = 0;

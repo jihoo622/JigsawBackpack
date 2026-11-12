@@ -11,6 +11,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
     [SerializeField] PuzzleInventoryView trainView;
     [SerializeField] PuzzleInventoryView marketView;
     [SerializeField] PuzzleInventoryView butcheryView;
+    [SerializeField] PuzzleInventoryView modificationView;
     [SerializeField] PuzzleCityView cityView;
     [SerializeField] PuzzleItemTooltipView tooltipView;
     [SerializeField] PuzzleTrainBarView trainBarView;
@@ -28,9 +29,12 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
     bool initialized;
     bool isMapOpen;
     bool butcheryConfigured;
+    bool modificationConfigured;
     // 도축대는 세션이 조작을 허용하고 패널에 View가 나와 있을 때만 드래그·표시 대상이 된다.
     bool ButcheryViewReady => session != null && session.IsButcheryOpen && butcheryView != null &&
         butcheryView.gameObject.activeInHierarchy;
+    bool ModificationViewReady => session != null && session.IsModificationOpen && modificationView != null &&
+        modificationView.gameObject.activeInHierarchy;
     bool isNotebookOpen;
     bool InventoryBlocked => isMapOpen || isNotebookOpen;
 
@@ -38,10 +42,12 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
     {
         if (!TryGetComponent(out input) || !trainView || !marketView || trainView == marketView || !cityView || !pauseMenu ||
             (butcheryView && (butcheryView == trainView || butcheryView == marketView)) ||
+            (modificationView && (modificationView == trainView || modificationView == marketView ||
+                modificationView == butcheryView)) ||
             !trainView.transform.IsChildOf(transform) || !marketView.transform.IsChildOf(transform) ||
             !cityView.transform.IsChildOf(transform))
         {
-            Debug.LogError("화물 인벤토리 Presenter에는 Input, 기차·시장·도시 View와 일시 정지 메뉴가 필요합니다. 도축대 View는 기차·시장과 다른 View여야 합니다.", this);
+            Debug.LogError("화물 인벤토리 Presenter에는 Input, 기차·시장·도시 View와 일시 정지 메뉴가 필요합니다. 도축대·개조대 View는 서로 다른 View여야 합니다.", this);
             enabled = false;
             return;
         }
@@ -62,6 +68,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         trainView.Initialize(trainCapacity, dragCapacity, Presentation.PuzzleTrainTitle(session.CurrentWagonIndex + 1), session.ItemDefinitions, _showSynergies: true);
         marketView.Initialize(session.MarketCapacity, dragCapacity, Presentation.PuzzleMarketTitle, session.ItemDefinitions, _showSynergies: false);
         ConfigureButcheryView();
+        ConfigureModificationView();
         cityView.Initialize(session.GameClearCost);
         cityView.InitializeTown(GetTavernRumor);
         ShowCurrentCity();
@@ -82,11 +89,16 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         {
             butcheryView.Disabled += OnViewDisabled;
         }
+        if (modificationView)
+        {
+            modificationView.Disabled += OnViewDisabled;
+        }
         GameEvents.CityArrived += OnCityArrived;
         GameEvents.TimeAdvanced += OnTimeAdvanced;
         GameEvents.PanelVisibility += OnPanelVisibility;
         GameEvents.TravelPreviewChanged += OnTravelPreviewChanged;
         GameEvents.ButcheryChanged += OnButcheryChanged;
+        GameEvents.ModificationChanged += OnModificationChanged;
         cityView.WaitRequested += WaitForDaylight;
         if (trainBarView)
         {
@@ -114,6 +126,10 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         {
             butcheryView.Disabled -= OnViewDisabled;
         }
+        if (modificationView)
+        {
+            modificationView.Disabled -= OnViewDisabled;
+        }
         if (input)
         {
             input.Pressed -= OnPressed;
@@ -137,6 +153,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         GameEvents.PanelVisibility -= OnPanelVisibility;
         GameEvents.TravelPreviewChanged -= OnTravelPreviewChanged;
         GameEvents.ButcheryChanged -= OnButcheryChanged;
+        GameEvents.ModificationChanged -= OnModificationChanged;
         cityView.WaitRequested -= WaitForDaylight;
         if (trainBarView)
         {
@@ -418,6 +435,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         if (result.CanDrop)
         {
             session.RefreshButcheryAfterMove(source);
+            session.RefreshModificationAfterMove(source);
             RenderValues();
             RefreshFunds();
             RefreshTrainBar();
@@ -468,7 +486,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
                 result = activeDrag.DropOnBoard(session, destination, targetCell);
                 if (result.CanDrop)
                 {
-                    RefreshButcheryAfter(activeDrag.Source, destination);
+                    RefreshActionBoardsAfter(activeDrag.Source, destination);
                     RenderValues();
                     RefreshFunds();
                     RefreshTrainBar();
@@ -481,7 +499,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
                 result = activeDrag.QuickDropToWagon(session, droppedWagonIndex);
                 if (result.CanDrop)
                 {
-                    RefreshButcheryAfter(activeDrag.Source, session.TrainWagons[droppedWagonIndex]);
+                    RefreshActionBoardsAfter(activeDrag.Source, session.TrainWagons[droppedWagonIndex]);
                     RenderValues();
                     RefreshFunds();
                     RefreshTrainBar();
@@ -564,6 +582,12 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             {
                 _view = butcheryView;
                 _inventory = session.ButcheryBoard();
+                return true;
+            }
+            if (ModificationViewReady && modificationView.TryGetBoardCell(_position, out _cell))
+            {
+                _view = modificationView;
+                _inventory = session.ModificationBoard();
                 return true;
             }
         }
@@ -672,16 +696,21 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             {
                 butcheryView.ShowItemDetails(null, default, default, default);
             }
+            if (modificationView)
+            {
+                modificationView.ShowItemDetails(null, default, default, default);
+            }
             return;
         }
 
         var item = _placement.Definition;
         var value = _placement.Owner.ValueOf(_placement.InstanceId);
         bool isButchery = session.IsButchery(_placement.Owner);
+        bool isActionBoard = isButchery || session.IsModification(_placement.Owner);
         bool isTrain = _view == trainView || session.IsTrainWagon(_placement.Owner);
         decimal actualValue = _placement.ActualValue;
-        var rate = item == null || isButchery ? default : session.RateFor(item);
-        var effects = isButchery ? null : BuildEffectDescriptions(item, isTrain);
+        var rate = item == null || isActionBoard ? default : session.RateFor(item);
+        var effects = isActionBoard ? null : BuildEffectDescriptions(item, isTrain);
         long? previewMinutes = session.PreviewMinutes;
         long? previewActivations = null;
         decimal? futureValue = null;
@@ -704,7 +733,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             int? freshness = item != null && item.HasDurability ? _placement.Durability : (int?)null;
             string previewName = session.PreviewCityId == null ? null : TableManager.Instance.CityPrice(session.PreviewCityId).displayName;
             var direction = isTrain ? PuzzleTradeDirection.Sell : PuzzleTradeDirection.Buy;
-            long? price = !isButchery && session.TryQuoteTrade(_placement, direction, out long quote) ? quote : (long?)null;
+            long? price = !isActionBoard && session.TryQuoteTrade(_placement, direction, out long quote) ? quote : (long?)null;
             tooltipView.Show(item, actualValue, rate, effects, futureValue, pos, isTrain, freshness, previewMinutes,
                 previewName, previewActivations, price, isTrain ? Presentation.PuzzleActiveEffects(value) : Presentation.PuzzleMarketNoSettlement);
         }
@@ -720,6 +749,10 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         if (butcheryView)
         {
             butcheryView.ShowItemDetails(_view == butcheryView ? item : null, value, actualValue, rate);
+        }
+        if (modificationView)
+        {
+            modificationView.ShowItemDetails(_view == modificationView ? item : null, value, actualValue, rate);
         }
     }
 
@@ -759,6 +792,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             marketView.ShowBoardInfo(Presentation.PuzzleCityTagPreferences(session.CityData, session.RegionData));
         }
         ShowButcheryStatus();
+        ShowModificationStatus();
     }
 
     void RenderBoards(int? _highlightedInstanceId = null)
@@ -775,6 +809,10 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         {
             butcheryView.RenderPlacements(session.ButcheryBoard(), drag?.InstanceId, _highlightedInstanceId);
         }
+        if (ModificationViewReady)
+        {
+            modificationView.RenderPlacements(session.ModificationBoard(), drag?.InstanceId, _highlightedInstanceId);
+        }
     }
 
     PuzzleInventoryView ViewFor(PuzzleInventory _inventory)
@@ -782,6 +820,10 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         if (session.IsButchery(_inventory) && butcheryView)
         {
             return butcheryView;
+        }
+        if (session.IsModification(_inventory) && modificationView)
+        {
+            return modificationView;
         }
         return session.IsTrainWagon(_inventory) ? trainView : marketView;
     }
@@ -833,11 +875,59 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         RenderBoards();
     }
 
-    // 확정된 이동이 도축대에 있었는지 확인해 상태를 갱신한다. ClearDrag의 다시 그리기가 이 결과를 그대로 표시한다.
-    void RefreshButcheryAfter(PuzzleInventory _source, PuzzleInventory _destination)
+    // 개조대 View도 한 번 구성하고, 열릴 때 크기와 상태 문구만 갱신한다.
+    void ConfigureModificationView()
+    {
+        if (!modificationView)
+        {
+            return;
+        }
+        var board = session.ModificationBoard();
+        if (board == null)
+        {
+            return;
+        }
+        if (!modificationConfigured)
+        {
+            long capacity = (long)board.Width * board.Height;
+            long dragCapacity = System.Math.Max(System.Math.Max((long)session.Train.Width * session.Train.Height,
+                session.MarketCapacity), capacity);
+            modificationView.Initialize(capacity, dragCapacity, Presentation.PuzzleModificationTitle,
+                session.ItemDefinitions, _showSynergies: false);
+            modificationConfigured = true;
+        }
+        modificationView.SetBoardSize(board.Width, board.Height);
+    }
+
+    void ShowModificationStatus()
+    {
+        if (modificationView && modificationConfigured)
+        {
+            modificationView.ShowBoardInfo(Presentation.PuzzleModificationStatus(session));
+        }
+    }
+
+    void OnModificationChanged(GameEvents.ModificationInfo _info)
+    {
+        if (_info.session != session)
+        {
+            return;
+        }
+        if (_info.open)
+        {
+            ConfigureModificationView();
+        }
+        ShowModificationStatus();
+        RenderBoards();
+    }
+
+    // 확정된 이동이 도축대·개조대에 있었는지 확인해 상태를 갱신한다. ClearDrag의 다시 그리기가 이 결과를 그대로 표시한다.
+    void RefreshActionBoardsAfter(PuzzleInventory _source, PuzzleInventory _destination)
     {
         session.RefreshButcheryAfterMove(_source);
         session.RefreshButcheryAfterMove(_destination);
+        session.RefreshModificationAfterMove(_source);
+        session.RefreshModificationAfterMove(_destination);
     }
 
     void OnViewDisabled()

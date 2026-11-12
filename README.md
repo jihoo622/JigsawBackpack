@@ -21,6 +21,7 @@ Unity 6.3 LTS(6000.3.22f1) URP 기반의 기차 화물 거래 게임. 작업 규
 - 거래 견적은 모델/툴팁이 공유한다. 기본·실제 가치와 현재/가능 인접 효과를 나눠 표시하고 기차 합계는 누적 실제 가치를 사용한다. 패배도 결과 패널을 열며 사과는 일반 재고에 포함된다. 툴팁 행 제작은 `Tools/MyJG/Apply Tooltip Trade Details`다.
 - 수치·재고·노선은 `Assets/Resources/Tables/*.json`이 원본이다. 공통 표시·UI 조정값은 **기초데이터**(`BasicDataTableData`)에 모았다([편집 계약](Docs/Management/BASIC_DATA.md)). 표기·색은 `Presentation`, 상태는 씬 로컬 `PuzzleInventoryService`, UI는 사전 배치한 View와 Presenter가 담당한다.
 - 다르폴에서 3×3 도축대를 이용할 수 있다. 대상 화물과 작업 시간은 `PuzzleCityActionTableData`가 정하고, 도축대와 버튼은 Game 씬에 연결했다.
+- 에른아에서 3×3 개조 보드의 `piece.uShape`를 `mode.refrigeration`으로 `piece.refrigeratedFrame` 1개로 즉시 바꾼다. 인스턴스 ID·좌표·회전·누적 실제 가치·보유 시간·내구도는 보존하고 결과 태그에 `Refrigerator`만 추가한다. `Refrigerator`의 신선도 감소율 -50%는 후속 계약이며 현재는 계산하지 않는다. 씬 연결은 `Tools/MyJG/Apply Station Actions UI`로 저장한다.
 - 시작 객차의 송아지는 2×1, 기본 가치 40원이다. 시장 재고에서 제외되며 애기 태그가 있는 동안 도축할 수 없다. 기존 소와 같은 배설물 규칙을 따르며, 48시간 후 같은 객차에서 성체가 된다. 성체 배치 공간이 부족하면 마지막 1시간에 들어가는 시간 소비 행동을 막는다.
 - 동물은 자정마다 자기 객차의 빈자리에 똥을 만든다. 똥은 인접 화물에 −50%, 동물은 인접 `Cargo`에 −10%를 적용한다. 같은 객차에서 상하좌우로 맞닿은 같은 품목의 동물 한 쌍은 48시간 후 송아지 1마리를 낳는다. 시간 경과 전 재결합은 진행도를 보존한다.
 

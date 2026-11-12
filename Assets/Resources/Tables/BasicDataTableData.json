@@ -2210,6 +2210,10 @@
           "value": "흔함"
         },
         {
+          "id": "refrigeratorLabel",
+          "value": "냉장"
+        },
+        {
           "id": "saltLabel",
           "value": "소금"
         },
@@ -3063,6 +3067,62 @@
           "positive": true
         },
         {
+          "id": "modificationBoardSize",
+          "source": "Assets/Scripts/Editor/Build/PuzzleUiLayoutTool.cs",
+          "value": 396,
+          "whole": true,
+          "positive": true
+        },
+        {
+          "id": "modificationBoardTop",
+          "source": "Assets/Scripts/Editor/Build/PuzzleUiLayoutTool.cs",
+          "value": 116,
+          "whole": true,
+          "positive": true
+        },
+        {
+          "id": "modificationButtonBottom",
+          "source": "Assets/Scripts/Editor/Build/PuzzleUiLayoutTool.cs",
+          "value": 24,
+          "whole": true,
+          "positive": true
+        },
+        {
+          "id": "modificationButtonHeight",
+          "source": "Assets/Scripts/Editor/Build/PuzzleUiLayoutTool.cs",
+          "value": 84,
+          "whole": true,
+          "positive": true
+        },
+        {
+          "id": "modificationInfoHeight",
+          "source": "Assets/Scripts/Editor/Build/PuzzleUiLayoutTool.cs",
+          "value": 32,
+          "whole": true,
+          "positive": true
+        },
+        {
+          "id": "modificationInfoY",
+          "source": "Assets/Scripts/Editor/Build/PuzzleUiLayoutTool.cs",
+          "value": 64,
+          "whole": true,
+          "positive": true
+        },
+        {
+          "id": "modificationModeHeight",
+          "source": "Assets/Scripts/Editor/Build/PuzzleUiLayoutTool.cs",
+          "value": 48,
+          "whole": true,
+          "positive": true
+        },
+        {
+          "id": "modificationModeTop",
+          "source": "Assets/Scripts/Editor/Build/PuzzleUiLayoutTool.cs",
+          "value": 8,
+          "whole": true,
+          "positive": true
+        },
+        {
           "id": "actionDescriptionBottom",
           "value": 16,
           "whole": true,
@@ -3643,6 +3703,42 @@
       "id": "presentation",
       "texts": [
         {
+          "id": "PuzzleModificationTitle",
+          "value": "개조 작업대",
+          "arguments": 0,
+          "source": "Assets/Scripts/Runtime/Core/Presentation.cs:PuzzleModificationTitle"
+        },
+        {
+          "id": "StationModification",
+          "value": "개조",
+          "arguments": 0,
+          "source": "Assets/Scripts/Runtime/Core/Presentation.cs:StationModification"
+        },
+        {
+          "id": "StationModificationConfirm",
+          "value": "개조하기",
+          "arguments": 0,
+          "source": "Assets/Scripts/Runtime/Core/Presentation.cs:StationModificationConfirm"
+        },
+        {
+          "id": "PuzzleModificationIdle",
+          "value": "기계 부품을 원하는 모드로 개조하세요.",
+          "arguments": 1,
+          "source": "Assets/Scripts/Runtime/Core/Presentation.cs:PuzzleModificationStatus"
+        },
+        {
+          "id": "PuzzleModificationSelected",
+          "value": "{0} 모드 선택 · 지정 태그 화물을 모두 놓은 뒤 확인하세요",
+          "arguments": 1,
+          "source": "Assets/Scripts/Runtime/Core/Presentation.cs:PuzzleModificationStatus"
+        },
+        {
+          "id": "PuzzleModificationReady",
+          "value": "{0} · 개조할 화물을 모두 놓았습니다",
+          "arguments": 1,
+          "source": "Assets/Scripts/Runtime/Core/Presentation.cs:PuzzleModificationStatus"
+        },
+        {
           "id": "PuzzleButcheryTitle",
           "value": "도축대",
           "arguments": 0,
@@ -3701,6 +3797,60 @@
     {
       "id": "rules",
       "texts": [
+        {
+          "id": "modification.blocked",
+          "value": "게임을 진행 중이 아니라 개조할 수 없습니다.",
+          "arguments": 0,
+          "source": "Assets/Scripts/Runtime/Core/Presentation.cs:PuzzleModificationReason"
+        },
+        {
+          "id": "modification.unavailable",
+          "value": "이 마을에서는 개조할 수 없습니다.",
+          "arguments": 0,
+          "source": "Assets/Scripts/Runtime/Core/Presentation.cs:PuzzleModificationReason"
+        },
+        {
+          "id": "modification.noMode",
+          "value": "개조 모드를 먼저 선택하세요.",
+          "arguments": 0,
+          "source": "Assets/Scripts/Runtime/Core/Presentation.cs:PuzzleModificationReason"
+        },
+        {
+          "id": "modification.empty",
+          "value": "작업대에 개조할 화물이 없습니다.",
+          "arguments": 0,
+          "source": "Assets/Scripts/Runtime/Core/Presentation.cs:PuzzleModificationReason"
+        },
+        {
+          "id": "modification.invalidItem",
+          "value": "작업대에는 모드에서 지정한 태그의 화물만 놓을 수 있습니다.",
+          "arguments": 0,
+          "source": "Assets/Scripts/Runtime/Core/Presentation.cs:PuzzleModificationReason"
+        },
+        {
+          "id": "modification.alreadyModified",
+          "value": "이미 개조한 화물이 섞여 있습니다.",
+          "arguments": 0,
+          "source": "Assets/Scripts/Runtime/Core/Presentation.cs:PuzzleModificationReason"
+        },
+        {
+          "id": "modification.noConversion",
+          "value": "선택한 모드로 바꿀 수 없는 화물이 있습니다.",
+          "arguments": 0,
+          "source": "Assets/Scripts/Runtime/Core/Presentation.cs:PuzzleModificationReason"
+        },
+        {
+          "id": "modification.invalidResult",
+          "value": "개조 결과를 작업대에 배치할 수 없습니다.",
+          "arguments": 0,
+          "source": "Assets/Scripts/Runtime/Core/Presentation.cs:PuzzleModificationReason"
+        },
+        {
+          "id": "modification.returnItems",
+          "value": "개조대에 남은 화물을 먼저 기차로 옮기세요.",
+          "arguments": 0,
+          "source": "Assets/Scripts/Runtime/Core/Presentation.cs:PuzzleModificationReturnItems"
+        },
         {
           "id": "butchery.blocked",
           "value": "지금은 도축을 진행할 수 없습니다.",

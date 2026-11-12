@@ -53,6 +53,7 @@ public sealed class TableManager
     readonly Dictionary<string, Dictionary<string, PuzzleCityTagPriceData>> cityTagPrices;
     readonly Dictionary<string, PuzzleCityActionData> cityActions;
     readonly Dictionary<string, List<PuzzleCityActionData>> actionsByCity;
+    readonly Dictionary<string, PuzzleActionModeData> actionModes;
     readonly Dictionary<string, Dictionary<string, PuzzleRouteData>> routes;
     readonly Dictionary<string, IReadOnlyList<PuzzleRouteData>> routesFrom;
 
@@ -89,6 +90,7 @@ public sealed class TableManager
         SynergyRules = Array.AsReadOnly(synergyRules.Values.OrderBy(entry => entry.id, StringComparer.Ordinal).ToArray());
         cityActions = rules.Index(PuzzleCityAction.actions, e => e.id, "PuzzleCityActionTableData.actions");
         actionsByCity = IndexActionsByCity(cityActions);
+        actionModes = IndexActionModes(cityActions, rules);
         CityActions = Array.AsReadOnly(cityActions.Values.OrderBy(entry => entry.id, StringComparer.Ordinal).ToArray());
         Pieces = Array.AsReadOnly(pieces.Values.OrderBy(entry => entry.id, StringComparer.Ordinal).ToArray());
         TrainStartingPlacements = SortStartingPlacements(Puzzle.train);
@@ -222,6 +224,15 @@ public sealed class TableManager
         return result;
     }
 
+    // 행동 모드의 id 색인. 행동 안 배열이 아니라 id로 조회하므로 배열 순서에 의존하지 않는다.
+    static Dictionary<string, PuzzleActionModeData> IndexActionModes(
+        Dictionary<string, PuzzleCityActionData> _actions, GameTableRules _rules)
+    {
+        var modes = _actions.Values.SelectMany(_action => _action.modes ?? Array.Empty<PuzzleActionModeData>())
+            .Where(_mode => _mode != null).ToArray();
+        return _rules.Index(modes, _mode => _mode.id, "PuzzleCityActionTableData.modes");
+    }
+
     // 특정 도시의 역에서 사용할 수 있는 행동. id 오름차순이라 배열 순서에 의존하지 않는다.
     internal IReadOnlyList<PuzzleCityActionData> CityActionsOf(string _cityId)
     {
@@ -256,6 +267,31 @@ public sealed class TableManager
     internal PuzzleCityActionData CityAction(string _id)
     {
         return Find(cityActions, _id, "마을 행동");
+    }
+
+    // id로 찾는 행동 모드. 행동 안 배열 순서에 의존하지 않는다.
+    internal bool TryGetActionMode(string _id, out PuzzleActionModeData _mode)
+    {
+        if (!string.IsNullOrEmpty(_id) && actionModes.TryGetValue(_id, out _mode))
+        {
+            return true;
+        }
+
+        _mode = null;
+        return false;
+    }
+
+    // 행동 안의 모드 목록. id 오름차순이라 배열 순서에 의존하지 않는다.
+    internal IReadOnlyList<PuzzleActionModeData> ActionModesOf(PuzzleCityActionData _action)
+    {
+        if (_action == null)
+        {
+            return Array.Empty<PuzzleActionModeData>();
+        }
+
+        return Array.AsReadOnly((_action.modes ?? Array.Empty<PuzzleActionModeData>())
+            .Where(_mode => _mode != null)
+            .OrderBy(_mode => _mode.id, StringComparer.Ordinal).ToArray());
     }
 
     // type 문자열과 enum 이름을 대조한다. 숫자 문자열·알 수 없는 값은 false이고 검증에서 오류로 보고된다.

@@ -198,6 +198,63 @@
       "baseValue": 55
     },
     {
+      "id": "piece.refrigeratedFrame",
+      "displayName": "냉장 프레임",
+      "description": "기계 프레임을 냉장 용도로 개조한 화물. 냉장 효과는 아직 적용되지 않았다.",
+      "tags": [
+        "Machinery",
+        "Metal",
+        "Refrigerator"
+      ],
+      "visualKey": "cargo.machineFrame",
+      "slotCount": 5,
+      "excludeFromMarket": true,
+      "cells": [
+        {
+          "x": 0,
+          "y": 0,
+          "north": "Flat",
+          "east": "Flat",
+          "south": "Flat",
+          "west": "Flat"
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "north": "Flat",
+          "east": "Flat",
+          "south": "Flat",
+          "west": "Flat"
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "north": "Flat",
+          "east": "Flat",
+          "south": "Flat",
+          "west": "Flat"
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "north": "Flat",
+          "east": "Flat",
+          "south": "Flat",
+          "west": "Flat"
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "north": "Flat",
+          "east": "Flat",
+          "south": "Flat",
+          "west": "Flat"
+        }
+      ],
+      "durability": 100,
+      "baseValue": 55
+    },
+    {
       "id": "piece.elbowRight",
       "displayName": "공구 상자",
       "description": "오른쪽으로 꺾인 세 칸 화물.",

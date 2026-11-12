@@ -83,6 +83,8 @@ public sealed class PuzzlePieceData
     // 내구도 시작값. 누락이 정상값으로 위장되지 않도록 검증용 값으로 둔다.
     public int durability = -1;
     public bool excludeFromMarket;
+    // 개조 커버리지 검사에서 명시적으로 제외하는 기계 품목. 예외는 반드시 이 플래그로 선언한다.
+    public bool exemptFromModification;
     public string adultPieceId;
     public int growthHours, growthBlockedHours;
     public PuzzleCellData[] cells = Array.Empty<PuzzleCellData>();
@@ -198,7 +200,8 @@ public sealed class PuzzleCityTagPriceData
 // 마을 역에서 추가 동작으로 진입하는 행동의 종류. 테이블의 type 문자열과 이름이 같아야 한다.
 public enum PuzzleCityActionType
 {
-    Butchery
+    Butchery,
+    Modification
 }
 
 // 도시별 추가 행동. cityIds에 지정한 마을의 역에서만 버튼이 보인다.
@@ -208,9 +211,11 @@ public sealed class PuzzleCityActionData
     public string id, type, title, description, inputTag, outputTag;
     public string[] cityIds = Array.Empty<string>();
     public PuzzleBoardData board;
-    // 확인 버튼을 누른 시점부터 완성에 걸리는 분. 누락이 0으로 위장되지 않도록 검증용 값으로 둔다.
+    // 확인 버튼을 누른 시점부터 완성에 걸리는 분. 도축 전용이며 누락이 0으로 위장되지 않도록 검증용 값으로 둔다.
     public long workMinutes = -1;
     public PuzzleActionConversionData[] conversions = Array.Empty<PuzzleActionConversionData>();
+    // 개조(Modification) 전용 모드 목록. 도축은 모드 대신 행동 자체의 inputTag·conversions을 쓴다.
+    public PuzzleActionModeData[] modes = Array.Empty<PuzzleActionModeData>();
 }
 
 // 행동의 입력 아이템 하나를 산출물로 바꾸는 대응. inputPieceId 기준 고유하다.
@@ -219,6 +224,15 @@ public sealed class PuzzleActionConversionData
 {
     public string inputPieceId, outputPieceId;
     public int outputCount = -1;
+}
+
+// 개조 행동의 선택 모드. 입력 태그의 화물을 결과 태그가 붙은 품목으로 즉시 바꾼다.
+// 정의 교체 방식이므로 변환은 1:1이며 모양·칸 수·기본 가치는 입력과 결과가 같다.
+[Serializable]
+public sealed class PuzzleActionModeData
+{
+    public string id, displayName, description, inputTag, outputTag;
+    public PuzzleActionConversionData[] conversions = Array.Empty<PuzzleActionConversionData>();
 }
 
 // 한 방향 노선. fromCityId에서 toCityId로 떠날 때의 비용이고 반대 방향은 별개 행이다.

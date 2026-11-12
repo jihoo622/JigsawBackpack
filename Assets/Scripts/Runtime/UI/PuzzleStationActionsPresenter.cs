@@ -16,11 +16,15 @@ public sealed class PuzzleStationActionsPresenter : MonoBehaviour
         view.RestTimeRequested += Rest;
         view.ButcheryRequested += OpenButchery;
         view.ButcheryConfirmed += ConfirmButchery;
+        view.ModificationRequested += OpenModification;
+        view.ModificationModeRequested += ToggleModificationMode;
+        view.ModificationConfirmed += ConfirmModification;
         view.ActionBackRequested += OnBack;
         GameEvents.CityArrived += OnArrived;
         GameEvents.TimeAdvanced += OnTimeAdvanced;
         GameEvents.PanelVisibility += OnPanelVisibility;
         GameEvents.ButcheryChanged += OnButcheryChanged;
+        GameEvents.ModificationChanged += OnModificationChanged;
         Refresh();
     }
 
@@ -33,11 +37,15 @@ public sealed class PuzzleStationActionsPresenter : MonoBehaviour
         view.RestTimeRequested -= Rest;
         view.ButcheryRequested -= OpenButchery;
         view.ButcheryConfirmed -= ConfirmButchery;
+        view.ModificationRequested -= OpenModification;
+        view.ModificationModeRequested -= ToggleModificationMode;
+        view.ModificationConfirmed -= ConfirmModification;
         view.ActionBackRequested -= OnBack;
         GameEvents.CityArrived -= OnArrived;
         GameEvents.TimeAdvanced -= OnTimeAdvanced;
         GameEvents.PanelVisibility -= OnPanelVisibility;
         GameEvents.ButcheryChanged -= OnButcheryChanged;
+        GameEvents.ModificationChanged -= OnModificationChanged;
     }
 
     void Refresh()
@@ -53,9 +61,31 @@ public sealed class PuzzleStationActionsPresenter : MonoBehaviour
         {
             session.CloseButchery();
         }
+        bool modificationAvailable = view.HasModificationButton && session.HasModification();
+        PuzzleActionModeData selectedMode = null;
+        bool modificationModeSelected = modificationAvailable && session.TryGetSelectedModificationMode(out selectedMode);
+        bool modificationConfirmable = modificationAvailable && session.ModificationConfirmable();
+        string modificationModeName = modificationModeSelected
+            ? selectedMode.displayName
+            : FirstModificationModeName();
+        string modificationHint = modificationAvailable
+            ? Presentation.PuzzleModificationStatus(session)
+            : string.Empty;
+        if (!view.ShowingModification)
+        {
+            session.CloseModification();
+        }
         view.Refresh(session.IsMarketOpen, inProgress, TableManager.Instance.PuzzleTime.restMinutes,
             available, available && phase != PuzzleButcheryPhase.Working,
             available && session.ButcheryConfirmable(), hint);
+        view.RefreshModification(inProgress, modificationAvailable, modificationModeSelected,
+            modificationConfirmable, modificationModeName, modificationHint);
+    }
+
+    string FirstModificationModeName()
+    {
+        var modes = session.ModificationModes();
+        return modes.Count > 0 ? modes[0].displayName : string.Empty;
     }
 
     void OpenMarket()
@@ -100,6 +130,39 @@ public sealed class PuzzleStationActionsPresenter : MonoBehaviour
         Refresh();
     }
 
+    void OpenModification()
+    {
+        view.ShowModification();
+        if (!session.OpenModification())
+        {
+            view.ShowHome();
+        }
+        Refresh();
+    }
+
+    void ToggleModificationMode()
+    {
+        if (!view.HasModificationButton || !session.HasModification())
+        {
+            return;
+        }
+        var modes = session.ModificationModes();
+        if (modes.Count == 0)
+        {
+            return;
+        }
+        session.TryToggleModificationMode(modes[0].id, out _);
+    }
+
+    void ConfirmModification()
+    {
+        if (!session.TryConfirmModification(out _, out PuzzleModificationFailure failure))
+        {
+            view.ShowModificationNotice(Presentation.PuzzleModificationReason(failure));
+        }
+        Refresh();
+    }
+
     void OnBack()
     {
         if (view.ShowingButchery && !session.TryLeaveButchery(out string reason))
@@ -107,8 +170,14 @@ public sealed class PuzzleStationActionsPresenter : MonoBehaviour
             view.ShowButcheryNotice(reason);
             return;
         }
+        if (view.ShowingModification && !session.CanLeaveModification())
+        {
+            view.ShowModificationNotice(Presentation.PuzzleModificationReturnItems());
+            return;
+        }
 
         session.CloseButchery();
+        session.CloseModification();
         view.ShowHome();
     }
 
@@ -124,12 +193,21 @@ public sealed class PuzzleStationActionsPresenter : MonoBehaviour
             if (!_info.open)
             {
                 session.CloseButchery();
+                session.CloseModification();
             }
             Refresh();
         }
     }
 
     void OnButcheryChanged(GameEvents.ButcheryInfo _info)
+    {
+        if (_info.session == session)
+        {
+            Refresh();
+        }
+    }
+
+    void OnModificationChanged(GameEvents.ModificationInfo _info)
     {
         if (_info.session == session)
         {

@@ -11,6 +11,7 @@ public sealed class PuzzleStationActionsView : PanelBase
     [SerializeField] GameObject restContent;
     [SerializeField] RectTransform tavernContent;
     [SerializeField] GameObject butcheryContent;
+    [SerializeField] GameObject modificationContent;
     [SerializeField] TextMeshProUGUI title;
     [SerializeField] TextMeshProUGUI marketLabel;
     [SerializeField] TextMeshProUGUI tavernLabel;
@@ -22,6 +23,10 @@ public sealed class PuzzleStationActionsView : PanelBase
     [SerializeField] TextMeshProUGUI butcheryLabel;
     [SerializeField] TextMeshProUGUI butcheryHint;
     [SerializeField] TextMeshProUGUI butcheryConfirmLabel;
+    [SerializeField] TextMeshProUGUI modificationLabel;
+    [SerializeField] TextMeshProUGUI modificationHint;
+    [SerializeField] TextMeshProUGUI modificationModeLabel;
+    [SerializeField] TextMeshProUGUI modificationConfirmLabel;
     [SerializeField] Button marketButton;
     [SerializeField] Button tavernButton;
     [SerializeField] Button restButton;
@@ -30,6 +35,9 @@ public sealed class PuzzleStationActionsView : PanelBase
     [SerializeField] Button restDurationButton;
     [SerializeField] Button butcheryButton;
     [SerializeField] Button butcheryConfirmButton;
+    [SerializeField] Button modificationButton;
+    [SerializeField] Button modificationModeButton;
+    [SerializeField] Button modificationConfirmButton;
     [SerializeField] CanvasGroup interaction;
     [SerializeField] Button notebookButton;
     [SerializeField] PuzzleTradeNotebookView notebook;
@@ -42,12 +50,19 @@ public sealed class PuzzleStationActionsView : PanelBase
     internal event Action RestTimeRequested;
     internal event Action ButcheryRequested;
     internal event Action ButcheryConfirmed;
+    internal event Action ModificationRequested;
+    internal event Action ModificationModeRequested;
+    internal event Action ModificationConfirmed;
     internal event Action ActionBackRequested;
     public RectTransform TavernContent => tavernContent;
     // 도축 UI는 버튼·라벨·content·hint·확인 버튼이 모두 배선됐을 때만 동작한다. 일부만 있으면 기능이 꺼지고 로그만 남긴다.
     bool ButcheryWired => butcheryButton && butcheryLabel && butcheryContent && butcheryHint && butcheryConfirmButton;
+    bool ModificationWired => modificationButton && modificationLabel && modificationContent && modificationHint &&
+        modificationModeButton && modificationModeLabel && modificationConfirmButton;
     public bool HasButcheryButton => ButcheryWired;
+    public bool HasModificationButton => ModificationWired;
     internal bool ShowingButchery => butcheryContent && butcheryContent.activeSelf;
+    internal bool ShowingModification => modificationContent && modificationContent.activeSelf;
 
     protected override void Awake()
     {
@@ -70,6 +85,19 @@ public sealed class PuzzleStationActionsView : PanelBase
             }
             butcheryContent.SetActive(false);
         }
+        if (modificationButton && !ModificationWired)
+        {
+            Debug.LogError("개조 버튼이 있는 View에는 modificationLabel·modificationContent·modificationHint·modificationModeButton·modificationModeLabel·modificationConfirmButton 참조가 모두 필요합니다.", this);
+        }
+        if (ModificationWired)
+        {
+            modificationLabel.text = Presentation.StationModification;
+            if (modificationConfirmLabel)
+            {
+                modificationConfirmLabel.text = Presentation.StationModificationConfirm;
+            }
+            modificationContent.SetActive(false);
+        }
         var session = SceneServices.For<PuzzleInventoryService>(gameObject.scene);
         session.Initialize();
         notebook.Initialize(session.TavernRumors, CloseNotebook);
@@ -91,6 +119,12 @@ public sealed class PuzzleStationActionsView : PanelBase
             butcheryButton.onClick.AddListener(OnButchery);
             butcheryConfirmButton.onClick.AddListener(OnButcheryConfirm);
         }
+        if (ModificationWired)
+        {
+            modificationButton.onClick.AddListener(OnModification);
+            modificationModeButton.onClick.AddListener(OnModificationMode);
+            modificationConfirmButton.onClick.AddListener(OnModificationConfirm);
+        }
         notebookButton.onClick.AddListener(OpenNotebook);
     }
 
@@ -106,6 +140,12 @@ public sealed class PuzzleStationActionsView : PanelBase
         {
             butcheryButton.onClick.RemoveListener(OnButchery);
             butcheryConfirmButton.onClick.RemoveListener(OnButcheryConfirm);
+        }
+        if (ModificationWired)
+        {
+            modificationButton.onClick.RemoveListener(OnModification);
+            modificationModeButton.onClick.RemoveListener(OnModificationMode);
+            modificationConfirmButton.onClick.RemoveListener(OnModificationConfirm);
         }
         notebookButton.onClick.RemoveListener(OpenNotebook);
         notebook.gameObject.SetActive(false);
@@ -131,6 +171,22 @@ public sealed class PuzzleStationActionsView : PanelBase
         {
             ShowHome();
         }
+    }
+
+    internal void RefreshModification(bool _inProgress, bool _available, bool _modeSelected,
+        bool _confirmEnabled, string _modeDisplayName, string _hint)
+    {
+        if (!ModificationWired)
+        {
+            return;
+        }
+        modificationButton.gameObject.SetActive(_available && _inProgress);
+        modificationButton.interactable = _available;
+        modificationModeButton.interactable = _available;
+        modificationModeLabel.text = _modeDisplayName;
+        modificationModeLabel.color = _modeSelected ? Presentation.PuzzleTimeAccent : Presentation.PuzzleHeading;
+        modificationHint.text = _hint;
+        modificationConfirmButton.interactable = _confirmEnabled;
     }
 
     // 닫기를 막거나 확인이 실패한 사유를 임시로 보여 준다. 다음 Refresh가 상태 문구로 되돌린다.
@@ -171,6 +227,19 @@ public sealed class PuzzleStationActionsView : PanelBase
     internal void ShowButchery()
     {
         ShowMode(butcheryContent, Presentation.StationButchery);
+    }
+
+    internal void ShowModification()
+    {
+        ShowMode(modificationContent, Presentation.StationModification);
+    }
+
+    internal void ShowModificationNotice(string _message)
+    {
+        if (modificationHint)
+        {
+            modificationHint.text = _message;
+        }
     }
 
     internal void SetInteraction(bool _enabled)
@@ -221,6 +290,10 @@ public sealed class PuzzleStationActionsView : PanelBase
         {
             butcheryContent.SetActive(_content == butcheryContent);
         }
+        if (modificationContent)
+        {
+            modificationContent.SetActive(_content == modificationContent);
+        }
         backButton.interactable = true;
         backButton.gameObject.SetActive(_content != actionsList);
         title.text = _title;
@@ -265,6 +338,21 @@ public sealed class PuzzleStationActionsView : PanelBase
     void OnButcheryConfirm()
     {
         ButcheryConfirmed?.Invoke();
+    }
+
+    void OnModification()
+    {
+        ModificationRequested?.Invoke();
+    }
+
+    void OnModificationMode()
+    {
+        ModificationModeRequested?.Invoke();
+    }
+
+    void OnModificationConfirm()
+    {
+        ModificationConfirmed?.Invoke();
     }
 
     // 뒤로 버튼은 Presenter가 닫기 가능 여부를 판단할 수 있게 올린다. 구독자가 없으면 그대로 목록으로 돌아간다.

@@ -1,6 +1,6 @@
 {
   "status": "sample",
-  "note": "마을별 추가 행동. cityIds에 지정한 마을의 역에서만 버튼이 보인다. 작업 시간·변환 관계는 이 표가 원본이다.",
+  "note": "마을별 추가 행동. cityIds에 지정한 마을의 역에서만 버튼이 보인다. 작업 시간·변환 관계는 이 표가 원본이다. 개조(Modification)는 즉시 변환이며 모드별로 입력→출력 품목은 1:1이다.",
   "actions": [
     {
       "id": "action.butchery",
@@ -14,6 +14,27 @@
       "outputTag": "Meat",
       "conversions": [
         { "inputPieceId": "piece.cow", "outputPieceId": "piece.beef", "outputCount": 2 }
+      ]
+    },
+    {
+      "id": "action.modification",
+      "type": "Modification",
+      "cityIds": ["city.industry.ironworks"],
+      "title": "개조하기",
+      "description": "작업 보드의 기계 화물을 선택한 모드의 결과 화물로 즉시 바꿉니다. 누적되는 가치는 그대로 남습니다.",
+      "board": { "width": 3, "height": 3, "startingPlacements": [] },
+      "workMinutes": 0,
+      "modes": [
+        {
+          "id": "mode.refrigeration",
+          "displayName": "냉장 개조",
+          "description": "기계 화물을 같은 모양의 냉장고 태그 화물로 바꿉니다. 신선도 감소율 감소는 아직 적용되지 않습니다.",
+          "inputTag": "Machinery",
+          "outputTag": "Refrigerator",
+          "conversions": [
+            { "inputPieceId": "piece.uShape", "outputPieceId": "piece.refrigeratedFrame", "outputCount": 1 }
+          ]
+        }
       ]
     }
   ]

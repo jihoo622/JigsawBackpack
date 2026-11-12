@@ -121,7 +121,8 @@ public static class PuzzleUiLayoutTool
         Button(back);
         var content = Rect(surface, "StationBody");
         Fill(content, N("padding"), N("headerHeight") + N("gap"), N("padding"), N("padding"));
-        foreach (string field in new[] { "actionsList", "marketContent", "restContent", "tavernContent", "butcheryContent" })
+        foreach (string field in new[] { "actionsList", "marketContent", "restContent", "tavernContent",
+            "butcheryContent", "modificationContent" })
         {
             var target = stationFields.FindProperty(field).objectReferenceValue;
             if (!target)
@@ -138,6 +139,7 @@ public static class PuzzleUiLayoutTool
         ApplyRest(stationFields, cityFields);
         ApplyTavern(cityFields);
         ApplyButchery(stationFields, fields);
+        ApplyModification(stationFields, fields);
         ApplyHeader((RectTransform)canvas.transform, city, cityFields);
         ApplyFooter((RectTransform)canvas.transform, cityFields);
         ApplyTooltip((PuzzleItemTooltipView)fields.FindProperty("tooltipView").objectReferenceValue);
@@ -151,6 +153,11 @@ public static class PuzzleUiLayoutTool
         if (butchery)
         {
             butchery.SetActive(false);
+        }
+        var modification = stationFields.FindProperty("modificationContent").objectReferenceValue as GameObject;
+        if (modification)
+        {
+            modification.SetActive(false);
         }
         back.gameObject.SetActive(false);
         title.text = Presentation.StationActionsTitle;
@@ -208,6 +215,7 @@ public static class PuzzleUiLayoutTool
             ApplyActionButton(_fields, action, _font, true);
         }
         ApplyActionButton(_fields, "butchery", _font, false);
+        ApplyActionButton(_fields, "modification", _font, false);
     }
 
     static void ApplyActionButton(SerializedObject _fields, string _action, TMP_FontAsset _font, bool _marked)
@@ -301,6 +309,42 @@ public static class PuzzleUiLayoutTool
             return;
         }
         Bottom((RectTransform)confirm.transform, N("butcheryButtonBottom"), N("butcheryButtonHeight"));
+        Button(confirm);
+    }
+
+    static void ApplyModification(SerializedObject _station, SerializedObject _inventory)
+    {
+        var root = _station.FindProperty("modificationContent").objectReferenceValue as GameObject;
+        if (!root)
+        {
+            return;
+        }
+        var view = (PuzzleInventoryView)_inventory.FindProperty("modificationView").objectReferenceValue;
+        if (!view)
+        {
+            return;
+        }
+        var fields = new SerializedObject(view);
+        ((TMP_Text)fields.FindProperty("boardTitle").objectReferenceValue).gameObject.SetActive(false);
+        ((TMP_Text)fields.FindProperty("itemDetails").objectReferenceValue).gameObject.SetActive(false);
+        ((TMP_Text)fields.FindProperty("moveGuide").objectReferenceValue).gameObject.SetActive(false);
+        var mode = (Button)_station.FindProperty("modificationModeButton").objectReferenceValue;
+        if (mode)
+        {
+            StretchTop((RectTransform)mode.transform, 0f, N("modificationModeTop"), N("modificationModeHeight"));
+            Button(mode);
+        }
+        var value = (TMP_Text)fields.FindProperty("boardValue").objectReferenceValue;
+        StretchTop(value.rectTransform, 0f, N("modificationInfoY"), N("modificationInfoHeight"));
+        Text(value, N("bodyFont"), TextAlignmentOptions.MidlineLeft);
+        var board = ((UnityEngine.UI.Image)fields.FindProperty("board").objectReferenceValue).rectTransform;
+        TopCenter(board, N("modificationBoardTop"), N("modificationBoardSize"), N("modificationBoardSize"), true);
+        var confirm = (Button)_station.FindProperty("modificationConfirmButton").objectReferenceValue;
+        if (!confirm)
+        {
+            return;
+        }
+        Bottom((RectTransform)confirm.transform, N("modificationButtonBottom"), N("modificationButtonHeight"));
         Button(confirm);
     }
 

@@ -57,6 +57,7 @@ public sealed class PuzzleInventoryService : MonoBehaviour
     Dictionary<(int First, int Second), long> breedingProgress = new();
     // 도시별 도축대. 행동이 없는 도시는 항목을 만들지 않는다.
     readonly Dictionary<string, PuzzleButcheryState> butcheries = new Dictionary<string, PuzzleButcheryState>(StringComparer.Ordinal);
+    readonly Dictionary<string, PuzzleModificationState> modifications = new Dictionary<string, PuzzleModificationState>(StringComparer.Ordinal);
     public IReadOnlyList<PuzzleInventory> TrainWagons => trainWagons;
     public int CurrentWagonIndex { get; private set; }
     public PuzzleInventory CurrentTrainWagon => (trainWagons.Count > CurrentWagonIndex && CurrentWagonIndex >= 0) ? trainWagons[CurrentWagonIndex] : null;
@@ -218,7 +219,9 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         breedingProgress.Clear();
         CurrentWagonIndex = 0;
         butcheries.Clear();
+        modifications.Clear();
         IsButcheryOpen = false;
+        IsModificationOpen = false;
     }
 
     // 도시 시장의 유일한 생성 경로. 처음 만들 때와 떠난 도시를 되돌릴 때 같은 경로를 쓴다.
@@ -688,6 +691,7 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         currentCityId = evaluation.ToCityId;
         // 떠난 도시의 도축대는 조작 대상이 아니다. 도착 후 패널을 다시 열 때 열어 준다.
         IsButcheryOpen = false;
+        IsModificationOpen = false;
         bool previewChanged = PreviewCityId != null;
         PreviewCityId = null;
         CityMoveCount++;
@@ -727,6 +731,13 @@ public sealed class PuzzleInventoryService : MonoBehaviour
                 ? source.EvaluateMove(_original, _destination, _grabbedCell, _targetCell, _clockwiseTurns)
                 : new PuzzlePlacementResult(PuzzlePlacementFailure.InvalidDestination);
             return new PuzzleDropResult(butcheryPlacement);
+        }
+        if (IsModification(source) || IsModification(_destination))
+        {
+            var modificationPlacement = source != null && CanMoveToModification(source, _destination)
+                ? source.EvaluateMove(_original, _destination, _grabbedCell, _targetCell, _clockwiseTurns)
+                : new PuzzlePlacementResult(PuzzlePlacementFailure.InvalidDestination);
+            return new PuzzleDropResult(modificationPlacement);
         }
         if ((source == market || _destination == market) && !IsMarketOpen)
         {
@@ -1312,6 +1323,310 @@ public sealed class PuzzleInventoryService : MonoBehaviour
     {
         GameEvents.RaiseButcheryChanged(this, _state.CityId, _state.Phase,
             IsButcheryOpen && string.Equals(_state.CityId, CurrentCityId, StringComparison.Ordinal));
+    }
+
+    #endregion
+
+    #region 마을별 행동 · 개조
+
+    internal bool IsModificationOpen { get; private set; }
+
+    internal PuzzleCityActionData ModificationAction(string _cityId = null)
+    {
+        return tables != null &&
+            tables.TryGetCityAction(string.IsNullOrEmpty(_cityId) ? CurrentCityId : _cityId,
+                PuzzleCityActionType.Modification, out var action)
+            ? action
+            : null;
+    }
+
+    internal bool HasModification(string _cityId = null)
+    {
+        return ModificationAction(_cityId) != null;
+    }
+
+    PuzzleModificationState EnsureModification(string _cityId)
+    {
+        if (definitions == null || tables == null || string.IsNullOrEmpty(_cityId) ||
+            !tables.TryGetCityAction(_cityId, PuzzleCityActionType.Modification, out var action))
+        {
+            return null;
+        }
+        if (modifications.TryGetValue(_cityId, out var existing))
+        {
+            return existing;
+        }
+
+        var board = new PuzzleInventory(action.board, Array.Empty<PuzzleStartingPlacementData>(), definitions,
+            Array.Empty<PuzzleSynergyRuleData>(), ref lastInstanceId);
+        var state = new PuzzleModificationState(_cityId, action, board);
+        modifications.Add(_cityId, state);
+        return state;
+    }
+
+    internal PuzzleInventory ModificationBoard(string _cityId = null)
+    {
+        return EnsureModification(string.IsNullOrEmpty(_cityId) ? CurrentCityId : _cityId)?.Board;
+    }
+
+    internal IReadOnlyList<PuzzleActionModeData> ModificationModes(string _cityId = null)
+    {
+        var action = ModificationAction(_cityId);
+        return tables == null || action == null
+            ? Array.Empty<PuzzleActionModeData>()
+            : tables.ActionModesOf(action);
+    }
+
+    internal bool TryGetSelectedModificationMode(out PuzzleActionModeData _mode, string _cityId = null)
+    {
+        _mode = null;
+        var state = EnsureModification(string.IsNullOrEmpty(_cityId) ? CurrentCityId : _cityId);
+        return state != null && TryFindSelectedMode(state, out _mode);
+    }
+
+    internal bool TryToggleModificationMode(string _modeId, out bool _selected, string _cityId = null)
+    {
+        _selected = false;
+        var state = EnsureModification(string.IsNullOrEmpty(_cityId) ? CurrentCityId : _cityId);
+        if (state == null || RunStatus != PuzzleRunStatus.InProgress || !IsModificationOpen ||
+            !string.Equals(state.CityId, CurrentCityId, StringComparison.Ordinal) ||
+            string.IsNullOrEmpty(_modeId) || !TryFindActionMode(state.Action, _modeId, out _))
+        {
+            return false;
+        }
+
+        bool enabled = !string.Equals(state.SelectedModeId, _modeId, StringComparison.Ordinal);
+        state.SelectedModeId = enabled ? _modeId : null;
+        _selected = enabled;
+        NotifyModification(state);
+        return true;
+    }
+
+    internal bool IsModification(PuzzleInventory _inventory)
+    {
+        return ModificationStateOf(_inventory) != null;
+    }
+
+    PuzzleModificationState ModificationStateOf(PuzzleInventory _board)
+    {
+        if (_board == null)
+        {
+            return null;
+        }
+        foreach (var state in modifications.Values)
+        {
+            if (ReferenceEquals(state.Board, _board))
+            {
+                return state;
+            }
+        }
+
+        return null;
+    }
+
+    internal bool OpenModification()
+    {
+        var state = EnsureModification(CurrentCityId);
+        if (state == null || RunStatus != PuzzleRunStatus.InProgress)
+        {
+            IsModificationOpen = false;
+            return false;
+        }
+
+        state.SelectedModeId = null;
+        IsModificationOpen = true;
+        NotifyModification(state);
+        return true;
+    }
+
+    internal void CloseModification()
+    {
+        IsModificationOpen = false;
+    }
+
+    internal bool CanLeaveModification(string _cityId = null)
+    {
+        var state = EnsureModification(string.IsNullOrEmpty(_cityId) ? CurrentCityId : _cityId);
+        return state == null || state.Board.Placements.Count == 0;
+    }
+
+    internal bool ModificationConfirmable(string _cityId = null)
+    {
+        return TryPlanModificationSwaps(string.IsNullOrEmpty(_cityId) ? CurrentCityId : _cityId, out _, out _);
+    }
+
+    internal bool TryConfirmModification(out int _convertedCount, out PuzzleModificationFailure _failure,
+        string _cityId = null)
+    {
+        _convertedCount = 0;
+        string cityId = string.IsNullOrEmpty(_cityId) ? CurrentCityId : _cityId;
+        if (!TryPlanModificationSwaps(cityId, out var swaps, out _failure))
+        {
+            return false;
+        }
+
+        var state = EnsureModification(cityId);
+        if (state == null)
+        {
+            _failure = PuzzleModificationFailure.Unavailable;
+            return false;
+        }
+        if (!state.Board.TrySwapDefinitions(swaps, out var replacements))
+        {
+            _failure = PuzzleModificationFailure.InvalidResult;
+            return false;
+        }
+
+        _convertedCount = replacements.Count;
+        NotifyModification(state);
+        return true;
+    }
+
+    internal void RefreshModificationAfterMove(PuzzleInventory _board)
+    {
+        var state = ModificationStateOf(_board);
+        if (state != null)
+        {
+            NotifyModification(state);
+        }
+    }
+
+    void NotifyModification(PuzzleModificationState _state)
+    {
+        GameEvents.RaiseModificationChanged(this, _state.CityId, !string.IsNullOrEmpty(_state.SelectedModeId),
+            IsModificationOpen && string.Equals(_state.CityId, CurrentCityId, StringComparison.Ordinal));
+    }
+
+    internal bool CanMoveToModification(PuzzleInventory _source, PuzzleInventory _destination)
+    {
+        if (!IsModificationOpen)
+        {
+            return false;
+        }
+        var state = ModificationStateOf(_source) ?? ModificationStateOf(_destination);
+        if (state == null || !ReferenceEquals(state.Action, ModificationAction()))
+        {
+            return false;
+        }
+
+        bool sameBoard = ReferenceEquals(state.Board, _source) && ReferenceEquals(state.Board, _destination);
+        return sameBoard ||
+            (ReferenceEquals(state.Board, _destination) ? IsTrainWagon(_source) : IsTrainWagon(_destination));
+    }
+
+    bool TryPlanModificationSwaps(string _cityId, out List<PuzzleDefinitionSwap> _swaps,
+        out PuzzleModificationFailure _failure)
+    {
+        _swaps = null;
+        _failure = PuzzleModificationFailure.None;
+        if (RunStatus != PuzzleRunStatus.InProgress)
+        {
+            _failure = PuzzleModificationFailure.Blocked;
+            return false;
+        }
+
+        var state = EnsureModification(_cityId);
+        if (state == null)
+        {
+            _failure = PuzzleModificationFailure.Unavailable;
+            return false;
+        }
+        if (!IsModificationOpen || !string.Equals(state.CityId, CurrentCityId, StringComparison.Ordinal))
+        {
+            _failure = PuzzleModificationFailure.Blocked;
+            return false;
+        }
+        if (!TryFindSelectedMode(state, out var mode) || string.IsNullOrEmpty(mode.inputTag) ||
+            string.IsNullOrEmpty(mode.outputTag) || string.Equals(mode.inputTag, mode.outputTag, StringComparison.Ordinal))
+        {
+            _failure = PuzzleModificationFailure.NoMode;
+            return false;
+        }
+        if (state.Board.Placements.Count == 0)
+        {
+            _failure = PuzzleModificationFailure.Empty;
+            return false;
+        }
+
+        var swaps = new List<PuzzleDefinitionSwap>(state.Board.Placements.Count);
+        foreach (var placement in state.Board.Placements)
+        {
+            if (!placement.Definition.Tags.Contains(mode.inputTag))
+            {
+                _failure = PuzzleModificationFailure.InvalidItem;
+                return false;
+            }
+            if (placement.Definition.Tags.Contains(mode.outputTag))
+            {
+                _failure = PuzzleModificationFailure.AlreadyModified;
+                return false;
+            }
+            if (!TryFindModeConversion(mode, placement.Definition.Id, out string resultPieceId))
+            {
+                _failure = PuzzleModificationFailure.NoConversion;
+                return false;
+            }
+            if (!definitions.TryGetValue(resultPieceId, out var result) || result == null)
+            {
+                _failure = PuzzleModificationFailure.InvalidResult;
+                return false;
+            }
+
+            swaps.Add(new PuzzleDefinitionSwap(placement, result));
+        }
+
+        if (!state.Board.TryPlanDefinitionSwaps(swaps))
+        {
+            _failure = PuzzleModificationFailure.InvalidResult;
+            return false;
+        }
+
+        _swaps = swaps;
+        return true;
+    }
+
+    bool TryFindSelectedMode(PuzzleModificationState _state, out PuzzleActionModeData _mode)
+    {
+        _mode = null;
+        return _state != null && !string.IsNullOrEmpty(_state.SelectedModeId) &&
+            TryFindActionMode(_state.Action, _state.SelectedModeId, out _mode);
+    }
+
+    bool TryFindActionMode(PuzzleCityActionData _action, string _modeId, out PuzzleActionModeData _mode)
+    {
+        _mode = null;
+        if (_action == null || string.IsNullOrEmpty(_modeId) || tables == null)
+        {
+            return false;
+        }
+
+        foreach (var mode in tables.ActionModesOf(_action))
+        {
+            if (mode != null && string.Equals(mode.id, _modeId, StringComparison.Ordinal))
+            {
+                _mode = mode;
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    static bool TryFindModeConversion(PuzzleActionModeData _mode, string _pieceId, out string _resultPieceId)
+    {
+        _resultPieceId = null;
+        foreach (var conversion in _mode.conversions ?? Array.Empty<PuzzleActionConversionData>())
+        {
+            if (conversion != null && !string.IsNullOrEmpty(conversion.outputPieceId) &&
+                conversion.outputCount == 1 &&
+                string.Equals(conversion.inputPieceId, _pieceId, StringComparison.Ordinal))
+            {
+                _resultPieceId = conversion.outputPieceId;
+                return true;
+            }
+        }
+
+        return false;
     }
 
     #endregion

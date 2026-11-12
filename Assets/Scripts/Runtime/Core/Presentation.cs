@@ -116,6 +116,45 @@ public static class Presentation
             _ => BasicData.Text("presentation.StationButcheryIdleHint")
         };
     }
+    public static string StationModification => BasicData.Text("presentation.StationModification");
+    public static string StationModificationConfirm => BasicData.Text("presentation.StationModificationConfirm");
+    public static string PuzzleModificationTitle => BasicData.Text("presentation.PuzzleModificationTitle");
+    public static string PuzzleModificationStatus(PuzzleInventoryService _session)
+    {
+        if (_session == null || !_session.HasModification())
+        {
+            return BasicData.Text("rules.modification.unavailable");
+        }
+        bool selected = _session.TryGetSelectedModificationMode(out var mode);
+        string modeName = selected ? mode.displayName : FirstModificationModeName(_session);
+        if (!selected)
+        {
+            return BasicData.Format("presentation.PuzzleModificationIdle", modeName);
+        }
+        return _session.ModificationConfirmable()
+            ? BasicData.Format("presentation.PuzzleModificationReady", modeName)
+            : BasicData.Format("presentation.PuzzleModificationSelected", modeName);
+    }
+    public static string PuzzleModificationReason(PuzzleModificationFailure _failure)
+    {
+        return _failure switch
+        {
+            PuzzleModificationFailure.Blocked => BasicData.Text("rules.modification.blocked"),
+            PuzzleModificationFailure.Unavailable => BasicData.Text("rules.modification.unavailable"),
+            PuzzleModificationFailure.NoMode => BasicData.Text("rules.modification.noMode"),
+            PuzzleModificationFailure.Empty => BasicData.Text("rules.modification.empty"),
+            PuzzleModificationFailure.InvalidItem => BasicData.Text("rules.modification.invalidItem"),
+            PuzzleModificationFailure.AlreadyModified => BasicData.Text("rules.modification.alreadyModified"),
+            PuzzleModificationFailure.NoConversion => BasicData.Text("rules.modification.noConversion"),
+            _ => BasicData.Text("rules.modification.invalidResult")
+        };
+    }
+    public static string PuzzleModificationReturnItems() => BasicData.Text("rules.modification.returnItems");
+    static string FirstModificationModeName(PuzzleInventoryService _session)
+    {
+        var modes = _session.ModificationModes();
+        return modes.Count > 0 ? modes[0].displayName : string.Empty;
+    }
     public static string PuzzleNightMarket => BasicData.Text("presentation.inventory.nightMarket");
     public static float PuzzleMarketClosedAlpha => BasicData.Float("presentation.inventory.stationRestDurationAbovePercent");
     public static string PuzzleMapLocate => BasicData.Text("presentation.map.locate");
@@ -348,6 +387,7 @@ public static class Presentation
         { "Fruit", "presentation.tags.fruitLabel" },
         { "Poo", "presentation.tags.pooLabel" },
         { "Box", "presentation.tags.boxLabel" },
+        { "Refrigerator", "presentation.tags.refrigeratorLabel" },
         { PuzzleItemDefinition.BABY_TAG, "presentation.PuzzleTagCommon.baby" },
 
     };
