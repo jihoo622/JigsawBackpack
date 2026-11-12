@@ -8,10 +8,10 @@ public sealed class LogData
 {
     // 이 파일의 목적을 적어 두는 자리. 동작에는 영향이 없다.
     public string note;
-    // false로 바꾸면 분석 파일을 만들지 않는다. 콘솔·오류 수집(LogKit)에는 영향이 없다.
+    // false면 분석 원본 수집·로컬 보관·Data 전송을 끈다. 콘솔·오류 자동 수집에는 영향이 없다.
     public bool enabled;
     // 디스크에 쓰는 주기(줄 수). 1이면 한 줄 쓸 때마다 저장하고, 크게 하면 종료 직전에 몰아 쓴다.
     public int bufferLines;
-    // 이 값보다 오래된 분석 파일을 기동에 정리한다. 0 이하이면 정리하지 않는다(전송·정리 자동화 없음).
+    // 이 값보다 오래된 로컬 분석 보관본을 기동에 정리한다. LogKit 전송 대기 파일은 별도다.
     public int retentionDays;
 }

@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine;
 
 [DisallowMultipleComponent]
 public sealed class PuzzleInventoryPresenter : MonoBehaviour
@@ -26,8 +26,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
     float hoveredWagonStartTime;
     bool initialized;
     bool isMapOpen;
-    bool isNotebookOpen;
-    bool InventoryBlocked => isMapOpen || isNotebookOpen;
+    bool InventoryBlocked => isMapOpen;
 
     void OnEnable()
     {
@@ -115,7 +114,6 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         }
         currentHoveredInstanceId = null;
         isMapOpen = false;
-        isNotebookOpen = false;
         GameEvents.CityArrived -= OnCityArrived;
         GameEvents.TimeAdvanced -= OnTimeAdvanced;
         GameEvents.PanelVisibility -= OnPanelVisibility;
@@ -232,7 +230,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         // 5. 후보 하나를 무작위로 골라 대사를 만들고 수첩에 기록한다.
         var selected = candidates[Random.Range(0, candidates.Count)];
         string message = Presentation.TavernRumor(selected.city.displayName, selected.tag);
-        session.RecordTavernRumor(selected.city.id, message);
+        session.RecordTavernRumor(selected.city.id, message, selected.tag);
         return message;
     }
 
@@ -304,19 +302,11 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
 
     void OnPanelVisibility(GameEvents.PanelInfo _info)
     {
-        if (_info.panel == PuzzleTradeNotebookView.PanelName)
-        {
-            isNotebookOpen = _info.open;
-        }
-        else if (_info.panel == Presentation.PUZZLE_MAP_PANEL_NAME)
-        {
-            isMapOpen = _info.open;
-        }
-        else
+        if (_info.panel != Presentation.PUZZLE_MAP_PANEL_NAME)
         {
             return;
         }
-
+        isMapOpen = _info.open;
         if (_info.open)
         {
             hoverPosition = null;

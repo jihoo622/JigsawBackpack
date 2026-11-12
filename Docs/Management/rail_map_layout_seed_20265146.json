@@ -1,5 +1,5 @@
 {
-  "note": "고정 역 좌표와 원본 points는 seed 20265146의 레일 기록이다. 게임 소요 시간은 PuzzleRouteTableData.routes[].points가 원본이며 displayPoints는 지도에만 쓰는 선택적 우회선이다. displayPoints가 없으면 원본 points로 그린다. 표시 우회선은 역 연결·운임·게임 시간을 바꾸지 않는다. labelX/Y는 표시 경로의 시간 라벨 위치다.",
+  "note": "고정 역 좌표와 원본 points는 seed 20265146의 레일 기록이다. 게임 소요 시간은 PuzzleRouteTableData.routes[].points가 원본이며 displayPoints는 지도에만 쓰는 선택적 우회선이다. displayPoints가 없으면 원본 points로 그린다. 표시 우회선은 역 연결·운임·게임 시간을 바꾸지 않는다. labelX/Y는 표시 경로의 시간 라벨 위치다. R44는 카르포트의 공업 지역 연결을 보완하기 위해 포르베르와 추가한 프로젝트 노선이다. 기존 43개 레일은 유지한다.",
   "seed": 20265146,
   "source": "ProjectWorldData.json / railatlas-jigsaw-tables/1 (sourceFormat rail-world/3)",
   "layoutReference": {
@@ -241,7 +241,7 @@
       "x": -500.12,
       "y": 115,
       "interchange": false,
-      "degree": 1,
+      "degree": 2,
       "tileX": 22,
       "tileY": 29,
       "sourceId": "S10"
@@ -293,7 +293,7 @@
       "x": -272.22,
       "y": -45,
       "interchange": false,
-      "degree": 2,
+      "degree": 3,
       "tileX": 40,
       "tileY": 45,
       "sourceId": "S13"
@@ -1372,6 +1372,26 @@
         65,
         -31.65,
         -15
+      ]
+    },
+    {
+      "railIndex": 43,
+      "sourceId": "R44",
+      "fromCityId": "city.industry.assembly",
+      "toCityId": "city.industry.meatlover",
+      "regionId": "region.industry",
+      "corridorType": "regional_connection",
+      "distance": 3,
+      "cost": 6,
+      "labelX": -392.12,
+      "labelY": 29,
+      "points": [
+        -500.12,
+        115,
+        -340.12,
+        -45,
+        -272.22,
+        -45
       ]
     }
   ]

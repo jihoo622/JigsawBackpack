@@ -1,9 +1,9 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
-using UnityEngine;
+using System;
 using UnityEngine.UI;
+using UnityEngine;
 
 // 색과 설명 문자열의 단일 출처.
 // 선택지 카드·정보 패널·슬롯 핍·장식 오브젝트가 모두 여기를 읽고, 개별 UI가 자기 색과 문구를 가지지 않는다.
@@ -36,6 +36,42 @@ public static class Presentation
     public static string TavernRumor(string _cityName, string _tag)
     {
         return BasicData.Format("presentation.station.rumor", _cityName, PuzzleTagLabel(_tag));
+    }
+
+    public static string RumorLogTitle => BasicData.Text("presentation.rumorLog.title");
+    public static string RumorLogCollapse => BasicData.Text("presentation.rumorLog.collapse");
+    public static string RumorLogEmpty => BasicData.Text("presentation.rumorLog.empty");
+
+    public static string RumorLogCount(int _count)
+    {
+        return BasicData.Format("presentation.rumorLog.count", _count);
+    }
+
+    public static string RumorLogCollapsed(int _count)
+    {
+        return BasicData.Format("presentation.rumorLog.collapsed", _count);
+    }
+
+    internal static string RumorLogEntries(IReadOnlyList<PuzzleInventoryService.TavernRumor> _rumors)
+    {
+        if (_rumors.Count == 0)
+        {
+            return RumorLogEmpty;
+        }
+        var entries = new List<string>();
+        var tables = TableManager.Instance;
+        foreach (var rumor in _rumors)
+        {
+            long clock = rumor.RecordedMinutes % PuzzleTimeManager.MINUTES_PER_DAY +
+                tables.PuzzleTime.startHour * PuzzleTimeManager.MINUTES_PER_HOUR;
+            long day = rumor.RecordedMinutes / PuzzleTimeManager.MINUTES_PER_DAY + clock / PuzzleTimeManager.MINUTES_PER_DAY;
+            int minuteOfDay = (int)(clock % PuzzleTimeManager.MINUTES_PER_DAY);
+            string timestamp = BasicData.Format("presentation.rumorLog.time", day,
+                minuteOfDay / PuzzleTimeManager.MINUTES_PER_HOUR, minuteOfDay % PuzzleTimeManager.MINUTES_PER_HOUR);
+            entries.Add(BasicData.Format("presentation.rumorLog.entry", timestamp,
+                tables.CityPrice(rumor.SourceCityId).displayName, rumor.Message));
+        }
+        return string.Join(BasicData.Text("presentation.rumorLog.separator"), entries);
     }
 
     public static string TavernNoRumor => BasicData.Text("presentation.station.noRumor");
@@ -111,9 +147,13 @@ public static class Presentation
     public static float PuzzleMapHaloSize => BasicData.Float("presentation.map.haloSize");
     public static int PuzzleMapBadgeFontSize => BasicData.Int("presentation.map.badgeFontSize");
     public static int PuzzleMapTimeFontSize => BasicData.Int("presentation.map.timeFontSize");
-    public static int PuzzleMapStationFontSize(float _zoom, bool _emphasized)
+    public static int PuzzleMapStationFontSize(float _zoom, bool _emphasized, bool _major)
     {
-        return _emphasized ? BasicData.Int("presentation.map.puzzleMapStationFontSize") : _zoom < BasicData.Float("presentation.map.puzzleMapStationFontSizeBelowPercent") ? BasicData.Int("presentation.map.puzzleMapStationFontSizeBelowPercent2") : BasicData.Int("presentation.map.puzzleMapStationFontSizeBelowPercent3");
+        return _emphasized ? BasicData.Int("presentation.map.puzzleMapStationFontSize")
+            : _major ? BasicData.Int("presentation.map.majorStationFontSize")
+            : _zoom < BasicData.Float("presentation.map.puzzleMapStationFontSizeBelowPercent")
+                ? BasicData.Int("presentation.map.puzzleMapStationFontSizeBelowPercent2")
+                : BasicData.Int("presentation.map.puzzleMapStationFontSizeBelowPercent3");
     }
 
     public static float PuzzleMapTrackThickness(float _authoredThickness)
@@ -172,7 +212,7 @@ public static class Presentation
     }
 
     internal static string PuzzleMapInformation(PuzzleCityData _city, bool _visited, bool _current, bool _connected,
-        PuzzleTravelResult _evaluation, PuzzleRegionData _region)
+        PuzzleTravelResult _evaluation, PuzzleRegionData _region, IReadOnlyList<PuzzleInventoryService.TavernRumor> _rumors)
     {
         string heading = BasicData.Format("presentation.map.information", _city.displayName);
         heading += _visited
@@ -203,7 +243,10 @@ public static class Presentation
         string trade;
         if (!_visited)
         {
-            trade = BasicData.Text("presentation.map.informationText12");
+            var rumors = _rumors.Where(_rumor => string.Equals(_rumor.TargetCityId, _city.id, StringComparison.Ordinal)).ToArray();
+            trade = rumors.Length == 0
+                ? BasicData.Text("presentation.map.informationText12")
+                : BasicData.Format("presentation.map.rumorInformation", RumorLogEntries(rumors));
         }
         else
         {
@@ -241,9 +284,11 @@ public static class Presentation
             BasicData.Format("presentation.map.regionLabel", _region.displayName, PuzzleTagLabel(_region.specialtyTag));
     }
 
-    public static string PuzzleMapStationName(string _name, bool _planningTarget)
+    public static string PuzzleMapStationName(string _name, bool _planningTarget, bool _uncertain = false)
     {
-        return _planningTarget ? _name + " ★" : _name;
+        string name = _planningTarget ? _name + " ★" : _name;
+        return _uncertain ? BasicData.Format("presentation.map.rumorStation", name,
+            ColorUtility.ToHtmlStringRGB(PuzzleMapTarget)) : name;
     }
 
     public static string PuzzleMapTime(long _minutes)

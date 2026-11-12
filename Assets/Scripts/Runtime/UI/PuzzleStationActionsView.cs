@@ -1,8 +1,7 @@
 using System;
 using TMPro;
-using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using UnityEngine;
 
 public sealed class PuzzleStationActionsView : PanelBase
 {
@@ -25,9 +24,6 @@ public sealed class PuzzleStationActionsView : PanelBase
     [SerializeField] Button backButton;
     [SerializeField] Button restDurationButton;
     [SerializeField] CanvasGroup interaction;
-    [SerializeField] Button notebookButton;
-    [SerializeField] PuzzleTradeNotebookView notebook;
-    bool interactionEnabled = true;
 
     internal event Action MarketRequested;
     internal event Action TavernRequested;
@@ -44,10 +40,6 @@ public sealed class PuzzleStationActionsView : PanelBase
         backLabel.text = Presentation.StationBack;
         restHint.text = Presentation.StationRestHint;
         tavernContent.gameObject.SetActive(false);
-        var session = SceneServices.For<PuzzleInventoryService>(gameObject.scene);
-        session.Initialize();
-        notebook.Initialize(session.TavernRumors, CloseNotebook);
-        notebook.gameObject.SetActive(false);
         base.Awake();
     }
 
@@ -60,7 +52,6 @@ public sealed class PuzzleStationActionsView : PanelBase
         travelButton.onClick.AddListener(OnTravel);
         backButton.onClick.AddListener(ShowHome);
         restDurationButton.onClick.AddListener(OnRestTime);
-        notebookButton.onClick.AddListener(OpenNotebook);
     }
 
     protected override void OnDisable()
@@ -71,9 +62,6 @@ public sealed class PuzzleStationActionsView : PanelBase
         travelButton.onClick.RemoveListener(OnTravel);
         backButton.onClick.RemoveListener(ShowHome);
         restDurationButton.onClick.RemoveListener(OnRestTime);
-        notebookButton.onClick.RemoveListener(OpenNotebook);
-        notebook.gameObject.SetActive(false);
-        notebookButton.gameObject.SetActive(false);
         base.OnDisable();
     }
 
@@ -111,44 +99,11 @@ public sealed class PuzzleStationActionsView : PanelBase
 
     internal void SetInteraction(bool _enabled)
     {
-        interactionEnabled = _enabled;
-        if (!_enabled)
-        {
-            notebook.gameObject.SetActive(false);
-        }
-        notebookButton.interactable = _enabled;
         interaction.interactable = interaction.blocksRaycasts = _enabled;
-    }
-
-    void OpenNotebook()
-    {
-        if (!interactionEnabled || !IsOpen)
-        {
-            return;
-        }
-        interaction.interactable = interaction.blocksRaycasts = false;
-        notebook.gameObject.SetActive(true);
-        notebook.SetInteraction(true);
-        notebook.ShowRecords();
-    }
-
-    void CloseNotebook()
-    {
-        notebook.gameObject.SetActive(false);
-        SetInteraction(interactionEnabled);
-        if (EventSystem.current)
-        {
-            EventSystem.current.SetSelectedGameObject(notebookButton.gameObject);
-        }
     }
 
     void ShowMode(GameObject _content, string _title)
     {
-        if (notebook.gameObject.activeSelf)
-        {
-            CloseNotebook();
-        }
-        notebookButton.gameObject.SetActive(IsOpen && _content != marketContent);
         actionsList.SetActive(_content == actionsList);
         marketContent.SetActive(_content == marketContent);
         restContent.SetActive(_content == restContent);

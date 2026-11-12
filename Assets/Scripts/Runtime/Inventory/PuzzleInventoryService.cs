@@ -1,6 +1,6 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
+using System;
 using UnityEngine;
 
 [DisallowMultipleComponent]
@@ -27,26 +27,30 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         public readonly string SourceCityId;
         public readonly string Message;
         public readonly long RecordedMinutes;
-        public readonly string RecordedTime;
 
-        public TavernRumor(string _targetCityId, string _sourceCityId, string _message, long _recordedMinutes, string _recordedTime)
+        public TavernRumor(string _targetCityId, string _sourceCityId, string _message, long _recordedMinutes)
         {
             TargetCityId = _targetCityId;
             SourceCityId = _sourceCityId;
             Message = _message;
             RecordedMinutes = _recordedMinutes;
-            RecordedTime = _recordedTime;
         }
     }
 
     internal IReadOnlyList<TavernRumor> TavernRumors => tavernRumors;
 
-    internal void RecordTavernRumor(string _targetCityId, string _message)
+    internal bool HasRumorForCity(string _cityId)
+    {
+        return tavernRumors.Any(_rumor => string.Equals(_rumor.TargetCityId, _cityId, StringComparison.Ordinal));
+    }
+
+    internal void RecordTavernRumor(string _targetCityId, string _message, string _tag)
     {
         if (lastRumorVisit != CityMoveCount)
         {
-            tavernRumors.Add(new TavernRumor(_targetCityId, CurrentCityId, _message, Time.ElapsedMinutes, Presentation.PuzzleTime(Time)));
+            tavernRumors.Add(new TavernRumor(_targetCityId, CurrentCityId, _message, Time.ElapsedMinutes));
             lastRumorVisit = CityMoveCount;
+            GameEvents.RaiseTavernRumorRecorded(this, CurrentCityId, _targetCityId, _message, Time.ElapsedMinutes, _tag);
         }
     }
 
@@ -82,6 +86,27 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         return _inventory != null && trainWagons.Contains(_inventory);
     }
 
+    internal string BoardId(PuzzleInventory _inventory)
+    {
+        int index = trainWagons.IndexOf(_inventory);
+        return index >= 0 ? "train:" + index : _inventory == Market ? "market:" + CurrentCityId : null;
+    }
+
+    void RecordAction(PuzzleActionKind _action, string _failure = null, string _targetCityId = null,
+        long _requestedMinutes = 0)
+    {
+        GameEvents.RaisePuzzleActionCommitted(new GameEvents.PuzzleActionInfo(this, _action, _failure,
+            _targetCityId, _requestedMinutes: _requestedMinutes));
+    }
+
+    void OnDestroy()
+    {
+        if (Time != null)
+        {
+            GameEvents.RaisePuzzleRunEnded(this, "scene_unloaded");
+        }
+    }
+
     internal bool SelectWagon(int _index)
     {
         if (_index < 0 || _index >= trainWagons.Count || _index == CurrentWagonIndex)
@@ -98,12 +123,14 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         if (RunStatus != PuzzleRunStatus.InProgress)
         {
             _failureReason = BasicData.Text("rules.wagon.inProgressOnly");
+            RecordAction(PuzzleActionKind.AddWagon, "run_finished");
             return false;
         }
         long cost = NextWagonCost;
         if (Funds < cost)
         {
             _failureReason = BasicData.Format("rules.wagon.insufficientFunds", cost);
+            RecordAction(PuzzleActionKind.AddWagon, "insufficient_funds");
             return false;
         }
 
@@ -113,6 +140,7 @@ public sealed class PuzzleInventoryService : MonoBehaviour
             ref lastInstanceId);
         trainWagons.Add(newWagon);
         CurrentWagonIndex = trainWagons.Count - 1;
+        RecordAction(PuzzleActionKind.AddWagon);
         return true;
     }
     public PuzzleInventory Market => markets[CurrentCityId];
@@ -151,7 +179,12 @@ public sealed class PuzzleInventoryService : MonoBehaviour
 
     internal bool WaitForDaylight()
     {
-        return CanWaitForDaylight && AdvanceMinutes(Time.MinutesUntilDaylight);
+        if (!CanWaitForDaylight)
+        {
+            RecordAction(PuzzleActionKind.WaitForDaylight, "unavailable");
+            return false;
+        }
+        return AdvanceMinutes(Time.MinutesUntilDaylight, PuzzleActionKind.WaitForDaylight);
     }
     public string DebtCityId => tables.PuzzleTrade.debtCityId;
     public bool CanClearGame => tables != null && RunStatus == PuzzleRunStatus.InProgress && Funds >= GameClearCost
@@ -214,6 +247,7 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         trainWagons.Clear();
         trainWagons.Add(train);
         CurrentWagonIndex = 0;
+        GameEvents.RaisePuzzleRunStarted(this);
     }
 
     // 도시 시장의 유일한 생성 경로. 처음 만들 때와 떠난 도시를 되돌릴 때 같은 경로를 쓴다.
@@ -345,11 +379,17 @@ public sealed class PuzzleInventoryService : MonoBehaviour
     {
         if (!CanClearGame)
         {
+            string failure = RunStatus != PuzzleRunStatus.InProgress ? "run_finished"
+                : Time.IsOverdue ? "overdue"
+                : !string.IsNullOrEmpty(DebtCityId) && CurrentCityId != DebtCityId ? "wrong_city"
+                : "insufficient_funds";
+            RecordAction(PuzzleActionKind.Repay, failure);
             return false;
         }
 
         Funds -= GameClearCost;
         RunStatus = PuzzleRunStatus.Won;
+        RecordAction(PuzzleActionKind.Repay);
         return true;
     }
 
@@ -361,7 +401,31 @@ public sealed class PuzzleInventoryService : MonoBehaviour
     /// <returns>진행 중이며 시계가 초기화됐으면 true, 그 외에는 변경 없이 false.</returns>
     /// <exception cref="ArgumentOutOfRangeException">진행 가능한 상태에서 시간이 음수일 때 발생한다.</exception>
     /// <exception cref="OverflowException">누적 시간이 long 범위를 초과할 때 발생한다.</exception>
-    public bool AdvanceMinutes(long _minutes)
+    public bool AdvanceMinutes(long _minutes, PuzzleActionKind _action = PuzzleActionKind.AdvanceTime)
+    {
+        bool advanced;
+        try
+        {
+            advanced = ApplyMinutes(_minutes);
+        }
+        catch (ArgumentOutOfRangeException)
+        {
+            RecordAction(_action, "invalid_duration", _requestedMinutes: _minutes);
+            throw;
+        }
+        catch (OverflowException)
+        {
+            RecordAction(_action, "time_overflow", _requestedMinutes: _minutes);
+            throw;
+        }
+        if (_minutes > 0 || !advanced)
+        {
+            RecordAction(_action, advanced ? null : "time_blocked", _requestedMinutes: _minutes);
+        }
+        return advanced;
+    }
+
+    bool ApplyMinutes(long _minutes)
     {
         if (RunStatus != PuzzleRunStatus.InProgress || Time == null)
         {
@@ -466,6 +530,7 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         var evaluation = EvaluateTravel(_cityId);
         if (!evaluation.IsSuccess)
         {
+            RecordAction(PuzzleActionKind.Travel, evaluation.Failure.ToString(), _targetCityId: _cityId);
             return evaluation;
         }
 
@@ -480,7 +545,8 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         CityMoveCount++;
         visitedCities.Add(CurrentCityId);
         Market.RecalculateValue();
-        AdvanceMinutes(duration);
+        ApplyMinutes(duration);
+        RecordAction(PuzzleActionKind.Travel, _targetCityId: _cityId);
         SetPreviewDestination(null);
         GameEvents.RaiseCityArrived(CurrentCityId, CityMoveCount);
 
@@ -636,7 +702,7 @@ public sealed class PuzzleInventoryService : MonoBehaviour
     {
         if (_original == null)
         {
-            return new PuzzleDropResult(new PuzzlePlacementResult(PuzzlePlacementFailure.StaleSource));
+            return QuickTransferTo(null, null, 0);
         }
 
         var destination = IsTrainWagon(_original.Owner) ? Market : Train;
@@ -647,13 +713,21 @@ public sealed class PuzzleInventoryService : MonoBehaviour
     {
         if (_wagonIndex < 0 || _wagonIndex >= trainWagons.Count)
         {
-            return new PuzzleDropResult(new PuzzlePlacementResult(PuzzlePlacementFailure.InvalidDestination));
+            return QuickTransferTo(_original, null, _preferredClockwiseTurns);
         }
 
         return QuickTransferTo(_original, trainWagons[_wagonIndex], _preferredClockwiseTurns);
     }
 
     internal PuzzleDropResult QuickTransferTo(PuzzlePlacement _original, PuzzleInventory _destination, int _preferredClockwiseTurns)
+    {
+        var result = FindQuickTransfer(_original, _destination, _preferredClockwiseTurns);
+        RecordDropAction(PuzzleActionKind.QuickTransfer, result, _original, _destination,
+            Vector2Int.zero, Vector2Int.zero, _preferredClockwiseTurns);
+        return result;
+    }
+
+    PuzzleDropResult FindQuickTransfer(PuzzlePlacement _original, PuzzleInventory _destination, int _preferredClockwiseTurns)
     {
         if (_original == null)
         {
@@ -686,7 +760,7 @@ public sealed class PuzzleInventoryService : MonoBehaviour
                     var candidate = EvaluateDrop(_original, _destination, grabbedCell, targetCell, rotation);
                     if (candidate.CanDrop)
                     {
-                        return Drop(_original, _destination, grabbedCell, targetCell, rotation);
+                        return ApplyDrop(_original, _destination, grabbedCell, targetCell, rotation);
                     }
                 }
             }
@@ -697,6 +771,26 @@ public sealed class PuzzleInventoryService : MonoBehaviour
     }
 
     internal PuzzleDropResult Drop(PuzzlePlacement _original, PuzzleInventory _destination,
+        Vector2Int _grabbedCell, Vector2Int _targetCell, int _clockwiseTurns)
+    {
+        var result = ApplyDrop(_original, _destination, _grabbedCell, _targetCell, _clockwiseTurns);
+        RecordDropAction(PuzzleActionKind.Place, result, _original, _destination, _grabbedCell,
+            _targetCell, _clockwiseTurns);
+        return result;
+    }
+
+    void RecordDropAction(PuzzleActionKind _action, PuzzleDropResult _result, PuzzlePlacement _original,
+        PuzzleInventory _destination, Vector2Int _grabbedCell, Vector2Int _targetCell, int _clockwiseTurns)
+    {
+        string failure = _result.CanDrop ? null
+            : _result.TradeFailure != PuzzleTradeFailure.None ? "trade." + _result.TradeFailure
+            : "placement." + _result.Placement.Failure;
+        GameEvents.RaisePuzzleActionCommitted(new GameEvents.PuzzleActionInfo(this, _action, failure,
+            _instanceId: _original?.InstanceId ?? 0, _destination: BoardId(_destination),
+            _targetCell: _targetCell, _grabbedCell: _grabbedCell, _clockwiseTurns: _clockwiseTurns));
+    }
+
+    PuzzleDropResult ApplyDrop(PuzzlePlacement _original, PuzzleInventory _destination,
         Vector2Int _grabbedCell, Vector2Int _targetCell, int _clockwiseTurns)
     {
         var result = EvaluateDrop(_original, _destination, _grabbedCell, _targetCell, _clockwiseTurns);

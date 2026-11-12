@@ -1,7 +1,7 @@
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
-using System;
 using System.Collections;
 using System.IO;
+using System;
 using UnityEngine;
 
 // 개발 전용 스모크 검사. 실행 인자에 -projectSmoke 가 있을 때만 동작하고, 평범한 플레이 중에는 오브젝트를 추가하지 않는다.
@@ -85,15 +85,17 @@ public sealed class SmokeCheck : MonoBehaviour
         string telemetryPath = TelemetryLog.FilePath;
         TelemetryLog.Open("smoke");
         Require(TelemetryLog.IsOpen, "분석 로그 세션을 열지 못했습니다. Resources/LogData.json을 확인하세요.");
-        GameEvents.RaiseRunStarted("smoke", TelemetryLog.GameTime);
+        GameEvents.RaisePanelVisibility("smoke", true);
         TelemetryLog.Flush();
         Require(File.Exists(telemetryPath), "분석 로그 파일이 만들어지지 않았습니다.");
         int openedLines = File.ReadAllLines(telemetryPath).Length;
-        Require(openedLines >= 3, $"분석 로그 레코드가 예상보다 적습니다({openedLines}줄). session_start·scene_change·run_start가 있어야 합니다.");
+        Require(openedLines >= 3, $"분석 로그 레코드가 예상보다 적습니다({openedLines}줄). session_start·scene_change·panel_visibility가 있어야 합니다.");
         TelemetryLog.Close("smoke");
+        int closedLines = File.ReadAllLines(telemetryPath).Length;
         TelemetryLog.Close("smoke-duplicate");
         Require(!TelemetryLog.IsOpen, "종료 후에도 세션이 열린 상태로 남아 있습니다.");
-        Require(File.ReadAllLines(telemetryPath).Length == openedLines + 1, "종료 기록이 중복되었거나 누락되었습니다.");
+        Require(closedLines > openedLines && File.ReadAllLines(telemetryPath).Length == closedLines,
+            "종료 기록이 중복되었거나 누락되었습니다.");
 
         Debug.Log("MYJG_SMOKE_PASS: 테이블 로드·검증, 씬 로컬 풀 왕복, 해금·스냅샷 복원, 이벤트 허브 왕복, 분석 로그 세션 계약을 확인.");
         Destroy(gameObject);

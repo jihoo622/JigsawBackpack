@@ -1691,6 +1691,12 @@
           "positive": true
         },
         {
+          "id": "majorStationFontSize",
+          "value": 22,
+          "whole": true,
+          "positive": true
+        },
+        {
           "id": "puzzleMapStationFontSize",
           "value": 24,
           "whole": true
@@ -1898,6 +1904,57 @@
           "id": "regionOnly",
           "value": " <size=18>{0}</size>",
           "arguments": 1
+        },
+        {
+          "id": "rumorStation",
+          "value": "{0} <color=#{1}>?</color>",
+          "arguments": 2
+        },
+        {
+          "id": "rumorInformation",
+          "value": "<b>? 소문 · 미확인</b>\n{0}",
+          "arguments": 1
+        }
+      ]
+    },
+    {
+      "id": "presentation.rumorLog",
+      "texts": [
+        {
+          "id": "title",
+          "value": "술집 소문 로그"
+        },
+        {
+          "id": "collapse",
+          "value": "접기"
+        },
+        {
+          "id": "empty",
+          "value": "아직 들은 소문이 없습니다.\n술집에서 들은 이야기가 여기에 기록됩니다."
+        },
+        {
+          "id": "count",
+          "value": "{0}개",
+          "arguments": 1
+        },
+        {
+          "id": "collapsed",
+          "value": "소문\n{0}개\n◀",
+          "arguments": 1
+        },
+        {
+          "id": "time",
+          "value": "Day {0} {1:00}:{2:00}",
+          "arguments": 3
+        },
+        {
+          "id": "entry",
+          "value": "<b>{0}</b> - <b>{1}</b> - {2}",
+          "arguments": 3
+        },
+        {
+          "id": "separator",
+          "value": "\n\n"
         }
       ]
     },
@@ -2760,18 +2817,6 @@
       "id": "ui.PuzzleMapNodeView",
       "numbers": [
         {
-          "id": "markerPositionAbovePercent",
-          "value": 28.0
-        },
-        {
-          "id": "markerPositionAbovePercent2",
-          "value": 16.0
-        },
-        {
-          "id": "placeLabelY",
-          "value": 13.0
-        },
-        {
           "id": "prepareLayout",
           "value": 44.0
         },
@@ -2782,22 +2827,6 @@
         {
           "id": "prepareLayout3",
           "value": 12.0
-        },
-        {
-          "id": "prepareLayoutX",
-          "value": 160.0
-        },
-        {
-          "id": "prepareLayoutY",
-          "value": 54.0
-        },
-        {
-          "id": "prepareLayoutY2",
-          "value": 28.0
-        },
-        {
-          "id": "rectTransformanchoredPositionY",
-          "value": 26.0
         },
         {
           "id": "rectTransformlocalScale",
@@ -2821,8 +2850,23 @@
       "id": "ui.PuzzleMapView",
       "numbers": [
         {
+          "id": "labelConnectorThickness",
+          "value": 2,
+          "positive": true
+        },
+        {
           "id": "labelGap",
           "value": 6.0,
+          "positive": true
+        },
+        {
+          "id": "labelSearchDistance",
+          "value": 60,
+          "positive": true
+        },
+        {
+          "id": "labelSearchStep",
+          "value": 12,
           "positive": true
         },
         {
@@ -2856,11 +2900,6 @@
         {
           "id": "updateMapLayout4",
           "value": 8.0
-        },
-        {
-          "id": "updateMapLayoutAbovePercent",
-          "value": 3,
-          "whole": true
         },
         {
           "id": "updateMapLayoutAbovePercent2",
@@ -3104,7 +3143,7 @@
         },
         {
           "id": "backWidth",
-          "value": 132,
+          "value": 220,
           "whole": true,
           "positive": true
         },
@@ -3536,21 +3575,32 @@
       "numbers": [
         {
           "id": "connected",
-          "value": 2,
+          "value": 80,
           "whole": true,
           "positive": true
         },
         {
           "id": "current",
-          "value": 5,
+          "value": 10000,
           "whole": true,
           "positive": true
         },
         {
+          "id": "detailMinZoom",
+          "value": 0.85,
+          "positive": true
+        },
+        {
           "id": "interchange",
-          "value": 1,
+          "value": 40,
           "whole": true,
           "positive": true
+        },
+        {
+          "id": "majorThreshold",
+          "value": 200,
+          "positive": true,
+          "whole": true
         },
         {
           "id": "other",
@@ -3558,14 +3608,25 @@
           "whole": true
         },
         {
+          "id": "regionBalanceBelowZoom",
+          "value": 1.0,
+          "positive": true
+        },
+        {
+          "id": "regionCrowdingPenalty",
+          "value": 180,
+          "positive": true,
+          "whole": true
+        },
+        {
           "id": "selected",
-          "value": 4,
+          "value": 9000,
           "whole": true,
           "positive": true
         },
         {
           "id": "target",
-          "value": 3,
+          "value": 500,
           "whole": true,
           "positive": true
         }
@@ -3594,6 +3655,106 @@
         {
           "id": "selected",
           "value": 1,
+          "whole": true,
+          "positive": true
+        }
+      ]
+    },
+    {
+      "id": "ui.rumorLog",
+      "numbers": [
+        {
+          "id": "panelWidth",
+          "value": 480,
+          "whole": true,
+          "positive": true
+        },
+        {
+          "id": "panelHeight",
+          "value": 744,
+          "whole": true,
+          "positive": true
+        },
+        {
+          "id": "rightMargin",
+          "value": 20,
+          "whole": true,
+          "positive": true
+        },
+        {
+          "id": "centerY",
+          "value": -20,
+          "whole": true
+        },
+        {
+          "id": "padding",
+          "value": 20,
+          "whole": true,
+          "positive": true
+        },
+        {
+          "id": "gap",
+          "value": 12,
+          "whole": true,
+          "positive": true
+        },
+        {
+          "id": "headerHeight",
+          "value": 48,
+          "whole": true,
+          "positive": true
+        },
+        {
+          "id": "fontSize",
+          "value": 22,
+          "whole": true,
+          "positive": true
+        },
+        {
+          "id": "titleFontSize",
+          "value": 24,
+          "whole": true,
+          "positive": true
+        },
+        {
+          "id": "countWidth",
+          "value": 64,
+          "whole": true,
+          "positive": true
+        },
+        {
+          "id": "collapseWidth",
+          "value": 88,
+          "whole": true,
+          "positive": true
+        },
+        {
+          "id": "toggleWidth",
+          "value": 96,
+          "whole": true,
+          "positive": true
+        },
+        {
+          "id": "toggleHeight",
+          "value": 132,
+          "whole": true,
+          "positive": true
+        },
+        {
+          "id": "scrollbarWidth",
+          "value": 8,
+          "whole": true,
+          "positive": true
+        },
+        {
+          "id": "scrollSensitivity",
+          "value": 36,
+          "whole": true,
+          "positive": true
+        },
+        {
+          "id": "sortingOrder",
+          "value": 150,
           "whole": true,
           "positive": true
         }

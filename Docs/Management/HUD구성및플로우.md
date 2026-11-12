@@ -21,6 +21,7 @@
 | `PuzzleCityView` | 현재 마을의 시장 보드: 재고 고정집산품·수입품·랜덤, 태그 선호·지역 물가 표시 |
 | `PuzzleTrainBarView` | 하단 화물칸 바: WagonSlotUI 프리팹 슬롯 풀(button/Image/highlightBorder/numberText) 선택·증차 용도; 드래시 호버 배율(`wagonDragHoverScale`)로 색 보정 — 코드에서만 색·배율 변경 |
 | `PuzzleSlotVisual` | 미리 배치된 HUD 슬롯 비주얼 — 시각·색·표시 타이밍을 코드가 제어, Instantiate 금지 원칙 준수 대상 |
+| `PuzzleTradeNotebookView / PuzzleTradeNotebookPresenter` | 우측 접이식 대화 로그. 게임 날짜·시각 - 들은 마을 - 소문 내용 순으로 기록하고 새 기록은 맨 아래로 스크롤. PanelBase와 사전 배치 ScrollRect를 사용하며 지도/역 화면이 같은 로그를 공유 |
 | `PuzzleMapView` | 지역 철도 노선도 화면(어두운 배경, 생산 5개 지역·수도권 6색·일반 회색·연결역 이중 링·선 위 숫자는 소비 시간). 줌에 따라 이름·마커·현재 위치 배지·시간 라벨·굵기를 역배율로 보정; 겹치는 이름·시간 라벨은 우선순위별 생략; 85% 미만에서는 시간 라벨 숨김. 확대·축소·드래그·호버·도착 시 `UpdateMapLayout` 재배열 |
 | `PuzzleMapNavigation` | 지도 줌 레벨 상수(`ui.PuzzleMapNavigation.*`) 보유 |
 | `PuzzleMapNodeView` | 원형 노드 표식·현재 역 하이라이팅(_current 여부·planningTargetCityId 비교로 강조색 결정)·라벨 위치 프리팹 값(`ui.PuzzleMapNodeView.*`)으로 노드·환승 표기 |

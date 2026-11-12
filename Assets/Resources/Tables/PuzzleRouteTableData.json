@@ -1,6 +1,6 @@
 {
   "status": "sample",
-  "note": "Polyline points from fixed rail layout seed 20265146. Travel minutes = ceil(polyline pixel length / PuzzleTimeTableData.pixelsPerHour * 60). Fare distance is independent.",
+  "note": "Polyline points from fixed rail layout seed 20265146. Travel minutes = ceil(polyline pixel length / PuzzleTimeTableData.pixelsPerHour * 60). Fare distance is independent. R44 adds a bidirectional industry connection between Porver and Carport; original route geometry is preserved.",
   "costPerCell": 1,
   "routes": [
     {
@@ -825,6 +825,21 @@
       ]
     },
     {
+      "fromCityId": "city.industry.assembly",
+      "toCityId": "city.industry.meatlover",
+      "cost": 6,
+      "distance": 3,
+      "highSpeed": false,
+      "points": [
+        -500.12,
+        115,
+        -340.12,
+        -45,
+        -272.22,
+        -45
+      ]
+    },
+    {
       "fromCityId": "city.industry.engine",
       "toCityId": "city.industry.ironworks",
       "cost": 6,
@@ -972,6 +987,21 @@
         -25,
         -145.6,
         -25
+      ]
+    },
+    {
+      "fromCityId": "city.industry.meatlover",
+      "toCityId": "city.industry.assembly",
+      "cost": 6,
+      "distance": 3,
+      "highSpeed": false,
+      "points": [
+        -272.22,
+        -45,
+        -340.12,
+        -45,
+        -500.12,
+        115
       ]
     },
     {

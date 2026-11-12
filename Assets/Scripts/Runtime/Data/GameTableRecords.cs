@@ -98,6 +98,7 @@ public sealed class PuzzleCellData
 public sealed class PuzzleRegionData
 {
     public string id, displayName, specialtyTag;
+    public int mapLabelPriority = -1;
     public string[] productionTags = Array.Empty<string>();
     public int pricePercent = -1;
     public bool tradeHub;
@@ -107,6 +108,7 @@ public sealed class PuzzleRegionData
 public sealed class PuzzleCityData
 {
     public string id, displayName, regionId;
+    public int mapLabelImportance = -1;
     // 대표 생산품의 태그. 넓은 분류(Food)가 아닌 Grain/Fish처럼 생산지를 구분하는 키다.
     public string specialtyTag;
     public bool buyEnabled, sellEnabled;

@@ -1,6 +1,6 @@
 using System;
-using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine;
 
 // 게임 도메인 이벤트의 단일 발행 지점.
 // 규칙:
@@ -10,6 +10,65 @@ using UnityEngine.SceneManagement;
 //   4) 페이로드는 struct로 불변 data only로 두고, 시간·좌표처럼 분석에 쓰는 값은 여기서 함께 보낸다.
 public static class GameEvents
 {
+    public readonly struct PuzzleRunInfo
+    {
+        public readonly PuzzleInventoryService session;
+        public readonly string reason;
+
+        public PuzzleRunInfo(PuzzleInventoryService _session, string _reason)
+        {
+            session = _session;
+            reason = _reason;
+        }
+    }
+
+    // 확정 조작만 발행한다. Evaluate 계열이나 호버에서는 발행하지 않는다.
+    public readonly struct PuzzleActionInfo
+    {
+        public readonly PuzzleInventoryService session;
+        public readonly PuzzleActionKind action;
+        public readonly string failure, targetCityId, destination;
+        public readonly int instanceId, clockwiseTurns;
+        public readonly long requestedMinutes;
+        public readonly Vector2Int targetCell, grabbedCell;
+
+        public PuzzleActionInfo(PuzzleInventoryService _session, PuzzleActionKind _action, string _failure = null,
+            string _targetCityId = null, int _instanceId = 0,
+            string _destination = null, Vector2Int _targetCell = default, Vector2Int _grabbedCell = default,
+            int _clockwiseTurns = 0, long _requestedMinutes = 0)
+        {
+            session = _session;
+            action = _action;
+            failure = _failure;
+            targetCityId = _targetCityId;
+            instanceId = _instanceId;
+            destination = _destination;
+            targetCell = _targetCell;
+            grabbedCell = _grabbedCell;
+            clockwiseTurns = _clockwiseTurns;
+            requestedMinutes = _requestedMinutes;
+        }
+    }
+
+    public static event Action<PuzzleRunInfo> PuzzleRunStarted;
+    public static event Action<PuzzleRunInfo> PuzzleRunEnded;
+    public static event Action<PuzzleActionInfo> PuzzleActionCommitted;
+
+    public static void RaisePuzzleRunStarted(PuzzleInventoryService _session)
+    {
+        Emit(PuzzleRunStarted, new PuzzleRunInfo(_session, null));
+    }
+
+    public static void RaisePuzzleRunEnded(PuzzleInventoryService _session, string _reason)
+    {
+        Emit(PuzzleRunEnded, new PuzzleRunInfo(_session, _reason));
+    }
+
+    public static void RaisePuzzleActionCommitted(PuzzleActionInfo _info)
+    {
+        Emit(PuzzleActionCommitted, _info);
+    }
+
     /// <summary>게임 시간 진행 결과. 누적 값과 차이는 세션 시작 기준 분 단위다.</summary>
     public readonly struct TimeAdvanceInfo
     {
@@ -44,6 +103,31 @@ public static class GameEvents
         }
     }
     public static event Action<TravelPreviewInfo> TravelPreviewChanged;
+    public readonly struct TavernRumorInfo
+    {
+        public readonly PuzzleInventoryService session;
+        public readonly string sourceCityId, targetCityId, message, tag;
+        public readonly long recordedMinutes;
+
+        public TavernRumorInfo(PuzzleInventoryService _session, string _sourceCityId, string _targetCityId,
+            string _message, long _recordedMinutes, string _tag)
+        {
+            session = _session;
+            sourceCityId = _sourceCityId;
+            targetCityId = _targetCityId;
+            message = _message;
+            recordedMinutes = _recordedMinutes;
+            tag = _tag;
+        }
+    }
+    public static event Action<TavernRumorInfo> TavernRumorRecorded;
+
+    public static void RaiseTavernRumorRecorded(PuzzleInventoryService _session, string _sourceCityId,
+        string _targetCityId, string _message, long _recordedMinutes, string _tag)
+    {
+        Emit(TavernRumorRecorded, new TavernRumorInfo(_session, _sourceCityId, _targetCityId, _message, _recordedMinutes, _tag));
+    }
+
     public readonly struct MapRequestInfo
     {
         public readonly int sceneHandle;
@@ -93,18 +177,6 @@ public static class GameEvents
     }
 
     // ── 페이로드 ──
-    public readonly struct RunInfo
-    {
-        public readonly string scene;
-        public readonly double time;
-        public readonly string reason;
-        public RunInfo(string _scene, double _time, string _reason = null)
-        {
-            this.scene = _scene;
-            this.time = _time;
-            this.reason = _reason;
-        }
-    }
     public readonly struct SceneInfo
     {
         public readonly string scene;
@@ -157,22 +229,12 @@ public static class GameEvents
     }
 
     // ── 이벤트 ──
-    public static event Action<RunInfo> RunStarted;
-    public static event Action<RunInfo> RunEnded;
     public static event Action<SceneInfo> SceneChanged;
     public static event Action<UpgradeInfo> UpgradeGranted;
     public static event Action<PanelInfo> PanelVisibility;
     public static event Action<TradeInfo> TradeCompleted;
 
     // ── 발행 ──
-    public static void RaiseRunStarted(string _scene, double _time)
-    {
-        Emit(RunStarted, new RunInfo(_scene, _time));
-    }
-    public static void RaiseRunEnded(string _scene, double _time, string _reason)
-    {
-        Emit(RunEnded, new RunInfo(_scene, _time, _reason));
-    }
     public static void RaiseUpgradeGranted(UpgradeData _upgrade)
     {
         if (_upgrade == null)
@@ -222,8 +284,9 @@ public static class GameEvents
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     static void ResetStaticState()
     {
-        RunStarted = null;
-        RunEnded = null;
+        PuzzleRunStarted = null;
+        PuzzleRunEnded = null;
+        PuzzleActionCommitted = null;
         SceneChanged = null;
         UpgradeGranted = null;
         PanelVisibility = null;
@@ -232,8 +295,10 @@ public static class GameEvents
         TimeAdvanced = null;
         TravelPreviewChanged = null;
         MapRequested = null;
+        TavernRumorRecorded = null;
         sequence = 0;
         SceneManager.sceneLoaded -= OnSceneLoaded;
+        SceneManager.sceneUnloaded -= OnSceneUnloaded;
         hooked = false;
     }
 
@@ -247,11 +312,17 @@ public static class GameEvents
         }
         hooked = true;
         SceneManager.sceneLoaded += OnSceneLoaded;
+        SceneManager.sceneUnloaded += OnSceneUnloaded;
         Emit(SceneChanged, new SceneInfo(SceneManager.GetActiveScene().name, true));
     }
 
     static void OnSceneLoaded(Scene _scene, LoadSceneMode _mode)
     {
-        Emit(SceneChanged, new SceneInfo(_scene.name, _mode != LoadSceneMode.Additive));
+        Emit(SceneChanged, new SceneInfo(_scene.name, true));
+    }
+
+    static void OnSceneUnloaded(Scene _scene)
+    {
+        Emit(SceneChanged, new SceneInfo(_scene.name, false));
     }
 }

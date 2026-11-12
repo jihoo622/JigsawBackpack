@@ -1,7 +1,7 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
+using System.Collections;
 using System.Linq;
+using System;
 using UnityEngine;
 
 // 검증과 파생 값 계산의 공통 구현. DTO와 로더에는 게임 규칙을 넣지 않는다.
@@ -544,6 +544,7 @@ public sealed class GameTableRules
                 continue;
             }
             string regionPath = PATH + ".regions[" + region.id + "]";
+            Check(region.mapLabelPriority >= 0, regionPath + ".mapLabelPriority", "지도 지역 우선순위는 0 이상의 명시적 값이어야 합니다.");
             Check(!string.IsNullOrWhiteSpace(region.displayName), regionPath, "지역 이름이 필요합니다.");
             Check(region.pricePercent > 0, regionPath + ".pricePercent", "지역 물가 배율은 양수여야 합니다.");
             Check(region.tradeHub || knownTags.Contains(region.specialtyTag ?? string.Empty), regionPath,
@@ -566,6 +567,7 @@ public sealed class GameTableRules
             }
 
             string cityPath = $"{PATH}.cities[{i}]";
+            Check(city.mapLabelImportance >= 0, cityPath + ".mapLabelImportance", "지도 역 중요도는 0 이상의 명시적 값이어야 합니다.");
             Check(!string.IsNullOrWhiteSpace(city.displayName), cityPath + ".displayName", "도시 이름이 필요합니다.");
             Check(city.buyPercentOfBaseValue > 0, cityPath + ".buyPercentOfBaseValue", "기본 구매 배율은 0보다 커야 합니다.");
             Check(city.sellPercentOfFinalValue > 0, cityPath + ".sellPercentOfFinalValue", "기본 판매 배율은 0보다 커야 합니다.");

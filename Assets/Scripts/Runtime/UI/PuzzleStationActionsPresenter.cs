@@ -73,7 +73,7 @@ public sealed class PuzzleStationActionsPresenter : MonoBehaviour
 
     void Rest()
     {
-        session.AdvanceMinutes(TableManager.Instance.PuzzleTime.restMinutes);
+        session.AdvanceMinutes(TableManager.Instance.PuzzleTime.restMinutes, PuzzleActionKind.Rest);
     }
 
     void OnArrived(GameEvents.CityArrivalInfo _info)

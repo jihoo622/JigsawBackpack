@@ -1,5 +1,5 @@
-using System;
 using System.Collections.Generic;
+using System;
 using UnityEngine;
 
 // 씬 로컬 해금 상태 보관소. 테이블에는 상태를 두지 않고 이 컴포넌트가 보유한다.
@@ -80,7 +80,6 @@ public sealed class UpgradeManager : MonoBehaviour
                 effect.Apply(owner);
             }
         }
-        Debug.Log($"해금: {Presentation.Name(upgrade)} ({upgrade.id})", this);
         Granted?.Invoke(upgrade);
         GameEvents.RaiseUpgradeGranted(upgrade);
         return true;
