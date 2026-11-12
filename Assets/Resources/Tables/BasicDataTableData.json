@@ -1517,7 +1517,7 @@
         },
         {
           "id": "boardActualValue",
-          "value": "화물 현재 가치  ${0:#,0.##}  <size=18>기본 ${1:N0}</size>",
+          "value": "화물 현재 가치  <nobr><mspace=0.6em>{0}</mspace></nobr> <size=18>기본 ${1:N0}</size>",
           "arguments": 2
         },
         {

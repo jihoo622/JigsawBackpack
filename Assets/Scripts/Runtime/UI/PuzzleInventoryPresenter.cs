@@ -27,6 +27,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
     bool initialized;
     bool isMapOpen;
     bool isNotebookOpen;
+    decimal? pendingSettlementValue;
     bool InventoryBlocked => isMapOpen || isNotebookOpen;
 
     void OnEnable()
@@ -116,6 +117,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         currentHoveredInstanceId = null;
         isMapOpen = false;
         isNotebookOpen = false;
+        pendingSettlementValue = null;
         GameEvents.CityArrived -= OnCityArrived;
         GameEvents.TimeAdvanced -= OnTimeAdvanced;
         GameEvents.PanelVisibility -= OnPanelVisibility;
@@ -247,6 +249,8 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         input.CancelCapture();
         ClearDrag();
         ShowCurrentCity();
+        pendingSettlementValue = _info.cargoValueBeforeSettlement;
+        PlayPendingSettlement();
         if (session.RunStatus != PuzzleRunStatus.InProgress)
         {
             cityView.SetTown(session.CityData.displayName, false);
@@ -333,6 +337,22 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             RenderBoards();
             ShowItemDetails(null, null);
         }
+        else
+        {
+            PlayPendingSettlement();
+        }
+    }
+
+    void PlayPendingSettlement()
+    {
+        if (InventoryBlocked || !pendingSettlementValue.HasValue)
+        {
+            return;
+        }
+
+        trainView.ShowSynergySettlement(pendingSettlementValue.Value,
+            session.Train.Placements.Sum(item => item.ActualValue), session.Train.Value.BaseValue);
+        pendingSettlementValue = null;
     }
 
     void ShowCurrentCity()

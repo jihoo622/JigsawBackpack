@@ -19,17 +19,20 @@ public static class GameEvents
         public readonly long previousMinutes;
         /// <summary>진행 후 누적 경과 시간.</summary>
         public readonly long elapsedMinutes;
+        internal readonly decimal? cargoValueBeforeSettlement;
         /// <summary>이번 행동으로 경과한 시간. 신선도·내구도 갱신에 사용한다.</summary>
         public long DeltaMinutes => elapsedMinutes - previousMinutes;
         public decimal DeltaHours => DeltaMinutes / (decimal)PuzzleTimeManager.MINUTES_PER_HOUR;
 
 
         /// <summary>시간 변화 전후의 누적 시간을 보관한다.</summary>
-        public TimeAdvanceInfo(long _previousMinutes, long _elapsedMinutes, PuzzleInventoryService _session = null)
+        public TimeAdvanceInfo(long _previousMinutes, long _elapsedMinutes, PuzzleInventoryService _session = null,
+            decimal? _cargoValueBeforeSettlement = null)
         {
             session = _session;
             previousMinutes = _previousMinutes;
             elapsedMinutes = _elapsedMinutes;
+            cargoValueBeforeSettlement = _cargoValueBeforeSettlement;
         }
     }
 
@@ -66,9 +69,10 @@ public static class GameEvents
     /// <param name="_previousMinutes">진행 전 누적 경과 시간.</param>
     /// <param name="_elapsedMinutes">진행 후 누적 경과 시간.</param>
     /// <param name="_session">시간을 확정한 세션. 소비자는 자신이 속한 세션인지 확인한다.</param>
-    public static void RaiseTimeAdvanced(long _previousMinutes, long _elapsedMinutes, PuzzleInventoryService _session = null)
+    public static void RaiseTimeAdvanced(long _previousMinutes, long _elapsedMinutes, PuzzleInventoryService _session = null,
+        decimal? _cargoValueBeforeSettlement = null)
     {
-        Emit(TimeAdvanced, new TimeAdvanceInfo(_previousMinutes, _elapsedMinutes, _session));
+        Emit(TimeAdvanced, new TimeAdvanceInfo(_previousMinutes, _elapsedMinutes, _session, _cargoValueBeforeSettlement));
     }
 
     public readonly struct CityArrivalInfo

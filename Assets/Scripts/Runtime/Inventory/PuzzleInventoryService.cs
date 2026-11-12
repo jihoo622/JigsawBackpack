@@ -384,9 +384,15 @@ public sealed class PuzzleInventoryService : MonoBehaviour
                 }
             }
         }
+        var currentWagon = Train;
+        decimal? cargoValueBeforeSettlement = activations > 0
+            ? currentWagon.Placements.Sum(item => item.ActualValue) : null;
         foreach (var wagon in trainWagons)
         {
-            wagon.ApplySynergyActivations(activations);
+            if (!wagon.ApplySynergyActivations(activations) && wagon == currentWagon)
+            {
+                cargoValueBeforeSettlement = null;
+            }
         }
         Time.Advance(_minutes);
         foreach (var wagon in trainWagons)
@@ -403,7 +409,7 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         if (_minutes > 0)
         {
             SpawnAnimalWaste(previous, Time.ElapsedMinutes);
-            GameEvents.RaiseTimeAdvanced(previous, Time.ElapsedMinutes, this);
+            GameEvents.RaiseTimeAdvanced(previous, Time.ElapsedMinutes, this, cargoValueBeforeSettlement);
         }
         return true;
     }

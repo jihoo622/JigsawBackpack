@@ -2323,7 +2323,7 @@ MonoBehaviour:
   m_charWidthMaxAdj: 0
   m_TextWrappingMode: 1
   m_wordWrappingRatios: 0.4
-  m_overflowMode: 1
+  m_overflowMode: 3
   m_linkedTextComponent: {fileID: 0}
   parentLinkedComponent: {fileID: 0}
   m_enableKerning: 0
@@ -2743,7 +2743,7 @@ MonoBehaviour:
   m_charWidthMaxAdj: 0
   m_TextWrappingMode: 1
   m_wordWrappingRatios: 0.4
-  m_overflowMode: 1
+  m_overflowMode: 3
   m_linkedTextComponent: {fileID: 0}
   parentLinkedComponent: {fileID: 0}
   m_enableKerning: 0
@@ -4066,7 +4066,7 @@ MonoBehaviour:
   m_charWidthMaxAdj: 0
   m_TextWrappingMode: 1
   m_wordWrappingRatios: 0.4
-  m_overflowMode: 1
+  m_overflowMode: 3
   m_linkedTextComponent: {fileID: 0}
   parentLinkedComponent: {fileID: 0}
   m_enableKerning: 0
@@ -7909,6 +7909,11 @@ PrefabInstance:
       value: 66
       objectReference: {fileID: 0}
     - target: {fileID: 1058165967395820605, guid: 94a43f59b6c04922aed62a5b05bf11dd, type: 3}
+      propertyPath: m_text
+      value: "\uD654\uBB3C \uD604\uC7AC \uAC00\uCE58  <nobr><mspace=0.6em>$999,999.99\_\_\_\_</mspace></nobr>
+        <size=18>\uAE30\uBCF8 $99,999</size>"
+      objectReference: {fileID: 0}
+    - target: {fileID: 1058165967395820605, guid: 94a43f59b6c04922aed62a5b05bf11dd, type: 3}
       propertyPath: m_fontSize
       value: 22.05
       objectReference: {fileID: 0}
@@ -7978,7 +7983,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3257165482669291814, guid: 94a43f59b6c04922aed62a5b05bf11dd, type: 3}
       propertyPath: m_overflowMode
-      value: 1
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 3257165482669291814, guid: 94a43f59b6c04922aed62a5b05bf11dd, type: 3}
       propertyPath: m_enableAutoSizing
@@ -8560,7 +8565,7 @@ MonoBehaviour:
   m_charWidthMaxAdj: 0
   m_TextWrappingMode: 1
   m_wordWrappingRatios: 0.4
-  m_overflowMode: 1
+  m_overflowMode: 3
   m_linkedTextComponent: {fileID: 0}
   parentLinkedComponent: {fileID: 0}
   m_enableKerning: 0
@@ -8718,7 +8723,7 @@ MonoBehaviour:
   m_charWidthMaxAdj: 0
   m_TextWrappingMode: 1
   m_wordWrappingRatios: 0.4
-  m_overflowMode: 1
+  m_overflowMode: 3
   m_linkedTextComponent: {fileID: 0}
   parentLinkedComponent: {fileID: 0}
   m_enableKerning: 0
@@ -10225,7 +10230,7 @@ MonoBehaviour:
   m_charWidthMaxAdj: 0
   m_TextWrappingMode: 1
   m_wordWrappingRatios: 0.4
-  m_overflowMode: 1
+  m_overflowMode: 3
   m_linkedTextComponent: {fileID: 0}
   parentLinkedComponent: {fileID: 0}
   m_enableKerning: 0
@@ -12180,7 +12185,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5715892305651338438, guid: ab2441b70b1c4490988e4eb2ca06784a, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 12.002045
+      value: 11.999725
       objectReference: {fileID: 0}
     - target: {fileID: 5864710036144642043, guid: ab2441b70b1c4490988e4eb2ca06784a, type: 3}
       propertyPath: m_Transition
@@ -12654,7 +12659,7 @@ MonoBehaviour:
   m_charWidthMaxAdj: 0
   m_TextWrappingMode: 1
   m_wordWrappingRatios: 0.4
-  m_overflowMode: 1
+  m_overflowMode: 3
   m_linkedTextComponent: {fileID: 0}
   parentLinkedComponent: {fileID: 0}
   m_enableKerning: 0
@@ -14437,7 +14442,7 @@ MonoBehaviour:
   m_charWidthMaxAdj: 0
   m_TextWrappingMode: 1
   m_wordWrappingRatios: 0.4
-  m_overflowMode: 1
+  m_overflowMode: 3
   m_linkedTextComponent: {fileID: 0}
   parentLinkedComponent: {fileID: 0}
   m_enableKerning: 0
@@ -15017,7 +15022,7 @@ MonoBehaviour:
   m_charWidthMaxAdj: 0
   m_TextWrappingMode: 1
   m_wordWrappingRatios: 0.4
-  m_overflowMode: 1
+  m_overflowMode: 3
   m_linkedTextComponent: {fileID: 0}
   parentLinkedComponent: {fileID: 0}
   m_enableKerning: 0

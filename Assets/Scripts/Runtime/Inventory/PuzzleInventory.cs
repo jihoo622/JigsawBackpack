@@ -68,14 +68,18 @@ public sealed class PuzzleInventory
         return true;
     }
 
-    internal void ApplySynergyActivations(long _count)
+    internal bool ApplySynergyActivations(long _count)
     {
         RecalculateValue();
+        bool changed = false;
         foreach (var placement in placements.Values)
         {
             var value = valuation.ValueOf(placement.InstanceId);
+            decimal before = placement.ActualValue;
             placement.ApplySynergySettlement((value.FinalValue - value.BaseValue) * _count);
+            changed |= before != placement.ActualValue;
         }
+        return changed;
     }
 
     public bool TryGetCell(Vector2Int _position, out PuzzlePlacement _placement, out PuzzleCell _cell)

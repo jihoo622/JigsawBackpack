@@ -364,7 +364,8 @@ public static class Presentation
 
     internal static string PuzzleBoardActualValue(decimal _actualValue, long _baseValue)
     {
-        return BasicData.Format("presentation.inventory.boardActualValue", _actualValue, _baseValue);
+        string amount = $"${_actualValue:#,0.##}".PadRight(7, '\u00A0');
+        return BasicData.Format("presentation.inventory.boardActualValue", amount, _baseValue);
     }
 
     public static string PuzzleNoActiveEffects => BasicData.Text("presentation.tooltip.activeEffectsNone");

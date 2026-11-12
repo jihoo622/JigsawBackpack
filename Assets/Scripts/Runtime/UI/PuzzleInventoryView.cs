@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -28,6 +29,7 @@ public sealed class PuzzleInventoryView : MonoBehaviour
     [SerializeField] CanvasGroup interaction;
     [SerializeField] TextMeshProUGUI boardTitle;
     [SerializeField] TextMeshProUGUI boardValue;
+    [SerializeField] GameObject synergySettlementNotice;
     [SerializeField] TextMeshProUGUI moveGuide;
     [SerializeField] TextMeshProUGUI itemDetails;
     [SerializeField] ItemIcon[] itemIcons;
@@ -47,6 +49,7 @@ public sealed class PuzzleInventoryView : MonoBehaviour
     readonly HashSet<Vector2Int> piecePositions = new();
     Dictionary<string, ItemIcon> iconIndex;
     Material freshnessMaterial;
+    Coroutine settlementFeedback;
     Canvas canvas;
     Vector2Int gridSize;
     Vector2 gridMin;
@@ -70,6 +73,7 @@ public sealed class PuzzleInventoryView : MonoBehaviour
         showSynergies = _showSynergies;
         var parentCanvas = GetComponentInParent<Canvas>();
         if (!interaction || !parentCanvas || !board || !boardTitle || !boardTitle.font || !boardValue || !boardValue.font ||
+            (_showSynergies && !synergySettlementNotice) ||
             !moveGuide || !moveGuide.font ||
 
             !flatTriangle || boardCells == null || boardCells.Distinct().Count() != boardCells.Length ||
@@ -356,7 +360,55 @@ public sealed class PuzzleInventoryView : MonoBehaviour
 
     internal void ShowBoardValue(decimal _actualValue, long _baseValue)
     {
+        StopSettlementFeedback();
         boardValue.text = Presentation.PuzzleBoardActualValue(_actualValue, _baseValue);
+    }
+
+    internal void ShowSynergySettlement(decimal _before, decimal _after, long _baseValue)
+    {
+        ShowBoardValue(_after, _baseValue);
+        if (isActiveAndEnabled)
+        {
+            synergySettlementNotice.SetActive(true);
+            settlementFeedback = StartCoroutine(AnimateSynergySettlement(_before, _after, _baseValue));
+        }
+    }
+
+    IEnumerator AnimateSynergySettlement(decimal _before, decimal _after, long _baseValue)
+    {
+        const float countSeconds = 0.65f;
+        const float noticeSeconds = 1.6f;
+        Color highlight = _after < _before ? Presentation.PuzzleTooltipRed : Presentation.PuzzleTooltipGreen;
+        string color = ColorUtility.ToHtmlStringRGB(highlight);
+        for (float elapsed = 0f; elapsed < noticeSeconds; elapsed += Time.unscaledDeltaTime)
+        {
+            decimal progress = (decimal)Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(elapsed / countSeconds));
+            decimal value = _before == _after ? _after : _before * (1m - progress) + _after * progress;
+            string valueText = Presentation.PuzzleBoardActualValue(value, _baseValue);
+            if (_before != _after)
+            {
+                valueText = $"<color=#{color}>{valueText}</color>";
+            }
+            boardValue.text = valueText;
+            yield return null;
+        }
+
+        boardValue.text = Presentation.PuzzleBoardActualValue(_after, _baseValue);
+        synergySettlementNotice.SetActive(false);
+        settlementFeedback = null;
+    }
+
+    void StopSettlementFeedback()
+    {
+        if (settlementFeedback != null)
+        {
+            StopCoroutine(settlementFeedback);
+            settlementFeedback = null;
+        }
+        if (synergySettlementNotice)
+        {
+            synergySettlementNotice.SetActive(false);
+        }
     }
 
     internal void ShowBoardInfo(string _text)
@@ -375,6 +427,7 @@ public sealed class PuzzleInventoryView : MonoBehaviour
 
     void OnDisable()
     {
+        StopSettlementFeedback();
         if (canvas)
         {
             ClearDrag();
