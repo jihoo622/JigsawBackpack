@@ -59,6 +59,12 @@ public sealed class PuzzleTimeManager
         return days * MINUTES_PER_DAY - MinuteOfDayAt(_elapsedMinutes);
     }
 
+    // _elapsedMinutes 이후 처음 맞는 배설 달력 경계의 절대 분. 새 동물의 첫 발생 기준을 삼는다.
+    internal long NextDayIntervalAt(long _elapsedMinutes, int _intervalDays)
+    {
+        return checked(_elapsedMinutes + MinutesUntilDayInterval(_elapsedMinutes, _intervalDays));
+    }
+
     // 이동 시간의 분 미만을 올림하고, 같은 분수를 표시·가치·보유 시간에 사용한다.
     public static long TravelMinutes(PuzzleRouteData _route, PuzzleTimeTableData _rules)
     {

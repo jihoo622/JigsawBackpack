@@ -184,8 +184,9 @@ public sealed class PuzzleInventoryView : MonoBehaviour
         return false;
     }
 
-    public void RenderPlacements(PuzzleInventory _inventory,
-        int? _hiddenInstanceId = null, int? _highlightedInstanceId = null)
+    internal void RenderPlacements(PuzzleInventory _inventory,
+        int? _hiddenInstanceId = null, int? _highlightedInstanceId = null,
+        IReadOnlyList<PuzzleRefrigerationContact> _refrigerationContacts = null)
     {
         int index = 0;
         foreach (var placement in _inventory.Placements)
@@ -200,23 +201,19 @@ public sealed class PuzzleInventoryView : MonoBehaviour
                 : Presentation.PuzzlePiece;
             index = RenderPose(placementSlots, index, placement.Pose, Vector2.zero, color,
                 iconIndex[placement.Definition.VisualKey].sprite, placement.Definition.IconSize, placement.Definition.IconOffset,
-                placement.FreshnessPercent, placement.HasUnreadSynergySettlement);
+                // 가치 변동과 공간 부족은 별도 상태지만 같은 알림 아이콘을 쓴다. 읽지 않은 쪽이 남아 있으면 아이콘은 유지한다.
+                placement.FreshnessPercent, placement.HasUnreadSynergySettlement || placement.HasUnreadSpaceNotice);
         }
 
         HideSlots(placementSlots, index);
-        if (showSynergies)
-        {
-            RenderSynergies(_inventory, _hiddenInstanceId);
-        }
-        else
-        {
-            HideArrows();
-        }
+        // 가치 화살표는 풀 앞에서, 냉장 화살표는 풀 뒤에서 채워 같은 슬롯을 차지하지 않는다.
+        int valueEnd = showSynergies ? RenderSynergies(_inventory, _hiddenInstanceId, 0) : 0;
+        HideArrows(valueEnd, RenderRefrigeration(_refrigerationContacts, _hiddenInstanceId, synergyArrows.Length));
     }
 
-    void RenderSynergies(PuzzleInventory _inventory, int? _hiddenInstanceId)
+    int RenderSynergies(PuzzleInventory _inventory, int? _hiddenInstanceId, int _start)
     {
-        int index = 0;
+        int index = _start;
         foreach (var target in _inventory.Placements)
         {
             if (target.InstanceId == _hiddenInstanceId)
@@ -232,28 +229,89 @@ public sealed class PuzzleInventoryView : MonoBehaviour
                 }
 
                 var contact = effect.Contact.Value;
-                Vector2 direction = contact.Target - contact.Neighbor;
-                bool forward = direction.x > 0 || direction.y > 0;
-                bool increase = effect.Percent > 0;
-                Vector2 axis = direction.x != 0 ? Vector2.up : Vector2.right;
-                float lane = (forward ? 1f : -1f) * (increase ? BasicData.Float("ui.PuzzleInventoryView.renderSynergies") : BasicData.Float("ui.PuzzleInventoryView.renderSynergies2"));
-                var arrow = synergyArrows[index++];
-                arrow.sprite = increase ? increaseArrow : decreaseArrow;
-                arrow.color = Presentation.PuzzleSynergyArrow;
-                arrow.rectTransform.localPosition = (GetCellCenter(contact.Target) +
-                    GetCellCenter(contact.Neighbor)) * 0.5f + axis * (lane * cellSize);
-                // 원본 스프라이트의 투명 여백을 포함한 크기다.
-                arrow.rectTransform.sizeDelta = new Vector2(cellSize * BasicData.Float("ui.PuzzleInventoryView.rectTransformsizeDeltaWidth"), cellSize * BasicData.Float("ui.PuzzleInventoryView.rectTransformsizeDeltaHeight"));
-                arrow.rectTransform.localRotation = Quaternion.Euler(0f, 0f, Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg);
-                arrow.enabled = true;
+                if (!ShowArrow(index, contact.Neighbor, contact.Target,
+                    effect.Percent > 0 ? increaseArrow : decreaseArrow, Presentation.PuzzleSynergyArrow,
+                    Lane(effect.Percent > 0, contact.Target - contact.Neighbor)))
+                {
+                    return index;
+                }
+
+                index++;
             }
         }
-        HideArrows(index);
+
+        return index;
+    }
+
+    // 냉장이 실제로 적용된 관계만 냉장원→음식 방향으로 표시한다. 같은 쌍이 여러 칸에서 접해도 접촉 관계는 하나다.
+    int RenderRefrigeration(IReadOnlyList<PuzzleRefrigerationContact> _contacts, int? _hiddenInstanceId, int _after)
+    {
+        if (_contacts == null)
+        {
+            return _after;
+        }
+
+        int index = _after;
+        float lane = BasicData.Float("ui.PuzzleInventoryView.renderRefrigeration");
+        foreach (var contact in _contacts)
+        {
+            if (contact.Source.InstanceId == _hiddenInstanceId || contact.Target.InstanceId == _hiddenInstanceId)
+            {
+                continue;
+            }
+
+            index--;
+            if (!ShowArrow(index, contact.Cells.Source, contact.Cells.Target, increaseArrow,
+                Presentation.PuzzleRefrigerationArrow, lane))
+            {
+                return index + 1;
+            }
+        }
+
+        return index;
+    }
+
+    // 접촉 칸 쌍을 잇는 화살표 하나. 접촉선을 기준으로 증가·감소 레인과 냉장 레인을 나눠 겹치지 않게 놓는다.
+    bool ShowArrow(int _index, Vector2Int _from, Vector2Int _to, Sprite _sprite, Color _color, float _lane)
+    {
+        if (_index < 0 || _index >= synergyArrows.Length)
+        {
+            return false;
+        }
+
+        Vector2 direction = _to - _from;
+        Vector2 axis = direction.x != 0 ? Vector2.up : Vector2.right;
+        var arrow = synergyArrows[_index];
+        arrow.sprite = _sprite;
+        arrow.color = _color;
+        arrow.rectTransform.localPosition = (GetCellCenter(_from) + GetCellCenter(_to)) * 0.5f +
+            axis * (_lane * cellSize);
+        // 원본 스프라이트의 투명 여백을 포함한 크기다.
+        arrow.rectTransform.sizeDelta = new Vector2(cellSize * BasicData.Float("ui.PuzzleInventoryView.rectTransformsizeDeltaWidth"), cellSize * BasicData.Float("ui.PuzzleInventoryView.rectTransformsizeDeltaHeight"));
+        arrow.rectTransform.localRotation = Quaternion.Euler(0f, 0f, Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg);
+        arrow.enabled = true;
+        return true;
+    }
+
+    float Lane(bool _increase, Vector2Int _direction)
+    {
+        float offset = BasicData.Float(_increase ? "ui.PuzzleInventoryView.renderSynergies" : "ui.PuzzleInventoryView.renderSynergies2");
+        return (_direction.x > 0 || _direction.y > 0 ? 1f : -1f) * offset;
     }
 
     void HideArrows(int _start = 0)
     {
         for (int i = _start; i < synergyArrows.Length; i++)
+        {
+            synergyArrows[i].enabled = false;
+        }
+    }
+
+    // 가치 화살표는 앞에서, 냉장 화살표는 뒤에서 쓰므로 사이에 남은 슬롯만 끈다.
+    void HideArrows(int _start, int _end)
+    {
+        int last = Mathf.Min(_end, synergyArrows.Length);
+        for (int i = _start; i < last; i++)
         {
             synergyArrows[i].enabled = false;
         }

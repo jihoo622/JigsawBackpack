@@ -340,7 +340,7 @@ public static class TooltipSceneSetup
         synSectionLayout.childForceExpandWidth = true;
         synSectionLayout.childForceExpandHeight = false;
 
-        var synHeader = CreateTextObject("SynergyHeader", synergySection.transform, _fontAsset, "보유 효과");
+        var synHeader = CreateTextObject("SynergyHeader", synergySection.transform, _fontAsset, Presentation.PuzzleTooltipValueSynergyHeader());
         synHeader.enableAutoSizing = false;
 
         var synergyList = new GameObject("SynergyList", typeof(RectTransform), typeof(VerticalLayoutGroup));

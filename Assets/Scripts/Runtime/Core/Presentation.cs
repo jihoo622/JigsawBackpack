@@ -404,6 +404,7 @@ public static class Presentation
         return BasicData.Color("presentation.inventory.itemIcon", _alpha);
     }
     public static Color PuzzleSynergyArrow => BasicData.Color("presentation.inventory.synergyArrow");
+    internal static Color PuzzleRefrigerationArrow => BasicData.Color("presentation.inventory.refrigerationArrow");
     public static string PuzzleTrainTitleText => BasicData.Text("presentation.train.trainTitle");
     internal static string PuzzleTrainTitle(int _wagonNumber)
     {
@@ -516,6 +517,12 @@ public static class Presentation
             ColorUtility.ToHtmlStringRGB(ComparisonColor(_bonus.Amount, 0m, PuzzleTooltipText)), _bonus.Amount);
     }
 
+    internal static string PuzzleTooltipActiveEffectsSummary(IReadOnlyList<PuzzleSynergyBonus> _bonuses)
+    {
+        return string.Join("\n", _bonuses.Select(_bonus =>
+            $"{PuzzleTooltipActiveEffectLabel(_bonus)} {PuzzleTooltipActiveEffectValue(_bonus)}"));
+    }
+
     internal static string PuzzleTooltipActualValueLabel()
     {
         return BasicData.Format("presentation.tooltip.actualValueLabel", TooltipLabelHtml());
@@ -581,7 +588,12 @@ public static class Presentation
         return BasicData.Format("presentation.tooltip.finalBuyPriceValue", ColorUtility.ToHtmlStringRGB(PriceValueColor(_price, _actualValue, _isBuying: true)), _price);
     }
 
-    internal static string PuzzleTooltipEffectHeader()
+    public static string PuzzleTooltipGeneralEffectHeader()
+    {
+        return BasicData.Format("presentation.tooltip.generalEffectHeader", TooltipLabelHtml());
+    }
+
+    public static string PuzzleTooltipValueSynergyHeader()
     {
         return BasicData.Format("presentation.tooltip.effectHeader", TooltipLabelHtml(), TableManager.Instance.RequireValid().PuzzleSynergy.activationIntervalHours);
     }
@@ -591,6 +603,24 @@ public static class Presentation
         string description = BasicData.Format("presentation.tooltip.refrigerationEffect", _reductionPercent);
         return BasicData.Format("presentation.tooltip.effectDescription",
             ColorUtility.ToHtmlStringRGB(PuzzleTooltipGreen), description);
+    }
+
+    internal static string PuzzleAnimalBreedingEffect(string _description, long _minutes, string _offspringName, int _count)
+    {
+        return PuzzleTooltipEffectDescription(string.Format(_description,
+            PuzzleMapTime(_minutes), _offspringName, _count));
+    }
+
+    internal static string PuzzleAnimalGrowthEffect(string _description, long _minutes, string _adultName, long _blockedMinutes)
+    {
+        return PuzzleTooltipEffectDescription(string.Format(_description,
+            PuzzleMapTime(_minutes), _adultName, PuzzleMapTime(_blockedMinutes)));
+    }
+
+    internal static string PuzzleAnimalWasteEffect(string _description, int _intervalDays, string _wasteName, int _count)
+    {
+        return PuzzleTooltipEffectDescription(string.Format(_description,
+            _intervalDays, _wasteName, _count));
     }
 
     internal static string PuzzleFreshnessDot => BasicData.Text("presentation.freshness.dot");
@@ -617,6 +647,25 @@ public static class Presentation
         });
         highlighted = Regex.Replace(highlighted, @"\([^)]*\)", match => $"<size=70%>{match.Value}</size>");
         return BasicData.Format("presentation.tooltip.effectDescription", TooltipLabelHtml(), highlighted);
+    }
+
+    // 일반 효과 한 행. 진행도가 있으면 설명 바로 아래에 녹색으로 놓고, 공간을 막혀 있으면 같은 줄에 빨간 표시를 덧붙인다.
+    internal static string PuzzleTooltipGeneralEffect(PuzzleEffectDisplay _effect)
+    {
+        if (_effect.Progress is not PuzzleProgressDisplay progress)
+        {
+            return _effect.Description;
+        }
+
+        string line = BasicData.Format("presentation.tooltip.effectProgress",
+            ColorUtility.ToHtmlStringRGB(PuzzleTooltipGreen), PuzzleMapTime(progress.ElapsedMinutes),
+            PuzzleMapTime(progress.TotalMinutes));
+        if (progress.SpaceBlocked)
+        {
+            line += " " + BasicData.Format("presentation.tooltip.effectSpaceBlocked",
+                ColorUtility.ToHtmlStringRGB(PuzzleTooltipRed));
+        }
+        return _effect.Description + "\n" + line;
     }
 
     internal static string PuzzleTooltipNoEffect()
@@ -797,7 +846,8 @@ public static class Presentation
         };
     }
 
-    internal static string PuzzleGrowthBlocked => BasicData.Text("presentation.PuzzleGrowthBlocked");
+    // 시간 진행이 계산 범위를 넘어 진행 자체가 실패한 경우의 안내.
+    internal static string PuzzleTimeOverflow => BasicData.Text("presentation.inventory.travelStatusText6");
     internal static string PuzzleBabyCannotButcher => BasicData.Text("presentation.PuzzleBabyCannotButcher");
 
     internal static string PuzzleLossSummary(long _funds)
@@ -837,8 +887,7 @@ public static class Presentation
             PuzzleTravelFailure.InsufficientFunds => BasicData.Format("presentation.inventory.travelStatus", PuzzleTravelCost, _result.Cost)
                 + BasicData.Format("presentation.inventory.travelStatusText2", PuzzleTravelBreakdown(_result)),
             PuzzleTravelFailure.CostOverflow => BasicData.Text("presentation.inventory.travelStatusText5"),
-            PuzzleTravelFailure.TimeOverflow => BasicData.Text("presentation.inventory.travelStatusText6"),
-            PuzzleTravelFailure.GrowthBlocked => PuzzleGrowthBlocked,
+            PuzzleTravelFailure.TimeOverflow => PuzzleTimeOverflow,
             PuzzleTravelFailure.MissingRoute => BasicData.Text("presentation.inventory.travelStatusText7"),
             PuzzleTravelFailure.NotAvailable => BasicData.Text("presentation.inventory.travelStatusText8"),
             PuzzleTravelFailure.Blocked => BasicData.Text("presentation.inventory.travelStatusText9"),

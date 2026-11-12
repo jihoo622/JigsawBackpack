@@ -59,7 +59,9 @@ public sealed class PuzzleInventoryService : MonoBehaviour
     }
 
     readonly List<PuzzleInventory> trainWagons = new List<PuzzleInventory>();
-    Dictionary<(int First, int Second), long> breedingProgress = new();
+    Dictionary<(int First, int Second), BreedingState> breedingProgress = new();
+    // 동물 인스턴스 ID별 배설 진행. 대기 상태를 포함해 씬 안에서만 살며 플레이어에게 표시하지 않는다.
+    Dictionary<int, WasteState> wasteProgress = new();
     // 도시별 도축대. 행동이 없는 도시는 항목을 만들지 않는다.
     readonly Dictionary<string, PuzzleButcheryState> butcheries = new Dictionary<string, PuzzleButcheryState>(StringComparer.Ordinal);
     readonly Dictionary<string, PuzzleModificationState> modifications = new Dictionary<string, PuzzleModificationState>(StringComparer.Ordinal);
@@ -259,6 +261,7 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         trainWagons.Clear();
         trainWagons.Add(train);
         breedingProgress.Clear();
+        wasteProgress.Clear();
         CurrentWagonIndex = 0;
         butcheries.Clear();
         modifications.Clear();
@@ -383,8 +386,7 @@ public sealed class PuzzleInventoryService : MonoBehaviour
     internal long? NextRouteCost(string _cityId)
     {
         var evaluation = EvaluateTravel(_cityId);
-        return evaluation.Failure == PuzzleTravelFailure.None || evaluation.Failure == PuzzleTravelFailure.InsufficientFunds ||
-            evaluation.Failure == PuzzleTravelFailure.GrowthBlocked
+        return evaluation.Failure == PuzzleTravelFailure.None || evaluation.Failure == PuzzleTravelFailure.InsufficientFunds
             ? (long?)evaluation.Cost
             : null;
     }
@@ -453,8 +455,7 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         }
         if (failure != PuzzleTravelFailure.None)
         {
-            RecordAction(_action, failure == PuzzleTravelFailure.TimeOverflow ? "time_overflow" : "time_blocked",
-                _requestedMinutes: _minutes);
+            RecordAction(_action, "time_overflow", _requestedMinutes: _minutes);
             return false;
         }
 
@@ -478,16 +479,19 @@ public sealed class PuzzleInventoryService : MonoBehaviour
     sealed class TimeAdvancePlan
     {
         internal readonly PuzzleInventory[] wagons;
-        internal Dictionary<(int First, int Second), long> breedingProgress;
+        internal Dictionary<(int First, int Second), BreedingState> breedingProgress;
+        internal Dictionary<int, WasteState> wasteProgress;
         internal int lastInstanceId;
         internal decimal? cargoValueBeforeSettlement;
         internal decimal? cargoValueBeforeFreshnessLoss;
 
-        internal TimeAdvancePlan(PuzzleInventory[] _wagons, Dictionary<(int First, int Second), long> _breedingProgress,
-            int _lastInstanceId)
+        internal TimeAdvancePlan(PuzzleInventory[] _wagons,
+            Dictionary<(int First, int Second), BreedingState> _breedingProgress,
+            Dictionary<int, WasteState> _wasteProgress, int _lastInstanceId)
         {
             wagons = _wagons;
             breedingProgress = _breedingProgress;
+            wasteProgress = _wasteProgress;
             lastInstanceId = _lastInstanceId;
         }
     }
@@ -498,14 +502,18 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         try
         {
             long arrival = Time.ArrivalAt(_minutes);
-            // 시간 진행이 거부되거나 미리보기인 경우 원본 객차와 번식 상태를 바꾸지 않는다.
+            // 시간 진행이 거부되거나 미리보기인 경우 원본 객차와 번식·배설 상태를 바꾸지 않는다.
             var wagons = trainWagons.Select(_wagon => _wagon.CopyForTimeAdvance()).ToArray();
-            var plan = new TimeAdvancePlan(wagons, breedingProgress, lastInstanceId);
+            var plan = new TimeAdvancePlan(wagons,
+                new Dictionary<(int First, int Second), BreedingState>(breedingProgress),
+                new Dictionary<int, WasteState>(wasteProgress), lastInstanceId);
             var animals = tables.PuzzleSynergy.animals;
             var waste = definitions[animals.wastePieceId];
             var expiredFood = definitions[ExpiredFoodPieceId];
             long animalEventsThrough = Time.HasDeadline ? Math.Min(arrival, Time.DeadlineMinutes) : arrival;
             long breedingMinutes = (long)animals.breedingHours * PuzzleTimeManager.MINUTES_PER_HOUR;
+            long wasteMinutes = (long)animals.wasteIntervalDays * PuzzleTimeManager.MINUTES_PER_DAY;
+            long holdMinutes = (long)animals.completionHoldHours * PuzzleTimeManager.MINUTES_PER_HOUR;
             long synergyInterval = SynergyIntervalMinutes;
             var freshness = tables.PuzzleSynergy.freshness;
             long freshnessInterval = (long)freshness.settlementIntervalHours * PuzzleTimeManager.MINUTES_PER_HOUR;
@@ -514,21 +522,17 @@ public sealed class PuzzleInventoryService : MonoBehaviour
             var selectedWagon = wagons[CurrentWagonIndex];
             bool settledSelectedWagon = false;
             decimal freshnessDelta = 0;
+            // 이전 행동으로 공간이 확보된 경우 첫 경계를 기다리지 않고 대기를 푼다. 마지막 대기 시간은 이번 진행부터 다시 흐른다.
+            ResumeBlockedStates(plan, wagons, animals, waste, growth, breedingMinutes, wasteMinutes, holdMinutes);
 
             while (cursor < arrival)
             {
+                EnsureWasteStates(plan, wagons, animals, wasteMinutes, cursor);
                 var pairs = SelectBreedingPairs(wagons, plan.breedingProgress);
                 long step = Math.Min(arrival - cursor, MinutesUntilCargoChange(wagons, freshness));
                 step = Math.Min(step, MinutesUntilBirth(pairs, breedingMinutes, animalEventsThrough - cursor));
-                long untilWaste = Time.MinutesUntilDayInterval(cursor, animals.wasteIntervalDays);
-                bool spawnWaste = untilWaste <= step && untilWaste <= animalEventsThrough - cursor &&
-                    wagons.Any(_wagon => _wagon.Placements.Any(_item => _item.Definition.Tags.Contains(animals.animalTag)) &&
-                        _wagon.CanAutoPlace(waste));
-                if (spawnWaste)
-                {
-                    step = untilWaste;
-                }
-
+                step = Math.Min(step, MinutesUntilWaste(wagons, plan.wasteProgress, animals.animalTag, wasteMinutes,
+                    animalEventsThrough - cursor));
                 long boundary = cursor + step;
                 // 같은 시각에는 정산, 배설, 식품 만료, 성장, 출산 순으로 처리한다.
                 long activations = boundary / synergyInterval - cursor / synergyInterval;
@@ -550,12 +554,11 @@ public sealed class PuzzleInventoryService : MonoBehaviour
                     }
                 }
 
-                if (spawnWaste)
+                // 기한을 지난 경계에서는 동물 사건을 되살리지 않는다. 대기 상태도 그대로 둔다.
+                bool animalEvents = boundary <= animalEventsThrough;
+                if (animalEvents)
                 {
-                    foreach (var wagon in wagons)
-                    {
-                        SpawnAnimalWaste(wagon, animals, waste, ref plan.lastInstanceId);
-                    }
+                    AdvanceWaste(plan, wagons, animals, waste, wasteMinutes, holdMinutes, step);
                 }
 
                 growth.Clear();
@@ -568,17 +571,18 @@ public sealed class PuzzleInventoryService : MonoBehaviour
                     {
                         freshnessDelta += wagon.Placements.Sum(_item => _item.FreshnessAdjustedValue) - valueBeforeExpiry;
                     }
-                    if (!wagon.TryPlanGrowth(0, growth))
-                    {
-                        return PuzzleTravelFailure.GrowthBlocked;
-                    }
+                    // 공간이 없는 성장은 전체 진행을 거절하지 않고 그 품목만 대기한다.
+                    wagon.PlanGrowth(growth);
                 }
                 foreach (var change in growth)
                 {
                     change.Item.Owner.ApplyGrowth(change);
                 }
 
-                AdvanceBreeding(plan, pairs, step, breedingMinutes, boundary <= animalEventsThrough);
+                if (animalEvents)
+                {
+                    AdvanceBreeding(plan, pairs, step, breedingMinutes, holdMinutes);
+                }
                 cursor = boundary;
             }
 
@@ -600,6 +604,45 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         }
     }
 
+    // 공간 부족으로 대기 중이던 성장·번식·배설을 이번 행동의 시작 시각에서 다시 본다. 자리를 찾으면
+    // 완료 시점을 그대로 넘기지 않고 마지막 대기 시간만큼을 이번 진행부터 다시 흘려보낸다.
+    void ResumeBlockedStates(TimeAdvancePlan _plan, PuzzleInventory[] _wagons, PuzzleAnimalSynergyData _animals,
+        PuzzleItemDefinition _waste, List<PuzzleGrowth> _growth, long _breedingMinutes, long _wasteMinutes,
+        long _holdMinutes)
+    {
+        foreach (var wagon in _wagons)
+        {
+            wagon.PlanGrowth(_growth);
+        }
+        foreach (var change in _growth)
+        {
+            change.Item.Owner.ApplyGrowth(change);
+        }
+        _growth.Clear();
+
+        foreach (var pair in SelectBreedingPairs(_wagons, _plan.breedingProgress))
+        {
+            if (pair.state.SpaceBlocked &&
+                pair.wagon.CanAutoPlaceAll(pair.offspring, pair.offspringCount, _allowRotation: true))
+            {
+                _plan.breedingProgress[pair.key] = new BreedingState(_breedingMinutes - _holdMinutes, false);
+            }
+        }
+
+        foreach (var wagon in _wagons)
+        {
+            foreach (var animal in wagon.Placements)
+            {
+                if (animal.Definition.Tags.Contains(_animals.animalTag) &&
+                    _plan.wasteProgress.TryGetValue(animal.InstanceId, out var state) && state.SpaceBlocked &&
+                    wagon.CanAutoPlaceAll(_waste, _animals.wasteCountPerAnimal))
+                {
+                    _plan.wasteProgress[animal.InstanceId] = new WasteState(_wasteMinutes - _holdMinutes, false);
+                }
+            }
+        }
+    }
+
     static long MinutesUntilCargoChange(PuzzleInventory[] _wagons, PuzzleFreshnessData _freshness)
     {
         long minutes = long.MaxValue;
@@ -607,10 +650,8 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         {
             foreach (var item in wagon.Placements)
             {
-                if (item.OwnedMinutes >= 0 && item.Definition.GrowthMinutes > 0)
-                {
-                    minutes = Math.Min(minutes, Math.Max(1, item.Definition.GrowthMinutes - item.OwnedMinutes));
-                }
+                // 성장 품목은 다음 완료 시각을, 자리를 대기 중이면 재시도 시각을 경계로 제시한다.
+                minutes = Math.Min(minutes, Math.Max(1, item.MinutesUntilGrowthCompletion));
                 if (item.OwnedMinutes >= 0 && item.RemainingShelfLifeMinutes > 0)
                 {
                     minutes = Math.Min(minutes, item.MinutesUntilShelfLifeExpires(ShelfLifeDecayRate(wagon, item, _freshness)));
@@ -620,58 +661,76 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         return minutes;
     }
 
+    // 냉장 소모율은 표시와 공유하는 PuzzleRefrigeration 판정이 원본이다.
     static decimal ShelfLifeDecayRate(PuzzleInventory _wagon, PuzzlePlacement _item, PuzzleFreshnessData _freshness)
     {
-        if (_item.RemainingShelfLifeMinutes is not > 0)
-        {
-            return 1;
-        }
+        return PuzzleRefrigeration.DecayRate(_wagon, _item, _freshness);
+    }
 
-        int remainingPercent = PERCENT_SCALE;
-        foreach (var source in _wagon.Placements)
-        {
-            if (source == _item || !source.Definition.Tags.Contains(_freshness.refrigerationTag) ||
-                !Touches(source, _item))
-            {
-                continue;
-            }
+    // 출산까지의 진행 분과 공간 부족 대기 여부. 대기 중에는 진행이 멈추고 자리가 돌아오면 남은 시간을 흘려보낸다.
+    readonly struct BreedingState
+    {
+        internal readonly long ElapsedMinutes;
+        internal readonly bool SpaceBlocked;
 
-            remainingPercent -= _freshness.refrigerationReductionPercent;
-            if (remainingPercent <= 0)
-            {
-                return 0;
-            }
+        internal BreedingState(long _elapsedMinutes, bool _spaceBlocked)
+        {
+            ElapsedMinutes = _elapsedMinutes;
+            SpaceBlocked = _spaceBlocked;
         }
-        return (decimal)remainingPercent / PERCENT_SCALE;
+    }
+
+    // 동물 한 마리의 배설 진행. 출산과 같은 대기 규칙을 쓰지만 화면에는 표시하지 않는다.
+    readonly struct WasteState
+    {
+        internal readonly long ElapsedMinutes;
+        internal readonly bool SpaceBlocked;
+
+        internal WasteState(long _elapsedMinutes, bool _spaceBlocked)
+        {
+            ElapsedMinutes = _elapsedMinutes;
+            SpaceBlocked = _spaceBlocked;
+        }
     }
 
     readonly struct BreedingPair
     {
         internal readonly (int First, int Second) key;
+        internal readonly PuzzlePlacement first;
+        internal readonly PuzzlePlacement second;
         internal readonly PuzzleInventory wagon;
         internal readonly PuzzleItemDefinition offspring;
         internal readonly int offspringCount;
-        internal readonly long elapsedMinutes;
+        internal readonly BreedingState state;
 
-        internal BreedingPair((int First, int Second) _key, PuzzleInventory _wagon, PuzzleItemDefinition _offspring,
-            int _offspringCount, long _elapsedMinutes)
+        internal BreedingPair(PuzzlePlacement _first, PuzzlePlacement _second, PuzzleInventory _wagon,
+            PuzzleItemDefinition _offspring, int _offspringCount, BreedingState _state)
         {
-            key = _key;
+            key = (_first.InstanceId, _second.InstanceId);
+            first = _first;
+            second = _second;
             wagon = _wagon;
             offspring = _offspring;
             offspringCount = _offspringCount;
-            elapsedMinutes = _elapsedMinutes;
+            state = _state;
+        }
+
+        // 두 부모가 같은 쌍의 대기를 공유하므로 알림도 함께 남긴다.
+        internal void RaiseSpaceNotice()
+        {
+            first.HasUnreadSpaceNotice = true;
+            second.HasUnreadSpaceNotice = true;
         }
     }
 
     List<BreedingPair> SelectBreedingPairs(PuzzleInventory[] _wagons,
-        Dictionary<(int First, int Second), long> _previous)
+        Dictionary<(int First, int Second), BreedingState> _previous)
     {
         var candidates = new List<BreedingPair>();
         string animalTag = tables.PuzzleSynergy.animals.animalTag;
         foreach (var wagon in _wagons)
         {
-            var animals = wagon.Placements.Where(_item => _item.Definition.Tags.Contains(animalTag))
+            var animals = wagon.Placements.Where(_item => !_item.Definition.IsBaby && _item.Definition.Tags.Contains(animalTag))
                 .OrderBy(_item => _item.InstanceId).ToArray();
             for (int i = 0; i < animals.Length; i++)
             {
@@ -686,9 +745,9 @@ public sealed class PuzzleInventoryService : MonoBehaviour
                     if (first.Definition.Id == second.Definition.Id && Touches(first, second))
                     {
                         var key = (first.InstanceId, second.InstanceId);
-                        _previous.TryGetValue(key, out long elapsedMinutes);
-                        candidates.Add(new BreedingPair(key, wagon, definitions[rule.offspringPieceId],
-                            rule.offspringCount, elapsedMinutes));
+                        _previous.TryGetValue(key, out var state);
+                        candidates.Add(new BreedingPair(first, second, wagon, definitions[rule.offspringPieceId],
+                            rule.offspringCount, state));
                     }
                 }
             }
@@ -710,10 +769,33 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         return pairs;
     }
 
+    // 상하좌우 접촉은 냉장 표시와 같은 원본 판정을 쓴다.
     static bool Touches(PuzzlePlacement _first, PuzzlePlacement _second)
     {
-        return _first.Pose.Cells.Any(_a => _second.Pose.Cells.Any(_b =>
-            Math.Abs((long)_a.Position.x - _b.Position.x) + Math.Abs((long)_a.Position.y - _b.Position.y) == 1));
+        return PuzzleRefrigeration.TryGetContact(_first, _second, out _);
+    }
+
+    // 표시가 읽는 번식 진행. 짝 선택 규칙을 그대로 쓰므로 두 부모는 항상 같은 쌍 상태를 공유한다.
+    internal bool TryGetBreedingProgress(PuzzlePlacement _placement, out long _elapsedMinutes, out bool _spaceBlocked)
+    {
+        _elapsedMinutes = 0;
+        _spaceBlocked = false;
+        if (_placement == null || !trainWagons.Contains(_placement.Owner))
+        {
+            return false;
+        }
+
+        foreach (var pair in SelectBreedingPairs(trainWagons.ToArray(), breedingProgress))
+        {
+            if (pair.key.First == _placement.InstanceId || pair.key.Second == _placement.InstanceId)
+            {
+                _elapsedMinutes = pair.state.ElapsedMinutes;
+                _spaceBlocked = pair.state.SpaceBlocked;
+                return true;
+            }
+        }
+
+        return false;
     }
 
     static long MinutesUntilBirth(List<BreedingPair> _pairs, long _breedingMinutes, long _minutesUntilDeadline)
@@ -721,60 +803,134 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         long next = long.MaxValue;
         foreach (var pair in _pairs)
         {
-            long remaining = _breedingMinutes - pair.elapsedMinutes;
-            if (remaining < next && remaining <= _minutesUntilDeadline &&
-                pair.wagon.CanAutoPlace(pair.offspring, _allowRotation: true))
+            // 대기 중인 쌍도 남은 시간이 같으므로 같은 경계에서 자리를 다시 본다.
+            long remaining = _breedingMinutes - pair.state.ElapsedMinutes;
+            if (remaining < next && remaining <= _minutesUntilDeadline)
             {
                 next = remaining;
             }
         }
-        return next;
+        return Math.Max(1, next);
     }
 
-    static void AdvanceBreeding(TimeAdvancePlan _plan, List<BreedingPair> _pairs, long _step, long _breedingMinutes,
-        bool _canGiveBirth)
+    void AdvanceBreeding(TimeAdvancePlan _plan, List<BreedingPair> _pairs, long _step, long _breedingMinutes,
+        long _holdMinutes)
     {
-        var progress = new Dictionary<(int First, int Second), long>();
+        var progress = new Dictionary<(int First, int Second), BreedingState>();
         foreach (var pair in _pairs)
         {
-            long remaining = _breedingMinutes - pair.elapsedMinutes;
-            if (_step < remaining)
+            if (pair.state.SpaceBlocked)
             {
-                progress.Add(pair.key, pair.elapsedMinutes + _step);
+                // 자리가 돌아올 때까지는 완료 직전 진행도를 유지하고, 자리를 찾으면 마지막 1시간을 다시 흘려보낸다.
+                progress.Add(pair.key,
+                    pair.wagon.CanAutoPlaceAll(pair.offspring, pair.offspringCount, _allowRotation: true)
+                        ? new BreedingState(_breedingMinutes - _holdMinutes, false)
+                        : pair.state);
                 continue;
             }
 
-            // 공간이 없어 건너뛴 출산도 새 주기를 시작한다. 같은 시각의 배설·성장이 끝난 배치에 출산한다.
-            long elapsed = (_step - remaining) % _breedingMinutes;
-            if (elapsed == 0 && _canGiveBirth)
+            long elapsed = pair.state.ElapsedMinutes + _step;
+            bool blocked = false;
+            if (elapsed >= _breedingMinutes)
             {
-                for (int i = 0; i < pair.offspringCount; i++)
+                // 같은 시각의 배설·성장이 끝난 배치에 출산하고, 산출물이 전부 들어갈 때만 진행을 넘긴다.
+                if (pair.wagon.TryAutoPlaceAll(pair.offspring, pair.offspringCount, ref _plan.lastInstanceId,
+                    _allowRotation: true))
                 {
-                    if (!pair.wagon.TryAutoPlace(pair.offspring, ref _plan.lastInstanceId, _allowRotation: true))
-                    {
-                        break;
-                    }
+                    elapsed %= _breedingMinutes;
+                }
+                else
+                {
+                    elapsed = _breedingMinutes - _holdMinutes;
+                    blocked = true;
+                    pair.RaiseSpaceNotice();
                 }
             }
-            progress.Add(pair.key, elapsed);
+            progress.Add(pair.key, new BreedingState(elapsed, blocked));
         }
         _plan.breedingProgress = progress;
     }
 
-    static void SpawnAnimalWaste(PuzzleInventory _wagon, PuzzleAnimalSynergyData _animals,
-        PuzzleItemDefinition _waste, ref int _lastInstanceId)
+    // 배설 진행도가 없는 동물은 이번 시각 이후 처음 맞는 달력 경계에 첫 발생을 맞춘다.
+    void EnsureWasteStates(TimeAdvancePlan _plan, PuzzleInventory[] _wagons, PuzzleAnimalSynergyData _animals,
+        long _cycleMinutes, long _atMinute)
     {
-        var animals = _wagon.Placements.Where(_item => _item.Definition.Tags.Contains(_animals.animalTag)).ToArray();
-        for (int animalIndex = 0; animalIndex < animals.Length; animalIndex++)
+        long untilBoundary = Time.NextDayIntervalAt(_atMinute, _animals.wasteIntervalDays) - _atMinute;
+        foreach (var wagon in _wagons)
         {
-            for (int i = 0; i < _animals.wasteCountPerAnimal; i++)
+            foreach (var animal in wagon.Placements)
             {
-                if (!_wagon.TryAutoPlace(_waste, ref _lastInstanceId))
+                if (animal.Definition.Tags.Contains(_animals.animalTag) &&
+                    !_plan.wasteProgress.ContainsKey(animal.InstanceId))
                 {
-                    return;
+                    _plan.wasteProgress.Add(animal.InstanceId, new WasteState(_cycleMinutes - untilBoundary, false));
                 }
             }
         }
+    }
+
+    static long MinutesUntilWaste(PuzzleInventory[] _wagons, Dictionary<int, WasteState> _progress, string _animalTag,
+        long _cycleMinutes, long _minutesUntilDeadline)
+    {
+        long next = long.MaxValue;
+        foreach (var wagon in _wagons)
+        {
+            foreach (var animal in wagon.Placements)
+            {
+                if (!animal.Definition.Tags.Contains(_animalTag) ||
+                    !_progress.TryGetValue(animal.InstanceId, out var state))
+                {
+                    continue;
+                }
+                long remaining = _cycleMinutes - state.ElapsedMinutes;
+                if (remaining < next && remaining <= _minutesUntilDeadline)
+                {
+                    next = remaining;
+                }
+            }
+        }
+        return Math.Max(1, next);
+    }
+
+    void AdvanceWaste(TimeAdvancePlan _plan, PuzzleInventory[] _wagons, PuzzleAnimalSynergyData _animals,
+        PuzzleItemDefinition _waste, long _cycleMinutes, long _holdMinutes, long _step)
+    {
+        var progress = new Dictionary<int, WasteState>();
+        foreach (var wagon in _wagons)
+        {
+            var animals = wagon.Placements
+                .Where(_item => _item.Definition.Tags.Contains(_animals.animalTag))
+                .ToArray();
+            foreach (var animal in animals)
+            {
+                _plan.wasteProgress.TryGetValue(animal.InstanceId, out var state);
+                if (state.SpaceBlocked)
+                {
+                    // 공간이 없는 동물만 대기한다. 자리를 찾으면 마지막 1시간을 다시 흘려보낸 뒤 배설한다.
+                    progress[animal.InstanceId] = wagon.CanAutoPlaceAll(_waste, _animals.wasteCountPerAnimal)
+                        ? new WasteState(_cycleMinutes - _holdMinutes, false)
+                        : state;
+                    continue;
+                }
+
+                long elapsed = state.ElapsedMinutes + _step;
+                bool blocked = false;
+                if (elapsed >= _cycleMinutes)
+                {
+                    if (wagon.TryAutoPlaceAll(_waste, _animals.wasteCountPerAnimal, ref _plan.lastInstanceId))
+                    {
+                        elapsed %= _cycleMinutes;
+                    }
+                    else
+                    {
+                        elapsed = _cycleMinutes - _holdMinutes;
+                        blocked = true;
+                    }
+                }
+                progress[animal.InstanceId] = new WasteState(elapsed, blocked);
+            }
+        }
+        _plan.wasteProgress = progress;
     }
 
     void CommitTimeAdvance(long _minutes, TimeAdvancePlan _plan)
@@ -785,6 +941,8 @@ public sealed class PuzzleInventoryService : MonoBehaviour
             trainWagons[i].CommitTimeAdvance(_plan.wagons[i]);
         }
         breedingProgress = _plan.breedingProgress;
+        wasteProgress = _plan.wasteProgress;
+        PruneAnimalStates();
         lastInstanceId = _plan.lastInstanceId;
         Time.Advance(_minutes);
         if (Time.IsOverdue)
@@ -796,6 +954,22 @@ public sealed class PuzzleInventoryService : MonoBehaviour
             CheckButcheryReady();
             GameEvents.RaiseTimeAdvanced(previous, Time.ElapsedMinutes, this, _plan.cargoValueBeforeSettlement,
                 _plan.cargoValueBeforeFreshnessLoss);
+        }
+    }
+
+    // 기차에 남지 않은 개체의 대기 상태는 다음 진행에 읽히지 않으므로 정리만 한다.
+    void PruneAnimalStates()
+    {
+        var alive = new HashSet<int>(trainWagons.SelectMany(_wagon => _wagon.Placements)
+            .Select(_placement => _placement.InstanceId));
+        foreach (var id in wasteProgress.Keys.Where(_id => !alive.Contains(_id)).ToArray())
+        {
+            wasteProgress.Remove(id);
+        }
+        foreach (var key in breedingProgress.Keys.Where(_key =>
+            !alive.Contains(_key.First) || !alive.Contains(_key.Second)).ToArray())
+        {
+            breedingProgress.Remove(key);
         }
     }
 
@@ -1129,6 +1303,12 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         {
             return new PuzzleDropResult(move, result.Direction, result.Price, _percent: result.AppliedPercent,
                 _tag: result.AppliedTag);
+        }
+
+        // 객차에서 사라진 동물의 대기 상태는 다음 진행까지 기다리지 않고 정리한다.
+        if (IsTrainWagon(_original.Owner) || IsTrainWagon(_destination))
+        {
+            PruneAnimalStates();
         }
 
         if (result.Direction != PuzzleTradeDirection.None)
@@ -1900,8 +2080,7 @@ internal enum PuzzleTravelFailure
     MissingRoute,
     InsufficientFunds,
     CostOverflow,
-    TimeOverflow,
-    GrowthBlocked
+    TimeOverflow
 }
 
 // 이동 미리보기와 확정의 공통 결과. 실패하면 도시·턴·시장·자금 어느 것도 바뀌지 않는다.
