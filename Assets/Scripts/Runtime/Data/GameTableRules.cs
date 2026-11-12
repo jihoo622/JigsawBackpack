@@ -301,6 +301,9 @@ public sealed class GameTableRules
     {
         const string PATH = nameof(PuzzleRouteTableData);
         const string ROUTES_PATH = PATH + ".routes";
+        Check(_tables.PuzzleRoute.defaultBaseCost >= 0, PATH + ".defaultBaseCost", "기준 기본요금은 0 이상이어야 합니다.");
+        Check(!double.IsNaN(_tables.PuzzleRoute.fareDistancePixelsPerUnit) && !double.IsInfinity(_tables.PuzzleRoute.fareDistancePixelsPerUnit) && _tables.PuzzleRoute.fareDistancePixelsPerUnit > 0,
+            PATH + ".fareDistancePixelsPerUnit", "요금 거리 1당 지도 길이는 유한한 양수여야 합니다.");
         Check(_tables.PuzzleRoute.costPerCell >= 0, PATH + ".costPerCell", "칸당 이동 단가는 0 이상이어야 합니다.");
         Check(_tables.PuzzleRoute.costPerDistance >= 0, PATH + ".costPerDistance", "거리당 이동 단가는 0 이상이어야 합니다.");
         var routes = _tables.PuzzleRoute.routes ?? Array.Empty<PuzzleRouteData>();

@@ -70,6 +70,9 @@ public sealed class PuzzleTradeTableData
 public sealed class PuzzleRouteTableData
 {
     public string status, note;
+    // 맵 제작 도구의 새 노선/일괄 적용 기준. 실행 요금은 각 routes[].cost를 읽는다.
+    public int defaultBaseCost = -1;
+    public double fareDistancePixelsPerUnit = -1;
     // 기차의 점유 칸 1칸에 더해지는 단가. 0이면 보유량과 무관한 정액 노선이다.
     public int costPerCell = -1;
     public int costPerDistance = -1;

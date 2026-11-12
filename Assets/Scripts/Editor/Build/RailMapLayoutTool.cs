@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System;
 using UnityEditor;
@@ -21,7 +22,7 @@ public static class RailMapLayoutTool
     static float LabelNodeClearance => BasicData.Float("editor.RailMapLayoutTool.labelnodeclearance");
     static float LabelNudge => BasicData.Float("editor.RailMapLayoutTool.labelnudge");
     static float EndpointTolerance => BasicData.Float("editor.RailMapLayoutTool.endpointtolerance");
-    static readonly string[] BACKBONE_CORRIDORS = {"trade_backbone", "express_backbone"};
+    static readonly string[] BACKBONE_CORRIDORS = { "trade_backbone", "express_backbone" };
 
     // JsonUtility가 리플렉션으로 값을 채우므로 컴파일러는 필드가 항상 기본값이라고 경고한다.
 #pragma warning disable CS0649
@@ -51,7 +52,7 @@ public static class RailMapLayoutTool
         public string regionId;
         public string corridorType;
         public int distance;
-        public int cost;
+        public long cost;
         public float labelX;
         public float labelY;
         public float[] points;
@@ -155,6 +156,7 @@ public static class RailMapLayoutTool
         }
 
         var report = new StringBuilder();
+        SynchronizeNodes(_root, view, nodeById);
         var nodesMoved = ApplyNodes(_root, nodeById, _layout.planningTargetCityId, report);
         if (nodesMoved != _layout.nodes.Length)
         {
@@ -336,10 +338,76 @@ public static class RailMapLayoutTool
             }
         }
 
+        var usedIndices = new HashSet<int>(_layout.rails.Select(_rail => _rail.railIndex));
+        foreach (var pair in timeByIndex)
+        {
+            pair.Value.gameObject.SetActive(usedIndices.Contains(pair.Key));
+        }
+        foreach (var pair in plateByIndex)
+        {
+            pair.Value.gameObject.SetActive(usedIndices.Contains(pair.Key));
+        }
         BindRouteTimes(view, _layout, timeByIndex, plateByIndex);
         BindLineGroups(view, imagesByRegion, activeLegs);
+        var regionBindings = new SerializedObject(view).FindProperty("regions");
+        for (int i = 0; i < regionBindings.arraySize; i++)
+        {
+            var binding = regionBindings.GetArrayElementAtIndex(i);
+            var label = binding.FindPropertyRelative("label").objectReferenceValue as Text;
+            if (label)
+            {
+                string regionId = binding.FindPropertyRelative("regionId").stringValue;
+                var region = Array.Find(TableManager.Instance.Puzzle.regions, _region => _region.id == regionId);
+                if (region == null)
+                {
+                    throw new InvalidOperationException("지역 표시의 원본이 없습니다: " + regionId);
+                }
+                label.text = Presentation.PuzzleMapRegionLabel(region);
+            }
+        }
 
         Debug.Log($"[RailMap] 노드 {nodesMoved} · 레일 {_layout.rails.Length} · 레그 {legsUsed}(신규 {legsCreated}, 비활성 {legsDisabled}) · 시간 라벨 {labelsMoved}(겹침 보정 {labelsNudged})\n{report}");
+    }
+
+    static void SynchronizeNodes(GameObject _root, PuzzleMapView _view, Dictionary<string, LayoutNode> _nodeById)
+    {
+        var nodes = _root.GetComponentsInChildren<PuzzleMapNodeView>(true).ToList();
+        var template = nodes.FirstOrDefault();
+        if (!template)
+        {
+            throw new InvalidOperationException("역을 만들 프리팹 템플릿이 없습니다.");
+        }
+        // 삭제 전에 복제해야 템플릿으로 선택된 역을 지운 경우에도 참조가 유효하다.
+        foreach (var pair in _nodeById.OrderBy(_pair => _pair.Key, StringComparer.Ordinal))
+        {
+            if (nodes.Any(_node => new SerializedObject(_node).FindProperty("cityId").stringValue == pair.Key))
+            {
+                continue;
+            }
+            var clone = UnityEngine.Object.Instantiate(template, template.transform.parent);
+            clone.name = "Station_" + pair.Key;
+            var serialized = new SerializedObject(clone);
+            serialized.FindProperty("cityId").stringValue = pair.Key;
+            serialized.ApplyModifiedPropertiesWithoutUndo();
+            nodes.Add(clone);
+        }
+        foreach (var node in nodes.ToArray())
+        {
+            if (!_nodeById.ContainsKey(new SerializedObject(node).FindProperty("cityId").stringValue))
+            {
+                nodes.Remove(node);
+                UnityEngine.Object.DestroyImmediate(node.gameObject);
+            }
+        }
+        var view = new SerializedObject(_view);
+        var references = view.FindProperty("nodes");
+        references.arraySize = nodes.Count;
+        var ordered = nodes.OrderBy(_node => new SerializedObject(_node).FindProperty("cityId").stringValue, StringComparer.Ordinal).ToArray();
+        for (int i = 0; i < ordered.Length; i++)
+        {
+            references.GetArrayElementAtIndex(i).objectReferenceValue = ordered[i];
+        }
+        view.ApplyModifiedPropertiesWithoutUndo();
     }
 
     static int ApplyNodes(GameObject _root, Dictionary<string, LayoutNode> _nodeById, string _planningTargetCityId, StringBuilder _report)

@@ -153,6 +153,10 @@ public sealed class RailRouteEditorWindow : EditorWindow
 
     void OnGUI()
     {
+        if (GUILayout.Button("Map Editor 열기 (역·노선·데이터 편집)"))
+        {
+            WorldMapEditorWindow.Open();
+        }
         EditorGUILayout.HelpBox("지도 표시 경로만 편집합니다. 역 연결·운임·이동 시간은 유지됩니다. Scene 화면의 경유점을 드래그하거나 좌표를 수정하세요.", MessageType.Info);
         using (new EditorGUI.DisabledScope(Application.isPlaying))
         {
@@ -358,7 +362,7 @@ public sealed class RailRouteEditorWindow : EditorWindow
 
     void OnSceneGUI(SceneView _sceneView)
     {
-        if (Application.isPlaying || document == null || !draft || draft.points.Count < 2)
+        if (Application.isPlaying || document == null || !draft || draft.points.Count < 2 || HasOpenInstances<WorldMapEditorWindow>())
         {
             return;
         }
