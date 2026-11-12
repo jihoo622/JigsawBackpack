@@ -412,7 +412,7 @@
       "regionId": "line.regional",
       "corridorType": "trade_backbone",
       "distance": 3,
-      "cost": 6,
+      "cost": 3,
       "labelX": -440.0,
       "labelY": 165.0,
       "points": [
@@ -437,7 +437,7 @@
       "regionId": "line.regional",
       "corridorType": "trade_backbone",
       "distance": 4,
-      "cost": 6,
+      "cost": 3,
       "labelX": -114.88147,
       "labelY": 269.74408,
       "points": [
@@ -462,7 +462,7 @@
       "regionId": "line.regional",
       "corridorType": "trade_backbone",
       "distance": 6,
-      "cost": 6,
+      "cost": 3,
       "labelX": 427.368835,
       "labelY": -309.5787,
       "points": [
@@ -495,7 +495,7 @@
       "regionId": "line.regional",
       "corridorType": "trade_backbone",
       "distance": 4,
-      "cost": 6,
+      "cost": 3,
       "labelX": 190.0,
       "labelY": -80.0,
       "points": [
@@ -520,7 +520,7 @@
       "regionId": "region.capital",
       "corridorType": "trade_backbone",
       "distance": 2,
-      "cost": 6,
+      "cost": 3,
       "labelX": 280.0,
       "labelY": -80.0,
       "points": [
@@ -545,7 +545,7 @@
       "regionId": "line.regional",
       "corridorType": "express_backbone",
       "distance": 2,
-      "cost": 6,
+      "cost": 3,
       "labelX": -500.0,
       "labelY": -40.0,
       "points": [
@@ -570,7 +570,7 @@
       "regionId": "line.regional",
       "corridorType": "express_backbone",
       "distance": 1,
-      "cost": 6,
+      "cost": 3,
       "labelX": -370.0,
       "labelY": -170.0,
       "points": [
@@ -595,7 +595,7 @@
       "regionId": "line.regional",
       "corridorType": "express_backbone",
       "distance": 2,
-      "cost": 6,
+      "cost": 3,
       "labelX": -220.0,
       "labelY": -200.0,
       "points": [
@@ -620,7 +620,7 @@
       "regionId": "line.regional",
       "corridorType": "recommended_trade",
       "distance": 2,
-      "cost": 6,
+      "cost": 3,
       "labelX": -20.0,
       "labelY": 210.0,
       "points": [
@@ -645,7 +645,7 @@
       "regionId": "line.regional",
       "corridorType": "recommended_trade",
       "distance": 3,
-      "cost": 6,
+      "cost": 3,
       "labelX": 260.0,
       "labelY": -150.0,
       "points": [
@@ -670,7 +670,7 @@
       "regionId": "line.regional",
       "corridorType": "recommended_trade",
       "distance": 2,
-      "cost": 6,
+      "cost": 3,
       "labelX": -420.0,
       "labelY": -230.0,
       "points": [
@@ -695,7 +695,7 @@
       "regionId": "line.regional",
       "corridorType": "recommended_trade",
       "distance": 2,
-      "cost": 6,
+      "cost": 3,
       "labelX": -30.0,
       "labelY": -250.0,
       "points": [
@@ -720,7 +720,7 @@
       "regionId": "region.capital",
       "corridorType": "mst",
       "distance": 2,
-      "cost": 6,
+      "cost": 3,
       "labelX": 210.0,
       "labelY": 60.0,
       "points": [
@@ -745,7 +745,7 @@
       "regionId": "region.farm",
       "corridorType": "recommended_trade",
       "distance": 1,
-      "cost": 6,
+      "cost": 3,
       "labelX": -10.0,
       "labelY": -150.0,
       "points": [
@@ -770,7 +770,7 @@
       "regionId": "region.capital",
       "corridorType": "mst",
       "distance": 1,
-      "cost": 6,
+      "cost": 3,
       "labelX": 280.0,
       "labelY": -10.0,
       "points": [
@@ -795,7 +795,7 @@
       "regionId": "region.farm",
       "corridorType": "mst",
       "distance": 1,
-      "cost": 6,
+      "cost": 3,
       "labelX": -90.0,
       "labelY": -60.0,
       "points": [
@@ -820,7 +820,7 @@
       "regionId": "region.mine",
       "corridorType": "mst",
       "distance": 2,
-      "cost": 6,
+      "cost": 3,
       "labelX": -250.0,
       "labelY": 320.0,
       "points": [
@@ -849,7 +849,7 @@
       "regionId": "region.capital",
       "corridorType": "mst",
       "distance": 2,
-      "cost": 6,
+      "cost": 3,
       "labelX": 120.28,
       "labelY": 81,
       "points": [
@@ -874,7 +874,7 @@
       "regionId": "region.ranch",
       "corridorType": "mst",
       "distance": 3,
-      "cost": 6,
+      "cost": 3,
       "labelX": -255.0,
       "labelY": -325.0,
       "points": [
@@ -899,7 +899,7 @@
       "regionId": "region.industry",
       "corridorType": "mst",
       "distance": 2,
-      "cost": 6,
+      "cost": 3,
       "labelX": -660.0,
       "labelY": 30.0,
       "points": [
@@ -924,7 +924,7 @@
       "regionId": "region.coast",
       "corridorType": "mst",
       "distance": 2,
-      "cost": 6,
+      "cost": 3,
       "labelX": 520.0,
       "labelY": 140.0,
       "points": [
@@ -961,7 +961,7 @@
       "regionId": "region.coast",
       "corridorType": "mst",
       "distance": 2,
-      "cost": 6,
+      "cost": 3,
       "labelX": 470.0,
       "labelY": 270.0,
       "points": [
@@ -986,7 +986,7 @@
       "regionId": "region.industry",
       "corridorType": "mst",
       "distance": 3,
-      "cost": 6,
+      "cost": 3,
       "labelX": -590.0,
       "labelY": -50.0,
       "points": [
@@ -1011,7 +1011,7 @@
       "regionId": "line.regional",
       "corridorType": "mst",
       "distance": 1,
-      "cost": 6,
+      "cost": 3,
       "labelX": -160.0,
       "labelY": -20.0,
       "points": [
@@ -1036,7 +1036,7 @@
       "regionId": "line.regional",
       "corridorType": "recommended_trade",
       "distance": 1,
-      "cost": 6,
+      "cost": 3,
       "labelX": -270.0,
       "labelY": -60.0,
       "points": [
@@ -1061,7 +1061,7 @@
       "regionId": "region.farm",
       "corridorType": "mst",
       "distance": 2,
-      "cost": 6,
+      "cost": 3,
       "labelX": 94.955,
       "labelY": -280.0,
       "points": [
@@ -1086,7 +1086,7 @@
       "regionId": "region.ranch",
       "corridorType": "mst",
       "distance": 1,
-      "cost": 6,
+      "cost": 3,
       "labelX": -270.0,
       "labelY": -130.0,
       "points": [
@@ -1111,7 +1111,7 @@
       "regionId": "line.regional",
       "corridorType": "recommended_trade",
       "distance": 1,
-      "cost": 6,
+      "cost": 3,
       "labelX": -120.0,
       "labelY": 80.0,
       "points": [
@@ -1136,7 +1136,7 @@
       "regionId": "region.coast",
       "corridorType": "mst",
       "distance": 2,
-      "cost": 6,
+      "cost": 3,
       "labelX": 540.0,
       "labelY": -30.0,
       "points": [
@@ -1165,7 +1165,7 @@
       "regionId": "region.mine",
       "corridorType": "mst",
       "distance": 3,
-      "cost": 6,
+      "cost": 3,
       "labelX": -457.000824,
       "labelY": 278.166718,
       "points": [
@@ -1194,7 +1194,7 @@
       "regionId": "line.regional",
       "corridorType": "recommended_trade",
       "distance": 2,
-      "cost": 6,
+      "cost": 3,
       "labelX": -150.0,
       "labelY": -80.0,
       "points": [
@@ -1223,7 +1223,7 @@
       "regionId": "region.capital",
       "corridorType": "hub",
       "distance": 2,
-      "cost": 6,
+      "cost": 3,
       "labelX": 280.0,
       "labelY": 70.0,
       "points": [
@@ -1248,7 +1248,7 @@
       "regionId": "region.capital",
       "corridorType": "economy_extra",
       "distance": 2,
-      "cost": 6,
+      "cost": 3,
       "labelX": 350.0,
       "labelY": -70.0,
       "points": [
@@ -1273,7 +1273,7 @@
       "regionId": "line.regional",
       "corridorType": "recommended_trade",
       "distance": 2,
-      "cost": 6,
+      "cost": 3,
       "labelX": -380.0,
       "labelY": -90.0,
       "points": [
@@ -1298,7 +1298,7 @@
       "regionId": "line.regional",
       "corridorType": "economy_extra",
       "distance": 2,
-      "cost": 6,
+      "cost": 3,
       "labelX": 100.0,
       "labelY": -170.0,
       "points": [
@@ -1327,7 +1327,7 @@
       "regionId": "line.regional",
       "corridorType": "economy_extra",
       "distance": 2,
-      "cost": 6,
+      "cost": 3,
       "labelX": -180.0,
       "labelY": -140.0,
       "points": [
@@ -1352,7 +1352,7 @@
       "regionId": "line.regional",
       "corridorType": "economy_extra",
       "distance": 3,
-      "cost": 6,
+      "cost": 3,
       "labelX": -510.0,
       "labelY": -270.0,
       "points": [
@@ -1377,7 +1377,7 @@
       "regionId": "line.regional",
       "corridorType": "economy_extra",
       "distance": 2,
-      "cost": 6,
+      "cost": 3,
       "labelX": -40.0,
       "labelY": 20.0,
       "points": [
@@ -1402,7 +1402,7 @@
       "regionId": "line.regional",
       "corridorType": "economy_extra",
       "distance": 1,
-      "cost": 6,
+      "cost": 3,
       "labelX": 420.0,
       "labelY": 30.0,
       "points": [
@@ -1427,7 +1427,7 @@
       "regionId": "region.ranch",
       "corridorType": "economy_extra",
       "distance": 2,
-      "cost": 6,
+      "cost": 3,
       "labelX": -350.0,
       "labelY": -260.0,
       "points": [
@@ -1452,7 +1452,7 @@
       "regionId": "line.regional",
       "corridorType": "economy_extra",
       "distance": 1,
-      "cost": 6,
+      "cost": 3,
       "labelX": -100.0,
       "labelY": -160.0,
       "points": [
@@ -1477,7 +1477,7 @@
       "regionId": "line.regional",
       "corridorType": "recommended_trade",
       "distance": 2,
-      "cost": 6,
+      "cost": 3,
       "labelX": -20.0,
       "labelY": 80.0,
       "points": [
@@ -1502,7 +1502,7 @@
       "regionId": "region.industry",
       "corridorType": "regional_connection",
       "distance": 1,
-      "cost": 6,
+      "cost": 3,
       "labelX": -370.0,
       "labelY": 0.0,
       "points": [
@@ -1527,7 +1527,7 @@
       "regionId": "region.industry",
       "corridorType": "regional_connection",
       "distance": 1,
-      "cost": 6,
+      "cost": 3,
       "labelX": -490.0,
       "labelY": 40.0,
       "points": [
@@ -1552,7 +1552,7 @@
       "regionId": "region.mine",
       "corridorType": "mst",
       "distance": 2,
-      "cost": 6,
+      "cost": 3,
       "labelX": -200.0,
       "labelY": 200.0,
       "points": [
@@ -1577,7 +1577,7 @@
       "regionId": "region.capital",
       "corridorType": "mst",
       "distance": 2,
-      "cost": 6,
+      "cost": 3,
       "labelX": 150.0,
       "labelY": 0.0,
       "points": [
@@ -1602,7 +1602,7 @@
       "regionId": "line.regional",
       "corridorType": "recommended_trade",
       "distance": 3,
-      "cost": 6,
+      "cost": 3,
       "labelX": 240.0,
       "labelY": 290.0,
       "points": [
@@ -1627,7 +1627,7 @@
       "regionId": "line.regional",
       "corridorType": "recommended_trade",
       "distance": 2,
-      "cost": 6,
+      "cost": 3,
       "labelX": 130.0,
       "labelY": 200.0,
       "points": [
@@ -1652,7 +1652,7 @@
       "regionId": "line.regional",
       "corridorType": "recommended_trade",
       "distance": 3,
-      "cost": 6,
+      "cost": 3,
       "labelX": 20.0,
       "labelY": -330.0,
       "points": [
@@ -1677,7 +1677,7 @@
       "regionId": "region.industry",
       "corridorType": "mst",
       "distance": 2,
-      "cost": 6,
+      "cost": 3,
       "labelX": -670.0,
       "labelY": -95.0,
       "points": [
