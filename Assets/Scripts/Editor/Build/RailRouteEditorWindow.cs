@@ -281,13 +281,24 @@ public sealed class RailRouteEditorWindow : EditorWindow
         {
             FindMap();
         }
-        return map && map.Nodes.Length > 0 ? map.Nodes[0].transform.parent as RectTransform : null;
+        if (!map)
+        {
+            return null;
+        }
+        var serialized = new SerializedObject(map);
+        var nodes = serialized.FindProperty("nodes");
+        if (nodes == null || nodes.arraySize == 0)
+        {
+            return null;
+        }
+        var node = nodes.GetArrayElementAtIndex(0).objectReferenceValue as PuzzleMapNodeView;
+        return node ? node.transform.parent as RectTransform : null;
     }
 
     void FrameRoute()
     {
         var space = MapSpace();
-        if (!space || !SceneView.lastActiveSceneView)
+        if (!space)
         {
             return;
         }
@@ -296,7 +307,15 @@ public sealed class RailRouteEditorWindow : EditorWindow
         {
             bounds.Encapsulate(space.TransformPoint(point));
         }
-        SceneView.lastActiveSceneView.Frame(bounds, false);
+        var sceneView = SceneView.lastActiveSceneView;
+        if (!sceneView)
+        {
+            sceneView = GetWindow<SceneView>();
+        }
+        sceneView.Show();
+        sceneView.Focus();
+        sceneView.in2DMode = true;
+        sceneView.Frame(bounds, false);
     }
 
     static bool Finite(Vector2 _point)
@@ -348,33 +367,61 @@ public sealed class RailRouteEditorWindow : EditorWindow
         {
             return;
         }
+        Color previousColor = Handles.color;
+        try
+        {
+            DrawMapPreview(space);
+        }
+        finally
+        {
+            Handles.color = previousColor;
+        }
+    }
+
+    void DrawMapPreview(RectTransform _space)
+    {
+        foreach (var rail in Rails)
+        {
+            if ((string)rail["sourceId"] == draft.railId)
+            {
+                continue;
+            }
+            Handles.color = Presentation.PuzzleMapLineColor((string)rail["regionId"]);
+            Handles.DrawAAPolyLine(ReadPoints(rail).Select(_point => _space.TransformPoint(_point)).ToArray());
+        }
+        foreach (var node in document["nodes"].OfType<JObject>())
+        {
+            Vector3 world = _space.TransformPoint(new Vector2((float)node["x"], (float)node["y"]));
+            Handles.color = Presentation.PuzzleMapLineColor((string)node["regionId"]);
+            Handles.DrawWireDisc(world, _space.forward, HandleUtility.GetHandleSize(world) * 0.025f);
+            Handles.Label(world, (string)node["displayName"]);
+        }
         Handles.color = Presentation.PuzzleMapTarget;
-        Handles.DrawAAPolyLine(draft.points.Select(_point => space.TransformPoint(_point)).ToArray());
+        Handles.DrawAAPolyLine(draft.points.Select(_point => _space.TransformPoint(_point)).ToArray());
         for (int i = 0; i < draft.points.Count; i++)
         {
-            Vector3 world = space.TransformPoint(draft.points[i]);
-            Handles.Label(world, i == 0 ? CityName((string)Rail["fromCityId"]) : i == draft.points.Count - 1
-                ? CityName((string)Rail["toCityId"]) : i.ToString());
+            Vector3 world = _space.TransformPoint(draft.points[i]);
             if (i == 0 || i == draft.points.Count - 1)
             {
                 continue;
             }
+            Handles.Label(world, i.ToString());
             EditorGUI.BeginChangeCheck();
             Vector3 moved = Handles.FreeMoveHandle(world, HandleUtility.GetHandleSize(world) * 0.05f, Vector3.zero, Handles.DotHandleCap);
             if (EditorGUI.EndChangeCheck())
             {
-                SetPoint(i, space.InverseTransformPoint(moved));
+                SetPoint(i, _space.InverseTransformPoint(moved));
             }
         }
         if (editTimeLabel)
         {
-            Vector3 world = space.TransformPoint(draft.timeLabel);
+            Vector3 world = _space.TransformPoint(draft.timeLabel);
             Handles.Label(world, "시간 표시");
             EditorGUI.BeginChangeCheck();
             Vector3 moved = Handles.FreeMoveHandle(world, HandleUtility.GetHandleSize(world) * 0.05f, Vector3.zero, Handles.RectangleHandleCap);
             if (EditorGUI.EndChangeCheck())
             {
-                SetLabel(space.InverseTransformPoint(moved));
+                SetLabel(_space.InverseTransformPoint(moved));
             }
         }
     }
