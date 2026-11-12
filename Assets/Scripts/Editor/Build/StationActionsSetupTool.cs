@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEditor;
@@ -70,6 +71,33 @@ public static class StationActionsSetupTool
         var restDuration = Button(rest, template, "RestDuration", Presentation.StationRestDuration(TableManager.Instance.PuzzleTime.restMinutes));
         wait.transform.SetParent(rest, false);
         var hint = Label(rest, "RestHint", font, Presentation.StationRestHint);
+        var butcherView = (PuzzleInventoryView)inventoryData.FindProperty("butcheryView").objectReferenceValue;
+        if (!butcherView)
+        {
+            var clone = Object.Instantiate(market.gameObject, surface);
+            clone.name = "Butchery";
+            butcherView = clone.GetComponent<PuzzleInventoryView>();
+        }
+        butcherView.gameObject.name = "Butchery";
+        butcherView.transform.SetParent(surface, false);
+        butcherView.transform.localScale = Vector3.one;
+        var butcherButton = Button(list, template, "ButcheryAction", Presentation.StationButchery);
+        var butcherConfirm = Button(butcherView.transform, template, "ButcheryConfirm", Presentation.StationButcheryConfirm);
+        Label(butcherButton.transform, "ActionDescription", font, ButcheryDescription());
+        var modificationView = (PuzzleInventoryView)inventoryData.FindProperty("modificationView").objectReferenceValue;
+        if (!modificationView)
+        {
+            var clone = Object.Instantiate(market.gameObject, surface);
+            clone.name = "Modification";
+            modificationView = clone.GetComponent<PuzzleInventoryView>();
+        }
+        modificationView.gameObject.name = "Modification";
+        modificationView.transform.SetParent(surface, false);
+        modificationView.transform.localScale = Vector3.one;
+        var modificationButton = Button(list, template, "ModificationAction", Presentation.StationModification);
+        var modificationModeButton = Button(modificationView.transform, template, "ModificationMode", ModificationModeName());
+        var modificationConfirm = Button(modificationView.transform, template, "ModificationConfirm", Presentation.StationModificationConfirm);
+        Label(modificationButton.transform, "ActionDescription", font, ModificationDescription());
         market.transform.SetParent(surface, false);
         var marketData = new SerializedObject(market);
         ((TMP_Text)marketData.FindProperty("boardTitle").objectReferenceValue).gameObject.SetActive(false);
@@ -97,7 +125,24 @@ public static class StationActionsSetupTool
         Bind(data, "backLabel", back.GetComponentInChildren<TextMeshProUGUI>(true));
         Bind(data, "restDurationLabel", restDuration.GetComponentInChildren<TextMeshProUGUI>(true));
         Bind(data, "restHint", hint);
+        Bind(data, "butcheryContent", butcherView.gameObject);
+        Bind(data, "butcheryButton", butcherButton);
+        Bind(data, "butcheryConfirmButton", butcherConfirm);
+        Bind(data, "butcheryLabel", butcherButton.GetComponentInChildren<TextMeshProUGUI>(true));
+        Bind(data, "butcheryConfirmLabel", butcherConfirm.GetComponentInChildren<TextMeshProUGUI>(true));
+        Bind(data, "butcheryHint", new SerializedObject(butcherView).FindProperty("boardValue").objectReferenceValue);
+        Bind(data, "modificationContent", modificationView.gameObject);
+        Bind(data, "modificationButton", modificationButton);
+        Bind(data, "modificationModeButton", modificationModeButton);
+        Bind(data, "modificationConfirmButton", modificationConfirm);
+        Bind(data, "modificationLabel", modificationButton.GetComponentInChildren<TextMeshProUGUI>(true));
+        Bind(data, "modificationModeLabel", modificationModeButton.GetComponentInChildren<TextMeshProUGUI>(true));
+        Bind(data, "modificationConfirmLabel", modificationConfirm.GetComponentInChildren<TextMeshProUGUI>(true));
+        Bind(data, "modificationHint", new SerializedObject(modificationView).FindProperty("boardValue").objectReferenceValue);
         data.ApplyModifiedPropertiesWithoutUndo();
+        Bind(inventoryData, "butcheryView", butcherView);
+        Bind(inventoryData, "modificationView", modificationView);
+        inventoryData.ApplyModifiedPropertiesWithoutUndo();
         var presenter = Component<PuzzleStationActionsPresenter>(host);
         var presenterData = new SerializedObject(presenter);
         Bind(presenterData, "view", view);
@@ -106,8 +151,31 @@ public static class StationActionsSetupTool
         market.gameObject.SetActive(false);
         rest.gameObject.SetActive(false);
         tavern.gameObject.SetActive(false);
+        butcherView.gameObject.SetActive(false);
+        butcherButton.gameObject.SetActive(false);
+        modificationView.gameObject.SetActive(false);
+        modificationButton.gameObject.SetActive(false);
         back.gameObject.SetActive(false);
         PuzzleUiLayoutTool.ApplyTo(_scene);
+    }
+
+    static string ButcheryDescription()
+    {
+        var action = TableManager.Instance.CityActions.FirstOrDefault(_entry => _entry.type == "Butchery");
+        return action != null ? action.description : string.Empty;
+    }
+
+    static string ModificationDescription()
+    {
+        var action = TableManager.Instance.CityActions.FirstOrDefault(_entry => _entry.type == "Modification");
+        return action != null ? action.description : string.Empty;
+    }
+
+    static string ModificationModeName()
+    {
+        var action = TableManager.Instance.CityActions.FirstOrDefault(_entry => _entry.type == "Modification");
+        var modes = action?.modes ?? System.Array.Empty<PuzzleActionModeData>();
+        return modes.Length > 0 ? modes[0].displayName : string.Empty;
     }
 
     static void ApplyActionIcon(Button _button, string _spritePath)

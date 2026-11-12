@@ -125,9 +125,14 @@ public static class PuzzleUiLayoutTool
         }
         var content = Rect(surface, "StationBody");
         Fill(content, N("padding"), N("headerHeight") + N("gap"), N("padding"), N("padding"));
-        foreach (string field in new[] { "actionsList", "marketContent", "restContent", "tavernContent" })
+        foreach (string field in new[] { "actionsList", "marketContent", "restContent", "tavernContent",
+            "butcheryContent", "modificationContent" })
         {
             var target = stationFields.FindProperty(field).objectReferenceValue;
+            if (!target)
+            {
+                continue;
+            }
             var rect = target is GameObject gameObject ? (RectTransform)gameObject.transform : (RectTransform)target;
             rect.SetParent(content, false);
             Fill(rect, 0f, 0f, 0f, 0f);
@@ -137,6 +142,8 @@ public static class PuzzleUiLayoutTool
         ApplyActions(stationFields, font);
         ApplyRest(stationFields, cityFields);
         ApplyTavern(cityFields);
+        ApplyButchery(stationFields, fields);
+        ApplyModification(stationFields, fields);
         ApplyHeader((RectTransform)canvas.transform, city, cityFields);
         ApplyFooter((RectTransform)canvas.transform, cityFields);
         ApplyTooltip((PuzzleItemTooltipView)fields.FindProperty("tooltipView").objectReferenceValue);
@@ -146,6 +153,16 @@ public static class PuzzleUiLayoutTool
         ((GameObject)stationFields.FindProperty("marketContent").objectReferenceValue).SetActive(false);
         ((GameObject)stationFields.FindProperty("restContent").objectReferenceValue).SetActive(false);
         ((RectTransform)stationFields.FindProperty("tavernContent").objectReferenceValue).gameObject.SetActive(false);
+        var butchery = stationFields.FindProperty("butcheryContent").objectReferenceValue as GameObject;
+        if (butchery)
+        {
+            butchery.SetActive(false);
+        }
+        var modification = stationFields.FindProperty("modificationContent").objectReferenceValue as GameObject;
+        if (modification)
+        {
+            modification.SetActive(false);
+        }
         back.gameObject.SetActive(false);
         title.text = Presentation.StationActionsTitle;
         Canvas.ForceUpdateCanvases();
@@ -200,43 +217,61 @@ public static class PuzzleUiLayoutTool
         Configure(layout, N("actionGap"), 0);
         foreach (string action in new[] { "market", "tavern", "rest", "travel" })
         {
-            var button = (Button)_fields.FindProperty(action + "Button").objectReferenceValue;
-            Flex((RectTransform)button.transform, N("actionHeight"));
-            Button(button);
-            var label = (TMP_Text)_fields.FindProperty(action + "Label").objectReferenceValue;
-            label.rectTransform.anchorMin = new Vector2(0f, 1f);
-            label.rectTransform.anchorMax = Vector2.one;
-            label.rectTransform.pivot = new Vector2(0.5f, 1f);
-            label.rectTransform.offsetMin = new Vector2(N("actionTextLeft"), -N("actionTitleBottom"));
-            label.rectTransform.offsetMax = new Vector2(-N("padding"), -N("actionTextTop"));
-            Text(label, N("actionFont"), TextAlignmentOptions.MidlineLeft);
-            var description = Add<TextMeshProUGUI>(Rect(button.transform, "ActionDescription"));
-            description.font = _font;
-            description.text = Presentation.LayoutText(action + "Description");
-            description.rectTransform.anchorMin = Vector2.zero;
-            description.rectTransform.anchorMax = Vector2.one;
-            description.rectTransform.offsetMin = new Vector2(N("actionTextLeft"), N("actionDescriptionBottom"));
-            description.rectTransform.offsetMax = new Vector2(-N("padding"), -N("actionDescriptionTop"));
-            Text(description, N("smallFont"), TextAlignmentOptions.MidlineLeft, true);
-            var icon = button.transform.Find("ActionIcon") as RectTransform;
-            if (icon)
-            {
-                icon.anchorMin = icon.anchorMax = new Vector2(0f, 0.5f);
-                icon.pivot = Vector2.one * 0.5f;
-                icon.anchoredPosition = new Vector2(N("actionIconX"), 0f);
-                icon.sizeDelta = Vector2.one * N("actionIconSize");
-            }
-            else
-            {
-                var badge = Add<TextMeshProUGUI>(Rect(button.transform, "ActionNumber"));
-                badge.font = _font;
-                badge.text = Presentation.LayoutText(action + "Badge");
-                badge.rectTransform.anchorMin = badge.rectTransform.anchorMax = new Vector2(0f, 0.5f);
-                badge.rectTransform.anchoredPosition = new Vector2(N("actionIconX"), 0f);
-                badge.rectTransform.sizeDelta = Vector2.one * N("actionIconSize");
-                Text(badge, N("actionFont"), TextAlignmentOptions.Center);
-                badge.color = C("accent");
-            }
+            ApplyActionButton(_fields, action, _font, true);
+        }
+        ApplyActionButton(_fields, "butchery", _font, false);
+        ApplyActionButton(_fields, "modification", _font, false);
+    }
+
+    static void ApplyActionButton(SerializedObject _fields, string _action, TMP_FontAsset _font, bool _marked)
+    {
+        var button = (Button)_fields.FindProperty(_action + "Button").objectReferenceValue;
+        if (!button)
+        {
+            return;
+        }
+        Flex((RectTransform)button.transform, N("actionHeight"));
+        Button(button);
+        var label = (TMP_Text)_fields.FindProperty(_action + "Label").objectReferenceValue;
+        label.rectTransform.anchorMin = new Vector2(0f, 1f);
+        label.rectTransform.anchorMax = Vector2.one;
+        label.rectTransform.pivot = new Vector2(0.5f, 1f);
+        label.rectTransform.offsetMin = new Vector2(N("actionTextLeft"), -N("actionTitleBottom"));
+        label.rectTransform.offsetMax = new Vector2(-N("padding"), -N("actionTextTop"));
+        Text(label, N("actionFont"), TextAlignmentOptions.MidlineLeft);
+        var description = Add<TextMeshProUGUI>(Rect(button.transform, "ActionDescription"));
+        description.font = _font;
+        if (_marked)
+        {
+            description.text = Presentation.LayoutText(_action + "Description");
+        }
+        description.rectTransform.anchorMin = Vector2.zero;
+        description.rectTransform.anchorMax = Vector2.one;
+        description.rectTransform.offsetMin = new Vector2(N("actionTextLeft"), N("actionDescriptionBottom"));
+        description.rectTransform.offsetMax = new Vector2(-N("padding"), -N("actionDescriptionTop"));
+        Text(description, N("smallFont"), TextAlignmentOptions.MidlineLeft, true);
+        if (!_marked)
+        {
+            return;
+        }
+        var icon = button.transform.Find("ActionIcon") as RectTransform;
+        if (icon)
+        {
+            icon.anchorMin = icon.anchorMax = new Vector2(0f, 0.5f);
+            icon.pivot = Vector2.one * 0.5f;
+            icon.anchoredPosition = new Vector2(N("actionIconX"), 0f);
+            icon.sizeDelta = Vector2.one * N("actionIconSize");
+        }
+        else
+        {
+            var badge = Add<TextMeshProUGUI>(Rect(button.transform, "ActionNumber"));
+            badge.font = _font;
+            badge.text = Presentation.LayoutText(_action + "Badge");
+            badge.rectTransform.anchorMin = badge.rectTransform.anchorMax = new Vector2(0f, 0.5f);
+            badge.rectTransform.anchoredPosition = new Vector2(N("actionIconX"), 0f);
+            badge.rectTransform.sizeDelta = Vector2.one * N("actionIconSize");
+            Text(badge, N("actionFont"), TextAlignmentOptions.Center);
+            badge.color = C("accent");
         }
     }
 
@@ -254,6 +289,68 @@ public static class PuzzleUiLayoutTool
         Flex(hint.rectTransform, N("restHintHeight"));
         Text(hint, N("bodyFont"), TextAlignmentOptions.TopLeft, true);
         hint.transform.SetAsLastSibling();
+    }
+
+    static void ApplyButchery(SerializedObject _station, SerializedObject _inventory)
+    {
+        var root = _station.FindProperty("butcheryContent").objectReferenceValue as GameObject;
+        if (!root)
+        {
+            return;
+        }
+        var view = (PuzzleInventoryView)_inventory.FindProperty("butcheryView").objectReferenceValue;
+        var fields = new SerializedObject(view);
+        ((TMP_Text)fields.FindProperty("boardTitle").objectReferenceValue).gameObject.SetActive(false);
+        ((TMP_Text)fields.FindProperty("itemDetails").objectReferenceValue).gameObject.SetActive(false);
+        ((TMP_Text)fields.FindProperty("moveGuide").objectReferenceValue).gameObject.SetActive(false);
+        var value = (TMP_Text)fields.FindProperty("boardValue").objectReferenceValue;
+        StretchTop(value.rectTransform, 0f, N("butcheryInfoY"), N("butcheryInfoHeight"));
+        Text(value, N("bodyFont"), TextAlignmentOptions.MidlineLeft);
+        var board = ((UnityEngine.UI.Image)fields.FindProperty("board").objectReferenceValue).rectTransform;
+        TopCenter(board, N("butcheryBoardTop"), N("butcheryBoardSize"), N("butcheryBoardSize"), true);
+        var confirm = (Button)_station.FindProperty("butcheryConfirmButton").objectReferenceValue;
+        if (!confirm)
+        {
+            return;
+        }
+        Bottom((RectTransform)confirm.transform, N("butcheryButtonBottom"), N("butcheryButtonHeight"));
+        Button(confirm);
+    }
+
+    static void ApplyModification(SerializedObject _station, SerializedObject _inventory)
+    {
+        var root = _station.FindProperty("modificationContent").objectReferenceValue as GameObject;
+        if (!root)
+        {
+            return;
+        }
+        var view = (PuzzleInventoryView)_inventory.FindProperty("modificationView").objectReferenceValue;
+        if (!view)
+        {
+            return;
+        }
+        var fields = new SerializedObject(view);
+        ((TMP_Text)fields.FindProperty("boardTitle").objectReferenceValue).gameObject.SetActive(false);
+        ((TMP_Text)fields.FindProperty("itemDetails").objectReferenceValue).gameObject.SetActive(false);
+        ((TMP_Text)fields.FindProperty("moveGuide").objectReferenceValue).gameObject.SetActive(false);
+        var mode = (Button)_station.FindProperty("modificationModeButton").objectReferenceValue;
+        if (mode)
+        {
+            StretchTop((RectTransform)mode.transform, 0f, N("modificationModeTop"), N("modificationModeHeight"));
+            Button(mode);
+        }
+        var value = (TMP_Text)fields.FindProperty("boardValue").objectReferenceValue;
+        StretchTop(value.rectTransform, 0f, N("modificationInfoY"), N("modificationInfoHeight"));
+        Text(value, N("bodyFont"), TextAlignmentOptions.MidlineLeft);
+        var board = ((UnityEngine.UI.Image)fields.FindProperty("board").objectReferenceValue).rectTransform;
+        TopCenter(board, N("modificationBoardTop"), N("modificationBoardSize"), N("modificationBoardSize"), true);
+        var confirm = (Button)_station.FindProperty("modificationConfirmButton").objectReferenceValue;
+        if (!confirm)
+        {
+            return;
+        }
+        Bottom((RectTransform)confirm.transform, N("modificationButtonBottom"), N("modificationButtonHeight"));
+        Button(confirm);
     }
 
     static void ApplyTavern(SerializedObject _city)

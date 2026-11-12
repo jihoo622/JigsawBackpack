@@ -79,6 +79,7 @@ public static class GameEvents
         /// <summary>진행 후 누적 경과 시간.</summary>
         public readonly long elapsedMinutes;
         internal readonly decimal? cargoValueBeforeSettlement;
+        internal readonly decimal? cargoValueBeforeFreshnessLoss;
         /// <summary>이번 행동으로 경과한 시간. 신선도·내구도 갱신에 사용한다.</summary>
         public long DeltaMinutes => elapsedMinutes - previousMinutes;
         public decimal DeltaHours => DeltaMinutes / (decimal)PuzzleTimeManager.MINUTES_PER_HOUR;
@@ -86,12 +87,13 @@ public static class GameEvents
 
         /// <summary>시간 변화 전후의 누적 시간을 보관한다.</summary>
         public TimeAdvanceInfo(long _previousMinutes, long _elapsedMinutes, PuzzleInventoryService _session = null,
-            decimal? _cargoValueBeforeSettlement = null)
+            decimal? _cargoValueBeforeSettlement = null, decimal? _cargoValueBeforeFreshnessLoss = null)
         {
             session = _session;
             previousMinutes = _previousMinutes;
             elapsedMinutes = _elapsedMinutes;
             cargoValueBeforeSettlement = _cargoValueBeforeSettlement;
+            cargoValueBeforeFreshnessLoss = _cargoValueBeforeFreshnessLoss;
         }
     }
 
@@ -154,9 +156,10 @@ public static class GameEvents
     /// <param name="_elapsedMinutes">진행 후 누적 경과 시간.</param>
     /// <param name="_session">시간을 확정한 세션. 소비자는 자신이 속한 세션인지 확인한다.</param>
     public static void RaiseTimeAdvanced(long _previousMinutes, long _elapsedMinutes, PuzzleInventoryService _session = null,
-        decimal? _cargoValueBeforeSettlement = null)
+        decimal? _cargoValueBeforeSettlement = null, decimal? _cargoValueBeforeFreshnessLoss = null)
     {
-        Emit(TimeAdvanced, new TimeAdvanceInfo(_previousMinutes, _elapsedMinutes, _session, _cargoValueBeforeSettlement));
+        Emit(TimeAdvanced, new TimeAdvanceInfo(_previousMinutes, _elapsedMinutes, _session, _cargoValueBeforeSettlement,
+            _cargoValueBeforeFreshnessLoss));
     }
 
     public readonly struct CityArrivalInfo
@@ -232,11 +235,104 @@ public static class GameEvents
         }
     }
 
+    public readonly struct FundsInfo
+    {
+        public readonly PuzzleInventoryService session;
+        public readonly long funds;
+
+        public FundsInfo(PuzzleInventoryService _session, long _funds)
+        {
+            session = _session;
+            funds = _funds;
+        }
+    }
+
+    /// <summary>마을 도축대의 상태·화물 변화. 확인·완료·회수 직후 발행된다.</summary>
+    public readonly struct ButcheryInfo
+    {
+        /// <summary>도축대를 소유한 세션. 다른 씬의 이벤트를 구분하는 데 사용한다.</summary>
+        public readonly PuzzleInventoryService session;
+        /// <summary>도축대가 있는 도시.</summary>
+        public readonly string cityId;
+        /// <summary>변화 후 상태.</summary>
+        public readonly PuzzleButcheryPhase phase;
+        /// <summary>변화 후 보드 조작을 받는 여부.</summary>
+        public readonly bool open;
+
+        public ButcheryInfo(PuzzleInventoryService _session, string _cityId, PuzzleButcheryPhase _phase, bool _open)
+        {
+            session = _session;
+            cityId = _cityId;
+            phase = _phase;
+            open = _open;
+        }
+    }
+
+    /// <summary>마을 개조대의 상태·화물 변화. 모드 선택·확정 직후 발행된다.</summary>
+    public readonly struct ModificationInfo
+    {
+        /// <summary>개조대를 소유한 세션. 다른 씬의 이벤트를 구분하는 데 사용한다.</summary>
+        public readonly PuzzleInventoryService session;
+        /// <summary>개조대가 있는 도시.</summary>
+        public readonly string cityId;
+        /// <summary>변화 후 개조 모드가 선택된 상태인지 여부.</summary>
+        public readonly bool modeSelected;
+        /// <summary>변화 후 보드 조작을 받는 여부.</summary>
+        public readonly bool open;
+
+        public ModificationInfo(PuzzleInventoryService _session, string _cityId, bool _modeSelected, bool _open)
+        {
+            session = _session;
+            cityId = _cityId;
+            modeSelected = _modeSelected;
+            open = _open;
+        }
+    }
+
+    /// <summary>도축 확정 사건. 입력 화물을 소진하고 작업이 시작된 시점의 스냅샷이다.</summary>
+    public readonly struct ButcheryCommittedInfo
+    {
+        public readonly string actionId, cityId;
+        public readonly int inputCount;
+        public readonly long readyAtMinutes;
+        public readonly double time;
+
+        public ButcheryCommittedInfo(string _actionId, string _cityId, int _inputCount, long _readyAtMinutes, double _time)
+        {
+            actionId = _actionId;
+            cityId = _cityId;
+            inputCount = _inputCount;
+            readyAtMinutes = _readyAtMinutes;
+            time = _time;
+        }
+    }
+
+    /// <summary>도축 완료 사건. 산출물이 보드에 놓여 회수 대기 상태가 된 시점의 스냅샷이다.</summary>
+    public readonly struct ButcheryReadyInfo
+    {
+        public readonly string actionId, cityId;
+        public readonly int outputCount;
+        public readonly double time;
+
+        public ButcheryReadyInfo(string _actionId, string _cityId, int _outputCount, double _time)
+        {
+            actionId = _actionId;
+            cityId = _cityId;
+            outputCount = _outputCount;
+            time = _time;
+        }
+    }
+
     // ── 이벤트 ──
     public static event Action<SceneInfo> SceneChanged;
     public static event Action<UpgradeInfo> UpgradeGranted;
     public static event Action<PanelInfo> PanelVisibility;
     public static event Action<TradeInfo> TradeCompleted;
+    public static event Action<FundsInfo> FundsChanged;
+    public static event Action<ButcheryInfo> ButcheryChanged;
+    public static event Action<ModificationInfo> ModificationChanged;
+    public static event Action<ButcheryCommittedInfo> ButcheryCommitted;
+    public static event Action<ButcheryReadyInfo> ButcheryReady;
 
     // ── 발행 ──
     public static void RaiseUpgradeGranted(UpgradeData _upgrade)
@@ -254,6 +350,31 @@ public static class GameEvents
     public static void RaiseTradeCompleted(TradeInfo _info)
     {
         Emit(TradeCompleted, _info);
+    }
+    public static void RaiseFundsChanged(PuzzleInventoryService _session, long _previousFunds)
+    {
+        if (_session.Funds != _previousFunds)
+        {
+            Emit(FundsChanged, new FundsInfo(_session, _session.Funds));
+        }
+    }
+    public static void RaiseButcheryChanged(PuzzleInventoryService _session, string _cityId,
+        PuzzleButcheryPhase _phase, bool _open)
+    {
+        Emit(ButcheryChanged, new ButcheryInfo(_session, _cityId, _phase, _open));
+    }
+    public static void RaiseModificationChanged(PuzzleInventoryService _session, string _cityId,
+        bool _modeSelected, bool _open)
+    {
+        Emit(ModificationChanged, new ModificationInfo(_session, _cityId, _modeSelected, _open));
+    }
+    public static void RaiseButcheryCommitted(string _actionId, string _cityId, int _inputCount, long _readyAtMinutes)
+    {
+        Emit(ButcheryCommitted, new ButcheryCommittedInfo(_actionId, _cityId, _inputCount, _readyAtMinutes, TelemetryLog.GameTime));
+    }
+    public static void RaiseButcheryReady(string _actionId, string _cityId, int _outputCount)
+    {
+        Emit(ButcheryReady, new ButcheryReadyInfo(_actionId, _cityId, _outputCount, TelemetryLog.GameTime));
     }
 
     // 구독자 하나가 예외를 던져도 나머지 구독자와 게임 진행은 멈추지 않는다.
@@ -295,10 +416,15 @@ public static class GameEvents
         UpgradeGranted = null;
         PanelVisibility = null;
         TradeCompleted = null;
+        FundsChanged = null;
         CityArrived = null;
         TimeAdvanced = null;
         TravelPreviewChanged = null;
         MapRequested = null;
+        ButcheryChanged = null;
+        ModificationChanged = null;
+        ButcheryCommitted = null;
+        ButcheryReady = null;
         TavernRumorRecorded = null;
         sequence = 0;
         SceneManager.sceneLoaded -= OnSceneLoaded;

@@ -22,6 +22,8 @@ public sealed class TelemetryRecorder : MonoBehaviour
         GameEvents.SceneChanged += OnSceneChanged;
         GameEvents.UpgradeGranted += OnUpgradeGranted;
         GameEvents.PanelVisibility += OnPanelVisibility;
+        GameEvents.ButcheryCommitted += OnButcheryCommitted;
+        GameEvents.ButcheryReady += OnButcheryReady;
         GameEvents.PuzzleRunStarted += OnPuzzleRunStarted;
         GameEvents.PuzzleRunEnded += OnPuzzleRunEnded;
         GameEvents.PuzzleActionCommitted += OnPuzzleAction;
@@ -35,6 +37,8 @@ public sealed class TelemetryRecorder : MonoBehaviour
         GameEvents.SceneChanged -= OnSceneChanged;
         GameEvents.UpgradeGranted -= OnUpgradeGranted;
         GameEvents.PanelVisibility -= OnPanelVisibility;
+        GameEvents.ButcheryCommitted -= OnButcheryCommitted;
+        GameEvents.ButcheryReady -= OnButcheryReady;
         GameEvents.PuzzleRunStarted -= OnPuzzleRunStarted;
         GameEvents.PuzzleRunEnded -= OnPuzzleRunEnded;
         GameEvents.PuzzleActionCommitted -= OnPuzzleAction;
@@ -133,5 +137,15 @@ public sealed class TelemetryRecorder : MonoBehaviour
                 reason = _reason
             });
         }
+    }
+
+    void OnButcheryCommitted(GameEvents.ButcheryCommittedInfo _info)
+    {
+        TelemetryLog.Write(TelemetryEvents.BUTCHERY_COMMITTED, TelemetryPayload.ButcheryCommitted(_info));
+    }
+
+    void OnButcheryReady(GameEvents.ButcheryReadyInfo _info)
+    {
+        TelemetryLog.Write(TelemetryEvents.BUTCHERY_READY, TelemetryPayload.ButcheryReady(_info));
     }
 }

@@ -126,6 +126,8 @@ MonoBehaviour:
     sprite: {fileID: 21300000, guid: 61a7b4b5df5e476eaf6448c811d7db7a, type: 3}
   - key: cargo.cow
     sprite: {fileID: 21300000, guid: cc36a9b6cfa54830a57c3299ead2336d, type: 3}
+  - key: cargo.babyCow
+    sprite: {fileID: 21300000, guid: 814398c171174efd8f67c6645466a902, type: 3}
   - key: cargo.apple
     sprite: {fileID: 21300000, guid: bfb17e1e7a1045748c0b017c1e0cc695, type: 3}
   - key: cargo.poo

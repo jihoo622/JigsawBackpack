@@ -184,7 +184,7 @@ public sealed class PuzzleItemTooltipView : PanelBase
                 {
                     if (i < effectCount)
                     {
-                        synergySlots[i].text = Presentation.PuzzleTooltipEffectDescription(_effects[i]);
+                        synergySlots[i].text = _effects[i];
                         synergySlots[i].gameObject.SetActive(true);
                     }
                     else
