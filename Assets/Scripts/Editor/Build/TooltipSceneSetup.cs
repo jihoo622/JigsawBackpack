@@ -317,6 +317,10 @@ public static class TooltipSceneSetup
             out TextMeshProUGUI actualValLabel, out TextMeshProUGUI actualValValue);
         CreateValueRow("FreshnessRow", body.transform, _fontAsset, "신선도", "100",
             out TextMeshProUGUI freshnessLabel, out TextMeshProUGUI freshnessValue);
+        CreateBottomRule(freshnessLabel.transform.parent);
+        CreateValueRow("ShelfLifeRow", body.transform, _fontAsset, "유통기한", "48시간",
+            out TextMeshProUGUI shelfLifeLabel, out TextMeshProUGUI shelfLifeValue);
+        CreateBottomRule(shelfLifeLabel.transform.parent);
         CreateValueRow("SellRateRow", body.transform, _fontAsset, "판매 배율", "100%",
             out TextMeshProUGUI sellRateLabel, out TextMeshProUGUI sellRateValue);
         CreateValueRow("BuyRateRow", body.transform, _fontAsset, "판매 금액", "$ 100",
@@ -385,6 +389,9 @@ public static class TooltipSceneSetup
         viewSerialized.FindProperty("freshnessLabelText").objectReferenceValue = freshnessLabel;
         viewSerialized.FindProperty("freshnessValueText").objectReferenceValue = freshnessValue;
         freshnessLabel.transform.parent.gameObject.SetActive(false);
+        viewSerialized.FindProperty("shelfLifeLabelText").objectReferenceValue = shelfLifeLabel;
+        viewSerialized.FindProperty("shelfLifeValueText").objectReferenceValue = shelfLifeValue;
+        shelfLifeLabel.transform.parent.gameObject.SetActive(false);
         viewSerialized.FindProperty("sellRateLabelText").objectReferenceValue = sellRateLabel;
         viewSerialized.FindProperty("sellRateValueText").objectReferenceValue = sellRateValue;
         viewSerialized.FindProperty("buyRateLabelText").objectReferenceValue = buyRateLabel;
@@ -459,6 +466,21 @@ public static class TooltipSceneSetup
         tmp.raycastTarget = false;
         tmp.color = Presentation.PuzzleTooltipText;
         return tmp;
+    }
+
+    static void CreateBottomRule(Transform _row)
+    {
+        var rule = new GameObject("Bottom Rule", typeof(RectTransform), typeof(Image), typeof(LayoutElement));
+        var rect = rule.GetComponent<RectTransform>();
+        rect.SetParent(_row, false);
+        rect.anchorMin = Vector2.zero;
+        rect.anchorMax = Vector2.right;
+        rect.anchoredPosition = new Vector2(0f, -5f);
+        rect.sizeDelta = new Vector2(0f, 1f);
+        var image = rule.GetComponent<Image>();
+        image.color = Presentation.PuzzleTooltipDivider;
+        image.raycastTarget = false;
+        rule.GetComponent<LayoutElement>().ignoreLayout = true;
     }
 
     // 라벨은 왼쪽, 수치는 오른쪽으로 붙이는 2-텍스트 행.

@@ -9,6 +9,7 @@ public sealed class PuzzleInventoryService : MonoBehaviour
     const int PERCENT_SCALE = 100;
     static string AnimalTag => BasicData.Text("rules.PuzzleInventoryService.animalTag");
     static string AnimalWastePieceId => BasicData.Text("rules.PuzzleInventoryService.animalWastePieceId");
+    static string ExpiredFoodPieceId => BasicData.Text("rules.PuzzleInventoryService.expiredFoodPieceId");
 
     TableManager tables;
     Dictionary<string, PuzzleInventory> markets;
@@ -450,7 +451,7 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         }
         var currentWagon = Train;
         decimal? cargoValueBeforeSettlement = activations > 0
-            ? currentWagon.Placements.Sum(item => item.ActualValue) : null;
+            ? currentWagon.Placements.Sum(item => item.FreshnessAdjustedValue) : null;
         foreach (var wagon in trainWagons)
         {
             if (!wagon.ApplySynergyActivations(activations) && wagon == currentWagon)
@@ -459,11 +460,16 @@ public sealed class PuzzleInventoryService : MonoBehaviour
             }
         }
         Time.Advance(_minutes);
+        definitions.TryGetValue(ExpiredFoodPieceId, out var waste);
         foreach (var wagon in trainWagons)
         {
             foreach (var item in wagon.Placements)
             {
                 item.ApplyElapsedMinutes(_minutes);
+            }
+            if (_minutes > 0 && waste != null)
+            {
+                wagon.ReplaceExpiredFood(waste);
             }
         }
         if (Time.IsOverdue)
@@ -673,8 +679,20 @@ public sealed class PuzzleInventoryService : MonoBehaviour
             return false;
         }
         var rate = RateFor(_item.Definition);
-        decimal value = _direction == PuzzleTradeDirection.Buy ? _item.Definition.BaseValue : _item.ActualValue;
+        decimal value = _direction == PuzzleTradeDirection.Buy ? _item.Definition.BaseValue : _item.FreshnessAdjustedValue;
         return TryGetTradePrice(value, rate.PercentFor(_direction), RegionData.pricePercent, out _price);
+    }
+
+    internal decimal PreviewCargoValue(PuzzlePlacement _item, long _minutes, long _activations)
+    {
+        int? freshness = _item.FreshnessPercentAfter(_minutes);
+        if (freshness == 0 && _item.RemainingShelfLifeMinutes.HasValue)
+        {
+            return definitions[ExpiredFoodPieceId].BaseValue;
+        }
+        var value = _item.Owner.ValueOf(_item.InstanceId);
+        decimal settledValue = checked(_item.ActualValue + (value.FinalValue - value.BaseValue) * _activations);
+        return PuzzlePlacement.ApplyFreshnessToValue(settledValue, freshness);
     }
 
     static bool TryGetTradePrice(decimal _value, int _percent, int _regionPercent, out long _price)

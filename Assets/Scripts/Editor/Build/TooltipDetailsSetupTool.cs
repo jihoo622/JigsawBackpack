@@ -122,7 +122,19 @@ public static class TooltipDetailsSetupTool
         active.enableAutoSizing = false;
         active.fontStyle = FontStyles.Normal;
         active.raycastTarget = false;
-        active.text = Presentation.PuzzleNoActiveEffects;
+        active.text = Presentation.PuzzleTooltipActiveEffectsTitle;
+
+        var message = activeSection.Find("ActiveEffectsMessage")?.GetComponent<TextMeshProUGUI>();
+        if (!message)
+        {
+            var template = (TextMeshProUGUI)data.FindProperty("synergySlots").GetArrayElementAtIndex(0).objectReferenceValue;
+            message = Object.Instantiate(template, activeSection);
+            message.name = "ActiveEffectsMessage";
+        }
+        message.transform.SetSiblingIndex(1);
+        message.color = Presentation.PuzzleTooltipText;
+        message.text = Presentation.PuzzleNoActiveEffects;
+        message.gameObject.SetActive(false);
 
         var activeList = activeSection.Find("ActiveEffectsList") as RectTransform;
         if (!activeList)
@@ -131,7 +143,7 @@ public static class TooltipDetailsSetupTool
             activeList = listObj.GetComponent<RectTransform>();
             activeList.SetParent(activeSection, false);
         }
-        activeList.transform.SetSiblingIndex(1);
+        activeList.transform.SetSiblingIndex(2);
         var activeListLayout = activeList.GetComponent<VerticalLayoutGroup>();
         if (!activeListLayout)
         {
@@ -162,6 +174,7 @@ public static class TooltipDetailsSetupTool
         EnsureBottomRule(activeSection, -8f);
         data.FindProperty("activeEffectsSection").objectReferenceValue = activeSection;
         data.FindProperty("activeEffectsText").objectReferenceValue = active;
+        data.FindProperty("activeEffectsMessageText").objectReferenceValue = message;
         data.FindProperty("activeEffectsListRoot").objectReferenceValue = activeList;
         data.ApplyModifiedPropertiesWithoutUndo();
         PrefabUtility.RecordPrefabInstancePropertyModifications(_view);

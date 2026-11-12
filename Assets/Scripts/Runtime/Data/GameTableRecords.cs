@@ -82,6 +82,7 @@ public sealed class PuzzlePieceData
     public int slotCount = -1;
     // 내구도 시작값. 누락이 정상값으로 위장되지 않도록 검증용 값으로 둔다.
     public int durability = -1;
+    public int shelfLifeHours;
     public PuzzleCellData[] cells = Array.Empty<PuzzleCellData>();
 }
 

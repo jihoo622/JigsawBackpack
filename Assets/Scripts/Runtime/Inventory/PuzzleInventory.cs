@@ -134,7 +134,7 @@ public sealed class PuzzleInventory
         {
             // 원본과 대상의 현재 점유를 확인한 뒤 같은 호출에서 소속과 점유를 함께 바꾼다.
             var placement = new PuzzlePlacement(_original.InstanceId, _original.Definition, _destination, result.Candidate,
-                _original.ActualValue, _original.OwnedMinutes, _original.Durability)
+                _original.ActualValue, _original.OwnedMinutes, _original.Durability, _original.ShelfLifeElapsedMinutes)
             {
                 HasUnreadSynergySettlement = _original.HasUnreadSynergySettlement
             };
@@ -149,6 +149,30 @@ public sealed class PuzzleInventory
         }
 
         return result;
+    }
+
+    internal void ReplaceExpiredFood(PuzzleItemDefinition _waste)
+    {
+        bool replaced = false;
+        foreach (var expired in placements.Values.Where(item => item.RemainingShelfLifeMinutes == 0).ToArray())
+        {
+            // 기존 식품이 실제로 점유하던 칸에서 교체한다. 회전된 모양의 원점은 빈 칸일 수 있다.
+            var target = expired.Pose.Cells[0].Position;
+            if (CreatePoseAtSlot(_waste.Cells, _waste.Cells[0], target, 0, out var pose) != PuzzlePlacementFailure.None ||
+                CheckPlacement(pose.Cells, expired.InstanceId) != PuzzlePlacementFailure.None)
+            {
+                continue;
+            }
+
+            ClearOccupancy(expired);
+            StorePlacement(new PuzzlePlacement(expired.InstanceId, _waste, this, pose, _waste.BaseValue, 0));
+            replaced = true;
+        }
+
+        if (replaced)
+        {
+            RecalculateValue();
+        }
     }
 
     // 비어 있는 첫 칸에 조각을 새로 올려 배치한다. 마땅한 빈 칸이 없으면 false.

@@ -2090,7 +2090,7 @@
           "a": 1.0
         },
         {
-          "id": "pooBackground",
+          "id": "wasteBackground",
           "r": 0.3764705882352941,
           "g": 0.25098039215686274,
           "b": 0.14901960784313725,
@@ -2192,7 +2192,7 @@
           "whole": true
         },
         {
-          "id": "pooPriority",
+          "id": "wastePriority",
           "value": 22,
           "whole": true
         },
@@ -2259,8 +2259,8 @@
           "value": "금속"
         },
         {
-          "id": "pooLabel",
-          "value": "똥"
+          "id": "wasteLabel",
+          "value": "거름"
         },
         {
           "id": "puzzleTagCommon",
@@ -2438,6 +2438,16 @@
           "arguments": 2
         },
         {
+          "id": "shelfLifeLabel",
+          "value": "<color=#{0}>유통기한</color>",
+          "arguments": 1
+        },
+        {
+          "id": "shelfLifeValue",
+          "value": "<color=#{0}>{1}</color>",
+          "arguments": 2
+        },
+        {
           "id": "futureValueLabel",
           "value": "<color=#{0}>{1} · {2} 후 가치\n시너지 정산 {3:N0}회</color>",
           "arguments": 4
@@ -2474,12 +2484,17 @@
         },
         {
           "id": "marketNoSettlement",
-          "value": "시장에서는 인접 효과가 적용되지 않습니다.",
+          "value": "· 시장에서는 인접 효과가 적용되지 않습니다.",
           "arguments": 0
         },
         {
           "id": "activeEffectsNone",
-          "value": "<b>현재 적용 효과</b>: 없음",
+          "value": "· 없음",
+          "arguments": 0
+        },
+        {
+          "id": "activeEffectsTitle",
+          "value": "<b>현재 적용 효과</b>",
           "arguments": 0
         },
         {
@@ -2686,6 +2701,10 @@
         {
           "id": "animalWastePieceId",
           "value": "piece.poo"
+        },
+        {
+          "id": "expiredFoodPieceId",
+          "value": "piece.foodWaste"
         }
       ]
     },
@@ -2693,8 +2712,8 @@
       "id": "rules.PuzzleInventoryValuation",
       "texts": [
         {
-          "id": "pooTag",
-          "value": "Poo"
+          "id": "wasteTag",
+          "value": "Waste"
         }
       ]
     },
@@ -2970,6 +2989,29 @@
       ]
     },
     {
+      "id": "rules.freshness",
+      "numbers": [
+        {
+          "id": "highValuePercent",
+          "value": 100,
+          "positive": true,
+          "whole": true
+        },
+        {
+          "id": "mediumValuePercent",
+          "value": 80,
+          "positive": true,
+          "whole": true
+        },
+        {
+          "id": "lowValuePercent",
+          "value": 50,
+          "positive": true,
+          "whole": true
+        }
+      ]
+    },
+    {
       "id": "ui.freshness",
       "numbers": [
         {
@@ -2999,13 +3041,13 @@
         },
         {
           "id": "lowThreshold",
-          "value": 33,
+          "value": 40,
           "positive": true,
           "whole": true
         },
         {
           "id": "mediumThreshold",
-          "value": 66,
+          "value": 80,
           "positive": true,
           "whole": true
         }

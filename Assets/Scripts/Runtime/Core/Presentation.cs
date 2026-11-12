@@ -378,7 +378,7 @@ public static class Presentation
         { "Meat", "presentation.tags.meatLabel" },
         { "Animal", "presentation.tags.animalLabel" },
         { "Fruit", "presentation.tags.fruitLabel" },
-        { "Poo", "presentation.tags.pooLabel" },
+        { "Waste", "presentation.tags.wasteLabel" },
         { "Box", "presentation.tags.boxLabel" },
 
     };
@@ -414,6 +414,7 @@ public static class Presentation
     }
 
     public static string PuzzleNoActiveEffects => BasicData.Text("presentation.tooltip.activeEffectsNone");
+    public static string PuzzleTooltipActiveEffectsTitle => BasicData.Text("presentation.tooltip.activeEffectsTitle");
 
     static Color ComparisonColor(decimal _value, decimal _baseline, Color _neutralColor, bool _invert = false)
     {
@@ -528,19 +529,13 @@ public static class Presentation
 
     internal static Color PuzzleFreshnessColor(int _percent)
     {
-        if (_percent == 0)
+        return PuzzlePlacement.FreshnessBand(_percent) switch
         {
-            return BasicData.Color("presentation.freshness.empty");
-        }
-        if (_percent <= BasicData.Int("ui.freshness.lowThreshold"))
-        {
-            return BasicData.Color("presentation.freshness.low");
-        }
-        if (_percent <= BasicData.Int("ui.freshness.mediumThreshold"))
-        {
-            return BasicData.Color("presentation.freshness.medium");
-        }
-        return BasicData.Color("presentation.freshness.high");
+            PuzzleFreshnessBand.Low => BasicData.Color("presentation.freshness.low"),
+            PuzzleFreshnessBand.Medium => BasicData.Color("presentation.freshness.medium"),
+            PuzzleFreshnessBand.High => BasicData.Color("presentation.freshness.high"),
+            _ => BasicData.Color("presentation.freshness.empty")
+        };
     }
 
     internal static string PuzzleTooltipEffectDescription(string _description)
@@ -577,7 +572,17 @@ public static class Presentation
 
     internal static string PuzzleTooltipFreshnessValue(int _current)
     {
-        return BasicData.Format("presentation.tooltip.freshnessValue", ColorUtility.ToHtmlStringRGB(PuzzleTooltipGreen), _current);
+        return BasicData.Format("presentation.tooltip.freshnessValue", ColorUtility.ToHtmlStringRGB(PuzzleFreshnessColor(_current)), _current);
+    }
+
+    internal static string PuzzleTooltipShelfLifeLabel()
+    {
+        return BasicData.Format("presentation.tooltip.shelfLifeLabel", TooltipLabelHtml());
+    }
+
+    internal static string PuzzleTooltipShelfLifeValue(long _minutes, int _freshness)
+    {
+        return BasicData.Format("presentation.tooltip.shelfLifeValue", ColorUtility.ToHtmlStringRGB(PuzzleFreshnessColor(_freshness)), PuzzleMapTime(_minutes));
     }
 
     internal static string PuzzleValueText(PuzzleValue _value)
@@ -678,7 +683,7 @@ public static class Presentation
             "meat" => BasicData.Color("presentation.tags.meatBackground"),       // 고기: 딥 레드
             "animal" => BasicData.Color("presentation.tags.animalBackground"),    // 가축: 탄/레더 탠
             "fruit" => BasicData.Color("presentation.tags.fruitBackground"),      // 과일: 사과 레드
-            "poo" => BasicData.Color("presentation.tags.pooBackground"),         // 똥: 다크 브라운
+            "waste" => BasicData.Color("presentation.tags.wasteBackground"),         // 폐기물: 다크 브라운
             _ => BasicData.Color("presentation.tags.puzzleTagBackgroundColorColor")
         };
     }
@@ -716,7 +721,7 @@ public static class Presentation
             "box" => BasicData.Int("presentation.tags.boxPriority"),
             "supply" => BasicData.Int("presentation.tags.supplyPriority"),
             "cargo" => BasicData.Int("presentation.tags.cargoPriority"),
-            "poo" => BasicData.Int("presentation.tags.pooPriority"),
+            "waste" => BasicData.Int("presentation.tags.wastePriority"),
             _ => BasicData.Int("presentation.tags.defaultPriority")
         };
     }

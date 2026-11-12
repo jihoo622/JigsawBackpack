@@ -341,7 +341,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         }
 
         trainView.ShowSynergySettlement(pendingSettlementValue.Value,
-            session.Train.Placements.Sum(item => item.ActualValue), session.Train.Value.BaseValue);
+            session.Train.Placements.Sum(item => item.FreshnessAdjustedValue), session.Train.Value.BaseValue);
         pendingSettlementValue = null;
     }
 
@@ -504,7 +504,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             SetDragView(targetView);
             var candidate = preview.Placement.Candidate;
             var grabbedBoardCell = candidate != null ? targetCell : Vector2Int.zero;
-            targetView.ShowGhost(candidate ?? drag.GetGhostPose(), drag.Definition, grabbedBoardCell, pointerPosition, drag.Durability);
+            targetView.ShowGhost(candidate ?? drag.GetGhostPose(), drag.Definition, grabbedBoardCell, pointerPosition, drag.FreshnessPercent);
             targetView.ShowPreview(candidate, preview.CanDrop);
             cityView.ShowTradeStatus(Presentation.PuzzleTradeStatus(preview, drag.Definition, _committed: false));
             return;
@@ -512,7 +512,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
 
         var sourceView = session.IsTrainWagon(drag.Source) ? trainView : marketView;
         SetDragView(sourceView);
-        sourceView.ShowGhost(drag.GetGhostPose(), drag.Definition, Vector2Int.zero, pointerPosition, drag.Durability);
+        sourceView.ShowGhost(drag.GetGhostPose(), drag.Definition, Vector2Int.zero, pointerPosition, drag.FreshnessPercent);
         sourceView.ShowPreview(null, false);
         cityView.ShowTradeStatus(string.Empty);
     }
@@ -655,7 +655,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         var item = _placement.Definition;
         var value = _placement.Owner.ValueOf(_placement.InstanceId);
         bool isTrain = _view == trainView || session.IsTrainWagon(_placement.Owner);
-        decimal actualValue = _placement.ActualValue;
+        decimal actualValue = _placement.FreshnessAdjustedValue;
         var rate = item == null ? default : session.RateFor(item);
         var effects = BuildEffectDescriptions(item, isTrain);
         long? previewMinutes = session.PreviewMinutes;
@@ -666,7 +666,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             try
             {
                 previewActivations = session.SynergyActivationsFor(previewMinutes.Value);
-                futureValue = checked(actualValue + (value.FinalValue - value.BaseValue) * previewActivations.Value);
+                futureValue = session.PreviewCargoValue(_placement, previewMinutes.Value, previewActivations.Value);
             }
             catch (System.OverflowException)
             {
@@ -677,11 +677,11 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         if (tooltipView && drag == null && (_position.HasValue || hoverPosition.HasValue))
         {
             Vector2 pos = _position ?? hoverPosition.Value;
-            int? freshness = item != null && item.HasDurability ? _placement.Durability : (int?)null;
             string previewName = session.PreviewCityId == null ? null : TableManager.Instance.CityPrice(session.PreviewCityId).displayName;
             var direction = isTrain ? PuzzleTradeDirection.Sell : PuzzleTradeDirection.Buy;
             long? price = session.TryQuoteTrade(_placement, direction, out long quote) ? quote : (long?)null;
-            tooltipView.Show(item, actualValue, rate, effects, futureValue, pos, isTrain, freshness, previewMinutes,
+            tooltipView.Show(item, actualValue, rate, effects, futureValue, pos, isTrain, _placement.FreshnessPercent,
+                _placement.RemainingShelfLifeMinutes, previewMinutes,
                 previewName, previewActivations, price, isTrain ? value.SynergyBonuses : null);
             if (_placement.HasUnreadSynergySettlement && tooltipView.IsOpen)
             {
@@ -729,7 +729,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
     {
         if (trainView)
         {
-            trainView.ShowBoardValue(session.Train.Placements.Sum(_item => _item.ActualValue), session.Train.Value.BaseValue);
+            trainView.ShowBoardValue(session.Train.Placements.Sum(_item => _item.FreshnessAdjustedValue), session.Train.Value.BaseValue);
         }
         if (marketView)
         {

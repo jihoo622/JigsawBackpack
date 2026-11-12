@@ -28,6 +28,7 @@ public sealed class PuzzleItemTooltipView : PanelBase
     [SerializeField] TextMeshProUGUI baseValueValueText;
     [SerializeField] RectTransform activeEffectsSection;
     [SerializeField] TextMeshProUGUI activeEffectsText;
+    [SerializeField] TextMeshProUGUI activeEffectsMessageText;
     [SerializeField] RectTransform activeEffectsListRoot;
     [SerializeField] ActiveEffectRow[] activeEffectRows;
     [SerializeField] TextMeshProUGUI actualValueLabelText;
@@ -44,6 +45,8 @@ public sealed class PuzzleItemTooltipView : PanelBase
     [SerializeField] TextMeshProUGUI futureValueValueText;
     [SerializeField] TextMeshProUGUI freshnessLabelText;
     [SerializeField] TextMeshProUGUI freshnessValueText;
+    [SerializeField] TextMeshProUGUI shelfLifeLabelText;
+    [SerializeField] TextMeshProUGUI shelfLifeValueText;
     float FollowSpeed => DefaultFollowSpeed;
 
     RectTransform canvasRectTransform;
@@ -98,7 +101,7 @@ public sealed class PuzzleItemTooltipView : PanelBase
 
     internal void Show(PuzzleItemDefinition _item, decimal _actualValue, PuzzleTradeRate _rate,
         IReadOnlyList<string> _effects, decimal? _futureValue, Vector2 _screenPosition,
-        bool _isTrainInventory, int? _freshness, long? _previewMinutes, string _previewCityName,
+        bool _isTrainInventory, int? _freshness, long? _remainingShelfLifeMinutes, long? _previewMinutes, string _previewCityName,
         long? _previewActivations, long? _tradePrice, IReadOnlyList<PuzzleSynergyBonus> _activeEffects)
     {
         if (_item == null)
@@ -220,6 +223,13 @@ public sealed class PuzzleItemTooltipView : PanelBase
                 SetRowActive(freshnessLabelText, freshnessValueText, false);
             }
         }
+
+        if (_remainingShelfLifeMinutes is long remaining && _freshness is int freshness)
+        {
+            SetRow(shelfLifeLabelText, shelfLifeValueText,
+                Presentation.PuzzleTooltipShelfLifeLabel(), Presentation.PuzzleTooltipShelfLifeValue(remaining, freshness));
+        }
+        SetRowActive(shelfLifeLabelText, shelfLifeValueText, _remainingShelfLifeMinutes.HasValue && _freshness.HasValue);
 
         RebuildLayouts();
         SetPointerPosition(_screenPosition);
@@ -390,11 +400,20 @@ public sealed class PuzzleItemTooltipView : PanelBase
         int activeCount = _isTrainInventory && _activeEffects != null ? _activeEffects.Count : 0;
         if (activeEffectsText)
         {
-            activeEffectsText.text = !_isTrainInventory
-                ? Presentation.PuzzleMarketNoSettlement
-                : activeCount == 0
+            activeEffectsText.text = activeCount > 0
+                ? Presentation.PuzzleTooltipActiveEffectsHeader()
+                : Presentation.PuzzleTooltipActiveEffectsTitle;
+        }
+        if (activeEffectsMessageText)
+        {
+            activeEffectsMessageText.gameObject.SetActive(activeCount == 0);
+            if (activeCount == 0)
+            {
+                activeEffectsMessageText.color = Presentation.PuzzleTooltipText;
+                activeEffectsMessageText.text = _isTrainInventory
                     ? Presentation.PuzzleNoActiveEffects
-                    : Presentation.PuzzleTooltipActiveEffectsHeader();
+                    : Presentation.PuzzleMarketNoSettlement;
+            }
         }
 
         if (!activeEffectsListRoot)

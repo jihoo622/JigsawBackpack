@@ -73,6 +73,7 @@
         "Supply",
         "Grain"
       ],
+      "shelfLifeHours": 48,
       "visualKey": "cargo.grainSack",
       "slotCount": 1,
       "cells": [
@@ -244,6 +245,7 @@
         "Food",
         "Fish"
       ],
+      "shelfLifeHours": 48,
       "visualKey": "cargo.fish",
       "slotCount": 2,
       "cells": [
@@ -299,6 +301,7 @@
         "Food",
         "Fruit"
       ],
+      "shelfLifeHours": 48,
       "visualKey": "cargo.smallCrate",
       "slotCount": 1,
       "cells": [
@@ -345,6 +348,7 @@
         "Food",
         "Meat"
       ],
+      "shelfLifeHours": 48,
       "visualKey": "cargo.grainSack",
       "slotCount": 1,
       "cells": [
@@ -368,6 +372,7 @@
         "Food",
         "Meat"
       ],
+      "shelfLifeHours": 48,
       "visualKey": "cargo.beef",
       "slotCount": 2,
       "durability": 100,
@@ -456,6 +461,7 @@
         "Food",
         "Fruit"
       ],
+      "shelfLifeHours": 48,
       "visualKey": "cargo.apple",
       "slotCount": 1,
       "durability": 100,
@@ -476,9 +482,31 @@
       "displayName": "똥",
       "description": "한 칸을 차지하는 불쾌한 화물. 근처의 다른 화물 가치를 떨어뜨린다.",
       "tags": [
-        "Poo"
+        "Waste"
       ],
       "visualKey": "cargo.poo",
+      "slotCount": 1,
+      "durability": 100,
+      "cells": [
+        {
+          "x": 0,
+          "y": 0,
+          "north": "Flat",
+          "east": "Flat",
+          "south": "Flat",
+          "west": "Flat"
+        }
+      ],
+      "baseValue": -10
+    },
+    {
+      "id": "piece.foodWaste",
+      "displayName": "폐기물",
+      "description": "유통기한이 지난 식품. 근처의 다른 화물 가치를 떨어뜨린다.",
+      "tags": [
+        "Waste"
+      ],
+      "visualKey": "cargo.foodWaste",
       "slotCount": 1,
       "durability": 100,
       "cells": [
