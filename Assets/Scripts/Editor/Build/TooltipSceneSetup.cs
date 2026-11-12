@@ -318,7 +318,7 @@ public static class TooltipSceneSetup
         CreateValueRow("FreshnessRow", body.transform, _fontAsset, "신선도", "•",
             out TextMeshProUGUI freshnessLabel, out TextMeshProUGUI freshnessValue);
         CreateBottomRule(freshnessLabel.transform.parent);
-        CreateValueRow("ShelfLifeRow", body.transform, _fontAsset, "유통기한", "48시간",
+        CreateValueRow("ShelfLifeRow", body.transform, _fontAsset, "신선도 하락까지", "D<space=0.08em>3 0시간",
             out TextMeshProUGUI shelfLifeLabel, out TextMeshProUGUI shelfLifeValue);
         CreateBottomRule(shelfLifeLabel.transform.parent);
         CreateValueRow("SellRateRow", body.transform, _fontAsset, "판매 배율", "100%",

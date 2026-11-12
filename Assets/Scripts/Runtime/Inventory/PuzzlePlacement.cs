@@ -139,6 +139,47 @@ public sealed class PuzzlePlacement
             : long.MaxValue;
     }
 
+    internal long? MinutesUntilNextFreshnessBand(decimal _decayRate, long _settlementInterval)
+    {
+        if (RemainingShelfLife is not decimal remaining)
+        {
+            return null;
+        }
+        if (remaining <= 0)
+        {
+            return 0;
+        }
+
+        long untilExpiry = MinutesUntilShelfLifeExpires(_decayRate);
+        int threshold = FreshnessBand(FreshnessPercent.Value) switch
+        {
+            PuzzleFreshnessBand.High => BasicData.Int("ui.freshness.mediumThreshold"),
+            PuzzleFreshnessBand.Medium => BasicData.Int("ui.freshness.lowThreshold"),
+            _ => 0
+        };
+        if (threshold <= 1)
+        {
+            return untilExpiry;
+        }
+
+        // 등급 경계에 정확히 닿았을 때는 기존 등급을 유지한다.
+        decimal ageAtThreshold = ShelfLifeMinutes * (100 - threshold) / 100m;
+        long untilSettlement = _settlementInterval - ShelfLifeAge.SinceSettlement;
+        decimal ageAtSettlement = ShelfLifeAge.Elapsed + untilSettlement * _decayRate;
+        if (ageAtSettlement > ageAtThreshold)
+        {
+            return Math.Min(untilExpiry, untilSettlement);
+        }
+        if (_decayRate == 0)
+        {
+            return untilExpiry;
+        }
+
+        decimal extraSettlements = decimal.Floor(
+            (ageAtThreshold - ageAtSettlement) / (_settlementInterval * _decayRate)) + 1;
+        return (long)Math.Min(untilExpiry, untilSettlement + extraSettlements * _settlementInterval);
+    }
+
     // 성장 완료까지 남은 분. 성장하지 않는 품목과 미소유 물건은 경계가 없다.
     // 대기 중에는 다음 완료 시각이 아니라 자리를 다시 확인하는 재시도 시각을 경계로 제시한다.
     internal long MinutesUntilGrowthCompletion

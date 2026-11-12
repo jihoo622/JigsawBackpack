@@ -92,7 +92,7 @@ public sealed class PuzzleItemTooltipView : PanelBase
 
     internal void Show(PuzzleItemDefinition _item, decimal _actualValue, PuzzleTradeRate _rate,
         IReadOnlyList<string> _generalEffects, IReadOnlyList<string> _synergyEffects, decimal? _futureValue, Vector2 _screenPosition,
-        bool _isTrainInventory, int? _freshness, long? _remainingShelfLifeMinutes, long? _previewMinutes, string _previewCityName,
+        bool _isTrainInventory, int? _freshness, long? _minutesUntilNextFreshnessBand, long? _previewMinutes, string _previewCityName,
         long? _previewActivations, long? _tradePrice, IReadOnlyList<PuzzleSynergyBonus> _activeEffects)
     {
         if (_item == null)
@@ -181,12 +181,12 @@ public sealed class PuzzleItemTooltipView : PanelBase
             }
         }
 
-        if (_remainingShelfLifeMinutes is long remaining && _freshness is int freshness)
+        if (_minutesUntilNextFreshnessBand is long remaining && _freshness is int freshness)
         {
             SetRow(shelfLifeLabelText, shelfLifeValueText,
                 Presentation.PuzzleTooltipShelfLifeLabel(), Presentation.PuzzleTooltipShelfLifeValue(remaining, freshness));
         }
-        SetRowActive(shelfLifeLabelText, shelfLifeValueText, _remainingShelfLifeMinutes.HasValue && _freshness.HasValue);
+        SetRowActive(shelfLifeLabelText, shelfLifeValueText, _minutesUntilNextFreshnessBand.HasValue && _freshness.HasValue);
 
         RebuildLayouts();
         SetPointerPosition(_screenPosition);

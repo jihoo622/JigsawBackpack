@@ -2472,13 +2472,18 @@
         },
         {
           "id": "shelfLifeLabel",
-          "value": "<color=#{0}>유통기한</color>",
+          "value": "<color=#{0}>신선도 하락까지</color>",
           "arguments": 1
         },
         {
           "id": "shelfLifeValue",
-          "value": "<color=#{0}>{1}</color>",
-          "arguments": 2
+          "value": "<color=#{0}>D<space=0.08em>{1} {2}시간</color>",
+          "arguments": 3
+        },
+        {
+          "id": "shelfLifePaused",
+          "value": "<color=#{0}>정지</color>",
+          "arguments": 1
         },
         {
           "id": "futureValueLabel",

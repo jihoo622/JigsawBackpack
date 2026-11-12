@@ -661,6 +661,14 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         return minutes;
     }
 
+    internal long? MinutesUntilNextFreshnessBand(PuzzlePlacement _item)
+    {
+        var freshness = tables.PuzzleSynergy.freshness;
+        decimal decayRate = IsTrainWagon(_item.Owner) ? PuzzleRefrigeration.DecayRate(_item.Owner, _item, freshness) : 1m;
+        long interval = (long)freshness.settlementIntervalHours * PuzzleTimeManager.MINUTES_PER_HOUR;
+        return _item.MinutesUntilNextFreshnessBand(decayRate, interval);
+    }
+
     // 냉장 소모율은 표시와 공유하는 PuzzleRefrigeration 판정이 원본이다.
     static decimal ShelfLifeDecayRate(PuzzleInventory _wagon, PuzzlePlacement _item, PuzzleFreshnessData _freshness)
     {

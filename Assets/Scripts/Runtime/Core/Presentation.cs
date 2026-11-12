@@ -702,7 +702,18 @@ public static class Presentation
 
     internal static string PuzzleTooltipShelfLifeValue(long _minutes, int _freshness)
     {
-        return BasicData.Format("presentation.tooltip.shelfLifeValue", ColorUtility.ToHtmlStringRGB(PuzzleFreshnessColor(_freshness)), PuzzleMapTime(_minutes));
+        string color = ColorUtility.ToHtmlStringRGB(PuzzleFreshnessColor(_freshness));
+        if (_minutes == long.MaxValue)
+        {
+            return BasicData.Format("presentation.tooltip.shelfLifePaused", color);
+        }
+        long hours = _minutes / PuzzleTimeManager.MINUTES_PER_HOUR;
+        if (_minutes % PuzzleTimeManager.MINUTES_PER_HOUR > 0)
+        {
+            hours++;
+        }
+        return BasicData.Format("presentation.tooltip.shelfLifeValue", color,
+            hours / PuzzleTimeManager.HOURS_PER_DAY, hours % PuzzleTimeManager.HOURS_PER_DAY);
     }
 
     internal static string PuzzleValueText(PuzzleValue _value)
