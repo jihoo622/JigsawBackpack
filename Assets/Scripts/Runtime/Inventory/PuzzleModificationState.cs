@@ -24,5 +24,6 @@ public enum PuzzleModificationFailure
     InvalidItem,
     NoConversion,
     AlreadyModified,
-    InvalidResult
+    InvalidResult,
+    InsufficientFunds
 }

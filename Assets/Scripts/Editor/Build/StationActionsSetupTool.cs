@@ -83,7 +83,7 @@ public static class StationActionsSetupTool
         butcherView.transform.localScale = Vector3.one;
         var butcherButton = Button(list, template, "ButcheryAction", Presentation.StationButchery);
         var butcherConfirm = Button(butcherView.transform, template, "ButcheryConfirm", Presentation.StationButcheryConfirm);
-        var butcherHint = Label(butcherButton.transform, "ActionDescription", font, ButcheryDescription());
+        Label(butcherButton.transform, "ActionDescription", font, ButcheryDescription());
         var modificationView = (PuzzleInventoryView)inventoryData.FindProperty("modificationView").objectReferenceValue;
         if (!modificationView)
         {
@@ -97,7 +97,7 @@ public static class StationActionsSetupTool
         var modificationButton = Button(list, template, "ModificationAction", Presentation.StationModification);
         var modificationModeButton = Button(modificationView.transform, template, "ModificationMode", ModificationModeName());
         var modificationConfirm = Button(modificationView.transform, template, "ModificationConfirm", Presentation.StationModificationConfirm);
-        var modificationHint = Label(modificationButton.transform, "ActionDescription", font, ModificationDescription());
+        Label(modificationButton.transform, "ActionDescription", font, ModificationDescription());
         market.transform.SetParent(surface, false);
         var marketData = new SerializedObject(market);
         ((TMP_Text)marketData.FindProperty("boardTitle").objectReferenceValue).gameObject.SetActive(false);
@@ -130,7 +130,7 @@ public static class StationActionsSetupTool
         Bind(data, "butcheryConfirmButton", butcherConfirm);
         Bind(data, "butcheryLabel", butcherButton.GetComponentInChildren<TextMeshProUGUI>(true));
         Bind(data, "butcheryConfirmLabel", butcherConfirm.GetComponentInChildren<TextMeshProUGUI>(true));
-        Bind(data, "butcheryHint", butcherHint);
+        Bind(data, "butcheryHint", new SerializedObject(butcherView).FindProperty("boardValue").objectReferenceValue);
         Bind(data, "modificationContent", modificationView.gameObject);
         Bind(data, "modificationButton", modificationButton);
         Bind(data, "modificationModeButton", modificationModeButton);
@@ -138,7 +138,7 @@ public static class StationActionsSetupTool
         Bind(data, "modificationLabel", modificationButton.GetComponentInChildren<TextMeshProUGUI>(true));
         Bind(data, "modificationModeLabel", modificationModeButton.GetComponentInChildren<TextMeshProUGUI>(true));
         Bind(data, "modificationConfirmLabel", modificationConfirm.GetComponentInChildren<TextMeshProUGUI>(true));
-        Bind(data, "modificationHint", modificationHint);
+        Bind(data, "modificationHint", new SerializedObject(modificationView).FindProperty("boardValue").objectReferenceValue);
         data.ApplyModifiedPropertiesWithoutUndo();
         Bind(inventoryData, "butcheryView", butcherView);
         Bind(inventoryData, "modificationView", modificationView);

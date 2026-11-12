@@ -109,12 +109,14 @@ public sealed class PuzzleInventoryService : MonoBehaviour
             return false;
         }
 
+        long previousFunds = Funds;
         Funds -= cost;
         var trainRules = tables.SynergiesFor(PuzzleSynergyScope.Train);
         var newWagon = new PuzzleInventory(tables.Puzzle.train, Array.Empty<PuzzleStartingPlacementData>(), definitions, trainRules,
             ref lastInstanceId);
         trainWagons.Add(newWagon);
         CurrentWagonIndex = trainWagons.Count - 1;
+        GameEvents.RaiseFundsChanged(this, previousFunds);
         return true;
     }
     public PuzzleInventory Market => markets[CurrentCityId];
@@ -372,8 +374,10 @@ public sealed class PuzzleInventoryService : MonoBehaviour
             return false;
         }
 
+        long previousFunds = Funds;
         Funds -= GameClearCost;
         RunStatus = PuzzleRunStatus.Won;
+        GameEvents.RaiseFundsChanged(this, previousFunds);
         return true;
     }
 
@@ -686,6 +690,7 @@ public sealed class PuzzleInventoryService : MonoBehaviour
 
         long duration = evaluation.TravelMinutes;
         var replacementMarket = CreateMarket(evaluation.FromCityId, ref plan.lastInstanceId);
+        long previousFunds = Funds;
         Funds -= evaluation.Cost;
         markets[evaluation.FromCityId] = replacementMarket;
         currentCityId = evaluation.ToCityId;
@@ -702,6 +707,7 @@ public sealed class PuzzleInventoryService : MonoBehaviour
             GameEvents.RaiseTravelPreviewChanged(this);
         }
         GameEvents.RaiseCityArrived(CurrentCityId, CityMoveCount);
+        GameEvents.RaiseFundsChanged(this, previousFunds);
 
         return new PuzzleTravelResult(PuzzleTravelFailure.None, evaluation.Cost, evaluation.FromCityId,
             evaluation.ToCityId, Funds, evaluation.BaseCost, evaluation.Cells, evaluation.Distance, evaluation.DistanceCost,
@@ -960,10 +966,12 @@ public sealed class PuzzleInventoryService : MonoBehaviour
             {
                 _destination.Remove(movedItem);
             }
+            long previousFunds = Funds;
             Funds += result.Direction == PuzzleTradeDirection.Buy ? -result.Price : result.Price;
             GameEvents.RaiseTradeCompleted(new GameEvents.TradeInfo(CurrentCityId, _original.Definition.Id,
                 _original.InstanceId, result.Direction, result.Price, Funds, move.Candidate.Origin,
                 move.Candidate.ClockwiseTurns));
+            GameEvents.RaiseFundsChanged(this, previousFunds);
         }
         return result;
     }
@@ -986,6 +994,13 @@ public sealed class PuzzleInventoryService : MonoBehaviour
     internal bool HasButchery(string _cityId = null)
     {
         return ButcheryAction(_cityId) != null;
+    }
+
+    // 확인 1회당 도축 비용. 표의 행동 cost가 원본이며 없으면 -1.
+    internal long ButcheryCost(string _cityId = null)
+    {
+        var action = ButcheryAction(_cityId);
+        return action != null ? action.cost : -1;
     }
 
     // 도축대를 처음 다룰 때 만든다. 기차·시장과 같은 인스턴스 발급 경로를 쓰기 위해 지연 생성한다.
@@ -1156,6 +1171,12 @@ public sealed class PuzzleInventoryService : MonoBehaviour
             return false;
         }
 
+        if (Funds < state.Action.cost)
+        {
+            _reason = Presentation.PuzzleButcheryInsufficientFunds(state.Action.cost);
+            return false;
+        }
+
         _outputs = outputs;
         return true;
     }
@@ -1166,21 +1187,55 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         {
             return false;
         }
+        if (!IsButcheryOpen)
+        {
+            _reason = BasicData.Text("rules.butchery.blocked");
+            return false;
+        }
 
         var state = EnsureButchery(CurrentCityId);
+        if (state == null)
+        {
+            _reason = BasicData.Text("rules.butchery.unavailable");
+            return false;
+        }
+
+        // 확인 직전에 비용·잔액과 완료 시각을 다시 계산한다. 여기까지 실패하면 보드·상태·자금을 하나도 바꾸지 않는다.
+        long cost = state.Action.cost;
+        if (Funds < cost)
+        {
+            _reason = Presentation.PuzzleButcheryInsufficientFunds(cost);
+            return false;
+        }
+
+        long readyAtMinutes;
+        try
+        {
+            readyAtMinutes = checked(Time.ElapsedMinutes + state.Action.workMinutes);
+        }
+        catch (OverflowException)
+        {
+            _reason = BasicData.Text("rules.butchery.timeOverflow");
+            return false;
+        }
+
         var inputs = state.Board.Placements.ToArray();
+        // 화물 제거·산출물 예약·상태 변경·비용 차감을 한 확정 단위로 처리하고, 그 뒤에만 이벤트를 발행한다.
         foreach (var placement in inputs)
         {
             _ = state.Board.Remove(placement);
         }
 
+        long previousFunds = Funds;
+        Funds -= cost;
         state.PendingOutputs.Clear();
         state.PendingOutputs.AddRange(outputs);
         state.OutputCount = outputs.Count;
-        state.ReadyAtMinutes = checked(Time.ElapsedMinutes + state.Action.workMinutes);
+        state.ReadyAtMinutes = readyAtMinutes;
         state.Phase = PuzzleButcheryPhase.Working;
         NotifyButchery(state);
         GameEvents.RaiseButcheryCommitted(state.Action.id, state.CityId, inputs.Length, state.ReadyAtMinutes);
+        GameEvents.RaiseFundsChanged(this, previousFunds);
         return true;
     }
 
@@ -1471,14 +1526,30 @@ public sealed class PuzzleInventoryService : MonoBehaviour
             _failure = PuzzleModificationFailure.Unavailable;
             return false;
         }
+        if (!TryFindSelectedMode(state, out var mode))
+        {
+            _failure = PuzzleModificationFailure.NoMode;
+            return false;
+        }
+
+        // 정의 교체가 성공한 뒤에만 딱 한 번 차감한다. 잔액을 다시 확인해 초과 차감을 막는다.
+        long cost = mode.cost;
+        if (Funds < cost)
+        {
+            _failure = PuzzleModificationFailure.InsufficientFunds;
+            return false;
+        }
         if (!state.Board.TrySwapDefinitions(swaps, out var replacements))
         {
             _failure = PuzzleModificationFailure.InvalidResult;
             return false;
         }
 
+        long previousFunds = Funds;
+        Funds -= cost;
         _convertedCount = replacements.Count;
         NotifyModification(state);
+        GameEvents.RaiseFundsChanged(this, previousFunds);
         return true;
     }
 
@@ -1578,6 +1649,12 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         if (!state.Board.TryPlanDefinitionSwaps(swaps))
         {
             _failure = PuzzleModificationFailure.InvalidResult;
+            return false;
+        }
+
+        if (Funds < mode.cost)
+        {
+            _failure = PuzzleModificationFailure.InsufficientFunds;
             return false;
         }
 

@@ -3721,6 +3721,12 @@
           "source": "Assets/Scripts/Runtime/Core/Presentation.cs:StationModificationConfirm"
         },
         {
+          "id": "StationModificationConfirmCost",
+          "value": "개조하기 · ${0:N0}",
+          "arguments": 1,
+          "source": "Assets/Scripts/Runtime/Core/Presentation.cs:StationModificationConfirmCost"
+        },
+        {
           "id": "PuzzleModificationIdle",
           "value": "기계 부품을 원하는 모드로 개조하세요.",
           "arguments": 1,
@@ -3775,6 +3781,12 @@
           "source": "Assets/Scripts/Runtime/Core/Presentation.cs:106"
         },
         {
+          "id": "StationButcheryConfirmCost",
+          "value": "도축하기 · ${0:N0}",
+          "arguments": 1,
+          "source": "Assets/Scripts/Runtime/Core/Presentation.cs:StationButcheryConfirmCost"
+        },
+        {
           "id": "StationButcheryCountdown.text1",
           "value": "{0} 후 마무리",
           "arguments": 1,
@@ -3819,6 +3831,12 @@
           "id": "modification.empty",
           "value": "작업대에 개조할 화물이 없습니다.",
           "arguments": 0,
+          "source": "Assets/Scripts/Runtime/Core/Presentation.cs:PuzzleModificationReason"
+        },
+        {
+          "id": "modification.insufficientFunds",
+          "value": "개조 비용이 부족합니다. (필요: ${0})",
+          "arguments": 1,
           "source": "Assets/Scripts/Runtime/Core/Presentation.cs:PuzzleModificationReason"
         },
         {
@@ -3870,6 +3888,12 @@
           "source": "Assets/Scripts/Runtime/Inventory/PuzzleInventoryService.cs"
         },
         {
+          "id": "butchery.insufficientFunds",
+          "value": "도축 비용이 부족합니다. (필요: ${0})",
+          "arguments": 1,
+          "source": "Assets/Scripts/Runtime/Inventory/PuzzleInventoryService.cs"
+        },
+        {
           "id": "butchery.awaitingPickup",
           "value": "받을 준비가 되었습니다. 화물을 기차로 옮기세요.",
           "arguments": 0,
@@ -3902,6 +3926,12 @@
         {
           "id": "butchery.returnItems",
           "value": "도축대에 남은 화물을 먼저 기차로 옮기세요.",
+          "arguments": 0,
+          "source": "Assets/Scripts/Runtime/Inventory/PuzzleInventoryService.cs"
+        },
+        {
+          "id": "butchery.timeOverflow",
+          "value": "도축 완료 시각이 게임 시간 범위를 넘습니다.",
           "arguments": 0,
           "source": "Assets/Scripts/Runtime/Inventory/PuzzleInventoryService.cs"
         }

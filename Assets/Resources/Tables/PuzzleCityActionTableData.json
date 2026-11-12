@@ -1,6 +1,6 @@
 {
   "status": "sample",
-  "note": "마을별 추가 행동. cityIds에 지정한 마을의 역에서만 버튼이 보인다. 작업 시간·변환 관계는 이 표가 원본이다. 개조(Modification)는 즉시 변환이며 모드별로 입력→출력 품목은 1:1이다.",
+  "note": "마을별 추가 행동. cityIds에 지정한 마을의 역에서만 버튼이 보인다. 작업 시간·변환 관계·확인 1회당 비용(cost)은 이 표가 원본이다. 개조(Modification)는 즉시 변환이며 모드별로 입력→출력 품목은 1:1이고 비용은 모드별 cost가 원본이다.",
   "actions": [
     {
       "id": "action.butchery",
@@ -10,6 +10,7 @@
       "description": "동물 태그 화물을 맡기면 시간이 지나 고기로 돌려줍니다.",
       "board": { "width": 3, "height": 3, "startingPlacements": [] },
       "workMinutes": 360,
+      "cost": 50,
       "inputTag": "Animal",
       "outputTag": "Meat",
       "conversions": [
@@ -29,6 +30,7 @@
           "id": "mode.refrigeration",
           "displayName": "냉장 개조",
           "description": "기계 화물을 같은 모양의 냉장고 태그 화물로 바꿉니다. 신선도 감소율 감소는 아직 적용되지 않습니다.",
+          "cost": 150,
           "inputTag": "Machinery",
           "outputTag": "Refrigerator",
           "conversions": [

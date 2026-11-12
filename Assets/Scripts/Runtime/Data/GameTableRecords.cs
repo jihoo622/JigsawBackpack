@@ -213,6 +213,8 @@ public sealed class PuzzleCityActionData
     public PuzzleBoardData board;
     // 확인 버튼을 누른 시점부터 완성에 걸리는 분. 도축 전용이며 누락이 0으로 위장되지 않도록 검증용 값으로 둔다.
     public long workMinutes = -1;
+    // 도축 확인 1회당 차감하는 비용. 개조는 모드별 cost를 쓰므로 이 값은 도축 전용이다. 누락과 무료(0)를 구별하기 위한 검증용 값.
+    public long cost = -1;
     public PuzzleActionConversionData[] conversions = Array.Empty<PuzzleActionConversionData>();
     // 개조(Modification) 전용 모드 목록. 도축은 모드 대신 행동 자체의 inputTag·conversions을 쓴다.
     public PuzzleActionModeData[] modes = Array.Empty<PuzzleActionModeData>();
@@ -232,6 +234,8 @@ public sealed class PuzzleActionConversionData
 public sealed class PuzzleActionModeData
 {
     public string id, displayName, description, inputTag, outputTag;
+    // 개조 확인 1회당 차감하는 비용. 개조 행동 자체의 cost 대신 모드별 값이 원본이다. 누락과 무료(0)를 구별하기 위한 검증용 값.
+    public long cost = -1;
     public PuzzleActionConversionData[] conversions = Array.Empty<PuzzleActionConversionData>();
 }
 

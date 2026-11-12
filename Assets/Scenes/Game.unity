@@ -65198,10 +65198,10 @@ MonoBehaviour:
   restDurationLabel: {fileID: 1280171504}
   restHint: {fileID: 1510495712}
   butcheryLabel: {fileID: 1651252267}
-  butcheryHint: {fileID: 2052128365}
+  butcheryHint: {fileID: 1252676051}
   butcheryConfirmLabel: {fileID: 1439941090}
   modificationLabel: {fileID: 954336914}
-  modificationHint: {fileID: 457866385}
+  modificationHint: {fileID: 2040222214}
   modificationModeLabel: {fileID: 1974808979}
   modificationConfirmLabel: {fileID: 1467549540}
   marketButton: {fileID: 347153048}

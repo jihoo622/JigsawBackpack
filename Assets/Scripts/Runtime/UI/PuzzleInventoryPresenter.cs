@@ -99,6 +99,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         GameEvents.TravelPreviewChanged += OnTravelPreviewChanged;
         GameEvents.ButcheryChanged += OnButcheryChanged;
         GameEvents.ModificationChanged += OnModificationChanged;
+        GameEvents.FundsChanged += OnFundsChanged;
         cityView.WaitRequested += WaitForDaylight;
         if (trainBarView)
         {
@@ -154,6 +155,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         GameEvents.TravelPreviewChanged -= OnTravelPreviewChanged;
         GameEvents.ButcheryChanged -= OnButcheryChanged;
         GameEvents.ModificationChanged -= OnModificationChanged;
+        GameEvents.FundsChanged -= OnFundsChanged;
         cityView.WaitRequested -= WaitForDaylight;
         if (trainBarView)
         {
@@ -791,8 +793,6 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         {
             marketView.ShowBoardInfo(Presentation.PuzzleCityTagPreferences(session.CityData, session.RegionData));
         }
-        ShowButcheryStatus();
-        ShowModificationStatus();
     }
 
     void RenderBoards(int? _highlightedInstanceId = null)
@@ -852,15 +852,6 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         butcheryView.SetBoardSize(board.Width, board.Height);
     }
 
-    void ShowButcheryStatus()
-    {
-        if (butcheryView && butcheryConfigured)
-        {
-            butcheryView.ShowBoardInfo(Presentation.StationButcheryStatus(session.ButcheryPhase(),
-                session.ButcheryRemainingMinutes()));
-        }
-    }
-
     void OnButcheryChanged(GameEvents.ButcheryInfo _info)
     {
         if (_info.session != session)
@@ -871,7 +862,6 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         {
             ConfigureButcheryView();
         }
-        ShowButcheryStatus();
         RenderBoards();
     }
 
@@ -899,14 +889,6 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         modificationView.SetBoardSize(board.Width, board.Height);
     }
 
-    void ShowModificationStatus()
-    {
-        if (modificationView && modificationConfigured)
-        {
-            modificationView.ShowBoardInfo(Presentation.PuzzleModificationStatus(session));
-        }
-    }
-
     void OnModificationChanged(GameEvents.ModificationInfo _info)
     {
         if (_info.session != session)
@@ -917,8 +899,16 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         {
             ConfigureModificationView();
         }
-        ShowModificationStatus();
         RenderBoards();
+    }
+
+    void OnFundsChanged(GameEvents.FundsInfo _info)
+    {
+        if (_info.session == session)
+        {
+            RefreshFunds();
+            RefreshTrainBar();
+        }
     }
 
     // 확정된 이동이 도축대·개조대에 있었는지 확인해 상태를 갱신한다. ClearDrag의 다시 그리기가 이 결과를 그대로 표시한다.

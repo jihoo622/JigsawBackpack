@@ -56,9 +56,10 @@ public sealed class PuzzleStationActionsView : PanelBase
     internal event Action ActionBackRequested;
     public RectTransform TavernContent => tavernContent;
     // 도축 UI는 버튼·라벨·content·hint·확인 버튼이 모두 배선됐을 때만 동작한다. 일부만 있으면 기능이 꺼지고 로그만 남긴다.
-    bool ButcheryWired => butcheryButton && butcheryLabel && butcheryContent && butcheryHint && butcheryConfirmButton;
+    bool ButcheryWired => butcheryButton && butcheryLabel && butcheryContent && butcheryHint &&
+        butcheryConfirmButton && butcheryConfirmLabel;
     bool ModificationWired => modificationButton && modificationLabel && modificationContent && modificationHint &&
-        modificationModeButton && modificationModeLabel && modificationConfirmButton;
+        modificationModeButton && modificationModeLabel && modificationConfirmButton && modificationConfirmLabel;
     public bool HasButcheryButton => ButcheryWired;
     public bool HasModificationButton => ModificationWired;
     internal bool ShowingButchery => butcheryContent && butcheryContent.activeSelf;
@@ -74,28 +75,22 @@ public sealed class PuzzleStationActionsView : PanelBase
         tavernContent.gameObject.SetActive(false);
         if (butcheryButton && !ButcheryWired)
         {
-            Debug.LogError("도축 버튼이 있는 View에는 butcheryLabel·butcheryContent·butcheryHint·butcheryConfirmButton 참조가 모두 필요합니다.", this);
+            Debug.LogError("도축 버튼이 있는 View에는 행동 라벨·작업 화면·상태 라벨·확인 버튼과 확인 라벨 참조가 모두 필요합니다.", this);
         }
         if (ButcheryWired)
         {
             butcheryLabel.text = Presentation.StationButchery;
-            if (butcheryConfirmLabel)
-            {
-                butcheryConfirmLabel.text = Presentation.StationButcheryConfirm;
-            }
+            butcheryConfirmLabel.text = Presentation.StationButcheryConfirm;
             butcheryContent.SetActive(false);
         }
         if (modificationButton && !ModificationWired)
         {
-            Debug.LogError("개조 버튼이 있는 View에는 modificationLabel·modificationContent·modificationHint·modificationModeButton·modificationModeLabel·modificationConfirmButton 참조가 모두 필요합니다.", this);
+            Debug.LogError("개조 버튼이 있는 View에는 행동 라벨·작업 화면·상태 라벨·모드 및 확인 버튼과 각 라벨 참조가 모두 필요합니다.", this);
         }
         if (ModificationWired)
         {
             modificationLabel.text = Presentation.StationModification;
-            if (modificationConfirmLabel)
-            {
-                modificationConfirmLabel.text = Presentation.StationModificationConfirm;
-            }
+            modificationConfirmLabel.text = Presentation.StationModificationConfirm;
             modificationContent.SetActive(false);
         }
         var session = SceneServices.For<PuzzleInventoryService>(gameObject.scene);
@@ -154,7 +149,7 @@ public sealed class PuzzleStationActionsView : PanelBase
     }
 
     internal void Refresh(bool _marketOpen, bool _inProgress, long _restMinutes, bool _butcheryAvailable,
-        bool _butcheryEnabled, bool _butcheryConfirmEnabled, string _butcheryHint)
+        bool _butcheryEnabled, bool _butcheryConfirmEnabled, string _butcheryHint, long _butcheryCost)
     {
         marketLabel.text = _marketOpen ? Presentation.StationMarket : Presentation.StationMarketClosed;
         marketButton.interactable = _marketOpen;
@@ -165,6 +160,9 @@ public sealed class PuzzleStationActionsView : PanelBase
             butcheryButton.gameObject.SetActive(_butcheryAvailable && _inProgress);
             butcheryButton.interactable = _butcheryEnabled;
             butcheryHint.text = _butcheryHint;
+            butcheryConfirmLabel.text = _butcheryCost >= 0
+                ? Presentation.StationButcheryConfirmCost(_butcheryCost)
+                : Presentation.StationButcheryConfirm;
             butcheryConfirmButton.interactable = _butcheryConfirmEnabled;
         }
         if (!_marketOpen && marketContent.activeSelf)
@@ -174,7 +172,7 @@ public sealed class PuzzleStationActionsView : PanelBase
     }
 
     internal void RefreshModification(bool _inProgress, bool _available, bool _modeSelected,
-        bool _confirmEnabled, string _modeDisplayName, string _hint)
+        bool _confirmEnabled, string _modeDisplayName, string _hint, long _modificationCost)
     {
         if (!ModificationWired)
         {
@@ -186,6 +184,9 @@ public sealed class PuzzleStationActionsView : PanelBase
         modificationModeLabel.text = _modeDisplayName;
         modificationModeLabel.color = _modeSelected ? Presentation.PuzzleTimeAccent : Presentation.PuzzleHeading;
         modificationHint.text = _hint;
+        modificationConfirmLabel.text = _modificationCost >= 0
+            ? Presentation.StationModificationConfirmCost(_modificationCost)
+            : Presentation.StationModificationConfirm;
         modificationConfirmButton.interactable = _confirmEnabled;
     }
 

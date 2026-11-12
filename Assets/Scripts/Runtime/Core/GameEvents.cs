@@ -156,6 +156,18 @@ public static class GameEvents
         }
     }
 
+    public readonly struct FundsInfo
+    {
+        public readonly PuzzleInventoryService session;
+        public readonly long funds;
+
+        public FundsInfo(PuzzleInventoryService _session, long _funds)
+        {
+            session = _session;
+            funds = _funds;
+        }
+    }
+
     /// <summary>마을 도축대의 상태·화물 변화. 확인·완료·회수 직후 발행된다.</summary>
     public readonly struct ButcheryInfo
     {
@@ -239,6 +251,7 @@ public static class GameEvents
     public static event Action<UpgradeInfo> UpgradeGranted;
     public static event Action<PanelInfo> PanelVisibility;
     public static event Action<TradeInfo> TradeCompleted;
+    public static event Action<FundsInfo> FundsChanged;
     public static event Action<ButcheryInfo> ButcheryChanged;
     public static event Action<ModificationInfo> ModificationChanged;
     public static event Action<ButcheryCommittedInfo> ButcheryCommitted;
@@ -268,6 +281,13 @@ public static class GameEvents
     public static void RaiseTradeCompleted(TradeInfo _info)
     {
         Emit(TradeCompleted, _info);
+    }
+    public static void RaiseFundsChanged(PuzzleInventoryService _session, long _previousFunds)
+    {
+        if (_session.Funds != _previousFunds)
+        {
+            Emit(FundsChanged, new FundsInfo(_session, _session.Funds));
+        }
     }
     public static void RaiseButcheryChanged(PuzzleInventoryService _session, string _cityId,
         PuzzleButcheryPhase _phase, bool _open)
@@ -326,6 +346,7 @@ public static class GameEvents
         UpgradeGranted = null;
         PanelVisibility = null;
         TradeCompleted = null;
+        FundsChanged = null;
         CityArrived = null;
         TimeAdvanced = null;
         TravelPreviewChanged = null;

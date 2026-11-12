@@ -557,6 +557,8 @@ public sealed class GameTableRules
                 path + ".workMinutes", "도축 작업 시간은 0보다 큰 분 단위여야 합니다.");
             Check(!knownType || type != PuzzleCityActionType.Modification || action.workMinutes == 0,
                 path + ".workMinutes", "개조는 즉시 처리하므로 workMinutes가 0이어야 합니다.");
+            Check(!knownType || type != PuzzleCityActionType.Butchery || action.cost >= 0,
+                path + ".cost", "도축 확인 1회당 비용은 0 이상의 정수여야 합니다.");
             Check(!knownType || type != PuzzleCityActionType.Butchery ||
                 (!string.IsNullOrWhiteSpace(action.inputTag) && !string.IsNullOrWhiteSpace(action.outputTag) &&
                 (action.conversions ?? Array.Empty<PuzzleActionConversionData>()).Length > 0),
@@ -635,6 +637,7 @@ public sealed class GameTableRules
                 "행동 안에서 고유한 모드 ID가 필요합니다.");
             Check(!string.IsNullOrWhiteSpace(mode.displayName), path + ".displayName", "모드 이름이 필요합니다.");
             Check(!string.IsNullOrWhiteSpace(mode.description), path + ".description", "모드 설명이 필요합니다.");
+            Check(mode.cost >= 0, path + ".cost", "개조 모드 확인 1회당 비용은 0 이상의 정수여야 합니다.");
             Reference(mode.inputTag, path + ".inputTag", _knownTags.Contains(mode.inputTag ?? string.Empty), "입력 태그");
             Reference(mode.outputTag, path + ".outputTag", _knownTags.Contains(mode.outputTag ?? string.Empty), "산출 태그");
             bool sameTag = !string.IsNullOrEmpty(mode.inputTag) && mode.inputTag == mode.outputTag;

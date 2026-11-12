@@ -105,6 +105,11 @@ public static class Presentation
     }
     public static string StationButchery => BasicData.Text("presentation.StationButchery");
     public static string StationButcheryConfirm => BasicData.Text("presentation.StationButcheryConfirm");
+    // 확인 버튼 라벨에 표 행동 비용을 붙인다. 비용을 모르면 기본 라벨을 쓴다.
+    public static string StationButcheryConfirmCost(long _cost) =>
+        BasicData.Format("presentation.StationButcheryConfirmCost", _cost);
+    public static string PuzzleButcheryInsufficientFunds(long _cost) =>
+        BasicData.Format("rules.butchery.insufficientFunds", _cost);
     public static string PuzzleButcheryTitle => BasicData.Text("presentation.PuzzleButcheryTitle");
     // 도축대 상태 문구의 단일 출처. 버튼·보드·hint가 같은 문구를 읽는다.
     public static string StationButcheryStatus(PuzzleButcheryPhase _phase, long _remainingMinutes)
@@ -118,6 +123,11 @@ public static class Presentation
     }
     public static string StationModification => BasicData.Text("presentation.StationModification");
     public static string StationModificationConfirm => BasicData.Text("presentation.StationModificationConfirm");
+    // 확인 버튼 라벨에 선택 모드의 비용을 붙인다. 모드를 고르지 않았으면 기본 라벨을 쓴다.
+    public static string StationModificationConfirmCost(long _cost) =>
+        BasicData.Format("presentation.StationModificationConfirmCost", _cost);
+    public static string PuzzleModificationInsufficientFunds(long _cost) =>
+        BasicData.Format("rules.modification.insufficientFunds", _cost);
     public static string PuzzleModificationTitle => BasicData.Text("presentation.PuzzleModificationTitle");
     public static string PuzzleModificationStatus(PuzzleInventoryService _session)
     {
@@ -135,7 +145,7 @@ public static class Presentation
             ? BasicData.Format("presentation.PuzzleModificationReady", modeName)
             : BasicData.Format("presentation.PuzzleModificationSelected", modeName);
     }
-    public static string PuzzleModificationReason(PuzzleModificationFailure _failure)
+    public static string PuzzleModificationReason(PuzzleModificationFailure _failure, PuzzleInventoryService _session)
     {
         return _failure switch
         {
@@ -146,6 +156,8 @@ public static class Presentation
             PuzzleModificationFailure.InvalidItem => BasicData.Text("rules.modification.invalidItem"),
             PuzzleModificationFailure.AlreadyModified => BasicData.Text("rules.modification.alreadyModified"),
             PuzzleModificationFailure.NoConversion => BasicData.Text("rules.modification.noConversion"),
+            PuzzleModificationFailure.InsufficientFunds when _session.TryGetSelectedModificationMode(out var mode)
+                => PuzzleModificationInsufficientFunds(mode.cost),
             _ => BasicData.Text("rules.modification.invalidResult")
         };
     }
