@@ -28,6 +28,7 @@ public sealed class PuzzleItemTooltipView : PanelBase
     [SerializeField] TextMeshProUGUI baseValueValueText;
     [SerializeField] RectTransform activeEffectsSection;
     [SerializeField] TextMeshProUGUI activeEffectsText;
+    [SerializeField] TextMeshProUGUI activeEffectsMessageText;
     [SerializeField] RectTransform activeEffectsListRoot;
     [SerializeField] ActiveEffectRow[] activeEffectRows;
     [SerializeField] TextMeshProUGUI actualValueLabelText;
@@ -44,6 +45,8 @@ public sealed class PuzzleItemTooltipView : PanelBase
     [SerializeField] TextMeshProUGUI futureValueValueText;
     [SerializeField] TextMeshProUGUI freshnessLabelText;
     [SerializeField] TextMeshProUGUI freshnessValueText;
+    [SerializeField] TextMeshProUGUI shelfLifeLabelText;
+    [SerializeField] TextMeshProUGUI shelfLifeValueText;
     float FollowSpeed => DefaultFollowSpeed;
 
     RectTransform canvasRectTransform;
@@ -221,6 +224,14 @@ public sealed class PuzzleItemTooltipView : PanelBase
             }
         }
 
+        bool showShelfLife = _freshness.HasValue && _item.ShelfLifeHours > 0;
+        if (showShelfLife)
+        {
+            SetRow(shelfLifeLabelText, shelfLifeValueText,
+                Presentation.PuzzleTooltipShelfLifeLabel(), Presentation.PuzzleTooltipShelfLifeValue(_item.ShelfLifeHours));
+        }
+        SetRowActive(shelfLifeLabelText, shelfLifeValueText, showShelfLife);
+
         RebuildLayouts();
         SetPointerPosition(_screenPosition);
     }
@@ -390,11 +401,20 @@ public sealed class PuzzleItemTooltipView : PanelBase
         int activeCount = _isTrainInventory && _activeEffects != null ? _activeEffects.Count : 0;
         if (activeEffectsText)
         {
-            activeEffectsText.text = !_isTrainInventory
-                ? Presentation.PuzzleMarketNoSettlement
-                : activeCount == 0
+            activeEffectsText.text = activeCount > 0
+                ? Presentation.PuzzleTooltipActiveEffectsHeader()
+                : Presentation.PuzzleTooltipActiveEffectsTitle;
+        }
+        if (activeEffectsMessageText)
+        {
+            activeEffectsMessageText.gameObject.SetActive(activeCount == 0);
+            if (activeCount == 0)
+            {
+                activeEffectsMessageText.color = Presentation.PuzzleTooltipText;
+                activeEffectsMessageText.text = _isTrainInventory
                     ? Presentation.PuzzleNoActiveEffects
-                    : Presentation.PuzzleTooltipActiveEffectsHeader();
+                    : Presentation.PuzzleMarketNoSettlement;
+            }
         }
 
         if (!activeEffectsListRoot)

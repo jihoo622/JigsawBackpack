@@ -2381,6 +2381,16 @@
           "arguments": 2
         },
         {
+          "id": "shelfLifeLabel",
+          "value": "<color=#{0}>유통기한</color>",
+          "arguments": 1
+        },
+        {
+          "id": "shelfLifeValue",
+          "value": "<color=#{0}>{1}<size=80%>시간</size></color>",
+          "arguments": 2
+        },
+        {
           "id": "futureValueLabel",
           "value": "<color=#{0}>{1} · {2} 후 가치\n시너지 정산 {3:N0}회</color>",
           "arguments": 4
@@ -2422,7 +2432,12 @@
         },
         {
           "id": "activeEffectsNone",
-          "value": "<b>현재 적용 효과</b>: 없음",
+          "value": "없음",
+          "arguments": 0
+        },
+        {
+          "id": "activeEffectsTitle",
+          "value": "<b>현재 적용 효과</b>",
           "arguments": 0
         },
         {

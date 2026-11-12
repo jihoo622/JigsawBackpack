@@ -369,6 +369,7 @@ public static class Presentation
     }
 
     public static string PuzzleNoActiveEffects => BasicData.Text("presentation.tooltip.activeEffectsNone");
+    public static string PuzzleTooltipActiveEffectsTitle => BasicData.Text("presentation.tooltip.activeEffectsTitle");
 
     static Color ComparisonColor(decimal _value, decimal _baseline, Color _neutralColor, bool _invert = false)
     {
@@ -533,6 +534,16 @@ public static class Presentation
     internal static string PuzzleTooltipFreshnessValue(int _current)
     {
         return BasicData.Format("presentation.tooltip.freshnessValue", ColorUtility.ToHtmlStringRGB(PuzzleTooltipGreen), _current);
+    }
+
+    internal static string PuzzleTooltipShelfLifeLabel()
+    {
+        return BasicData.Format("presentation.tooltip.shelfLifeLabel", TooltipLabelHtml());
+    }
+
+    internal static string PuzzleTooltipShelfLifeValue(int _hours)
+    {
+        return BasicData.Format("presentation.tooltip.shelfLifeValue", ColorUtility.ToHtmlStringRGB(PuzzleTooltipGreen), _hours);
     }
 
     internal static string PuzzleValueText(PuzzleValue _value)
