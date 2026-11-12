@@ -9,7 +9,6 @@ using TMPro;
 [DisallowMultipleComponent]
 public sealed class PuzzleInventoryView : MonoBehaviour
 {
-    static float CellGap => BasicData.Float("ui.PuzzleInventoryView.cellGap");
     const string ITEM_ICON_PATH = "PuzzleInventoryUI.itemIcons";
 
     [Serializable]
@@ -45,6 +44,21 @@ public sealed class PuzzleInventoryView : MonoBehaviour
     [SerializeField] Image[] synergyArrows;
     [SerializeField] Sprite increaseArrow;
     [SerializeField] Sprite decreaseArrow;
+
+    [Header("Layout & Visual Settings")]
+    [SerializeField] float cellGap = 2f;
+    [SerializeField, Range(0f, 1f)] float freshnessOutlineWidth = 0.35f;
+    [SerializeField] int synergyArrowsCapacityMultiplier = 8;
+    [SerializeField] float refrigerationLaneOffset = 0.34f;
+    [SerializeField] float synergyArrowWidthScale = 1.8f;
+    [SerializeField] float synergyArrowHeightScale = 0.55f;
+    [SerializeField] float synergyIncreaseLaneOffset = 0.08f;
+    [SerializeField] float synergyDecreaseLaneOffset = 0.2f;
+
+    void OnValidate()
+    {
+        freshnessOutlineWidth = Mathf.Clamp01(freshnessOutlineWidth);
+    }
 
     readonly HashSet<Vector2Int> piecePositions = new();
     Dictionary<string, ItemIcon> iconIndex;
@@ -106,7 +120,7 @@ public sealed class PuzzleInventoryView : MonoBehaviour
 
         if (_boardCapacity > boardCells.Length || _boardCapacity > placementSlots.Length ||
             _dragCapacity > ghostSlots.Length || _dragCapacity > outlineSlots.Length ||
-            _boardCapacity * BasicData.Int("ui.PuzzleInventoryView.setMarketOpen") > synergyArrows.Length)
+            _boardCapacity * synergyArrowsCapacityMultiplier > synergyArrows.Length)
         {
             throw new InvalidOperationException("화물 테이블과 인벤토리 프리팹의 표시 용량이 맞지 않습니다.");
         }
@@ -127,7 +141,7 @@ public sealed class PuzzleInventoryView : MonoBehaviour
         {
             freshnessMaterial = new Material(boardTitle.font.material);
             freshnessMaterial.SetColor(ShaderUtilities.ID_OutlineColor, Presentation.PuzzleFreshnessOutline);
-            freshnessMaterial.SetFloat(ShaderUtilities.ID_OutlineWidth, BasicData.Float("ui.freshness.outlineWidth"));
+            freshnessMaterial.SetFloat(ShaderUtilities.ID_OutlineWidth, freshnessOutlineWidth);
             freshnessMaterial.EnableKeyword(ShaderUtilities.Keyword_Outline);
         }
         ShowItemDetails(null, default, default, default);
@@ -161,7 +175,7 @@ public sealed class PuzzleInventoryView : MonoBehaviour
             {
                 cell.color = Presentation.PuzzleCell;
                 cell.rectTransform.localPosition = GetCellCenter(new Vector2Int(i % _width, i / _width));
-                cell.rectTransform.sizeDelta = Vector2.one * (cellSize - CellGap);
+                cell.rectTransform.sizeDelta = Vector2.one * (cellSize - cellGap);
             }
         }
 
@@ -252,7 +266,7 @@ public sealed class PuzzleInventoryView : MonoBehaviour
         }
 
         int index = _after;
-        float lane = BasicData.Float("ui.PuzzleInventoryView.renderRefrigeration");
+        float lane = refrigerationLaneOffset;
         foreach (var contact in _contacts)
         {
             if (contact.Source.InstanceId == _hiddenInstanceId || contact.Target.InstanceId == _hiddenInstanceId)
@@ -287,7 +301,7 @@ public sealed class PuzzleInventoryView : MonoBehaviour
         arrow.rectTransform.localPosition = (GetCellCenter(_from) + GetCellCenter(_to)) * 0.5f +
             axis * (_lane * cellSize);
         // 원본 스프라이트의 투명 여백을 포함한 크기다.
-        arrow.rectTransform.sizeDelta = new Vector2(cellSize * BasicData.Float("ui.PuzzleInventoryView.rectTransformsizeDeltaWidth"), cellSize * BasicData.Float("ui.PuzzleInventoryView.rectTransformsizeDeltaHeight"));
+        arrow.rectTransform.sizeDelta = new Vector2(cellSize * synergyArrowWidthScale, cellSize * synergyArrowHeightScale);
         arrow.rectTransform.localRotation = Quaternion.Euler(0f, 0f, Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg);
         arrow.enabled = true;
         return true;
@@ -295,7 +309,7 @@ public sealed class PuzzleInventoryView : MonoBehaviour
 
     float Lane(bool _increase, Vector2Int _direction)
     {
-        float offset = BasicData.Float(_increase ? "ui.PuzzleInventoryView.renderSynergies" : "ui.PuzzleInventoryView.renderSynergies2");
+        float offset = _increase ? synergyIncreaseLaneOffset : synergyDecreaseLaneOffset;
         return (_direction.x > 0 || _direction.y > 0 ? 1f : -1f) * offset;
     }
 

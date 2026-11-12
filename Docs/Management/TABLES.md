@@ -25,7 +25,7 @@
 | `PuzzleTableData` | 화물 모양·복수 태그·표기 키, 시작 기차, 지역·생산 태그·물가, 도시·시장·특산품·재고·도시 배율 |
 | `PuzzleCityActionTableData` | 마을 역의 추가 행동·진입 도시·작업 보드·소요 분·입력/산출 태그·화물 변환 |
 | `PuzzleSynergyTableData` | 시너지 조건·공간 범위·배율·적용 주기, 동물 배설·번식 설정 |
-| `PuzzleTradeTableData` | 시작 자금·증차 비용·클리어 비용·상환 조건·이동 연출 시간 |
+| `PuzzleTradeTableData` | 시작 자금·증차 비용·최대 객차 수(maxWagonCount)·클리어 비용·상환 조건·이동 연출 시간 |
 | `PuzzleTimeTableData` | 고정 폴라인의 픽셀/시간 비율·시작 및 일출 시각·일출/야간 길이·휴식 분수 |
 | `PuzzleRouteTableData` | 방향별 연결·고정 폴라인 좌표·기본 비용·거리·거리 및 적재 단가 |
 | `FlowTableData` | 씬 이름·다음 씬·재시작 씬 |
@@ -69,6 +69,7 @@
 - `distance`는 비용용 양수 게임 거리다. 시간은 `points`의 고정 폴라인 길이 ÷ `PuzzleTimeTableData.pixelsPerHour`를 분 단위로 올림한다. `points`는 유한한 x,y 쌍이 두 점 이상이며 왕복은 역순이다. 시간 가중치와 기본값 폴백은 제거했다. K=28은 잠정치다.
 - 경과 시간은 `PuzzleInventoryService.Time` 하나가 소유한다. 이동·휴식·아침 대기는 배설·식품 만료·성장·출산 경계별로 보유 시간과 가치를 계산한 뒤 한 번 확정하고 `TimeAdvanced`를 발행한다. 진행 시뮬레이션은 객차 사본과 번식·배설 상태 사본에서 돌고 확정 시에만 본래 상태에 반영하므로 미리보기가 원본을 바꾸지 않는다. 배설은 동물 인스턴스별 진행 상태를 갖고 첫 발생을 이후 처음 맞는 달력 경계에 맞추며, 공간이 부족한 동물만 완료 직전에서 대기한다. 출산도 산출물 전체가 들어갈 때만 주기를 넘긴다. 성장 진행도는 `OwnedMinutes`와 분리한 성장 시계로 계산하고, 성체 자리가 없으면 그 품목의 성장 시계만 `growthHours − growthBlockedHours`에서 멈춘다. 공간 부족은 더 이상 이동·휴식의 실패 사유가 아니다. 같은 시각에는 정산·배설·식품 만료·성장·출산 순서로 처리한다.
 - `planningTargetCityId`는 등록된 도시 ID를 가리키는 선택적 지도 표식이다. 현재 `city.capital.finance`(금융마을)이며 실제 상환 장소 설정인 `PuzzleTradeTableData.debtCityId`와 분리한다. `debtCityId`도 같은 도시를 가리켜 금융마을에서만 상환할 수 있다.
+- `PuzzleTradeTableData.maxWagonCount`는 최대 객차 수 상한(8칸)이며 1 이상의 정수여야 한다. `PuzzleInventoryService`가 상한 도달 시 증차를 거부하고, UI 객차 바 슬롯 수가 이 값보다 적으면 예외를 발생시킨다.
 - `PuzzleTradeTableData.travelEffectSeconds`·`travelArrivalHoldSeconds`는 UI 이동 연출·도착 표시의 실제 초 단위 시간이며 유한한 양수여야 한다. 게임 내 소요 시간·기한과 분리한다.
 - 비용은 `cost + distance × costPerDistance + TotalTrainOccupiedCells × costPerCell`이다. 보유 시간·견적·표시는 같은 소요 분을 사용한다. 가치 배수는 `floor(행동 후 경과 분 / 주기 분) − floor(행동 전 경과 분 / 주기 분)`이다. `PuzzleSynergyTableData.activationIntervalHours`는 양의 정수이며 현재 6이다. 현재 배율의 증감량을 정산 1회당 한 번 적용한다.
 - `highSpeed`는 이전 철도망 호환 필드이며 현 초안은 모두 false다. 노선도는 지역별 색·일반 길 회색·역 표식과 시간·일수 숫자를 사용한다.

@@ -1789,6 +1789,20 @@
           "a": 1.0
         },
         {
+          "id": "addWagonBoxDisabled",
+          "r": 0.18,
+          "g": 0.55,
+          "b": 0.28,
+          "a": 0.5
+        },
+        {
+          "id": "addWagonTextDisabled",
+          "r": 0.8,
+          "g": 0.8,
+          "b": 0.8,
+          "a": 0.6
+        },
+        {
           "id": "wagonDragHoverBorder",
           "r": 0.39,
           "g": 0.91,
@@ -1883,61 +1897,11 @@
           "id": "insufficientFunds",
           "value": "자금이 부족합니다. (필요: ${0})",
           "arguments": 1
-        }
-      ]
-    },
-    {
-      "id": "ui.PuzzleInventoryPresenter",
-      "numbers": [
-        {
-          "id": "wagonDragHoverDelay",
-          "value": 0.5,
-          "positive": true
-        }
-      ]
-    },
-    {
-      "id": "ui.PuzzleInventoryView",
-      "numbers": [
-        {
-          "id": "cellGap",
-          "value": 2.0,
-          "positive": true
         },
         {
-          "id": "rectTransformsizeDeltaHeight",
-          "value": 0.55
-        },
-        {
-          "id": "rectTransformsizeDeltaWidth",
-          "value": 1.8
-        },
-        {
-          "id": "renderRefrigeration",
-          "value": 0.34
-        },
-        {
-          "id": "renderSynergies",
-          "value": 0.08
-        },
-        {
-          "id": "renderSynergies2",
-          "value": 0.2
-        },
-        {
-          "id": "setMarketOpen",
-          "value": 8,
-          "whole": true
-        }
-      ]
-    },
-    {
-      "id": "ui.PuzzleItemTooltipView",
-      "numbers": [
-        {
-          "id": "defaultFollowSpeed",
-          "value": 25.0,
-          "positive": true
+          "id": "maxReached",
+          "value": "객차는 최대 {0}칸입니다",
+          "arguments": 1
         }
       ]
     },
@@ -2068,57 +2032,20 @@
       ]
     },
     {
-      "id": "ui.PuzzleTrainBarView",
-      "colors": [
-        {
-          "id": "addWagonBoxcolorColor",
-          "r": 0.18,
-          "g": 0.55,
-          "b": 0.28,
-          "a": 0.5
-        },
-        {
-          "id": "addWagonTextcolorColor",
-          "r": 0.8,
-          "g": 0.8,
-          "b": 0.8,
-          "a": 0.6
-        }
-      ],
-      "numbers": [
-        {
-          "id": "originX",
-          "value": 0
-        },
-        {
-          "id": "originY",
-          "value": 0.0
-        },
-        {
-          "id": "wagonDragHoverScale",
-          "value": 1.08,
-          "positive": true
-        },
-        {
-          "id": "wagonHeight",
-          "value": 56,
-          "positive": true
-        },
-        {
-          "id": "wagonSpacing",
-          "value": 50.0,
-          "positive": true
-        },
-        {
-          "id": "wagonWidth",
-          "value": 150.0,
-          "positive": true
-        }
-      ]
-    },
-    {
       "id": "rules.freshness",
       "numbers": [
+        {
+          "id": "lowThreshold",
+          "value": 20,
+          "positive": true,
+          "whole": true
+        },
+        {
+          "id": "mediumThreshold",
+          "value": 60,
+          "positive": true,
+          "whole": true
+        },
         {
           "id": "highValuePercent",
           "value": 100,
@@ -2136,45 +2063,6 @@
           "value": 50,
           "positive": true,
           "whole": true
-        }
-      ]
-    },
-    {
-      "id": "ui.freshness",
-      "numbers": [
-        {
-          "id": "outlineWidth",
-          "value": 0.35,
-          "positive": true
-        },
-        {
-          "id": "lowThreshold",
-          "value": 20,
-          "positive": true,
-          "whole": true
-        },
-        {
-          "id": "mediumThreshold",
-          "value": 60,
-          "positive": true,
-          "whole": true
-        }
-      ]
-    },
-    {
-      "id": "ui.layout",
-      "numbers": [
-        {
-          "id": "tooltipPointerOffset",
-          "value": 24,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "tooltipScreenMargin",
-          "value": 20,
-          "whole": true,
-          "positive": true
         }
       ]
     },
@@ -2264,26 +2152,6 @@
           "id": "selected",
           "value": 1,
           "whole": true,
-          "positive": true
-        }
-      ]
-    },
-    {
-      "id": "ui.tooltip",
-      "numbers": [
-        {
-          "id": "badgeBlend",
-          "value": 0.35,
-          "positive": true
-        },
-        {
-          "id": "pointerTopInset",
-          "value": 32,
-          "positive": true
-        },
-        {
-          "id": "pointerEdgeInset",
-          "value": 20,
           "positive": true
         }
       ]

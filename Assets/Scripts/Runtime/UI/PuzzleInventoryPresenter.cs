@@ -6,7 +6,8 @@ using UnityEngine;
 [DisallowMultipleComponent]
 public sealed class PuzzleInventoryPresenter : MonoBehaviour
 {
-    static float WagonDragHoverDelay => BasicData.Float("ui.PuzzleInventoryPresenter.wagonDragHoverDelay");
+    [Header("Drag Settings")]
+    [SerializeField] float wagonDragHoverDelay = 0.5f;
 
     [SerializeField] PuzzleInventoryView trainView;
     [SerializeField] PuzzleInventoryView marketView;
@@ -191,7 +192,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
                 RefreshTrainBar();
             }
             else if (wagonIndex != session.CurrentWagonIndex &&
-                     Time.unscaledTime - hoveredWagonStartTime >= WagonDragHoverDelay)
+                     Time.unscaledTime - hoveredWagonStartTime >= wagonDragHoverDelay)
             {
                 SwitchWagonDuringDrag(wagonIndex);
             }

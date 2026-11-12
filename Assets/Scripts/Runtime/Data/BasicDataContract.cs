@@ -68,18 +68,11 @@ public static class BasicDataContract
         "presentation.trade.puzzleCityTagPreferencesAbovePercent2",
         "rules.durability.maximum",
         "rules.freshness.highValuePercent",
+        "rules.freshness.lowThreshold",
         "rules.freshness.lowValuePercent",
+        "rules.freshness.mediumThreshold",
         "rules.freshness.mediumValuePercent",
         "rules.player.dashChargesMaximum",
-        "ui.PuzzleInventoryPresenter.wagonDragHoverDelay",
-        "ui.PuzzleInventoryView.cellGap",
-        "ui.PuzzleInventoryView.rectTransformsizeDeltaHeight",
-        "ui.PuzzleInventoryView.rectTransformsizeDeltaWidth",
-        "ui.PuzzleInventoryView.renderRefrigeration",
-        "ui.PuzzleInventoryView.renderSynergies",
-        "ui.PuzzleInventoryView.renderSynergies2",
-        "ui.PuzzleInventoryView.setMarketOpen",
-        "ui.PuzzleItemTooltipView.defaultFollowSpeed",
         "ui.PuzzleMapNavigation.focusCurrent",
         "ui.PuzzleMapNavigation.maxZoom",
         "ui.PuzzleMapNavigation.minZoom",
@@ -106,17 +99,6 @@ public static class BasicDataContract
         "ui.PuzzleMapView.updateMapLayoutAbovePercent2",
         "ui.PuzzleMapView.updateMapLayoutX",
         "ui.PuzzleMapView.updateMapLayoutY",
-        "ui.PuzzleTrainBarView.originX",
-        "ui.PuzzleTrainBarView.originY",
-        "ui.PuzzleTrainBarView.wagonDragHoverScale",
-        "ui.PuzzleTrainBarView.wagonHeight",
-        "ui.PuzzleTrainBarView.wagonSpacing",
-        "ui.PuzzleTrainBarView.wagonWidth",
-        "ui.freshness.lowThreshold",
-        "ui.freshness.mediumThreshold",
-        "ui.freshness.outlineWidth",
-        "ui.layout.tooltipPointerOffset",
-        "ui.layout.tooltipScreenMargin",
         "ui.mapLabels.connected",
         "ui.mapLabels.current",
         "ui.mapLabels.detailMinZoom",
@@ -131,9 +113,6 @@ public static class BasicDataContract
         "ui.mapRoutes.currentSelected",
         "ui.mapRoutes.other",
         "ui.mapRoutes.selected",
-        "ui.tooltip.badgeBlend",
-        "ui.tooltip.pointerEdgeInset",
-        "ui.tooltip.pointerTopInset",
     };
     public static readonly string[] Texts =
     {
@@ -390,6 +369,7 @@ public static class BasicDataContract
         "rules.modification.unavailable",
         "rules.wagon.inProgressOnly",
         "rules.wagon.insufficientFunds",
+        "rules.wagon.maxReached",
     };
     public static readonly string[] Colors =
     {
@@ -470,11 +450,11 @@ public static class BasicDataContract
         "presentation.tooltip.red",
         "presentation.tooltip.text",
         "presentation.train.addWagonBox",
+        "presentation.train.addWagonBoxDisabled",
+        "presentation.train.addWagonTextDisabled",
         "presentation.train.wagonDragHoverBorder",
         "presentation.train.wagonNormalBorder",
         "presentation.train.wagonSelectedBorder",
-        "ui.PuzzleTrainBarView.addWagonBoxcolorColor",
-        "ui.PuzzleTrainBarView.addWagonTextcolorColor",
     };
     public static readonly System.Collections.Generic.Dictionary<string, int> TextArgumentCounts =
         new System.Collections.Generic.Dictionary<string, int>
@@ -732,5 +712,6 @@ public static class BasicDataContract
             { "rules.modification.unavailable", 0 },
             { "rules.wagon.inProgressOnly", 0 },
             { "rules.wagon.insufficientFunds", 1 },
+            { "rules.wagon.maxReached", 1 },
         };
 }

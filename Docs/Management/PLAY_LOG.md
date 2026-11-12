@@ -142,7 +142,7 @@ introduced의 ID는 적용 중인 S에 없어야 한다. moved/values/durability
 - travel: Blocked, NotAvailable, SameCity, InvalidCity, MissingRoute, InsufficientFunds, CostOverflow, TimeOverflow.
 - placement 접두사: StaleSource, InvalidDestination, InvalidGrabbedCell, InvalidRotation, CellOutsideBoard, CellOccupied, NoSpace, MarketClosed.
 - trade 접두사: Disabled, InsufficientFunds, PriceOverflow, BalanceOverflow, MarketClosed. 예: trade.MarketClosed.
-- 증차/상환: run_finished, insufficient_funds, wrong_city, overdue. 시간: time_blocked, invalid_duration, time_overflow, unavailable.
+- 증차/상환: run_finished, insufficient_funds, max_wagons, wrong_city, overdue. 시간: time_blocked, invalid_duration, time_overflow, unavailable.
 - unknown 값/버전은 성공으로 치환하지 않는다. 원문을 보존하고 해석 미지원으로 표시한다.
 
 ## 수집 경계와 버전 변경

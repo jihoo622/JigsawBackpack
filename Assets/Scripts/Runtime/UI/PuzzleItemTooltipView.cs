@@ -7,8 +7,6 @@ using UnityEngine.UI;
 [DisallowMultipleComponent]
 public sealed class PuzzleItemTooltipView : PanelBase
 {
-    static float DefaultFollowSpeed => BasicData.Float("ui.PuzzleItemTooltipView.defaultFollowSpeed");
-
     [SerializeField] Canvas canvas;
     [SerializeField] RectTransform panelRect;
     [SerializeField] CanvasGroup canvasGroup;
@@ -52,7 +50,21 @@ public sealed class PuzzleItemTooltipView : PanelBase
     [SerializeField] TextMeshProUGUI freshnessValueText;
     [SerializeField] TextMeshProUGUI shelfLifeLabelText;
     [SerializeField] TextMeshProUGUI shelfLifeValueText;
-    float FollowSpeed => DefaultFollowSpeed;
+
+    [Header("Layout & Movement")]
+    [SerializeField] float defaultFollowSpeed = 25f;
+    [SerializeField, Range(0f, 1f)] float badgeBlend = 0.35f;
+    [SerializeField] float pointerOffset = 24f;
+    [SerializeField] float pointerTopInset = 32f;
+    [SerializeField] float pointerEdgeInset = 20f;
+    [SerializeField] float screenMargin = 20f;
+
+    float FollowSpeed => defaultFollowSpeed;
+
+    void OnValidate()
+    {
+        badgeBlend = Mathf.Clamp01(badgeBlend);
+    }
 
     RectTransform canvasRectTransform;
     Vector2 targetCanvasPosition;
@@ -253,7 +265,7 @@ public sealed class PuzzleItemTooltipView : PanelBase
                 {
                     badgeImage.gameObject.SetActive(true);
                     badgeImage.color = Color.Lerp(Presentation.PuzzleTagBackgroundColor(tag),
-                        Presentation.PuzzleTooltipBodyBackground, BasicData.Float("ui.tooltip.badgeBlend"));
+                        Presentation.PuzzleTooltipBodyBackground, badgeBlend);
                 }
                 if (badgeText)
                 {
@@ -338,13 +350,12 @@ public sealed class PuzzleItemTooltipView : PanelBase
         float width = panelRect.rect.width;
         float height = panelRect.rect.height;
 
-        float offset = BasicData.Float("ui.layout.tooltipPointerOffset");
+        float offset = pointerOffset;
         float posX = localPoint.x + offset;
-        float pointerTopInset = BasicData.Float("ui.tooltip.pointerTopInset");
         float posY = localPoint.y + pointerTopInset;
 
         Rect cRect = canvasRectTransform.rect;
-        float margin = BasicData.Float("ui.layout.tooltipScreenMargin");
+        float margin = screenMargin;
         cRect = Rect.MinMaxRect(cRect.xMin + margin, cRect.yMin + margin, cRect.xMax - margin, cRect.yMax - margin);
 
         // 화면 우측을 벗어나면 마우스 좌측으로 플립
@@ -364,9 +375,8 @@ public sealed class PuzzleItemTooltipView : PanelBase
             float edge = flipped ? 1f : 0f;
             pointer.anchorMin = pointer.anchorMax = new Vector2(edge, 1f);
             pointer.localScale = new Vector3(flipped ? -1f : 1f, 1f, 1f);
-            float edgeInset = BasicData.Float("ui.tooltip.pointerEdgeInset");
             pointer.anchoredPosition = new Vector2(0f,
-                Mathf.Clamp(localPoint.y - posY, -height + edgeInset, -edgeInset));
+                Mathf.Clamp(localPoint.y - posY, -height + pointerEdgeInset, -pointerEdgeInset));
         }
 
         targetCanvasPosition = new Vector2(posX, posY);

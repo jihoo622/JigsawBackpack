@@ -2030,6 +2030,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 148d6f13054b4ac781a4d39314dca524, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PuzzleInventoryPresenter
+  wagonDragHoverDelay: 0.5
   trainView: {fileID: 1500000022}
   marketView: {fileID: 1500000032}
   butcheryView: {fileID: 437323952}

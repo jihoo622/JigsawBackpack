@@ -153,8 +153,8 @@ public sealed class PuzzlePlacement
         long untilExpiry = MinutesUntilShelfLifeExpires(_decayRate);
         int threshold = FreshnessBand(FreshnessPercent.Value) switch
         {
-            PuzzleFreshnessBand.High => BasicData.Int("ui.freshness.mediumThreshold"),
-            PuzzleFreshnessBand.Medium => BasicData.Int("ui.freshness.lowThreshold"),
+            PuzzleFreshnessBand.High => BasicData.Int("rules.freshness.mediumThreshold"),
+            PuzzleFreshnessBand.Medium => BasicData.Int("rules.freshness.lowThreshold"),
             _ => 0
         };
         if (threshold <= 1)
@@ -219,11 +219,11 @@ public sealed class PuzzlePlacement
         {
             return PuzzleFreshnessBand.Empty;
         }
-        if (_percent < BasicData.Int("ui.freshness.lowThreshold"))
+        if (_percent < BasicData.Int("rules.freshness.lowThreshold"))
         {
             return PuzzleFreshnessBand.Low;
         }
-        return _percent < BasicData.Int("ui.freshness.mediumThreshold")
+        return _percent < BasicData.Int("rules.freshness.mediumThreshold")
             ? PuzzleFreshnessBand.Medium : PuzzleFreshnessBand.High;
     }
 

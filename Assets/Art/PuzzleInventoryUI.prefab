@@ -650,6 +650,14 @@ MonoBehaviour:
   - {fileID: 401343}
   increaseArrow: {fileID: 21300000, guid: acb2b9a51d51490da805e90620c0aa01, type: 3}
   decreaseArrow: {fileID: 21300000, guid: acb2b9a51d51490da805e90620c0aa03, type: 3}
+  cellGap: 2
+  freshnessOutlineWidth: 0.35
+  synergyArrowsCapacityMultiplier: 8
+  refrigerationLaneOffset: 0.34
+  synergyArrowWidthScale: 1.8
+  synergyArrowHeightScale: 0.55
+  synergyIncreaseLaneOffset: 0.08
+  synergyDecreaseLaneOffset: 0.2
 --- !u!225 &5162449441332754863
 CanvasGroup:
   m_ObjectHideFlags: 0

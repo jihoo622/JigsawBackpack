@@ -15,11 +15,6 @@ public enum EffectCategory
 
 public static class Presentation
 {
-    public static string LayoutText(string _key)
-    {
-        return BasicData.Text("ui.layout." + _key);
-    }
-
     public static Color SharedColor(string _id)
     {
         return BasicData.Color(_id);
@@ -420,6 +415,8 @@ public static class Presentation
         return BasicData.Format("presentation.train.wagonPurchaseStatus", _cost, _wagonNumber);
     }
     public static Color PuzzleAddWagonBox => BasicData.Color("presentation.train.addWagonBox");
+    public static Color PuzzleAddWagonBoxDisabled => BasicData.Color("presentation.train.addWagonBoxDisabled");
+    public static Color PuzzleAddWagonTextDisabled => BasicData.Color("presentation.train.addWagonTextDisabled");
     public static Color PuzzleWagonSelectedBorder => BasicData.Color("presentation.train.wagonSelectedBorder");
     public static Color PuzzleWagonDragHoverBorder => BasicData.Color("presentation.train.wagonDragHoverBorder");
     public static Color PuzzleWagonNormalBorder => BasicData.Color("presentation.train.wagonNormalBorder");

@@ -237,14 +237,14 @@ public sealed class GameTableRules
             string pieceId = _tables.BasicText(EXPIRED_FOOD).value;
             Reference(pieceId, "BasicDataTableData.texts." + EXPIRED_FOOD, _tables.TryGetPiece(pieceId, out _), "화물");
         }
-        const string LOW_FRESHNESS = "ui.freshness.lowThreshold";
-        const string MEDIUM_FRESHNESS = "ui.freshness.mediumThreshold";
+        const string LOW_FRESHNESS = "rules.freshness.lowThreshold";
+        const string MEDIUM_FRESHNESS = "rules.freshness.mediumThreshold";
         if (_tables.HasBasicNumber(LOW_FRESHNESS) && _tables.HasBasicNumber(MEDIUM_FRESHNESS))
         {
             double low = _tables.BasicNumber(LOW_FRESHNESS).value;
             double medium = _tables.BasicNumber(MEDIUM_FRESHNESS).value;
             Check(low >= 0 && low < medium && medium < 100,
-                "BasicDataTableData.ui.freshness", "신선도 구간은 0 이상이며 낮음 < 중간 < 100이어야 합니다.");
+                "BasicDataTableData.rules.freshness", "신선도 구간은 0 이상이며 낮음 < 중간 < 100이어야 합니다.");
         }
         const string LOW_FRESHNESS_VALUE = "rules.freshness.lowValuePercent";
         const string MEDIUM_FRESHNESS_VALUE = "rules.freshness.mediumValuePercent";
@@ -257,14 +257,6 @@ public sealed class GameTableRules
             double high = _tables.BasicNumber(HIGH_FRESHNESS_VALUE).value;
             Check(low > 0 && low <= medium && medium <= high && high <= 100,
                 "BasicDataTableData.rules.freshness", "가치 배율은 0보다 크고 낮음 ≤ 보통 ≤ 신선함 ≤ 100이어야 합니다.");
-        }
-        foreach (string id in new[] { "ui.tooltip.badgeBlend", "ui.freshness.outlineWidth" })
-        {
-            if (_tables.HasBasicNumber(id))
-            {
-                double value = _tables.BasicNumber(id).value;
-                Check(value >= 0 && value <= 1, "BasicDataTableData.numbers." + id, "비율은 0~1 범위여야 합니다.");
-            }
         }
     }
 
@@ -280,6 +272,8 @@ public sealed class GameTableRules
         }
         Check(_tables.PuzzleTrade.wagonAddCostBase > 0, PATH + ".wagonAddCostBase",
             "화물칸 증차 기본 비용은 0보다 커야 합니다.");
+        Check(_tables.PuzzleTrade.maxWagonCount >= 1, PATH + ".maxWagonCount",
+            "최대 객차 수는 1 이상이어야 합니다.");
         Check(IsFinitePositive(_tables.PuzzleTrade.travelEffectSeconds), PATH + ".travelEffectSeconds",
             "이동 연출 시간은 유한한 양수여야 합니다.");
         Check(IsFinitePositive(_tables.PuzzleTrade.travelArrivalHoldSeconds), PATH + ".travelArrivalHoldSeconds",

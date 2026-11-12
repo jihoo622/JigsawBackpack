@@ -71,7 +71,9 @@ public sealed class PuzzleInventoryService : MonoBehaviour
     public PuzzleInventory Train => CurrentTrainWagon;
     public int WagonCount => trainWagons.Count;
     public long NextWagonCost => tables.PuzzleTrade.wagonAddCostBase;
-    public bool CanAddWagon => RunStatus == PuzzleRunStatus.InProgress && Funds >= NextWagonCost;
+    public bool CanAddWagon => RunStatus == PuzzleRunStatus.InProgress
+        && (tables.PuzzleTrade.maxWagonCount <= 0 || trainWagons.Count < tables.PuzzleTrade.maxWagonCount)
+        && Funds >= NextWagonCost;
 
     public int TotalTrainOccupiedCells
     {
@@ -129,6 +131,13 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         {
             _failureReason = BasicData.Text("rules.wagon.inProgressOnly");
             RecordAction(PuzzleActionKind.AddWagon, "run_finished");
+            return false;
+        }
+        int maxWagons = tables.PuzzleTrade.maxWagonCount;
+        if (maxWagons > 0 && trainWagons.Count >= maxWagons)
+        {
+            _failureReason = BasicData.Format("rules.wagon.maxReached", maxWagons);
+            RecordAction(PuzzleActionKind.AddWagon, "max_wagons");
             return false;
         }
         long cost = NextWagonCost;
