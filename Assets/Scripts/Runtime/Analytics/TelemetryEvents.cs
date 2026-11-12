@@ -11,6 +11,8 @@ public static class TelemetryEvents
     public const string SCENE_CHANGE = "scene_change";
     public const string UPGRADE_GRANTED = "upgrade_granted";
     public const string PANEL_VISIBILITY = "panel_visibility";
+    public const string BUTCHERY_COMMITTED = "butchery_committed";
+    public const string BUTCHERY_READY = "butchery_ready";
     public const string PUZZLE_ACTION = "puzzle_action";
     public const string RUMOR_LEARNED = "rumor_learned";
     public const string RULES_CHUNK = "rules_chunk";
@@ -64,6 +66,23 @@ public struct PanelPayload
     public bool open;
 }
 
+[Serializable]
+public struct ButcheryCommittedPayload
+{
+    public string actionId, cityId;
+    public int inputCount;
+    public long readyAtMinutes;
+    public double time;
+}
+
+[Serializable]
+public struct ButcheryReadyPayload
+{
+    public string actionId, cityId;
+    public int outputCount;
+    public double time;
+}
+
 // 좌표는 히트맵에 충분한 1cm 단위로 줄여 행 크기를 낮춘다.
 [Serializable]
 public struct TelemetryPosition
@@ -112,6 +131,29 @@ public static partial class TelemetryPayload
         payload.panel = _info.panel;
         payload.open = _info.open;
         return payload;
+    }
+
+    public static ButcheryCommittedPayload ButcheryCommitted(GameEvents.ButcheryCommittedInfo _info)
+    {
+        return new ButcheryCommittedPayload
+        {
+            actionId = _info.actionId,
+            cityId = _info.cityId,
+            inputCount = _info.inputCount,
+            readyAtMinutes = _info.readyAtMinutes,
+            time = _info.time
+        };
+    }
+
+    public static ButcheryReadyPayload ButcheryReady(GameEvents.ButcheryReadyInfo _info)
+    {
+        return new ButcheryReadyPayload
+        {
+            actionId = _info.actionId,
+            cityId = _info.cityId,
+            outputCount = _info.outputCount,
+            time = _info.time
+        };
     }
 
     public static TelemetryPosition Position(Vector3 _value)

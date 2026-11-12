@@ -12,7 +12,8 @@ public enum PuzzlePlacementFailure
     CellOutsideBoard,
     CellOccupied,
     NoSpace,
-    MarketClosed
+    MarketClosed,
+    BabyCannotButcher
 }
 
 public readonly struct PuzzleCell
@@ -86,8 +87,7 @@ internal enum PuzzleFreshnessBand { Empty, Low, Medium, High }
 
 public sealed class PuzzlePlacement
 {
-    const long FRESHNESS_INTERVAL_MINUTES = 6 * PuzzleTimeManager.MINUTES_PER_HOUR;
-    long shelfLifeElapsedMinutes;
+    internal (decimal Elapsed, decimal Settled, long SinceSettlement) ShelfLifeAge { get; private set; }
 
     public int InstanceId { get; }
     public PuzzleItemDefinition Definition { get; }
@@ -102,29 +102,35 @@ public sealed class PuzzlePlacement
     // 현재 내구도. 생성 시 정의의 시작값으로 초기화하고, 이동 시 보존한다. 감소는 외부 Manager가 담당한다.
     public int Durability { get; private set; }
     long ShelfLifeMinutes => (long)Definition.ShelfLifeHours * PuzzleTimeManager.MINUTES_PER_HOUR;
-    internal long? RemainingShelfLifeMinutes => Definition.HasDurability && ShelfLifeMinutes > 0
-        ? ShelfLifeMinutes - shelfLifeElapsedMinutes : null;
+    decimal? RemainingShelfLife => Definition.HasDurability && ShelfLifeMinutes > 0
+        ? ShelfLifeMinutes - ShelfLifeAge.Elapsed : null;
+    internal long? RemainingShelfLifeMinutes => RemainingShelfLife is decimal remaining
+        ? (long)decimal.Ceiling(remaining) : null;
 
-    internal int? FreshnessPercent => FreshnessPercentAfter(0);
+    internal int? FreshnessPercent
+    {
+        get
+        {
+            if (!Definition.HasDurability)
+            {
+                return null;
+            }
+            if (RemainingShelfLife is not decimal remaining)
+            {
+                return Durability;
+            }
+            return remaining == 0
+                ? 0
+                : (int)Math.Max(1, (ShelfLifeMinutes - ShelfLifeAge.Settled) * 100 / ShelfLifeMinutes);
+        }
+    }
     internal decimal FreshnessAdjustedValue => ApplyFreshnessToValue(ActualValue, FreshnessPercent);
 
-    internal int? FreshnessPercentAfter(long _minutes)
+    internal long MinutesUntilShelfLifeExpires(decimal _decayRate)
     {
-        if (!Definition.HasDurability)
-        {
-            return null;
-        }
-        if (RemainingShelfLifeMinutes is not long remaining)
-        {
-            return Durability;
-        }
-        if (_minutes >= remaining)
-        {
-            return 0;
-        }
-        long age = shelfLifeElapsedMinutes + _minutes;
-        long settledAge = age - age % FRESHNESS_INTERVAL_MINUTES;
-        return (int)Math.Max(1, (ShelfLifeMinutes - settledAge) * 100 / ShelfLifeMinutes);
+        return _decayRate > 0 && RemainingShelfLife is decimal remaining && remaining > 0
+            ? (long)decimal.Ceiling(remaining / _decayRate)
+            : long.MaxValue;
     }
 
     internal static PuzzleFreshnessBand FreshnessBand(int _percent)
@@ -158,7 +164,8 @@ public sealed class PuzzlePlacement
     }
 
     internal PuzzlePlacement(int _instanceId, PuzzleItemDefinition _definition, PuzzleInventory _owner, PuzzlePose _pose,
-        decimal _actualValue, long _ownedMinutes = -1, int _durability = -1, long _shelfLifeElapsedMinutes = 0)
+        decimal _actualValue, long _ownedMinutes = -1, int _durability = -1,
+        (decimal Elapsed, decimal Settled, long SinceSettlement) _shelfLifeAge = default)
     {
         InstanceId = _instanceId;
         Definition = _definition;
@@ -167,10 +174,8 @@ public sealed class PuzzlePlacement
         ActualValue = _actualValue;
         OwnedMinutes = _ownedMinutes;
         Durability = _durability >= 0 ? _durability : _definition.Durability;
-        shelfLifeElapsedMinutes = _shelfLifeElapsedMinutes;
+        ShelfLifeAge = _shelfLifeAge;
     }
-
-    internal long ShelfLifeElapsedMinutes => shelfLifeElapsedMinutes;
 
     /// <summary>현재 내구도를 깎는 연결 지점. 0 이하로 내려가지 않으며, 아직 호출자는 없다.</summary>
     internal void ReduceDurability(int _amount)
@@ -191,9 +196,11 @@ public sealed class PuzzlePlacement
 
     /// <summary>보유 시간과 유통기한에 반영할 경과 분을 누적한다.</summary>
     /// <param name="_minutes">이번 행동으로 경과한 분. 0은 무변화이며 미소유 물건은 무시한다.</param>
+    /// <param name="_decayRate">유통기한 소모율. 0이면 소모하지 않는다.</param>
+    /// <param name="_settlementInterval">신선도 표시를 갱신하는 경과 분 주기.</param>
     /// <exception cref="ArgumentOutOfRangeException">시간이 음수일 때 발생한다.</exception>
     /// <exception cref="OverflowException">보유 시간이 long 범위를 초과할 때 발생한다.</exception>
-    internal void ApplyElapsedMinutes(long _minutes)
+    internal void ApplyElapsedMinutes(long _minutes, decimal _decayRate, long _settlementInterval)
     {
         if (_minutes < 0)
         {
@@ -202,9 +209,16 @@ public sealed class PuzzlePlacement
         if (OwnedMinutes >= 0 && _minutes > 0)
         {
             OwnedMinutes = checked(OwnedMinutes + _minutes);
-            if (RemainingShelfLifeMinutes is long remaining)
+            if (RemainingShelfLife.HasValue)
             {
-                shelfLifeElapsedMinutes += Math.Min(remaining, _minutes);
+                var age = ShelfLifeAge;
+                long sinceSettlement = (age.SinceSettlement + _minutes % _settlementInterval) % _settlementInterval;
+                long lastSettlement = _minutes - sinceSettlement;
+                // 냉장 중에도 신선도 표시는 실제 경과 시간의 주기를 따른다.
+                decimal settled = lastSettlement > 0
+                    ? Math.Min(ShelfLifeMinutes, age.Elapsed + lastSettlement * _decayRate)
+                    : age.Settled;
+                ShelfLifeAge = (Math.Min(ShelfLifeMinutes, age.Elapsed + _minutes * _decayRate), settled, sinceSettlement);
             }
         }
     }
@@ -214,6 +228,14 @@ public sealed class PuzzlePlacement
         decimal previousValue = ActualValue;
         ActualValue += _amount;
         HasUnreadSynergySettlement |= ActualValue != previousValue;
+    }
+
+    internal void CopyTimeState(PuzzlePlacement _staged)
+    {
+        ActualValue = _staged.ActualValue;
+        OwnedMinutes = _staged.OwnedMinutes;
+        ShelfLifeAge = _staged.ShelfLifeAge;
+        HasUnreadSynergySettlement = _staged.HasUnreadSynergySettlement;
     }
 }
 

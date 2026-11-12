@@ -102,7 +102,9 @@ introduced의 ID는 적용 중인 S에 없어야 한다. moved/values/durability
 
 이동 성공 뒤 introduced에는 도착 시장의 모든 실제 재고가 들어간다. 출발 시 숨은 시장 재입고 내용은 복사하지 않으며 다시 방문할 때 관측한다. 이전 시장을 외부 캐시에 보관하더라도 그 도시를 떠난 순간부터 최신 상태로 간주하지 않는다.
 
-시간 행동의 values는 출발/휴식 시작 배치로 정산한 최종 값이다. train introduced는 정산 뒤 생성되므로 같은 행동의 시너지에 참여하지 않는다. 외부 복원에서는 values를 적용한 후 시너지 공식을 다시 적용하지 않는다. 기대값 검증은 적용 전 S와 테이블로 별도로 계산한다.
+시간 행동의 values는 행동 끝에 관측한 실제 가치다. 행동 도중 생성되거나 변환된 화물은 이후 정산에 참여할 수 있다. 외부 복원은 기록된 values를 적용한다. 동일 ID로 품목이 바뀌는 성장·식품 만료와 작업대 내부 상태는 현재 변화분 계약에서 복원되지 않는다. 작업 비용은 다음 `puzzle_action`에서 관측되는 잔액 차이에 포함될 수 있다.
+
+도축의 `butchery_committed`와 `butchery_ready`는 보조 기록이다. 전자는 `actionId`, `cityId`, `inputCount`, `readyAtMinutes`, `time`을, 후자는 `actionId`, `cityId`, `outputCount`, `time`을 담는다.
 
 ## 격자·회전
 

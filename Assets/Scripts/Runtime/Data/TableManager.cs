@@ -26,10 +26,12 @@ public sealed class TableManager
     public FlowTableData Flow { get; }
     public PuzzleTableData Puzzle { get; }
     public PuzzleSynergyTableData PuzzleSynergy { get; }
+    public PuzzleCityActionTableData PuzzleCityAction { get; }
     public PuzzleTradeTableData PuzzleTrade { get; }
     public PuzzleRouteTableData PuzzleRoute { get; }
     public PuzzleTimeTableData PuzzleTime { get; }
     public IReadOnlyList<PuzzleSynergyRuleData> SynergyRules { get; }
+    public IReadOnlyList<PuzzleCityActionData> CityActions { get; }
     public IReadOnlyList<PuzzlePieceData> Pieces { get; }
     public IReadOnlyList<PuzzleCityData> Cities { get; }
     public IReadOnlyList<PuzzleStartingPlacementData> TrainStartingPlacements { get; }
@@ -44,10 +46,14 @@ public sealed class TableManager
     internal IReadOnlyDictionary<string, BasicColorData> BasicColors => basicColors;
     readonly Dictionary<string, SceneLinkData> scenes;
     readonly Dictionary<string, PuzzlePieceData> pieces;
+    readonly Dictionary<string, PuzzleAnimalBreedingData> animalBreeding;
     readonly Dictionary<string, PuzzleCityData> cities;
     readonly Dictionary<string, PuzzleRegionData> regions;
     readonly Dictionary<string, PuzzleMarketStockData> stockProfiles;
     readonly Dictionary<string, Dictionary<string, PuzzleCityTagPriceData>> cityTagPrices;
+    readonly Dictionary<string, PuzzleCityActionData> cityActions;
+    readonly Dictionary<string, List<PuzzleCityActionData>> actionsByCity;
+    readonly Dictionary<string, PuzzleActionModeData> actionModes;
     readonly Dictionary<string, Dictionary<string, PuzzleRouteData>> routes;
     readonly Dictionary<string, IReadOnlyList<PuzzleRouteData>> routesFrom;
 
@@ -59,6 +65,7 @@ public sealed class TableManager
         Flow = Load<FlowTableData>(ref loaded);
         Puzzle = Load<PuzzleTableData>(ref loaded);
         PuzzleSynergy = Load<PuzzleSynergyTableData>(ref loaded);
+        PuzzleCityAction = Load<PuzzleCityActionTableData>(ref loaded);
         PuzzleTrade = Load<PuzzleTradeTableData>(ref loaded);
         PuzzleRoute = Load<PuzzleRouteTableData>(ref loaded);
         PuzzleTime = Load<PuzzleTimeTableData>(ref loaded);
@@ -78,7 +85,13 @@ public sealed class TableManager
         routes = IndexRoutes(PuzzleRoute.routes);
         routesFrom = IndexRoutesFrom(routes);
         var synergyRules = rules.Index(PuzzleSynergy.rules, e => e.id, "PuzzleSynergyTableData.rules");
+        animalBreeding = rules.Index(PuzzleSynergy.animals?.breeding, _row => _row.parentPieceId,
+            "PuzzleSynergyTableData.animals.breeding");
         SynergyRules = Array.AsReadOnly(synergyRules.Values.OrderBy(entry => entry.id, StringComparer.Ordinal).ToArray());
+        cityActions = rules.Index(PuzzleCityAction.actions, e => e.id, "PuzzleCityActionTableData.actions");
+        actionsByCity = IndexActionsByCity(cityActions);
+        actionModes = IndexActionModes(cityActions, rules);
+        CityActions = Array.AsReadOnly(cityActions.Values.OrderBy(entry => entry.id, StringComparer.Ordinal).ToArray());
         Pieces = Array.AsReadOnly(pieces.Values.OrderBy(entry => entry.id, StringComparer.Ordinal).ToArray());
         TrainStartingPlacements = SortStartingPlacements(Puzzle.train);
         Cities = Array.AsReadOnly(cities.Values.OrderBy(entry => entry.id == Puzzle.startCity ? 0 : 1)
@@ -187,6 +200,112 @@ public sealed class TableManager
         return false;
     }
 
+    // cityIds 역방향 색인. 한 도시 같은 타입의 중복 행은 GameTableRules가 오류로 보고하고 색인은 첫 항목만 남긴다.
+    static Dictionary<string, List<PuzzleCityActionData>> IndexActionsByCity(
+        Dictionary<string, PuzzleCityActionData> _actions)
+    {
+        var result = new Dictionary<string, List<PuzzleCityActionData>>(StringComparer.Ordinal);
+        foreach (var action in _actions.Values.OrderBy(entry => entry.id, StringComparer.Ordinal))
+        {
+            foreach (string cityId in action.cityIds ?? Array.Empty<string>())
+            {
+                if (string.IsNullOrEmpty(cityId))
+                {
+                    continue;
+                }
+                if (!result.TryGetValue(cityId, out var list))
+                {
+                    list = new List<PuzzleCityActionData>();
+                    result.Add(cityId, list);
+                }
+                list.Add(action);
+            }
+        }
+        return result;
+    }
+
+    // 행동 모드의 id 색인. 행동 안 배열이 아니라 id로 조회하므로 배열 순서에 의존하지 않는다.
+    static Dictionary<string, PuzzleActionModeData> IndexActionModes(
+        Dictionary<string, PuzzleCityActionData> _actions, GameTableRules _rules)
+    {
+        var modes = _actions.Values.SelectMany(_action => _action.modes ?? Array.Empty<PuzzleActionModeData>())
+            .Where(_mode => _mode != null).ToArray();
+        return _rules.Index(modes, _mode => _mode.id, "PuzzleCityActionTableData.modes");
+    }
+
+    // 특정 도시의 역에서 사용할 수 있는 행동. id 오름차순이라 배열 순서에 의존하지 않는다.
+    internal IReadOnlyList<PuzzleCityActionData> CityActionsOf(string _cityId)
+    {
+        if (!string.IsNullOrEmpty(_cityId) && actionsByCity.TryGetValue(_cityId, out var list))
+        {
+            return list;
+        }
+
+        return Array.Empty<PuzzleCityActionData>();
+    }
+
+    internal bool TryGetCityAction(string _cityId, PuzzleCityActionType _type, out PuzzleCityActionData _action)
+    {
+        foreach (var action in CityActionsOf(_cityId))
+        {
+            if (TryGetActionType(action, out var type) && type == _type)
+            {
+                _action = action;
+                return true;
+            }
+        }
+
+        _action = null;
+        return false;
+    }
+
+    internal bool HasCityAction(string _cityId, PuzzleCityActionType _type)
+    {
+        return TryGetCityAction(_cityId, _type, out _);
+    }
+
+    internal PuzzleCityActionData CityAction(string _id)
+    {
+        return Find(cityActions, _id, "마을 행동");
+    }
+
+    // id로 찾는 행동 모드. 행동 안 배열 순서에 의존하지 않는다.
+    internal bool TryGetActionMode(string _id, out PuzzleActionModeData _mode)
+    {
+        if (!string.IsNullOrEmpty(_id) && actionModes.TryGetValue(_id, out _mode))
+        {
+            return true;
+        }
+
+        _mode = null;
+        return false;
+    }
+
+    // 행동 안의 모드 목록. id 오름차순이라 배열 순서에 의존하지 않는다.
+    internal IReadOnlyList<PuzzleActionModeData> ActionModesOf(PuzzleCityActionData _action)
+    {
+        if (_action == null)
+        {
+            return Array.Empty<PuzzleActionModeData>();
+        }
+
+        return Array.AsReadOnly((_action.modes ?? Array.Empty<PuzzleActionModeData>())
+            .Where(_mode => _mode != null)
+            .OrderBy(_mode => _mode.id, StringComparer.Ordinal).ToArray());
+    }
+
+    // type 문자열과 enum 이름을 대조한다. 숫자 문자열·알 수 없는 값은 false이고 검증에서 오류로 보고된다.
+    internal static bool TryGetActionType(PuzzleCityActionData _action, out PuzzleCityActionType _type)
+    {
+        _type = default;
+        if (_action == null || string.IsNullOrEmpty(_action.type))
+        {
+            return false;
+        }
+
+        return Enum.TryParse(_action.type, out _type) && Enum.IsDefined(typeof(PuzzleCityActionType), _type);
+    }
+
     internal IReadOnlyList<PuzzleSynergyRuleData> SynergiesFor(PuzzleSynergyScope _scope)
     {
         string scope = _scope.ToString();
@@ -254,6 +373,11 @@ public sealed class TableManager
         }
         _piece = null;
         return false;
+    }
+
+    internal bool TryGetAnimalBreeding(string _pieceId, out PuzzleAnimalBreedingData _rule)
+    {
+        return animalBreeding.TryGetValue(_pieceId, out _rule);
     }
     internal bool TryGetStockProfile(string _id, out PuzzleMarketStockData _profile)
     {

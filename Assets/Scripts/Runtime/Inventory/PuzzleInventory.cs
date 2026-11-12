@@ -7,7 +7,7 @@ public sealed class PuzzleInventory
 {
     readonly IReadOnlyDictionary<string, PuzzleItemDefinition> definitions;
     readonly IReadOnlyList<PuzzleSynergyRuleData> synergyRules;
-    readonly PuzzleInventoryValuation valuation = new();
+    PuzzleInventoryValuation valuation = new();
     readonly SortedDictionary<int, PuzzlePlacement> placements = new();
     readonly Dictionary<Vector2Int, (int InstanceId, PuzzleCell Cell)> occupancy = new();
 
@@ -44,33 +44,70 @@ public sealed class PuzzleInventory
         return valuation.ValueOf(_instanceId);
     }
 
+    internal decimal FreshnessAdjustedValueOf(int _instanceId)
+    {
+        return placements[_instanceId].FreshnessAdjustedValue;
+    }
+
+    internal PuzzleInventory CopyForTimeAdvance()
+    {
+        var copy = new PuzzleInventory(this);
+        foreach (var placement in placements.Values)
+        {
+            copy.StorePlacement(copy.CopyPlacement(placement));
+        }
+        copy.RecalculateValue();
+        return copy;
+    }
+
+    PuzzleInventory(PuzzleInventory _source)
+    {
+        Width = _source.Width;
+        Height = _source.Height;
+        definitions = _source.definitions;
+        synergyRules = _source.synergyRules;
+    }
+
+    internal void CommitTimeAdvance(PuzzleInventory _staged)
+    {
+        occupancy.Clear();
+        foreach (var staged in _staged.placements.Values)
+        {
+            if (placements.TryGetValue(staged.InstanceId, out var existing) && existing.Pose == staged.Pose &&
+                existing.Definition == staged.Definition)
+            {
+                existing.CopyTimeState(staged);
+                StorePlacement(existing);
+            }
+            else
+            {
+                StorePlacement(CopyPlacement(staged));
+            }
+        }
+        valuation = _staged.valuation;
+    }
+
+    PuzzlePlacement CopyPlacement(PuzzlePlacement _placement)
+    {
+        return new PuzzlePlacement(_placement.InstanceId, _placement.Definition, this, _placement.Pose,
+            _placement.ActualValue, _placement.OwnedMinutes, _placement.Durability, _placement.ShelfLifeAge)
+        {
+            HasUnreadSynergySettlement = _placement.HasUnreadSynergySettlement
+        };
+    }
+
     internal void RecalculateValue()
     {
         valuation.Recalculate(this, synergyRules);
     }
 
-    // 현재 인접 배치의 1회 변화량을 정산 횟수만큼 적용한다.
-    internal bool CanApplySynergyActivations(long _count)
+    // 정산 계획의 작업 사본에 현재 배치의 시너지를 적용한다.
+    internal bool ApplySynergyActivations(long _count)
     {
-        RecalculateValue();
-        try
-        {
-            foreach (var placement in placements.Values)
-            {
-                var value = valuation.ValueOf(placement.InstanceId);
-                _ = checked(placement.ActualValue + (value.FinalValue - value.BaseValue) * _count);
-            }
-        }
-        catch (OverflowException)
+        if (_count == 0)
         {
             return false;
         }
-        return true;
-    }
-
-    internal bool ApplySynergyActivations(long _count)
-    {
-        RecalculateValue();
         bool changed = false;
         foreach (var placement in placements.Values)
         {
@@ -98,6 +135,81 @@ public sealed class PuzzleInventory
 
     // 이 보드가 지금 점유한 칸 수. 노선 이동 비용의 보유량 계산에 쓴다.
     internal int OccupiedCells => occupancy.Count;
+
+    internal bool TryPlanGrowth(long _minutes, List<PuzzleGrowth> _growth)
+    {
+        var approachingGrowth = placements.Values
+            .Where(_item => _item.OwnedMinutes >= 0 && _item.Definition.GrowthMinutes > 0 &&
+                _minutes > _item.Definition.GrowthMinutes - _item.Definition.GrowthBlockedMinutes - _item.OwnedMinutes)
+            .OrderBy(_item => _item.Definition.GrowthMinutes - _item.OwnedMinutes);
+        HashSet<Vector2Int> occupied = null;
+        foreach (var item in approachingGrowth)
+        {
+            occupied ??= new HashSet<Vector2Int>(occupancy.Keys);
+            occupied.ExceptWith(item.Pose.Cells.Select(_cell => _cell.Position));
+            var adult = definitions[item.Definition.AdultPieceId];
+            if (!TryFindGrowthPose(item.Pose, adult, occupied, out var pose))
+            {
+                return false;
+            }
+
+            occupied.UnionWith(pose.Cells.Select(_cell => _cell.Position));
+            if (_minutes >= item.Definition.GrowthMinutes - item.OwnedMinutes)
+            {
+                _growth.Add(new PuzzleGrowth(item, adult, pose));
+            }
+        }
+
+        return true;
+    }
+
+    bool TryFindGrowthPose(PuzzlePose _current, PuzzleItemDefinition _adult, HashSet<Vector2Int> _occupied,
+        out PuzzlePose _pose)
+    {
+        var currentRotation = new PuzzleRotation(_adult.Cells, _current.ClockwiseTurns);
+        if (TryCreateGrowthPose(_adult.Cells, _current.Origin, currentRotation, _occupied, out _pose))
+        {
+            return true;
+        }
+
+        for (int turn = 0; turn < PuzzleRotation.TURN_COUNT; turn++)
+        {
+            var rotation = new PuzzleRotation(_adult.Cells, (_current.ClockwiseTurns + turn) % PuzzleRotation.TURN_COUNT);
+            for (int y = Height - 1; y >= 0; y--)
+            {
+                for (int x = 0; x < Width; x++)
+                {
+                    if (TryCreateGrowthPose(_adult.Cells, new Vector2Int(x, y), rotation, _occupied, out _pose))
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
+    bool TryCreateGrowthPose(IReadOnlyList<Vector2Int> _cells, Vector2Int _origin, PuzzleRotation _rotation,
+        HashSet<Vector2Int> _occupied, out PuzzlePose _pose)
+    {
+        return TryCreatePose(_cells, _origin, _rotation, out _pose) &&
+            _pose.Cells.All(_cell => InBounds(_cell.Position) && !_occupied.Contains(_cell.Position));
+    }
+
+    internal void ApplyGrowth(PuzzleGrowth _growth)
+    {
+        var item = _growth.Item;
+        var adult = _growth.Adult;
+        var grown = new PuzzlePlacement(item.InstanceId, adult, this, _growth.Pose,
+            item.ActualValue + (adult.BaseValue - (decimal)item.Definition.BaseValue), item.OwnedMinutes)
+        {
+            HasUnreadSynergySettlement = item.HasUnreadSynergySettlement
+        };
+        ClearOccupancy(item);
+        StorePlacement(grown);
+        RecalculateValue();
+    }
 
     internal PuzzlePlacementResult EvaluateMove(PuzzlePlacement _original, PuzzleInventory _destination,
         Vector2Int _grabbedCell, Vector2Int _targetCell, int _clockwiseTurns)
@@ -134,7 +246,7 @@ public sealed class PuzzleInventory
         {
             // 원본과 대상의 현재 점유를 확인한 뒤 같은 호출에서 소속과 점유를 함께 바꾼다.
             var placement = new PuzzlePlacement(_original.InstanceId, _original.Definition, _destination, result.Candidate,
-                _original.ActualValue, _original.OwnedMinutes, _original.Durability, _original.ShelfLifeElapsedMinutes)
+                _original.ActualValue, _original.OwnedMinutes, _original.Durability, _original.ShelfLifeAge)
             {
                 HasUnreadSynergySettlement = _original.HasUnreadSynergySettlement
             };
@@ -175,44 +287,152 @@ public sealed class PuzzleInventory
         }
     }
 
-    // 비어 있는 첫 칸에 조각을 새로 올려 배치한다. 마땅한 빈 칸이 없으면 false.
-    internal bool TryAutoPlace(PuzzleItemDefinition _definition, int _instanceId, out PuzzlePlacement _placement)
+    internal bool TryPlanDefinitionSwaps(IReadOnlyList<PuzzleDefinitionSwap> _swaps)
     {
-        _placement = null;
-        var rotation = new PuzzleRotation(_definition.Cells, 0);
-        for (int y = 0; y < Height; y++)
+        if (_swaps == null || _swaps.Count == 0)
         {
-            for (int x = 0; x < Width; x++)
+            return false;
+        }
+
+        var claimed = new HashSet<int>();
+        foreach (var swap in _swaps)
+        {
+            PuzzlePlacement original = swap.Placement;
+            PuzzleItemDefinition result = swap.Result;
+            if (original == null || result == null || original.Owner != this ||
+                !placements.TryGetValue(original.InstanceId, out var current) ||
+                !ReferenceEquals(current, original) || !claimed.Add(original.InstanceId) ||
+                ReferenceEquals(current.Definition, result) ||
+                current.Definition.BaseValue != result.BaseValue ||
+                !SameLocalCells(current.Definition.Cells, result.Cells))
             {
-                if (!TryCreatePose(_definition.Cells, new Vector2Int(x, y), rotation, out var pose))
-                {
-                    continue;
-                }
-
-                bool free = true;
-                foreach (var cell in pose.Cells)
-                {
-                    if (!InBounds(cell.Position) || occupancy.ContainsKey(cell.Position))
-                    {
-                        free = false;
-                        break;
-                    }
-                }
-
-                if (!free)
-                {
-                    continue;
-                }
-
-                var placement = new PuzzlePlacement(_instanceId, _definition, this, pose, _definition.BaseValue, 0);
-                StorePlacement(placement);
-                RecalculateValue();
-                _placement = placement;
-                return true;
+                return false;
             }
         }
 
+        return true;
+    }
+
+    internal bool TrySwapDefinitions(IReadOnlyList<PuzzleDefinitionSwap> _swaps,
+        out IReadOnlyList<PuzzlePlacement> _replacements)
+    {
+        _replacements = null;
+        if (!TryPlanDefinitionSwaps(_swaps))
+        {
+            return false;
+        }
+
+        var replacements = new List<PuzzlePlacement>(_swaps.Count);
+        foreach (var swap in _swaps)
+        {
+            var original = swap.Placement;
+            var replacement = new PuzzlePlacement(original.InstanceId, swap.Result, this, original.Pose,
+                original.ActualValue, original.OwnedMinutes, original.Durability, original.ShelfLifeAge)
+            {
+                HasUnreadSynergySettlement = original.HasUnreadSynergySettlement
+            };
+            ClearOccupancy(original);
+            StorePlacement(replacement);
+            replacements.Add(replacement);
+        }
+
+        RecalculateValue();
+        _replacements = replacements;
+        return true;
+    }
+
+    static bool SameLocalCells(IReadOnlyList<Vector2Int> _left, IReadOnlyList<Vector2Int> _right)
+    {
+        if (_left == null || _right == null || _left.Count != _right.Count)
+        {
+            return false;
+        }
+
+        var cells = new HashSet<Vector2Int>(_left);
+        foreach (var cell in _right)
+        {
+            if (!cells.Remove(cell))
+            {
+                return false;
+            }
+        }
+
+        return cells.Count == 0;
+    }
+
+    // 비어 있는 첫 칸에 조각을 새로 올려 배치한다. 마땅한 빈 칸이 없으면 false.
+    internal bool TryAutoPlace(PuzzleItemDefinition _definition, int _instanceId, out PuzzlePlacement _placement)
+    {
+        if (!TryFindAutoPlacement(_definition, out var pose))
+        {
+            _placement = null;
+            return false;
+        }
+
+        _placement = PlaceSpawnedItem(_definition, _instanceId, pose);
+        return true;
+    }
+
+    internal bool TryAutoPlace(PuzzleItemDefinition _definition, ref int _lastInstanceId, bool _allowRotation = false)
+    {
+        if (!TryFindAutoPlacement(_definition, out var pose, _allowRotation))
+        {
+            return false;
+        }
+
+        PlaceSpawnedItem(_definition, checked(++_lastInstanceId), pose);
+        return true;
+    }
+
+    internal bool CanAutoPlace(PuzzleItemDefinition _definition, bool _allowRotation = false)
+    {
+        return TryFindAutoPlacement(_definition, out _, _allowRotation);
+    }
+
+    PuzzlePlacement PlaceSpawnedItem(PuzzleItemDefinition _definition, int _instanceId, PuzzlePose _pose)
+    {
+        var placement = new PuzzlePlacement(_instanceId, _definition, this, _pose, _definition.BaseValue, 0);
+        StorePlacement(placement);
+        RecalculateValue();
+        return placement;
+    }
+
+    bool TryFindAutoPlacement(PuzzleItemDefinition _definition, out PuzzlePose _pose, bool _allowRotation = false)
+    {
+        int turns = _allowRotation ? PuzzleRotation.TURN_COUNT : 1;
+        for (int turn = 0; turn < turns; turn++)
+        {
+            var rotation = new PuzzleRotation(_definition.Cells, turn);
+            for (int y = 0; y < Height; y++)
+            {
+                for (int x = 0; x < Width; x++)
+                {
+                    if (TryCreatePose(_definition.Cells, new Vector2Int(x, y), rotation, out _pose) &&
+                        CheckPlacement(_pose.Cells, null) == PuzzlePlacementFailure.None)
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        _pose = null;
         return false;
+    }
+
+    // 이 보드에서 배치 하나를 완전히 제거한다. 도축처럼 소멸시키는 행동만 사용하고, 반환값은 소속이 맞는 경우에만 true다.
+    internal bool Remove(PuzzlePlacement _placement)
+    {
+        if (_placement == null || !placements.TryGetValue(_placement.InstanceId, out var current) ||
+            !ReferenceEquals(current, _placement))
+        {
+            return false;
+        }
+
+        ClearOccupancy(_placement);
+        placements.Remove(_placement.InstanceId);
+        RecalculateValue();
+        return true;
     }
 
     internal PuzzlePose GetDragPose(PuzzleItemDefinition _definition, Vector2Int _grabbedCell, int _clockwiseTurns)
@@ -321,5 +541,31 @@ public sealed class PuzzleInventory
 
         _position = new Vector2Int((int)x, (int)y);
         return true;
+    }
+}
+
+internal readonly struct PuzzleDefinitionSwap
+{
+    internal PuzzlePlacement Placement { get; }
+    internal PuzzleItemDefinition Result { get; }
+
+    internal PuzzleDefinitionSwap(PuzzlePlacement _placement, PuzzleItemDefinition _result)
+    {
+        Placement = _placement;
+        Result = _result;
+    }
+}
+
+internal readonly struct PuzzleGrowth
+{
+    internal PuzzlePlacement Item { get; }
+    internal PuzzleItemDefinition Adult { get; }
+    internal PuzzlePose Pose { get; }
+
+    internal PuzzleGrowth(PuzzlePlacement _item, PuzzleItemDefinition _adult, PuzzlePose _pose)
+    {
+        Item = _item;
+        Adult = _adult;
+        Pose = _pose;
     }
 }

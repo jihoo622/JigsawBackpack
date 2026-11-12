@@ -49,6 +49,16 @@ public sealed class PuzzleSynergyTableData
     public string status, note;
     public int activationIntervalHours = -1;
     public PuzzleSynergyRuleData[] rules = Array.Empty<PuzzleSynergyRuleData>();
+    public PuzzleAnimalSynergyData animals;
+    public PuzzleFreshnessData freshness;
+}
+
+// 마을별 추가 행동(도축 등)의 원본. 도시 id·작업 시간·변환 관계를 이 표만 안다.
+[Serializable]
+public sealed class PuzzleCityActionTableData
+{
+    public string status, note;
+    public PuzzleCityActionData[] actions = Array.Empty<PuzzleCityActionData>();
 }
 
 [Serializable]

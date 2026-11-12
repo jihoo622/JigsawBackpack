@@ -2267,6 +2267,10 @@
           "value": "흔함"
         },
         {
+          "id": "refrigeratorLabel",
+          "value": "냉장"
+        },
+        {
           "id": "saltLabel",
           "value": "소금"
         },
@@ -2483,6 +2487,11 @@
           "arguments": 0
         },
         {
+          "id": "refrigerationEffect",
+          "value": "객차에서 인접 음식의 유통기한 감소율 −{0}%",
+          "arguments": 1
+        },
+        {
           "id": "marketNoSettlement",
           "value": "· 시장에서는 인접 효과가 적용되지 않습니다.",
           "arguments": 0
@@ -2695,25 +2704,8 @@
       "id": "rules.PuzzleInventoryService",
       "texts": [
         {
-          "id": "animalTag",
-          "value": "Animal"
-        },
-        {
-          "id": "animalWastePieceId",
-          "value": "piece.poo"
-        },
-        {
           "id": "expiredFoodPieceId",
           "value": "piece.foodWaste"
-        }
-      ]
-    },
-    {
-      "id": "rules.PuzzleInventoryValuation",
-      "texts": [
-        {
-          "id": "wasteTag",
-          "value": "Waste"
         }
       ]
     },
@@ -3128,6 +3120,104 @@
         }
       ],
       "numbers": [
+        {
+          "id": "butcheryBoardSize",
+          "source": "Assets/Scripts/Editor/Build/PuzzleUiLayoutTool.cs",
+          "value": 396,
+          "whole": true,
+          "positive": true
+        },
+        {
+          "id": "butcheryBoardTop",
+          "source": "Assets/Scripts/Editor/Build/PuzzleUiLayoutTool.cs",
+          "value": 104,
+          "whole": true,
+          "positive": true
+        },
+        {
+          "id": "butcheryButtonBottom",
+          "source": "Assets/Scripts/Editor/Build/PuzzleUiLayoutTool.cs",
+          "value": 24,
+          "whole": true,
+          "positive": true
+        },
+        {
+          "id": "butcheryButtonHeight",
+          "source": "Assets/Scripts/Editor/Build/PuzzleUiLayoutTool.cs",
+          "value": 84,
+          "whole": true,
+          "positive": true
+        },
+        {
+          "id": "butcheryInfoHeight",
+          "source": "Assets/Scripts/Editor/Build/PuzzleUiLayoutTool.cs",
+          "value": 64,
+          "whole": true,
+          "positive": true
+        },
+        {
+          "id": "butcheryInfoY",
+          "source": "Assets/Scripts/Editor/Build/PuzzleUiLayoutTool.cs",
+          "value": 32,
+          "whole": true,
+          "positive": true
+        },
+        {
+          "id": "modificationBoardSize",
+          "source": "Assets/Scripts/Editor/Build/PuzzleUiLayoutTool.cs",
+          "value": 396,
+          "whole": true,
+          "positive": true
+        },
+        {
+          "id": "modificationBoardTop",
+          "source": "Assets/Scripts/Editor/Build/PuzzleUiLayoutTool.cs",
+          "value": 116,
+          "whole": true,
+          "positive": true
+        },
+        {
+          "id": "modificationButtonBottom",
+          "source": "Assets/Scripts/Editor/Build/PuzzleUiLayoutTool.cs",
+          "value": 24,
+          "whole": true,
+          "positive": true
+        },
+        {
+          "id": "modificationButtonHeight",
+          "source": "Assets/Scripts/Editor/Build/PuzzleUiLayoutTool.cs",
+          "value": 84,
+          "whole": true,
+          "positive": true
+        },
+        {
+          "id": "modificationInfoHeight",
+          "source": "Assets/Scripts/Editor/Build/PuzzleUiLayoutTool.cs",
+          "value": 32,
+          "whole": true,
+          "positive": true
+        },
+        {
+          "id": "modificationInfoY",
+          "source": "Assets/Scripts/Editor/Build/PuzzleUiLayoutTool.cs",
+          "value": 64,
+          "whole": true,
+          "positive": true
+        },
+        {
+          "id": "modificationModeHeight",
+          "source": "Assets/Scripts/Editor/Build/PuzzleUiLayoutTool.cs",
+          "value": 48,
+          "whole": true,
+          "positive": true
+        },
+        {
+          "id": "modificationModeTop",
+          "source": "Assets/Scripts/Editor/Build/PuzzleUiLayoutTool.cs",
+          "value": 8,
+          "whole": true,
+          "positive": true
+        },
         {
           "id": "actionDescriptionBottom",
           "value": 16,
@@ -3824,6 +3914,244 @@
           "id": "pointerEdgeInset",
           "value": 20,
           "positive": true
+        }
+      ]
+    },
+    {
+      "id": "presentation",
+      "texts": [
+        {
+          "id": "PuzzleModificationTitle",
+          "value": "개조 작업대",
+          "arguments": 0,
+          "source": "Assets/Scripts/Runtime/Core/Presentation.cs:PuzzleModificationTitle"
+        },
+        {
+          "id": "StationModification",
+          "value": "개조",
+          "arguments": 0,
+          "source": "Assets/Scripts/Runtime/Core/Presentation.cs:StationModification"
+        },
+        {
+          "id": "StationModificationConfirm",
+          "value": "개조하기",
+          "arguments": 0,
+          "source": "Assets/Scripts/Runtime/Core/Presentation.cs:StationModificationConfirm"
+        },
+        {
+          "id": "StationModificationConfirmCost",
+          "value": "개조하기 · ${0:N0}",
+          "arguments": 1,
+          "source": "Assets/Scripts/Runtime/Core/Presentation.cs:StationModificationConfirmCost"
+        },
+        {
+          "id": "PuzzleModificationIdle",
+          "value": "기계 부품을 원하는 모드로 개조하세요.",
+          "arguments": 1,
+          "source": "Assets/Scripts/Runtime/Core/Presentation.cs:PuzzleModificationStatus"
+        },
+        {
+          "id": "PuzzleModificationSelected",
+          "value": "{0} 모드 선택 · 지정 태그 화물을 모두 놓은 뒤 확인하세요",
+          "arguments": 1,
+          "source": "Assets/Scripts/Runtime/Core/Presentation.cs:PuzzleModificationStatus"
+        },
+        {
+          "id": "PuzzleModificationReady",
+          "value": "{0} · 개조할 화물을 모두 놓았습니다",
+          "arguments": 1,
+          "source": "Assets/Scripts/Runtime/Core/Presentation.cs:PuzzleModificationStatus"
+        },
+        {
+          "id": "PuzzleButcheryTitle",
+          "value": "도축대",
+          "arguments": 0,
+          "source": "Assets/Scripts/Runtime/Core/Presentation.cs:107"
+        },
+        {
+          "id": "PuzzleTagCommon.baby",
+          "value": "애기",
+          "arguments": 0,
+          "source": "Presentation tag labels"
+        },
+        {
+          "id": "PuzzleGrowthBlocked",
+          "value": "성체가 들어갈 공간이 부족합니다. 송아지가 있는 객차의 공간을 확보하세요.",
+          "arguments": 0,
+          "source": "Presentation"
+        },
+        {
+          "id": "PuzzleBabyCannotButcher",
+          "value": "애기 태그가 있는 동물은 도축할 수 없습니다.",
+          "arguments": 0,
+          "source": "Presentation"
+        },
+        {
+          "id": "StationButchery",
+          "value": "도축",
+          "arguments": 0,
+          "source": "Assets/Scripts/Runtime/Core/Presentation.cs:105"
+        },
+        {
+          "id": "StationButcheryConfirm",
+          "value": "도축하기",
+          "arguments": 0,
+          "source": "Assets/Scripts/Runtime/Core/Presentation.cs:106"
+        },
+        {
+          "id": "StationButcheryConfirmCost",
+          "value": "도축하기 · ${0:N0}",
+          "arguments": 1,
+          "source": "Assets/Scripts/Runtime/Core/Presentation.cs:StationButcheryConfirmCost"
+        },
+        {
+          "id": "StationButcheryCountdown.text1",
+          "value": "{0} 후 마무리",
+          "arguments": 1,
+          "source": "Assets/Scripts/Runtime/Core/Presentation.cs:113"
+        },
+        {
+          "id": "StationButcheryIdleHint",
+          "value": "동물을 도축대에 놓은 뒤 확인을 누르세요",
+          "arguments": 0,
+          "source": "Assets/Scripts/Runtime/Core/Presentation.cs:115"
+        },
+        {
+          "id": "StationButcheryReady",
+          "value": "물건을 받아가세요",
+          "arguments": 0,
+          "source": "Assets/Scripts/Runtime/Core/Presentation.cs:114"
+        }
+      ]
+    },
+    {
+      "id": "rules",
+      "texts": [
+        {
+          "id": "modification.blocked",
+          "value": "게임을 진행 중이 아니라 개조할 수 없습니다.",
+          "arguments": 0,
+          "source": "Assets/Scripts/Runtime/Core/Presentation.cs:PuzzleModificationReason"
+        },
+        {
+          "id": "modification.unavailable",
+          "value": "이 마을에서는 개조할 수 없습니다.",
+          "arguments": 0,
+          "source": "Assets/Scripts/Runtime/Core/Presentation.cs:PuzzleModificationReason"
+        },
+        {
+          "id": "modification.noMode",
+          "value": "개조 모드를 먼저 선택하세요.",
+          "arguments": 0,
+          "source": "Assets/Scripts/Runtime/Core/Presentation.cs:PuzzleModificationReason"
+        },
+        {
+          "id": "modification.empty",
+          "value": "작업대에 개조할 화물이 없습니다.",
+          "arguments": 0,
+          "source": "Assets/Scripts/Runtime/Core/Presentation.cs:PuzzleModificationReason"
+        },
+        {
+          "id": "modification.insufficientFunds",
+          "value": "개조 비용이 부족합니다. (필요: ${0})",
+          "arguments": 1,
+          "source": "Assets/Scripts/Runtime/Core/Presentation.cs:PuzzleModificationReason"
+        },
+        {
+          "id": "modification.invalidItem",
+          "value": "작업대에는 모드에서 지정한 태그의 화물만 놓을 수 있습니다.",
+          "arguments": 0,
+          "source": "Assets/Scripts/Runtime/Core/Presentation.cs:PuzzleModificationReason"
+        },
+        {
+          "id": "modification.alreadyModified",
+          "value": "이미 개조한 화물이 섞여 있습니다.",
+          "arguments": 0,
+          "source": "Assets/Scripts/Runtime/Core/Presentation.cs:PuzzleModificationReason"
+        },
+        {
+          "id": "modification.noConversion",
+          "value": "선택한 모드로 바꿀 수 없는 화물이 있습니다.",
+          "arguments": 0,
+          "source": "Assets/Scripts/Runtime/Core/Presentation.cs:PuzzleModificationReason"
+        },
+        {
+          "id": "modification.invalidResult",
+          "value": "개조 결과를 작업대에 배치할 수 없습니다.",
+          "arguments": 0,
+          "source": "Assets/Scripts/Runtime/Core/Presentation.cs:PuzzleModificationReason"
+        },
+        {
+          "id": "modification.returnItems",
+          "value": "개조대에 남은 화물을 먼저 기차로 옮기세요.",
+          "arguments": 0,
+          "source": "Assets/Scripts/Runtime/Core/Presentation.cs:PuzzleModificationReturnItems"
+        },
+        {
+          "id": "butchery.blocked",
+          "value": "지금은 도축을 진행할 수 없습니다.",
+          "arguments": 0,
+          "source": "Assets/Scripts/Runtime/Inventory/PuzzleInventoryService.cs"
+        },
+        {
+          "id": "butchery.unavailable",
+          "value": "이 마을에서는 도축할 수 없습니다.",
+          "arguments": 0,
+          "source": "Assets/Scripts/Runtime/Inventory/PuzzleInventoryService.cs"
+        },
+        {
+          "id": "butchery.inProgress",
+          "value": "도축이 진행 중입니다. 시간이 지나면 완료됩니다.",
+          "arguments": 0,
+          "source": "Assets/Scripts/Runtime/Inventory/PuzzleInventoryService.cs"
+        },
+        {
+          "id": "butchery.insufficientFunds",
+          "value": "도축 비용이 부족합니다. (필요: ${0})",
+          "arguments": 1,
+          "source": "Assets/Scripts/Runtime/Inventory/PuzzleInventoryService.cs"
+        },
+        {
+          "id": "butchery.awaitingPickup",
+          "value": "받을 준비가 되었습니다. 화물을 기차로 옮기세요.",
+          "arguments": 0,
+          "source": "Assets/Scripts/Runtime/Inventory/PuzzleInventoryService.cs"
+        },
+        {
+          "id": "butchery.empty",
+          "value": "도축할 동물을 도축대에 놓으세요.",
+          "arguments": 0,
+          "source": "Assets/Scripts/Runtime/Inventory/PuzzleInventoryService.cs"
+        },
+        {
+          "id": "butchery.notAnimal",
+          "value": "{0}은(는) 동물 태그가 아니라 도축할 수 없습니다.",
+          "arguments": 1,
+          "source": "Assets/Scripts/Runtime/Inventory/PuzzleInventoryService.cs"
+        },
+        {
+          "id": "butchery.noConversion",
+          "value": "{0}을(를) 어떻게 도축할지 정해지지 않았습니다.",
+          "arguments": 1,
+          "source": "Assets/Scripts/Runtime/Inventory/PuzzleInventoryService.cs"
+        },
+        {
+          "id": "butchery.noSpace",
+          "value": "도축대가 부족해 결과를 모두 놓을 수 없습니다.",
+          "arguments": 0,
+          "source": "Assets/Scripts/Runtime/Inventory/PuzzleInventoryService.cs"
+        },
+        {
+          "id": "butchery.returnItems",
+          "value": "도축대에 남은 화물을 먼저 기차로 옮기세요.",
+          "arguments": 0,
+          "source": "Assets/Scripts/Runtime/Inventory/PuzzleInventoryService.cs"
+        },
+        {
+          "id": "butchery.timeOverflow",
+          "value": "도축 완료 시각이 게임 시간 범위를 넘습니다.",
+          "arguments": 0,
+          "source": "Assets/Scripts/Runtime/Inventory/PuzzleInventoryService.cs"
         }
       ]
     }

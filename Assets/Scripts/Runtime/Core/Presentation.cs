@@ -139,6 +139,70 @@ public static class Presentation
     {
         return BasicData.Format("presentation.station.restDuration", PuzzleMapTime(_minutes));
     }
+    public static string StationButchery => BasicData.Text("presentation.StationButchery");
+    public static string StationButcheryConfirm => BasicData.Text("presentation.StationButcheryConfirm");
+    // 확인 버튼 라벨에 표 행동 비용을 붙인다. 비용을 모르면 기본 라벨을 쓴다.
+    public static string StationButcheryConfirmCost(long _cost) =>
+        BasicData.Format("presentation.StationButcheryConfirmCost", _cost);
+    public static string PuzzleButcheryInsufficientFunds(long _cost) =>
+        BasicData.Format("rules.butchery.insufficientFunds", _cost);
+    public static string PuzzleButcheryTitle => BasicData.Text("presentation.PuzzleButcheryTitle");
+    // 도축대 상태 문구의 단일 출처. 버튼·보드·hint가 같은 문구를 읽는다.
+    public static string StationButcheryStatus(PuzzleButcheryPhase _phase, long _remainingMinutes)
+    {
+        return _phase switch
+        {
+            PuzzleButcheryPhase.Working => BasicData.Format("presentation.StationButcheryCountdown.text1", PuzzleMapTime(_remainingMinutes)),
+            PuzzleButcheryPhase.Ready => BasicData.Text("presentation.StationButcheryReady"),
+            _ => BasicData.Text("presentation.StationButcheryIdleHint")
+        };
+    }
+    public static string StationModification => BasicData.Text("presentation.StationModification");
+    public static string StationModificationConfirm => BasicData.Text("presentation.StationModificationConfirm");
+    // 확인 버튼 라벨에 선택 모드의 비용을 붙인다. 모드를 고르지 않았으면 기본 라벨을 쓴다.
+    public static string StationModificationConfirmCost(long _cost) =>
+        BasicData.Format("presentation.StationModificationConfirmCost", _cost);
+    public static string PuzzleModificationInsufficientFunds(long _cost) =>
+        BasicData.Format("rules.modification.insufficientFunds", _cost);
+    public static string PuzzleModificationTitle => BasicData.Text("presentation.PuzzleModificationTitle");
+    public static string PuzzleModificationStatus(PuzzleInventoryService _session)
+    {
+        if (_session == null || !_session.HasModification())
+        {
+            return BasicData.Text("rules.modification.unavailable");
+        }
+        bool selected = _session.TryGetSelectedModificationMode(out var mode);
+        string modeName = selected ? mode.displayName : FirstModificationModeName(_session);
+        if (!selected)
+        {
+            return BasicData.Format("presentation.PuzzleModificationIdle", modeName);
+        }
+        return _session.ModificationConfirmable()
+            ? BasicData.Format("presentation.PuzzleModificationReady", modeName)
+            : BasicData.Format("presentation.PuzzleModificationSelected", modeName);
+    }
+    public static string PuzzleModificationReason(PuzzleModificationFailure _failure, PuzzleInventoryService _session)
+    {
+        return _failure switch
+        {
+            PuzzleModificationFailure.Blocked => BasicData.Text("rules.modification.blocked"),
+            PuzzleModificationFailure.Unavailable => BasicData.Text("rules.modification.unavailable"),
+            PuzzleModificationFailure.NoMode => BasicData.Text("rules.modification.noMode"),
+            PuzzleModificationFailure.Empty => BasicData.Text("rules.modification.empty"),
+            PuzzleModificationFailure.InvalidItem => BasicData.Text("rules.modification.invalidItem"),
+            PuzzleModificationFailure.AlreadyModified => BasicData.Text("rules.modification.alreadyModified"),
+            PuzzleModificationFailure.NoConversion => BasicData.Text("rules.modification.noConversion"),
+            PuzzleModificationFailure.InsufficientFunds when _session.TryGetSelectedModificationMode(out var mode)
+                => PuzzleModificationInsufficientFunds(mode.cost),
+            _ => BasicData.Text("rules.modification.invalidResult")
+        };
+    }
+    public static string PuzzleModificationReturnItems() => BasicData.Text("rules.modification.returnItems");
+    static string FirstModificationModeName(PuzzleInventoryService _session)
+    {
+        var modes = _session.ModificationModes();
+        return modes.Count > 0 ? modes[0].displayName : string.Empty;
+    }
     public static string PuzzleNightMarket => BasicData.Text("presentation.inventory.nightMarket");
     public static float PuzzleMarketClosedAlpha => BasicData.Float("presentation.inventory.stationRestDurationAbovePercent");
     public static string PuzzleMapLocate => BasicData.Text("presentation.map.locate");
@@ -380,6 +444,8 @@ public static class Presentation
         { "Fruit", "presentation.tags.fruitLabel" },
         { "Waste", "presentation.tags.wasteLabel" },
         { "Box", "presentation.tags.boxLabel" },
+        { "Refrigerator", "presentation.tags.refrigeratorLabel" },
+        { PuzzleItemDefinition.BABY_TAG, "presentation.PuzzleTagCommon.baby" },
 
     };
 
@@ -518,6 +584,13 @@ public static class Presentation
     internal static string PuzzleTooltipEffectHeader()
     {
         return BasicData.Format("presentation.tooltip.effectHeader", TooltipLabelHtml(), TableManager.Instance.RequireValid().PuzzleSynergy.activationIntervalHours);
+    }
+
+    internal static string PuzzleRefrigerationEffect(int _reductionPercent)
+    {
+        string description = BasicData.Format("presentation.tooltip.refrigerationEffect", _reductionPercent);
+        return BasicData.Format("presentation.tooltip.effectDescription",
+            ColorUtility.ToHtmlStringRGB(PuzzleTooltipGreen), description);
     }
 
     internal static string PuzzleFreshnessText(int _percent)
@@ -726,6 +799,9 @@ public static class Presentation
         };
     }
 
+    internal static string PuzzleGrowthBlocked => BasicData.Text("presentation.PuzzleGrowthBlocked");
+    internal static string PuzzleBabyCannotButcher => BasicData.Text("presentation.PuzzleBabyCannotButcher");
+
     internal static string PuzzleLossSummary(long _funds)
     {
         return BasicData.Format("presentation.inventory.lossSummary", _funds);
@@ -764,6 +840,7 @@ public static class Presentation
                 + BasicData.Format("presentation.inventory.travelStatusText2", PuzzleTravelBreakdown(_result)),
             PuzzleTravelFailure.CostOverflow => BasicData.Text("presentation.inventory.travelStatusText5"),
             PuzzleTravelFailure.TimeOverflow => BasicData.Text("presentation.inventory.travelStatusText6"),
+            PuzzleTravelFailure.GrowthBlocked => PuzzleGrowthBlocked,
             PuzzleTravelFailure.MissingRoute => BasicData.Text("presentation.inventory.travelStatusText7"),
             PuzzleTravelFailure.NotAvailable => BasicData.Text("presentation.inventory.travelStatusText8"),
             PuzzleTravelFailure.Blocked => BasicData.Text("presentation.inventory.travelStatusText9"),
@@ -776,6 +853,10 @@ public static class Presentation
         if (_result.TradeFailure == PuzzleTradeFailure.MarketClosed)
         {
             return PuzzleNightMarket;
+        }
+        if (_result.Placement.Failure == PuzzlePlacementFailure.BabyCannotButcher)
+        {
+            return PuzzleBabyCannotButcher;
         }
         if (_result.Direction == PuzzleTradeDirection.None)
         {
