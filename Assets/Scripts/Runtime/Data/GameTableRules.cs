@@ -223,14 +223,6 @@ public sealed class GameTableRules
                     "BasicDataTableData.colors." + id, "RGBA는 0~1 범위여야 합니다.");
             }
         }
-        const string MIN_ZOOM = "ui.PuzzleMapNavigation.minZoom";
-        const string MAX_ZOOM = "ui.PuzzleMapNavigation.maxZoom";
-        if (_tables.HasBasicNumber(MIN_ZOOM) && _tables.HasBasicNumber(MAX_ZOOM))
-        {
-            double min = _tables.BasicNumber(MIN_ZOOM).value;
-            double max = _tables.BasicNumber(MAX_ZOOM).value;
-            Check(min > 0 && min <= max, "BasicDataTableData.numbers.zoom", "줌 범위는 0보다 크고 최소값이 최대값 이하여야 합니다.");
-        }
         const string EXPIRED_FOOD = "rules.PuzzleInventoryService.expiredFoodPieceId";
         if (_tables.HasBasicText(EXPIRED_FOOD))
         {

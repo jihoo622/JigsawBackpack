@@ -49,6 +49,12 @@ public sealed partial class WorldMapEditorWindow
         }
     }
 
+    static PuzzleMapView LoadMapPrefabView()
+    {
+        var prefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Art/PuzzleWorldMap.prefab");
+        return prefab ? prefab.GetComponentInChildren<PuzzleMapView>(true) : null;
+    }
+
     Vector2 TimeLabelSize(JObject _rail)
     {
         string text = (string)_rail["sourceId"];
@@ -60,7 +66,9 @@ public sealed partial class WorldMapEditorWindow
         {
             text += " · 시간 범위 초과";
         }
-        var style = new GUIStyle(EditorStyles.label) { fontSize = Presentation.PuzzleMapTimeFontSize };
+        var mapView = LoadMapPrefabView();
+        int fontSize = mapView ? mapView.TimeFontSize : 18;
+        var style = new GUIStyle(EditorStyles.label) { fontSize = fontSize };
         return style.CalcSize(new GUIContent(text)) + new Vector2(12f, 8f);
     }
 
@@ -72,13 +80,19 @@ public sealed partial class WorldMapEditorWindow
         }
         var reserved = new List<Rect>();
         float clearance = BasicData.Float("editor.RailMapLayoutTool.labelnodeclearance");
+        var mapView = LoadMapPrefabView();
+        int majorThreshold = mapView ? mapView.MajorStationThreshold : 200;
         foreach (var node in Nodes)
         {
             Vector2 point = Position(node);
             reserved.Add(new Rect(point - Vector2.one * clearance, Vector2.one * clearance * 2f));
+            bool isEmphasized = (string)node["cityId"] == (string)puzzle["startCity"] || (string)node["cityId"] == (string)puzzle["planningTargetCityId"];
+            bool isMajor = (int)City((string)node["cityId"])["mapLabelImportance"] >= majorThreshold;
+            int stationFontSize = mapView ? mapView.CalculateStationFontSize(1f, isEmphasized, isMajor)
+                : (isEmphasized ? 24 : isMajor ? 22 : 22);
             var style = new GUIStyle(EditorStyles.label)
             {
-                fontSize = Presentation.PuzzleMapStationFontSize(1f, (string)node["cityId"] == (string)puzzle["startCity"] || (string)node["cityId"] == (string)puzzle["planningTargetCityId"], (int)City((string)node["cityId"])["mapLabelImportance"] >= BasicData.Int("ui.mapLabels.majorThreshold"))
+                fontSize = stationFontSize
             };
             Vector2 size = style.CalcSize(new GUIContent(CityName((string)node["cityId"]))) + new Vector2(8f, 8f);
             reserved.Add(new Rect(point + new Vector2(-size.x * 0.5f, clearance * 0.5f), size));

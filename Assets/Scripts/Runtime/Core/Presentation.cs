@@ -204,31 +204,15 @@ public static class Presentation
     public static string PuzzleMapLocate => BasicData.Text("presentation.map.locate");
     public static string PuzzleMapZoomIn => BasicData.Text("presentation.map.zoomIn");
     public static string PuzzleMapZoomOut => BasicData.Text("presentation.map.zoomOut");
-    public static float PuzzleMapHaloSize => BasicData.Float("presentation.map.haloSize");
-    public static int PuzzleMapBadgeFontSize => BasicData.Int("presentation.map.badgeFontSize");
-    public static int PuzzleMapTimeFontSize => BasicData.Int("presentation.map.timeFontSize");
-    public static int PuzzleMapStationFontSize(float _zoom, bool _emphasized, bool _major)
-    {
-        return _emphasized ? BasicData.Int("presentation.map.puzzleMapStationFontSize")
-            : _major ? BasicData.Int("presentation.map.majorStationFontSize")
-            : _zoom < BasicData.Float("presentation.map.puzzleMapStationFontSizeBelowPercent")
-                ? BasicData.Int("presentation.map.puzzleMapStationFontSizeBelowPercent2")
-                : BasicData.Int("presentation.map.puzzleMapStationFontSizeBelowPercent3");
-    }
-
-    public static float PuzzleMapTrackThickness(float _authoredThickness)
-    {
-        return _authoredThickness * BasicData.Float("presentation.map.puzzleMapTrackThickness");
-    }
     public static Color PuzzleMapCurrentHalo => BasicData.Color("presentation.map.currentHalo");
     public static Color PuzzleMapTargetHalo => PuzzleMapCurrentHalo;
     public static Color PuzzleMapOcean => BasicData.Color("presentation.map.ocean");
     public static Color PuzzleMapLand => BasicData.Color("presentation.map.land");
     public static Color PuzzleMapRiver => BasicData.Color("presentation.map.river");
     public static Color PuzzleMapTerrainBorder => BasicData.Color("presentation.map.terrainBorder");
-    public static string PuzzleMapZoom(float _scale)
+    public static string PuzzleMapZoom(float _percent)
     {
-        return BasicData.Format("presentation.map.zoom", _scale * BasicData.Float("presentation.map.puzzleMapZoom"));
+        return BasicData.Format("presentation.map.zoom", _percent);
     }
     public static string PuzzleMapGuideText => BasicData.Text("presentation.map.guide");
     public static string PuzzleMapHint => BasicData.Text("presentation.map.hint");
