@@ -72,12 +72,12 @@
       "description": "물과 인접 시 +30%"
     },
     {
-      "id": "pooNearbyPenalty",
-      "excludedTargetTag": "Poo",
-      "neighborTag": "Poo",
+      "id": "wasteNearbyPenalty",
+      "excludedTargetTag": "Waste",
+      "neighborTag": "Waste",
       "scope": "Both",
       "multiplierPercent": 50,
-      "descriptionTag": "Poo",
+      "descriptionTag": "Waste",
       "description": "인접한 화물에게 -50%"
     }
   ],

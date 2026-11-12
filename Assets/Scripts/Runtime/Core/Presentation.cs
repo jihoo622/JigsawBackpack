@@ -333,7 +333,7 @@ public static class Presentation
         { "Meat", "presentation.tags.meatLabel" },
         { "Animal", "presentation.tags.animalLabel" },
         { "Fruit", "presentation.tags.fruitLabel" },
-        { "Poo", "presentation.tags.pooLabel" },
+        { "Waste", "presentation.tags.wasteLabel" },
         { "Box", "presentation.tags.boxLabel" },
 
     };
@@ -644,7 +644,7 @@ public static class Presentation
             "meat" => BasicData.Color("presentation.tags.meatBackground"),       // 고기: 딥 레드
             "animal" => BasicData.Color("presentation.tags.animalBackground"),    // 가축: 탄/레더 탠
             "fruit" => BasicData.Color("presentation.tags.fruitBackground"),      // 과일: 사과 레드
-            "poo" => BasicData.Color("presentation.tags.pooBackground"),         // 똥: 다크 브라운
+            "waste" => BasicData.Color("presentation.tags.wasteBackground"),         // 폐기물: 다크 브라운
             _ => BasicData.Color("presentation.tags.puzzleTagBackgroundColorColor")
         };
     }
@@ -682,7 +682,7 @@ public static class Presentation
             "box" => BasicData.Int("presentation.tags.boxPriority"),
             "supply" => BasicData.Int("presentation.tags.supplyPriority"),
             "cargo" => BasicData.Int("presentation.tags.cargoPriority"),
-            "poo" => BasicData.Int("presentation.tags.pooPriority"),
+            "waste" => BasicData.Int("presentation.tags.wastePriority"),
             _ => BasicData.Int("presentation.tags.defaultPriority")
         };
     }

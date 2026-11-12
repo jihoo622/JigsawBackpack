@@ -2033,7 +2033,7 @@
           "a": 1.0
         },
         {
-          "id": "pooBackground",
+          "id": "wasteBackground",
           "r": 0.3764705882352941,
           "g": 0.25098039215686274,
           "b": 0.14901960784313725,
@@ -2135,7 +2135,7 @@
           "whole": true
         },
         {
-          "id": "pooPriority",
+          "id": "wastePriority",
           "value": 22,
           "whole": true
         },
@@ -2202,8 +2202,8 @@
           "value": "금속"
         },
         {
-          "id": "pooLabel",
-          "value": "똥"
+          "id": "wasteLabel",
+          "value": "폐기물"
         },
         {
           "id": "puzzleTagCommon",
@@ -2644,6 +2644,10 @@
         {
           "id": "animalWastePieceId",
           "value": "piece.poo"
+        },
+        {
+          "id": "expiredFoodPieceId",
+          "value": "piece.foodWaste"
         }
       ]
     },
@@ -2651,8 +2655,8 @@
       "id": "rules.PuzzleInventoryValuation",
       "texts": [
         {
-          "id": "pooTag",
-          "value": "Poo"
+          "id": "wasteTag",
+          "value": "Waste"
         }
       ]
     },

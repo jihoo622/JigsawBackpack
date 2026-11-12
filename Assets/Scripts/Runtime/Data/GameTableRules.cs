@@ -230,11 +230,13 @@ public sealed class GameTableRules
             double max = _tables.BasicNumber(MAX_ZOOM).value;
             Check(min > 0 && min <= max, "BasicDataTableData.numbers.zoom", "줌 범위는 0보다 크고 최소값이 최대값 이하여야 합니다.");
         }
-        const string WASTE_PIECE = "rules.PuzzleInventoryService.animalWastePieceId";
-        if (_tables.HasBasicText(WASTE_PIECE))
+        foreach (string key in new[] { "rules.PuzzleInventoryService.animalWastePieceId", "rules.PuzzleInventoryService.expiredFoodPieceId" })
         {
-            string pieceId = _tables.BasicText(WASTE_PIECE).value;
-            Reference(pieceId, "BasicDataTableData.texts." + WASTE_PIECE, _tables.TryGetPiece(pieceId, out _), "화물");
+            if (_tables.HasBasicText(key))
+            {
+                string pieceId = _tables.BasicText(key).value;
+                Reference(pieceId, "BasicDataTableData.texts." + key, _tables.TryGetPiece(pieceId, out _), "화물");
+            }
         }
         const string LOW_FRESHNESS = "ui.freshness.lowThreshold";
         const string MEDIUM_FRESHNESS = "ui.freshness.mediumThreshold";

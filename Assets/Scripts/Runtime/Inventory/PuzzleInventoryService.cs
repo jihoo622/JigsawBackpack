@@ -9,6 +9,7 @@ public sealed class PuzzleInventoryService : MonoBehaviour
     const int PERCENT_SCALE = 100;
     static string AnimalTag => BasicData.Text("rules.PuzzleInventoryService.animalTag");
     static string AnimalWastePieceId => BasicData.Text("rules.PuzzleInventoryService.animalWastePieceId");
+    static string ExpiredFoodPieceId => BasicData.Text("rules.PuzzleInventoryService.expiredFoodPieceId");
 
     TableManager tables;
     Dictionary<string, PuzzleInventory> markets;
@@ -395,11 +396,16 @@ public sealed class PuzzleInventoryService : MonoBehaviour
             }
         }
         Time.Advance(_minutes);
+        definitions.TryGetValue(ExpiredFoodPieceId, out var waste);
         foreach (var wagon in trainWagons)
         {
             foreach (var item in wagon.Placements)
             {
                 item.ApplyElapsedMinutes(_minutes);
+            }
+            if (_minutes > 0 && waste != null)
+            {
+                wagon.ReplaceExpiredFood(waste);
             }
         }
         if (Time.IsOverdue)
