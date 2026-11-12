@@ -67,7 +67,7 @@ public sealed partial class WorldMapEditorWindow
 
     JArray EditingPoints(JObject _rail)
     {
-        return editTimeGeometry ? (JArray)_rail["points"] : DisplayPoints(_rail);
+        return DisplayPoints(_rail);
     }
 
     static Vector2 ArrayPoint(JArray _points, int _index)
@@ -136,7 +136,7 @@ public sealed partial class WorldMapEditorWindow
                     Handles.color = previous;
                     Handles.EndGUI();
                 }
-                string mode = tab == 1 && editTimeGeometry ? "시간 계산 경로 편집" : "표시 지도 편집";
+                string mode = "이동 시간은 표시 선 길이에 비례합니다";
                 GUI.Label(new Rect(8f, canvasRect.height - 24f, canvasRect.width - 16f, 22f), mode, EditorStyles.helpBox);
             }
             HandleCanvasInput(control);
@@ -207,7 +207,7 @@ public sealed partial class WorldMapEditorWindow
             {
                 for (int i = 0; i < screen.Length; i++)
                 {
-                    if (!editTimeGeometry && (i == 0 || i == screen.Length - 1))
+                    if (i == 0 || i == screen.Length - 1)
                     {
                         continue;
                     }
@@ -403,11 +403,12 @@ public sealed partial class WorldMapEditorWindow
                         Vector2 point = Snap(WorldPoint(mouse) + dragOffset);
                         rail["labelX"] = point.x;
                         rail["labelY"] = point.y;
+                        rail["labelManual"] = true;
                     });
                 }
                 else
                 {
-                    Change("노선 경유점 이동", () => SetRailPoint(rail, editTimeGeometry ? "points" : "displayPoints", dragPoint, WorldPoint(mouse) + dragOffset));
+                    Change("노선 경유점 이동", () => SetRailPoint(rail, "displayPoints", dragPoint, WorldPoint(mouse) + dragOffset));
                 }
             }
             input.Use();
@@ -451,7 +452,7 @@ public sealed partial class WorldMapEditorWindow
                 var points = EditingPoints(rail);
                 for (int i = 0; i < points.Count && dragRail == null; i += 2)
                 {
-                    if (!editTimeGeometry && (i == 0 || i == points.Count - 2))
+                    if (i == 0 || i == points.Count - 2)
                     {
                         continue;
                     }

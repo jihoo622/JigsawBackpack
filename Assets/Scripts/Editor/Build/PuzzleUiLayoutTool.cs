@@ -150,6 +150,7 @@ public static class PuzzleUiLayoutTool
         title.text = Presentation.StationActionsTitle;
         Canvas.ForceUpdateCanvases();
         LayoutRebuilder.ForceRebuildLayoutImmediate(body);
+        PocArtSetupTool.ApplyScene(_scene);
         foreach (var component in All<Component>(_scene))
         {
             if (component && PrefabUtility.IsPartOfPrefabInstance(component))

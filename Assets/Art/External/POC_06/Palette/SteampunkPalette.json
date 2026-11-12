@@ -1,0 +1,30 @@
+{
+  "_comment": "Story 019. 탑뷰 스팀펑크 환경 아트 팔레트(브리프 Art & audio direction). 생성기(Assets/Scripts/Art/Editor)는 이 파일의 이름으로 색을 읽는다. light/base/shade = 밝음/기본/그늘.",
+  "colors": [
+    { "name": "outline",    "light": "#4a3550", "base": "#322438", "shade": "#1e1522" },
+    { "name": "mortar",     "light": "#4a3c55", "base": "#3a2e44", "shade": "#2a2133" },
+    { "name": "ground",     "light": "#7a6a6e", "base": "#65575c", "shade": "#514449" },
+    { "name": "sandstone",  "light": "#b89c7c", "base": "#a18567", "shade": "#7f6650" },
+    { "name": "brick",      "light": "#a8847a", "base": "#8e6b64", "shade": "#6f514c" },
+    { "name": "wall",       "light": "#6e4250", "base": "#54303a", "shade": "#3d2129" },
+    { "name": "wall_alt",   "light": "#674659", "base": "#513647", "shade": "#3b2634" },
+    { "name": "roof",       "light": "#545b69", "base": "#3a3f4a", "shade": "#2a2d36" },
+    { "name": "copper",     "light": "#c07a4a", "base": "#995636", "shade": "#6e3a24" },
+    { "name": "brass",      "light": "#f0c27a", "base": "#d6a053", "shade": "#a67535" },
+    { "name": "smoke",      "light": "#fff4ea", "base": "#f2decd", "shade": "#c9b4a6" },
+    { "name": "glow",       "light": "#fff1b8", "base": "#ffcf6a", "shade": "#e8963a" },
+    { "name": "water",      "light": "#6b858f", "base": "#5b7983", "shade": "#435d66" },
+    { "name": "shrub",      "light": "#6a9a4c", "base": "#4f7a3a", "shade": "#375a28" },
+    { "name": "moss",       "light": "#6f7d45", "base": "#56603a", "shade": "#3f472b" },
+    { "name": "wood",       "light": "#9a6a44", "base": "#7a4f32", "shade": "#573623" },
+    { "name": "iron",       "light": "#6b6e7c", "base": "#4a4d5a", "shade": "#33353f" },
+    { "name": "ember",      "light": "#ffa04a", "base": "#e8742c", "shade": "#b04a20" },
+    { "name": "fabric",     "light": "#a85a54", "base": "#84403e", "shade": "#5e2c2c" },
+    { "name": "background", "light": "#352c3e", "base": "#2a2331", "shade": "#1f1a25" },
+    { "name": "skin_fair",  "light": "#f2cfae", "base": "#dcaa86", "shade": "#a8735a" },
+    { "name": "skin_tan",   "light": "#dcaa7c", "base": "#bd875e", "shade": "#8a5a3e" },
+    { "name": "skin_olive", "light": "#c9a87e", "base": "#a6855d", "shade": "#755a3d" },
+    { "name": "skin_deep",  "light": "#a37252", "base": "#7f533a", "shade": "#563626" },
+    { "name": "ui_panel",   "light": "#3a2738", "base": "#2b1d2a", "shade": "#1f1520" }
+  ]
+}

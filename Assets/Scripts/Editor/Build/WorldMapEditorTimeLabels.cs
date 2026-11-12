@@ -25,10 +25,22 @@ public sealed partial class WorldMapEditorWindow
         EditorGUILayout.Space();
         EditorGUILayout.LabelField("시간 라벨 자동 배치", EditorStyles.boldLabel);
         autoTimeLabels = EditorGUILayout.Toggle("역·노선 수정 시 자동 재배치", autoTimeLabels);
-        EditorGUILayout.HelpBox("표시 선의 길이상 중간부터 위치를 탐색합니다. 역·기본 역명 영역·다른 시간 라벨·다른 노선을 피합니다. 수동 위치를 유지하려면 자동 재배치를 끄세요.", MessageType.Info);
+        EditorGUILayout.HelpBox("수동으로 옮긴 라벨은 고정해 유지합니다. 자동 배치는 고정되지 않은 라벨만 옮깁니다. 선택 노선의 자동 배치는 해당 노선 고정을 해제합니다.", MessageType.Info);
         if (GUILayout.Button("전체 시간 라벨 자동 배치"))
         {
             Change("전체 시간 라벨 자동 배치", () => PlaceTimeLabels(null));
+            showTimes = true;
+        }
+        if (GUILayout.Button("고정 해제 후 전체 자동 배치"))
+        {
+            Change("시간 라벨 전체 고정 해제 및 자동 배치", () =>
+            {
+                foreach (var rail in Rails)
+                {
+                    rail["labelManual"] = false;
+                }
+                PlaceTimeLabels(null);
+            });
             showTimes = true;
         }
         if (!string.IsNullOrEmpty(timeLabelNotice))
@@ -54,6 +66,10 @@ public sealed partial class WorldMapEditorWindow
 
     void PlaceTimeLabels(string _onlyId)
     {
+        if (_onlyId != null)
+        {
+            Rails.Single(_rail => (string)_rail["sourceId"] == _onlyId)["labelManual"] = false;
+        }
         var reserved = new List<Rect>();
         float clearance = BasicData.Float("editor.RailMapLayoutTool.labelnodeclearance");
         foreach (var node in Nodes)
@@ -71,7 +87,7 @@ public sealed partial class WorldMapEditorWindow
         // 미배치 노선의 기존 라벨도 예약해 실패 시 유지한 위치와 새 라벨이 겹치지 않게 한다.
         var labelBoxes = rails.ToDictionary(_rail => (string)_rail["sourceId"], _rail => new Rect(new Vector2((float)_rail["labelX"], (float)_rail["labelY"]) - TimeLabelSize(_rail) * 0.5f, TimeLabelSize(_rail)));
         var failed = new List<string>();
-        foreach (var rail in rails.Where(_rail => _onlyId == null || (string)_rail["sourceId"] == _onlyId))
+        foreach (var rail in rails.Where(_rail => !((bool?)_rail["labelManual"] ?? false) && (_onlyId == null || (string)_rail["sourceId"] == _onlyId)))
         {
             string id = (string)rail["sourceId"];
             var points = DisplayPoints(rail);

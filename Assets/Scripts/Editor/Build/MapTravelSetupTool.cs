@@ -18,6 +18,7 @@ public static class MapTravelSetupTool
         try
         {
             ApplyTo(root);
+            PocArtSetupTool.ApplyTravel(root);
             PrefabUtility.SaveAsPrefabAsset(root, PREFAB_PATH);
         }
         finally
