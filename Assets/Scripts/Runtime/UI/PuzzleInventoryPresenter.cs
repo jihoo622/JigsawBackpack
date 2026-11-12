@@ -26,6 +26,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
     float hoveredWagonStartTime;
     bool initialized;
     bool isMapOpen;
+    decimal? pendingSettlementValue;
     bool InventoryBlocked => isMapOpen;
 
     void OnEnable()
@@ -114,6 +115,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         }
         currentHoveredInstanceId = null;
         isMapOpen = false;
+        pendingSettlementValue = null;
         GameEvents.CityArrived -= OnCityArrived;
         GameEvents.TimeAdvanced -= OnTimeAdvanced;
         GameEvents.PanelVisibility -= OnPanelVisibility;
@@ -245,6 +247,8 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         input.CancelCapture();
         ClearDrag();
         ShowCurrentCity();
+        pendingSettlementValue = _info.cargoValueBeforeSettlement;
+        PlayPendingSettlement();
         if (session.RunStatus != PuzzleRunStatus.InProgress)
         {
             cityView.SetTown(session.CityData.displayName, false);
@@ -323,6 +327,22 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             RenderBoards();
             ShowItemDetails(null, null);
         }
+        else
+        {
+            PlayPendingSettlement();
+        }
+    }
+
+    void PlayPendingSettlement()
+    {
+        if (InventoryBlocked || !pendingSettlementValue.HasValue)
+        {
+            return;
+        }
+
+        trainView.ShowSynergySettlement(pendingSettlementValue.Value,
+            session.Train.Placements.Sum(item => item.ActualValue), session.Train.Value.BaseValue);
+        pendingSettlementValue = null;
     }
 
     void ShowCurrentCity()
@@ -662,7 +682,12 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             var direction = isTrain ? PuzzleTradeDirection.Sell : PuzzleTradeDirection.Buy;
             long? price = session.TryQuoteTrade(_placement, direction, out long quote) ? quote : (long?)null;
             tooltipView.Show(item, actualValue, rate, effects, futureValue, pos, isTrain, freshness, previewMinutes,
-                previewName, previewActivations, price, isTrain ? Presentation.PuzzleActiveEffects(value) : Presentation.PuzzleMarketNoSettlement);
+                previewName, previewActivations, price, isTrain ? value.SynergyBonuses : null);
+            if (_placement.HasUnreadSynergySettlement && tooltipView.IsOpen)
+            {
+                _placement.HasUnreadSynergySettlement = false;
+                RenderBoards(_placement.InstanceId);
+            }
         }
 
         if (trainView)

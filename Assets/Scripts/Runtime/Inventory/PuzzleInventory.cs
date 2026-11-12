@@ -68,14 +68,18 @@ public sealed class PuzzleInventory
         return true;
     }
 
-    internal void ApplySynergyActivations(long _count)
+    internal bool ApplySynergyActivations(long _count)
     {
         RecalculateValue();
+        bool changed = false;
         foreach (var placement in placements.Values)
         {
             var value = valuation.ValueOf(placement.InstanceId);
-            placement.AddActualValue((value.FinalValue - value.BaseValue) * _count);
+            decimal before = placement.ActualValue;
+            placement.ApplySynergySettlement((value.FinalValue - value.BaseValue) * _count);
+            changed |= before != placement.ActualValue;
         }
+        return changed;
     }
 
     public bool TryGetCell(Vector2Int _position, out PuzzlePlacement _placement, out PuzzleCell _cell)
@@ -130,7 +134,10 @@ public sealed class PuzzleInventory
         {
             // 원본과 대상의 현재 점유를 확인한 뒤 같은 호출에서 소속과 점유를 함께 바꾼다.
             var placement = new PuzzlePlacement(_original.InstanceId, _original.Definition, _destination, result.Candidate,
-                _original.ActualValue, _original.OwnedMinutes, _original.Durability);
+                _original.ActualValue, _original.OwnedMinutes, _original.Durability)
+            {
+                HasUnreadSynergySettlement = _original.HasUnreadSynergySettlement
+            };
             ClearOccupancy(_original);
             placements.Remove(_original.InstanceId);
             _destination.StorePlacement(placement);

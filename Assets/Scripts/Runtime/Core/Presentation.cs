@@ -409,20 +409,44 @@ public static class Presentation
 
     internal static string PuzzleBoardActualValue(decimal _actualValue, long _baseValue)
     {
-        return BasicData.Format("presentation.inventory.boardActualValue", _actualValue, _baseValue);
+        string amount = $"${_actualValue:#,0.##}".PadRight(7, '\u00A0');
+        return BasicData.Format("presentation.inventory.boardActualValue", amount, _baseValue);
     }
 
     public static string PuzzleNoActiveEffects => BasicData.Text("presentation.tooltip.activeEffectsNone");
 
-    internal static string PuzzleActiveEffects(PuzzleValue _value)
+    static Color ComparisonColor(decimal _value, decimal _baseline, Color _neutralColor, bool _invert = false)
     {
-        if (_value.SynergyBonuses.Count == 0)
+        return ComparisonColor(_value, _baseline, _baseline, _neutralColor, _invert);
+    }
+
+    static Color ComparisonColor(decimal _value, decimal _lowThreshold, decimal _highThreshold, Color _neutralColor, bool _invert = false)
+    {
+        if (_value > _highThreshold)
         {
-            return PuzzleNoActiveEffects;
+            return _invert ? PuzzleTooltipRed : PuzzleTooltipGreen;
         }
-        string effects = string.Join("\n", _value.SynergyBonuses.Select(_bonus =>
-            BasicData.Format("presentation.tooltip.activeEffect", _bonus.NeighborName, _bonus.Amount)));
-        return BasicData.Format("presentation.tooltip.activeEffects", effects);
+        if (_value < _lowThreshold)
+        {
+            return _invert ? PuzzleTooltipGreen : PuzzleTooltipRed;
+        }
+        return _neutralColor;
+    }
+
+    public static string PuzzleTooltipActiveEffectsHeader()
+    {
+        return BasicData.Text("presentation.tooltip.activeEffectsHeader");
+    }
+
+    internal static string PuzzleTooltipActiveEffectLabel(PuzzleSynergyBonus _bonus)
+    {
+        return BasicData.Format("presentation.tooltip.activeEffectLabel", TooltipLabelHtml(), _bonus.NeighborName);
+    }
+
+    internal static string PuzzleTooltipActiveEffectValue(PuzzleSynergyBonus _bonus)
+    {
+        return BasicData.Format("presentation.tooltip.activeEffectValue",
+            ColorUtility.ToHtmlStringRGB(ComparisonColor(_bonus.Amount, 0m, PuzzleTooltipText)), _bonus.Amount);
     }
 
     internal static string PuzzleTooltipActualValueLabel()
@@ -437,28 +461,17 @@ public static class Presentation
 
     static Color RateValueColor(int _percent, bool _isBuying)
     {
-        if (_percent > BasicData.Int("presentation.tooltip.rateValueColorAbovePercent"))
-        {
-            return _isBuying ? PuzzleTooltipRed : PuzzleTooltipGreen;
-        }
-        if (_percent < BasicData.Int("presentation.tooltip.rateValueColorBelowPercent"))
-        {
-            return _isBuying ? PuzzleTooltipGreen : PuzzleTooltipRed;
-        }
-        return PuzzleTooltipText;
+        return ComparisonColor(
+            _percent,
+            BasicData.Int("presentation.tooltip.rateValueColorBelowPercent"),
+            BasicData.Int("presentation.tooltip.rateValueColorAbovePercent"),
+            PuzzleTooltipGold,
+            _isBuying);
     }
 
     static Color PriceValueColor(decimal _price, decimal _actualValue, bool _isBuying)
     {
-        if (_price > _actualValue)
-        {
-            return _isBuying ? PuzzleTooltipRed : PuzzleTooltipGreen;
-        }
-        if (_price < _actualValue)
-        {
-            return _isBuying ? PuzzleTooltipGreen : PuzzleTooltipRed;
-        }
-        return PuzzleTooltipText;
+        return ComparisonColor(_price, _actualValue, PuzzleTooltipGold, _isBuying);
     }
 
     internal static string PuzzleTooltipSellRateLabel()
@@ -535,8 +548,9 @@ public static class Presentation
         string highlighted = Regex.Replace(_description, @"[+−-]\d+(?:[.,]\d+)?%", match =>
         {
             Color color = match.Value[0] == '+' ? PuzzleTooltipGreen : PuzzleTooltipRed;
-            return $"<color=#{ColorUtility.ToHtmlStringRGB(color)}>{match.Value}</color>";
+            return $"<color=#{ColorUtility.ToHtmlStringRGB(color)}><b>{match.Value}</b></color>";
         });
+        highlighted = Regex.Replace(highlighted, @"\([^)]*\)", match => $"<size=70%>{match.Value}</size>");
         return BasicData.Format("presentation.tooltip.effectDescription", TooltipLabelHtml(), highlighted);
     }
 
@@ -552,9 +566,7 @@ public static class Presentation
 
     internal static string PuzzleTooltipFutureValueValue(decimal _futureValue, decimal _actualValue)
     {
-        Color color = _futureValue > _actualValue
-            ? PuzzleTooltipGreen
-            : (_futureValue < _actualValue ? PuzzleTooltipRed : PuzzleTooltipGold);
+        Color color = ComparisonColor(_futureValue, _actualValue, PuzzleTooltipGold);
         return BasicData.Format("presentation.tooltip.futureValueValue", ColorUtility.ToHtmlStringRGB(color), _futureValue);
     }
 
