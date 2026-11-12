@@ -3,6 +3,7 @@ using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public static class TooltipDetailsSetupTool
 {
@@ -74,23 +75,186 @@ public static class TooltipDetailsSetupTool
         data.FindProperty("baseValueLabelText").objectReferenceValue = label;
         data.FindProperty("baseValueValueText").objectReferenceValue = value;
 
-        var active = body.Find("ActiveEffects")?.GetComponent<TextMeshProUGUI>();
+        var section = (GameObject)data.FindProperty("synergySection").objectReferenceValue;
+        var activeSection = body.Find("ActiveEffectsSection") as RectTransform;
+        if (!activeSection)
+        {
+            var sectionObj = new GameObject("ActiveEffectsSection", typeof(RectTransform), typeof(VerticalLayoutGroup));
+            activeSection = sectionObj.GetComponent<RectTransform>();
+            activeSection.SetParent(body, false);
+        }
+        PlaceBefore(activeSection, section.transform);
+        var activeSectionLayout = activeSection.GetComponent<VerticalLayoutGroup>();
+        if (!activeSectionLayout)
+        {
+            activeSectionLayout = activeSection.gameObject.AddComponent<VerticalLayoutGroup>();
+        }
+        activeSectionLayout.padding = new RectOffset(0, 0, 0, 0);
+        activeSectionLayout.spacing = 6f;
+        activeSectionLayout.childAlignment = TextAnchor.UpperLeft;
+        activeSectionLayout.childForceExpandWidth = true;
+        activeSectionLayout.childForceExpandHeight = false;
+        activeSectionLayout.childControlWidth = true;
+        activeSectionLayout.childControlHeight = true;
+        activeSectionLayout.childScaleWidth = false;
+        activeSectionLayout.childScaleHeight = false;
+
+        var legacyActive = body.Find("ActiveEffects");
+        if (legacyActive && legacyActive.parent != activeSection)
+        {
+            legacyActive.SetParent(activeSection, false);
+        }
+        var active = activeSection.Find("ActiveEffects")?.GetComponent<TextMeshProUGUI>();
         if (!active)
         {
             var template = (TextMeshProUGUI)data.FindProperty("synergyHeaderText").objectReferenceValue;
-            active = Object.Instantiate(template, body);
+            active = Object.Instantiate(template, activeSection);
             active.name = "ActiveEffects";
         }
-        var section = (GameObject)data.FindProperty("synergySection").objectReferenceValue;
-        PlaceBefore(active.transform, section.transform);
+        var legacyRule = active.transform.Find("Bottom Rule");
+        if (legacyRule)
+        {
+            Object.DestroyImmediate(legacyRule.gameObject);
+        }
+        active.transform.SetSiblingIndex(0);
         active.textWrappingMode = TextWrappingModes.Normal;
         active.overflowMode = TextOverflowModes.Overflow;
         active.enableAutoSizing = false;
+        active.fontStyle = FontStyles.Normal;
         active.raycastTarget = false;
         active.text = Presentation.PuzzleNoActiveEffects;
+
+        var activeList = activeSection.Find("ActiveEffectsList") as RectTransform;
+        if (!activeList)
+        {
+            var listObj = new GameObject("ActiveEffectsList", typeof(RectTransform), typeof(VerticalLayoutGroup));
+            activeList = listObj.GetComponent<RectTransform>();
+            activeList.SetParent(activeSection, false);
+        }
+        activeList.transform.SetSiblingIndex(1);
+        var activeListLayout = activeList.GetComponent<VerticalLayoutGroup>();
+        if (!activeListLayout)
+        {
+            activeListLayout = activeList.gameObject.AddComponent<VerticalLayoutGroup>();
+        }
+        activeListLayout.padding = new RectOffset(0, 0, 0, 0);
+        activeListLayout.spacing = 4f;
+        activeListLayout.childAlignment = TextAnchor.UpperLeft;
+        activeListLayout.childForceExpandWidth = true;
+        activeListLayout.childForceExpandHeight = false;
+        activeListLayout.childControlWidth = true;
+        activeListLayout.childControlHeight = true;
+        activeListLayout.childScaleWidth = false;
+        activeListLayout.childScaleHeight = false;
+        activeList.gameObject.SetActive(false);
+
+        const int activeRowPoolCount = 6;
+        var activeRowsProp = data.FindProperty("activeEffectRows");
+        activeRowsProp.arraySize = activeRowPoolCount;
+        for (int i = 0; i < activeRowPoolCount; i++)
+        {
+            EnsureActiveEffectRow(activeList, i, active, out var rowLabel, out var rowValue);
+            var element = activeRowsProp.GetArrayElementAtIndex(i);
+            element.FindPropertyRelative("labelText").objectReferenceValue = rowLabel;
+            element.FindPropertyRelative("valueText").objectReferenceValue = rowValue;
+        }
+
+        EnsureBottomRule(activeSection, -8f);
+        data.FindProperty("activeEffectsSection").objectReferenceValue = activeSection;
         data.FindProperty("activeEffectsText").objectReferenceValue = active;
+        data.FindProperty("activeEffectsListRoot").objectReferenceValue = activeList;
         data.ApplyModifiedPropertiesWithoutUndo();
         PrefabUtility.RecordPrefabInstancePropertyModifications(_view);
+    }
+
+    static void EnsureActiveEffectRow(RectTransform _listRoot, int _index, TextMeshProUGUI _template,
+        out TextMeshProUGUI _label, out TextMeshProUGUI _value)
+    {
+        string rowName = $"Row_{_index}";
+        var rowRect = _listRoot.Find(rowName) as RectTransform;
+        if (!rowRect)
+        {
+            var rowObj = new GameObject(rowName, typeof(RectTransform), typeof(HorizontalLayoutGroup));
+            rowRect = rowObj.GetComponent<RectTransform>();
+            rowRect.SetParent(_listRoot, false);
+        }
+        rowRect.gameObject.SetActive(false);
+        var rowLayout = rowRect.GetComponent<HorizontalLayoutGroup>();
+        if (!rowLayout)
+        {
+            rowLayout = rowRect.gameObject.AddComponent<HorizontalLayoutGroup>();
+        }
+        rowLayout.padding = new RectOffset(0, 0, 0, 0);
+        rowLayout.spacing = 8f;
+        rowLayout.childAlignment = TextAnchor.MiddleLeft;
+        rowLayout.childForceExpandWidth = false;
+        rowLayout.childForceExpandHeight = false;
+        rowLayout.childControlWidth = true;
+        rowLayout.childControlHeight = true;
+        rowLayout.childScaleWidth = false;
+        rowLayout.childScaleHeight = false;
+
+        _label = EnsureActiveRowText(rowRect, "Label", _template, TextAlignmentOptions.Left, TextWrappingModes.Normal, true);
+        _value = EnsureActiveRowText(rowRect, "Value", _template, TextAlignmentOptions.Right, TextWrappingModes.NoWrap, false);
+    }
+
+    static TextMeshProUGUI EnsureActiveRowText(RectTransform _row, string _name, TextMeshProUGUI _template,
+        TextAlignmentOptions _alignment, TextWrappingModes _wrapping, bool _flexibleWidth)
+    {
+        var text = _row.Find(_name)?.GetComponent<TextMeshProUGUI>();
+        if (!text)
+        {
+            text = Object.Instantiate(_template, _row);
+            text.name = _name;
+        }
+        text.fontSize = 18.7f;
+        text.fontStyle = FontStyles.Normal;
+        text.enableAutoSizing = false;
+        text.alignment = _alignment;
+        text.textWrappingMode = _wrapping;
+        text.overflowMode = TextOverflowModes.Overflow;
+        text.raycastTarget = false;
+        text.text = string.Empty;
+
+        var layoutElement = text.GetComponent<LayoutElement>();
+        if (_flexibleWidth)
+        {
+            if (!layoutElement)
+            {
+                layoutElement = text.gameObject.AddComponent<LayoutElement>();
+            }
+            layoutElement.flexibleWidth = 1f;
+            layoutElement.layoutPriority = 1;
+        }
+        else if (layoutElement)
+        {
+            Object.DestroyImmediate(layoutElement);
+        }
+        return text;
+    }
+
+    static void EnsureBottomRule(RectTransform _parent, float _yOffset)
+    {
+        var existing = _parent.Find("Bottom Rule") as RectTransform;
+        if (existing)
+        {
+            return;
+        }
+        var ruleObj = new GameObject("Bottom Rule", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(LayoutElement));
+        var ruleRect = ruleObj.GetComponent<RectTransform>();
+        ruleRect.SetParent(_parent, false);
+        ruleRect.anchorMin = new Vector2(0f, 0f);
+        ruleRect.anchorMax = new Vector2(1f, 0f);
+        ruleRect.pivot = new Vector2(0.5f, 0.5f);
+        ruleRect.anchoredPosition = new Vector2(0f, _yOffset);
+        ruleRect.sizeDelta = new Vector2(0f, 1f);
+
+        var image = ruleObj.GetComponent<Image>();
+        image.color = Presentation.PuzzleTooltipDivider;
+        image.raycastTarget = false;
+
+        var layout = ruleObj.GetComponent<LayoutElement>();
+        layout.ignoreLayout = true;
     }
 
     static void PlaceBefore(Transform _item, Transform _next)

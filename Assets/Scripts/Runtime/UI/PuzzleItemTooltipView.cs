@@ -16,10 +16,20 @@ public sealed class PuzzleItemTooltipView : PanelBase
     [SerializeField] RectTransform categoryRow;
     [SerializeField] Image[] categoryBadgeImages;
     [SerializeField] TextMeshProUGUI[] categoryBadgeTexts;
+    [System.Serializable]
+    struct ActiveEffectRow
+    {
+        public TextMeshProUGUI labelText;
+        public TextMeshProUGUI valueText;
+    }
+
     [SerializeField] RectTransform bodyRect;
     [SerializeField] TextMeshProUGUI baseValueLabelText;
     [SerializeField] TextMeshProUGUI baseValueValueText;
+    [SerializeField] RectTransform activeEffectsSection;
     [SerializeField] TextMeshProUGUI activeEffectsText;
+    [SerializeField] RectTransform activeEffectsListRoot;
+    [SerializeField] ActiveEffectRow[] activeEffectRows;
     [SerializeField] TextMeshProUGUI actualValueLabelText;
     [SerializeField] TextMeshProUGUI actualValueValueText;
     [SerializeField] TextMeshProUGUI sellRateLabelText;
@@ -40,6 +50,7 @@ public sealed class PuzzleItemTooltipView : PanelBase
     Vector2 targetCanvasPosition;
     bool pointerFlipped;
     bool needsSnap;
+    readonly List<ActiveEffectRow> activeRowPool = new();
 
     protected override void Awake()
     {
@@ -72,12 +83,23 @@ public sealed class PuzzleItemTooltipView : PanelBase
 
         canvasGroup.blocksRaycasts = false;
         canvasGroup.interactable = false;
+
+        if (activeRowPool.Count == 0 && activeEffectRows != null)
+        {
+            for (int i = 0; i < activeEffectRows.Length; i++)
+            {
+                if (activeEffectRows[i].labelText || activeEffectRows[i].valueText)
+                {
+                    activeRowPool.Add(activeEffectRows[i]);
+                }
+            }
+        }
     }
 
     internal void Show(PuzzleItemDefinition _item, decimal _actualValue, PuzzleTradeRate _rate,
         IReadOnlyList<string> _effects, decimal? _futureValue, Vector2 _screenPosition,
         bool _isTrainInventory, int? _freshness, long? _previewMinutes, string _previewCityName,
-        long? _previewActivations, long? _tradePrice, string _activeEffects)
+        long? _previewActivations, long? _tradePrice, IReadOnlyList<PuzzleSynergyBonus> _activeEffects)
     {
         if (_item == null)
         {
@@ -104,7 +126,7 @@ public sealed class PuzzleItemTooltipView : PanelBase
 
         SetRow(baseValueLabelText, baseValueValueText,
             Presentation.PuzzleTooltipBaseValueLabel, Presentation.PuzzleTooltipActualValueValue(_item.BaseValue));
-        activeEffectsText.text = _activeEffects;
+        UpdateActiveEffects(_isTrainInventory, _activeEffects);
         SetRow(actualValueLabelText, actualValueValueText,
             Presentation.PuzzleTooltipActualValueLabel(), Presentation.PuzzleTooltipActualValueValue(_actualValue));
 
@@ -266,6 +288,14 @@ public sealed class PuzzleItemTooltipView : PanelBase
             }
             LayoutRebuilder.ForceRebuildLayoutImmediate(categoryRow);
         }
+        if (activeEffectsListRoot && activeEffectsListRoot.gameObject.activeSelf)
+        {
+            LayoutRebuilder.ForceRebuildLayoutImmediate(activeEffectsListRoot);
+        }
+        if (activeEffectsSection)
+        {
+            LayoutRebuilder.ForceRebuildLayoutImmediate(activeEffectsSection);
+        }
         if (synergyListRoot)
         {
             LayoutRebuilder.ForceRebuildLayoutImmediate(synergyListRoot);
@@ -353,6 +383,60 @@ public sealed class PuzzleItemTooltipView : PanelBase
         }
 
         panelRect.anchoredPosition = Vector2.Lerp(panelRect.anchoredPosition, targetCanvasPosition, Time.unscaledDeltaTime * FollowSpeed);
+    }
+
+    void UpdateActiveEffects(bool _isTrainInventory, IReadOnlyList<PuzzleSynergyBonus> _activeEffects)
+    {
+        int activeCount = _isTrainInventory && _activeEffects != null ? _activeEffects.Count : 0;
+        if (activeEffectsText)
+        {
+            activeEffectsText.text = !_isTrainInventory
+                ? Presentation.PuzzleMarketNoSettlement
+                : activeCount == 0
+                    ? Presentation.PuzzleNoActiveEffects
+                    : Presentation.PuzzleTooltipActiveEffectsHeader();
+        }
+
+        if (!activeEffectsListRoot)
+        {
+            return;
+        }
+
+        while (activeRowPool.Count < activeCount && activeRowPool.Count > 0)
+        {
+            ActiveEffectRow templateRow = activeRowPool[0];
+            Transform templateTransform = templateRow.labelText
+                ? templateRow.labelText.transform.parent
+                : templateRow.valueText ? templateRow.valueText.transform.parent : null;
+            if (!templateTransform)
+            {
+                break;
+            }
+            GameObject clone = Instantiate(templateTransform.gameObject, activeEffectsListRoot);
+            clone.name = $"Row_{activeRowPool.Count}";
+            TextMeshProUGUI[] texts = clone.GetComponentsInChildren<TextMeshProUGUI>(true);
+            TextMeshProUGUI label = clone.transform.Find("Label")?.GetComponent<TextMeshProUGUI>() ?? (texts.Length > 0 ? texts[0] : null);
+            TextMeshProUGUI value = clone.transform.Find("Value")?.GetComponent<TextMeshProUGUI>() ?? (texts.Length > 1 ? texts[1] : null);
+            activeRowPool.Add(new ActiveEffectRow
+            {
+                labelText = label,
+                valueText = value
+            });
+        }
+
+        for (int i = 0; i < activeRowPool.Count; i++)
+        {
+            ActiveEffectRow row = activeRowPool[i];
+            bool active = i < activeCount;
+            if (active)
+            {
+                SetRow(row.labelText, row.valueText,
+                    Presentation.PuzzleTooltipActiveEffectLabel(_activeEffects[i]),
+                    Presentation.PuzzleTooltipActiveEffectValue(_activeEffects[i]));
+            }
+            SetRowActive(row.labelText, row.valueText, active);
+        }
+        activeEffectsListRoot.gameObject.SetActive(activeCount > 0);
     }
 
     void SetRow(TextMeshProUGUI _label, TextMeshProUGUI _value, string _labelText, string _valueText)
