@@ -471,8 +471,9 @@ public sealed class GameTableRules
             Check(string.IsNullOrEmpty(rule.targetTag) != string.IsNullOrEmpty(rule.excludedTargetTag), path,
                 "targetTag와 excludedTargetTag 중 하나를 지정해야 합니다.");
             Reference(rule.targetTag, path + ".targetTag", tags.Contains(rule.targetTag), "대상 태그", _allowEmpty: true);
-            Reference(rule.excludedTargetTag, path + ".excludedTargetTag", tags.Contains(rule.excludedTargetTag),
-                "제외 대상 태그", _allowEmpty: true);
+            Check(string.IsNullOrEmpty(rule.excludedTargetTag) ||
+                  rule.excludedTargetTag.Split(',').All(tag => tags.Contains(tag.Trim())),
+                path + ".excludedTargetTag", "제외 대상 태그는 쉼표로 구분된 등록 태그여야 합니다.");
             Reference(rule.neighborTag, path + ".neighborTag", tags.Contains(rule.neighborTag), "이웃 태그");
             Check(string.IsNullOrEmpty(rule.excludedNeighborTag) ||
                   rule.excludedNeighborTag.Split(',').All(tag => tags.Contains(tag.Trim())),
@@ -960,6 +961,11 @@ public sealed class GameTableRules
         }
     }
 
+    static IEnumerable<PuzzleCityTagPriceData> MatchingTagPrices(PuzzleCityData _city, IReadOnlyCollection<string> _tags)
+    {
+        return (_city.tagPrices ?? Array.Empty<PuzzleCityTagPriceData>()).Where(_price => _price != null && _tags.Contains(_price.tag));
+    }
+
     static bool HasNearbyTradeMatch(TableManager _tables, PuzzleCityData _from, PuzzleCityData _to)
     {
         _tables.TryGetStockProfile(_from.regionalStockId, out var regional);
@@ -974,19 +980,16 @@ public sealed class GameTableRules
                 continue;
             }
             var tags = piece.tags ?? Array.Empty<string>();
-            var fromRule = (_from.tagPrices ?? Array.Empty<PuzzleCityTagPriceData>())
-                .Where(_price => _price != null && tags.Contains(_price.tag))
-                .OrderByDescending(_price => _price.priority).FirstOrDefault();
-            bool nativeSupply = (fromRule != null && fromRule.buyPercent < 100 && fromRule.sellPercent < 100) ||
+            // 실제 거래와 같은 합산 배율로 판정한다.
+            var fromRate = PuzzleTradeRate.Combine(_from, MatchingTagPrices(_from, tags));
+            bool nativeSupply = (fromRate.BuyPercent < 100 && fromRate.SellPercent < 100) ||
                 (region != null && !string.IsNullOrEmpty(region.specialtyTag) && tags.Contains(region.specialtyTag));
             if (!nativeSupply)
             {
                 continue;
             }
-            var toRule = (_to.tagPrices ?? Array.Empty<PuzzleCityTagPriceData>())
-                .Where(_price => _price != null && tags.Contains(_price.tag))
-                .OrderByDescending(_price => _price.priority).FirstOrDefault();
-            if (toRule != null && toRule.buyPercent > 100 && toRule.sellPercent > 100)
+            var toRate = PuzzleTradeRate.Combine(_to, MatchingTagPrices(_to, tags));
+            if (toRate.Tag != null && toRate.BuyPercent > 100 && toRate.SellPercent > 100)
             {
                 return true;
             }

@@ -148,7 +148,7 @@ public sealed class PuzzleItemTooltipView : PanelBase
         {
             int buyPercent = _rate.BuyPercent;
             string price = _tradePrice.HasValue
-                ? Presentation.PuzzleTooltipFinalBuyPriceValue(_tradePrice.Value, _item.BaseValue)
+                ? Presentation.PuzzleTooltipFinalBuyPriceValue(_tradePrice.Value, _actualValue)
                 : Presentation.PuzzleTooltipPriceUnavailable;
             SetRow(sellRateLabelText, sellRateValueText,
                 Presentation.PuzzleTooltipBuyRateLabel(), Presentation.PuzzleTooltipBuyRateValue(buyPercent));

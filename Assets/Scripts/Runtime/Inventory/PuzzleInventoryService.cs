@@ -946,30 +946,23 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         return RateFor(tables.CityPrice(_cityId), _item);
     }
 
+    // 아이템 태그와 맞는 규칙을 모두 합산한다. 맞는 규칙이 없으면 도시 기본 배율이다.
     PuzzleTradeRate RateFor(PuzzleCityData _city, PuzzleItemDefinition _item)
     {
-        var best = BestTagRule(_city.id, _item);
-        return best == null
-            ? new PuzzleTradeRate(null, _city.buyPercentOfBaseValue, _city.sellPercentOfFinalValue)
-            : new PuzzleTradeRate(best.tag, best.buyPercent, best.sellPercent);
-    }
-
-    // 아이템 태그와 맞는 규칙 중 priority가 가장 높은 하나를 고른다. 맞는 규칙이 없으면 null.
-    PuzzleCityTagPriceData BestTagRule(string _cityId, PuzzleItemDefinition _item)
-    {
-        PuzzleCityTagPriceData best = null;
+        var rules = new List<PuzzleCityTagPriceData>();
         foreach (string tag in _item.Tags)
         {
-            if (tables.TryGetCityTagPrice(_cityId, tag, out var rule) &&
-                (best == null || rule.priority > best.priority))
+            if (tables.TryGetCityTagPrice(_city.id, tag, out var rule))
             {
-                best = rule;
+                rules.Add(rule);
             }
         }
-        return best;
+        return PuzzleTradeRate.Combine(_city, rules);
     }
 
     // 툴팁과 실제 거래가 공유한다. 배치·자금 검사 없이 현재 도시의 정확한 금액만 산출한다.
+    // 구매·판매 모두 신선도를 반영한 실제 가치가 기준이다. 새 재고는 실제 가치가 기본 가치와 같고,
+    // 판매되어 시장에 남은 화물은 누적된 실제 가치 그대로 다시 거래된다.
     internal bool TryQuoteTrade(PuzzlePlacement _item, PuzzleTradeDirection _direction, out long _price)
     {
         _price = 0;
@@ -977,8 +970,7 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         {
             return false;
         }
-        decimal value = _direction == PuzzleTradeDirection.Buy ? _item.Definition.BaseValue : _item.FreshnessAdjustedValue;
-        return TryQuoteTradeAt(CurrentCityId, _item.Definition, value, _direction, out _price);
+        return TryQuoteTradeAt(CurrentCityId, _item.Definition, _item.FreshnessAdjustedValue, _direction, out _price);
     }
 
     // 지정 도시에서 주어진 가치의 거래 금액. 경제 분석이 다른 도시를 같은 공식으로 견적한다.
@@ -998,14 +990,14 @@ public sealed class PuzzleInventoryService : MonoBehaviour
     static bool TryGetTradePrice(decimal _value, int _percent, int _regionPercent, out long _price)
     {
         _price = 0;
-        // 음수 값(처분 비용)도 허용한다. 비율은 양수만 유효하다.
-        if (_percent <= 0 || _regionPercent <= 0)
+        // 음수 가치(처분)와 0 이하 배율(판매 시 돈을 냄)도 허용한다. 지역 물가만 양수여야 한다.
+        if (_regionPercent <= 0)
         {
             return false;
         }
 
         decimal rate = (decimal)_percent / PERCENT_SCALE * _regionPercent / PERCENT_SCALE;
-        if (Math.Abs(_value) > ((decimal)long.MaxValue + 1) / rate)
+        if (rate != 0 && Math.Abs(_value) > ((decimal)long.MaxValue + 1) / Math.Abs(rate))
         {
             return false;
         }
@@ -1136,7 +1128,9 @@ public sealed class PuzzleInventoryService : MonoBehaviour
             // Move는 새 배치 객체를 만들므로 이동 완료된 인스턴스의 구매 시계를 갱신한다.
             _destination.TryGetCell(move.Candidate.Cells[0].Position, out var movedItem, out _);
             movedItem.SetOwned(result.Direction == PuzzleTradeDirection.Buy);
-            if (result.Direction == PuzzleTradeDirection.Sell && movedItem.Definition.ExcludeFromMarket)
+            // 시장 제외 품목과 가치가 음수인 화물(처분)은 판매 즉시 사라져 다시 살 수 없다.
+            if (result.Direction == PuzzleTradeDirection.Sell &&
+                (movedItem.Definition.ExcludeFromMarket || movedItem.FreshnessAdjustedValue < 0))
             {
                 _destination.Remove(movedItem);
             }
@@ -1961,6 +1955,10 @@ internal enum PuzzleTradeFailure
 
 internal readonly struct PuzzleTradeRate
 {
+    internal const string TAG_SEPARATOR = "+";
+    const int BASE_PERCENT = 100;
+
+    // 적용된 태그를 priority 내림차순으로 이은 표기. 일반(규칙 없음)이면 null.
     internal string Tag { get; }
     internal int BuyPercent { get; }
     internal int SellPercent { get; }
@@ -1974,6 +1972,16 @@ internal readonly struct PuzzleTradeRate
     internal int PercentFor(PuzzleTradeDirection _direction)
     {
         return _direction == PuzzleTradeDirection.Buy ? BuyPercent : SellPercent;
+    }
+
+    // 합연산: 도시 기본 배율 + Σ(일치한 태그 규칙 배율 − 100). 구매·판매를 따로 더하며 0 이하도 허용한다.
+    internal static PuzzleTradeRate Combine(PuzzleCityData _city, IEnumerable<PuzzleCityTagPriceData> _rules)
+    {
+        var ordered = _rules.OrderByDescending(_rule => _rule.priority).ToList();
+        int buy = _city.buyPercentOfBaseValue + ordered.Sum(_rule => _rule.buyPercent - BASE_PERCENT);
+        int sell = _city.sellPercentOfFinalValue + ordered.Sum(_rule => _rule.sellPercent - BASE_PERCENT);
+        string tag = ordered.Count == 0 ? null : string.Join(TAG_SEPARATOR, ordered.Select(_rule => _rule.tag));
+        return new PuzzleTradeRate(tag, buy, sell);
     }
 }
 

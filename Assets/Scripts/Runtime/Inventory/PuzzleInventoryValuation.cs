@@ -33,6 +33,8 @@ internal readonly struct PuzzleSynergyBonus
     internal (Vector2Int Target, Vector2Int Neighbor)? Contact { get; }
     internal decimal Percent { get; }
     internal decimal Amount { get; }
+    // 같은 이웃과 닿은 면 수. 면 하나의 효과는 1이고 이웃별로 묶으면 합친 면 수다.
+    internal int Faces { get; }
 
     internal PuzzleSynergyBonus(PuzzlePlacement _neighbor, (Vector2Int Target, Vector2Int Neighbor)? _contact,
         decimal _percent, decimal _amount)
@@ -42,6 +44,26 @@ internal readonly struct PuzzleSynergyBonus
         Contact = _contact;
         Percent = _percent;
         Amount = _amount;
+        Faces = 1;
+    }
+
+    PuzzleSynergyBonus(string _neighborName, int _neighborId, decimal _percent, decimal _amount, int _faces)
+    {
+        NeighborName = _neighborName;
+        NeighborId = _neighborId;
+        Contact = null;
+        Percent = _percent;
+        Amount = _amount;
+        Faces = _faces;
+    }
+
+    // 면마다 나뉜 효과를 이웃 화물별로 합친다. 화살표는 면 단위, 목록 표기는 이웃 단위로 쓴다.
+    internal static IReadOnlyList<PuzzleSynergyBonus> GroupByNeighbor(IEnumerable<PuzzleSynergyBonus> _bonuses)
+    {
+        return _bonuses.GroupBy(_bonus => _bonus.NeighborId)
+            .Select(_group => new PuzzleSynergyBonus(_group.First().NeighborName, _group.Key,
+                _group.Sum(_bonus => _bonus.Percent), _group.Sum(_bonus => _bonus.Amount), _group.Sum(_bonus => _bonus.Faces)))
+            .ToList();
     }
 }
 
@@ -50,26 +72,32 @@ internal sealed class PuzzleInventoryValuation
     internal const int BASE_PERCENT = 100;
     // 시너지 대상에서 항상 제외하는 면역 태그.
     static string WasteTag => TableManager.Instance.PuzzleSynergy.animals.wasteTag;
-    // 반대편 슬롯에서 같은 경계를 다시 조회하지 않도록 오른쪽과 위만 확인한다.
+    // 반대편 슬롯에서 같은 경계를 다시 조회하지 않도록 오른쪽과 위만 확인한다. 경계(면)마다 한 번씩 평가한다.
     static readonly Vector2Int[] FORWARD_OFFSETS = { Vector2Int.right, Vector2Int.up };
 
     readonly struct NeighborEffect
     {
         internal readonly PuzzlePlacement neighbor;
         internal readonly (Vector2Int Target, Vector2Int Neighbor)? contact;
-        internal readonly decimal bonusPercent, reductionMultiplier;
+        // 이 이웃이 주는 모든 규칙의 (배율 − 100) 합. 음수면 역시너지다.
+        internal readonly decimal percent;
 
-        internal NeighborEffect(PuzzlePlacement _neighbor, (Vector2Int Target, Vector2Int Neighbor)? _contact,
-            decimal _bonusPercent, decimal _reductionMultiplier)
+        internal NeighborEffect(PuzzlePlacement _neighbor, (Vector2Int Target, Vector2Int Neighbor)? _contact, decimal _percent)
         {
             neighbor = _neighbor;
             contact = _contact;
-            bonusPercent = _bonusPercent;
-            reductionMultiplier = _reductionMultiplier;
+            percent = _percent;
         }
     }
 
     readonly Dictionary<int, PuzzleValue> items = new();
+
+    // 쉼표로 구분한 태그 목록 중 하나라도 가지고 있는지. 제외 대상·제외 이웃 태그에 공통으로 쓴다.
+    internal static bool HasAnyTag(IEnumerable<string> _tags, string _commaSeparated)
+    {
+        return !string.IsNullOrEmpty(_commaSeparated) &&
+            _commaSeparated.Split(',').Any(_tag => _tags.Contains(_tag.Trim()));
+    }
 
     internal PuzzleValue Total { get; private set; }
 
@@ -120,7 +148,6 @@ internal sealed class PuzzleInventoryValuation
     static void CollectAdjacentEffects(PuzzleInventory _board, IReadOnlyList<PuzzleSynergyRuleData> _rules,
         Dictionary<int, List<NeighborEffect>> _effects)
     {
-        var pairs = new HashSet<(int First, int Second)>();
         foreach (var placement in _board.Placements)
         {
             foreach (var cell in placement.Pose.Cells)
@@ -133,15 +160,10 @@ internal sealed class PuzzleInventoryValuation
                         continue;
                     }
 
-                    var pair = placement.InstanceId < neighbor.InstanceId
-                        ? (placement.InstanceId, neighbor.InstanceId)
-                        : (neighbor.InstanceId, placement.InstanceId);
-                    if (pairs.Add(pair))
-                    {
-                        var neighborPosition = cell.Position + offset;
-                        CollectEffects(placement, neighbor, (cell.Position, neighborPosition), _rules, _effects);
-                        CollectEffects(neighbor, placement, (neighborPosition, cell.Position), _rules, _effects);
-                    }
+                    // 같은 이웃과 여러 면이 닿으면 면 수만큼 효과를 받는다.
+                    var neighborPosition = cell.Position + offset;
+                    CollectEffects(placement, neighbor, (cell.Position, neighborPosition), _rules, _effects);
+                    CollectEffects(neighbor, placement, (neighborPosition, cell.Position), _rules, _effects);
                 }
             }
         }
@@ -154,27 +176,16 @@ internal sealed class PuzzleInventoryValuation
             int order = _left.neighbor.InstanceId.CompareTo(_right.neighbor.InstanceId);
             return order != 0 ? order : _right.contact.HasValue.CompareTo(_left.contact.HasValue);
         });
+        // 합연산: 100% + 모든 효과의 합. 시너지와 역시너지를 같은 식으로 더하며 음수 배율도 허용한다.
         var details = new List<PuzzleSynergyBonus>();
-        decimal finalValue = _baseValue;
+        decimal totalPercent = 0;
         foreach (var effect in _effects)
         {
-            if (effect.bonusPercent > 0)
-            {
-                decimal amount = _baseValue * (effect.bonusPercent / BASE_PERCENT);
-                finalValue += amount;
-                details.Add(new PuzzleSynergyBonus(effect.neighbor, effect.contact, effect.bonusPercent, amount));
-            }
+            totalPercent += effect.percent;
+            details.Add(new PuzzleSynergyBonus(effect.neighbor, effect.contact, effect.percent,
+                _baseValue * (effect.percent / BASE_PERCENT)));
         }
-        foreach (var effect in _effects)
-        {
-            if (effect.reductionMultiplier < 1)
-            {
-                decimal reducedValue = finalValue * effect.reductionMultiplier;
-                decimal percent = (effect.reductionMultiplier - 1) * BASE_PERCENT;
-                details.Add(new PuzzleSynergyBonus(effect.neighbor, effect.contact, percent, reducedValue - finalValue));
-                finalValue = reducedValue;
-            }
-        }
+        decimal finalValue = _baseValue * ((BASE_PERCENT + totalPercent) / BASE_PERCENT);
         return new PuzzleValue(_baseValue, finalValue, details.AsReadOnly());
     }
 
@@ -188,31 +199,22 @@ internal sealed class PuzzleInventoryValuation
             return;
         }
 
-        decimal bonusPercent = 0;
-        decimal reductionMultiplier = 1;
+        decimal percent = 0;
         foreach (var rule in _rules)
         {
             bool matchesTarget = string.IsNullOrEmpty(rule.excludedTargetTag)
                 ? _target.Definition.Tags.Contains(rule.targetTag)
-                : !_target.Definition.Tags.Contains(rule.excludedTargetTag);
+                : !HasAnyTag(_target.Definition.Tags, rule.excludedTargetTag);
             if (!matchesTarget || !_neighbor.Definition.Tags.Contains(rule.neighborTag) ||
-                (!string.IsNullOrEmpty(rule.excludedNeighborTag) &&
-                 rule.excludedNeighborTag.Split(',').Any(tag => _neighbor.Definition.Tags.Contains(tag.Trim()))))
+                HasAnyTag(_neighbor.Definition.Tags, rule.excludedNeighborTag))
             {
                 continue;
             }
 
-            if (rule.multiplierPercent < BASE_PERCENT)
-            {
-                reductionMultiplier *= (decimal)rule.multiplierPercent / BASE_PERCENT;
-            }
-            else
-            {
-                bonusPercent += rule.multiplierPercent - BASE_PERCENT;
-            }
+            percent += rule.multiplierPercent - BASE_PERCENT;
         }
 
-        if (bonusPercent > 0 || reductionMultiplier < 1)
+        if (percent != 0)
         {
             if (!_effects.TryGetValue(_target.InstanceId, out var itemEffects))
             {
@@ -220,7 +222,7 @@ internal sealed class PuzzleInventoryValuation
                 _effects.Add(_target.InstanceId, itemEffects);
             }
 
-            itemEffects.Add(new NeighborEffect(_neighbor, _contact, bonusPercent, reductionMultiplier));
+            itemEffects.Add(new NeighborEffect(_neighbor, _contact, percent));
         }
     }
 }

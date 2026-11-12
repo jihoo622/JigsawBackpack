@@ -1800,8 +1800,8 @@
         },
         {
           "id": "informationText2",
-          "value": " <size=18>{0} · 물가 {1}%</size>",
-          "arguments": 2
+          "value": " <size=18>{0} · 전 품목 구매 {1}% · 판매 {2}%</size>",
+          "arguments": 3
         },
         {
           "id": "informationText3",
@@ -2519,6 +2519,11 @@
           "arguments": 0
         },
         {
+          "id": "activeEffectFaces",
+          "value": "{0} ×{1}면",
+          "arguments": 2
+        },
+        {
           "id": "activeEffectLabel",
           "value": "<color=#{0}>• {1}</color>",
           "arguments": 2
@@ -2648,8 +2653,8 @@
         },
         {
           "id": "regionPrice",
-          "value": "\n지역 물가 {0}%",
-          "arguments": 1
+          "value": "\n전 품목 구매 {0}% · 판매 {1}%",
+          "arguments": 2
         }
       ]
     },
@@ -2712,7 +2717,7 @@
       "texts": [
         {
           "id": "expiredFoodPieceId",
-          "value": "piece.foodWaste"
+          "value": "piece.poo"
         }
       ]
     },
@@ -4159,6 +4164,101 @@
           "value": "도축 완료 시각이 게임 시간 범위를 넘습니다.",
           "arguments": 0,
           "source": "Assets/Scripts/Runtime/Inventory/PuzzleInventoryService.cs"
+        }
+      ]
+    },
+    {
+      "id": "presentation.synergyChart",
+      "colors": [
+        {
+          "id": "backdrop",
+          "r": 0,
+          "g": 0,
+          "b": 0,
+          "a": 0.6
+        },
+        {
+          "id": "empty",
+          "r": 0.1,
+          "g": 0.14,
+          "b": 0.18,
+          "a": 1
+        },
+        {
+          "id": "negative",
+          "r": 0.62,
+          "g": 0.22,
+          "b": 0.22,
+          "a": 1
+        },
+        {
+          "id": "positive",
+          "r": 0.2,
+          "g": 0.55,
+          "b": 0.32,
+          "a": 1
+        }
+      ],
+      "texts": [
+        {
+          "id": "allTargets",
+          "value": "모든 화물\n({0} 제외)",
+          "arguments": 1
+        },
+        {
+          "id": "cell",
+          "value": "{0:+0;-0;0}%{1}",
+          "arguments": 2
+        },
+        {
+          "id": "close",
+          "value": "닫기"
+        },
+        {
+          "id": "corner",
+          "value": "이 화물이 ↓\n옆에 닿으면 →"
+        },
+        {
+          "id": "footnote",
+          "value": "*{0} {1} 이웃은 이 효과를 주지 않음",
+          "arguments": 2
+        },
+        {
+          "id": "footnoteMark",
+          "value": "*{0}",
+          "arguments": 1
+        },
+        {
+          "id": "itemLine",
+          "value": "{0}  {1}",
+          "arguments": 2
+        },
+        {
+          "id": "itemTag",
+          "value": "<mark=#{0}AA> {1} </mark>",
+          "arguments": 2
+        },
+        {
+          "id": "itemTitle",
+          "value": "화물별 태그"
+        },
+        {
+          "id": "refrigeration",
+          "value": "• 냉장 프레임: 맞닿은 음식의 유통기한 소모 −{0}% (여러 면이 닿아도 프레임당 한 번)",
+          "arguments": 1
+        },
+        {
+          "id": "rules",
+          "value": "• 화물이 가진 태그마다 해당 행의 효과를 모두 더한다.\n• 맞닿은 면 하나마다 적용하고 {0}시간 정산마다 실제 가치에 누적한다.\n• 기차 화물칸 안에서만 정산하며 시장 보드는 표시만 한다.",
+          "arguments": 1
+        },
+        {
+          "id": "title",
+          "value": "시너지 상성표"
+        },
+        {
+          "id": "toggle",
+          "value": "상성표"
         }
       ]
     }

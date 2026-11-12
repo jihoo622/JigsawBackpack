@@ -750,7 +750,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             long? price = !isActionBoard && session.TryQuoteTrade(_placement, direction, out long quote) ? quote : (long?)null;
             tooltipView.Show(item, actualValue, rate, effects, futureValue, pos, isTrain, _placement.FreshnessPercent,
                 _placement.RemainingShelfLifeMinutes, previewMinutes,
-                previewName, previewActivations, price, isTrain ? value.SynergyBonuses : null);
+                previewName, previewActivations, price, isTrain ? PuzzleSynergyBonus.GroupByNeighbor(value.SynergyBonuses) : null);
             if (_placement.HasUnreadSynergySettlement && tooltipView.IsOpen)
             {
                 _placement.HasUnreadSynergySettlement = false;
@@ -797,7 +797,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
                 ? _item.Tags.Contains(rule.descriptionTag)
                 : !string.IsNullOrEmpty(rule.targetTag)
                     ? _item.Tags.Contains(rule.targetTag)
-                    : !string.IsNullOrEmpty(rule.excludedTargetTag) && !_item.Tags.Contains(rule.excludedTargetTag);
+                    : !string.IsNullOrEmpty(rule.excludedTargetTag) && !PuzzleInventoryValuation.HasAnyTag(_item.Tags, rule.excludedTargetTag);
             if (isSubject && !string.IsNullOrWhiteSpace(rule.description))
             {
                 descriptions.Add(Presentation.PuzzleTooltipEffectDescription(rule.description));
@@ -815,7 +815,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         }
         if (marketView)
         {
-            marketView.ShowBoardInfo(Presentation.PuzzleCityTagPreferences(session.CityData, session.RegionData));
+            marketView.ShowBoardInfo(Presentation.PuzzleCityTagPreferences(session.CityData));
         }
     }
 

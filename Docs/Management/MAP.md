@@ -94,7 +94,7 @@
 | `region.mine` | 광산 지역 | Salt | Metal, Salt | 100% | — |
 | `region.ranch` | 목축 지역 | Animal | Meat, Animal | 100% | — |
 | `region.industry` | 공업 지역 | Machinery | Machinery | 100% | — |
-| `region.capital` | 수도권 | — | — | 125% | O |
+| `region.capital` | 수도권 | — | — | 100%(할증은 도시 기본 배율 125%) | O |
 | `region.coast` | 해안 지역 | Fish | Fish, Water | 100% | — |
 | `region.farm` | 농업 지역 | Fruit | Grain, Fruit, Wood | 100% | — |
 | `region.common` | 일반 마을권 | — | — | 100% | O |

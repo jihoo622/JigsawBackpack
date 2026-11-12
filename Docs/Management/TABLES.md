@@ -49,15 +49,15 @@
 ## 가치·거래
 
 - 기본 가치는 `pieces[].baseValue`에 통합했다. 기존 음수 가치도 유지하며 누락 센티널 `-1`은 오류다. 별도 가격 표와 중복 참조는 두지 않는다.
-- 도시의 `tagPrices`는 등록된 `tag`, 고유 `priority`, 양의 `buyPercent`·`sellPercent`를 가진다. 일치 태그 중 최고 우선순위 하나를 사용하고 없으면 `buyPercentOfBaseValue`·`sellPercentOfFinalValue`를 쓴다.
+- 도시의 `tagPrices`는 등록된 `tag`, 고유 `priority`, 양의 `buyPercent`·`sellPercent`를 가진다. 거래 배율은 `buyPercentOfBaseValue`·`sellPercentOfFinalValue`에 일치한 모든 태그 규칙의 (배율 − 100)을 더한 값이며 하한 없이 0 이하도 허용한다. 개별 규칙의 배율은 양수여야 한다. `priority`는 적용 태그 표기 순서다. 수도권 할증은 지역 `pricePercent`(현재 모두 100)가 아니라 도시 기본 배율로 표현한다.
 - 거래 모델과 툴팁 견적은 `PuzzleInventoryService.TryQuoteTrade`를 공유하며 기획에 없는 고정 단가 예외는 두지 않는다.
-- 현재 거래가는 구매 시 기본 가치, 판매 시 인스턴스의 `ActualValue`에 선택된 도시 배율을 곱한다. 도시 배율과 지역의 `pricePercent`를 중간 반올림 없이 곱한 최종 금액을 `MidpointRounding.AwayFromZero`로 정수화한다. 범위 초과는 거래 실패로 처리한다. 미리보기와 확정 모두 `EvaluateDrop` 경로를 쓰고 확정 직전에 다시 평가한다.
+- 현재 거래가는 구매·판매 모두 인스턴스의 신선도 반영 실제 가치(`FreshnessAdjustedValue` = `ActualValue` × 기초데이터 `rules.freshness.*` 구간 배율)에 선택된 도시 배율을 곱한다. 새 재고는 `ActualValue`가 기본 가치와 같다. 도시 배율과 지역의 `pricePercent`를 중간 반올림 없이 곱한 최종 금액을 `MidpointRounding.AwayFromZero`로 정수화한다. 범위 초과는 거래 실패로 처리한다. 미리보기와 확정 모두 `EvaluateDrop` 경로를 쓰고 확정 직전에 다시 평가한다.
 - `startingFunds`는 0 이상, `wagonAddCostBase`·`gameClearCost`는 양수다. 가격 계산에 사용하지 않던 공통 구매 할증 필드는 제거했다. 현재 구매/판매 배율은 도시와 지역 표에서 읽는다.
 - 시너지 규칙은 고유 `id`, 등록된 `neighborTag`, 보드 종류 `scope`(`Train`, `Market`, `Both`), 공간 범위 `spatialRange`(`Adjacent`, `Board`), 양의 `multiplierPercent`, 비어 있지 않은 `description`과 대상 조건을 가진다. `targetTag` 또는 `excludedTargetTag` 중 하나로 대상을 정한다. `descriptionTag`를 지정하면 해당 태그의 팝업에 효과 설명을 표시한다. `Adjacent`는 상하좌우 접촉 쌍, `Board`는 같은 보드의 모든 화물 쌍을 평가한다. 인접 효과의 화살표는 접촉 칸에 표시하고, 보드 효과는 상세 수치에 표시한다.
 - `animals`에 배설물 품목·태그, 배설 주기(일)·동물당 수량, 번식 시간(시간)과 `breeding`을 둔다. 번식 행은 같은 품목의 부모 쌍에 대해 `parentPieceId`, `offspringPieceId`, 양의 `offspringCount`를 지정한다. 검증은 동물 태그 품목마다 고유한 부모 행을 요구하고, 부모·자식과 배설물의 태그를 확인한다.
 - `TableManager.TryGetAnimalBreeding`은 부모 품목 ID로 조회한다. 현재 `piece.cow`와 `piece.babyCow`의 같은 품목 쌍은 각각 `piece.babyCow` 한 마리를 낳는다. 번식 시간은 `animals.breedingHours`, 송아지의 성장 시간과 차단 구간은 `PuzzleTableData.pieces`의 `growthHours`·`growthBlockedHours`가 소유한다.
 - `freshness`는 신선도 반영 주기(시간), 냉장 태그와 프레임당 유통기한 소모 감소율의 원본이다. 같은 객차에서 상하좌우로 맞닿은 냉장 프레임을 인스턴스별로 한 번씩 합산하고 감소율을 100%로 제한한다. 음식의 시작 유통기한은 품목의 `shelfLifeHours`이며, 남은 유통기한이 0이면 `piece.foodWaste`로 교체한다.
-- 같은 이웃과 여러 면이 접해도 한 번 평가한다. 규칙 ID 순서로 기본 가치 기준 증가분을 합산한 뒤 감소 배율을 곱한다. 인접 정보 갱신과 실제 가치 누적을 분리하며 가치의 누적 경계 정책은 게임 기획서 10장을 따른다.
+- 인접 시너지는 맞닿은 면(경계)마다 한 번씩 평가하므로 같은 이웃과 여러 면이 닿으면 면 수만큼 더해진다. 냉장 프레임의 유통기한 감소는 프레임 인스턴스당 한 번이다. `excludedTargetTag`·`excludedNeighborTag`는 쉼표로 여러 태그를 지정할 수 있다(똥 패널티는 `Waste,Animal` 제외). 증가·감소를 구분하지 않고 모든 규칙의 (배율 − 100)을 합산해 기본 가치에 곱하며 하한 없이 음수 배율도 허용한다. 인접 정보 갱신과 실제 가치 누적을 분리하며 가치의 누적 경계 정책은 게임 기획서 10장을 따른다.
 
 ## 노선·턴
 

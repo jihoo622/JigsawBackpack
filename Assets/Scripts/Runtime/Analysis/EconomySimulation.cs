@@ -4,6 +4,8 @@ using System.Linq;
 
 public enum EconomyBotPolicy
 {
+    // 고정 재고 기준 시간당 수익이 가장 큰 인접 왕복을 골라 그곳으로 가서 오간다. 가는 길에는 다음 역 기준으로 거래한다.
+    Loop,
     // 2구간 앞까지 보고 (보유 화물 차익 + 살 화물 차익 − 운임) ÷ 시간이 큰 경로를 고른다. 현재 수치에서는 Greedy보다 성적이 낮다.
     Planner,
     // 바로 옆 도시만 본다.
@@ -16,7 +18,7 @@ public sealed class EconomySimulationSettings
 {
     public int runs = 100;
     public int seed = 1;
-    public EconomyBotPolicy policy = EconomyBotPolicy.Greedy;
+    public EconomyBotPolicy policy = EconomyBotPolicy.Loop;
     // false면 상환 가능해도 기한 직전까지 거래를 계속한다(경제 상한 측정용).
     public bool repayEarly = true;
     // 실험용. 이번 실행 동안만 모든 품목의 유통기한을 없애 신선도가 100%로 유지된다. 테이블 파일은 바꾸지 않는다.
@@ -42,7 +44,8 @@ public static class EconomySimulation
         var restore = ApplyExperiments(tables, _settings);
         try
         {
-            RunAll(_settings, _onRunFinished, report, graph, dayCount);
+            var loops = _settings.policy == EconomyBotPolicy.Loop ? EconomyLoop.BuildAll(tables) : Array.Empty<EconomyLoop>();
+            RunAll(_settings, _onRunFinished, report, graph, loops, dayCount);
         }
         finally
         {
@@ -94,14 +97,14 @@ public static class EconomySimulation
     }
 
     static void RunAll(EconomySimulationSettings _settings, Func<int, bool> _onRunFinished, EconomySimulationReport _report,
-        EconomyRouteGraph _graph, int _dayCount)
+        EconomyRouteGraph _graph, IReadOnlyList<EconomyLoop> _loops, int _dayCount)
     {
         for (int i = 0; i < _settings.runs; i++)
         {
             int stockSeed = unchecked(_settings.seed * 7919 + i);
             using (var session = new EconomyProbe.Session(stockSeed))
             {
-                var bot = new EconomyBot(session, _graph, _settings, new Random(unchecked(stockSeed * 31 + 17)));
+                var bot = new EconomyBot(session, _graph, _loops, _settings, new Random(unchecked(stockSeed * 31 + 17)));
                 var run = bot.Play();
                 run.Index = i;
                 run.StockSeed = stockSeed;
@@ -116,63 +119,125 @@ public static class EconomySimulation
     }
 }
 
-// 도시 간 최단 시간과 상환 도시로 가는 다음 역.
+// 모든 도시 쌍의 최단 시간과 그 경로의 첫 역. 상환 도시까지의 값도 여기서 읽는다.
 internal sealed class EconomyRouteGraph
 {
-    readonly Dictionary<string, long> minutesToDebt = new Dictionary<string, long>(StringComparer.Ordinal);
-    readonly Dictionary<string, string> nextHopToDebt = new Dictionary<string, string>(StringComparer.Ordinal);
+    const long UNREACHABLE = long.MaxValue / 4;
+
+    readonly Dictionary<string, Dictionary<string, long>> minutes = new Dictionary<string, Dictionary<string, long>>(StringComparer.Ordinal);
+    readonly Dictionary<string, Dictionary<string, string>> firstHops = new Dictionary<string, Dictionary<string, string>>(StringComparer.Ordinal);
 
     internal string DebtCityId { get; }
 
     internal EconomyRouteGraph(TableManager _tables)
     {
         DebtCityId = string.IsNullOrEmpty(_tables.PuzzleTrade.debtCityId) ? _tables.Puzzle.startCity : _tables.PuzzleTrade.debtCityId;
-        var incoming = new Dictionary<string, List<(string From, long Minutes)>>(StringComparer.Ordinal);
-        foreach (var city in _tables.Cities)
-        {
-            foreach (var route in _tables.RoutesFrom(city.id))
-            {
-                if (!incoming.TryGetValue(route.toCityId, out var list))
-                {
-                    list = new List<(string From, long Minutes)>();
-                    incoming.Add(route.toCityId, list);
-                }
-                list.Add((route.fromCityId, PuzzleTimeManager.TravelMinutes(route, _tables.PuzzleTime)));
-            }
-        }
+        var outgoing = _tables.Cities.ToDictionary(_city => _city.id,
+            _city => _tables.RoutesFrom(_city.id).Select(_route => (To: _route.toCityId, Minutes: PuzzleTimeManager.TravelMinutes(_route, _tables.PuzzleTime))).ToList(),
+            StringComparer.Ordinal);
 
-        // 상환 도시에서 역방향으로 퍼지는 다익스트라. 도시 수가 작아 단순 선택 방식을 쓴다.
-        var open = new HashSet<string>(StringComparer.Ordinal) { DebtCityId };
-        minutesToDebt[DebtCityId] = 0;
-        while (open.Count > 0)
+        // 출발 도시마다 다익스트라. 도시 수가 작아 단순 선택 방식을 쓴다.
+        foreach (string source in outgoing.Keys)
         {
-            string current = open.OrderBy(_id => minutesToDebt[_id]).ThenBy(_id => _id, StringComparer.Ordinal).First();
-            open.Remove(current);
-            if (!incoming.TryGetValue(current, out var sources))
+            var distance = new Dictionary<string, long>(StringComparer.Ordinal) { [source] = 0 };
+            var first = new Dictionary<string, string>(StringComparer.Ordinal);
+            var open = new HashSet<string>(StringComparer.Ordinal) { source };
+            while (open.Count > 0)
             {
-                continue;
-            }
-            foreach (var source in sources)
-            {
-                long candidate = minutesToDebt[current] + source.Minutes;
-                if (!minutesToDebt.TryGetValue(source.From, out long known) || candidate < known)
+                string current = open.OrderBy(_id => distance[_id]).ThenBy(_id => _id, StringComparer.Ordinal).First();
+                open.Remove(current);
+                foreach (var edge in outgoing[current])
                 {
-                    minutesToDebt[source.From] = candidate;
-                    nextHopToDebt[source.From] = current;
-                    open.Add(source.From);
+                    long candidate = distance[current] + edge.Minutes;
+                    if (!distance.TryGetValue(edge.To, out long known) || candidate < known)
+                    {
+                        distance[edge.To] = candidate;
+                        first[edge.To] = current == source ? edge.To : first[current];
+                        open.Add(edge.To);
+                    }
                 }
             }
+            minutes.Add(source, distance);
+            firstHops.Add(source, first);
         }
+    }
+
+    internal long MinutesBetween(string _from, string _to)
+    {
+        return minutes.TryGetValue(_from, out var targets) && targets.TryGetValue(_to, out long value) ? value : UNREACHABLE;
+    }
+
+    internal string NextHop(string _from, string _to)
+    {
+        return firstHops.TryGetValue(_from, out var targets) && targets.TryGetValue(_to, out string next) ? next : null;
     }
 
     internal long MinutesToDebt(string _cityId)
     {
-        return minutesToDebt.TryGetValue(_cityId, out long minutes) ? minutes : long.MaxValue / 4;
+        return MinutesBetween(_cityId, DebtCityId);
     }
 
     internal string NextHopToDebt(string _cityId)
     {
-        return nextHopToDebt.TryGetValue(_cityId, out string next) ? next : null;
+        return NextHop(_cityId, DebtCityId);
+    }
+}
+
+// 인접 두 도시의 왕복. 각 도시 고정 재고 중 상대 도시에서 이득인 화물을 모두 싣는다고 보고 한 바퀴 순이익을 잡는다.
+internal sealed class EconomyLoop
+{
+    internal string A { get; private set; }
+    internal string B { get; private set; }
+    internal long CycleMinutes { get; private set; }
+    internal long CycleProfit { get; private set; }
+    internal double ProfitPerHour => CycleMinutes <= 0 ? 0 : CycleProfit / (CycleMinutes / (double)PuzzleTimeManager.MINUTES_PER_HOUR);
+
+    internal static IReadOnlyList<EconomyLoop> BuildAll(TableManager _tables)
+    {
+        var loops = new List<EconomyLoop>();
+        using (var session = new EconomyProbe.Session(0))
+        {
+            foreach (var from in _tables.Cities)
+            {
+                foreach (var forward in _tables.RoutesFrom(from.id))
+                {
+                    if (StringComparer.Ordinal.Compare(from.id, forward.toCityId) >= 0 ||
+                        !_tables.TryGetRoute(forward.toCityId, from.id, out var backward))
+                    {
+                        continue;
+                    }
+                    long profit = LegProfit(session, _tables, forward) + LegProfit(session, _tables, backward);
+                    long cycle = PuzzleTimeManager.TravelMinutes(forward, _tables.PuzzleTime) + PuzzleTimeManager.TravelMinutes(backward, _tables.PuzzleTime);
+                    if (profit > 0)
+                    {
+                        loops.Add(new EconomyLoop { A = from.id, B = forward.toCityId, CycleMinutes = cycle, CycleProfit = profit });
+                    }
+                }
+            }
+        }
+        return loops.OrderByDescending(_loop => _loop.ProfitPerHour).ToList();
+    }
+
+    // 출발 도시 고정 재고를 도착 도시에서 팔 때의 차익 합 − 그 화물을 실은 운임.
+    static long LegProfit(EconomyProbe.Session _session, TableManager _tables, PuzzleRouteData _route)
+    {
+        long gain = 0;
+        int cells = 0;
+        if (_tables.CityPrice(_route.fromCityId).buyEnabled && _tables.CityPrice(_route.toCityId).sellEnabled)
+        {
+            foreach (var placement in _tables.MarketStartingPlacements(_route.fromCityId))
+            {
+                var item = _session.Definition(placement.pieceId);
+                if (_session.Service.TryQuoteTradeAt(_route.fromCityId, item, item.BaseValue, PuzzleTradeDirection.Buy, out long buy) &&
+                    _session.Service.TryQuoteTradeAt(_route.toCityId, item, item.BaseValue, PuzzleTradeDirection.Sell, out long sell) &&
+                    sell > buy)
+                {
+                    gain += sell - buy;
+                    cells += item.Cells.Count;
+                }
+            }
+        }
+        return gain - EconomyProbe.RouteCost(_route, cells);
     }
 }
 
@@ -192,15 +257,19 @@ internal sealed class EconomyBot
     readonly PuzzleInventoryService service;
     readonly TableManager tables;
     readonly EconomyRouteGraph graph;
+    readonly IReadOnlyList<EconomyLoop> loops;
     readonly EconomySimulationSettings settings;
     readonly Random random;
     readonly EconomyRunResult result = new EconomyRunResult();
+    EconomyLoop targetLoop;
 
-    internal EconomyBot(EconomyProbe.Session _session, EconomyRouteGraph _graph, EconomySimulationSettings _settings, Random _random)
+    internal EconomyBot(EconomyProbe.Session _session, EconomyRouteGraph _graph, IReadOnlyList<EconomyLoop> _loops,
+        EconomySimulationSettings _settings, Random _random)
     {
         service = _session.Service;
         tables = EconomyProbe.Tables;
         graph = _graph;
+        loops = _loops;
         settings = _settings;
         random = _random;
     }
@@ -360,7 +429,7 @@ internal sealed class EconomyBot
 
     void SellCargo(bool _returning)
     {
-        var horizon = Horizon(CurrentCityId, LookaheadDepth);
+        var horizon = SaleHorizon();
         foreach (var item in Cargo())
         {
             if (!service.TryQuoteTrade(item, PuzzleTradeDirection.Sell, out long price))
@@ -368,9 +437,10 @@ internal sealed class EconomyBot
                 continue;
             }
             bool sell;
-            if (price < 0)
+            // 가치가 음수인 화물만 처분한다. 배율 때문에 판매가가 음수인 일반 화물은 아래 가격 비교를 따른다.
+            if (item.FreshnessAdjustedValue < 0)
             {
-                sell = service.Funds >= -price;
+                sell = price >= 0 || service.Funds >= -price;
             }
             else if (_returning)
             {
@@ -457,6 +527,14 @@ internal sealed class EconomyBot
         {
             return null;
         }
+        if (settings.policy == EconomyBotPolicy.Loop)
+        {
+            string loopDestination = ChooseLoopDestinationAndBuy(_options);
+            if (loopDestination != null)
+            {
+                return loopDestination;
+            }
+        }
         if (settings.policy == EconomyBotPolicy.Random)
         {
             var route = _options[random.Next(_options.Count)];
@@ -508,6 +586,78 @@ internal sealed class EconomyBot
     }
 
     int LookaheadDepth => settings.policy == EconomyBotPolicy.Planner ? PLANNER_DEPTH : 1;
+
+    // 남은 시간 안에서 (시간당 수익 × 왕복에 쓸 수 있는 시간)이 가장 큰 왕복. 접근·귀환 시간을 뺀다.
+    EconomyLoop PickLoop()
+    {
+        long remaining = service.Time.RemainingMinutes;
+        EconomyLoop best = null;
+        double bestValue = 0;
+        foreach (var loop in loops)
+        {
+            long approach = Math.Min(graph.MinutesBetween(CurrentCityId, loop.A), graph.MinutesBetween(CurrentCityId, loop.B));
+            long exit = Math.Min(graph.MinutesToDebt(loop.A), graph.MinutesToDebt(loop.B));
+            double usable = remaining - approach - exit - RETURN_BUFFER_MINUTES;
+            if (usable < loop.CycleMinutes)
+            {
+                continue;
+            }
+            double value = loop.ProfitPerHour * usable / PuzzleTimeManager.MINUTES_PER_HOUR;
+            if (value > bestValue)
+            {
+                bestValue = value;
+                best = loop;
+            }
+        }
+        return best;
+    }
+
+    string LoopDestination()
+    {
+        if (targetLoop == null)
+        {
+            return null;
+        }
+        if (CurrentCityId == targetLoop.A)
+        {
+            return targetLoop.B;
+        }
+        if (CurrentCityId == targetLoop.B)
+        {
+            return targetLoop.A;
+        }
+        string nearer = graph.MinutesBetween(CurrentCityId, targetLoop.A) <= graph.MinutesBetween(CurrentCityId, targetLoop.B)
+            ? targetLoop.A : targetLoop.B;
+        return graph.NextHop(CurrentCityId, nearer);
+    }
+
+    // 왕복 목표가 있으면 다음 역과 왕복 양 끝, 없으면 지정 구간 수 안의 도시.
+    List<string> SaleHorizon()
+    {
+        if (settings.policy != EconomyBotPolicy.Loop || targetLoop == null)
+        {
+            return Horizon(CurrentCityId, LookaheadDepth);
+        }
+        return new[] { LoopDestination(), targetLoop.A, targetLoop.B }
+            .Where(_city => _city != null && _city != CurrentCityId).Distinct(StringComparer.Ordinal).ToList();
+    }
+
+    // 왕복 목표로 가는 다음 역을 정하고 그 역과 왕복 양 끝에서 이득인 화물을 산다. 목표가 없거나 기한상 갈 수 없으면 null.
+    string ChooseLoopDestinationAndBuy(List<PuzzleRouteData> _options)
+    {
+        targetLoop ??= PickLoop();
+        string destination = LoopDestination();
+        var route = _options.FirstOrDefault(_route => _route.toCityId == destination);
+        if (route == null)
+        {
+            return null;
+        }
+        if (service.IsMarketOpen)
+        {
+            Buy(PlanPurchases(SaleHorizon(), route, out _, out _), route);
+        }
+        return destination;
+    }
 
     // 첫 구간은 기한 안에 돌아올 수 있는 노선만, 이후 구간도 같은 기준으로 이어 붙인다. 출발 도시로 되돌아가는 구간은 뺀다.
     List<List<PuzzleRouteData>> CandidatePaths(List<PuzzleRouteData> _options)

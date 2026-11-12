@@ -572,33 +572,11 @@
     {
       "id": "piece.poo",
       "displayName": "똥",
-      "description": "한 칸을 차지하는 불쾌한 화물. 근처의 다른 화물 가치를 떨어뜨린다.",
+      "description": "동물 배설과 상한 음식에서 생기는 한 칸 화물. 근처의 다른 화물 가치를 떨어뜨린다.",
       "tags": [
         "Waste"
       ],
       "visualKey": "cargo.poo",
-      "slotCount": 1,
-      "durability": 100,
-      "cells": [
-        {
-          "x": 0,
-          "y": 0,
-          "north": "Flat",
-          "east": "Flat",
-          "south": "Flat",
-          "west": "Flat"
-        }
-      ],
-      "baseValue": -10
-    },
-    {
-      "id": "piece.foodWaste",
-      "displayName": "폐기물",
-      "description": "유통기한이 지난 식품. 근처의 다른 화물 가치를 떨어뜨린다.",
-      "tags": [
-        "Waste"
-      ],
-      "visualKey": "cargo.foodWaste",
       "slotCount": 1,
       "durability": 100,
       "cells": [
@@ -1579,8 +1557,8 @@
       "specialtyTag": "",
       "buyEnabled": true,
       "sellEnabled": true,
-      "buyPercentOfBaseValue": 100,
-      "sellPercentOfFinalValue": 100,
+      "buyPercentOfBaseValue": 125,
+      "sellPercentOfFinalValue": 125,
       "tagPrices": [
         {
           "tag": "Machinery",
@@ -1609,12 +1587,6 @@
         {
           "tag": "Animal",
           "priority": 204,
-          "buyPercent": 150,
-          "sellPercent": 130
-        },
-        {
-          "tag": "Meat",
-          "priority": 205,
           "buyPercent": 150,
           "sellPercent": 130
         }
@@ -1657,8 +1629,8 @@
       "specialtyTag": "",
       "buyEnabled": true,
       "sellEnabled": true,
-      "buyPercentOfBaseValue": 100,
-      "sellPercentOfFinalValue": 100,
+      "buyPercentOfBaseValue": 125,
+      "sellPercentOfFinalValue": 125,
       "tagPrices": [
         {
           "tag": "Machinery",
@@ -1687,12 +1659,6 @@
         {
           "tag": "Animal",
           "priority": 204,
-          "buyPercent": 150,
-          "sellPercent": 130
-        },
-        {
-          "tag": "Metal",
-          "priority": 205,
           "buyPercent": 150,
           "sellPercent": 130
         }
@@ -1735,8 +1701,8 @@
       "specialtyTag": "",
       "buyEnabled": true,
       "sellEnabled": true,
-      "buyPercentOfBaseValue": 100,
-      "sellPercentOfFinalValue": 100,
+      "buyPercentOfBaseValue": 125,
+      "sellPercentOfFinalValue": 125,
       "tagPrices": [
         {
           "tag": "Machinery",
@@ -1765,12 +1731,6 @@
         {
           "tag": "Animal",
           "priority": 204,
-          "buyPercent": 150,
-          "sellPercent": 130
-        },
-        {
-          "tag": "Water",
-          "priority": 205,
           "buyPercent": 150,
           "sellPercent": 130
         }
@@ -1813,8 +1773,8 @@
       "specialtyTag": "",
       "buyEnabled": true,
       "sellEnabled": true,
-      "buyPercentOfBaseValue": 100,
-      "sellPercentOfFinalValue": 100,
+      "buyPercentOfBaseValue": 125,
+      "sellPercentOfFinalValue": 125,
       "tagPrices": [
         {
           "tag": "Machinery",
@@ -1843,12 +1803,6 @@
         {
           "tag": "Animal",
           "priority": 204,
-          "buyPercent": 150,
-          "sellPercent": 130
-        },
-        {
-          "tag": "Grain",
-          "priority": 205,
           "buyPercent": 150,
           "sellPercent": 130
         }
@@ -2593,8 +2547,8 @@
       "specialtyTag": "",
       "buyEnabled": true,
       "sellEnabled": true,
-      "buyPercentOfBaseValue": 100,
-      "sellPercentOfFinalValue": 100,
+      "buyPercentOfBaseValue": 125,
+      "sellPercentOfFinalValue": 125,
       "tagPrices": [
         {
           "tag": "Machinery",
@@ -2623,12 +2577,6 @@
         {
           "tag": "Animal",
           "priority": 204,
-          "buyPercent": 150,
-          "sellPercent": 130
-        },
-        {
-          "tag": "Box",
-          "priority": 205,
           "buyPercent": 150,
           "sellPercent": 130
         }
@@ -2870,7 +2818,7 @@
       "displayName": "수도권",
       "specialtyTag": "",
       "productionTags": [],
-      "pricePercent": 125,
+      "pricePercent": 100,
       "tradeHub": true,
       "mapLabelPriority": 30
     },

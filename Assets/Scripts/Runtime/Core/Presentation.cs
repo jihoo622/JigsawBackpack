@@ -280,7 +280,7 @@ public static class Presentation
     {
         string heading = BasicData.Format("presentation.map.information", _city.displayName);
         heading += _visited
-            ? BasicData.Format("presentation.map.informationText2", _region.displayName, _region.pricePercent)
+            ? BasicData.Format("presentation.map.informationText2", _region.displayName, _city.buyPercentOfBaseValue, _city.sellPercentOfFinalValue)
             : BasicData.Format("presentation.map.regionOnly", _region.displayName);
         string status;
         if (_current)
@@ -507,7 +507,15 @@ public static class Presentation
 
     internal static string PuzzleTooltipActiveEffectLabel(PuzzleSynergyBonus _bonus)
     {
-        return BasicData.Format("presentation.tooltip.activeEffectLabel", TooltipLabelHtml(), _bonus.NeighborName);
+        return BasicData.Format("presentation.tooltip.activeEffectLabel", TooltipLabelHtml(), SynergyNeighborName(_bonus));
+    }
+
+    // 여러 면이 닿은 이웃은 면 수를 붙인다.
+    static string SynergyNeighborName(PuzzleSynergyBonus _bonus)
+    {
+        return _bonus.Faces > 1
+            ? BasicData.Format("presentation.tooltip.activeEffectFaces", _bonus.NeighborName, _bonus.Faces)
+            : _bonus.NeighborName;
     }
 
     internal static string PuzzleTooltipActiveEffectValue(PuzzleSynergyBonus _bonus)
@@ -680,14 +688,15 @@ public static class Presentation
             return BasicData.Format("presentation.inventory.itemDetailsText2", details);
         }
 
-        var bonuses = _value.SynergyBonuses.Select(bonus =>
-            BasicData.Format("presentation.inventory.itemDetailsText3", bonus.NeighborName, bonus.Percent, bonus.Amount));
+        var bonuses = PuzzleSynergyBonus.GroupByNeighbor(_value.SynergyBonuses).Select(bonus =>
+            BasicData.Format("presentation.inventory.itemDetailsText3", SynergyNeighborName(bonus), bonus.Percent, bonus.Amount));
         return BasicData.Format("presentation.inventory.itemDetailsText4", details, string.Join("  ·  ", bonuses));
     }
 
     internal static string PuzzleTradeRateText(PuzzleTradeRate _rate)
     {
-        string rule = string.IsNullOrEmpty(_rate.Tag) ? BasicData.Text("presentation.trade.tradeRateTextText2") : _rate.Tag;
+        string rule = string.IsNullOrEmpty(_rate.Tag) ? BasicData.Text("presentation.trade.tradeRateTextText2")
+            : string.Join(" + ", _rate.Tag.Split(PuzzleTradeRate.TAG_SEPARATOR).Select(PuzzleTagLabel));
         return BasicData.Format("presentation.trade.tradeRateText", rule, _rate.BuyPercent, _rate.SellPercent);
     }
 
@@ -698,7 +707,7 @@ public static class Presentation
 
     // 도시의 태그 규칙을 구매·판매 비율 기준으로 귀함/흔함으로 묶는다.
     // 두 비율이 100을 사이에 두고 갈리거나 한쪽이 100이면 어느 쪽도 아닌 것으로 보고 표시하지 않는다.
-    internal static string PuzzleCityTagPreferences(PuzzleCityData _city, PuzzleRegionData _region)
+    internal static string PuzzleCityTagPreferences(PuzzleCityData _city)
     {
         var expensive = new List<string>();
         var common = new List<string>();
@@ -724,7 +733,7 @@ public static class Presentation
         string rareColor = ColorUtility.ToHtmlStringRGB(PuzzleMapCurrent);
         return BasicData.Format("presentation.trade.cityTagPreferences", commonColor, (string.IsNullOrEmpty(commonText) ? BasicData.Text("presentation.trade.cityTagPreferencesText3") : commonText)) +
             BasicData.Format("presentation.trade.cityTagPreferencesText2", rareColor, (string.IsNullOrEmpty(rareText) ? BasicData.Text("presentation.trade.cityTagPreferencesText4") : rareText)) +
-            BasicData.Format("presentation.trade.regionPrice", _region.pricePercent);
+            BasicData.Format("presentation.trade.regionPrice", _city.buyPercentOfBaseValue, _city.sellPercentOfFinalValue);
 
     }
 
@@ -736,6 +745,73 @@ public static class Presentation
         }
         return PUZZLE_TAG_LABELS.TryGetValue(_tag, out string label) ? BasicData.Text(label) : _tag;
     }
+
+    #region 시너지 상성표
+
+    public static string SynergyChartTitle => BasicData.Text("presentation.synergyChart.title");
+    public static string SynergyChartToggle => BasicData.Text("presentation.synergyChart.toggle");
+    public static string SynergyChartClose => BasicData.Text("presentation.synergyChart.close");
+    public static string SynergyChartCorner => BasicData.Text("presentation.synergyChart.corner");
+    public static string SynergyChartItemTitle => BasicData.Text("presentation.synergyChart.itemTitle");
+    public static Color SynergyChartBackdrop => BasicData.Color("presentation.synergyChart.backdrop");
+
+    // 대상 태그 행 이름. 제외 방식 행은 "모든 화물(… 제외)"로 표기한다.
+    public static string SynergyChartRowLabel(string _row)
+    {
+        if (!PuzzleSynergyChart.IsExclusionRow(_row))
+        {
+            return PuzzleTagLabel(_row);
+        }
+        return BasicData.Format("presentation.synergyChart.allTargets",
+            string.Join("·", PuzzleSynergyChart.ExcludedTags(_row).Select(PuzzleTagLabel)));
+    }
+
+    public static Color SynergyChartTagBackground(string _row)
+    {
+        return PuzzleTagBackgroundColor(PuzzleSynergyChart.IsExclusionRow(_row) ? null : _row);
+    }
+
+    public static string SynergyChartCell(int _percent, int _footnote)
+    {
+        if (_percent == 0)
+        {
+            return string.Empty;
+        }
+        string mark = _footnote > 0 ? BasicData.Format("presentation.synergyChart.footnoteMark", _footnote) : string.Empty;
+        return BasicData.Format("presentation.synergyChart.cell", _percent, mark);
+    }
+
+    public static Color SynergyChartCellBackground(int _percent)
+    {
+        return BasicData.Color(_percent > 0 ? "presentation.synergyChart.positive"
+            : _percent < 0 ? "presentation.synergyChart.negative" : "presentation.synergyChart.empty");
+    }
+
+    // 계산 규칙 설명, 냉장 프레임, 각주(효과가 없는 이웃 태그)를 한 덩어리로 만든다.
+    public static string SynergyChartNotes(IReadOnlyList<string> _footnotes, int _refrigerationPercent, int _intervalHours)
+    {
+        var lines = new List<string>
+        {
+            BasicData.Format("presentation.synergyChart.rules", _intervalHours),
+            BasicData.Format("presentation.synergyChart.refrigeration", _refrigerationPercent)
+        };
+        for (int i = 0; i < _footnotes.Count; i++)
+        {
+            string tags = string.Join("·", _footnotes[i].Split(',').Select(_tag => PuzzleTagLabel(_tag.Trim())));
+            lines.Add(BasicData.Format("presentation.synergyChart.footnote", i + 1, tags));
+        }
+        return string.Join("\n", lines);
+    }
+
+    // 화물 이름과 태그 배지(태그 색 강조).
+    public static string SynergyChartItemLine(string _name, IReadOnlyList<string> _tags)
+    {
+        var badges = (_tags ?? Array.Empty<string>()).Select(_tag => BasicData.Format("presentation.synergyChart.itemTag",
+            ColorUtility.ToHtmlStringRGB(PuzzleTagBackgroundColor(_tag)), PuzzleTagLabel(_tag)));
+        return BasicData.Format("presentation.synergyChart.itemLine", _name, string.Join(" ", badges));
+    }
+
+    #endregion
 
     public static Color PuzzleTagBackgroundColor(string _tag)
     {
