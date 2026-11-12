@@ -296,6 +296,11 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
                 pauseMenu.ShowCompletion(PuzzleRunStatus.Lost, session.Funds);
             }
         }
+        else
+        {
+            // 떠 있던 툴팁이 새로 흐른 시간의 진행도와 대기 상태를 반영한다.
+            RefreshHover();
+        }
     }
 
     void OnTravelPreviewChanged(GameEvents.TravelPreviewInfo _info)
@@ -320,7 +325,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             ClearDrag();
             if (!session.WaitForDaylight())
             {
-                cityView.ShowTradeStatus(Presentation.PuzzleGrowthBlocked);
+                cityView.ShowTradeStatus(Presentation.PuzzleTimeOverflow);
             }
         }
     }
@@ -725,7 +730,8 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         bool isTrain = _view == trainView || session.IsTrainWagon(_placement.Owner);
         decimal actualValue = _placement.FreshnessAdjustedValue;
         var rate = item == null || isActionBoard ? default : session.RateFor(item);
-        var effects = isActionBoard ? null : BuildEffectDescriptions(item, isTrain);
+        (IReadOnlyList<string> General, IReadOnlyList<string> Synergies) effects =
+            isActionBoard ? default : BuildEffectDescriptions(_placement, isTrain);
         long? previewMinutes = session.PreviewMinutes;
         long? previewActivations = null;
         decimal? futureValue = null;
@@ -748,12 +754,14 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             string previewName = session.PreviewCityId == null ? null : TableManager.Instance.CityPrice(session.PreviewCityId).displayName;
             var direction = isTrain ? PuzzleTradeDirection.Sell : PuzzleTradeDirection.Buy;
             long? price = !isActionBoard && session.TryQuoteTrade(_placement, direction, out long quote) ? quote : (long?)null;
-            tooltipView.Show(item, actualValue, rate, effects, futureValue, pos, isTrain, _placement.FreshnessPercent,
-                _placement.RemainingShelfLifeMinutes, previewMinutes,
+            tooltipView.Show(item, actualValue, rate, effects.General, effects.Synergies, futureValue, pos, isTrain, _placement.FreshnessPercent,
+                session.MinutesUntilNextFreshnessBand(_placement), previewMinutes,
                 previewName, previewActivations, price, isTrain ? PuzzleSynergyBonus.GroupByNeighbor(value.SynergyBonuses) : null);
-            if (_placement.HasUnreadSynergySettlement && tooltipView.IsOpen)
+            // 툴팁을 열면 미확인 알림만 지운다. 실제로 대기 중인 진행도와 빨간 표시는 상태가 풀릴 때까지 남는다.
+            if ((_placement.HasUnreadSynergySettlement || _placement.HasUnreadSpaceNotice) && tooltipView.IsOpen)
             {
                 _placement.HasUnreadSynergySettlement = false;
+                _placement.HasUnreadSpaceNotice = false;
                 RenderBoards(_placement.InstanceId);
             }
         }
@@ -776,35 +784,73 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         }
     }
 
-    IReadOnlyList<string> BuildEffectDescriptions(PuzzleItemDefinition _item, bool _isTrain)
+    (IReadOnlyList<string> General, IReadOnlyList<string> Synergies) BuildEffectDescriptions(PuzzlePlacement _placement, bool _isTrain)
     {
-        if (_item == null)
+        PuzzleItemDefinition item = _placement?.Definition;
+        if (item == null)
         {
-            return null;
+            return default;
         }
 
         PuzzleSynergyScope scope = _isTrain ? PuzzleSynergyScope.Train : PuzzleSynergyScope.Market;
-        var descriptions = new List<string>();
+        var general = new List<PuzzleEffectDisplay>();
+        var synergies = new List<string>();
         var tables = TableManager.Instance;
         var freshness = tables.PuzzleSynergy.freshness;
-        if (_item.Tags.Contains(freshness.refrigerationTag))
+        if (item.Tags.Contains(freshness.refrigerationTag))
         {
-            descriptions.Add(Presentation.PuzzleRefrigerationEffect(freshness.refrigerationReductionPercent));
+            general.Add(new PuzzleEffectDisplay(
+                Presentation.PuzzleRefrigerationEffect(freshness.refrigerationReductionPercent)));
         }
+
+        var animals = tables.PuzzleSynergy.animals;
+        if (item.Tags.Contains(animals.animalTag))
+        {
+            if (!item.IsBaby && tables.TryGetAnimalBreeding(item.Id, out var breeding))
+            {
+                var offspring = tables.Piece(breeding.offspringPieceId);
+                long breedingMinutes = (long)animals.breedingHours * PuzzleTimeManager.MINUTES_PER_HOUR;
+                // 실제 선택된 번식 쌍에 속한 동물에만 진행도를 표시한다.
+                PuzzleProgressDisplay? breedingProgress = null;
+                if (_isTrain && session.TryGetBreedingProgress(_placement, out long pairedMinutes, out bool pairedBlocked))
+                {
+                    breedingProgress = new PuzzleProgressDisplay(pairedMinutes, breedingMinutes, pairedBlocked);
+                }
+                general.Add(new PuzzleEffectDisplay(Presentation.PuzzleAnimalBreedingEffect(breeding.description,
+                    breedingMinutes, offspring.displayName, breeding.offspringCount), breedingProgress));
+            }
+            if (item.GrowthMinutes > 0)
+            {
+                var adult = tables.Piece(item.AdultPieceId);
+                // 성장 시계는 객차의 소유 물건에만 있다. 시장·도축·개조 보드에는 진행도를 보여주지 않는다.
+                PuzzleProgressDisplay? growthProgress = _isTrain && _placement.GrowthElapsedMinutes >= 0
+                    ? new PuzzleProgressDisplay(_placement.GrowthElapsedMinutes, item.GrowthMinutes,
+                        _placement.GrowthSpaceBlocked)
+                    : null;
+                general.Add(new PuzzleEffectDisplay(Presentation.PuzzleAnimalGrowthEffect(item.GrowthDescription,
+                    item.GrowthMinutes, adult.displayName, item.GrowthBlockedMinutes), growthProgress));
+            }
+
+            var waste = tables.Piece(animals.wastePieceId);
+            // 배설은 달력 경계 기반으로 흐르므로 진행도를 붙이지 않는다.
+            general.Add(new PuzzleEffectDisplay(Presentation.PuzzleAnimalWasteEffect(animals.wasteDescription,
+                animals.wasteIntervalDays, waste.displayName, animals.wasteCountPerAnimal)));
+        }
+
         foreach (var rule in tables.SynergiesFor(scope))
         {
             bool isSubject = !string.IsNullOrEmpty(rule.descriptionTag)
-                ? _item.Tags.Contains(rule.descriptionTag)
+                ? item.Tags.Contains(rule.descriptionTag)
                 : !string.IsNullOrEmpty(rule.targetTag)
-                    ? _item.Tags.Contains(rule.targetTag)
-                    : !string.IsNullOrEmpty(rule.excludedTargetTag) && !PuzzleInventoryValuation.HasAnyTag(_item.Tags, rule.excludedTargetTag);
+                    ? item.Tags.Contains(rule.targetTag)
+                    : !string.IsNullOrEmpty(rule.excludedTargetTag) && !PuzzleInventoryValuation.HasAnyTag(item.Tags, rule.excludedTargetTag);
             if (isSubject && !string.IsNullOrWhiteSpace(rule.description))
             {
-                descriptions.Add(Presentation.PuzzleTooltipEffectDescription(rule.description));
+                synergies.Add(Presentation.PuzzleTooltipEffectDescription(rule.description));
             }
         }
 
-        return descriptions;
+        return (general.Select(_effect => Presentation.PuzzleTooltipGeneralEffect(_effect)).ToList(), synergies);
     }
 
     void RenderValues()
@@ -823,7 +869,8 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
     {
         if (trainView)
         {
-            trainView.RenderPlacements(session.Train, drag?.InstanceId, _highlightedInstanceId);
+            trainView.RenderPlacements(session.Train, drag?.InstanceId, _highlightedInstanceId,
+                RefrigerationContacts(session.Train));
         }
         if (marketView)
         {
@@ -837,6 +884,14 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         {
             modificationView.RenderPlacements(session.ModificationBoard(), drag?.InstanceId, _highlightedInstanceId);
         }
+    }
+
+    // 냉장은 기차 객차에서만 적용되므로 객차의 접촉 관계만 표시한다. 판정은 시간 경과 계산과 같은 함수를 쓴다.
+    IReadOnlyList<PuzzleRefrigerationContact> RefrigerationContacts(PuzzleInventory _wagon)
+    {
+        return session.IsTrainWagon(_wagon)
+            ? PuzzleRefrigeration.Contacts(_wagon.Placements, TableManager.Instance.PuzzleSynergy.freshness)
+            : null;
     }
 
     PuzzleInventoryView ViewFor(PuzzleInventory _inventory)

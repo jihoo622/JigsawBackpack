@@ -23,8 +23,11 @@ public sealed class PuzzleItemDefinition
     internal bool IsBaby { get; }
     internal bool ExcludeFromMarket { get; }
     internal string AdultPieceId { get; }
+    internal string GrowthDescription { get; }
     internal long GrowthMinutes { get; }
     internal long GrowthBlockedMinutes { get; }
+    // 성체 자리를 확인하기 시작하는 진행. 이 시각 이후 자리가 없으면 성장은 여기에서 대기한다.
+    internal long GrowthFreezeMinutes => GrowthMinutes - GrowthBlockedMinutes;
 
     // Food 태그 아이템만 신선도를 표시·관리 대상으로 본다.
     public bool HasDurability { get; }
@@ -46,6 +49,7 @@ public sealed class PuzzleItemDefinition
         IsBaby = Tags.Contains(BABY_TAG);
         ExcludeFromMarket = _item.excludeFromMarket;
         AdultPieceId = _item.adultPieceId;
+        GrowthDescription = _item.growthDescription;
         GrowthMinutes = (long)_item.growthHours * PuzzleTimeManager.MINUTES_PER_HOUR;
         GrowthBlockedMinutes = (long)_item.growthBlockedHours * PuzzleTimeManager.MINUTES_PER_HOUR;
         HasDurability = Tags.Contains(BasicData.Text("rules.items.durabilityTag"));

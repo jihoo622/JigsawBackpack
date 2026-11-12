@@ -526,7 +526,17 @@ public sealed class GameTableRules
         }
         Check(animals.wasteIntervalDays > 0, PATH + ".wasteIntervalDays", "배설 주기는 양의 정수 일수여야 합니다.");
         Check(animals.wasteCountPerAnimal > 0, PATH + ".wasteCountPerAnimal", "배설물 수량은 양수여야 합니다.");
+        ValidateAnimalEffectDescription(animals.wasteDescription, PATH + ".wasteDescription",
+            animals.wasteIntervalDays, string.Empty, animals.wasteCountPerAnimal);
         Check(animals.breedingHours > 0, PATH + ".breedingHours", "번식 시간은 양의 정수 시간이어야 합니다.");
+        Check(animals.completionHoldHours > 0, PATH + ".completionHoldHours",
+            "완료 전 대기 시간은 양의 정수 시간이어야 합니다.");
+        Check(animals.completionHoldHours > 0 && animals.breedingHours > 0 &&
+                animals.completionHoldHours < animals.breedingHours,
+            PATH + ".completionHoldHours", "완료 전 대기 시간은 번식 시간보다 짧아야 합니다.");
+        Check(animals.completionHoldHours > 0 && animals.wasteIntervalDays > 0 &&
+                (long)animals.completionHoldHours < (long)animals.wasteIntervalDays * PuzzleTimeManager.HOURS_PER_DAY,
+            PATH + ".completionHoldHours", "완료 전 대기 시간은 배설 주기보다 짧아야 합니다.");
 
         var breeding = animals.breeding ?? Array.Empty<PuzzleAnimalBreedingData>();
         for (int i = 0; i < breeding.Length; i++)
@@ -537,28 +547,57 @@ public sealed class GameTableRules
             {
                 continue;
             }
-            ValidateBreedingPiece(_tables, rule.parentPieceId, animals.animalTag, path + ".parentPieceId");
+            ValidateBreedingPiece(_tables, rule.parentPieceId, animals.animalTag, path + ".parentPieceId", _isParent: true);
             ValidateBreedingPiece(_tables, rule.offspringPieceId, animals.animalTag, path + ".offspringPieceId");
             Check(rule.offspringCount > 0, path + ".offspringCount", "자식 수량은 양수여야 합니다.");
+            ValidateAnimalEffectDescription(rule.description, path + ".description", string.Empty, string.Empty, rule.offspringCount);
         }
 
         foreach (var piece in _tables.Pieces)
         {
-            if ((piece.tags ?? Array.Empty<string>()).Contains(animals.animalTag))
+            var tags = piece.tags ?? Array.Empty<string>();
+            if (tags.Contains(animals.animalTag) && !tags.Contains(PuzzleItemDefinition.BABY_TAG))
             {
                 Check(_tables.TryGetAnimalBreeding(piece.id, out _), PATH + ".breeding",
-                    $"동물 품목 '{piece.id}'의 번식 규칙이 필요합니다.");
+                    $"성체 동물 품목 '{piece.id}'의 번식 규칙이 필요합니다.");
             }
         }
     }
 
-    void ValidateBreedingPiece(TableManager _tables, string _id, string _animalTag, string _path)
+    void ValidateAnimalEffectDescription(string _description, string _path, params object[] _arguments)
+    {
+        bool hasDescription = !string.IsNullOrWhiteSpace(_description);
+        Check(hasDescription, _path, "동물 효과 설명이 필요합니다.");
+        if (!hasDescription)
+        {
+            return;
+        }
+
+        try
+        {
+            _ = string.Format(_description, _arguments);
+            // 이스케이프한 중괄호 안의 번호는 실제 인자 참조로 세지 않는다.
+            var markers = Enumerable.Range(0, _arguments.Length).Select(_index => $"⟦{_index}⟧").ToArray();
+            string formatted = string.Format(_description, (object[])markers);
+            Check(markers.All(_marker => formatted.Contains(_marker)), _path,
+                "설명에 모든 규칙 값의 서식 인자({0}, {1}, {2})가 필요합니다.");
+        }
+        catch (FormatException)
+        {
+            Check(false, _path, "설명의 서식 인자가 올바르지 않습니다.");
+        }
+    }
+
+    void ValidateBreedingPiece(TableManager _tables, string _id, string _animalTag, string _path, bool _isParent = false)
     {
         bool exists = _tables.TryGetPiece(_id, out var piece);
         Reference(_id, _path, exists, "번식 화물");
         if (exists)
         {
-            Check((piece.tags ?? Array.Empty<string>()).Contains(_animalTag), _path, "번식 화물은 동물 태그를 가져야 합니다.");
+            var tags = piece.tags ?? Array.Empty<string>();
+            Check(tags.Contains(_animalTag), _path, "번식 화물은 동물 태그를 가져야 합니다.");
+            Check(!_isParent || !tags.Contains(PuzzleItemDefinition.BABY_TAG), _path,
+                "Baby 태그가 있는 동물은 번식할 수 없습니다.");
         }
     }
 
@@ -942,7 +981,8 @@ public sealed class GameTableRules
 
     void ValidateGrowth(TableManager _tables, PuzzlePieceData _piece, string _path)
     {
-        if (string.IsNullOrEmpty(_piece.adultPieceId) && _piece.growthHours == 0 && _piece.growthBlockedHours == 0)
+        if (string.IsNullOrEmpty(_piece.adultPieceId) && string.IsNullOrEmpty(_piece.growthDescription) &&
+            _piece.growthHours == 0 && _piece.growthBlockedHours == 0)
         {
             return;
         }
@@ -952,6 +992,8 @@ public sealed class GameTableRules
         Check(_piece.growthHours > 0, _path + ".growthHours", "성장 시간은 양수여야 합니다.");
         Check(_piece.growthBlockedHours > 0 && _piece.growthBlockedHours <= _piece.growthHours,
             _path + ".growthBlockedHours", "성장 전 공간을 확인하는 시간은 1시간 이상이며 성장 시간 이하여야 합니다.");
+        ValidateAnimalEffectDescription(_piece.growthDescription, _path + ".growthDescription",
+            string.Empty, string.Empty, string.Empty);
         bool hasAdult = _tables.TryGetPiece(_piece.adultPieceId, out var adult);
         Reference(_piece.adultPieceId, _path + ".adultPieceId", hasAdult, "성체 화물");
         if (hasAdult)

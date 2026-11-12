@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -37,6 +38,10 @@ public sealed class PuzzleItemTooltipView : PanelBase
     [SerializeField] TextMeshProUGUI sellRateValueText;
     [SerializeField] TextMeshProUGUI buyRateLabelText;
     [SerializeField] TextMeshProUGUI buyRateValueText;
+    [SerializeField] GameObject generalEffectSection;
+    [SerializeField] TextMeshProUGUI generalEffectHeaderText;
+    [SerializeField] RectTransform generalEffectListRoot;
+    [SerializeField] TextMeshProUGUI[] generalEffectSlots;
     [SerializeField] GameObject synergySection;
     [SerializeField] TextMeshProUGUI synergyHeaderText;
     [SerializeField] RectTransform synergyListRoot;
@@ -53,7 +58,6 @@ public sealed class PuzzleItemTooltipView : PanelBase
     Vector2 targetCanvasPosition;
     bool pointerFlipped;
     bool needsSnap;
-    readonly List<ActiveEffectRow> activeRowPool = new();
 
     protected override void Awake()
     {
@@ -78,30 +82,17 @@ public sealed class PuzzleItemTooltipView : PanelBase
         if (!canvasGroup)
         {
             canvasGroup = GetComponent<CanvasGroup>();
-            if (!canvasGroup)
-            {
-                canvasGroup = gameObject.AddComponent<CanvasGroup>();
-            }
         }
-
-        canvasGroup.blocksRaycasts = false;
-        canvasGroup.interactable = false;
-
-        if (activeRowPool.Count == 0 && activeEffectRows != null)
+        if (canvasGroup)
         {
-            for (int i = 0; i < activeEffectRows.Length; i++)
-            {
-                if (activeEffectRows[i].labelText || activeEffectRows[i].valueText)
-                {
-                    activeRowPool.Add(activeEffectRows[i]);
-                }
-            }
+            canvasGroup.blocksRaycasts = false;
+            canvasGroup.interactable = false;
         }
     }
 
     internal void Show(PuzzleItemDefinition _item, decimal _actualValue, PuzzleTradeRate _rate,
-        IReadOnlyList<string> _effects, decimal? _futureValue, Vector2 _screenPosition,
-        bool _isTrainInventory, int? _freshness, long? _remainingShelfLifeMinutes, long? _previewMinutes, string _previewCityName,
+        IReadOnlyList<string> _generalEffects, IReadOnlyList<string> _synergyEffects, decimal? _futureValue, Vector2 _screenPosition,
+        bool _isTrainInventory, int? _freshness, long? _minutesUntilNextFreshnessBand, long? _previewMinutes, string _previewCityName,
         long? _previewActivations, long? _tradePrice, IReadOnlyList<PuzzleSynergyBonus> _activeEffects)
     {
         if (_item == null)
@@ -156,44 +147,10 @@ public sealed class PuzzleItemTooltipView : PanelBase
                 Presentation.PuzzleTooltipFinalBuyPriceLabel(), price);
         }
 
-        if (synergySection)
-        {
-            synergySection.SetActive(true);
-        }
-
-        if (synergyHeaderText)
-        {
-            synergyHeaderText.text = Presentation.PuzzleTooltipEffectHeader();
-        }
-
-        if (synergySlots != null && synergySlots.Length > 0)
-        {
-            int effectCount = _effects?.Count ?? 0;
-            if (effectCount == 0)
-            {
-                synergySlots[0].text = Presentation.PuzzleTooltipNoEffect();
-                synergySlots[0].gameObject.SetActive(true);
-                for (int i = 1; i < synergySlots.Length; i++)
-                {
-                    synergySlots[i].gameObject.SetActive(false);
-                }
-            }
-            else
-            {
-                for (int i = 0; i < synergySlots.Length; i++)
-                {
-                    if (i < effectCount)
-                    {
-                        synergySlots[i].text = _effects[i];
-                        synergySlots[i].gameObject.SetActive(true);
-                    }
-                    else
-                    {
-                        synergySlots[i].gameObject.SetActive(false);
-                    }
-                }
-            }
-        }
+        UpdateEffectSection(generalEffectSection, generalEffectHeaderText, generalEffectSlots, _generalEffects,
+            Presentation.PuzzleTooltipGeneralEffectHeader(), _showEmpty: (_synergyEffects?.Count ?? 0) == 0);
+        UpdateEffectSection(synergySection, synergyHeaderText, synergySlots, _synergyEffects,
+            Presentation.PuzzleTooltipValueSynergyHeader(), _showEmpty: false);
 
         if (futureValueLabelText || futureValueValueText)
         {
@@ -224,15 +181,48 @@ public sealed class PuzzleItemTooltipView : PanelBase
             }
         }
 
-        if (_remainingShelfLifeMinutes is long remaining && _freshness is int freshness)
+        if (_minutesUntilNextFreshnessBand is long remaining && _freshness is int freshness)
         {
             SetRow(shelfLifeLabelText, shelfLifeValueText,
                 Presentation.PuzzleTooltipShelfLifeLabel(), Presentation.PuzzleTooltipShelfLifeValue(remaining, freshness));
         }
-        SetRowActive(shelfLifeLabelText, shelfLifeValueText, _remainingShelfLifeMinutes.HasValue && _freshness.HasValue);
+        SetRowActive(shelfLifeLabelText, shelfLifeValueText, _minutesUntilNextFreshnessBand.HasValue && _freshness.HasValue);
 
         RebuildLayouts();
         SetPointerPosition(_screenPosition);
+    }
+
+    static void UpdateEffectSection(GameObject _section, TextMeshProUGUI _header, TextMeshProUGUI[] _slots,
+        IReadOnlyList<string> _effects, string _title, bool _showEmpty)
+    {
+        if (!_section)
+        {
+            return;
+        }
+
+        int effectCount = _effects?.Count ?? 0;
+        bool visible = effectCount > 0 || _showEmpty;
+        _section.SetActive(visible);
+        if (!visible)
+        {
+            return;
+        }
+
+        _header.text = _title;
+        for (int i = 0; i < _slots.Length; i++)
+        {
+            var slot = _slots[i];
+            bool used = i < effectCount || (effectCount == 0 && i == 0);
+            slot.gameObject.SetActive(used);
+            if (used)
+            {
+                slot.text = effectCount == 0
+                    ? Presentation.PuzzleTooltipNoEffect()
+                    : i == _slots.Length - 1 && effectCount > _slots.Length
+                        ? string.Join("\n", _effects.Skip(i))
+                        : _effects[i];
+            }
+        }
     }
 
     void UpdateCategoryBadges(PuzzleItemDefinition _item)
@@ -306,14 +296,8 @@ public sealed class PuzzleItemTooltipView : PanelBase
         {
             LayoutRebuilder.ForceRebuildLayoutImmediate(activeEffectsSection);
         }
-        if (synergyListRoot)
-        {
-            LayoutRebuilder.ForceRebuildLayoutImmediate(synergyListRoot);
-        }
-        if (synergySection && synergySection.transform is RectTransform synRect)
-        {
-            LayoutRebuilder.ForceRebuildLayoutImmediate(synRect);
-        }
+        RebuildEffectLayout(generalEffectSection, generalEffectListRoot);
+        RebuildEffectLayout(synergySection, synergyListRoot);
         if (bodyRect)
         {
             LayoutRebuilder.ForceRebuildLayoutImmediate(bodyRect);
@@ -325,6 +309,15 @@ public sealed class PuzzleItemTooltipView : PanelBase
         if (panelRect)
         {
             LayoutRebuilder.ForceRebuildLayoutImmediate(panelRect);
+        }
+    }
+
+    static void RebuildEffectLayout(GameObject _section, RectTransform _list)
+    {
+        if (_section && _section.activeSelf)
+        {
+            LayoutRebuilder.ForceRebuildLayoutImmediate(_list);
+            LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)_section.transform);
         }
     }
 
@@ -398,6 +391,8 @@ public sealed class PuzzleItemTooltipView : PanelBase
     void UpdateActiveEffects(bool _isTrainInventory, IReadOnlyList<PuzzleSynergyBonus> _activeEffects)
     {
         int activeCount = _isTrainInventory && _activeEffects != null ? _activeEffects.Count : 0;
+        int rowCount = activeEffectRows?.Length ?? 0;
+        bool useRows = activeEffectsListRoot && activeCount > 0 && activeCount <= rowCount;
         if (activeEffectsText)
         {
             activeEffectsText.text = activeCount > 0
@@ -406,46 +401,29 @@ public sealed class PuzzleItemTooltipView : PanelBase
         }
         if (activeEffectsMessageText)
         {
-            activeEffectsMessageText.gameObject.SetActive(activeCount == 0);
-            if (activeCount == 0)
+            activeEffectsMessageText.gameObject.SetActive(!useRows);
+            if (!useRows)
             {
                 activeEffectsMessageText.color = Presentation.PuzzleTooltipText;
-                activeEffectsMessageText.text = _isTrainInventory
-                    ? Presentation.PuzzleNoActiveEffects
-                    : Presentation.PuzzleMarketNoSettlement;
+                activeEffectsMessageText.text = activeCount > 0
+                    ? Presentation.PuzzleTooltipActiveEffectsSummary(_activeEffects)
+                    : _isTrainInventory ? Presentation.PuzzleNoActiveEffects : Presentation.PuzzleMarketNoSettlement;
             }
         }
 
-        if (!activeEffectsListRoot)
+        if (activeEffectsListRoot)
+        {
+            activeEffectsListRoot.gameObject.SetActive(useRows);
+        }
+
+        if (!useRows)
         {
             return;
         }
 
-        while (activeRowPool.Count < activeCount && activeRowPool.Count > 0)
+        for (int i = 0; i < rowCount; i++)
         {
-            ActiveEffectRow templateRow = activeRowPool[0];
-            Transform templateTransform = templateRow.labelText
-                ? templateRow.labelText.transform.parent
-                : templateRow.valueText ? templateRow.valueText.transform.parent : null;
-            if (!templateTransform)
-            {
-                break;
-            }
-            GameObject clone = Instantiate(templateTransform.gameObject, activeEffectsListRoot);
-            clone.name = $"Row_{activeRowPool.Count}";
-            TextMeshProUGUI[] texts = clone.GetComponentsInChildren<TextMeshProUGUI>(true);
-            TextMeshProUGUI label = clone.transform.Find("Label")?.GetComponent<TextMeshProUGUI>() ?? (texts.Length > 0 ? texts[0] : null);
-            TextMeshProUGUI value = clone.transform.Find("Value")?.GetComponent<TextMeshProUGUI>() ?? (texts.Length > 1 ? texts[1] : null);
-            activeRowPool.Add(new ActiveEffectRow
-            {
-                labelText = label,
-                valueText = value
-            });
-        }
-
-        for (int i = 0; i < activeRowPool.Count; i++)
-        {
-            ActiveEffectRow row = activeRowPool[i];
+            ActiveEffectRow row = activeEffectRows[i];
             bool active = i < activeCount;
             if (active)
             {
@@ -455,7 +433,6 @@ public sealed class PuzzleItemTooltipView : PanelBase
             }
             SetRowActive(row.labelText, row.valueText, active);
         }
-        activeEffectsListRoot.gameObject.SetActive(activeCount > 0);
     }
 
     void SetRow(TextMeshProUGUI _label, TextMeshProUGUI _value, string _labelText, string _valueText)
