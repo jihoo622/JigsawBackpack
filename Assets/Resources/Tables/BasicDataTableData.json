@@ -1220,6 +1220,13 @@
           "a": 1.0
         },
         {
+          "id": "refrigerationArrow",
+          "r": 0.67451,
+          "g": 0.929412,
+          "b": 0.603922,
+          "a": 1.0
+        },
+        {
           "id": "synergyArrow",
           "r": 1,
           "g": 1,
@@ -2408,8 +2415,23 @@
         },
         {
           "id": "effectHeader",
-          "value": "<color=#{0}><b>가능 인접 효과</b> <size=70%>({1}시간 주기)</size></color>",
+          "value": "<color=#{0}><b>가능 가치 시너지</b> <size=70%>({1}시간마다 정산)</size></color>",
           "arguments": 2
+        },
+        {
+          "id": "effectProgress",
+          "value": "<size=80%><color=#{0}>진행도: {1} / {2}</color></size>",
+          "arguments": 3
+        },
+        {
+          "id": "effectSpaceBlocked",
+          "value": "<size=80%><color=#{0}>공간 부족</color></size>",
+          "arguments": 1
+        },
+        {
+          "id": "generalEffectHeader",
+          "value": "<color=#{0}><b>일반 효과</b></color>",
+          "arguments": 1
         },
         {
           "id": "finalBuyPriceLabel",
@@ -2463,7 +2485,7 @@
         },
         {
           "id": "noEffect",
-          "value": "<color=#{0}><size=85%>가능한 인접 효과 없음</size></color>",
+          "value": "<color=#{0}><size=85%>가능한 효과 없음</size></color>",
           "arguments": 1
         },
         {
@@ -2779,6 +2801,10 @@
         {
           "id": "rectTransformsizeDeltaWidth",
           "value": 1.8
+        },
+        {
+          "id": "renderRefrigeration",
+          "value": 0.34
         },
         {
           "id": "renderSynergies",
@@ -3973,12 +3999,6 @@
           "value": "애기",
           "arguments": 0,
           "source": "Presentation tag labels"
-        },
-        {
-          "id": "PuzzleGrowthBlocked",
-          "value": "성체가 들어갈 공간이 부족합니다. 송아지가 있는 객차의 공간을 확보하세요.",
-          "arguments": 0,
-          "source": "Presentation"
         },
         {
           "id": "PuzzleBabyCannotButcher",

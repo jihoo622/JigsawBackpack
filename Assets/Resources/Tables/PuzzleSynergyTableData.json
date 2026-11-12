@@ -110,12 +110,18 @@
     "animalTag": "Animal",
     "wasteTag": "Waste",
     "wastePieceId": "piece.poo",
+    "wasteDescription": "배설 · 객차에서 {0}일마다 빈자리에 {1} {2}개 생성",
     "wasteIntervalDays": 1,
     "wasteCountPerAnimal": 1,
     "breedingHours": 48,
+    "completionHoldHours": 1,
     "breeding": [
-      { "parentPieceId": "piece.babyCow", "offspringPieceId": "piece.babyCow", "offspringCount": 1 },
-      { "parentPieceId": "piece.cow", "offspringPieceId": "piece.babyCow", "offspringCount": 1 }
+      {
+        "parentPieceId": "piece.cow",
+        "offspringPieceId": "piece.babyCow",
+        "offspringCount": 1,
+        "description": "번식 · 같은 객차의 같은 품목 2마리가 상하좌우로 {0} 동안 맞닿으면 {1} {2}마리 출산"
+      }
     ]
   }
 }

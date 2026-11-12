@@ -89,10 +89,23 @@ public sealed class PuzzleInventory
 
     PuzzlePlacement CopyPlacement(PuzzlePlacement _placement)
     {
-        return new PuzzlePlacement(_placement.InstanceId, _placement.Definition, this, _placement.Pose,
-            _placement.ActualValue, _placement.OwnedMinutes, _placement.Durability, _placement.ShelfLifeAge)
+        return CopyPlacement(_placement, _placement.Definition, this, _placement.Pose, _placement.ActualValue);
+    }
+
+    // 정의·소속·좌표만 바꾸고 시간 상태는 옮긴다. 성장 품목이 아닌 정의로는 성장 시계를 넘기지 않는다.
+    PuzzlePlacement CopyPlacement(PuzzlePlacement _source, PuzzleItemDefinition _definition, PuzzleInventory _owner,
+        PuzzlePose _pose, decimal _actualValue)
+    {
+        bool keepsGrowth = _definition.GrowthMinutes > 0 && _source.Definition.GrowthMinutes > 0;
+        // 성장 품목이 성체로 바뀌면 대기가 끝나므로 공간 부족 알림도 넘기지 않는다. 번식 대기는 그대로 옮긴다.
+        bool keepsSpaceNotice = _source.Definition.GrowthMinutes <= 0 || keepsGrowth;
+        return new PuzzlePlacement(_source.InstanceId, _definition, _owner, _pose, _actualValue,
+            _source.OwnedMinutes, _source.Durability, _source.ShelfLifeAge)
         {
-            HasUnreadSynergySettlement = _placement.HasUnreadSynergySettlement
+            HasUnreadSynergySettlement = _source.HasUnreadSynergySettlement,
+            HasUnreadSpaceNotice = keepsSpaceNotice && _source.HasUnreadSpaceNotice,
+            GrowthElapsedMinutes = keepsGrowth ? _source.GrowthElapsedMinutes : (_source.OwnedMinutes < 0 ? -1 : 0),
+            GrowthSpaceBlocked = keepsGrowth && _source.GrowthSpaceBlocked
         };
     }
 
@@ -136,12 +149,16 @@ public sealed class PuzzleInventory
     // 이 보드가 지금 점유한 칸 수. 노선 이동 비용의 보유량 계산에 쓴다.
     internal int OccupiedCells => occupancy.Count;
 
-    internal bool TryPlanGrowth(long _minutes, List<PuzzleGrowth> _growth)
+    // 성장 대상을 결정적 순서로 처리한다. 성체 자리가 있으면 시계를 흘려보내고 완성이면 교체하고,
+    // 없으면 그 품목의 성장만 대기 지점에서 멈춘다. 다른 화물의 성장·신선도와 게임 진행은 막지 않는다.
+    internal void PlanGrowth(List<PuzzleGrowth> _growth)
     {
         var approachingGrowth = placements.Values
-            .Where(_item => _item.OwnedMinutes >= 0 && _item.Definition.GrowthMinutes > 0 &&
-                _minutes > _item.Definition.GrowthMinutes - _item.Definition.GrowthBlockedMinutes - _item.OwnedMinutes)
-            .OrderBy(_item => _item.Definition.GrowthMinutes - _item.OwnedMinutes);
+            .Where(_item => _item.GrowthElapsedMinutes >= 0 && _item.Definition.GrowthMinutes > 0 &&
+                (_item.GrowthSpaceBlocked ||
+                    _item.GrowthElapsedMinutes >= _item.Definition.GrowthFreezeMinutes))
+            .OrderBy(_item => _item.Definition.GrowthMinutes - _item.GrowthElapsedMinutes)
+            .ThenBy(_item => _item.InstanceId);
         HashSet<Vector2Int> occupied = null;
         foreach (var item in approachingGrowth)
         {
@@ -150,17 +167,18 @@ public sealed class PuzzleInventory
             var adult = definitions[item.Definition.AdultPieceId];
             if (!TryFindGrowthPose(item.Pose, adult, occupied, out var pose))
             {
-                return false;
+                item.WaitForGrowthSpace();
+                continue;
             }
 
+            // 미리 확보한 자리는 같은 계획의 다른 송아지가 차지하지 못한다.
             occupied.UnionWith(pose.Cells.Select(_cell => _cell.Position));
-            if (_minutes >= item.Definition.GrowthMinutes - item.OwnedMinutes)
+            item.ResumeGrowth();
+            if (item.GrowthElapsedMinutes >= item.Definition.GrowthMinutes)
             {
                 _growth.Add(new PuzzleGrowth(item, adult, pose));
             }
         }
-
-        return true;
     }
 
     bool TryFindGrowthPose(PuzzlePose _current, PuzzleItemDefinition _adult, HashSet<Vector2Int> _occupied,
@@ -245,11 +263,8 @@ public sealed class PuzzleInventory
         if (result.CanPlace)
         {
             // 원본과 대상의 현재 점유를 확인한 뒤 같은 호출에서 소속과 점유를 함께 바꾼다.
-            var placement = new PuzzlePlacement(_original.InstanceId, _original.Definition, _destination, result.Candidate,
-                _original.ActualValue, _original.OwnedMinutes, _original.Durability, _original.ShelfLifeAge)
-            {
-                HasUnreadSynergySettlement = _original.HasUnreadSynergySettlement
-            };
+            var placement = _destination.CopyPlacement(_original, _original.Definition, _destination, result.Candidate,
+                _original.ActualValue);
             ClearOccupancy(_original);
             placements.Remove(_original.InstanceId);
             _destination.StorePlacement(placement);
@@ -326,11 +341,7 @@ public sealed class PuzzleInventory
         foreach (var swap in _swaps)
         {
             var original = swap.Placement;
-            var replacement = new PuzzlePlacement(original.InstanceId, swap.Result, this, original.Pose,
-                original.ActualValue, original.OwnedMinutes, original.Durability, original.ShelfLifeAge)
-            {
-                HasUnreadSynergySettlement = original.HasUnreadSynergySettlement
-            };
+            var replacement = CopyPlacement(original, swap.Result, this, original.Pose, original.ActualValue);
             ClearOccupancy(original);
             StorePlacement(replacement);
             replacements.Add(replacement);
@@ -384,9 +395,27 @@ public sealed class PuzzleInventory
         return true;
     }
 
-    internal bool CanAutoPlace(PuzzleItemDefinition _definition, bool _allowRotation = false)
+    // 산출물 _count개를 전부 놓을 수 있을 때만 배치한다. 실패하면 보드는 하나도 바뀌지 않는다.
+    internal bool TryAutoPlaceAll(PuzzleItemDefinition _definition, int _count, ref int _lastInstanceId,
+        bool _allowRotation = false)
     {
-        return TryFindAutoPlacement(_definition, out _, _allowRotation);
+        if (!TryPlanAutoPlacements(_definition, _count, _allowRotation, out var poses))
+        {
+            return false;
+        }
+
+        foreach (var pose in poses)
+        {
+            PlaceSpawnedItem(_definition, checked(++_lastInstanceId), pose);
+        }
+
+        return true;
+    }
+
+    // 산출물을 여러 개 놓아야 할 때 전부 들어가는지 상태 없이 확인한다. 부분 생성을 막는다.
+    internal bool CanAutoPlaceAll(PuzzleItemDefinition _definition, int _count, bool _allowRotation = false)
+    {
+        return TryPlanAutoPlacements(_definition, _count, _allowRotation, out _);
     }
 
     PuzzlePlacement PlaceSpawnedItem(PuzzleItemDefinition _definition, int _instanceId, PuzzlePose _pose)
@@ -397,7 +426,8 @@ public sealed class PuzzleInventory
         return placement;
     }
 
-    bool TryFindAutoPlacement(PuzzleItemDefinition _definition, out PuzzlePose _pose, bool _allowRotation = false)
+    bool TryFindAutoPlacement(PuzzleItemDefinition _definition, out PuzzlePose _pose, bool _allowRotation = false,
+        ICollection<Vector2Int> _claimed = null)
     {
         int turns = _allowRotation ? PuzzleRotation.TURN_COUNT : 1;
         for (int turn = 0; turn < turns; turn++)
@@ -407,9 +437,11 @@ public sealed class PuzzleInventory
             {
                 for (int x = 0; x < Width; x++)
                 {
-                    if (TryCreatePose(_definition.Cells, new Vector2Int(x, y), rotation, out _pose) &&
-                        CheckPlacement(_pose.Cells, null) == PuzzlePlacementFailure.None)
+                    if (TryCreatePose(_definition.Cells, new Vector2Int(x, y), rotation, out var pose) &&
+                        CheckPlacement(pose.Cells, null) == PuzzlePlacementFailure.None &&
+                        (_claimed == null || pose.Cells.All(_cell => !_claimed.Contains(_cell.Position))))
                     {
+                        _pose = pose;
                         return true;
                     }
                 }
@@ -418,6 +450,34 @@ public sealed class PuzzleInventory
 
         _pose = null;
         return false;
+    }
+
+    // 같은 조각을 _count개 놓을 포즈를 상태 변경 없이 정한다. 하나라도 못 들어가면 false.
+    bool TryPlanAutoPlacements(PuzzleItemDefinition _definition, int _count, bool _allowRotation,
+        out List<PuzzlePose> _poses)
+    {
+        _poses = _count > 0 ? new List<PuzzlePose>(_count) : null;
+        if (_count <= 0)
+        {
+            return false;
+        }
+
+        var claimed = new HashSet<Vector2Int>();
+        for (int i = 0; i < _count; i++)
+        {
+            if (!TryFindAutoPlacement(_definition, out var pose, _allowRotation, claimed))
+            {
+                _poses = null;
+                return false;
+            }
+            _poses.Add(pose);
+            foreach (var cell in pose.Cells)
+            {
+                claimed.Add(cell.Position);
+            }
+        }
+
+        return true;
     }
 
     // 이 보드에서 배치 하나를 완전히 제거한다. 도축처럼 소멸시키는 행동만 사용하고, 반환값은 소속이 맞는 경우에만 true다.

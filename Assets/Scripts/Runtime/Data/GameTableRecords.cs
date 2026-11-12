@@ -85,7 +85,7 @@ public sealed class PuzzlePieceData
     public bool excludeFromMarket;
     // 개조 커버리지 검사에서 명시적으로 제외하는 기계 품목. 예외는 반드시 이 플래그로 선언한다.
     public bool exemptFromModification;
-    public string adultPieceId;
+    public string adultPieceId, growthDescription;
     public int growthHours, growthBlockedHours;
     public int shelfLifeHours;
     public PuzzleCellData[] cells = Array.Empty<PuzzleCellData>();
@@ -187,15 +187,17 @@ public sealed class PuzzleFreshnessData
 [Serializable]
 public sealed class PuzzleAnimalSynergyData
 {
-    public string animalTag, wasteTag, wastePieceId;
+    public string animalTag, wasteTag, wastePieceId, wasteDescription;
     public int wasteIntervalDays, wasteCountPerAnimal, breedingHours;
+    // 출산·배설이 끝나기 직전 산출물을 놓을 자리가 없을 때 대기하는 시간. 동물 규칙 전체가 공유하는 값이다.
+    public int completionHoldHours;
     public PuzzleAnimalBreedingData[] breeding = Array.Empty<PuzzleAnimalBreedingData>();
 }
 
 [Serializable]
 public sealed class PuzzleAnimalBreedingData
 {
-    public string parentPieceId, offspringPieceId;
+    public string parentPieceId, offspringPieceId, description;
     public int offspringCount;
 }
 

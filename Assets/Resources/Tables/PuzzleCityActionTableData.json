@@ -10,7 +10,7 @@
       "description": "동물 태그 화물을 맡기면 시간이 지나 고기로 돌려줍니다.",
       "board": { "width": 3, "height": 3, "startingPlacements": [] },
       "workMinutes": 360,
-      "cost": 50,
+      "cost": 0,
       "inputTag": "Animal",
       "outputTag": "Meat",
       "conversions": [

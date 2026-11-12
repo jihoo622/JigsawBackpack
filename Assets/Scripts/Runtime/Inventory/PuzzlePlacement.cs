@@ -96,9 +96,15 @@ public sealed class PuzzlePlacement
     // 공통 시계의 시너지 정산마다 변화량을 누적한다. 배치 변경만으로는 바뀌지 않는다.
     public decimal ActualValue { get; private set; }
     internal bool HasUnreadSynergySettlement { get; set; }
+    // 공간 부족 대기에 새로 진입한 뒤 아직 툴팁으로 확인하지 않았는지. 가치 알림과 독립적으로 둔다.
+    internal bool HasUnreadSpaceNotice { get; set; }
     /// <summary>획득 후 보유 시간. 시작 지급·구매 시 0부터 시작하며 -1은 미소유·판매된 물건이다.</summary>
     public long OwnedMinutes { get; private set; }
     public decimal OwnedHours => OwnedMinutes < 0 ? -1 : OwnedMinutes / (decimal)PuzzleTimeManager.MINUTES_PER_HOUR;
+    /// <summary>성장에 쌓은 게임 시간의 분. 보유 시간과 따로 가며 대기 중에는 멈춘다. 미소유면 -1이다.</summary>
+    internal long GrowthElapsedMinutes { get; set; }
+    // 성체가 들어갈 칸이 없어 성장을 대기 중인지. 사본·커밋에서 성장 진행도와 함께 옮긴다.
+    internal bool GrowthSpaceBlocked { get; set; }
     // 현재 내구도. 생성 시 정의의 시작값으로 초기화하고, 이동 시 보존한다. 감소는 외부 Manager가 담당한다.
     public int Durability { get; private set; }
     long ShelfLifeMinutes => (long)Definition.ShelfLifeHours * PuzzleTimeManager.MINUTES_PER_HOUR;
@@ -131,6 +137,39 @@ public sealed class PuzzlePlacement
         return _decayRate > 0 && RemainingShelfLife is decimal remaining && remaining > 0
             ? (long)decimal.Ceiling(remaining / _decayRate)
             : long.MaxValue;
+    }
+
+    // 성장 완료까지 남은 분. 성장하지 않는 품목과 미소유 물건은 경계가 없다.
+    // 대기 중에는 다음 완료 시각이 아니라 자리를 다시 확인하는 재시도 시각을 경계로 제시한다.
+    internal long MinutesUntilGrowthCompletion
+    {
+        get
+        {
+            if (Definition.GrowthMinutes <= 0 || OwnedMinutes < 0)
+            {
+                return long.MaxValue;
+            }
+            return GrowthSpaceBlocked
+                ? Definition.GrowthBlockedMinutes
+                : Math.Max(0, Definition.GrowthMinutes - GrowthElapsedMinutes);
+        }
+    }
+
+    // 성체가 들어갈 칸이 없어 성장을 대기한다. 진행은 대기 시작 지점에서 멈추고 시간이 흐르지 않는다.
+    internal void WaitForGrowthSpace()
+    {
+        HasUnreadSpaceNotice |= !GrowthSpaceBlocked;
+        GrowthSpaceBlocked = true;
+        if (GrowthElapsedMinutes > Definition.GrowthFreezeMinutes)
+        {
+            GrowthElapsedMinutes = Definition.GrowthFreezeMinutes;
+        }
+    }
+
+    // 성체 자리를 확보했다. 다음 대기 판정 전까지 성장 시계만 다시 흘려보낸다.
+    internal void ResumeGrowth()
+    {
+        GrowthSpaceBlocked = false;
     }
 
     internal static PuzzleFreshnessBand FreshnessBand(int _percent)
@@ -173,6 +212,8 @@ public sealed class PuzzlePlacement
         Pose = _pose;
         ActualValue = _actualValue;
         OwnedMinutes = _ownedMinutes;
+        // 새로 세상에 나온 화물은 성장 시계를 0부터 시작하고, 미소유 물건은 성장 추적 자체가 없다.
+        GrowthElapsedMinutes = _ownedMinutes < 0 ? -1 : 0;
         Durability = _durability >= 0 ? _durability : _definition.Durability;
         ShelfLifeAge = _shelfLifeAge;
     }
@@ -187,14 +228,17 @@ public sealed class PuzzlePlacement
         Durability = Math.Max(0, Durability - _amount);
     }
 
-    /// <summary>시작 지급·구매 시 보유 시간을 0으로 시작하고 판매 시 추적을 종료한다.</summary>
+    /// <summary>시작 지급·구매 시 보유 시간과 성장 시계를 0부터 시작하고 판매 시 추적을 종료한다.</summary>
     internal void SetOwned(bool _owned)
     {
         OwnedMinutes = _owned ? 0 : -1;
+        GrowthElapsedMinutes = _owned ? 0 : -1;
+        GrowthSpaceBlocked = false;
         HasUnreadSynergySettlement = false;
+        HasUnreadSpaceNotice = false;
     }
 
-    /// <summary>보유 시간과 유통기한에 반영할 경과 분을 누적한다.</summary>
+    /// <summary>보유 시간·성장 시계·유통기한에 반영할 경과 분을 누적한다.</summary>
     /// <param name="_minutes">이번 행동으로 경과한 분. 0은 무변화이며 미소유 물건은 무시한다.</param>
     /// <param name="_decayRate">유통기한 소모율. 0이면 소모하지 않는다.</param>
     /// <param name="_settlementInterval">신선도 표시를 갱신하는 경과 분 주기.</param>
@@ -209,6 +253,11 @@ public sealed class PuzzlePlacement
         if (OwnedMinutes >= 0 && _minutes > 0)
         {
             OwnedMinutes = checked(OwnedMinutes + _minutes);
+            // 성장 시계는 보유 시간과 따로 간다. 대기 상태를 기록하면 성장만 멈추고 보유 시간은 흐른다.
+            if (Definition.GrowthMinutes > 0 && !GrowthSpaceBlocked)
+            {
+                GrowthElapsedMinutes = checked(GrowthElapsedMinutes + _minutes);
+            }
             if (RemainingShelfLife.HasValue)
             {
                 var age = ShelfLifeAge;
@@ -234,8 +283,11 @@ public sealed class PuzzlePlacement
     {
         ActualValue = _staged.ActualValue;
         OwnedMinutes = _staged.OwnedMinutes;
+        GrowthElapsedMinutes = _staged.GrowthElapsedMinutes;
+        GrowthSpaceBlocked = _staged.GrowthSpaceBlocked;
         ShelfLifeAge = _staged.ShelfLifeAge;
         HasUnreadSynergySettlement = _staged.HasUnreadSynergySettlement;
+        HasUnreadSpaceNotice = _staged.HasUnreadSpaceNotice;
     }
 }
 

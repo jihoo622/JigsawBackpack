@@ -160,10 +160,10 @@ public static class TooltipDetailsSetupTool
         activeListLayout.childScaleHeight = false;
         activeList.gameObject.SetActive(false);
 
-        const int activeRowPoolCount = 6;
+        const int ACTIVE_ROW_COUNT = 6;
         var activeRowsProp = data.FindProperty("activeEffectRows");
-        activeRowsProp.arraySize = activeRowPoolCount;
-        for (int i = 0; i < activeRowPoolCount; i++)
+        activeRowsProp.arraySize = ACTIVE_ROW_COUNT;
+        for (int i = 0; i < ACTIVE_ROW_COUNT; i++)
         {
             EnsureActiveEffectRow(activeList, i, active, out var rowLabel, out var rowValue);
             var element = activeRowsProp.GetArrayElementAtIndex(i);
@@ -176,8 +176,37 @@ public static class TooltipDetailsSetupTool
         data.FindProperty("activeEffectsText").objectReferenceValue = active;
         data.FindProperty("activeEffectsMessageText").objectReferenceValue = message;
         data.FindProperty("activeEffectsListRoot").objectReferenceValue = activeList;
+        ApplyGeneralEffects(data, body, section);
         data.ApplyModifiedPropertiesWithoutUndo();
         PrefabUtility.RecordPrefabInstancePropertyModifications(_view);
+    }
+
+    static void ApplyGeneralEffects(SerializedObject _data, RectTransform _body, GameObject _synergySection)
+    {
+        var section = _body.Find("GeneralEffectsSection") as RectTransform;
+        if (!section)
+        {
+            section = (RectTransform)Object.Instantiate(_synergySection, _body).transform;
+            section.name = "GeneralEffectsSection";
+        }
+        PlaceBefore(section, _synergySection.transform);
+
+        var header = section.Find("SynergyHeader").GetComponent<TextMeshProUGUI>();
+        var list = (RectTransform)section.Find("SynergyList");
+        var slots = list.GetComponentsInChildren<TextMeshProUGUI>(true);
+        header.text = Presentation.PuzzleTooltipGeneralEffectHeader();
+        section.gameObject.SetActive(false);
+
+        _data.FindProperty("generalEffectSection").objectReferenceValue = section.gameObject;
+        _data.FindProperty("generalEffectHeaderText").objectReferenceValue = header;
+        _data.FindProperty("generalEffectListRoot").objectReferenceValue = list;
+        var slotsProperty = _data.FindProperty("generalEffectSlots");
+        slotsProperty.arraySize = slots.Length;
+        for (int i = 0; i < slots.Length; i++)
+        {
+            slots[i].text = string.Empty;
+            slotsProperty.GetArrayElementAtIndex(i).objectReferenceValue = slots[i];
+        }
     }
 
     static void EnsureActiveEffectRow(RectTransform _listRoot, int _index, TextMeshProUGUI _template,
