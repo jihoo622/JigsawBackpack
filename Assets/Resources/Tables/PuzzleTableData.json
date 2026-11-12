@@ -201,7 +201,7 @@
     {
       "id": "piece.refrigeratedFrame",
       "displayName": "냉장 프레임",
-      "description": "기계 프레임을 냉장 용도로 개조한 화물. 냉장 효과는 아직 적용되지 않았다.",
+      "description": "기계 프레임을 냉장 용도로 개조한 화물. 같은 객차에서 상하좌우로 맞닿은 음식의 유통기한 소모를 늦춘다.",
       "tags": [
         "Machinery",
         "Metal",
@@ -618,13 +618,6 @@
     "width": 5,
     "height": 5,
     "startingPlacements": [
-      {
-        "id": "train.babyCow",
-        "pieceId": "piece.babyCow",
-        "x": 0,
-        "y": 4,
-        "clockwiseTurns": 0
-      },
       {
         "id": "sample.verticalPair",
         "pieceId": "piece.verticalPair",

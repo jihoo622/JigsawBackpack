@@ -782,7 +782,13 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
 
         PuzzleSynergyScope scope = _isTrain ? PuzzleSynergyScope.Train : PuzzleSynergyScope.Market;
         var descriptions = new List<string>();
-        foreach (var rule in TableManager.Instance.SynergiesFor(scope))
+        var tables = TableManager.Instance;
+        var freshness = tables.PuzzleSynergy.freshness;
+        if (_item.Tags.Contains(freshness.refrigerationTag))
+        {
+            descriptions.Add(Presentation.PuzzleRefrigerationEffect(freshness.refrigerationReductionPercent));
+        }
+        foreach (var rule in tables.SynergiesFor(scope))
         {
             bool isSubject = !string.IsNullOrEmpty(rule.descriptionTag)
                 ? _item.Tags.Contains(rule.descriptionTag)
@@ -791,7 +797,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
                     : !string.IsNullOrEmpty(rule.excludedTargetTag) && !_item.Tags.Contains(rule.excludedTargetTag);
             if (isSubject && !string.IsNullOrWhiteSpace(rule.description))
             {
-                descriptions.Add(rule.description);
+                descriptions.Add(Presentation.PuzzleTooltipEffectDescription(rule.description));
             }
         }
 

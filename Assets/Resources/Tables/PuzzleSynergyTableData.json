@@ -101,6 +101,11 @@
     }
   ],
   "activationIntervalHours": 6,
+  "freshness": {
+    "settlementIntervalHours": 6,
+    "refrigerationTag": "Refrigerator",
+    "refrigerationReductionPercent": 50
+  },
   "animals": {
     "animalTag": "Animal",
     "wasteTag": "Waste",

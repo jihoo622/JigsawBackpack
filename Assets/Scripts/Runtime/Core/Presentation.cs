@@ -586,6 +586,13 @@ public static class Presentation
         return BasicData.Format("presentation.tooltip.effectHeader", TooltipLabelHtml(), TableManager.Instance.RequireValid().PuzzleSynergy.activationIntervalHours);
     }
 
+    internal static string PuzzleRefrigerationEffect(int _reductionPercent)
+    {
+        string description = BasicData.Format("presentation.tooltip.refrigerationEffect", _reductionPercent);
+        return BasicData.Format("presentation.tooltip.effectDescription",
+            ColorUtility.ToHtmlStringRGB(PuzzleTooltipGreen), description);
+    }
+
     internal static string PuzzleFreshnessText(int _percent)
     {
         return BasicData.Format("presentation.freshness.percent", _percent);

@@ -487,6 +487,19 @@ public sealed class GameTableRules
             Check(!string.IsNullOrWhiteSpace(rule.description), path + ".description", "시너지 설명이 필요합니다.");
         }
         ValidateAnimalSynergy(_tables, tags);
+        const string FRESHNESS_PATH = "PuzzleSynergyTableData.freshness";
+        var freshness = _tables.PuzzleSynergy.freshness;
+        Check(freshness != null, FRESHNESS_PATH, "신선도 설정이 필요합니다.");
+        if (freshness != null)
+        {
+            Check(freshness.settlementIntervalHours > 0, FRESHNESS_PATH + ".settlementIntervalHours",
+                "신선도 반영 주기는 양의 정수 시간이어야 합니다.");
+            Reference(freshness.refrigerationTag, FRESHNESS_PATH + ".refrigerationTag",
+                tags.Contains(freshness.refrigerationTag), "냉장 태그");
+            Check(freshness.refrigerationReductionPercent > 0 &&
+                freshness.refrigerationReductionPercent <= PuzzleInventoryValuation.BASE_PERCENT,
+                FRESHNESS_PATH + ".refrigerationReductionPercent", "냉장 감소율은 1~100%여야 합니다.");
+        }
     }
 
     void ValidateAnimalSynergy(TableManager _tables, HashSet<string> _tags)

@@ -177,6 +177,14 @@ public sealed class PuzzleSynergyRuleData
 }
 
 [Serializable]
+public sealed class PuzzleFreshnessData
+{
+    public int settlementIntervalHours;
+    public string refrigerationTag;
+    public int refrigerationReductionPercent;
+}
+
+[Serializable]
 public sealed class PuzzleAnimalSynergyData
 {
     public string animalTag, wasteTag, wastePieceId;

@@ -90,7 +90,7 @@ public sealed class PuzzleInventory
     PuzzlePlacement CopyPlacement(PuzzlePlacement _placement)
     {
         return new PuzzlePlacement(_placement.InstanceId, _placement.Definition, this, _placement.Pose,
-            _placement.ActualValue, _placement.OwnedMinutes, _placement.Durability, _placement.ShelfLifeElapsedMinutes)
+            _placement.ActualValue, _placement.OwnedMinutes, _placement.Durability, _placement.ShelfLifeAge)
         {
             HasUnreadSynergySettlement = _placement.HasUnreadSynergySettlement
         };
@@ -246,7 +246,7 @@ public sealed class PuzzleInventory
         {
             // 원본과 대상의 현재 점유를 확인한 뒤 같은 호출에서 소속과 점유를 함께 바꾼다.
             var placement = new PuzzlePlacement(_original.InstanceId, _original.Definition, _destination, result.Candidate,
-                _original.ActualValue, _original.OwnedMinutes, _original.Durability, _original.ShelfLifeElapsedMinutes)
+                _original.ActualValue, _original.OwnedMinutes, _original.Durability, _original.ShelfLifeAge)
             {
                 HasUnreadSynergySettlement = _original.HasUnreadSynergySettlement
             };
@@ -327,7 +327,7 @@ public sealed class PuzzleInventory
         {
             var original = swap.Placement;
             var replacement = new PuzzlePlacement(original.InstanceId, swap.Result, this, original.Pose,
-                original.ActualValue, original.OwnedMinutes, original.Durability, original.ShelfLifeElapsedMinutes)
+                original.ActualValue, original.OwnedMinutes, original.Durability, original.ShelfLifeAge)
             {
                 HasUnreadSynergySettlement = original.HasUnreadSynergySettlement
             };

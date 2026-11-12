@@ -500,6 +500,8 @@ public sealed class PuzzleInventoryService : MonoBehaviour
             long animalEventsThrough = Time.HasDeadline ? Math.Min(arrival, Time.DeadlineMinutes) : arrival;
             long breedingMinutes = (long)animals.breedingHours * PuzzleTimeManager.MINUTES_PER_HOUR;
             long synergyInterval = SynergyIntervalMinutes;
+            var freshness = tables.PuzzleSynergy.freshness;
+            long freshnessInterval = (long)freshness.settlementIntervalHours * PuzzleTimeManager.MINUTES_PER_HOUR;
             long cursor = Time.ElapsedMinutes;
             var growth = new List<PuzzleGrowth>();
             var selectedWagon = wagons[CurrentWagonIndex];
@@ -508,7 +510,7 @@ public sealed class PuzzleInventoryService : MonoBehaviour
             while (cursor < arrival)
             {
                 var pairs = SelectBreedingPairs(wagons, plan.breedingProgress);
-                long step = Math.Min(arrival - cursor, MinutesUntilCargoChange(wagons));
+                long step = Math.Min(arrival - cursor, MinutesUntilCargoChange(wagons, freshness));
                 step = Math.Min(step, MinutesUntilBirth(pairs, breedingMinutes, animalEventsThrough - cursor));
                 long untilWaste = Time.MinutesUntilDayInterval(cursor, animals.wasteIntervalDays);
                 bool spawnWaste = untilWaste <= step && untilWaste <= animalEventsThrough - cursor &&
@@ -530,7 +532,7 @@ public sealed class PuzzleInventoryService : MonoBehaviour
                     }
                     foreach (var item in wagon.Placements)
                     {
-                        item.ApplyElapsedMinutes(step);
+                        item.ApplyElapsedMinutes(step, ShelfLifeDecayRate(wagon, item, freshness), freshnessInterval);
                     }
                 }
 
@@ -573,7 +575,7 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         }
     }
 
-    static long MinutesUntilCargoChange(PuzzleInventory[] _wagons)
+    static long MinutesUntilCargoChange(PuzzleInventory[] _wagons, PuzzleFreshnessData _freshness)
     {
         long minutes = long.MaxValue;
         foreach (var wagon in _wagons)
@@ -584,13 +586,38 @@ public sealed class PuzzleInventoryService : MonoBehaviour
                 {
                     minutes = Math.Min(minutes, Math.Max(1, item.Definition.GrowthMinutes - item.OwnedMinutes));
                 }
-                if (item.OwnedMinutes >= 0 && item.RemainingShelfLifeMinutes is long remaining && remaining > 0)
+                if (item.OwnedMinutes >= 0 && item.RemainingShelfLifeMinutes > 0)
                 {
-                    minutes = Math.Min(minutes, remaining);
+                    minutes = Math.Min(minutes, item.MinutesUntilShelfLifeExpires(ShelfLifeDecayRate(wagon, item, _freshness)));
                 }
             }
         }
         return minutes;
+    }
+
+    static decimal ShelfLifeDecayRate(PuzzleInventory _wagon, PuzzlePlacement _item, PuzzleFreshnessData _freshness)
+    {
+        if (_item.RemainingShelfLifeMinutes is not > 0)
+        {
+            return 1;
+        }
+
+        int remainingPercent = PERCENT_SCALE;
+        foreach (var source in _wagon.Placements)
+        {
+            if (source == _item || !source.Definition.Tags.Contains(_freshness.refrigerationTag) ||
+                !Touches(source, _item))
+            {
+                continue;
+            }
+
+            remainingPercent -= _freshness.refrigerationReductionPercent;
+            if (remainingPercent <= 0)
+            {
+                return 0;
+            }
+        }
+        return (decimal)remainingPercent / PERCENT_SCALE;
     }
 
     readonly struct BreedingPair

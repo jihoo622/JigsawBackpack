@@ -2487,6 +2487,11 @@
           "arguments": 0
         },
         {
+          "id": "refrigerationEffect",
+          "value": "객차에서 인접 음식의 유통기한 감소율 −{0}%",
+          "arguments": 1
+        },
+        {
           "id": "marketNoSettlement",
           "value": "· 시장에서는 인접 효과가 적용되지 않습니다.",
           "arguments": 0
