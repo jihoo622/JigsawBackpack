@@ -84,6 +84,9 @@ public sealed class PuzzlePose
 
 public sealed class PuzzlePlacement
 {
+    const long FRESHNESS_INTERVAL_MINUTES = 6 * PuzzleTimeManager.MINUTES_PER_HOUR;
+    long shelfLifeElapsedMinutes;
+
     public int InstanceId { get; }
     public PuzzleItemDefinition Definition { get; }
     public PuzzleInventory Owner { get; }
@@ -96,9 +99,33 @@ public sealed class PuzzlePlacement
     public decimal OwnedHours => OwnedMinutes < 0 ? -1 : OwnedMinutes / (decimal)PuzzleTimeManager.MINUTES_PER_HOUR;
     // 현재 내구도. 생성 시 정의의 시작값으로 초기화하고, 이동 시 보존한다. 감소는 외부 Manager가 담당한다.
     public int Durability { get; private set; }
+    long ShelfLifeMinutes => (long)Definition.ShelfLifeHours * PuzzleTimeManager.MINUTES_PER_HOUR;
+    internal long? RemainingShelfLifeMinutes => Definition.HasDurability && ShelfLifeMinutes > 0
+        ? ShelfLifeMinutes - shelfLifeElapsedMinutes : null;
+
+    internal int? FreshnessPercent
+    {
+        get
+        {
+            if (!Definition.HasDurability)
+            {
+                return null;
+            }
+            if (!RemainingShelfLifeMinutes.HasValue)
+            {
+                return Durability;
+            }
+            if (RemainingShelfLifeMinutes.Value == 0)
+            {
+                return 0;
+            }
+            long settledAge = shelfLifeElapsedMinutes - shelfLifeElapsedMinutes % FRESHNESS_INTERVAL_MINUTES;
+            return (int)Math.Max(1, (ShelfLifeMinutes - settledAge) * 100 / ShelfLifeMinutes);
+        }
+    }
 
     internal PuzzlePlacement(int _instanceId, PuzzleItemDefinition _definition, PuzzleInventory _owner, PuzzlePose _pose,
-        decimal _actualValue, long _ownedMinutes = -1, int _durability = -1)
+        decimal _actualValue, long _ownedMinutes = -1, int _durability = -1, long _shelfLifeElapsedMinutes = 0)
     {
         InstanceId = _instanceId;
         Definition = _definition;
@@ -107,7 +134,10 @@ public sealed class PuzzlePlacement
         ActualValue = _actualValue;
         OwnedMinutes = _ownedMinutes;
         Durability = _durability >= 0 ? _durability : _definition.Durability;
+        shelfLifeElapsedMinutes = _shelfLifeElapsedMinutes;
     }
+
+    internal long ShelfLifeElapsedMinutes => shelfLifeElapsedMinutes;
 
     /// <summary>현재 내구도를 깎는 연결 지점. 0 이하로 내려가지 않으며, 아직 호출자는 없다.</summary>
     internal void ReduceDurability(int _amount)
@@ -126,7 +156,7 @@ public sealed class PuzzlePlacement
         HasUnreadSynergySettlement = false;
     }
 
-    /// <summary>획득 이후 경과 분을 누적한다. 부패·내구도 상태는 변경하지 않는다.</summary>
+    /// <summary>보유 시간과 유통기한에 반영할 경과 분을 누적한다.</summary>
     /// <param name="_minutes">이번 행동으로 경과한 분. 0은 무변화이며 미소유 물건은 무시한다.</param>
     /// <exception cref="ArgumentOutOfRangeException">시간이 음수일 때 발생한다.</exception>
     /// <exception cref="OverflowException">보유 시간이 long 범위를 초과할 때 발생한다.</exception>
@@ -139,6 +169,10 @@ public sealed class PuzzlePlacement
         if (OwnedMinutes >= 0 && _minutes > 0)
         {
             OwnedMinutes = checked(OwnedMinutes + _minutes);
+            if (RemainingShelfLifeMinutes is long remaining)
+            {
+                shelfLifeElapsedMinutes += Math.Min(remaining, _minutes);
+            }
         }
     }
 

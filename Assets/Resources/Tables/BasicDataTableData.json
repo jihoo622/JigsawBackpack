@@ -2387,7 +2387,7 @@
         },
         {
           "id": "shelfLifeValue",
-          "value": "<color=#{0}>{1}<size=80%>시간</size></color>",
+          "value": "<color=#{0}>{1}</color>",
           "arguments": 2
         },
         {
@@ -2427,12 +2427,12 @@
         },
         {
           "id": "marketNoSettlement",
-          "value": "시장에서는 인접 효과가 적용되지 않습니다.",
+          "value": "· 시장에서는 인접 효과가 적용되지 않습니다.",
           "arguments": 0
         },
         {
           "id": "activeEffectsNone",
-          "value": "없음",
+          "value": "· 없음",
           "arguments": 0
         },
         {
@@ -2975,13 +2975,13 @@
         },
         {
           "id": "lowThreshold",
-          "value": 33,
+          "value": 40,
           "positive": true,
           "whole": true
         },
         {
           "id": "mediumThreshold",
-          "value": 66,
+          "value": 80,
           "positive": true,
           "whole": true
         }

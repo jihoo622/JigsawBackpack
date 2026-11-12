@@ -200,7 +200,7 @@ public sealed class PuzzleInventoryView : MonoBehaviour
                 : Presentation.PuzzlePiece;
             index = RenderPose(placementSlots, index, placement.Pose, Vector2.zero, color,
                 iconIndex[placement.Definition.VisualKey].sprite, placement.Definition.IconSize, placement.Definition.IconOffset,
-                placement.Definition.HasDurability ? placement.Durability : null, placement.HasUnreadSynergySettlement);
+                placement.FreshnessPercent, placement.HasUnreadSynergySettlement);
         }
 
         HideSlots(placementSlots, index);
@@ -259,7 +259,7 @@ public sealed class PuzzleInventoryView : MonoBehaviour
     }
 
     public void ShowGhost(PuzzlePose _pose, PuzzleItemDefinition _item, Vector2Int _grabbedBoardCell, Vector2 _screenPosition,
-        int? _durability = null)
+        int? _freshness = null)
     {
         if (_pose == null || !RectTransformUtility.ScreenPointToLocalPointInRectangle(
                 (RectTransform)transform, _screenPosition, EventCamera, out var local))
@@ -270,7 +270,7 @@ public sealed class PuzzleInventoryView : MonoBehaviour
 
         var offset = local - GetCellCenter(_grabbedBoardCell);
         int used = RenderPose(ghostSlots, 0, _pose, offset, Presentation.PuzzleGhost,
-            iconIndex[_item.VisualKey].sprite, _item.IconSize, _item.IconOffset, _item.HasDurability ? _durability : null);
+            iconIndex[_item.VisualKey].sprite, _item.IconSize, _item.IconOffset, _freshness);
         HideSlots(ghostSlots, used);
     }
 

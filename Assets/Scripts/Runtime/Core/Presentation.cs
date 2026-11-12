@@ -488,11 +488,11 @@ public static class Presentation
         {
             return BasicData.Color("presentation.freshness.empty");
         }
-        if (_percent <= BasicData.Int("ui.freshness.lowThreshold"))
+        if (_percent < BasicData.Int("ui.freshness.lowThreshold"))
         {
             return BasicData.Color("presentation.freshness.low");
         }
-        if (_percent <= BasicData.Int("ui.freshness.mediumThreshold"))
+        if (_percent < BasicData.Int("ui.freshness.mediumThreshold"))
         {
             return BasicData.Color("presentation.freshness.medium");
         }
@@ -533,7 +533,7 @@ public static class Presentation
 
     internal static string PuzzleTooltipFreshnessValue(int _current)
     {
-        return BasicData.Format("presentation.tooltip.freshnessValue", ColorUtility.ToHtmlStringRGB(PuzzleTooltipGreen), _current);
+        return BasicData.Format("presentation.tooltip.freshnessValue", ColorUtility.ToHtmlStringRGB(PuzzleFreshnessColor(_current)), _current);
     }
 
     internal static string PuzzleTooltipShelfLifeLabel()
@@ -541,9 +541,9 @@ public static class Presentation
         return BasicData.Format("presentation.tooltip.shelfLifeLabel", TooltipLabelHtml());
     }
 
-    internal static string PuzzleTooltipShelfLifeValue(int _hours)
+    internal static string PuzzleTooltipShelfLifeValue(long _minutes, int _freshness)
     {
-        return BasicData.Format("presentation.tooltip.shelfLifeValue", ColorUtility.ToHtmlStringRGB(PuzzleTooltipGreen), _hours);
+        return BasicData.Format("presentation.tooltip.shelfLifeValue", ColorUtility.ToHtmlStringRGB(PuzzleFreshnessColor(_freshness)), PuzzleMapTime(_minutes));
     }
 
     internal static string PuzzleValueText(PuzzleValue _value)
