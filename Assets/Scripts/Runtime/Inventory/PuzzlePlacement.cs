@@ -90,6 +90,7 @@ public sealed class PuzzlePlacement
     public PuzzlePose Pose { get; }
     // 공통 시계의 시너지 정산마다 변화량을 누적한다. 배치 변경만으로는 바뀌지 않는다.
     public decimal ActualValue { get; private set; }
+    internal bool HasUnreadSynergySettlement { get; set; }
     /// <summary>획득 후 보유 시간. 시작 지급·구매 시 0부터 시작하며 -1은 미소유·판매된 물건이다.</summary>
     public long OwnedMinutes { get; private set; }
     public decimal OwnedHours => OwnedMinutes < 0 ? -1 : OwnedMinutes / (decimal)PuzzleTimeManager.MINUTES_PER_HOUR;
@@ -122,6 +123,7 @@ public sealed class PuzzlePlacement
     internal void SetOwned(bool _owned)
     {
         OwnedMinutes = _owned ? 0 : -1;
+        HasUnreadSynergySettlement = false;
     }
 
     /// <summary>획득 이후 경과 분을 누적한다. 부패·내구도 상태는 변경하지 않는다.</summary>
@@ -140,9 +142,11 @@ public sealed class PuzzlePlacement
         }
     }
 
-    internal void AddActualValue(decimal _amount)
+    internal void ApplySynergySettlement(decimal _amount)
     {
+        decimal previousValue = ActualValue;
         ActualValue += _amount;
+        HasUnreadSynergySettlement |= ActualValue != previousValue;
     }
 }
 

@@ -196,7 +196,7 @@ public sealed class PuzzleInventoryView : MonoBehaviour
                 : Presentation.PuzzlePiece;
             index = RenderPose(placementSlots, index, placement.Pose, Vector2.zero, color,
                 iconIndex[placement.Definition.VisualKey].sprite, placement.Definition.IconSize, placement.Definition.IconOffset,
-                placement.Definition.HasDurability ? placement.Durability : null);
+                placement.Definition.HasDurability ? placement.Durability : null, placement.HasUnreadSynergySettlement);
         }
 
         HideSlots(placementSlots, index);
@@ -277,7 +277,7 @@ public sealed class PuzzleInventoryView : MonoBehaviour
     }
 
     int RenderPose(PuzzleSlotVisual[] _slots, int _start, PuzzlePose _pose, Vector2 _offset, Color _color, Sprite _icon = null,
-        Vector2 _iconSize = default, Vector2 _iconOffset = default, int? _freshness = null)
+        Vector2 _iconSize = default, Vector2 _iconOffset = default, int? _freshness = null, bool _showSynergyNotice = false)
     {
         piecePositions.Clear();
         foreach (var cell in _pose.Cells)
@@ -289,6 +289,7 @@ public sealed class PuzzleInventoryView : MonoBehaviour
         var min = _pose.Cells[0].Position;
         var max = min;
         var bottomLeft = min;
+        var topRight = max;
         var originalMin = _pose.Cells[0].OriginalCell;
         var originalMax = originalMin;
         foreach (var cell in _pose.Cells)
@@ -299,6 +300,11 @@ public sealed class PuzzleInventoryView : MonoBehaviour
                 (cell.Position.y == bottomLeft.y && cell.Position.x < bottomLeft.x))
             {
                 bottomLeft = cell.Position;
+            }
+            if (cell.Position.y > topRight.y ||
+                (cell.Position.y == topRight.y && cell.Position.x > topRight.x))
+            {
+                topRight = cell.Position;
             }
             originalMin = Vector2Int.Min(originalMin, cell.OriginalCell);
             originalMax = Vector2Int.Max(originalMax, cell.OriginalCell);
@@ -322,6 +328,8 @@ public sealed class PuzzleInventoryView : MonoBehaviour
                 index == _start ? _icon : null, iconOffset, iconSize, _pose.ClockwiseTurns);
             _slots[index].ShowFreshness(index == _start ? _freshness : null,
                 bottomLeft - cell.Position, boardTitle.font, freshnessMaterial);
+            _slots[index].ShowSynergyNotice(index == _start && _showSynergyNotice,
+                topRight - cell.Position, boardTitle.font);
             index++;
         }
         if (_icon && index > _start)

@@ -673,6 +673,11 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             long? price = session.TryQuoteTrade(_placement, direction, out long quote) ? quote : (long?)null;
             tooltipView.Show(item, actualValue, rate, effects, futureValue, pos, isTrain, freshness, previewMinutes,
                 previewName, previewActivations, price, isTrain ? value.SynergyBonuses : null);
+            if (_placement.HasUnreadSynergySettlement && tooltipView.IsOpen)
+            {
+                _placement.HasUnreadSynergySettlement = false;
+                RenderBoards(_placement.InstanceId);
+            }
         }
 
         if (trainView)

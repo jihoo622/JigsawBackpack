@@ -17,6 +17,7 @@ public sealed class PuzzleSlotVisual : MonoBehaviour
     Sprite[] fillSprites;
     Sprite outlineSprite;
     [SerializeField] TextMeshProUGUI freshnessLabel;
+    TextMeshProUGUI synergyNotice;
 
     RectTransform Rect => (RectTransform)transform;
 
@@ -105,6 +106,36 @@ public sealed class PuzzleSlotVisual : MonoBehaviour
         freshnessLabel.rectTransform.anchoredPosition =
             (_cellOffset - Vector2.one * BasicData.Float("ui.freshness.offsetScale")) * cellWidth;
         freshnessLabel.enabled = true;
+    }
+
+    internal void ShowSynergyNotice(bool _visible, Vector2 _cellOffset, TMP_FontAsset _font)
+    {
+        if (!_visible)
+        {
+            if (synergyNotice)
+            {
+                synergyNotice.enabled = false;
+            }
+            return;
+        }
+
+        float cellWidth = Rect.rect.width;
+        if (!synergyNotice)
+        {
+            var notice = new GameObject("Synergy Notice", typeof(RectTransform), typeof(TextMeshProUGUI));
+            notice.transform.SetParent(transform, false);
+            synergyNotice = notice.GetComponent<TextMeshProUGUI>();
+            synergyNotice.font = _font;
+            synergyNotice.text = "●";
+            synergyNotice.color = new Color32(255, 107, 82, 255);
+            synergyNotice.alignment = TextAlignmentOptions.Center;
+            synergyNotice.raycastTarget = false;
+            synergyNotice.fontSize = cellWidth * 0.24f;
+            synergyNotice.rectTransform.sizeDelta = Vector2.one * (cellWidth * 0.3f);
+        }
+
+        synergyNotice.rectTransform.anchoredPosition = (_cellOffset + Vector2.one * 0.37f) * cellWidth;
+        synergyNotice.enabled = true;
     }
 
     internal void Hide()
