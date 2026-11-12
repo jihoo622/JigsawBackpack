@@ -82,7 +82,7 @@
 - `cityIds`는 등록된 도시 참조이며 같은 도시에서 같은 `type`의 행동은 하나만 쓸 수 있다. `TableManager.CityActionsOf(cityId)`는 action id 오름차순 목록을 주고 `TryGetCityAction(cityId, type, out row)`으로 하나를 조회한다. 전체 목록은 `CityActions` 속성(id 오름차순)이다. `modes`의 `id`·`displayName`·`description`·태그·`conversions`도 참조 무결성을 검증한다.
 - `conversions`의 `inputPieceId`는 `inputTag`를, `outputPieceId`는 `outputTag`를 가진 등록된 화물이어야 하고 `inputPieceId`는 고유하며 `outputCount`는 양수다. 현재 `action.butchery`는 `city.ranch.highland`(다르폴)에서 `piece.cow` 1개를 `piece.beef` 2개로 360분간 작업하고, `action.modification`은 `city.industry.ironworks`의 `mode.refrigeration`으로 `piece.uShape` 1개를 `piece.refrigeratedFrame` 1개로 즉시 바꾼다.
 - 개조는 `InstanceId`, 회전 후 `Pose`, `ActualValue`, `OwnedMinutes`, `Durability`와 유통기한 진행을 보존한다. `BaseValue`와 로컬 점유 셀을 같게 유지해 변환으로 이후 시너지 기준액이 바뀌지 않게 한다. 냉장 프레임의 `Refrigerator` 태그는 `PuzzleSynergyTableData.freshness`에서 참조한다.
-- 도축대는 Game 씬에 연결했고 개조대 버튼·View는 `Tools/MyJG/Apply Station Actions UI`로 씬에 재적용한다. 문구 원본은 `BasicDataTableData`이며 상태·사유는 `rules.butchery.*`·`rules.modification.*`, 버튼·보드는 `presentation.StationButchery*`·`presentation.PuzzleButcheryTitle`·`presentation.StationModification*`·`presentation.PuzzleModification*`를 쓴다.
+- 도축대는 Game 씬에 연결했고 개조대 버튼·View 배치는 역 메뉴 프리팹(`Assets/Art/UI/StationActionsPanel.prefab`)에서 수정한다. 문구 원본은 `BasicDataTableData`이며 상태·사유는 `rules.butchery.*`·`rules.modification.*`, 버튼·보드는 `presentation.StationButchery*`·`presentation.PuzzleButcheryTitle`·`presentation.StationModification*`·`presentation.PuzzleModification*`를 쓴다.
 
 ## 씬·분석 설정
 

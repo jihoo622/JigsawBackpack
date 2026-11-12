@@ -39,7 +39,7 @@
 - 85% 미만에서는 중요도 200 이상 핵심 역과 현재/호버/목표 역의 이름을 우선 표시한다. 일반 역 표식은 유지하고 확대하면 일반 역명도 배치한다. 핵심 역은 더 큰 굵은 글씨로 구분한다. 기준은 ui.mapLabels.majorThreshold/detailMinZoom 및 presentation.map.majorStationFontSize다.
 - 100% 미만에서는 같은 지역에 이미 표시한 이름 수 × regionCrowdingPenalty를 가중치에서 빼 다음 후보를 고른다. 한 지역이 이름 공간을 먼저 차지하지 않게 하며 실패한 배치는 지역 표시 수에 포함하지 않는다. 범위는 regionBalanceBelowZoom으로 조정한다.
 - 겹침 허용 예외는 없다. 후보가 없으면 이름만 생략하고 역은 유지한다. 호버 시 이름을 우선 배치하고 상세 정보에도 같은 cityId를 표시한다. 지역마다 연결 수가 가장 많은 역을 초기 핵심으로 지정했으며 현재 가중치는 테이블에 명시돼 있다. 노선 모양을 바꿔도 중요도가 자동으로 바뀌지는 않는다.
-- LabelConnector Image 30개는 프리팹의 각 노드에 저장하며 런타임에 만들지 않는다. Apply Map Presentation에서 같은 자식/참조를 구성한다. 기초데이터 ui.PuzzleMapView.labelSearchStep/labelSearchDistance/labelConnectorThickness가 탐색·선 두께의 원본이다.
+- LabelConnector Image 30개는 프리팹의 각 노드에 저장하며 런타임에 만들지 않는다. 기초데이터 `ui.PuzzleMapView.labelSearchStep`/`labelSearchDistance`/`labelConnectorThickness`가 탐색·선 두께의 원본이다.
 - 축소 시 입력은 실제 역 표식 영역으로 제한한다. 두 표식이 겹치는 위치는 더 가까운 역이 입력을 받고, 같은 거리이면 cityId 순으로 결정한다. 이전 역의 늦은 포인터 이탈이 새 역의 설명을 지우지 않도록 이탈 ID도 확인한다.
 - 줌·이동·화면 크기 변경 때 다시 배치한다. 변경 후 플레이/화면 확인은 수행하지 않았다.
 
@@ -142,7 +142,7 @@
 - `PuzzleTimeTableData.pixelsPerHour`가 환산 비율 K다. 현재 28픽셀/시간은 잠정치이며, 소요 분은 `ceil(구간 길이 합 / K × 60)`이다. 화면 줌·UI 배율은 계산에 참여하지 않는다.
 - 소요 시간 범위는 잠정 K 기준 3시간 41분~20시간 37분이다. 요금용 `distance` 1~9, 거리·적재 단가 1은 변경하지 않았다. 기본요금은 이후 경제 조정으로 3이 되었다.
 - `PuzzleTimeManager`가 분 단위 시계를 보유하고 표시·이동·물품 보유 시간·가치 누적이 같은 소요 분을 사용한다. 시작 06:00, 일출 06:00~24:00, 야간 00:00~06:00이다.
-- `Tools/MyJG/Apply Time Planning`은 표 캐시를 갱신하고 지도 시간 라벨·시장 입력 그룹·Game 씬의 아침 대기와 상환 금액을 연결한다. 원본 레이아웃의 좌표와 노선 연결은 유지했다.
+- 지도 시간 라벨·시장 입력 그룹·Game 씬의 아침 대기와 상환 금액 배치는 프리팹에서 수정한다. 원본 레이아웃의 좌표와 노선 연결은 유지했다.
 
 ### 금융마을까지 최단 이동 시간 — K=28 잠정 산출
 
@@ -193,12 +193,12 @@
 배경·확대/축소·마진 구성:
 
 - `Assets/Art/PuzzleMapTerrain.png`는 외부 지형의 육지·바다·고도·강·경제 지역 경계를 그린 배경이다. `rail_map_geography_seed_20265146.json`에 필요한 원본 배열을 보관하고, `Tools/MyJG/Generate Map Terrain Image`로 재생성한다. 국가 경계와 경제 지역 경계는 서로 다른 정보이며, 현재 배경에는 경제 지역 경계만 표시한다.
-- `MapPresentationTool`은 기존 프리팹을 편집해 `MapViewport`(RectMask2D) 아래 `MapContent`에 배경·노드·선분·시간 라벨을 함께 배치한다. 배경 크기는 1570×820이며 타일 중심과 역 좌표를 일치시킨다.
+- 지도 프리팹은 `MapViewport`(RectMask2D) 아래 `MapContent`에 배경·노드·선분·시간 라벨을 함께 배치한다. 배경 크기는 1570×820이며 타일 중심과 역 좌표를 일치시킨다.
 - `PuzzleMapNavigation`은 복제한 `InputSystem_Actions`의 `Map/Zoom`·`Map/Point`를 사용한다. 휠은 포인터 위치 기준 35~250% 확대·축소, UI 드래그는 지도 이동이다. 가장자리를 제한하고, 전체 보기와 현재 위치 버튼을 연결한다. 패널을 닫으면 입력 구독을 해제한다.
 - 지형과 역 좌표는 줌에 따라 변하지만 노드 전체·시간 라벨·시간 배경은 역배율로 보정해 화면상 크기를 유지한다. 노선 길이는 확대하고 굵기는 역배율로 보정한다. 이름은 전체 보기에서 18, 상세에서 22, 현재 역은 24 크기다. 시간은 18, 현재 위치 배지는 16 크기다. 시각 크기의 원본은 `Presentation`이다.
 - 확대·축소·드래그·호버·도착 때 `PuzzleMapView.UpdateMapLayout`이 라벨을 재배치한다. 이름은 현재 역·가리킨 역·목표 역·직접 연결 역·환승역·나머지 역 순으로 처리하고, ID로 동률을 정렬한다. 마커를 피하는 방향을 선택하고 자리가 없으면 이름만 생략한다. 현재 역과 가리킨 역의 이름은 우선 보존한다. 시간은 85% 이상에서 남은 공간에 배치하고, 겹치는 시간 라벨은 숨긴다. 생략된 도시 정보·이동 시간은 역을 가리켜 하단 정보에서 확인한다.
 - 제목·범례·도시 정보·버튼은 확대 대상 밖에 고정한다. 좌우 여백은 48px, 지도 영역은 위아래 228px를 비운다. 현재 역은 금색 링·배지·굵은 글씨로 강조한다.
-- `Tools/MyJG/Apply Map Presentation`으로 UI 연결을 재적용한다. 배경 이미지를 처음 생성한 경우 에디터가 새 파일을 읽은 뒤 적용한다. 이 작업에서 플레이·입력 실험·화면 캡처는 수행하지 않았다.
+- 지도 배치는 프리팹(`Assets/Art/PuzzleWorldMap.prefab`)에서 수정한다. 지형 이미지는 `Tools/MyJG/Generate Map Terrain Image`로 재생성한다. 이 작업에서 플레이·입력 실험·화면 캡처는 수행하지 않았다.
 
 `Tools/MyJG/Apply Rail Map Layout (seed 20265146)` — `Assets/Scripts/Editor/Build/RailMapLayoutTool.cs`. 레이아웃 파일 [rail_map_layout_seed_20265146.json](rail_map_layout_seed_20265146.json)을 읽어 **프리팹만** 고쳐 저장한다(씬·테이블은 건드리지 않는다).
 
@@ -222,7 +222,7 @@
 - `PuzzleMapView.Awake`는 지역 라벨·노선 색과 폴라인 기반 소요 분 라벨을 채운다. 표에 없는 노선 바인딩은 갱신하지 않는다.
 - `PuzzleMapPresenter` — `SceneServices.For<PuzzleInventoryService>`로 세션을 얻고, 노드 Hover/Click을 구독한다. Click → `EvaluateTravel` → 확인·취소 모달 → 확인 시 재판정 → 이동 연출 → `Travel` 1회 → 도착 표시 → 지도 Close 순서다. 실패는 지도 `information`에 표시한다.
 - `PuzzleMapTravelView : PanelBase`는 `MapPanel/MapTravelPanel` 아래에 사전 배치한 확인 카드·이동 카드·기차·진행 막대를 제어한다. 기본 선택은 취소이며 `UI/Cancel`도 취소다. 이동 중에는 확인·취소·지도 조작을 막는다. 패널이 닫히거나 비활성화되면 Presenter의 대기 코루틴을 중단한다. 이동 확정 전 중단은 도시·시간·자금을 바꾸지 않는다.
-- `Tools/MyJG/Apply Map Travel UI`(`MapTravelSetupTool`)로 모달·연출·Presenter 참조를 다시 저장한다. 연출 실제 초 단위 시간은 `PuzzleTradeTableData.travelEffectSeconds`·`travelArrivalHoldSeconds`, 문구·색은 `Presentation`이 원본이다. 실제 게임 시간·요금 계산은 기존 `PuzzleInventoryService.Travel`만 수행한다.
+- 이동 모달·연출 UI 배치는 지도 프리팹에서 수정한다. 연출 실제 초 단위 시간은 `PuzzleTradeTableData.travelEffectSeconds`·`travelArrivalHoldSeconds`, 문구·색은 `Presentation`이 원본이다. 실제 게임 시간·요금 계산은 기존 `PuzzleInventoryService.Travel`만 수행한다.
 - 노드 상태는 `HasRoute(현재, target)` + `EvaluateTravel` + `session.HasVisitedCity` + `planningTargetCityId` 비교로 계산한다. **화면 좌표와 선분은 프리팹에 있고, 인접 관계·시간·비용·방문 여부는 전부 테이블과 세션 조회 결과다.** 프리팹에 인접 목록이 중복 저장되지는 않는다.
 - `GameEvents.CityArrived`를 받아 도착 후 다시 갱신한다.
 - 노선 라벨은 `PuzzleMapTime(소요 분)`으로 시간·분을 표시한다. 시간 배경 전체를 먼저, 시간 글자 전체를 나중에 그리도록 형제 순서를 고정한다. 새 노선 복제 시 배경이 글자를 가리던 문제를 프리팹·두 지도 제작 도구·런타임 초기 배치에서 함께 수정했다.
@@ -258,7 +258,7 @@
 | 요금용 거리·단가 | `PuzzleRouteTableData`의 `distance`·`cost`·`costPerDistance`·`costPerCell` |
 | 기한 | `PuzzleTradeTableData.deadlineHours` |
 | 툴팁 문구 | `BasicDataTableData`의 `presentation.PuzzleTooltip*` 항목 |
-| HUD·시장 그룹·지도 시간 연결 | `Tools/MyJG/Apply Time Planning` |
+| HUD·시장 그룹·지도 시간 연결 | 해당 프리팹에서 수정 |
 | 표 캐시 | `Tools/MyJG/Tables/Reload Tables` (플레이 중 제외) |
 
 ## 9. 남은 확인

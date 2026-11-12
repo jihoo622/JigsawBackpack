@@ -15,7 +15,7 @@
 | 항목 | 남아 있는 데이터·위치 | 권장 소유권·이유 |
 |---|---|---|
 | 태그별 표시 매핑 | `Presentation`의 `PUZZLE_TAG_LABELS`, `PuzzleTagBackgroundColor`, `GetTagSortWeight`가 태그 ID와 문구/색/순위 키를 연결 | 기초데이터에 태그 표시 레코드 추가. 실제 문구·색·대부분 순위는 이미 표에 있으나 새 태그 등록 시 코드 switch도 수정해야 함 |
-| 지역 색 매핑·범례 순서 | `Presentation.PuzzleMapRegionColor`의 지역 ID switch, `MapPresentationTool.Apply`의 7개 지역 배열 | 기초데이터의 지역 표시 레코드에 색 키·범례 순위 저장. 지역 ID는 도메인 표와 참조 검증 |
+| 지역 색 매핑·범례 순서 | `Presentation.PuzzleMapRegionColor`의 지역 ID switch, 지도 프리팹의 7개 지역 배열 | 기초데이터의 지역 표시 레코드에 색 키·범례 순위 저장. 지역 ID는 도메인 표와 참조 검증 |
 | 라벨 배치 방향·시도 순서 | `PuzzleMapView.LABEL_DIRECTIONS`: 상/우/하/좌/대각선 8방향 | 배치 튜닝이 필요하면 기초데이터에 순서 필드가 있는 좌표 레코드 추가. 단위 방향 자체보다 시도 우선순위가 조정 대상 |
 | 술집 소식 선택 정책 | `PuzzleInventoryPresenter.GetTavernRumor` 및 `PuzzleCityView.HearRumor`: 전체 미방문 도시·판매 허용·고가 수요 필터, 마을·품목 조합 무작위 한 항목, 방문당 한 번·대화 로그 기록 | 술집 도메인 표 권장. 소식 개수·선택 순서·재방문 갱신 기준을 먼저 확정. 문구는 이미 기초데이터 사용 |
 
