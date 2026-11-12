@@ -73,7 +73,7 @@
         "Supply",
         "Grain"
       ],
-      "shelfLifeHours": 96,
+      "shelfLifeHours": 168,
       "visualKey": "cargo.grainSack",
       "slotCount": 1,
       "cells": [
@@ -302,7 +302,7 @@
         "Food",
         "Fish"
       ],
-      "shelfLifeHours": 96,
+      "shelfLifeHours": 168,
       "visualKey": "cargo.fish",
       "slotCount": 2,
       "cells": [
@@ -358,7 +358,7 @@
         "Food",
         "Fruit"
       ],
-      "shelfLifeHours": 96,
+      "shelfLifeHours": 168,
       "visualKey": "cargo.smallCrate",
       "slotCount": 1,
       "cells": [
@@ -405,7 +405,7 @@
         "Food",
         "Meat"
       ],
-      "shelfLifeHours": 96,
+      "shelfLifeHours": 168,
       "visualKey": "cargo.grainSack",
       "slotCount": 1,
       "cells": [
@@ -429,7 +429,7 @@
         "Food",
         "Meat"
       ],
-      "shelfLifeHours": 96,
+      "shelfLifeHours": 168,
       "visualKey": "cargo.beef",
       "slotCount": 2,
       "durability": 100,
@@ -553,7 +553,7 @@
         "Food",
         "Fruit"
       ],
-      "shelfLifeHours": 96,
+      "shelfLifeHours": 168,
       "visualKey": "cargo.apple",
       "slotCount": 1,
       "durability": 100,

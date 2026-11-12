@@ -3041,13 +3041,13 @@
         },
         {
           "id": "lowThreshold",
-          "value": 40,
+          "value": 20,
           "positive": true,
           "whole": true
         },
         {
           "id": "mediumThreshold",
-          "value": 80,
+          "value": 60,
           "positive": true,
           "whole": true
         }
