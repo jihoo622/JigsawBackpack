@@ -1,10 +1,11 @@
-using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
+using System;
 using UnityEditor;
-using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine;
 
 // 생성 월드 데이터(seed 20265146)의 좌표·폴리라인을 PuzzleWorldMap 프리팹에 적용하는 에디터 도구다.
 // 표(PuzzleTableData·PuzzleRouteTableData)는 이미 갱신되어 있고, 이 도구는 표시층만 고친다.
@@ -12,8 +13,8 @@ using UnityEngine.UI;
 // 레이아웃 파일의 railIndex는 sourceId 숫자 순서이며 프리팹의 Track_·Time_ 접미수와 같은 의미다.
 public static class RailMapLayoutTool
 {
-    const string PREFAB_PATH = "Assets/Art/PuzzleWorldMap.prefab";
-    const string LAYOUT_PATH = "Docs/Management/rail_map_layout_seed_20265146.json";
+    public const string PREFAB_PATH = "Assets/Art/PuzzleWorldMap.prefab";
+    public const string LAYOUT_PATH = "Docs/Management/rail_map_layout_seed_20265146.json";
     const string MENU = "Tools/MyJG/Apply Rail Map Layout (seed 20265146)";
     const string TRACK_PARENT_NAME = "SubwayMapTracks";
     static float BackboneThickness => BasicData.Float("editor.RailMapLayoutTool.backbonethickness");
@@ -21,7 +22,7 @@ public static class RailMapLayoutTool
     static float LabelNodeClearance => BasicData.Float("editor.RailMapLayoutTool.labelnodeclearance");
     static float LabelNudge => BasicData.Float("editor.RailMapLayoutTool.labelnudge");
     static float EndpointTolerance => BasicData.Float("editor.RailMapLayoutTool.endpointtolerance");
-    static readonly string[] BACKBONE_CORRIDORS = {"trade_backbone", "express_backbone"};
+    static readonly string[] BACKBONE_CORRIDORS = { "trade_backbone", "express_backbone" };
 
     // JsonUtility가 리플렉션으로 값을 채우므로 컴파일러는 필드가 항상 기본값이라고 경고한다.
 #pragma warning disable CS0649
@@ -51,7 +52,7 @@ public static class RailMapLayoutTool
         public string regionId;
         public string corridorType;
         public int distance;
-        public int cost;
+        public long cost;
         public float labelX;
         public float labelY;
         public float[] points;
@@ -84,10 +85,19 @@ public static class RailMapLayoutTool
 
     public static void Apply()
     {
+        TryApply();
+    }
+
+    public static bool TryApply()
+    {
+        if (Application.isPlaying)
+        {
+            return false;
+        }
         if (!File.Exists(LAYOUT_PATH))
         {
             Debug.LogError($"[RailMap] 레이아웃 파일을 찾지 못했습니다: {LAYOUT_PATH}");
-            return;
+            return false;
         }
 
         LayoutFile layout;
@@ -98,34 +108,37 @@ public static class RailMapLayoutTool
         catch (Exception error)
         {
             Debug.LogError($"[RailMap] 레이아웃 파싱 실패: {error.Message}");
-            return;
+            return false;
         }
 
         if (layout == null || layout.nodes == null || layout.rails == null
             || layout.nodes.Length == 0 || layout.rails.Length == 0)
         {
             Debug.LogError("[RailMap] 레이아웃 파일에 nodes·rails가 비어 있습니다.");
-            return;
+            return false;
         }
 
         if (AssetDatabase.LoadAssetAtPath<GameObject>(PREFAB_PATH) == null)
         {
             Debug.LogError($"[RailMap] 프리팹을 찾지 못했습니다: {PREFAB_PATH}");
-            return;
+            return false;
         }
 
         var root = PrefabUtility.LoadPrefabContents(PREFAB_PATH);
         try
         {
             ApplyTo(root, layout);
-            PrefabUtility.SaveAsPrefabAsset(root, PREFAB_PATH);
+            if (!PrefabUtility.SaveAsPrefabAsset(root, PREFAB_PATH))
+            {
+                throw new InvalidOperationException("지도 프리팹을 저장하지 못했습니다.");
+            }
         }
         finally
         {
             PrefabUtility.UnloadPrefabContents(root);
         }
 
-        AssetDatabase.SaveAssets();
+        return true;
     }
 
     static void ApplyTo(GameObject _root, LayoutFile _layout)
@@ -133,8 +146,7 @@ public static class RailMapLayoutTool
         var view = _root.GetComponentInChildren<PuzzleMapView>(true);
         if (view == null)
         {
-            Debug.LogError("[RailMap] 프리팹에서 PuzzleMapView를 찾지 못했습니다.");
-            return;
+            throw new InvalidOperationException("프리팹에서 PuzzleMapView를 찾지 못했습니다.");
         }
 
         var nodeById = new Dictionary<string, LayoutNode>();
@@ -144,6 +156,7 @@ public static class RailMapLayoutTool
         }
 
         var report = new StringBuilder();
+        SynchronizeNodes(_root, view, nodeById);
         var nodesMoved = ApplyNodes(_root, nodeById, _layout.planningTargetCityId, report);
         if (nodesMoved != _layout.nodes.Length)
         {
@@ -153,8 +166,7 @@ public static class RailMapLayoutTool
         var trackParent = FindChild(_root.transform, TRACK_PARENT_NAME);
         if (trackParent == null)
         {
-            Debug.LogError($"[RailMap] {TRACK_PARENT_NAME} 자식 컨테이너를 찾지 못했습니다.");
-            return;
+            throw new InvalidOperationException($"{TRACK_PARENT_NAME} 자식 컨테이너를 찾지 못했습니다.");
         }
 
         var segments = new Dictionary<string, RectTransform>();
@@ -185,8 +197,7 @@ public static class RailMapLayoutTool
 
         if (!legTemplate)
         {
-            Debug.LogError("[RailMap] Track_로 시작하는 노선 조각이 프리팹에 없습니다.");
-            return;
+            throw new InvalidOperationException("Track_로 시작하는 노선 조각이 프리팹에 없습니다.");
         }
 
         var legsUsed = 0;
@@ -201,6 +212,20 @@ public static class RailMapLayoutTool
         Array.Sort(orderedRails, CompareDrawingOrder);
         foreach (var rail in orderedRails)
         {
+            if (!timeByIndex.ContainsKey(rail.railIndex))
+            {
+                var template = timeByIndex[Array.Find(_layout.rails, _rail => timeByIndex.ContainsKey(_rail.railIndex)).railIndex];
+                var clone = UnityEngine.Object.Instantiate(template.gameObject, template.parent);
+                clone.name = $"Time_{rail.railIndex}";
+                timeByIndex.Add(rail.railIndex, (RectTransform)clone.transform);
+            }
+            if (!plateByIndex.ContainsKey(rail.railIndex))
+            {
+                var template = plateByIndex[Array.Find(_layout.rails, _rail => plateByIndex.ContainsKey(_rail.railIndex)).railIndex];
+                var clone = UnityEngine.Object.Instantiate(template.gameObject, template.parent);
+                clone.name = $"TimePlate_{rail.railIndex}";
+                plateByIndex.Add(rail.railIndex, (RectTransform)clone.transform);
+            }
             var points = DrawingPoints(rail);
             if (points == null || points.Length < 4 || points.Length % 2 != 0)
             {
@@ -313,10 +338,76 @@ public static class RailMapLayoutTool
             }
         }
 
-        BindRouteTimes(view, _layout, timeByIndex);
+        var usedIndices = new HashSet<int>(_layout.rails.Select(_rail => _rail.railIndex));
+        foreach (var pair in timeByIndex)
+        {
+            pair.Value.gameObject.SetActive(usedIndices.Contains(pair.Key));
+        }
+        foreach (var pair in plateByIndex)
+        {
+            pair.Value.gameObject.SetActive(usedIndices.Contains(pair.Key));
+        }
+        BindRouteTimes(view, _layout, timeByIndex, plateByIndex);
         BindLineGroups(view, imagesByRegion, activeLegs);
+        var regionBindings = new SerializedObject(view).FindProperty("regions");
+        for (int i = 0; i < regionBindings.arraySize; i++)
+        {
+            var binding = regionBindings.GetArrayElementAtIndex(i);
+            var label = binding.FindPropertyRelative("label").objectReferenceValue as Text;
+            if (label)
+            {
+                string regionId = binding.FindPropertyRelative("regionId").stringValue;
+                var region = Array.Find(TableManager.Instance.Puzzle.regions, _region => _region.id == regionId);
+                if (region == null)
+                {
+                    throw new InvalidOperationException("지역 표시의 원본이 없습니다: " + regionId);
+                }
+                label.text = Presentation.PuzzleMapRegionLabel(region);
+            }
+        }
 
         Debug.Log($"[RailMap] 노드 {nodesMoved} · 레일 {_layout.rails.Length} · 레그 {legsUsed}(신규 {legsCreated}, 비활성 {legsDisabled}) · 시간 라벨 {labelsMoved}(겹침 보정 {labelsNudged})\n{report}");
+    }
+
+    static void SynchronizeNodes(GameObject _root, PuzzleMapView _view, Dictionary<string, LayoutNode> _nodeById)
+    {
+        var nodes = _root.GetComponentsInChildren<PuzzleMapNodeView>(true).ToList();
+        var template = nodes.FirstOrDefault();
+        if (!template)
+        {
+            throw new InvalidOperationException("역을 만들 프리팹 템플릿이 없습니다.");
+        }
+        // 삭제 전에 복제해야 템플릿으로 선택된 역을 지운 경우에도 참조가 유효하다.
+        foreach (var pair in _nodeById.OrderBy(_pair => _pair.Key, StringComparer.Ordinal))
+        {
+            if (nodes.Any(_node => new SerializedObject(_node).FindProperty("cityId").stringValue == pair.Key))
+            {
+                continue;
+            }
+            var clone = UnityEngine.Object.Instantiate(template, template.transform.parent);
+            clone.name = "Station_" + pair.Key;
+            var serialized = new SerializedObject(clone);
+            serialized.FindProperty("cityId").stringValue = pair.Key;
+            serialized.ApplyModifiedPropertiesWithoutUndo();
+            nodes.Add(clone);
+        }
+        foreach (var node in nodes.ToArray())
+        {
+            if (!_nodeById.ContainsKey(new SerializedObject(node).FindProperty("cityId").stringValue))
+            {
+                nodes.Remove(node);
+                UnityEngine.Object.DestroyImmediate(node.gameObject);
+            }
+        }
+        var view = new SerializedObject(_view);
+        var references = view.FindProperty("nodes");
+        references.arraySize = nodes.Count;
+        var ordered = nodes.OrderBy(_node => new SerializedObject(_node).FindProperty("cityId").stringValue, StringComparer.Ordinal).ToArray();
+        for (int i = 0; i < ordered.Length; i++)
+        {
+            references.GetArrayElementAtIndex(i).objectReferenceValue = ordered[i];
+        }
+        view.ApplyModifiedPropertiesWithoutUndo();
     }
 
     static int ApplyNodes(GameObject _root, Dictionary<string, LayoutNode> _nodeById, string _planningTargetCityId, StringBuilder _report)
@@ -374,7 +465,8 @@ public static class RailMapLayoutTool
         return moved;
     }
 
-    static void BindRouteTimes(PuzzleMapView _view, LayoutFile _layout, Dictionary<int, RectTransform> _timeByIndex)
+    static void BindRouteTimes(PuzzleMapView _view, LayoutFile _layout, Dictionary<int, RectTransform> _timeByIndex,
+        Dictionary<int, RectTransform> _plateByIndex)
     {
         var serialized = new SerializedObject(_view);
         var routes = serialized.FindProperty("routeTimes");
@@ -396,6 +488,7 @@ public static class RailMapLayoutTool
             var element = routes.GetArrayElementAtIndex(i);
             element.FindPropertyRelative("fromCityId").stringValue = rail.fromCityId;
             element.FindPropertyRelative("toCityId").stringValue = rail.toCityId;
+            element.FindPropertyRelative("plate").objectReferenceValue = _plateByIndex[rail.railIndex].GetComponent<Image>();
 
             var label = element.FindPropertyRelative("label");
             if (_timeByIndex.TryGetValue(rail.railIndex, out var time))

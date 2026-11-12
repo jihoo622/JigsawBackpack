@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine;
 
 [DisallowMultipleComponent]
 public sealed class PuzzleInventoryPresenter : MonoBehaviour
@@ -35,8 +35,8 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         butcheryView.gameObject.activeInHierarchy;
     bool ModificationViewReady => session != null && session.IsModificationOpen && modificationView != null &&
         modificationView.gameObject.activeInHierarchy;
-    bool isNotebookOpen;
-    bool InventoryBlocked => isMapOpen || isNotebookOpen;
+    decimal? pendingSettlementValue;
+    bool InventoryBlocked => isMapOpen;
 
     void OnEnable()
     {
@@ -148,7 +148,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         }
         currentHoveredInstanceId = null;
         isMapOpen = false;
-        isNotebookOpen = false;
+        pendingSettlementValue = null;
         GameEvents.CityArrived -= OnCityArrived;
         GameEvents.TimeAdvanced -= OnTimeAdvanced;
         GameEvents.PanelVisibility -= OnPanelVisibility;
@@ -268,7 +268,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         // 5. 후보 하나를 무작위로 골라 대사를 만들고 수첩에 기록한다.
         var selected = candidates[Random.Range(0, candidates.Count)];
         string message = Presentation.TavernRumor(selected.city.displayName, selected.tag);
-        session.RecordTavernRumor(selected.city.id, message);
+        session.RecordTavernRumor(selected.city.id, message, selected.tag);
         return message;
     }
 
@@ -283,6 +283,8 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         input.CancelCapture();
         ClearDrag();
         ShowCurrentCity();
+        pendingSettlementValue = _info.cargoValueBeforeSettlement;
+        PlayPendingSettlement();
         if (session.RunStatus != PuzzleRunStatus.InProgress)
         {
             cityView.SetTown(session.CityData.displayName, false);
@@ -343,19 +345,11 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
 
     void OnPanelVisibility(GameEvents.PanelInfo _info)
     {
-        if (_info.panel == PuzzleTradeNotebookView.PanelName)
-        {
-            isNotebookOpen = _info.open;
-        }
-        else if (_info.panel == Presentation.PUZZLE_MAP_PANEL_NAME)
-        {
-            isMapOpen = _info.open;
-        }
-        else
+        if (_info.panel != Presentation.PUZZLE_MAP_PANEL_NAME)
         {
             return;
         }
-
+        isMapOpen = _info.open;
         if (_info.open)
         {
             hoverPosition = null;
@@ -372,6 +366,22 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             RenderBoards();
             ShowItemDetails(null, null);
         }
+        else
+        {
+            PlayPendingSettlement();
+        }
+    }
+
+    void PlayPendingSettlement()
+    {
+        if (InventoryBlocked || !pendingSettlementValue.HasValue)
+        {
+            return;
+        }
+
+        trainView.ShowSynergySettlement(pendingSettlementValue.Value,
+            session.Train.Placements.Sum(item => item.FreshnessAdjustedValue), session.Train.Value.BaseValue);
+        pendingSettlementValue = null;
     }
 
     void ShowCurrentCity()
@@ -537,7 +547,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             SetDragView(targetView);
             var candidate = preview.Placement.Candidate;
             var grabbedBoardCell = candidate != null ? targetCell : Vector2Int.zero;
-            targetView.ShowGhost(candidate ?? drag.GetGhostPose(), drag.Definition, grabbedBoardCell, pointerPosition, drag.Durability);
+            targetView.ShowGhost(candidate ?? drag.GetGhostPose(), drag.Definition, grabbedBoardCell, pointerPosition, drag.FreshnessPercent);
             targetView.ShowPreview(candidate, preview.CanDrop);
             cityView.ShowTradeStatus(Presentation.PuzzleTradeStatus(preview, drag.Definition, _committed: false));
             return;
@@ -545,7 +555,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
 
         var sourceView = ViewFor(drag.Source);
         SetDragView(sourceView);
-        sourceView.ShowGhost(drag.GetGhostPose(), drag.Definition, Vector2Int.zero, pointerPosition, drag.Durability);
+        sourceView.ShowGhost(drag.GetGhostPose(), drag.Definition, Vector2Int.zero, pointerPosition, drag.FreshnessPercent);
         sourceView.ShowPreview(null, false);
         cityView.ShowTradeStatus(string.Empty);
     }
@@ -710,7 +720,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         bool isButchery = session.IsButchery(_placement.Owner);
         bool isActionBoard = isButchery || session.IsModification(_placement.Owner);
         bool isTrain = _view == trainView || session.IsTrainWagon(_placement.Owner);
-        decimal actualValue = _placement.ActualValue;
+        decimal actualValue = _placement.FreshnessAdjustedValue;
         var rate = item == null || isActionBoard ? default : session.RateFor(item);
         var effects = isActionBoard ? null : BuildEffectDescriptions(item, isTrain);
         long? previewMinutes = session.PreviewMinutes;
@@ -732,12 +742,17 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         if (tooltipView && drag == null && (_position.HasValue || hoverPosition.HasValue))
         {
             Vector2 pos = _position ?? hoverPosition.Value;
-            int? freshness = item != null && item.HasDurability ? _placement.Durability : (int?)null;
             string previewName = session.PreviewCityId == null ? null : TableManager.Instance.CityPrice(session.PreviewCityId).displayName;
             var direction = isTrain ? PuzzleTradeDirection.Sell : PuzzleTradeDirection.Buy;
             long? price = !isActionBoard && session.TryQuoteTrade(_placement, direction, out long quote) ? quote : (long?)null;
-            tooltipView.Show(item, actualValue, rate, effects, futureValue, pos, isTrain, freshness, previewMinutes,
-                previewName, previewActivations, price, isTrain ? Presentation.PuzzleActiveEffects(value) : Presentation.PuzzleMarketNoSettlement);
+            tooltipView.Show(item, actualValue, rate, effects, futureValue, pos, isTrain, _placement.FreshnessPercent,
+                _placement.RemainingShelfLifeMinutes, previewMinutes,
+                previewName, previewActivations, price, isTrain ? value.SynergyBonuses : null);
+            if (_placement.HasUnreadSynergySettlement && tooltipView.IsOpen)
+            {
+                _placement.HasUnreadSynergySettlement = false;
+                RenderBoards(_placement.InstanceId);
+            }
         }
 
         if (trainView)
@@ -787,7 +802,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
     {
         if (trainView)
         {
-            trainView.ShowBoardValue(session.Train.Placements.Sum(_item => _item.ActualValue), session.Train.Value.BaseValue);
+            trainView.ShowBoardValue(session.Train.Placements.Sum(_item => _item.FreshnessAdjustedValue), session.Train.Value.BaseValue);
         }
         if (marketView)
         {

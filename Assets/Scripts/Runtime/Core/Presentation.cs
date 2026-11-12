@@ -1,9 +1,9 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
-using UnityEngine;
+using System;
 using UnityEngine.UI;
+using UnityEngine;
 
 // 색과 설명 문자열의 단일 출처.
 // 선택지 카드·정보 패널·슬롯 핍·장식 오브젝트가 모두 여기를 읽고, 개별 UI가 자기 색과 문구를 가지지 않는다.
@@ -36,6 +36,42 @@ public static class Presentation
     public static string TavernRumor(string _cityName, string _tag)
     {
         return BasicData.Format("presentation.station.rumor", _cityName, PuzzleTagLabel(_tag));
+    }
+
+    public static string RumorLogTitle => BasicData.Text("presentation.rumorLog.title");
+    public static string RumorLogCollapse => BasicData.Text("presentation.rumorLog.collapse");
+    public static string RumorLogEmpty => BasicData.Text("presentation.rumorLog.empty");
+
+    public static string RumorLogCount(int _count)
+    {
+        return BasicData.Format("presentation.rumorLog.count", _count);
+    }
+
+    public static string RumorLogCollapsed(int _count)
+    {
+        return BasicData.Format("presentation.rumorLog.collapsed", _count);
+    }
+
+    internal static string RumorLogEntries(IReadOnlyList<PuzzleInventoryService.TavernRumor> _rumors)
+    {
+        if (_rumors.Count == 0)
+        {
+            return RumorLogEmpty;
+        }
+        var entries = new List<string>();
+        var tables = TableManager.Instance;
+        foreach (var rumor in _rumors)
+        {
+            long clock = rumor.RecordedMinutes % PuzzleTimeManager.MINUTES_PER_DAY +
+                tables.PuzzleTime.startHour * PuzzleTimeManager.MINUTES_PER_HOUR;
+            long day = rumor.RecordedMinutes / PuzzleTimeManager.MINUTES_PER_DAY + clock / PuzzleTimeManager.MINUTES_PER_DAY;
+            int minuteOfDay = (int)(clock % PuzzleTimeManager.MINUTES_PER_DAY);
+            string timestamp = BasicData.Format("presentation.rumorLog.time", day,
+                minuteOfDay / PuzzleTimeManager.MINUTES_PER_HOUR, minuteOfDay % PuzzleTimeManager.MINUTES_PER_HOUR);
+            entries.Add(BasicData.Format("presentation.rumorLog.entry", timestamp,
+                tables.CityPrice(rumor.SourceCityId).displayName, rumor.Message));
+        }
+        return string.Join(BasicData.Text("presentation.rumorLog.separator"), entries);
     }
 
     public static string TavernNoRumor => BasicData.Text("presentation.station.noRumor");
@@ -175,9 +211,13 @@ public static class Presentation
     public static float PuzzleMapHaloSize => BasicData.Float("presentation.map.haloSize");
     public static int PuzzleMapBadgeFontSize => BasicData.Int("presentation.map.badgeFontSize");
     public static int PuzzleMapTimeFontSize => BasicData.Int("presentation.map.timeFontSize");
-    public static int PuzzleMapStationFontSize(float _zoom, bool _emphasized)
+    public static int PuzzleMapStationFontSize(float _zoom, bool _emphasized, bool _major)
     {
-        return _emphasized ? BasicData.Int("presentation.map.puzzleMapStationFontSize") : _zoom < BasicData.Float("presentation.map.puzzleMapStationFontSizeBelowPercent") ? BasicData.Int("presentation.map.puzzleMapStationFontSizeBelowPercent2") : BasicData.Int("presentation.map.puzzleMapStationFontSizeBelowPercent3");
+        return _emphasized ? BasicData.Int("presentation.map.puzzleMapStationFontSize")
+            : _major ? BasicData.Int("presentation.map.majorStationFontSize")
+            : _zoom < BasicData.Float("presentation.map.puzzleMapStationFontSizeBelowPercent")
+                ? BasicData.Int("presentation.map.puzzleMapStationFontSizeBelowPercent2")
+                : BasicData.Int("presentation.map.puzzleMapStationFontSizeBelowPercent3");
     }
 
     public static float PuzzleMapTrackThickness(float _authoredThickness)
@@ -236,7 +276,7 @@ public static class Presentation
     }
 
     internal static string PuzzleMapInformation(PuzzleCityData _city, bool _visited, bool _current, bool _connected,
-        PuzzleTravelResult _evaluation, PuzzleRegionData _region)
+        PuzzleTravelResult _evaluation, PuzzleRegionData _region, IReadOnlyList<PuzzleInventoryService.TavernRumor> _rumors)
     {
         string heading = BasicData.Format("presentation.map.information", _city.displayName);
         heading += _visited
@@ -267,7 +307,10 @@ public static class Presentation
         string trade;
         if (!_visited)
         {
-            trade = BasicData.Text("presentation.map.informationText12");
+            var rumors = _rumors.Where(_rumor => string.Equals(_rumor.TargetCityId, _city.id, StringComparison.Ordinal)).ToArray();
+            trade = rumors.Length == 0
+                ? BasicData.Text("presentation.map.informationText12")
+                : BasicData.Format("presentation.map.rumorInformation", RumorLogEntries(rumors));
         }
         else
         {
@@ -305,9 +348,11 @@ public static class Presentation
             BasicData.Format("presentation.map.regionLabel", _region.displayName, PuzzleTagLabel(_region.specialtyTag));
     }
 
-    public static string PuzzleMapStationName(string _name, bool _planningTarget)
+    public static string PuzzleMapStationName(string _name, bool _planningTarget, bool _uncertain = false)
     {
-        return _planningTarget ? _name + " ★" : _name;
+        string name = _planningTarget ? _name + " ★" : _name;
+        return _uncertain ? BasicData.Format("presentation.map.rumorStation", name,
+            ColorUtility.ToHtmlStringRGB(PuzzleMapTarget)) : name;
     }
 
     public static string PuzzleMapTime(long _minutes)
@@ -397,7 +442,7 @@ public static class Presentation
         { "Meat", "presentation.tags.meatLabel" },
         { "Animal", "presentation.tags.animalLabel" },
         { "Fruit", "presentation.tags.fruitLabel" },
-        { "Poo", "presentation.tags.pooLabel" },
+        { "Waste", "presentation.tags.wasteLabel" },
         { "Box", "presentation.tags.boxLabel" },
         { "Refrigerator", "presentation.tags.refrigeratorLabel" },
         { PuzzleItemDefinition.BABY_TAG, "presentation.PuzzleTagCommon.baby" },
@@ -430,20 +475,45 @@ public static class Presentation
 
     internal static string PuzzleBoardActualValue(decimal _actualValue, long _baseValue)
     {
-        return BasicData.Format("presentation.inventory.boardActualValue", _actualValue, _baseValue);
+        string amount = $"${_actualValue:#,0.##}".PadRight(7, '\u00A0');
+        return BasicData.Format("presentation.inventory.boardActualValue", amount, _baseValue);
     }
 
     public static string PuzzleNoActiveEffects => BasicData.Text("presentation.tooltip.activeEffectsNone");
+    public static string PuzzleTooltipActiveEffectsTitle => BasicData.Text("presentation.tooltip.activeEffectsTitle");
 
-    internal static string PuzzleActiveEffects(PuzzleValue _value)
+    static Color ComparisonColor(decimal _value, decimal _baseline, Color _neutralColor, bool _invert = false)
     {
-        if (_value.SynergyBonuses.Count == 0)
+        return ComparisonColor(_value, _baseline, _baseline, _neutralColor, _invert);
+    }
+
+    static Color ComparisonColor(decimal _value, decimal _lowThreshold, decimal _highThreshold, Color _neutralColor, bool _invert = false)
+    {
+        if (_value > _highThreshold)
         {
-            return PuzzleNoActiveEffects;
+            return _invert ? PuzzleTooltipRed : PuzzleTooltipGreen;
         }
-        string effects = string.Join("\n", _value.SynergyBonuses.Select(_bonus =>
-            BasicData.Format("presentation.tooltip.activeEffect", _bonus.NeighborName, _bonus.Amount)));
-        return BasicData.Format("presentation.tooltip.activeEffects", effects);
+        if (_value < _lowThreshold)
+        {
+            return _invert ? PuzzleTooltipGreen : PuzzleTooltipRed;
+        }
+        return _neutralColor;
+    }
+
+    public static string PuzzleTooltipActiveEffectsHeader()
+    {
+        return BasicData.Text("presentation.tooltip.activeEffectsHeader");
+    }
+
+    internal static string PuzzleTooltipActiveEffectLabel(PuzzleSynergyBonus _bonus)
+    {
+        return BasicData.Format("presentation.tooltip.activeEffectLabel", TooltipLabelHtml(), _bonus.NeighborName);
+    }
+
+    internal static string PuzzleTooltipActiveEffectValue(PuzzleSynergyBonus _bonus)
+    {
+        return BasicData.Format("presentation.tooltip.activeEffectValue",
+            ColorUtility.ToHtmlStringRGB(ComparisonColor(_bonus.Amount, 0m, PuzzleTooltipText)), _bonus.Amount);
     }
 
     internal static string PuzzleTooltipActualValueLabel()
@@ -458,28 +528,17 @@ public static class Presentation
 
     static Color RateValueColor(int _percent, bool _isBuying)
     {
-        if (_percent > BasicData.Int("presentation.tooltip.rateValueColorAbovePercent"))
-        {
-            return _isBuying ? PuzzleTooltipRed : PuzzleTooltipGreen;
-        }
-        if (_percent < BasicData.Int("presentation.tooltip.rateValueColorBelowPercent"))
-        {
-            return _isBuying ? PuzzleTooltipGreen : PuzzleTooltipRed;
-        }
-        return PuzzleTooltipText;
+        return ComparisonColor(
+            _percent,
+            BasicData.Int("presentation.tooltip.rateValueColorBelowPercent"),
+            BasicData.Int("presentation.tooltip.rateValueColorAbovePercent"),
+            PuzzleTooltipGold,
+            _isBuying);
     }
 
     static Color PriceValueColor(decimal _price, decimal _actualValue, bool _isBuying)
     {
-        if (_price > _actualValue)
-        {
-            return _isBuying ? PuzzleTooltipRed : PuzzleTooltipGreen;
-        }
-        if (_price < _actualValue)
-        {
-            return _isBuying ? PuzzleTooltipGreen : PuzzleTooltipRed;
-        }
-        return PuzzleTooltipText;
+        return ComparisonColor(_price, _actualValue, PuzzleTooltipGold, _isBuying);
     }
 
     internal static string PuzzleTooltipSellRateLabel()
@@ -536,19 +595,13 @@ public static class Presentation
 
     internal static Color PuzzleFreshnessColor(int _percent)
     {
-        if (_percent == 0)
+        return PuzzlePlacement.FreshnessBand(_percent) switch
         {
-            return BasicData.Color("presentation.freshness.empty");
-        }
-        if (_percent <= BasicData.Int("ui.freshness.lowThreshold"))
-        {
-            return BasicData.Color("presentation.freshness.low");
-        }
-        if (_percent <= BasicData.Int("ui.freshness.mediumThreshold"))
-        {
-            return BasicData.Color("presentation.freshness.medium");
-        }
-        return BasicData.Color("presentation.freshness.high");
+            PuzzleFreshnessBand.Low => BasicData.Color("presentation.freshness.low"),
+            PuzzleFreshnessBand.Medium => BasicData.Color("presentation.freshness.medium"),
+            PuzzleFreshnessBand.High => BasicData.Color("presentation.freshness.high"),
+            _ => BasicData.Color("presentation.freshness.empty")
+        };
     }
 
     internal static string PuzzleTooltipEffectDescription(string _description)
@@ -556,8 +609,9 @@ public static class Presentation
         string highlighted = Regex.Replace(_description, @"[+−-]\d+(?:[.,]\d+)?%", match =>
         {
             Color color = match.Value[0] == '+' ? PuzzleTooltipGreen : PuzzleTooltipRed;
-            return $"<color=#{ColorUtility.ToHtmlStringRGB(color)}>{match.Value}</color>";
+            return $"<color=#{ColorUtility.ToHtmlStringRGB(color)}><b>{match.Value}</b></color>";
         });
+        highlighted = Regex.Replace(highlighted, @"\([^)]*\)", match => $"<size=70%>{match.Value}</size>");
         return BasicData.Format("presentation.tooltip.effectDescription", TooltipLabelHtml(), highlighted);
     }
 
@@ -573,9 +627,7 @@ public static class Presentation
 
     internal static string PuzzleTooltipFutureValueValue(decimal _futureValue, decimal _actualValue)
     {
-        Color color = _futureValue > _actualValue
-            ? PuzzleTooltipGreen
-            : (_futureValue < _actualValue ? PuzzleTooltipRed : PuzzleTooltipGold);
+        Color color = ComparisonColor(_futureValue, _actualValue, PuzzleTooltipGold);
         return BasicData.Format("presentation.tooltip.futureValueValue", ColorUtility.ToHtmlStringRGB(color), _futureValue);
     }
 
@@ -586,7 +638,17 @@ public static class Presentation
 
     internal static string PuzzleTooltipFreshnessValue(int _current)
     {
-        return BasicData.Format("presentation.tooltip.freshnessValue", ColorUtility.ToHtmlStringRGB(PuzzleTooltipGreen), _current);
+        return BasicData.Format("presentation.tooltip.freshnessValue", ColorUtility.ToHtmlStringRGB(PuzzleFreshnessColor(_current)), _current);
+    }
+
+    internal static string PuzzleTooltipShelfLifeLabel()
+    {
+        return BasicData.Format("presentation.tooltip.shelfLifeLabel", TooltipLabelHtml());
+    }
+
+    internal static string PuzzleTooltipShelfLifeValue(long _minutes, int _freshness)
+    {
+        return BasicData.Format("presentation.tooltip.shelfLifeValue", ColorUtility.ToHtmlStringRGB(PuzzleFreshnessColor(_freshness)), PuzzleMapTime(_minutes));
     }
 
     internal static string PuzzleValueText(PuzzleValue _value)
@@ -687,7 +749,7 @@ public static class Presentation
             "meat" => BasicData.Color("presentation.tags.meatBackground"),       // 고기: 딥 레드
             "animal" => BasicData.Color("presentation.tags.animalBackground"),    // 가축: 탄/레더 탠
             "fruit" => BasicData.Color("presentation.tags.fruitBackground"),      // 과일: 사과 레드
-            "poo" => BasicData.Color("presentation.tags.pooBackground"),         // 똥: 다크 브라운
+            "waste" => BasicData.Color("presentation.tags.wasteBackground"),         // 폐기물: 다크 브라운
             _ => BasicData.Color("presentation.tags.puzzleTagBackgroundColorColor")
         };
     }
@@ -725,7 +787,7 @@ public static class Presentation
             "box" => BasicData.Int("presentation.tags.boxPriority"),
             "supply" => BasicData.Int("presentation.tags.supplyPriority"),
             "cargo" => BasicData.Int("presentation.tags.cargoPriority"),
-            "poo" => BasicData.Int("presentation.tags.pooPriority"),
+            "waste" => BasicData.Int("presentation.tags.wastePriority"),
             _ => BasicData.Int("presentation.tags.defaultPriority")
         };
     }

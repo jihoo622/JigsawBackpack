@@ -73,6 +73,7 @@
         "Supply",
         "Grain"
       ],
+      "shelfLifeHours": 48,
       "visualKey": "cargo.grainSack",
       "slotCount": 1,
       "cells": [
@@ -301,6 +302,7 @@
         "Food",
         "Fish"
       ],
+      "shelfLifeHours": 48,
       "visualKey": "cargo.fish",
       "slotCount": 2,
       "cells": [
@@ -356,6 +358,7 @@
         "Food",
         "Fruit"
       ],
+      "shelfLifeHours": 48,
       "visualKey": "cargo.smallCrate",
       "slotCount": 1,
       "cells": [
@@ -402,6 +405,7 @@
         "Food",
         "Meat"
       ],
+      "shelfLifeHours": 48,
       "visualKey": "cargo.grainSack",
       "slotCount": 1,
       "cells": [
@@ -425,6 +429,7 @@
         "Food",
         "Meat"
       ],
+      "shelfLifeHours": 48,
       "visualKey": "cargo.beef",
       "slotCount": 2,
       "durability": 100,
@@ -548,6 +553,7 @@
         "Food",
         "Fruit"
       ],
+      "shelfLifeHours": 48,
       "visualKey": "cargo.apple",
       "slotCount": 1,
       "durability": 100,
@@ -568,9 +574,31 @@
       "displayName": "똥",
       "description": "한 칸을 차지하는 불쾌한 화물. 근처의 다른 화물 가치를 떨어뜨린다.",
       "tags": [
-        "Poo"
+        "Waste"
       ],
       "visualKey": "cargo.poo",
+      "slotCount": 1,
+      "durability": 100,
+      "cells": [
+        {
+          "x": 0,
+          "y": 0,
+          "north": "Flat",
+          "east": "Flat",
+          "south": "Flat",
+          "west": "Flat"
+        }
+      ],
+      "baseValue": -10
+    },
+    {
+      "id": "piece.foodWaste",
+      "displayName": "폐기물",
+      "description": "유통기한이 지난 식품. 근처의 다른 화물 가치를 떨어뜨린다.",
+      "tags": [
+        "Waste"
+      ],
+      "visualKey": "cargo.foodWaste",
       "slotCount": 1,
       "durability": 100,
       "cells": [
@@ -690,7 +718,8 @@
         ]
       },
       "generalStockId": "stock.general",
-      "regionalStockId": "stock.mine"
+      "regionalStockId": "stock.mine",
+      "mapLabelImportance": 60
     },
     {
       "id": "city.mine.salt",
@@ -767,7 +796,8 @@
         ]
       },
       "generalStockId": "stock.general",
-      "regionalStockId": "stock.mine"
+      "regionalStockId": "stock.mine",
+      "mapLabelImportance": 60
     },
     {
       "id": "city.mine.dig",
@@ -844,7 +874,8 @@
         ]
       },
       "generalStockId": "stock.general",
-      "regionalStockId": "stock.mine"
+      "regionalStockId": "stock.mine",
+      "mapLabelImportance": 240
     },
     {
       "id": "city.mine.cave",
@@ -921,7 +952,8 @@
         ]
       },
       "generalStockId": "stock.general",
-      "regionalStockId": "stock.mine"
+      "regionalStockId": "stock.mine",
+      "mapLabelImportance": 60
     },
     {
       "id": "city.ranch.pass",
@@ -998,7 +1030,8 @@
         ]
       },
       "generalStockId": "stock.general",
-      "regionalStockId": "stock.ranch"
+      "regionalStockId": "stock.ranch",
+      "mapLabelImportance": 60
     },
     {
       "id": "city.ranch.butcher",
@@ -1075,7 +1108,8 @@
         ]
       },
       "generalStockId": "stock.general",
-      "regionalStockId": "stock.ranch"
+      "regionalStockId": "stock.ranch",
+      "mapLabelImportance": 240
     },
     {
       "id": "city.ranch.highland",
@@ -1152,7 +1186,8 @@
         ]
       },
       "generalStockId": "stock.general",
-      "regionalStockId": "stock.ranch"
+      "regionalStockId": "stock.ranch",
+      "mapLabelImportance": 140
     },
     {
       "id": "city.ranch.jerky",
@@ -1229,7 +1264,8 @@
         ]
       },
       "generalStockId": "stock.general",
-      "regionalStockId": "stock.ranch"
+      "regionalStockId": "stock.ranch",
+      "mapLabelImportance": 60
     },
     {
       "id": "city.industry.ironworks",
@@ -1306,7 +1342,8 @@
         ]
       },
       "generalStockId": "stock.general",
-      "regionalStockId": "stock.industry"
+      "regionalStockId": "stock.industry",
+      "mapLabelImportance": 300
     },
     {
       "id": "city.industry.assembly",
@@ -1383,7 +1420,8 @@
         ]
       },
       "generalStockId": "stock.general",
-      "regionalStockId": "stock.industry"
+      "regionalStockId": "stock.industry",
+      "mapLabelImportance": 60
     },
     {
       "id": "city.industry.meatlover",
@@ -1460,7 +1498,8 @@
         ]
       },
       "generalStockId": "stock.general",
-      "regionalStockId": "stock.industry"
+      "regionalStockId": "stock.industry",
+      "mapLabelImportance": 60
     },
     {
       "id": "city.industry.engine",
@@ -1537,7 +1576,8 @@
         ]
       },
       "generalStockId": "stock.general",
-      "regionalStockId": "stock.industry"
+      "regionalStockId": "stock.industry",
+      "mapLabelImportance": 60
     },
     {
       "id": "city.capital.central",
@@ -1614,7 +1654,8 @@
         ]
       },
       "generalStockId": "stock.general",
-      "regionalStockId": "stock.hub"
+      "regionalStockId": "stock.hub",
+      "mapLabelImportance": 240
     },
     {
       "id": "city.capital.wholesale",
@@ -1691,7 +1732,8 @@
         ]
       },
       "generalStockId": "stock.general",
-      "regionalStockId": "stock.hub"
+      "regionalStockId": "stock.hub",
+      "mapLabelImportance": 140
     },
     {
       "id": "city.capital.merchant",
@@ -1768,7 +1810,8 @@
         ]
       },
       "generalStockId": "stock.general",
-      "regionalStockId": "stock.hub"
+      "regionalStockId": "stock.hub",
+      "mapLabelImportance": 60
     },
     {
       "id": "city.capital.outskirts",
@@ -1845,7 +1888,8 @@
         ]
       },
       "generalStockId": "stock.general",
-      "regionalStockId": "stock.hub"
+      "regionalStockId": "stock.hub",
+      "mapLabelImportance": 140
     },
     {
       "id": "city.coast.fish",
@@ -1922,7 +1966,8 @@
         ]
       },
       "generalStockId": "stock.general",
-      "regionalStockId": "stock.coast"
+      "regionalStockId": "stock.coast",
+      "mapLabelImportance": 60
     },
     {
       "id": "city.coast.spring",
@@ -1999,7 +2044,8 @@
         ]
       },
       "generalStockId": "stock.general",
-      "regionalStockId": "stock.coast"
+      "regionalStockId": "stock.coast",
+      "mapLabelImportance": 60
     },
     {
       "id": "city.coast.port",
@@ -2076,7 +2122,8 @@
         ]
       },
       "generalStockId": "stock.general",
-      "regionalStockId": "stock.coast"
+      "regionalStockId": "stock.coast",
+      "mapLabelImportance": 240
     },
     {
       "id": "city.coast.sea",
@@ -2153,7 +2200,8 @@
         ]
       },
       "generalStockId": "stock.general",
-      "regionalStockId": "stock.coast"
+      "regionalStockId": "stock.coast",
+      "mapLabelImportance": 60
     },
     {
       "id": "city.farm.grain",
@@ -2230,7 +2278,8 @@
         ]
       },
       "generalStockId": "stock.general",
-      "regionalStockId": "stock.farm"
+      "regionalStockId": "stock.farm",
+      "mapLabelImportance": 240
     },
     {
       "id": "city.farm.orchard",
@@ -2307,7 +2356,8 @@
         ]
       },
       "generalStockId": "stock.general",
-      "regionalStockId": "stock.farm"
+      "regionalStockId": "stock.farm",
+      "mapLabelImportance": 140
     },
     {
       "id": "city.farm.lumber",
@@ -2384,7 +2434,8 @@
         ]
       },
       "generalStockId": "stock.general",
-      "regionalStockId": "stock.farm"
+      "regionalStockId": "stock.farm",
+      "mapLabelImportance": 140
     },
     {
       "id": "city.farm.field",
@@ -2461,7 +2512,8 @@
         ]
       },
       "generalStockId": "stock.general",
-      "regionalStockId": "stock.farm"
+      "regionalStockId": "stock.farm",
+      "mapLabelImportance": 60
     },
     {
       "id": "city.industry.logistics",
@@ -2538,7 +2590,8 @@
         ]
       },
       "generalStockId": "stock.general",
-      "regionalStockId": "stock.industry"
+      "regionalStockId": "stock.industry",
+      "mapLabelImportance": 60
     },
     {
       "id": "city.capital.finance",
@@ -2615,7 +2668,8 @@
         ]
       },
       "generalStockId": "stock.general",
-      "regionalStockId": "stock.hub"
+      "regionalStockId": "stock.hub",
+      "mapLabelImportance": 320
     },
     {
       "id": "city.common.crossing",
@@ -2655,7 +2709,8 @@
         ]
       },
       "generalStockId": "stock.general",
-      "regionalStockId": "stock.hub"
+      "regionalStockId": "stock.hub",
+      "mapLabelImportance": 60
     },
     {
       "id": "city.common.wayfarer",
@@ -2695,7 +2750,8 @@
         ]
       },
       "generalStockId": "stock.general",
-      "regionalStockId": "stock.hub"
+      "regionalStockId": "stock.hub",
+      "mapLabelImportance": 240
     },
     {
       "id": "city.common.rest",
@@ -2735,7 +2791,8 @@
         ]
       },
       "generalStockId": "stock.general",
-      "regionalStockId": "stock.hub"
+      "regionalStockId": "stock.hub",
+      "mapLabelImportance": 140
     },
     {
       "id": "city.common.roadside",
@@ -2775,7 +2832,8 @@
         ]
       },
       "generalStockId": "stock.general",
-      "regionalStockId": "stock.hub"
+      "regionalStockId": "stock.hub",
+      "mapLabelImportance": 140
     }
   ],
   "regions": [
@@ -2788,7 +2846,8 @@
         "Salt"
       ],
       "pricePercent": 100,
-      "tradeHub": false
+      "tradeHub": false,
+      "mapLabelPriority": 20
     },
     {
       "id": "region.ranch",
@@ -2799,7 +2858,8 @@
         "Animal"
       ],
       "pricePercent": 100,
-      "tradeHub": false
+      "tradeHub": false,
+      "mapLabelPriority": 20
     },
     {
       "id": "region.industry",
@@ -2809,7 +2869,8 @@
         "Machinery"
       ],
       "pricePercent": 100,
-      "tradeHub": false
+      "tradeHub": false,
+      "mapLabelPriority": 25
     },
     {
       "id": "region.capital",
@@ -2817,7 +2878,8 @@
       "specialtyTag": "",
       "productionTags": [],
       "pricePercent": 125,
-      "tradeHub": true
+      "tradeHub": true,
+      "mapLabelPriority": 30
     },
     {
       "id": "region.coast",
@@ -2828,7 +2890,8 @@
         "Water"
       ],
       "pricePercent": 100,
-      "tradeHub": false
+      "tradeHub": false,
+      "mapLabelPriority": 20
     },
     {
       "id": "region.farm",
@@ -2840,7 +2903,8 @@
         "Wood"
       ],
       "pricePercent": 100,
-      "tradeHub": false
+      "tradeHub": false,
+      "mapLabelPriority": 20
     },
     {
       "id": "region.common",
@@ -2848,7 +2912,8 @@
       "specialtyTag": "",
       "productionTags": [],
       "pricePercent": 100,
-      "tradeHub": true
+      "tradeHub": true,
+      "mapLabelPriority": 10
     }
   ],
   "planningTargetCityId": "city.capital.finance",

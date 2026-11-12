@@ -11,16 +11,27 @@ public static class TelemetryEvents
     public const string SCENE_CHANGE = "scene_change";
     public const string UPGRADE_GRANTED = "upgrade_granted";
     public const string PANEL_VISIBILITY = "panel_visibility";
-    public const string TRADE_COMPLETED = "trade_completed";
     public const string BUTCHERY_COMMITTED = "butchery_committed";
     public const string BUTCHERY_READY = "butchery_ready";
+    public const string PUZZLE_ACTION = "puzzle_action";
+    public const string RUMOR_LEARNED = "rumor_learned";
+    public const string RULES_CHUNK = "rules_chunk";
 }
 
-// payload 자료형은 [Serializable] 구조체로 둔다(JsonUtility는 익명 타입을 직렬화하지 않는다).
-// 필드는 서버 JSON 계약과 같은 camelCase. 값을 늘릴 때 기존 필드 이름·뜻을 바꾸지 않고 새 필드를 추가한다.
+// LogKit 전송용 분할 원본. Base64를 조각별 디코딩한 바이트를 chunkIndex 순서로 이어 붙인다.
+[Serializable]
+public sealed class TelemetryRulesChunk
+{
+    public string sessionId, rulesHash;
+    public int chunkIndex, chunkCount;
+    public string contentBase64;
+}
+
+// payload는 [Serializable] 자료형으로 둔다. 계약 변경은 session_start.schemaVersion으로 구분한다.
 [Serializable]
 public struct SessionPayload
 {
+    public int schemaVersion;
     public string reason;
     public string appVersion;
     public string unityVersion;
@@ -30,10 +41,8 @@ public struct SessionPayload
 }
 
 [Serializable]
-public struct RunPayload
+public struct SessionEndPayload
 {
-    public string scene;
-    public double time;
     public string reason;
 }
 
@@ -48,7 +57,6 @@ public struct ScenePayload
 public struct UpgradePayload
 {
     public string id;
-    public string displayName;
 }
 
 [Serializable]
@@ -56,14 +64,6 @@ public struct PanelPayload
 {
     public string panel;
     public bool open;
-}
-
-[Serializable]
-public struct TradePayload
-{
-    public string cityId, itemId, direction;
-    public int instanceId, x, y, clockwiseTurns;
-    public long price, fundsAfter;
 }
 
 [Serializable]
@@ -93,28 +93,20 @@ public struct TelemetryPosition
 }
 
 // payload 생성의 단일 창. GameEvents 페이로드 → 분석 필드 대응을 여기 모아 이름 흩어지는 것을 막는다.
-public static class TelemetryPayload
+public static partial class TelemetryPayload
 {
     const float CENTIMETERS_PER_METER = 100f;
 
     public static SessionPayload Session(string _reason)
     {
         var payload = new SessionPayload();
+        payload.schemaVersion = 3;
         payload.reason = _reason ?? string.Empty;
         payload.appVersion = Application.version;
         payload.unityVersion = Application.unityVersion;
         payload.platform = Application.platform.ToString();
         payload.isEditor = Application.isEditor;
         payload.scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
-        return payload;
-    }
-
-    public static RunPayload Run(GameEvents.RunInfo _info)
-    {
-        var payload = new RunPayload();
-        payload.scene = _info.scene;
-        payload.time = _info.time;
-        payload.reason = _info.reason ?? string.Empty;
         return payload;
     }
 
@@ -130,7 +122,6 @@ public static class TelemetryPayload
     {
         var payload = new UpgradePayload();
         payload.id = _info.id;
-        payload.displayName = _info.displayName;
         return payload;
     }
 
@@ -140,22 +131,6 @@ public static class TelemetryPayload
         payload.panel = _info.panel;
         payload.open = _info.open;
         return payload;
-    }
-
-    public static TradePayload Trade(GameEvents.TradeInfo _info)
-    {
-        return new TradePayload
-        {
-            cityId = _info.cityId,
-            itemId = _info.itemId,
-            direction = _info.direction.ToString().ToLowerInvariant(),
-            instanceId = _info.instanceId,
-            x = _info.destination.x,
-            y = _info.destination.y,
-            clockwiseTurns = _info.clockwiseTurns,
-            price = _info.price,
-            fundsAfter = _info.fundsAfter
-        };
     }
 
     public static ButcheryCommittedPayload ButcheryCommitted(GameEvents.ButcheryCommittedInfo _info)
@@ -176,7 +151,8 @@ public static class TelemetryPayload
         {
             actionId = _info.actionId,
             cityId = _info.cityId,
-            outputCount = _info.outputCount
+            outputCount = _info.outputCount,
+            time = _info.time
         };
     }
 

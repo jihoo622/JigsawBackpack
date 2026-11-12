@@ -247,7 +247,7 @@ public sealed class PuzzleStationActionsPresenter : MonoBehaviour
     {
         if (session.RunStatus == PuzzleRunStatus.InProgress)
         {
-            bool advanced = session.AdvanceMinutes(TableManager.Instance.PuzzleTime.restMinutes);
+            bool advanced = session.AdvanceMinutes(TableManager.Instance.PuzzleTime.restMinutes, PuzzleActionKind.Rest);
             view.ShowRestNotice(advanced ? Presentation.StationRestHint : Presentation.PuzzleGrowthBlocked);
         }
     }

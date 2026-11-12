@@ -1517,7 +1517,7 @@
         },
         {
           "id": "boardActualValue",
-          "value": "화물 실제 가치  ${0:#,0.##}  <size=18>기본 ${1:N0}</size>",
+          "value": "화물 현재 가치  <nobr><mspace=0.6em>{0}</mspace></nobr> <size=18>기본 ${1:N0}</size>",
           "arguments": 2
         },
         {
@@ -1688,6 +1688,12 @@
         {
           "id": "haloSize",
           "value": 56.0,
+          "positive": true
+        },
+        {
+          "id": "majorStationFontSize",
+          "value": 22,
+          "whole": true,
           "positive": true
         },
         {
@@ -1898,6 +1904,57 @@
           "id": "regionOnly",
           "value": " <size=18>{0}</size>",
           "arguments": 1
+        },
+        {
+          "id": "rumorStation",
+          "value": "{0} <color=#{1}>?</color>",
+          "arguments": 2
+        },
+        {
+          "id": "rumorInformation",
+          "value": "<b>? 소문 · 미확인</b>\n{0}",
+          "arguments": 1
+        }
+      ]
+    },
+    {
+      "id": "presentation.rumorLog",
+      "texts": [
+        {
+          "id": "title",
+          "value": "술집 소문 로그"
+        },
+        {
+          "id": "collapse",
+          "value": "접기"
+        },
+        {
+          "id": "empty",
+          "value": "아직 들은 소문이 없습니다.\n술집에서 들은 이야기가 여기에 기록됩니다."
+        },
+        {
+          "id": "count",
+          "value": "{0}개",
+          "arguments": 1
+        },
+        {
+          "id": "collapsed",
+          "value": "소문\n{0}개\n◀",
+          "arguments": 1
+        },
+        {
+          "id": "time",
+          "value": "Day {0} {1:00}:{2:00}",
+          "arguments": 3
+        },
+        {
+          "id": "entry",
+          "value": "<b>{0}</b> - <b>{1}</b> - {2}",
+          "arguments": 3
+        },
+        {
+          "id": "separator",
+          "value": "\n\n"
         }
       ]
     },
@@ -2033,7 +2090,7 @@
           "a": 1.0
         },
         {
-          "id": "pooBackground",
+          "id": "wasteBackground",
           "r": 0.3764705882352941,
           "g": 0.25098039215686274,
           "b": 0.14901960784313725,
@@ -2135,7 +2192,7 @@
           "whole": true
         },
         {
-          "id": "pooPriority",
+          "id": "wastePriority",
           "value": 22,
           "whole": true
         },
@@ -2202,8 +2259,8 @@
           "value": "금속"
         },
         {
-          "id": "pooLabel",
-          "value": "똥"
+          "id": "wasteLabel",
+          "value": "거름"
         },
         {
           "id": "puzzleTagCommon",
@@ -2326,7 +2383,7 @@
       "texts": [
         {
           "id": "actualValueLabel",
-          "value": "<color=#{0}>실제 가치</color>",
+          "value": "<color=#{0}>현재 가치</color>",
           "arguments": 1
         },
         {
@@ -2346,12 +2403,12 @@
         },
         {
           "id": "effectDescription",
-          "value": "<color=#{0}>• {1}</color>",
+          "value": "<color=#{0}><size=85%>• {1}</size></color>",
           "arguments": 2
         },
         {
           "id": "effectHeader",
-          "value": "<color=#{0}>가능 인접 효과 · {1}시간 주기</color>",
+          "value": "<color=#{0}><b>가능 인접 효과</b> <size=70%>({1}시간 주기)</size></color>",
           "arguments": 2
         },
         {
@@ -2385,6 +2442,16 @@
           "arguments": 2
         },
         {
+          "id": "shelfLifeLabel",
+          "value": "<color=#{0}>유통기한</color>",
+          "arguments": 1
+        },
+        {
+          "id": "shelfLifeValue",
+          "value": "<color=#{0}>{1}</color>",
+          "arguments": 2
+        },
+        {
           "id": "futureValueLabel",
           "value": "<color=#{0}>{1} · {2} 후 가치\n시너지 정산 {3:N0}회</color>",
           "arguments": 4
@@ -2396,7 +2463,7 @@
         },
         {
           "id": "noEffect",
-          "value": "<color=#{0}>가능한 인접 효과 없음</color>",
+          "value": "<color=#{0}><size=85%>가능한 인접 효과 없음</size></color>",
           "arguments": 1
         },
         {
@@ -2421,23 +2488,33 @@
         },
         {
           "id": "marketNoSettlement",
-          "value": "시장의 화물은 시간 경과로 시너지를 정산하지 않습니다.",
+          "value": "· 시장에서는 인접 효과가 적용되지 않습니다.",
           "arguments": 0
         },
         {
           "id": "activeEffectsNone",
-          "value": "현재 적용 효과: 없음",
+          "value": "· 없음",
           "arguments": 0
         },
         {
-          "id": "activeEffect",
-          "value": "• {0}: {1:+0.##;-0.##;0} $",
+          "id": "activeEffectsTitle",
+          "value": "<b>현재 적용 효과</b>",
+          "arguments": 0
+        },
+        {
+          "id": "activeEffectsHeader",
+          "value": "<b>현재 적용 효과</b> <size=70%>(정산 1회 기준)</size>",
+          "arguments": 0
+        },
+        {
+          "id": "activeEffectLabel",
+          "value": "<color=#{0}>• {1}</color>",
           "arguments": 2
         },
         {
-          "id": "activeEffects",
-          "value": "현재 적용 효과 · 정산 1회 기준\n{0}",
-          "arguments": 1
+          "id": "activeEffectValue",
+          "value": "<color=#{0}><b>{1:+0.##;-0.##;0} $</b></color>",
+          "arguments": 2
         }
       ]
     },
@@ -2619,6 +2696,15 @@
       ]
     },
     {
+      "id": "rules.PuzzleInventoryService",
+      "texts": [
+        {
+          "id": "expiredFoodPieceId",
+          "value": "piece.foodWaste"
+        }
+      ]
+    },
+    {
       "id": "rules.durability",
       "numbers": [
         {
@@ -2742,18 +2828,6 @@
       "id": "ui.PuzzleMapNodeView",
       "numbers": [
         {
-          "id": "markerPositionAbovePercent",
-          "value": 28.0
-        },
-        {
-          "id": "markerPositionAbovePercent2",
-          "value": 16.0
-        },
-        {
-          "id": "placeLabelY",
-          "value": 13.0
-        },
-        {
           "id": "prepareLayout",
           "value": 44.0
         },
@@ -2764,22 +2838,6 @@
         {
           "id": "prepareLayout3",
           "value": 12.0
-        },
-        {
-          "id": "prepareLayoutX",
-          "value": 160.0
-        },
-        {
-          "id": "prepareLayoutY",
-          "value": 54.0
-        },
-        {
-          "id": "prepareLayoutY2",
-          "value": 28.0
-        },
-        {
-          "id": "rectTransformanchoredPositionY",
-          "value": 26.0
         },
         {
           "id": "rectTransformlocalScale",
@@ -2803,8 +2861,23 @@
       "id": "ui.PuzzleMapView",
       "numbers": [
         {
+          "id": "labelConnectorThickness",
+          "value": 2,
+          "positive": true
+        },
+        {
           "id": "labelGap",
           "value": 6.0,
+          "positive": true
+        },
+        {
+          "id": "labelSearchDistance",
+          "value": 60,
+          "positive": true
+        },
+        {
+          "id": "labelSearchStep",
+          "value": 12,
           "positive": true
         },
         {
@@ -2838,11 +2911,6 @@
         {
           "id": "updateMapLayout4",
           "value": 8.0
-        },
-        {
-          "id": "updateMapLayoutAbovePercent",
-          "value": 3,
-          "whole": true
         },
         {
           "id": "updateMapLayoutAbovePercent2",
@@ -2908,6 +2976,29 @@
       ]
     },
     {
+      "id": "rules.freshness",
+      "numbers": [
+        {
+          "id": "highValuePercent",
+          "value": 100,
+          "positive": true,
+          "whole": true
+        },
+        {
+          "id": "mediumValuePercent",
+          "value": 80,
+          "positive": true,
+          "whole": true
+        },
+        {
+          "id": "lowValuePercent",
+          "value": 50,
+          "positive": true,
+          "whole": true
+        }
+      ]
+    },
+    {
       "id": "ui.freshness",
       "numbers": [
         {
@@ -2937,13 +3028,13 @@
         },
         {
           "id": "lowThreshold",
-          "value": 33,
+          "value": 40,
           "positive": true,
           "whole": true
         },
         {
           "id": "mediumThreshold",
-          "value": 66,
+          "value": 80,
           "positive": true,
           "whole": true
         }
@@ -3184,7 +3275,7 @@
         },
         {
           "id": "backWidth",
-          "value": 132,
+          "value": 220,
           "whole": true,
           "positive": true
         },
@@ -3616,21 +3707,32 @@
       "numbers": [
         {
           "id": "connected",
-          "value": 2,
+          "value": 80,
           "whole": true,
           "positive": true
         },
         {
           "id": "current",
-          "value": 5,
+          "value": 10000,
           "whole": true,
           "positive": true
         },
         {
+          "id": "detailMinZoom",
+          "value": 0.85,
+          "positive": true
+        },
+        {
           "id": "interchange",
-          "value": 1,
+          "value": 40,
           "whole": true,
           "positive": true
+        },
+        {
+          "id": "majorThreshold",
+          "value": 200,
+          "positive": true,
+          "whole": true
         },
         {
           "id": "other",
@@ -3638,14 +3740,25 @@
           "whole": true
         },
         {
+          "id": "regionBalanceBelowZoom",
+          "value": 1.0,
+          "positive": true
+        },
+        {
+          "id": "regionCrowdingPenalty",
+          "value": 180,
+          "positive": true,
+          "whole": true
+        },
+        {
           "id": "selected",
-          "value": 4,
+          "value": 9000,
           "whole": true,
           "positive": true
         },
         {
           "id": "target",
-          "value": 3,
+          "value": 500,
           "whole": true,
           "positive": true
         }
@@ -3674,6 +3787,106 @@
         {
           "id": "selected",
           "value": 1,
+          "whole": true,
+          "positive": true
+        }
+      ]
+    },
+    {
+      "id": "ui.rumorLog",
+      "numbers": [
+        {
+          "id": "panelWidth",
+          "value": 480,
+          "whole": true,
+          "positive": true
+        },
+        {
+          "id": "panelHeight",
+          "value": 744,
+          "whole": true,
+          "positive": true
+        },
+        {
+          "id": "rightMargin",
+          "value": 20,
+          "whole": true,
+          "positive": true
+        },
+        {
+          "id": "centerY",
+          "value": -20,
+          "whole": true
+        },
+        {
+          "id": "padding",
+          "value": 20,
+          "whole": true,
+          "positive": true
+        },
+        {
+          "id": "gap",
+          "value": 12,
+          "whole": true,
+          "positive": true
+        },
+        {
+          "id": "headerHeight",
+          "value": 48,
+          "whole": true,
+          "positive": true
+        },
+        {
+          "id": "fontSize",
+          "value": 22,
+          "whole": true,
+          "positive": true
+        },
+        {
+          "id": "titleFontSize",
+          "value": 24,
+          "whole": true,
+          "positive": true
+        },
+        {
+          "id": "countWidth",
+          "value": 64,
+          "whole": true,
+          "positive": true
+        },
+        {
+          "id": "collapseWidth",
+          "value": 88,
+          "whole": true,
+          "positive": true
+        },
+        {
+          "id": "toggleWidth",
+          "value": 96,
+          "whole": true,
+          "positive": true
+        },
+        {
+          "id": "toggleHeight",
+          "value": 132,
+          "whole": true,
+          "positive": true
+        },
+        {
+          "id": "scrollbarWidth",
+          "value": 8,
+          "whole": true,
+          "positive": true
+        },
+        {
+          "id": "scrollSensitivity",
+          "value": 36,
+          "whole": true,
+          "positive": true
+        },
+        {
+          "id": "sortingOrder",
+          "value": 150,
           "whole": true,
           "positive": true
         }

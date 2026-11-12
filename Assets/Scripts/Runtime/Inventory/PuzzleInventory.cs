@@ -44,9 +44,9 @@ public sealed class PuzzleInventory
         return valuation.ValueOf(_instanceId);
     }
 
-    internal decimal ActualValueOf(int _instanceId)
+    internal decimal FreshnessAdjustedValueOf(int _instanceId)
     {
-        return placements[_instanceId].ActualValue;
+        return placements[_instanceId].FreshnessAdjustedValue;
     }
 
     internal PuzzleInventory CopyForTimeAdvance()
@@ -90,7 +90,10 @@ public sealed class PuzzleInventory
     PuzzlePlacement CopyPlacement(PuzzlePlacement _placement)
     {
         return new PuzzlePlacement(_placement.InstanceId, _placement.Definition, this, _placement.Pose,
-            _placement.ActualValue, _placement.OwnedMinutes, _placement.Durability);
+            _placement.ActualValue, _placement.OwnedMinutes, _placement.Durability, _placement.ShelfLifeElapsedMinutes)
+        {
+            HasUnreadSynergySettlement = _placement.HasUnreadSynergySettlement
+        };
     }
 
     internal void RecalculateValue()
@@ -98,19 +101,22 @@ public sealed class PuzzleInventory
         valuation.Recalculate(this, synergyRules);
     }
 
-    // 현재 배치의 시너지 변화량을 정산 횟수만큼 적용한다.
-    internal void ApplySynergyActivations(long _count)
+    // 정산 계획의 작업 사본에 현재 배치의 시너지를 적용한다.
+    internal bool ApplySynergyActivations(long _count)
     {
         if (_count == 0)
         {
-            return;
+            return false;
         }
-
+        bool changed = false;
         foreach (var placement in placements.Values)
         {
             var value = valuation.ValueOf(placement.InstanceId);
-            placement.AddActualValue((value.FinalValue - value.BaseValue) * _count);
+            decimal before = placement.ActualValue;
+            placement.ApplySynergySettlement((value.FinalValue - value.BaseValue) * _count);
+            changed |= before != placement.ActualValue;
         }
+        return changed;
     }
 
     public bool TryGetCell(Vector2Int _position, out PuzzlePlacement _placement, out PuzzleCell _cell)
@@ -196,7 +202,10 @@ public sealed class PuzzleInventory
         var item = _growth.Item;
         var adult = _growth.Adult;
         var grown = new PuzzlePlacement(item.InstanceId, adult, this, _growth.Pose,
-            item.ActualValue + (adult.BaseValue - (decimal)item.Definition.BaseValue), item.OwnedMinutes);
+            item.ActualValue + (adult.BaseValue - (decimal)item.Definition.BaseValue), item.OwnedMinutes)
+        {
+            HasUnreadSynergySettlement = item.HasUnreadSynergySettlement
+        };
         ClearOccupancy(item);
         StorePlacement(grown);
         RecalculateValue();
@@ -237,7 +246,10 @@ public sealed class PuzzleInventory
         {
             // 원본과 대상의 현재 점유를 확인한 뒤 같은 호출에서 소속과 점유를 함께 바꾼다.
             var placement = new PuzzlePlacement(_original.InstanceId, _original.Definition, _destination, result.Candidate,
-                _original.ActualValue, _original.OwnedMinutes, _original.Durability);
+                _original.ActualValue, _original.OwnedMinutes, _original.Durability, _original.ShelfLifeElapsedMinutes)
+            {
+                HasUnreadSynergySettlement = _original.HasUnreadSynergySettlement
+            };
             ClearOccupancy(_original);
             placements.Remove(_original.InstanceId);
             _destination.StorePlacement(placement);
@@ -249,6 +261,30 @@ public sealed class PuzzleInventory
         }
 
         return result;
+    }
+
+    internal void ReplaceExpiredFood(PuzzleItemDefinition _waste)
+    {
+        bool replaced = false;
+        foreach (var expired in placements.Values.Where(item => item.RemainingShelfLifeMinutes == 0).ToArray())
+        {
+            // 기존 식품이 실제로 점유하던 칸에서 교체한다. 회전된 모양의 원점은 빈 칸일 수 있다.
+            var target = expired.Pose.Cells[0].Position;
+            if (CreatePoseAtSlot(_waste.Cells, _waste.Cells[0], target, 0, out var pose) != PuzzlePlacementFailure.None ||
+                CheckPlacement(pose.Cells, expired.InstanceId) != PuzzlePlacementFailure.None)
+            {
+                continue;
+            }
+
+            ClearOccupancy(expired);
+            StorePlacement(new PuzzlePlacement(expired.InstanceId, _waste, this, pose, _waste.BaseValue, 0));
+            replaced = true;
+        }
+
+        if (replaced)
+        {
+            RecalculateValue();
+        }
     }
 
     internal bool TryPlanDefinitionSwaps(IReadOnlyList<PuzzleDefinitionSwap> _swaps)
@@ -291,7 +327,10 @@ public sealed class PuzzleInventory
         {
             var original = swap.Placement;
             var replacement = new PuzzlePlacement(original.InstanceId, swap.Result, this, original.Pose,
-                original.ActualValue, original.OwnedMinutes, original.Durability);
+                original.ActualValue, original.OwnedMinutes, original.Durability, original.ShelfLifeElapsedMinutes)
+            {
+                HasUnreadSynergySettlement = original.HasUnreadSynergySettlement
+            };
             ClearOccupancy(original);
             StorePlacement(replacement);
             replacements.Add(replacement);

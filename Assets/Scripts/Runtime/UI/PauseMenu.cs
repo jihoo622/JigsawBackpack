@@ -1,9 +1,9 @@
 using TMPro;
-using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using UnityEngine;
 
 // UI hierarchy and button events are serialized in Game.unity.
 public sealed class PauseMenu : PanelBase
@@ -135,6 +135,7 @@ public sealed class PauseMenu : PanelBase
 
     public void RestartGame()
     {
+        GameEvents.RaisePuzzleRunEnded(SceneServices.For<PuzzleInventoryService>(gameObject.scene), "restart");
         Close();
         SceneManager.LoadScene(gameObject.scene.path, LoadSceneMode.Single);
     }

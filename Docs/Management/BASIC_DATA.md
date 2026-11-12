@@ -4,7 +4,7 @@
 
 ## 그룹과 조회
 
-현재 35개 그룹에 686개 항목을 관리한다. `groups`의 각 항목은 `id`와 `numbers`·`texts`·`colors` 배열을 가진다. 빈 배열과 기본값인 제약 필드는 생략할 수 있다.
+현재 37개 그룹에 712개 항목을 관리한다. `groups`의 각 항목은 `id`와 `numbers`·`texts`·`colors` 배열을 가진다. 빈 배열과 기본값인 제약 필드는 생략할 수 있다.
 
 ```json
 {
@@ -31,8 +31,12 @@
 - `ui.layout.*`는 HUD·역 메뉴 공통 배치의 원본이다. `Tools/MyJG/Apply UI Overhaul`로 씬에 저장한다([UI 배치](UI_LAYOUT.md)). 역 메뉴·시간 UI 제작 도구도 마지막에 같은 배치 도구를 호출하며 중복 치수는 갖지 않는다.
 - 신선도 표시의 색·구간·치수는 `presentation.freshness.*`·`ui.freshness.*`, 툴팁 포인터는 `ui.tooltip.*`에서 읽는다. 신선도 슬롯을 새로 제작하면 `Tools/MyJG/Apply Freshness Display`를 실행한다. 최신 툴팁의 삭제된 런타임 글자 크기 설정은 표에서도 제거했다.
 - 다른 `editor.*` 제작 수치는 관련 제작 메뉴를 다시 적용해야 씬·프리팹에 반영된다. 씬/프리팹은 제작 결과이며 별도의 밸런스 원본이 아니다.
+- 지도 지명은 ui.PuzzleMapView.labelSearchStep/labelSearchDistance로 기존 방향의 빈 공간을 먼저 탐색하며 labelConnectorThickness가 안내선 두께다. 고정 글자/배지 높이만 가정하던 범위와 겹침 강제 표시 임계값은 제거하고 실제 표시 영역을 사용한다. 안내선 오브젝트는 지도 프리팹에 저장하며 MapPresentationTool도 같은 참조를 구성한다.
+- 지도 이름의 상태 가산점·일반 역 표시 줌·지역 표시 수 감점은 ui.mapLabels, 핵심 역 글자 크기는 presentation.map.majorStationFontSize가 소유한다. 지역/역별 기본 가중치는 PuzzleTableData.regions[].mapLabelPriority와 cities[].mapLabelImportance다.
 
 - 기본 가치·현재 적용 효과 행은 `Tools/MyJG/Apply Tooltip Trade Details`로 기존 툴팁 프리팹과 Game 씬에 연결한다.
+
+- 소문 로그의 문구/날짜·기록 형식은 `presentation.rumorLog.*`, 패널/스크롤 치수와 표시 순서는 `ui.rumorLog.*`다. `Tools/MyJG/Apply Rumor Log Panel`로 프리팹·씬에 저장하며 펼침 애니메이션 상수는 제거했다. 지도 미확인 소문의 `?` 및 안내 서식은 `presentation.map.rumorStation`·`rumorInformation`을 사용한다.
 
 ## 소유권과 잔여 후보
 

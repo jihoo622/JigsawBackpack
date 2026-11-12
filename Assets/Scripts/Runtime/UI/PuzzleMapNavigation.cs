@@ -1,7 +1,8 @@
-using UnityEngine;
+using System.Collections.Generic;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
+using UnityEngine;
 
 // The viewport owns navigation; map objects remain authored in the prefab.
 public sealed class PuzzleMapNavigation : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
@@ -26,6 +27,8 @@ public sealed class PuzzleMapNavigation : MonoBehaviour, IBeginDragHandler, IDra
     RectTransform current;
     float scale = 1f;
     bool dragging;
+    bool hasOpened;
+    readonly List<RaycastResult> pointerHits = new List<RaycastResult>();
 
     internal bool IsDragging => dragging;
 
@@ -75,9 +78,25 @@ public sealed class PuzzleMapNavigation : MonoBehaviour, IBeginDragHandler, IDra
         view.UpdateMapLayout(scale, viewport);
     }
 
+    void OnRectTransformDimensionsChange()
+    {
+        if (hasOpened && isActiveAndEnabled && content && viewport && view)
+        {
+            Clamp();
+        }
+    }
+
     internal void Open()
     {
-        Fit();
+        if (!hasOpened)
+        {
+            Fit();
+            hasOpened = true;
+        }
+        else
+        {
+            SetZoom(scale, Vector2.zero);
+        }
     }
 
     Camera EventCamera()
@@ -92,6 +111,16 @@ public sealed class PuzzleMapNavigation : MonoBehaviour, IBeginDragHandler, IDra
         if (!RectTransformUtility.RectangleContainsScreenPoint(viewport, position, EventCamera()))
         {
             return;
+        }
+        if (EventSystem.current)
+        {
+            var pointer = new PointerEventData(EventSystem.current) { position = position };
+            pointerHits.Clear();
+            EventSystem.current.RaycastAll(pointer, pointerHits);
+            if (pointerHits.Count > 0 && !pointerHits[0].gameObject.transform.IsChildOf(view.transform))
+            {
+                return;
+            }
         }
         RectTransformUtility.ScreenPointToLocalPointInRectangle(viewport, position, EventCamera(), out var local);
         float value = _context.ReadValue<float>();

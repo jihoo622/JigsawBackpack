@@ -1,14 +1,15 @@
-using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Text;
+using System;
+using LogKit;
 using UnityEngine;
 
-// 게임 분석 로그의 단일 기록 경로. LogKit의 콘솔·오류 수집과 목적이 다르며, 같은 사건을 두 경로에 다시 기록하지 않는다.
+// 게임 분석 원본의 단일 생성 지점. 같은 원본을 로컬에 보관하고 LogKit Data로 전송한다.
 // 규칙:
 //   1) 한 세션의 sessionId·sequence·게임 시간 시계는 이 파일의 한 소유자만 만든다. 개별 시스템이 자체 runId·Time.time 시계를 만들지 않는다.
-//   2) 파일은 Application.persistentDataPath/Telemetry/{sessionId}.jsonl. LogKit 서버 전송에 자동으로 포함되지 않는다(서버 수집기는 별도 작업).
+//   2) 파일은 Application.persistentDataPath/Telemetry/{sessionId}.jsonl. 같은 행을 LogKit Telemetry 카테고리로 한 번 보낸다.
 //   3) 같은 summaryId에서는 revision이 가장 큰 레코드만 채택한다. 요약은 WriteSummary로 쓰고 revision은 여기서 증가시킨다.
 //   4) session_end 이후에는 기록하지 않는다. 종료는 한 곳에서만 처리해 이중 종료·이중 집계를 막는다.
 // 기록은 메인 스레드에서 줄 단위로 바로 쓴다. 프레임에 민감한 고빈도 사건은 개별 이벤트로 남기지 말고 요약으로 집계한다.
@@ -21,10 +22,15 @@ public static class TelemetryLog
 
     const string RESOURCE_NAME = "LogData";
     const string FILE_EXTENSION = ".jsonl";
+    const int RULES_CHUNK_BYTES = 48 * 1024;
+    const string TELEMETRY_CATEGORY = "Telemetry";
+    const string RULES_CATEGORY = "TelemetryRules";
+    const string INFO_LEVEL = "Info";
 
     // 값 상수는 UPPER_SNAKE, 재대입이 있는 정적 상태는 camelCase(작업지침 코딩 스타일).
     static Session session;
     static bool warnedUnavailable;
+    public static event Action BeforeClose;
 
     public static bool IsOpen
     {
@@ -73,6 +79,8 @@ public static class TelemetryLog
     // 기동 시 한 번 열린다. 이미 열려 있으면 아무것도 하지 않는다(재호출 안전).
     public static void Open(string _reason)
     {
+        // Data는 로거가 없으면 버린다. 초기 씬 Awake/OnEnable보다 앞서 수집기를 보장한다.
+        GameLogger.Init();
         if (IsOpen)
         {
             return;
@@ -91,22 +99,23 @@ public static class TelemetryLog
         var next = new Session();
         next.id = NewSessionId();
         next.bufferLines = settings.bufferLines < 1 ? 1 : settings.bufferLines;
+        next.path = Path.Combine(FolderPath, next.id + FILE_EXTENSION);
         try
         {
             Directory.CreateDirectory(FolderPath);
             Prune(settings.retentionDays);
-            next.path = Path.Combine(FolderPath, next.id + FILE_EXTENSION);
             next.writer = new StreamWriter(next.path, false, new UTF8Encoding(false));
         }
         catch (Exception error)
         {
             next.writer?.Dispose();
+            next.writer = null;
             Debug.LogError($"분석 로그를 열 수 없습니다({next.path}): {error.Message}");
-            return;
+            // 로컬 보관 실패와 무관하게 LogKit으로 원본을 보낸다.
         }
 
         session = next;
-        Append(SESSION_START_EVENT, string.Empty, 0, TelemetryPayload.Session("app_start"));
+        Append(SESSION_START_EVENT, string.Empty, 0, TelemetryPayload.Session(_reason));
     }
 
     // 이벤트 한 줄. payload는 [Serializable] 자료형만 직렬화된다(익명 타입은 JsonUtility가 처리하지 못한다).
@@ -143,26 +152,68 @@ public static class TelemetryLog
     public static void Close(string _reason)
     {
         Session current = session;
-        if (current == null || current.closed)
+        if (current == null || current.closed || current.closing)
         {
             return;
+        }
+        // 판 종료를 먼저 기록할 수 있게 하되 Close 재진입은 막는다.
+        current.closing = true;
+        if (BeforeClose != null)
+        {
+            foreach (Action handler in BeforeClose.GetInvocationList())
+            {
+                try
+                {
+                    handler();
+                }
+                catch (Exception error)
+                {
+                    Debug.LogError($"분석 종료 구독자 예외: {error.Message}");
+                }
+            }
         }
         // 종료 표시를 먼저 세워 이후 쓰기가 이 세션에 들어오지 못하게 한다.
         current.closed = true;
         try
         {
-            Append(SESSION_END_EVENT, string.Empty, 0, TelemetryPayload.Session(_reason));
+            Append(SESSION_END_EVENT, string.Empty, 0, new SessionEndPayload
+            {
+                reason = _reason
+            });
         }
         finally
         {
             Flush();
-            current.writer.Dispose();
+            current.writer?.Dispose();
         }
     }
 
     public static void Flush()
     {
         session?.writer?.Flush();
+    }
+
+    // 테이블은 앱 세션 안에서 해시별 한 번만 큐에 넣는다. LogKit이 통신 실패분을 재전송한다.
+    public static void SendRules(string _rulesHash, byte[] _bytes)
+    {
+        if (!IsOpen || !session.sentRules.Add(_rulesHash))
+        {
+            return;
+        }
+        int count = (_bytes.Length + RULES_CHUNK_BYTES - 1) / RULES_CHUNK_BYTES;
+        for (int i = 0; i < count; i++)
+        {
+            int offset = i * RULES_CHUNK_BYTES;
+            var chunk = new TelemetryRulesChunk
+            {
+                sessionId = session.id,
+                rulesHash = _rulesHash,
+                chunkIndex = i,
+                chunkCount = count,
+                contentBase64 = Convert.ToBase64String(_bytes, offset, Math.Min(RULES_CHUNK_BYTES, _bytes.Length - offset))
+            };
+            GameLogger.Data(INFO_LEVEL, RULES_CATEGORY, TelemetryEvents.RULES_CHUNK, chunk);
+        }
     }
 
     static bool Append(string _eventName, string _summaryId, int _revision, object _payload)
@@ -178,9 +229,12 @@ public static class TelemetryLog
             revision = _revision,
             dataJson = Serialize(_payload)
         };
+        string json = JsonUtility.ToJson(line);
+        // Data는 콘솔로 출력하지 않으므로 Unity 자동 수집과 중복되지 않는다.
+        GameLogger.Data(INFO_LEVEL, TELEMETRY_CATEGORY, _eventName, json);
         try
         {
-            session.writer.WriteLine(JsonUtility.ToJson(line));
+            session.writer?.WriteLine(json);
             if (++session.buffered >= session.bufferLines)
             {
                 Flush();
@@ -216,7 +270,7 @@ public static class TelemetryLog
         }
     }
 
-    // sessionId는 파일 이름에 쓰인다. 재시작이면 새 id를 쓰므로 판 경계가 파일로 드러난다.
+    // 앱/플레이 실행별 파일 ID다. 판 재시작은 같은 파일의 run_start/run_end로 구분한다.
     static string NewSessionId()
     {
         string stamp = DateTime.UtcNow.ToString("yyyyMMdd-HHmmss", CultureInfo.InvariantCulture);
@@ -243,7 +297,7 @@ public static class TelemetryLog
         }
     }
 
-    // 전송·정리 자동화가 없는 경로이므로 기동에 오래된 파일을 정리한다(0 이하이면 건너뜀).
+    // 로컬 보관본의 정리다. LogKit의 미전송 원본은 패키지가 별도로 보관한다.
     static void Prune(int _retentionDays)
     {
         if (_retentionDays <= 0)
@@ -307,6 +361,7 @@ public static class TelemetryLog
         }
         session = null;
         warnedUnavailable = false;
+        BeforeClose = null;
     }
 
     // 고정 시간 시계의 소유자. 분석에 쓰는 시간은 전부 여기서 나온다.
@@ -336,6 +391,8 @@ public static class TelemetryLog
         public int buffered;
         public int bufferLines = 1;
         public bool closed;
+        public bool closing;
         public readonly Dictionary<string, int> revisions = new Dictionary<string, int>(StringComparer.Ordinal);
+        public readonly HashSet<string> sentRules = new HashSet<string>(StringComparer.Ordinal);
     }
 }

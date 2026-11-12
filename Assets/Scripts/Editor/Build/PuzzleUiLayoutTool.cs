@@ -1,10 +1,10 @@
 using System.Linq;
 using TMPro;
-using UnityEditor;
 using UnityEditor.SceneManagement;
-using UnityEngine;
+using UnityEditor;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using UnityEngine;
 
 // Shared authoring pass: all runtime objects and layout components are saved in the scene.
 public static class PuzzleUiLayoutTool
@@ -119,6 +119,10 @@ public static class PuzzleUiLayoutTool
         back.interactable = true;
         Top((RectTransform)back.transform, N("padding"), N("headerHeight") * 0.5f, N("backWidth"), N("buttonHeight"), true);
         Button(back);
+        foreach (var label in back.GetComponentsInChildren<TMP_Text>(true))
+        {
+            label.textWrappingMode = TextWrappingModes.NoWrap;
+        }
         var content = Rect(surface, "StationBody");
         Fill(content, N("padding"), N("headerHeight") + N("gap"), N("padding"), N("padding"));
         foreach (string field in new[] { "actionsList", "marketContent", "restContent", "tavernContent",
@@ -513,7 +517,7 @@ public static class PuzzleUiLayoutTool
         Image(rule, "border");
     }
 
-    static void Button(Button _button)
+    public static void Button(Button _button)
     {
         _button.transition = Selectable.Transition.ColorTint;
         Color background = C("button.normal");

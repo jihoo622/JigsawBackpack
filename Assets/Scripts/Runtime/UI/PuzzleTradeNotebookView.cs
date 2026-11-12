@@ -1,134 +1,85 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 using TMPro;
-using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using UnityEngine;
 
-[DisallowMultipleComponent]
-public sealed class PuzzleTradeNotebookView : MonoBehaviour
+// 사전 배치한 스크롤 본문과 접기 버튼만 제어한다. 기록 데이터는 Presenter가 전달한다.
+public sealed class PuzzleTradeNotebookView : PanelBase
 {
-    internal const string PanelName = "TradeNotebook";
+    [SerializeField] Button toggleButton;
+    [SerializeField] Button collapseButton;
+    [SerializeField] TextMeshProUGUI toggleLabel;
+    [SerializeField] TextMeshProUGUI titleLabel;
+    [SerializeField] TextMeshProUGUI countLabel;
+    [SerializeField] TextMeshProUGUI collapseLabel;
+    [SerializeField] TextMeshProUGUI logText;
+    [SerializeField] ScrollRect scroll;
+    bool scrollPending;
 
-    void OnEnable()
+    protected override void OnEnable()
     {
-        GameEvents.RaisePanelVisibility(PanelName, true);
+        base.OnEnable();
+        toggleButton.onClick.AddListener(ToggleLog);
+        collapseButton.onClick.AddListener(Close);
     }
 
-    void OnDisable()
+    protected override void OnDisable()
     {
-        GameEvents.RaisePanelVisibility(PanelName, false);
+        toggleButton.onClick.RemoveListener(ToggleLog);
+        collapseButton.onClick.RemoveListener(Close);
+        base.OnDisable();
     }
 
-    [SerializeField] CanvasGroup panel;
-    [SerializeField] RectTransform bookSpread;
-    [SerializeField] Button closeNotebookButton;
-    [SerializeField] Button previousCityButton;
-    [SerializeField] Button nextCityButton;
-    [SerializeField] Button previousRecordButton;
-    [SerializeField] Button nextRecordButton;
-    [SerializeField] TextMeshProUGUI notebookCityLabel;
-    [SerializeField] TextMeshProUGUI notebookMessage;
-    [SerializeField] TextMeshProUGUI notebookSource;
-    [SerializeField] TextMeshProUGUI notebookRecordCount;
-
-    IReadOnlyList<PuzzleInventoryService.TavernRumor> rumors;
-    PuzzleInventoryService.TavernRumor[][] notebookCities;
-    int notebookCityIndex;
-    int notebookRecordIndex;
-
-    internal void Initialize(IReadOnlyList<PuzzleInventoryService.TavernRumor> _rumors, UnityEngine.Events.UnityAction _close)
+    void ToggleLog()
     {
-        if (!panel || !bookSpread || !closeNotebookButton || !previousCityButton || !nextCityButton ||
-            !previousRecordButton || !nextRecordButton || !notebookCityLabel ||
-            !notebookMessage || !notebookSource || !notebookRecordCount)
+        Toggle();
+    }
+
+    internal void Render(string _text, int _count)
+    {
+        if (!logText || !scroll || !toggleButton || !collapseButton || !toggleLabel ||
+            !titleLabel || !countLabel || !collapseLabel)
         {
-            throw new InvalidOperationException("교역 수첩 프리팹에 버튼과 텍스트 참조가 필요합니다.");
+            throw new InvalidOperationException("소문 로그 패널의 본문·스크롤·접기 버튼을 연결하세요.");
         }
-
-        if (rumors == null)
-        {
-            closeNotebookButton.onClick.AddListener(_close);
-            previousCityButton.onClick.AddListener(() => ChangeNotebookCity(-1));
-            nextCityButton.onClick.AddListener(() => ChangeNotebookCity(1));
-            previousRecordButton.onClick.AddListener(() => ChangeNotebookRecord(-1));
-            nextRecordButton.onClick.AddListener(() => ChangeNotebookRecord(1));
-        }
-        rumors = _rumors;
+        logText.text = _text;
+        titleLabel.text = Presentation.RumorLogTitle;
+        countLabel.text = Presentation.RumorLogCount(_count);
+        toggleLabel.text = Presentation.RumorLogCollapsed(_count);
+        collapseLabel.text = Presentation.RumorLogCollapse;
+        scrollPending = IsOpen;
     }
 
-    internal void ShowRecords()
+    protected override void OnShow()
     {
-        // 최신 소식부터 정렬한 뒤, 소식이 가리키는 마을별로 묶는다.
-        notebookCities = rumors.Reverse().GroupBy(rumor => rumor.TargetCityId)
-            .Select(city => city.ToArray()).ToArray();
-        notebookCityIndex = 0;
-        notebookRecordIndex = 0;
-        RefreshNotebook();
-        StartCoroutine(UnfoldBook());
+        toggleButton.gameObject.SetActive(false);
+        scrollPending = true;
         if (EventSystem.current)
         {
-            EventSystem.current.SetSelectedGameObject(closeNotebookButton.gameObject);
+            EventSystem.current.SetSelectedGameObject(collapseButton.gameObject);
         }
     }
 
-    IEnumerator UnfoldBook()
+    protected override void OnHide()
     {
-        const float duration = 0.16f;
-        float elapsed = 0f;
-        while (elapsed < duration)
+        scrollPending = false;
+        toggleButton.gameObject.SetActive(true);
+        if (Active && gameObject.activeInHierarchy && EventSystem.current)
         {
-            float width = Mathf.SmoothStep(0.72f, 1f, elapsed / duration);
-            bookSpread.localScale = new Vector3(width, 1f, 1f);
-            yield return null;
-            elapsed += Time.unscaledDeltaTime;
+            EventSystem.current.SetSelectedGameObject(toggleButton.gameObject);
         }
-        bookSpread.localScale = Vector3.one;
     }
 
-    internal void SetInteraction(bool _enabled)
+    void LateUpdate()
     {
-        panel.interactable = panel.blocksRaycasts = _enabled;
-    }
-
-    void ChangeNotebookCity(int _step)
-    {
-        notebookCityIndex += _step;
-        notebookRecordIndex = 0;
-        RefreshNotebook();
-    }
-
-    void ChangeNotebookRecord(int _step)
-    {
-        notebookRecordIndex += _step;
-        RefreshNotebook();
-    }
-
-    void RefreshNotebook()
-    {
-        bool hasRecords = notebookCities.Length > 0;
-        int recordCount = hasRecords ? notebookCities[notebookCityIndex].Length : 0;
-        previousCityButton.interactable = notebookCityIndex > 0;
-        nextCityButton.interactable = notebookCityIndex + 1 < notebookCities.Length;
-        previousRecordButton.interactable = notebookRecordIndex > 0;
-        nextRecordButton.interactable = notebookRecordIndex + 1 < recordCount;
-
-        if (!hasRecords)
+        if (!scrollPending || !IsOpen)
         {
-            notebookCityLabel.text = string.Empty;
-            notebookMessage.text = "술집에서 들은 교역 소식이 여기에 기록됩니다.";
-            notebookSource.text = string.Empty;
-            notebookRecordCount.text = string.Empty;
             return;
         }
-
-        var rumor = notebookCities[notebookCityIndex][notebookRecordIndex];
-        var tables = TableManager.Instance;
-        notebookCityLabel.text = tables.CityPrice(rumor.TargetCityId).displayName;
-        notebookMessage.text = rumor.Message;
-        notebookSource.text = $"{rumor.RecordedTime}\n{tables.CityPrice(rumor.SourceCityId).displayName} 술집";
-        notebookRecordCount.text = $"기록 {notebookRecordIndex + 1} / {recordCount}";
+        scrollPending = false;
+        Canvas.ForceUpdateCanvases();
+        LayoutRebuilder.ForceRebuildLayoutImmediate(scroll.content);
+        scroll.verticalNormalizedPosition = 0f;
     }
 }

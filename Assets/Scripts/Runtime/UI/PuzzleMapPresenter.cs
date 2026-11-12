@@ -1,7 +1,6 @@
-using UnityEngine;
-using UnityEngine.EventSystems;
-using UnityEngine.UI;
 using System.Collections;
+using UnityEngine.UI;
+using UnityEngine;
 
 public sealed class PuzzleMapPresenter : MonoBehaviour
 {
@@ -9,12 +8,10 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
     [SerializeField] Button openButton;
     [SerializeField] Button closeButton;
     [SerializeField] PuzzleMapTravelView travelView;
-    [SerializeField] CanvasGroup mapControls;
-    [SerializeField] Button notebookButton;
-    [SerializeField] PuzzleTradeNotebookView notebook;
 
     PuzzleInventoryService session;
     string pendingCityId;
+    string hoveredCityId;
     Coroutine travelRoutine;
     TravelPhase phase;
 
@@ -29,15 +26,14 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
         session.Initialize();
         openButton.onClick.AddListener(OpenMap);
         closeButton.onClick.AddListener(CloseMap);
-        notebook.Initialize(session.TavernRumors, CloseNotebook);
-        notebookButton.onClick.AddListener(OpenNotebook);
         foreach (var node in view.Nodes)
         {
             node.Hovered += ShowCity;
-            node.Exited += ClearInformation;
+            node.Exited += OnNodeExited;
             node.Clicked += OnNodeClicked;
         }
         GameEvents.CityArrived += OnCityArrived;
+        GameEvents.TavernRumorRecorded += OnRumorRecorded;
         GameEvents.PanelVisibility += OnPanelVisibility;
         GameEvents.MapRequested += OnMapRequested;
         travelView.Confirmed += ConfirmTravel;
@@ -49,20 +45,20 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
     {
         openButton.onClick.RemoveListener(OpenMap);
         closeButton.onClick.RemoveListener(CloseMap);
-        notebookButton.onClick.RemoveListener(OpenNotebook);
         foreach (var node in view.Nodes)
         {
             node.Hovered -= ShowCity;
-            node.Exited -= ClearInformation;
+            node.Exited -= OnNodeExited;
             node.Clicked -= OnNodeClicked;
         }
         GameEvents.CityArrived -= OnCityArrived;
+        GameEvents.TavernRumorRecorded -= OnRumorRecorded;
         GameEvents.PanelVisibility -= OnPanelVisibility;
         GameEvents.MapRequested -= OnMapRequested;
         travelView.Confirmed -= ConfirmTravel;
         travelView.Canceled -= AbortTravel;
-        SetNotebookOpen(false);
         AbortTravel();
+        hoveredCityId = null;
         view.Close();
     }
 
@@ -74,7 +70,7 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
 
     void OnMapRequested(GameEvents.MapRequestInfo _info)
     {
-        if (_info.sceneHandle == gameObject.scene.handle && phase == TravelPhase.None && !notebook.gameObject.activeSelf)
+        if (_info.sceneHandle == gameObject.scene.handle && phase == TravelPhase.None)
         {
             OpenMap();
         }
@@ -82,45 +78,29 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
 
     void CloseMap()
     {
-        if (phase == TravelPhase.None && !notebook.gameObject.activeSelf)
+        if (phase == TravelPhase.None)
         {
             view.Close();
         }
-    }
-
-    void OpenNotebook()
-    {
-        if (!view.IsOpen || phase != TravelPhase.None || notebook.gameObject.activeSelf)
-        {
-            return;
-        }
-
-        SetNotebookOpen(true);
-        notebook.ShowRecords();
-    }
-
-    void CloseNotebook()
-    {
-        SetNotebookOpen(false);
-        if (view.IsOpen && EventSystem.current)
-        {
-            EventSystem.current.SetSelectedGameObject(notebookButton.gameObject);
-        }
-    }
-
-    void SetNotebookOpen(bool _open)
-    {
-        notebook.gameObject.SetActive(_open);
-        notebook.SetInteraction(_open);
-        mapControls.interactable = mapControls.blocksRaycasts = !_open;
-        openButton.interactable = !_open;
-        view.SetInteraction(!_open && phase == TravelPhase.None);
     }
 
     void OnCityArrived(GameEvents.CityArrivalInfo _info)
     {
         Refresh();
         ClearInformation();
+    }
+
+    void OnRumorRecorded(GameEvents.TavernRumorInfo _info)
+    {
+        if (_info.session != session)
+        {
+            return;
+        }
+        Refresh();
+        if (view.IsOpen && !string.IsNullOrEmpty(hoveredCityId))
+        {
+            ShowCity(hoveredCityId);
+        }
     }
 
     void Refresh()
@@ -154,7 +134,8 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
                 isCurrent,
                 isConnected,
                 canAfford,
-                !string.IsNullOrEmpty(targetCityId) && string.Equals(cityId, targetCityId, System.StringComparison.Ordinal));
+                !string.IsNullOrEmpty(targetCityId) && string.Equals(cityId, targetCityId, System.StringComparison.Ordinal),
+                session.HasRumorForCity(cityId));
         }
         if (currentNode)
         {
@@ -169,6 +150,7 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
         {
             return;
         }
+        hoveredCityId = _cityId;
         view.HighlightCity(_cityId);
         string currentCityId = session.CurrentCityId;
         bool isCurrent = string.Equals(_cityId, currentCityId, System.StringComparison.Ordinal);
@@ -189,7 +171,8 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
             isCurrent,
             isConnected,
             eval,
-            TableManager.Instance.Region(TableManager.Instance.CityPrice(_cityId).regionId)));
+            TableManager.Instance.Region(TableManager.Instance.CityPrice(_cityId).regionId),
+            session.TavernRumors));
     }
 
     void ClearInformation()
@@ -198,13 +181,22 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
         {
             return;
         }
+        hoveredCityId = null;
         view.HighlightCity(null);
         view.ShowInformation(Presentation.PuzzleMapHint);
     }
 
+    void OnNodeExited(string _cityId)
+    {
+        if (string.Equals(hoveredCityId, _cityId, System.StringComparison.Ordinal))
+        {
+            ClearInformation();
+        }
+    }
+
     void OnNodeClicked(string _cityId)
     {
-        if (phase != TravelPhase.None || notebook.gameObject.activeSelf ||
+        if (phase != TravelPhase.None ||
             !view.IsOpen || session.RunStatus != PuzzleRunStatus.InProgress ||
             string.Equals(_cityId, session.CurrentCityId, System.StringComparison.Ordinal))
         {
@@ -221,7 +213,6 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
         pendingCityId = _cityId;
         session.SetPreviewDestination(_cityId);
         phase = TravelPhase.Confirming;
-        notebookButton.interactable = false;
         view.SetInteraction(false);
         travelView.ShowConfirmation(Presentation.PuzzleTravelConfirmation(
             TableManager.Instance.CityPrice(session.CurrentCityId).displayName,
@@ -294,16 +285,11 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
         phase = TravelPhase.None;
         pendingCityId = null;
         travelView.Close();
-        notebookButton.interactable = true;
-        view.SetInteraction(!notebook.gameObject.activeSelf);
+        view.SetInteraction(true);
     }
 
     void OnPanelVisibility(GameEvents.PanelInfo _info)
     {
-        if (!_info.open && _info.panel == view.PanelName)
-        {
-            SetNotebookOpen(false);
-        }
         if (!_info.open && (_info.panel == view.PanelName ||
             (_info.panel == Presentation.PUZZLE_TRAVEL_PANEL_NAME && phase != TravelPhase.None)))
         {

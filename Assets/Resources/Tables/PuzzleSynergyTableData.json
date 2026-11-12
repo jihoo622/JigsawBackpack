@@ -80,13 +80,13 @@
       "description": "물과 인접 시 +30%"
     },
     {
-      "id": "pooNearbyPenalty",
-      "excludedTargetTag": "Poo",
-      "neighborTag": "Poo",
+      "id": "wasteNearbyPenalty",
+      "excludedTargetTag": "Waste",
+      "neighborTag": "Waste",
       "scope": "Both",
       "spatialRange": "Adjacent",
       "multiplierPercent": 50,
-      "descriptionTag": "Poo",
+      "descriptionTag": "Waste",
       "description": "상하좌우로 맞닿은 화물에게 -50%"
     },
     {
@@ -103,7 +103,7 @@
   "activationIntervalHours": 6,
   "animals": {
     "animalTag": "Animal",
-    "wasteTag": "Poo",
+    "wasteTag": "Waste",
     "wastePieceId": "piece.poo",
     "wasteIntervalDays": 1,
     "wasteCountPerAnimal": 1,

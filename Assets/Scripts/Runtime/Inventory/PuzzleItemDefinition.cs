@@ -13,6 +13,7 @@ public sealed class PuzzleItemDefinition
     public int BaseValue { get; }
     public string VisualKey { get; }
     public int Durability { get; }
+    public int ShelfLifeHours { get; }
     // 아이콘 표시 크기(칸 단위). 미지정이면 Vector2.zero로, 렌더 시 외접 사각형 크기를 쓴다.
     public Vector2 IconSize { get; }
     // 외접 사각형 중심에서 아이콘 중심을 옮기는 오프셋(칸 단위).
@@ -36,6 +37,7 @@ public sealed class PuzzleItemDefinition
         BaseValue = _item.baseValue;
         VisualKey = _item.visualKey;
         Durability = _item.durability;
+        ShelfLifeHours = _item.shelfLifeHours;
         IconSize = _item.iconWidth > 0f && _item.iconHeight > 0f
             ? new Vector2(_item.iconWidth, _item.iconHeight)
             : Vector2.zero;

@@ -2,8 +2,8 @@ using System.IO;
 using System.Linq;
 using Newtonsoft.Json.Linq;
 using UnityEditor;
-using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine;
 
 public static class MapPresentationTool
 {
@@ -137,6 +137,14 @@ public static class MapPresentationTool
             badge.gameObject.SetActive(false);
             data.FindProperty("currentHalo").objectReferenceValue = halo;
             data.FindProperty("currentBadge").objectReferenceValue = badge;
+            var connectorRect = Rect(node.transform, "LabelConnector", Vector2.zero,
+                new Vector2(0f, BasicData.Float("ui.PuzzleMapView.labelConnectorThickness")));
+            connectorRect.SetAsFirstSibling();
+            var connector = Component<Image>(connectorRect);
+            connector.color = Presentation.PuzzleHeading;
+            connector.raycastTarget = false;
+            connector.gameObject.SetActive(false);
+            data.FindProperty("labelConnector").objectReferenceValue = connector;
             data.ApplyModifiedPropertiesWithoutUndo();
             var stationLabel = data.FindProperty("label").objectReferenceValue as Text;
             var outline = Component<Outline>(stationLabel.rectTransform);

@@ -1,7 +1,7 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
+using System.Collections;
 using System.Linq;
+using System;
 using UnityEngine;
 
 // 검증과 파생 값 계산의 공통 구현. DTO와 로더에는 게임 규칙을 넣지 않는다.
@@ -231,6 +231,12 @@ public sealed class GameTableRules
             double max = _tables.BasicNumber(MAX_ZOOM).value;
             Check(min > 0 && min <= max, "BasicDataTableData.numbers.zoom", "줌 범위는 0보다 크고 최소값이 최대값 이하여야 합니다.");
         }
+        const string EXPIRED_FOOD = "rules.PuzzleInventoryService.expiredFoodPieceId";
+        if (_tables.HasBasicText(EXPIRED_FOOD))
+        {
+            string pieceId = _tables.BasicText(EXPIRED_FOOD).value;
+            Reference(pieceId, "BasicDataTableData.texts." + EXPIRED_FOOD, _tables.TryGetPiece(pieceId, out _), "화물");
+        }
         const string LOW_FRESHNESS = "ui.freshness.lowThreshold";
         const string MEDIUM_FRESHNESS = "ui.freshness.mediumThreshold";
         if (_tables.HasBasicNumber(LOW_FRESHNESS) && _tables.HasBasicNumber(MEDIUM_FRESHNESS))
@@ -239,6 +245,18 @@ public sealed class GameTableRules
             double medium = _tables.BasicNumber(MEDIUM_FRESHNESS).value;
             Check(low >= 0 && low < medium && medium < 100,
                 "BasicDataTableData.ui.freshness", "신선도 구간은 0 이상이며 낮음 < 중간 < 100이어야 합니다.");
+        }
+        const string LOW_FRESHNESS_VALUE = "rules.freshness.lowValuePercent";
+        const string MEDIUM_FRESHNESS_VALUE = "rules.freshness.mediumValuePercent";
+        const string HIGH_FRESHNESS_VALUE = "rules.freshness.highValuePercent";
+        if (_tables.HasBasicNumber(LOW_FRESHNESS_VALUE) && _tables.HasBasicNumber(MEDIUM_FRESHNESS_VALUE) &&
+            _tables.HasBasicNumber(HIGH_FRESHNESS_VALUE))
+        {
+            double low = _tables.BasicNumber(LOW_FRESHNESS_VALUE).value;
+            double medium = _tables.BasicNumber(MEDIUM_FRESHNESS_VALUE).value;
+            double high = _tables.BasicNumber(HIGH_FRESHNESS_VALUE).value;
+            Check(low > 0 && low <= medium && medium <= high && high <= 100,
+                "BasicDataTableData.rules.freshness", "가치 배율은 0보다 크고 낮음 ≤ 보통 ≤ 신선함 ≤ 100이어야 합니다.");
         }
         foreach (string id in new[] { "ui.tooltip.badgeBlend", "ui.freshness.outlineWidth" })
         {
@@ -296,6 +314,9 @@ public sealed class GameTableRules
     {
         const string PATH = nameof(PuzzleRouteTableData);
         const string ROUTES_PATH = PATH + ".routes";
+        Check(_tables.PuzzleRoute.defaultBaseCost >= 0, PATH + ".defaultBaseCost", "기준 기본요금은 0 이상이어야 합니다.");
+        Check(!double.IsNaN(_tables.PuzzleRoute.fareDistancePixelsPerUnit) && !double.IsInfinity(_tables.PuzzleRoute.fareDistancePixelsPerUnit) && _tables.PuzzleRoute.fareDistancePixelsPerUnit > 0,
+            PATH + ".fareDistancePixelsPerUnit", "요금 거리 1당 지도 길이는 유한한 양수여야 합니다.");
         Check(_tables.PuzzleRoute.costPerCell >= 0, PATH + ".costPerCell", "칸당 이동 단가는 0 이상이어야 합니다.");
         Check(_tables.PuzzleRoute.costPerDistance >= 0, PATH + ".costPerDistance", "거리당 이동 단가는 0 이상이어야 합니다.");
         var routes = _tables.PuzzleRoute.routes ?? Array.Empty<PuzzleRouteData>();
@@ -870,6 +891,7 @@ public sealed class GameTableRules
                 continue;
             }
             string regionPath = PATH + ".regions[" + region.id + "]";
+            Check(region.mapLabelPriority >= 0, regionPath + ".mapLabelPriority", "지도 지역 우선순위는 0 이상의 명시적 값이어야 합니다.");
             Check(!string.IsNullOrWhiteSpace(region.displayName), regionPath, "지역 이름이 필요합니다.");
             Check(region.pricePercent > 0, regionPath + ".pricePercent", "지역 물가 배율은 양수여야 합니다.");
             Check(region.tradeHub || knownTags.Contains(region.specialtyTag ?? string.Empty), regionPath,
@@ -892,6 +914,7 @@ public sealed class GameTableRules
             }
 
             string cityPath = $"{PATH}.cities[{i}]";
+            Check(city.mapLabelImportance >= 0, cityPath + ".mapLabelImportance", "지도 역 중요도는 0 이상의 명시적 값이어야 합니다.");
             Check(!string.IsNullOrWhiteSpace(city.displayName), cityPath + ".displayName", "도시 이름이 필요합니다.");
             Check(city.buyPercentOfBaseValue > 0, cityPath + ".buyPercentOfBaseValue", "기본 구매 배율은 0보다 커야 합니다.");
             Check(city.sellPercentOfFinalValue > 0, cityPath + ".sellPercentOfFinalValue", "기본 판매 배율은 0보다 커야 합니다.");
