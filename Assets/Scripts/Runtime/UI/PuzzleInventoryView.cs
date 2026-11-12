@@ -423,17 +423,36 @@ public sealed class PuzzleInventoryView : MonoBehaviour
         boardValue.text = Presentation.PuzzleBoardActualValue(_actualValue, _baseValue);
     }
 
-    internal void ShowSynergySettlement(decimal _before, decimal _after, long _baseValue)
+    internal void ShowCargoValueFeedback(decimal? _beforeSettlement, decimal? _beforeFreshnessLoss, decimal _after, long _baseValue)
     {
         ShowBoardValue(_after, _baseValue);
         if (isActiveAndEnabled)
         {
             synergySettlementNotice.SetActive(true);
-            settlementFeedback = StartCoroutine(AnimateSynergySettlement(_before, _after, _baseValue));
+            settlementFeedback = StartCoroutine(AnimateCargoValueFeedback(_beforeSettlement, _beforeFreshnessLoss, _after, _baseValue));
         }
     }
 
-    IEnumerator AnimateSynergySettlement(decimal _before, decimal _after, long _baseValue)
+    IEnumerator AnimateCargoValueFeedback(decimal? _beforeSettlement, decimal? _beforeFreshnessLoss, decimal _after, long _baseValue)
+    {
+        var notice = synergySettlementNotice.GetComponent<TMP_Text>();
+        if (_beforeSettlement is decimal beforeSettlement)
+        {
+            notice.text = BasicData.Text("presentation.inventory.synergySettlementNotice");
+            yield return AnimateCargoValue(beforeSettlement, _beforeFreshnessLoss ?? _after, _baseValue);
+        }
+        if (_beforeFreshnessLoss is decimal beforeFreshnessLoss)
+        {
+            notice.text = BasicData.Text("presentation.inventory.freshnessLossNotice");
+            yield return AnimateCargoValue(beforeFreshnessLoss, _after, _baseValue);
+        }
+
+        boardValue.text = Presentation.PuzzleBoardActualValue(_after, _baseValue);
+        synergySettlementNotice.SetActive(false);
+        settlementFeedback = null;
+    }
+
+    IEnumerator AnimateCargoValue(decimal _before, decimal _after, long _baseValue)
     {
         const float countSeconds = 0.65f;
         const float noticeSeconds = 1.6f;
@@ -453,8 +472,6 @@ public sealed class PuzzleInventoryView : MonoBehaviour
         }
 
         boardValue.text = Presentation.PuzzleBoardActualValue(_after, _baseValue);
-        synergySettlementNotice.SetActive(false);
-        settlementFeedback = null;
     }
 
     void StopSettlementFeedback()

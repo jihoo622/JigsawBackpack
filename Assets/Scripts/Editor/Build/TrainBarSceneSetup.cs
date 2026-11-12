@@ -65,6 +65,7 @@ public static class TrainBarSceneSetup
             EditorUtility.SetDirty(presenter);
         }
 
+        PocArtSetupTool.ApplyScene(activeScene);
         EditorSceneManager.MarkSceneDirty(activeScene);
         EditorSceneManager.SaveScene(activeScene);
         Debug.Log("[TrainBarSceneSetup] Successfully configured Train Bar in Game scene.");

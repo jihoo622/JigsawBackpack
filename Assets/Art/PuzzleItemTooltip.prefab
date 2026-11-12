@@ -975,7 +975,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.HorizontalLayoutGroup
   m_Padding:
     m_Left: 0
-    m_Right: 0
+    m_Right: 8
     m_Top: 0
     m_Bottom: 0
   m_ChildAlignment: 3
@@ -2093,7 +2093,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 100
+  m_text: "\u2022"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: b2eeb73aa1ee10b48a7fe11797ba93c5, type: 2}
   m_sharedMaterial: {fileID: -3217437318264749832, guid: b2eeb73aa1ee10b48a7fe11797ba93c5, type: 2}

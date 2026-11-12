@@ -1,0 +1,2067 @@
+fileFormatVersion: 2
+guid: f3c6ae13388716942ae8640b249fcdbd
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -7150512578725476666
+    second: side_train_0
+  - first:
+      213: 3804126540060379364
+    second: side_train_1
+  - first:
+      213: -7352479117019451912
+    second: side_train_2
+  - first:
+      213: -855549019805354137
+    second: side_train_3
+  - first:
+      213: 5634998497005188234
+    second: side_train_4
+  - first:
+      213: -8833218223153366167
+    second: side_train_5
+  - first:
+      213: 1243057003547966365
+    second: side_train_6
+  - first:
+      213: -660572394587039599
+    second: side_train_7
+  - first:
+      213: -6353849009418119967
+    second: side_train_8
+  - first:
+      213: -4501644457755514292
+    second: side_train_9
+  - first:
+      213: -817831374006874924
+    second: side_train_10
+  - first:
+      213: -7283076500837981542
+    second: side_train_11
+  - first:
+      213: -4028729415572195259
+    second: side_train_12
+  - first:
+      213: 4136182109975656097
+    second: side_train_13
+  - first:
+      213: 4881215855501459937
+    second: side_train_14
+  - first:
+      213: -817466970620235497
+    second: side_train_15
+  - first:
+      213: -1929836393222703328
+    second: side_train_16
+  - first:
+      213: 8720350505954408028
+    second: side_train_17
+  - first:
+      213: 3424812421253402243
+    second: side_train_18
+  - first:
+      213: -5715281384077027446
+    second: side_train_19
+  - first:
+      213: -3815137762584208432
+    second: side_train_20
+  - first:
+      213: 1165949000074294559
+    second: side_train_21
+  - first:
+      213: -1820730705284180329
+    second: side_train_22
+  - first:
+      213: -1943493838217714466
+    second: side_train_23
+  - first:
+      213: 5677350528662312022
+    second: side_train_24
+  - first:
+      213: -1137319591114867415
+    second: side_train_25
+  - first:
+      213: 8437914832374007266
+    second: side_train_26
+  - first:
+      213: 66813523865310751
+    second: side_train_27
+  - first:
+      213: 4869363553710775475
+    second: side_train_28
+  - first:
+      213: 3940663276034408311
+    second: side_train_29
+  - first:
+      213: 2494057117318659689
+    second: side_train_30
+  - first:
+      213: 3647065475801634381
+    second: side_train_31
+  - first:
+      213: 3083406886821523729
+    second: side_train_32
+  - first:
+      213: 7832350746423509088
+    second: side_train_33
+  - first:
+      213: 641092774081339078
+    second: side_train_34
+  - first:
+      213: -4008062239137832677
+    second: side_train_35
+  - first:
+      213: 5355948281837516878
+    second: side_train_36
+  - first:
+      213: 8782179842126734779
+    second: side_train_37
+  - first:
+      213: -107251119279527416
+    second: side_train_38
+  - first:
+      213: -4184998359322498550
+    second: side_train_39
+  - first:
+      213: 4268639453284696015
+    second: side_train_40
+  - first:
+      213: -6347556675620755355
+    second: side_train_41
+  - first:
+      213: 884599661280789711
+    second: side_train_42
+  - first:
+      213: -4572489840540085271
+    second: side_train_43
+  - first:
+      213: 6002421710029490455
+    second: side_train_44
+  - first:
+      213: -3410217071075186454
+    second: side_train_45
+  - first:
+      213: -2224108371538169867
+    second: side_train_46
+  - first:
+      213: 5878273205305604324
+    second: side_train_47
+  - first:
+      213: 526680421158001160
+    second: side_train_48
+  - first:
+      213: -1019447984077224069
+    second: side_train_49
+  - first:
+      213: 4655703793677200962
+    second: side_train_50
+  - first:
+      213: 4469312252622344765
+    second: side_train_51
+  - first:
+      213: 5888918918685131711
+    second: side_train_52
+  - first:
+      213: -2604193150932196177
+    second: side_train_53
+  - first:
+      213: 6488415653551475321
+    second: side_train_54
+  - first:
+      213: 2321392839736740481
+    second: side_train_55
+  - first:
+      213: -6956593671681888218
+    second: side_train_56
+  - first:
+      213: -3645910668617533340
+    second: side_train_57
+  - first:
+      213: 4327896034307982745
+    second: side_train_58
+  - first:
+      213: -3337633438855666051
+    second: side_train_59
+  - first:
+      213: 5729548363702347809
+    second: side_train_60
+  - first:
+      213: -4091775793858652597
+    second: side_train_61
+  - first:
+      213: 2965195711531593440
+    second: side_train_62
+  - first:
+      213: -2766482096673641148
+    second: side_train_63
+  - first:
+      213: -4192777845100583498
+    second: side_train_64
+  - first:
+      213: 5812316540723196188
+    second: side_train_65
+  - first:
+      213: 148461107062312251
+    second: side_train_66
+  - first:
+      213: 7369131740095239592
+    second: side_train_67
+  - first:
+      213: 6461238998827936191
+    second: side_train_68
+  - first:
+      213: -3122391837520737719
+    second: side_train_69
+  - first:
+      213: 3247532731980956942
+    second: side_train_70
+  - first:
+      213: 3378374529136709632
+    second: side_train_71
+  - first:
+      213: -1869788968810976977
+    second: side_train_72
+  - first:
+      213: -4279811883734527254
+    second: side_train_73
+  - first:
+      213: -2522110017409353011
+    second: side_train_74
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: side_train_0
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 2172
+        height: 708
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6c60b17d1b644cc90800000000000000
+      internalID: -7150512578725476666
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: side_train_1
+      rect:
+        serializedVersion: 2
+        x: 1164
+        y: 687
+        width: 34
+        height: 21
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4e84fecdee8fac430800000000000000
+      internalID: 3804126540060379364
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: side_train_2
+      rect:
+        serializedVersion: 2
+        x: 1544
+        y: 683
+        width: 6
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8fde39bb23fb6f990800000000000000
+      internalID: -7352479117019451912
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: side_train_3
+      rect:
+        serializedVersion: 2
+        x: 1647
+        y: 677
+        width: 11
+        height: 25
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 767719a03ba7024f0800000000000000
+      internalID: -855549019805354137
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: side_train_4
+      rect:
+        serializedVersion: 2
+        x: 619
+        y: 669
+        width: 6
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a84badb0749833e40800000000000000
+      internalID: 5634998497005188234
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: side_train_5
+      rect:
+        serializedVersion: 2
+        x: 732
+        y: 659
+        width: 13
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 96bbf6193da1a6580800000000000000
+      internalID: -8833218223153366167
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: side_train_6
+      rect:
+        serializedVersion: 2
+        x: 1349
+        y: 664
+        width: 8
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d9bb90c32c9304110800000000000000
+      internalID: 1243057003547966365
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: side_train_7
+      rect:
+        serializedVersion: 2
+        x: 1359
+        y: 669
+        width: 8
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 198d53038ec25d6f0800000000000000
+      internalID: -660572394587039599
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: side_train_8
+      rect:
+        serializedVersion: 2
+        x: 1376
+        y: 659
+        width: 7
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1e45a257df792d7a0800000000000000
+      internalID: -6353849009418119967
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: side_train_9
+      rect:
+        serializedVersion: 2
+        x: 1689
+        y: 659
+        width: 7
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c4a60666732f681c0800000000000000
+      internalID: -4501644457755514292
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: side_train_10
+      rect:
+        serializedVersion: 2
+        x: 1888
+        y: 659
+        width: 10
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4dc862ac2ba76a4f0800000000000000
+      internalID: -817831374006874924
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: side_train_11
+      rect:
+        serializedVersion: 2
+        x: 1349
+        y: 658
+        width: 10
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a92ae8782805dea90800000000000000
+      internalID: -7283076500837981542
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: side_train_12
+      rect:
+        serializedVersion: 2
+        x: 1359
+        y: 651
+        width: 10
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 548f6a011f31718c0800000000000000
+      internalID: -4028729415572195259
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: side_train_13
+      rect:
+        serializedVersion: 2
+        x: 1400
+        y: 645
+        width: 13
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1a6bc6fe6bba66930800000000000000
+      internalID: 4136182109975656097
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: side_train_14
+      rect:
+        serializedVersion: 2
+        x: 1882
+        y: 661
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1e14b2375ff8db340800000000000000
+      internalID: 4881215855501459937
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: side_train_15
+      rect:
+        serializedVersion: 2
+        x: 507
+        y: 634
+        width: 7
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 711f0901f16c7a4f0800000000000000
+      internalID: -817466970620235497
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: side_train_16
+      rect:
+        serializedVersion: 2
+        x: 728
+        y: 624
+        width: 11
+        height: 21
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 027f65b6608d735e0800000000000000
+      internalID: -1929836393222703328
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: side_train_17
+      rect:
+        serializedVersion: 2
+        x: 941
+        y: 642
+        width: 11
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c567f403598e40970800000000000000
+      internalID: 8720350505954408028
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: side_train_18
+      rect:
+        serializedVersion: 2
+        x: 971
+        y: 636
+        width: 12
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 38e872f60c0678f20800000000000000
+      internalID: 3424812421253402243
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: side_train_19
+      rect:
+        serializedVersion: 2
+        x: 1355
+        y: 626
+        width: 14
+        height: 22
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a879faeacdd3fa0b0800000000000000
+      internalID: -5715281384077027446
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: side_train_20
+      rect:
+        serializedVersion: 2
+        x: 1494
+        y: 634
+        width: 9
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0db5dfb1b68ed0bc0800000000000000
+      internalID: -3815137762584208432
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: side_train_21
+      rect:
+        serializedVersion: 2
+        x: 1559
+        y: 642
+        width: 17
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f1576a720784e2010800000000000000
+      internalID: 1165949000074294559
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: side_train_22
+      rect:
+        serializedVersion: 2
+        x: 1665
+        y: 643
+        width: 7
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 796d3e7f1177bb6e0800000000000000
+      internalID: -1820730705284180329
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: side_train_23
+      rect:
+        serializedVersion: 2
+        x: 2095
+        y: 642
+        width: 8
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ed46fd5b6a25705e0800000000000000
+      internalID: -1943493838217714466
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: side_train_24
+      rect:
+        serializedVersion: 2
+        x: 1347
+        y: 624
+        width: 7
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6541b46d9300ace40800000000000000
+      internalID: 5677350528662312022
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: side_train_25
+      rect:
+        serializedVersion: 2
+        x: 1406
+        y: 617
+        width: 11
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 92d718f8bdd6730f0800000000000000
+      internalID: -1137319591114867415
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: side_train_26
+      rect:
+        serializedVersion: 2
+        x: 1904
+        y: 618
+        width: 6
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2e507a485de791570800000000000000
+      internalID: 8437914832374007266
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: side_train_27
+      rect:
+        serializedVersion: 2
+        x: 2067
+        y: 611
+        width: 26
+        height: 21
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f161f24cb8e5de000800000000000000
+      internalID: 66813523865310751
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: side_train_28
+      rect:
+        serializedVersion: 2
+        x: 1323
+        y: 608
+        width: 7
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3bc1a256a54739340800000000000000
+      internalID: 4869363553710775475
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: side_train_29
+      rect:
+        serializedVersion: 2
+        x: 1345
+        y: 614
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 77f357bfe5c00b630800000000000000
+      internalID: 3940663276034408311
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: side_train_30
+      rect:
+        serializedVersion: 2
+        x: 1367
+        y: 612
+        width: 8
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 96e305febbbac9220800000000000000
+      internalID: 2494057117318659689
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: side_train_31
+      rect:
+        serializedVersion: 2
+        x: 2096
+        y: 608
+        width: 11
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d465fbd2abafc9230800000000000000
+      internalID: 3647065475801634381
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: side_train_32
+      rect:
+        serializedVersion: 2
+        x: 885
+        y: 594
+        width: 15
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1117dfa1a367aca20800000000000000
+      internalID: 3083406886821523729
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: side_train_33
+      rect:
+        serializedVersion: 2
+        x: 1313
+        y: 604
+        width: 7
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 060c6dc918912bc60800000000000000
+      internalID: 7832350746423509088
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: side_train_34
+      rect:
+        serializedVersion: 2
+        x: 2086
+        y: 602
+        width: 9
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6ce103b3b7e95e800800000000000000
+      internalID: 641092774081339078
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: side_train_35
+      rect:
+        serializedVersion: 2
+        x: 999
+        y: 582
+        width: 10
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b11688e01a08068c0800000000000000
+      internalID: -4008062239137832677
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: side_train_36
+      rect:
+        serializedVersion: 2
+        x: 1004
+        y: 580
+        width: 9
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e48f946d596245a40800000000000000
+      internalID: 5355948281837516878
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: side_train_37
+      rect:
+        serializedVersion: 2
+        x: 517
+        y: 562
+        width: 11
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bb56f83590290e970800000000000000
+      internalID: 8782179842126734779
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: side_train_38
+      rect:
+        serializedVersion: 2
+        x: 1901
+        y: 562
+        width: 15
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 80aa49ddca7f28ef0800000000000000
+      internalID: -107251119279527416
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: side_train_39
+      rect:
+        serializedVersion: 2
+        x: 740
+        y: 532
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a0a6dfe4a26ebe5c0800000000000000
+      internalID: -4184998359322498550
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: side_train_40
+      rect:
+        serializedVersion: 2
+        x: 843
+        y: 99
+        width: 9
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fcf704f67f04d3b30800000000000000
+      internalID: 4268639453284696015
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: side_train_41
+      rect:
+        serializedVersion: 2
+        x: 1719
+        y: 95
+        width: 14
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 56827f595d2f8e7a0800000000000000
+      internalID: -6347556675620755355
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: side_train_42
+      rect:
+        serializedVersion: 2
+        x: 2069
+        y: 103
+        width: 14
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fc4821384bab64c00800000000000000
+      internalID: 884599661280789711
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: side_train_43
+      rect:
+        serializedVersion: 2
+        x: 56
+        y: 79
+        width: 7
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9e3968357b04b80c0800000000000000
+      internalID: -4572489840540085271
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: side_train_44
+      rect:
+        serializedVersion: 2
+        x: 249
+        y: 79
+        width: 14
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 719866a3eb2ec4350800000000000000
+      internalID: 6002421710029490455
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: side_train_45
+      rect:
+        serializedVersion: 2
+        x: 561
+        y: 82
+        width: 9
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ae8279754a97ca0d0800000000000000
+      internalID: -3410217071075186454
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: side_train_46
+      rect:
+        serializedVersion: 2
+        x: 907
+        y: 64
+        width: 9
+        height: 21
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5ffae7c48316221e0800000000000000
+      internalID: -2224108371538169867
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: side_train_47
+      rect:
+        serializedVersion: 2
+        x: 1166
+        y: 79
+        width: 6
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4e8ffe6f552d39150800000000000000
+      internalID: 5878273205305604324
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: side_train_48
+      rect:
+        serializedVersion: 2
+        x: 46
+        y: 45
+        width: 21
+        height: 23
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 80a96457d052f4700800000000000000
+      internalID: 526680421158001160
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: side_train_49
+      rect:
+        serializedVersion: 2
+        x: 748
+        y: 65
+        width: 9
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b77c612b5713ad1f0800000000000000
+      internalID: -1019447984077224069
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: side_train_50
+      rect:
+        serializedVersion: 2
+        x: 887
+        y: 63
+        width: 9
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 24e6191fee16c9040800000000000000
+      internalID: 4655703793677200962
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: side_train_51
+      rect:
+        serializedVersion: 2
+        x: 1168
+        y: 65
+        width: 8
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d321bd770df260e30800000000000000
+      internalID: 4469312252622344765
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: side_train_52
+      rect:
+        serializedVersion: 2
+        x: 1478
+        y: 63
+        width: 11
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fb30e434e84a9b150800000000000000
+      internalID: 5888918918685131711
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: side_train_53
+      rect:
+        serializedVersion: 2
+        x: 1520
+        y: 55
+        width: 8
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fa46e28702c0cdbd0800000000000000
+      internalID: -2604193150932196177
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: side_train_54
+      rect:
+        serializedVersion: 2
+        x: 1593
+        y: 49
+        width: 13
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 97a0509e8ab7b0a50800000000000000
+      internalID: 6488415653551475321
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: side_train_55
+      rect:
+        serializedVersion: 2
+        x: 1701
+        y: 59
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 18ac4ac0d7e373020800000000000000
+      internalID: 2321392839736740481
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: side_train_56
+      rect:
+        serializedVersion: 2
+        x: 1889
+        y: 63
+        width: 7
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 620bba8c9e6357f90800000000000000
+      internalID: -6956593671681888218
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: side_train_57
+      rect:
+        serializedVersion: 2
+        x: 1890
+        y: 55
+        width: 10
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 468be32509f176dc0800000000000000
+      internalID: -3645910668617533340
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: side_train_58
+      rect:
+        serializedVersion: 2
+        x: 458
+        y: 46
+        width: 10
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 995cfb55386cf0c30800000000000000
+      internalID: 4327896034307982745
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: side_train_59
+      rect:
+        serializedVersion: 2
+        x: 1180
+        y: 54
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d76ea8622185ea1d0800000000000000
+      internalID: -3337633438855666051
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: side_train_60
+      rect:
+        serializedVersion: 2
+        x: 1185
+        y: 50
+        width: 7
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 12826ed51e1738f40800000000000000
+      internalID: 5729548363702347809
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: side_train_61
+      rect:
+        serializedVersion: 2
+        x: 1375
+        y: 47
+        width: 12
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b46538a38971737c0800000000000000
+      internalID: -4091775793858652597
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: side_train_62
+      rect:
+        serializedVersion: 2
+        x: 1713
+        y: 55
+        width: 6
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0ee2a531acd762920800000000000000
+      internalID: 2965195711531593440
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: side_train_63
+      rect:
+        serializedVersion: 2
+        x: 1717
+        y: 49
+        width: 16
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 44d2a46c03b7b99d0800000000000000
+      internalID: -2766482096673641148
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: side_train_64
+      rect:
+        serializedVersion: 2
+        x: 1729
+        y: 49
+        width: 10
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6b5e6a0a3c240d5c0800000000000000
+      internalID: -4192777845100583498
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: side_train_65
+      rect:
+        serializedVersion: 2
+        x: 338
+        y: 31
+        width: 7
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c11feeb491f79a050800000000000000
+      internalID: 5812316540723196188
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: side_train_66
+      rect:
+        serializedVersion: 2
+        x: 702
+        y: 35
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b3d096d17907f0200800000000000000
+      internalID: 148461107062312251
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: side_train_67
+      rect:
+        serializedVersion: 2
+        x: 1158
+        y: 39
+        width: 10
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8a5de67364a644660800000000000000
+      internalID: 7369131740095239592
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: side_train_68
+      rect:
+        serializedVersion: 2
+        x: 1349
+        y: 31
+        width: 12
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fb92a06e2aeeaa950800000000000000
+      internalID: 6461238998827936191
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: side_train_69
+      rect:
+        serializedVersion: 2
+        x: 1466
+        y: 33
+        width: 8
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 94a4ffaba290ba4d0800000000000000
+      internalID: -3122391837520737719
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: side_train_70
+      rect:
+        serializedVersion: 2
+        x: 1699
+        y: 35
+        width: 8
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e05cd2640dd811d20800000000000000
+      internalID: 3247532731980956942
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: side_train_71
+      rect:
+        serializedVersion: 2
+        x: 75
+        y: 0
+        width: 41
+        height: 33
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 000db6f1cb562ee20800000000000000
+      internalID: 3378374529136709632
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: side_train_72
+      rect:
+        serializedVersion: 2
+        x: 239
+        y: 18
+        width: 13
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f29e315e6dc2d06e0800000000000000
+      internalID: -1869788968810976977
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: side_train_73
+      rect:
+        serializedVersion: 2
+        x: 487
+        y: 19
+        width: 11
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ae2128464cd0b94c0800000000000000
+      internalID: -4279811883734527254
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: side_train_74
+      rect:
+        serializedVersion: 2
+        x: 497
+        y: 17
+        width: 9
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dca7cd74d4aaffcd0800000000000000
+      internalID: -2522110017409353011
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    outline: []
+    customData:
+    physicsShape: []
+    bones: []
+    spriteID:
+    internalID: 0
+    vertices: []
+    indices:
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      side_train_0: -7150512578725476666
+      side_train_1: 3804126540060379364
+      side_train_10: -817831374006874924
+      side_train_11: -7283076500837981542
+      side_train_12: -4028729415572195259
+      side_train_13: 4136182109975656097
+      side_train_14: 4881215855501459937
+      side_train_15: -817466970620235497
+      side_train_16: -1929836393222703328
+      side_train_17: 8720350505954408028
+      side_train_18: 3424812421253402243
+      side_train_19: -5715281384077027446
+      side_train_2: -7352479117019451912
+      side_train_20: -3815137762584208432
+      side_train_21: 1165949000074294559
+      side_train_22: -1820730705284180329
+      side_train_23: -1943493838217714466
+      side_train_24: 5677350528662312022
+      side_train_25: -1137319591114867415
+      side_train_26: 8437914832374007266
+      side_train_27: 66813523865310751
+      side_train_28: 4869363553710775475
+      side_train_29: 3940663276034408311
+      side_train_3: -855549019805354137
+      side_train_30: 2494057117318659689
+      side_train_31: 3647065475801634381
+      side_train_32: 3083406886821523729
+      side_train_33: 7832350746423509088
+      side_train_34: 641092774081339078
+      side_train_35: -4008062239137832677
+      side_train_36: 5355948281837516878
+      side_train_37: 8782179842126734779
+      side_train_38: -107251119279527416
+      side_train_39: -4184998359322498550
+      side_train_4: 5634998497005188234
+      side_train_40: 4268639453284696015
+      side_train_41: -6347556675620755355
+      side_train_42: 884599661280789711
+      side_train_43: -4572489840540085271
+      side_train_44: 6002421710029490455
+      side_train_45: -3410217071075186454
+      side_train_46: -2224108371538169867
+      side_train_47: 5878273205305604324
+      side_train_48: 526680421158001160
+      side_train_49: -1019447984077224069
+      side_train_5: -8833218223153366167
+      side_train_50: 4655703793677200962
+      side_train_51: 4469312252622344765
+      side_train_52: 5888918918685131711
+      side_train_53: -2604193150932196177
+      side_train_54: 6488415653551475321
+      side_train_55: 2321392839736740481
+      side_train_56: -6956593671681888218
+      side_train_57: -3645910668617533340
+      side_train_58: 4327896034307982745
+      side_train_59: -3337633438855666051
+      side_train_6: 1243057003547966365
+      side_train_60: 5729548363702347809
+      side_train_61: -4091775793858652597
+      side_train_62: 2965195711531593440
+      side_train_63: -2766482096673641148
+      side_train_64: -4192777845100583498
+      side_train_65: 5812316540723196188
+      side_train_66: 148461107062312251
+      side_train_67: 7369131740095239592
+      side_train_68: 6461238998827936191
+      side_train_69: -3122391837520737719
+      side_train_7: -660572394587039599
+      side_train_70: 3247532731980956942
+      side_train_71: 3378374529136709632
+      side_train_72: -1869788968810976977
+      side_train_73: -4279811883734527254
+      side_train_74: -2522110017409353011
+      side_train_8: -6353849009418119967
+      side_train_9: -4501644457755514292
+  mipmapLimitGroupName:
+  pSDRemoveMatte: 0
+  userData:
+  assetBundleName:
+  assetBundleVariant:

@@ -1,317 +1,297 @@
 {
   "status": "sample",
-  "note": "Polyline points from fixed rail layout seed 20265146. Travel minutes = ceil(polyline pixel length / PuzzleTimeTableData.pixelsPerHour * 60). Fare distance is independent. R44 adds a bidirectional industry connection between Porver and Carport; original route geometry is preserved.",
-  "defaultBaseCost": 6,
+  "note": "Route points mirror displayed rail geometry, reversed for the opposite direction. Travel minutes = ceil(displayed polyline length / PuzzleTimeTableData.pixelsPerHour * 60). Integer fare distance is calculated from the same line length with fareDistancePixelsPerUnit through the map editor.",
+  "defaultBaseCost": 3,
   "fareDistancePixelsPerUnit": 100,
   "costPerCell": 1,
   "routes": [
     {
       "fromCityId": "city.capital.central",
       "toCityId": "city.capital.finance",
-      "cost": 6,
+      "cost": 3,
       "distance": 2,
       "highSpeed": false,
       "points": [
-        259.56,
-        -25,
-        348.19,
-        -113.63,
-        348.19,
-        -115
+        220.0,
+        -20.0,
+        350.0,
+        -150.0
       ]
     },
     {
       "fromCityId": "city.capital.central",
       "toCityId": "city.capital.outskirts",
-      "cost": 6,
+      "cost": 3,
       "distance": 1,
       "highSpeed": false,
       "points": [
-        259.56,
-        -25,
-        269.56,
-        -15,
-        386.17,
-        -15
+        220.0,
+        -20.0,
+        350.0,
+        0.0
       ]
     },
     {
       "fromCityId": "city.capital.central",
       "toCityId": "city.capital.wholesale",
-      "cost": 6,
+      "cost": 3,
       "distance": 2,
       "highSpeed": false,
       "points": [
-        259.56,
-        -25,
-        196.25,
-        38.31,
-        196.25,
-        95
+        220.0,
+        -20.0,
+        190.0,
+        140.0
       ]
     },
     {
       "fromCityId": "city.capital.central",
       "toCityId": "city.common.roadside",
-      "cost": 6,
+      "cost": 3,
       "distance": 4,
       "highSpeed": false,
       "points": [
         220.0,
-        -40.0,
-        89.56,
-        -195,
-        158.27,
-        -165.0
+        -20.0,
+        160.0,
+        -160.0
       ]
     },
     {
       "fromCityId": "city.capital.finance",
       "toCityId": "city.capital.central",
-      "cost": 6,
+      "cost": 3,
       "distance": 2,
       "highSpeed": false,
       "points": [
-        348.19,
-        -115,
-        348.19,
-        -113.63,
-        259.56,
-        -25
+        350.0,
+        -150.0,
+        220.0,
+        -20.0
       ]
     },
     {
       "fromCityId": "city.capital.finance",
       "toCityId": "city.capital.outskirts",
-      "cost": 6,
+      "cost": 3,
       "distance": 2,
       "highSpeed": false,
       "points": [
-        348.19,
-        -115,
-        348.19,
-        -52.98,
-        386.17,
-        -15
+        350.0,
+        -150.0,
+        350.0,
+        0.0
       ]
     },
     {
       "fromCityId": "city.capital.finance",
       "toCityId": "city.common.roadside",
-      "cost": 6,
+      "cost": 3,
       "distance": 3,
       "highSpeed": false,
       "points": [
-        348.19,
-        -115,
-        298.19,
-        -165,
-        158.27,
-        -165
+        350.0,
+        -150.0,
+        160.0,
+        -160.0
       ]
     },
     {
       "fromCityId": "city.capital.merchant",
       "toCityId": "city.capital.wholesale",
-      "cost": 6,
+      "cost": 3,
       "distance": 2,
       "highSpeed": false,
       "points": [
-        44.31,
-        95,
-        196.25,
-        95
+        60.0,
+        30.0,
+        190.0,
+        140.0
       ]
     },
     {
       "fromCityId": "city.capital.outskirts",
       "toCityId": "city.capital.central",
-      "cost": 6,
+      "cost": 3,
       "distance": 1,
       "highSpeed": false,
       "points": [
-        386.17,
-        -15,
-        269.56,
-        -15,
-        259.56,
-        -25
+        350.0,
+        0.0,
+        220.0,
+        -20.0
       ]
     },
     {
       "fromCityId": "city.capital.outskirts",
       "toCityId": "city.capital.finance",
-      "cost": 6,
+      "cost": 3,
       "distance": 2,
       "highSpeed": false,
       "points": [
-        386.17,
-        -15,
-        348.19,
-        -52.98,
-        348.19,
-        -115
+        350.0,
+        0.0,
+        350.0,
+        -150.0
       ]
     },
     {
       "fromCityId": "city.capital.outskirts",
       "toCityId": "city.capital.wholesale",
-      "cost": 6,
+      "cost": 3,
       "distance": 2,
       "highSpeed": false,
       "points": [
-        386.17,
-        -15,
-        306.25,
-        -15,
-        196.25,
-        95
+        350.0,
+        0.0,
+        190.0,
+        140.0
       ]
     },
     {
       "fromCityId": "city.capital.outskirts",
       "toCityId": "city.coast.port",
-      "cost": 6,
+      "cost": 3,
       "distance": 1,
       "highSpeed": false,
       "points": [
-        386.17,
-        -15,
-        446.17,
-        45,
-        500.12,
-        45
+        350.0,
+        0.0,
+        480.0,
+        60.0
       ]
     },
     {
       "fromCityId": "city.capital.wholesale",
       "toCityId": "city.capital.central",
-      "cost": 6,
+      "cost": 3,
       "distance": 2,
       "highSpeed": false,
       "points": [
-        196.25,
-        95,
-        196.25,
-        38.31,
-        259.56,
-        -25
+        190.0,
+        140.0,
+        220.0,
+        -20.0
       ]
     },
     {
       "fromCityId": "city.capital.wholesale",
       "toCityId": "city.capital.merchant",
-      "cost": 6,
+      "cost": 3,
       "distance": 2,
       "highSpeed": false,
       "points": [
-        196.25,
-        95,
-        44.31,
-        95
+        190.0,
+        140.0,
+        60.0,
+        30.0
       ]
     },
     {
       "fromCityId": "city.capital.wholesale",
       "toCityId": "city.capital.outskirts",
-      "cost": 6,
+      "cost": 3,
       "distance": 2,
       "highSpeed": false,
       "points": [
-        196.25,
-        95,
-        306.25,
-        -15,
-        386.17,
-        -15
+        190.0,
+        140.0,
+        350.0,
+        0.0
       ]
     },
     {
       "fromCityId": "city.coast.fish",
       "toCityId": "city.coast.port",
-      "cost": 6,
-      "distance": 2,
-      "highSpeed": false,
-      "points": [
-        550.77,
-        215,
-        550.77,
-        95.65,
-        500.12,
-        45
-      ]
-    },
-    {
-      "fromCityId": "city.coast.fish",
-      "toCityId": "city.coast.spring",
-      "cost": 6,
+      "cost": 3,
       "distance": 2,
       "highSpeed": false,
       "points": [
         540.0,
         220.0,
-        345.52,
-        215,
+        530.0,
+        210.0,
+        530.0,
+        140.0,
+        480.0,
+        110.0,
+        480.0,
+        60.0
+      ]
+    },
+    {
+      "fromCityId": "city.coast.fish",
+      "toCityId": "city.coast.spring",
+      "cost": 3,
+      "distance": 2,
+      "highSpeed": false,
+      "points": [
+        540.0,
+        220.0,
         400.0,
-        370.0
+        320.0
       ]
     },
     {
       "fromCityId": "city.coast.port",
       "toCityId": "city.capital.outskirts",
-      "cost": 6,
+      "cost": 3,
       "distance": 1,
       "highSpeed": false,
       "points": [
-        500.12,
-        45,
-        446.17,
-        45,
-        386.17,
-        -15
+        480.0,
+        60.0,
+        350.0,
+        0.0
       ]
     },
     {
       "fromCityId": "city.coast.port",
       "toCityId": "city.coast.fish",
-      "cost": 6,
+      "cost": 3,
       "distance": 2,
       "highSpeed": false,
       "points": [
-        500.12,
-        45,
-        550.77,
-        95.65,
-        550.77,
-        215
+        480.0,
+        60.0,
+        480.0,
+        110.0,
+        530.0,
+        140.0,
+        530.0,
+        210.0,
+        540.0,
+        220.0
       ]
     },
     {
       "fromCityId": "city.coast.port",
       "toCityId": "city.coast.sea",
-      "cost": 6,
+      "cost": 3,
       "distance": 2,
       "highSpeed": false,
       "points": [
-        500.12,
-        45,
-        500.12,
-        -187.02,
-        538.1,
-        -225
+        480.0,
+        60.0,
+        500.0,
+        0.0,
+        630.0,
+        -110.0
       ]
     },
     {
       "fromCityId": "city.coast.sea",
       "toCityId": "city.farm.field",
-      "cost": 6,
+      "cost": 3,
       "distance": 6,
       "highSpeed": false,
       "points": [
         630.0,
         -110.0,
-        260.12,
-        -195,
+        510.0,
+        -260.0,
+        410.0,
+        -320.0,
         145.6,
         -365.0
       ]
@@ -319,44 +299,40 @@
     {
       "fromCityId": "city.common.rest",
       "toCityId": "city.mine.dig",
-      "cost": 6,
+      "cost": 3,
       "distance": 4,
       "highSpeed": false,
       "points": [
-        50.0,
-        230.0,
-        280.12,
-        265,
-        -310.0,
-        270.0
+        80.0,
+        260.0,
+        -290.0,
+        280.0
       ]
     },
     {
       "fromCityId": "city.coast.sea",
       "toCityId": "city.coast.port",
-      "cost": 6,
+      "cost": 3,
       "distance": 2,
       "highSpeed": false,
       "points": [
-        538.1,
-        -225,
-        500.12,
-        -187.02,
-        500.12,
-        45
+        630.0,
+        -110.0,
+        500.0,
+        0.0,
+        480.0,
+        60.0
       ]
     },
     {
       "fromCityId": "city.coast.spring",
       "toCityId": "city.coast.fish",
-      "cost": 6,
+      "cost": 3,
       "distance": 2,
       "highSpeed": false,
       "points": [
         400.0,
-        370.0,
-        345.52,
-        215,
+        320.0,
         540.0,
         220.0
       ]
@@ -364,44 +340,38 @@
     {
       "fromCityId": "city.common.crossing",
       "toCityId": "city.ranch.pass",
-      "cost": 6,
+      "cost": 3,
       "distance": 1,
       "highSpeed": false,
       "points": [
-        -430.0,
-        -160.0,
-        -264.15,
-        -165,
-        -330.0,
-        -180.0
+        -440.0,
+        -140.0,
+        -310.0,
+        -190.0
       ]
     },
     {
       "fromCityId": "city.common.crossing",
       "toCityId": "city.industry.ironworks",
-      "cost": 6,
+      "cost": 3,
       "distance": 2,
       "highSpeed": false,
       "points": [
-        -424.15,
-        -5,
-        -484.15,
-        -65,
-        -614.07,
-        -65
+        -440.0,
+        -140.0,
+        -570.0,
+        60.0
       ]
     },
     {
       "fromCityId": "city.common.rest",
       "toCityId": "city.mine.salt",
-      "cost": 6,
+      "cost": 3,
       "distance": 2,
       "highSpeed": false,
       "points": [
-        70.0,
-        200.0,
-        118.35,
-        -165,
+        80.0,
+        260.0,
         -120.0,
         150.0
       ]
@@ -409,29 +379,25 @@
     {
       "fromCityId": "city.ranch.pass",
       "toCityId": "city.common.wayfarer",
-      "cost": 6,
+      "cost": 3,
       "distance": 2,
       "highSpeed": false,
       "points": [
-        -330.0,
-        -180.0,
-        -181.65,
-        -165,
-        -210.0,
+        -310.0,
+        -190.0,
+        -140.0,
         -200.0
       ]
     },
     {
       "fromCityId": "city.capital.merchant",
       "toCityId": "city.farm.lumber",
-      "cost": 6,
+      "cost": 3,
       "distance": 2,
       "highSpeed": false,
       "points": [
+        60.0,
         30.0,
-        40.0,
-        -135.6,
-        -15,
         -120.0,
         10.0
       ]
@@ -439,14 +405,12 @@
     {
       "fromCityId": "city.capital.merchant",
       "toCityId": "city.mine.salt",
-      "cost": 6,
+      "cost": 3,
       "distance": 2,
       "highSpeed": false,
       "points": [
+        60.0,
         30.0,
-        40.0,
-        -40.28,
-        -15,
         -120.0,
         150.0
       ]
@@ -454,44 +418,40 @@
     {
       "fromCityId": "city.common.roadside",
       "toCityId": "city.capital.finance",
-      "cost": 6,
+      "cost": 3,
       "distance": 3,
       "highSpeed": false,
       "points": [
-        158.27,
-        -165,
-        298.19,
-        -165,
-        348.19,
-        -115
+        160.0,
+        -160.0,
+        350.0,
+        -150.0
       ]
     },
     {
       "fromCityId": "city.mine.salt",
       "toCityId": "city.common.rest",
-      "cost": 6,
+      "cost": 3,
       "distance": 2,
       "highSpeed": false,
       "points": [
         -120.0,
         150.0,
-        118.35,
-        -165,
-        70.0,
-        200.0
+        80.0,
+        260.0
       ]
     },
     {
       "fromCityId": "city.common.roadside",
       "toCityId": "city.farm.grain",
-      "cost": 6,
+      "cost": 3,
       "distance": 2,
       "highSpeed": false,
       "points": [
-        158.27,
-        -165,
-        128.27,
-        -195,
+        160.0,
+        -160.0,
+        120.0,
+        -160.0,
         44.31,
         -195
       ]
@@ -499,89 +459,77 @@
     {
       "fromCityId": "city.ranch.pass",
       "toCityId": "city.common.crossing",
-      "cost": 6,
+      "cost": 3,
       "distance": 1,
       "highSpeed": false,
       "points": [
-        -330.0,
-        -180.0,
-        -264.15,
-        -165,
-        -430.0,
-        -160.0
+        -310.0,
+        -190.0,
+        -440.0,
+        -140.0
       ]
     },
     {
       "fromCityId": "city.common.wayfarer",
       "toCityId": "city.ranch.pass",
-      "cost": 6,
+      "cost": 3,
       "distance": 2,
       "highSpeed": false,
       "points": [
-        -210.0,
+        -140.0,
         -200.0,
-        -181.65,
-        -165,
-        -330.0,
-        -180.0
+        -310.0,
+        -190.0
       ]
     },
     {
       "fromCityId": "city.common.wayfarer",
       "toCityId": "city.farm.orchard",
-      "cost": 6,
+      "cost": 3,
       "distance": 1,
       "highSpeed": false,
       "points": [
-        -234.23,
-        -165,
-        -194.23,
-        -125,
-        -94.96,
-        -125
+        -140.0,
+        -200.0,
+        -60.0,
+        -120.0
       ]
     },
     {
       "fromCityId": "city.common.wayfarer",
       "toCityId": "city.ranch.butcher",
-      "cost": 6,
+      "cost": 3,
       "distance": 2,
       "highSpeed": false,
       "points": [
-        -234.23,
-        -165,
-        -234.23,
-        -122.98,
-        -196.25,
-        -85
+        -140.0,
+        -200.0,
+        -230.0,
+        -80.0
       ]
     },
     {
       "fromCityId": "city.ranch.pass",
       "toCityId": "city.ranch.highland",
-      "cost": 6,
+      "cost": 3,
       "distance": 2,
       "highSpeed": false,
       "points": [
-        -340.0,
-        -200.0,
-        -234.23,
-        -249.67,
-        -259.56,
-        -275.0
+        -310.0,
+        -190.0,
+        -400.0,
+        -350.0
       ]
     },
     {
       "fromCityId": "city.farm.field",
       "toCityId": "city.farm.grain",
-      "cost": 6,
+      "cost": 3,
       "distance": 2,
       "highSpeed": false,
       "points": [
         145.6,
         -365,
-        44.31,
-        -263.71,
         44.31,
         -195
       ]
@@ -589,29 +537,29 @@
     {
       "fromCityId": "city.common.roadside",
       "toCityId": "city.capital.central",
-      "cost": 6,
+      "cost": 3,
       "distance": 4,
       "highSpeed": false,
       "points": [
-        158.27,
-        -165.0,
-        89.56,
-        -195,
+        160.0,
+        -160.0,
         220.0,
-        -40.0
+        -20.0
       ]
     },
     {
       "fromCityId": "city.farm.field",
       "toCityId": "city.coast.sea",
-      "cost": 6,
+      "cost": 3,
       "distance": 6,
       "highSpeed": false,
       "points": [
         145.6,
         -365.0,
-        260.12,
-        -195,
+        410.0,
+        -320.0,
+        510.0,
+        -260.0,
         630.0,
         -110.0
       ]
@@ -619,29 +567,27 @@
     {
       "fromCityId": "city.farm.grain",
       "toCityId": "city.common.roadside",
-      "cost": 6,
+      "cost": 3,
       "distance": 2,
       "highSpeed": false,
       "points": [
         44.31,
         -195,
-        128.27,
-        -195,
-        158.27,
-        -165
+        120.0,
+        -160.0,
+        160.0,
+        -160.0
       ]
     },
     {
       "fromCityId": "city.farm.grain",
       "toCityId": "city.farm.field",
-      "cost": 6,
+      "cost": 3,
       "distance": 2,
       "highSpeed": false,
       "points": [
         44.31,
         -195,
-        44.31,
-        -263.71,
         145.6,
         -365
       ]
@@ -649,134 +595,116 @@
     {
       "fromCityId": "city.farm.grain",
       "toCityId": "city.farm.orchard",
-      "cost": 6,
+      "cost": 3,
       "distance": 1,
       "highSpeed": false,
       "points": [
         44.31,
         -195,
-        -24.96,
-        -195,
-        -94.96,
-        -125
+        -60.0,
+        -120.0
       ]
     },
     {
       "fromCityId": "city.farm.grain",
       "toCityId": "city.ranch.jerky",
-      "cost": 6,
+      "cost": 3,
       "distance": 2,
       "highSpeed": false,
       "points": [
         44.31,
         -195.0,
-        -35.69,
-        -275,
-        -180.0,
-        -350.0
+        -110.0,
+        -300.0
       ]
     },
     {
       "fromCityId": "city.farm.lumber",
       "toCityId": "city.capital.merchant",
-      "cost": 6,
+      "cost": 3,
       "distance": 2,
       "highSpeed": false,
       "points": [
         -120.0,
         10.0,
-        -135.6,
-        -15,
-        30.0,
-        40.0
+        60.0,
+        30.0
       ]
     },
     {
       "fromCityId": "city.farm.lumber",
       "toCityId": "city.farm.orchard",
-      "cost": 6,
+      "cost": 3,
       "distance": 1,
       "highSpeed": false,
       "points": [
-        -145.6,
-        -25,
-        -94.96,
-        -75.64,
-        -94.96,
-        -125
+        -120.0,
+        10.0,
+        -60.0,
+        -120.0
       ]
     },
     {
       "fromCityId": "city.common.crossing",
       "toCityId": "city.industry.meatlover",
-      "cost": 6,
+      "cost": 3,
       "distance": 2,
       "highSpeed": false,
       "points": [
-        -360.0,
-        -110.0,
-        -252.22,
-        -25,
-        -350.0,
+        -440.0,
+        -140.0,
+        -320.0,
         -30.0
       ]
     },
     {
       "fromCityId": "city.farm.lumber",
       "toCityId": "city.mine.salt",
-      "cost": 6,
+      "cost": 3,
       "distance": 1,
       "highSpeed": false,
       "points": [
-        -145.6,
-        -25,
-        -120.28,
-        0.32,
-        -120.28,
-        65
+        -120.0,
+        10.0,
+        -120.0,
+        150.0
       ]
     },
     {
       "fromCityId": "city.farm.lumber",
       "toCityId": "city.ranch.butcher",
-      "cost": 6,
+      "cost": 3,
       "distance": 1,
       "highSpeed": false,
       "points": [
-        -145.6,
-        -25,
-        -145.6,
-        -34.35,
-        -196.25,
-        -85
+        -120.0,
+        10.0,
+        -230.0,
+        -80.0
       ]
     },
     {
       "fromCityId": "city.farm.orchard",
       "toCityId": "city.common.wayfarer",
-      "cost": 6,
+      "cost": 3,
       "distance": 1,
       "highSpeed": false,
       "points": [
-        -94.96,
-        -125,
-        -194.23,
-        -125,
-        -234.23,
-        -165
+        -60.0,
+        -120.0,
+        -140.0,
+        -200.0
       ]
     },
     {
       "fromCityId": "city.farm.orchard",
       "toCityId": "city.farm.grain",
-      "cost": 6,
+      "cost": 3,
       "distance": 1,
       "highSpeed": false,
       "points": [
-        -94.96,
-        -125,
-        -24.96,
-        -195,
+        -60.0,
+        -120.0,
         44.31,
         -195
       ]
@@ -784,74 +712,66 @@
     {
       "fromCityId": "city.farm.orchard",
       "toCityId": "city.farm.lumber",
-      "cost": 6,
+      "cost": 3,
       "distance": 1,
       "highSpeed": false,
       "points": [
-        -94.96,
-        -125,
-        -94.96,
-        -75.64,
-        -145.6,
-        -25
+        -60.0,
+        -120.0,
+        -120.0,
+        10.0
       ]
     },
     {
       "fromCityId": "city.farm.orchard",
       "toCityId": "city.ranch.butcher",
-      "cost": 6,
+      "cost": 3,
       "distance": 2,
       "highSpeed": false,
       "points": [
-        -94.96,
-        -125,
-        -156.25,
-        -125,
-        -196.25,
-        -85
+        -60.0,
+        -120.0,
+        -134.96,
+        -85,
+        -230.0,
+        -80.0
       ]
     },
     {
       "fromCityId": "city.industry.assembly",
       "toCityId": "city.industry.meatlover",
-      "cost": 6,
+      "cost": 3,
       "distance": 1,
       "highSpeed": false,
       "points": [
-        -500.12,
-        115,
-        -340.12,
-        -45,
-        -272.22,
-        -45
+        -430.0,
+        30.0,
+        -320.0,
+        -30.0
       ]
     },
     {
       "fromCityId": "city.industry.engine",
       "toCityId": "city.industry.ironworks",
-      "cost": 6,
-      "distance": 3,
-      "highSpeed": false,
-      "points": [
-        -538.1,
-        -215,
-        -538.1,
-        -140.97,
-        -614.07,
-        -65
-      ]
-    },
-    {
-      "fromCityId": "city.industry.engine",
-      "toCityId": "city.ranch.highland",
-      "cost": 6,
+      "cost": 3,
       "distance": 3,
       "highSpeed": false,
       "points": [
         -610.0,
         -190.0,
-        -504.15,
-        -215,
+        -570.0,
+        60.0
+      ]
+    },
+    {
+      "fromCityId": "city.industry.engine",
+      "toCityId": "city.ranch.highland",
+      "cost": 3,
+      "distance": 3,
+      "highSpeed": false,
+      "points": [
+        -610.0,
+        -190.0,
         -400.0,
         -350.0
       ]
@@ -859,74 +779,64 @@
     {
       "fromCityId": "city.industry.ironworks",
       "toCityId": "city.common.crossing",
-      "cost": 6,
+      "cost": 3,
       "distance": 2,
       "highSpeed": false,
       "points": [
-        -614.07,
-        -65,
-        -484.15,
-        -65,
-        -424.15,
-        -5
+        -570.0,
+        60.0,
+        -440.0,
+        -140.0
       ]
     },
     {
       "fromCityId": "city.industry.ironworks",
       "toCityId": "city.industry.engine",
-      "cost": 6,
+      "cost": 3,
       "distance": 3,
       "highSpeed": false,
       "points": [
-        -614.07,
-        -65,
-        -538.1,
-        -140.97,
-        -538.1,
-        -215
+        -570.0,
+        60.0,
+        -610.0,
+        -190.0
       ]
     },
     {
       "fromCityId": "city.industry.ironworks",
       "toCityId": "city.industry.logistics",
-      "cost": 6,
+      "cost": 3,
       "distance": 2,
       "highSpeed": false,
       "points": [
-        -614.07,
-        -65,
-        -628.02,
-        -65,
-        -728.02,
-        35
+        -570.0,
+        60.0,
+        -730.0,
+        0.0
       ]
     },
     {
       "fromCityId": "city.industry.ironworks",
       "toCityId": "city.mine.dig",
-      "cost": 6,
+      "cost": 3,
       "distance": 3,
       "highSpeed": false,
       "points": [
-        -614.07,
-        -65,
-        -284.07,
-        265,
-        -272.22,
-        265
+        -570.0,
+        60.0,
+        -290.0,
+        280.0
       ]
     },
     {
       "fromCityId": "city.common.crossing",
       "toCityId": "city.ranch.highland",
-      "cost": 6,
+      "cost": 3,
       "distance": 2,
       "highSpeed": false,
       "points": [
-        -430.0,
-        -160.0,
-        -469.56,
-        -65,
+        -440.0,
+        -140.0,
         -400.0,
         -350.0
       ]
@@ -934,119 +844,107 @@
     {
       "fromCityId": "city.industry.logistics",
       "toCityId": "city.industry.ironworks",
-      "cost": 6,
+      "cost": 3,
       "distance": 2,
       "highSpeed": false,
       "points": [
-        -728.02,
-        35,
-        -628.02,
-        -65,
-        -614.07,
-        -65
+        -730.0,
+        0.0,
+        -570.0,
+        60.0
       ]
     },
     {
       "fromCityId": "city.industry.meatlover",
       "toCityId": "city.common.crossing",
-      "cost": 6,
+      "cost": 3,
       "distance": 2,
       "highSpeed": false,
       "points": [
-        -350.0,
+        -320.0,
         -30.0,
-        -252.22,
-        -25,
-        -360.0,
-        -110.0
+        -440.0,
+        -140.0
       ]
     },
     {
       "fromCityId": "city.industry.meatlover",
       "toCityId": "city.industry.assembly",
-      "cost": 6,
+      "cost": 3,
       "distance": 1,
       "highSpeed": false,
       "points": [
-        -272.22,
-        -45,
-        -340.12,
-        -45,
-        -500.12,
-        115
+        -320.0,
+        -30.0,
+        -430.0,
+        30.0
       ]
     },
     {
       "fromCityId": "city.industry.meatlover",
       "toCityId": "city.ranch.butcher",
-      "cost": 6,
+      "cost": 3,
       "distance": 1,
       "highSpeed": false,
       "points": [
-        -272.22,
-        -45,
-        -232.22,
-        -85,
-        -196.25,
-        -85
+        -320.0,
+        -30.0,
+        -230.0,
+        -80.0
       ]
     },
     {
       "fromCityId": "city.mine.cave",
       "toCityId": "city.mine.dig",
-      "cost": 6,
+      "cost": 3,
       "distance": 3,
       "highSpeed": false,
       "points": [
         -576.09,
         355,
-        -362.22,
-        355,
-        -272.22,
-        265
+        -490.0,
+        280.0,
+        -290.0,
+        280.0
       ]
     },
     {
       "fromCityId": "city.mine.dig",
       "toCityId": "city.common.rest",
-      "cost": 6,
+      "cost": 3,
       "distance": 4,
       "highSpeed": false,
       "points": [
-        -310.0,
-        270.0,
-        280.12,
-        265,
-        50.0,
-        230.0
+        -290.0,
+        280.0,
+        80.0,
+        260.0
       ]
     },
     {
       "fromCityId": "city.mine.dig",
       "toCityId": "city.industry.ironworks",
-      "cost": 6,
+      "cost": 3,
       "distance": 3,
       "highSpeed": false,
       "points": [
-        -272.22,
-        265,
-        -284.07,
-        265,
-        -614.07,
-        -65
+        -290.0,
+        280.0,
+        -570.0,
+        60.0
       ]
     },
     {
       "fromCityId": "city.mine.dig",
       "toCityId": "city.mine.cave",
-      "cost": 6,
+      "cost": 3,
       "distance": 3,
       "highSpeed": false,
       "points": [
-        -272.22,
-        265,
-        -362.22,
-        355,
+        -290.0,
+        280.0,
+        -490.0,
+        280.0,
         -576.09,
         355
       ]
@@ -1054,12 +952,12 @@
     {
       "fromCityId": "city.mine.dig",
       "toCityId": "city.mine.iron",
-      "cost": 6,
+      "cost": 3,
       "distance": 2,
       "highSpeed": false,
       "points": [
-        -272.22,
-        265,
+        -290.0,
+        280.0,
         -183.59,
         353.63,
         -183.59,
@@ -1069,7 +967,7 @@
     {
       "fromCityId": "city.mine.iron",
       "toCityId": "city.mine.dig",
-      "cost": 6,
+      "cost": 3,
       "distance": 2,
       "highSpeed": false,
       "points": [
@@ -1077,141 +975,125 @@
         355,
         -183.59,
         353.63,
-        -272.22,
-        265
+        -290.0,
+        280.0
       ]
     },
     {
       "fromCityId": "city.mine.salt",
       "toCityId": "city.capital.merchant",
-      "cost": 6,
+      "cost": 3,
       "distance": 2,
       "highSpeed": false,
       "points": [
         -120.0,
         150.0,
-        -40.28,
-        -15,
-        30.0,
-        40.0
+        60.0,
+        30.0
       ]
     },
     {
       "fromCityId": "city.mine.salt",
       "toCityId": "city.farm.lumber",
-      "cost": 6,
+      "cost": 3,
       "distance": 1,
       "highSpeed": false,
       "points": [
-        -120.28,
-        65,
-        -120.28,
-        0.32,
-        -145.6,
-        -25
+        -120.0,
+        150.0,
+        -120.0,
+        10.0
       ]
     },
     {
       "fromCityId": "city.ranch.butcher",
       "toCityId": "city.common.wayfarer",
-      "cost": 6,
+      "cost": 3,
       "distance": 2,
       "highSpeed": false,
       "points": [
-        -196.25,
-        -85,
-        -234.23,
-        -122.98,
-        -234.23,
-        -165
+        -230.0,
+        -80.0,
+        -140.0,
+        -200.0
       ]
     },
     {
       "fromCityId": "city.ranch.butcher",
       "toCityId": "city.farm.lumber",
-      "cost": 6,
+      "cost": 3,
       "distance": 1,
       "highSpeed": false,
       "points": [
-        -196.25,
-        -85,
-        -145.6,
-        -34.35,
-        -145.6,
-        -25
+        -230.0,
+        -80.0,
+        -120.0,
+        10.0
       ]
     },
     {
       "fromCityId": "city.ranch.butcher",
       "toCityId": "city.farm.orchard",
-      "cost": 6,
+      "cost": 3,
       "distance": 2,
       "highSpeed": false,
       "points": [
-        -196.25,
+        -230.0,
+        -80.0,
+        -134.96,
         -85,
-        -156.25,
-        -125,
-        -94.96,
-        -125
+        -60.0,
+        -120.0
       ]
     },
     {
       "fromCityId": "city.ranch.butcher",
       "toCityId": "city.industry.meatlover",
-      "cost": 6,
+      "cost": 3,
       "distance": 1,
       "highSpeed": false,
       "points": [
-        -196.25,
-        -85,
-        -232.22,
-        -85,
-        -272.22,
-        -45
+        -230.0,
+        -80.0,
+        -320.0,
+        -30.0
       ]
     },
     {
       "fromCityId": "city.ranch.butcher",
       "toCityId": "city.ranch.pass",
-      "cost": 6,
+      "cost": 3,
       "distance": 1,
       "highSpeed": false,
       "points": [
-        -196.25,
-        -85,
-        -246.25,
-        -135,
-        -424.15,
-        -135
+        -230.0,
+        -80.0,
+        -310.0,
+        -190.0
       ]
     },
     {
       "fromCityId": "city.ranch.highland",
       "toCityId": "city.ranch.pass",
-      "cost": 6,
+      "cost": 3,
       "distance": 2,
       "highSpeed": false,
       "points": [
-        -259.56,
-        -275.0,
-        -234.23,
-        -249.67,
-        -340.0,
-        -200.0
+        -400.0,
+        -350.0,
+        -310.0,
+        -190.0
       ]
     },
     {
       "fromCityId": "city.ranch.jerky",
       "toCityId": "city.farm.grain",
-      "cost": 6,
+      "cost": 3,
       "distance": 2,
       "highSpeed": false,
       "points": [
-        -180.0,
-        -350.0,
-        -35.69,
-        -275,
+        -110.0,
+        -300.0,
         44.31,
         -195.0
       ]
@@ -1219,59 +1101,51 @@
     {
       "fromCityId": "city.ranch.highland",
       "toCityId": "city.common.crossing",
-      "cost": 6,
+      "cost": 3,
       "distance": 2,
       "highSpeed": false,
       "points": [
         -400.0,
         -350.0,
-        -469.56,
-        -65,
-        -430.0,
-        -160.0
+        -440.0,
+        -140.0
       ]
     },
     {
       "fromCityId": "city.ranch.highland",
       "toCityId": "city.ranch.jerky",
-      "cost": 6,
-      "distance": 3,
-      "highSpeed": false,
-      "points": [
-        -259.56,
-        -275,
-        -169.56,
-        -365,
-        -158.27,
-        -365
-      ]
-    },
-    {
-      "fromCityId": "city.ranch.jerky",
-      "toCityId": "city.ranch.highland",
-      "cost": 6,
-      "distance": 3,
-      "highSpeed": false,
-      "points": [
-        -158.27,
-        -365,
-        -169.56,
-        -365,
-        -259.56,
-        -275
-      ]
-    },
-    {
-      "fromCityId": "city.ranch.highland",
-      "toCityId": "city.industry.engine",
-      "cost": 6,
+      "cost": 3,
       "distance": 3,
       "highSpeed": false,
       "points": [
         -400.0,
         -350.0,
-        -504.15,
-        -215,
+        -110.0,
+        -300.0
+      ]
+    },
+    {
+      "fromCityId": "city.ranch.jerky",
+      "toCityId": "city.ranch.highland",
+      "cost": 3,
+      "distance": 3,
+      "highSpeed": false,
+      "points": [
+        -110.0,
+        -300.0,
+        -400.0,
+        -350.0
+      ]
+    },
+    {
+      "fromCityId": "city.ranch.highland",
+      "toCityId": "city.industry.engine",
+      "cost": 3,
+      "distance": 3,
+      "highSpeed": false,
+      "points": [
+        -400.0,
+        -350.0,
         -610.0,
         -190.0
       ]
@@ -1279,53 +1153,51 @@
     {
       "fromCityId": "city.ranch.pass",
       "toCityId": "city.ranch.butcher",
-      "cost": 6,
+      "cost": 3,
       "distance": 1,
       "highSpeed": false,
       "points": [
-        -424.15,
-        -135,
-        -246.25,
-        -135,
-        -196.25,
-        -85
+        -310.0,
+        -190.0,
+        -230.0,
+        -80.0
       ]
     },
     {
       "fromCityId": "city.industry.ironworks",
       "toCityId": "city.industry.assembly",
-      "cost": 6,
+      "cost": 3,
       "distance": 1,
       "highSpeed": false,
       "points": [
-        -510.0,
-        -30.0,
-        -410.0,
-        0.0
+        -570.0,
+        60.0,
+        -430.0,
+        30.0
       ]
     },
     {
       "fromCityId": "city.industry.assembly",
       "toCityId": "city.industry.ironworks",
-      "cost": 6,
+      "cost": 3,
       "distance": 1,
       "highSpeed": false,
       "points": [
-        -410.0,
-        0.0,
-        -510.0,
-        -30.0
+        -430.0,
+        30.0,
+        -570.0,
+        60.0
       ]
     },
     {
       "fromCityId": "city.mine.dig",
       "toCityId": "city.mine.salt",
-      "cost": 6,
+      "cost": 3,
       "distance": 2,
       "highSpeed": false,
       "points": [
-        -310.0,
-        270.0,
+        -290.0,
+        280.0,
         -120.0,
         150.0
       ]
@@ -1333,38 +1205,38 @@
     {
       "fromCityId": "city.mine.salt",
       "toCityId": "city.mine.dig",
-      "cost": 6,
+      "cost": 3,
       "distance": 2,
       "highSpeed": false,
       "points": [
         -120.0,
         150.0,
-        -310.0,
-        270.0
+        -290.0,
+        280.0
       ]
     },
     {
       "fromCityId": "city.capital.merchant",
       "toCityId": "city.capital.central",
-      "cost": 6,
+      "cost": 3,
       "distance": 2,
       "highSpeed": false,
       "points": [
         60.0,
         30.0,
         220.0,
-        -40.0
+        -20.0
       ]
     },
     {
       "fromCityId": "city.capital.central",
       "toCityId": "city.capital.merchant",
-      "cost": 6,
+      "cost": 3,
       "distance": 2,
       "highSpeed": false,
       "points": [
         220.0,
-        -40.0,
+        -20.0,
         60.0,
         30.0
       ]
@@ -1372,12 +1244,12 @@
     {
       "fromCityId": "city.common.rest",
       "toCityId": "city.coast.spring",
-      "cost": 6,
+      "cost": 3,
       "distance": 3,
       "highSpeed": false,
       "points": [
-        70.0,
-        240.0,
+        80.0,
+        260.0,
         400.0,
         320.0
       ]
@@ -1385,20 +1257,20 @@
     {
       "fromCityId": "city.coast.spring",
       "toCityId": "city.common.rest",
-      "cost": 6,
+      "cost": 3,
       "distance": 3,
       "highSpeed": false,
       "points": [
         400.0,
         320.0,
-        70.0,
-        240.0
+        80.0,
+        260.0
       ]
     },
     {
       "fromCityId": "city.common.rest",
       "toCityId": "city.capital.wholesale",
-      "cost": 6,
+      "cost": 3,
       "distance": 2,
       "highSpeed": false,
       "points": [
@@ -1411,7 +1283,7 @@
     {
       "fromCityId": "city.capital.wholesale",
       "toCityId": "city.common.rest",
-      "cost": 6,
+      "cost": 3,
       "distance": 2,
       "highSpeed": false,
       "points": [
@@ -1424,7 +1296,7 @@
     {
       "fromCityId": "city.ranch.jerky",
       "toCityId": "city.farm.field",
-      "cost": 6,
+      "cost": 3,
       "distance": 3,
       "highSpeed": false,
       "points": [
@@ -1437,7 +1309,7 @@
     {
       "fromCityId": "city.farm.field",
       "toCityId": "city.ranch.jerky",
-      "cost": 6,
+      "cost": 3,
       "distance": 3,
       "highSpeed": false,
       "points": [
@@ -1450,7 +1322,7 @@
     {
       "fromCityId": "city.industry.logistics",
       "toCityId": "city.industry.engine",
-      "cost": 6,
+      "cost": 3,
       "distance": 2,
       "highSpeed": false,
       "points": [
@@ -1463,7 +1335,7 @@
     {
       "fromCityId": "city.industry.engine",
       "toCityId": "city.industry.logistics",
-      "cost": 6,
+      "cost": 3,
       "distance": 2,
       "highSpeed": false,
       "points": [

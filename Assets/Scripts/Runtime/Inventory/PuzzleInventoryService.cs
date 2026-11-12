@@ -18,7 +18,7 @@ public sealed class PuzzleInventoryService : MonoBehaviour
     readonly HashSet<string> visitedCities = new HashSet<string>(StringComparer.Ordinal);
     readonly List<TavernRumor> tavernRumors = new List<TavernRumor>();
     int lastRumorVisit = -1;
-    readonly System.Random stockRandom = new System.Random();
+    System.Random stockRandom = new System.Random();
 
     internal readonly struct TavernRumor
     {
@@ -206,6 +206,12 @@ public sealed class PuzzleInventoryService : MonoBehaviour
     internal long MarketCapacity { get; private set; }
     internal IReadOnlyCollection<PuzzleItemDefinition> ItemDefinitions { get; private set; }
 
+    // 경제 분석이 같은 시장 재고를 재현할 때 Initialize 전에 호출한다.
+    internal void UseStockSeed(int _seed)
+    {
+        stockRandom = new System.Random(_seed);
+    }
+
     internal void Initialize()
     {
         if (Train != null)
@@ -386,7 +392,7 @@ public sealed class PuzzleInventoryService : MonoBehaviour
     }
 
     // 기본 요금 + 거리 × 거리 단가 + 전체 기차 점유 칸 × 칸당 단가.
-    static bool TryTravelCost(long _baseCost, int _distance, int _costPerDistance,
+    internal static bool TryTravelCost(long _baseCost, int _distance, int _costPerDistance,
         int _cells, int _costPerCell, out long _cost, out long _distanceCost)
     {
         _cost = 0;
@@ -477,6 +483,7 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         internal Dictionary<int, WasteState> wasteProgress;
         internal int lastInstanceId;
         internal decimal? cargoValueBeforeSettlement;
+        internal decimal? cargoValueBeforeFreshnessLoss;
 
         internal TimeAdvancePlan(PuzzleInventory[] _wagons,
             Dictionary<(int First, int Second), BreedingState> _breedingProgress,
@@ -514,6 +521,7 @@ public sealed class PuzzleInventoryService : MonoBehaviour
             var growth = new List<PuzzleGrowth>();
             var selectedWagon = wagons[CurrentWagonIndex];
             bool settledSelectedWagon = false;
+            decimal freshnessDelta = 0;
             // 이전 행동으로 공간이 확보된 경우 첫 경계를 기다리지 않고 대기를 푼다. 마지막 대기 시간은 이번 진행부터 다시 흐른다.
             ResumeBlockedStates(plan, wagons, animals, waste, growth, breedingMinutes, wasteMinutes, holdMinutes);
 
@@ -536,7 +544,13 @@ public sealed class PuzzleInventoryService : MonoBehaviour
                     }
                     foreach (var item in wagon.Placements)
                     {
+                        bool trackFreshness = wagon == selectedWagon && item.RemainingShelfLifeMinutes.HasValue;
+                        decimal valueBefore = trackFreshness ? item.FreshnessAdjustedValue : 0;
                         item.ApplyElapsedMinutes(step, ShelfLifeDecayRate(wagon, item, freshness), freshnessInterval);
+                        if (trackFreshness)
+                        {
+                            freshnessDelta += item.FreshnessAdjustedValue - valueBefore;
+                        }
                     }
                 }
 
@@ -550,8 +564,14 @@ public sealed class PuzzleInventoryService : MonoBehaviour
                 growth.Clear();
                 foreach (var wagon in wagons)
                 {
-                    // 공간이 없는 성장은 전체 진행을 거절하지 않고 그 품목만 대기한다.
+                    decimal valueBeforeExpiry = wagon == selectedWagon
+                        ? wagon.Placements.Sum(_item => _item.FreshnessAdjustedValue) : 0;
                     wagon.ReplaceExpiredFood(expiredFood);
+                    if (wagon == selectedWagon)
+                    {
+                        freshnessDelta += wagon.Placements.Sum(_item => _item.FreshnessAdjustedValue) - valueBeforeExpiry;
+                    }
+                    // 공간이 없는 성장은 전체 진행을 거절하지 않고 그 품목만 대기한다.
                     wagon.PlanGrowth(growth);
                 }
                 foreach (var change in growth)
@@ -569,6 +589,11 @@ public sealed class PuzzleInventoryService : MonoBehaviour
             if (settledSelectedWagon)
             {
                 plan.cargoValueBeforeSettlement = Train.Placements.Sum(_item => _item.FreshnessAdjustedValue);
+            }
+            if (freshnessDelta < 0)
+            {
+                plan.cargoValueBeforeFreshnessLoss =
+                    selectedWagon.Placements.Sum(_item => _item.FreshnessAdjustedValue) - freshnessDelta;
             }
             _plan = plan;
             return PuzzleTravelFailure.None;
@@ -927,7 +952,8 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         if (_minutes > 0)
         {
             CheckButcheryReady();
-            GameEvents.RaiseTimeAdvanced(previous, Time.ElapsedMinutes, this, _plan.cargoValueBeforeSettlement);
+            GameEvents.RaiseTimeAdvanced(previous, Time.ElapsedMinutes, this, _plan.cargoValueBeforeSettlement,
+                _plan.cargoValueBeforeFreshnessLoss);
         }
     }
 
@@ -1088,21 +1114,27 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         return RateFor(tables.CityPrice(CurrentCityId), _item);
     }
 
+    // 경제 분석용. 현재 도시가 아닌 도시의 규칙을 같은 경로로 조회한다.
+    internal PuzzleTradeRate RateAt(string _cityId, PuzzleItemDefinition _item)
+    {
+        return RateFor(tables.CityPrice(_cityId), _item);
+    }
+
     PuzzleTradeRate RateFor(PuzzleCityData _city, PuzzleItemDefinition _item)
     {
-        var best = BestTagRule(_item);
+        var best = BestTagRule(_city.id, _item);
         return best == null
             ? new PuzzleTradeRate(null, _city.buyPercentOfBaseValue, _city.sellPercentOfFinalValue)
             : new PuzzleTradeRate(best.tag, best.buyPercent, best.sellPercent);
     }
 
     // 아이템 태그와 맞는 규칙 중 priority가 가장 높은 하나를 고른다. 맞는 규칙이 없으면 null.
-    PuzzleCityTagPriceData BestTagRule(PuzzleItemDefinition _item)
+    PuzzleCityTagPriceData BestTagRule(string _cityId, PuzzleItemDefinition _item)
     {
         PuzzleCityTagPriceData best = null;
         foreach (string tag in _item.Tags)
         {
-            if (tables.TryGetCityTagPrice(CurrentCityId, tag, out var rule) &&
+            if (tables.TryGetCityTagPrice(_cityId, tag, out var rule) &&
                 (best == null || rule.priority > best.priority))
             {
                 best = rule;
@@ -1119,9 +1151,22 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         {
             return false;
         }
-        var rate = RateFor(_item.Definition);
         decimal value = _direction == PuzzleTradeDirection.Buy ? _item.Definition.BaseValue : _item.FreshnessAdjustedValue;
-        return TryGetTradePrice(value, rate.PercentFor(_direction), RegionData.pricePercent, out _price);
+        return TryQuoteTradeAt(CurrentCityId, _item.Definition, value, _direction, out _price);
+    }
+
+    // 지정 도시에서 주어진 가치의 거래 금액. 경제 분석이 다른 도시를 같은 공식으로 견적한다.
+    internal bool TryQuoteTradeAt(string _cityId, PuzzleItemDefinition _definition, decimal _value,
+        PuzzleTradeDirection _direction, out long _price)
+    {
+        _price = 0;
+        if (_definition == null || _direction == PuzzleTradeDirection.None)
+        {
+            return false;
+        }
+        var city = tables.CityPrice(_cityId);
+        var rate = RateFor(city, _definition);
+        return TryGetTradePrice(_value, rate.PercentFor(_direction), tables.Region(city.regionId).pricePercent, out _price);
     }
 
     static bool TryGetTradePrice(decimal _value, int _percent, int _regionPercent, out long _price)

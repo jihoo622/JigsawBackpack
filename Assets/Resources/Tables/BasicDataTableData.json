@@ -1068,9 +1068,8 @@
       "id": "presentation.freshness",
       "texts": [
         {
-          "id": "percent",
-          "value": "{0:0} %",
-          "arguments": 1
+          "id": "dot",
+          "value": "•"
         }
       ],
       "colors": [
@@ -1521,6 +1520,14 @@
         {
           "id": "waitDaylight",
           "value": "아침까지 대기"
+        },
+        {
+          "id": "freshnessLossNotice",
+          "value": "신선도 하락"
+        },
+        {
+          "id": "synergySettlementNotice",
+          "value": "시너지 정산"
         },
         {
           "id": "boardActualValue",
@@ -2460,7 +2467,7 @@
         },
         {
           "id": "freshnessValue",
-          "value": "<color=#{0}>{1} <size=80%>%</size></color>",
+          "value": "<color=#{0}>{1}</color>",
           "arguments": 2
         },
         {
@@ -3039,7 +3046,7 @@
         },
         {
           "id": "fontScale",
-          "value": 0.21,
+          "value": 0.30,
           "positive": true
         },
         {
@@ -3059,13 +3066,13 @@
         },
         {
           "id": "lowThreshold",
-          "value": 40,
+          "value": 20,
           "positive": true,
           "whole": true
         },
         {
           "id": "mediumThreshold",
-          "value": 80,
+          "value": 60,
           "positive": true,
           "whole": true
         }

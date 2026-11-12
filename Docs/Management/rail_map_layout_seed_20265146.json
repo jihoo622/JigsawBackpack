@@ -1,5 +1,5 @@
 {
-  "note": "고정 역 좌표와 원본 points는 seed 20265146의 레일 기록이다. 게임 소요 시간은 PuzzleRouteTableData.routes[].points가 원본이며 displayPoints는 지도에만 쓰는 선택적 우회선이다. displayPoints가 없으면 원본 points로 그린다. 표시 우회선은 역 연결·운임·게임 시간을 바꾸지 않는다. labelX/Y는 표시 경로의 시간 라벨 위치다. R44는 카르포트의 공업 지역 연결을 보완하기 위해 포르베르와 추가한 프로젝트 노선이다. 기존 43개 레일은 유지한다.",
+  "note": "지도 표시 선의 전체 구간 길이를 이동 시간과 요금 거리 산출에 공통으로 사용한다. points는 displayPoints(없으면 points)와 같게 유지하고 왕복 노선 테이블에도 동기화한다. 선 모양을 바꾸면 시간이 달라지며 요금 거리 정수 재계산은 에디터 버튼으로 적용한다. labelX/Y는 라벨 좌표, labelManual은 수동 위치 고정 여부다. 기존 라벨 좌표는 수동 고정으로 보존했다.",
   "seed": 20265146,
   "source": "ProjectWorldData.json / railatlas-jigsaw-tables/1 (sourceFormat rail-world/3)",
   "layoutReference": {
@@ -316,8 +316,8 @@
       "displayName": "라센턴",
       "regionId": "region.mine",
       "settlementType": "city",
-      "x": -310.0,
-      "y": 270.0,
+      "x": -290.0,
+      "y": 280.0,
       "interchange": true,
       "degree": 5,
       "tileX": 40,
@@ -412,23 +412,22 @@
       "regionId": "line.regional",
       "corridorType": "trade_backbone",
       "distance": 3,
-      "cost": 6,
+      "cost": 3,
       "labelX": -440.0,
       "labelY": 165.0,
       "points": [
-        -614.07,
-        -65,
-        -284.07,
-        265,
-        -272.22,
-        265
+        -570.0,
+        60.0,
+        -290.0,
+        280.0
       ],
       "displayPoints": [
         -570.0,
         60.0,
-        -310.0,
-        270.0
-      ]
+        -290.0,
+        280.0
+      ],
+      "labelManual": true
     },
     {
       "railIndex": 1,
@@ -438,25 +437,22 @@
       "regionId": "line.regional",
       "corridorType": "trade_backbone",
       "distance": 4,
-      "cost": 6,
+      "cost": 3,
       "labelX": -114.88147,
       "labelY": 269.74408,
       "points": [
-        -310.0,
-        270.0,
-        280.12,
-        265,
-        50.0,
-        230.0
-      ],
-      "displayPoints": [
-        -310.0,
-        270.0,
-        -120.0,
-        270.0,
+        -290.0,
+        280.0,
         80.0,
         260.0
-      ]
+      ],
+      "displayPoints": [
+        -290.0,
+        280.0,
+        80.0,
+        260.0
+      ],
+      "labelManual": true
     },
     {
       "railIndex": 2,
@@ -466,14 +462,16 @@
       "regionId": "line.regional",
       "corridorType": "trade_backbone",
       "distance": 6,
-      "cost": 6,
+      "cost": 3,
       "labelX": 427.368835,
       "labelY": -309.5787,
       "points": [
         630.0,
         -110.0,
-        260.12,
-        -195,
+        510.0,
+        -260.0,
+        410.0,
+        -320.0,
         145.6,
         -365.0
       ],
@@ -486,7 +484,8 @@
         -320.0,
         145.6,
         -365.0
-      ]
+      ],
+      "labelManual": true
     },
     {
       "railIndex": 3,
@@ -496,23 +495,22 @@
       "regionId": "line.regional",
       "corridorType": "trade_backbone",
       "distance": 4,
-      "cost": 6,
+      "cost": 3,
       "labelX": 190.0,
       "labelY": -80.0,
       "points": [
-        158.27,
-        -165.0,
-        89.56,
-        -195,
+        160.0,
+        -160.0,
         220.0,
-        -40.0
+        -20.0
       ],
       "displayPoints": [
         160.0,
         -160.0,
         220.0,
         -20.0
-      ]
+      ],
+      "labelManual": true
     },
     {
       "railIndex": 4,
@@ -522,23 +520,22 @@
       "regionId": "region.capital",
       "corridorType": "trade_backbone",
       "distance": 2,
-      "cost": 6,
+      "cost": 3,
       "labelX": 280.0,
       "labelY": -80.0,
       "points": [
-        259.56,
-        -25,
-        348.19,
-        -113.63,
-        348.19,
-        -115
+        220.0,
+        -20.0,
+        350.0,
+        -150.0
       ],
       "displayPoints": [
         220.0,
         -20.0,
         350.0,
         -150.0
-      ]
+      ],
+      "labelManual": true
     },
     {
       "railIndex": 5,
@@ -548,23 +545,22 @@
       "regionId": "line.regional",
       "corridorType": "express_backbone",
       "distance": 2,
-      "cost": 6,
+      "cost": 3,
       "labelX": -500.0,
       "labelY": -40.0,
       "points": [
-        -614.07,
-        -65,
-        -484.15,
-        -65,
-        -424.15,
-        -5
+        -570.0,
+        60.0,
+        -440.0,
+        -140.0
       ],
       "displayPoints": [
         -570.0,
         60.0,
         -440.0,
         -140.0
-      ]
+      ],
+      "labelManual": true
     },
     {
       "railIndex": 6,
@@ -574,23 +570,22 @@
       "regionId": "line.regional",
       "corridorType": "express_backbone",
       "distance": 1,
-      "cost": 6,
+      "cost": 3,
       "labelX": -370.0,
       "labelY": -170.0,
       "points": [
-        -430.0,
-        -160.0,
-        -264.15,
-        -165,
-        -330.0,
-        -180.0
+        -440.0,
+        -140.0,
+        -310.0,
+        -190.0
       ],
       "displayPoints": [
         -440.0,
         -140.0,
         -310.0,
         -190.0
-      ]
+      ],
+      "labelManual": true
     },
     {
       "railIndex": 7,
@@ -600,23 +595,22 @@
       "regionId": "line.regional",
       "corridorType": "express_backbone",
       "distance": 2,
-      "cost": 6,
+      "cost": 3,
       "labelX": -220.0,
       "labelY": -200.0,
       "points": [
-        -210.0,
+        -140.0,
         -200.0,
-        -181.65,
-        -165,
-        -330.0,
-        -180.0
+        -310.0,
+        -190.0
       ],
       "displayPoints": [
         -140.0,
         -200.0,
         -310.0,
         -190.0
-      ]
+      ],
+      "labelManual": true
     },
     {
       "railIndex": 8,
@@ -626,14 +620,12 @@
       "regionId": "line.regional",
       "corridorType": "recommended_trade",
       "distance": 2,
-      "cost": 6,
-      "labelX": 24.1309052,
-      "labelY": 124.761986,
+      "cost": 3,
+      "labelX": -20.0,
+      "labelY": 210.0,
       "points": [
-        70.0,
-        200.0,
-        118.35,
-        -165,
+        80.0,
+        260.0,
         -120.0,
         150.0
       ],
@@ -642,7 +634,8 @@
         260.0,
         -120.0,
         150.0
-      ]
+      ],
+      "labelManual": true
     },
     {
       "railIndex": 9,
@@ -652,23 +645,22 @@
       "regionId": "line.regional",
       "corridorType": "recommended_trade",
       "distance": 3,
-      "cost": 6,
+      "cost": 3,
       "labelX": 260.0,
       "labelY": -150.0,
       "points": [
-        158.27,
-        -165,
-        298.19,
-        -165,
-        348.19,
-        -115
+        160.0,
+        -160.0,
+        350.0,
+        -150.0
       ],
       "displayPoints": [
         160.0,
         -160.0,
         350.0,
         -150.0
-      ]
+      ],
+      "labelManual": true
     },
     {
       "railIndex": 10,
@@ -678,23 +670,22 @@
       "regionId": "line.regional",
       "corridorType": "recommended_trade",
       "distance": 2,
-      "cost": 6,
+      "cost": 3,
       "labelX": -420.0,
       "labelY": -230.0,
       "points": [
         -400.0,
         -350.0,
-        -469.56,
-        -65,
-        -430.0,
-        -160.0
+        -440.0,
+        -140.0
       ],
       "displayPoints": [
         -400.0,
         -350.0,
         -440.0,
         -140.0
-      ]
+      ],
+      "labelManual": true
     },
     {
       "railIndex": 11,
@@ -704,14 +695,12 @@
       "regionId": "line.regional",
       "corridorType": "recommended_trade",
       "distance": 2,
-      "cost": 6,
-      "labelX": -91.06,
-      "labelY": -261,
+      "cost": 3,
+      "labelX": -30.0,
+      "labelY": -250.0,
       "points": [
-        -180.0,
-        -350.0,
-        -35.69,
-        -275,
+        -110.0,
+        -300.0,
         44.31,
         -195.0
       ],
@@ -720,7 +709,8 @@
         -300.0,
         44.31,
         -195.0
-      ]
+      ],
+      "labelManual": true
     },
     {
       "railIndex": 12,
@@ -730,23 +720,22 @@
       "regionId": "region.capital",
       "corridorType": "mst",
       "distance": 2,
-      "cost": 6,
+      "cost": 3,
       "labelX": 210.0,
       "labelY": 60.0,
       "points": [
-        259.56,
-        -25,
-        196.25,
-        38.31,
-        196.25,
-        95
+        220.0,
+        -20.0,
+        190.0,
+        140.0
       ],
       "displayPoints": [
         220.0,
         -20.0,
         190.0,
         140.0
-      ]
+      ],
+      "labelManual": true
     },
     {
       "railIndex": 13,
@@ -756,23 +745,22 @@
       "regionId": "region.farm",
       "corridorType": "recommended_trade",
       "distance": 1,
-      "cost": 6,
+      "cost": 3,
       "labelX": -10.0,
       "labelY": -150.0,
       "points": [
         44.31,
         -195,
-        -24.96,
-        -195,
-        -94.96,
-        -125
+        -60.0,
+        -120.0
       ],
       "displayPoints": [
         44.31,
         -195,
         -60.0,
         -120.0
-      ]
+      ],
+      "labelManual": true
     },
     {
       "railIndex": 14,
@@ -782,23 +770,22 @@
       "regionId": "region.capital",
       "corridorType": "mst",
       "distance": 1,
-      "cost": 6,
+      "cost": 3,
       "labelX": 280.0,
       "labelY": -10.0,
       "points": [
-        259.56,
-        -25,
-        269.56,
-        -15,
-        386.17,
-        -15
+        220.0,
+        -20.0,
+        350.0,
+        0.0
       ],
       "displayPoints": [
         220.0,
         -20.0,
         350.0,
         0.0
-      ]
+      ],
+      "labelManual": true
     },
     {
       "railIndex": 15,
@@ -808,23 +795,22 @@
       "regionId": "region.farm",
       "corridorType": "mst",
       "distance": 1,
-      "cost": 6,
+      "cost": 3,
       "labelX": -90.0,
       "labelY": -60.0,
       "points": [
-        -94.96,
-        -125,
-        -94.96,
-        -75.64,
-        -145.6,
-        -25
+        -60.0,
+        -120.0,
+        -120.0,
+        10.0
       ],
       "displayPoints": [
         -60.0,
         -120.0,
         -120.0,
         10.0
-      ]
+      ],
+      "labelManual": true
     },
     {
       "railIndex": 16,
@@ -834,25 +820,26 @@
       "regionId": "region.mine",
       "corridorType": "mst",
       "distance": 2,
-      "cost": 6,
-      "labelX": -328.923828,
-      "labelY": 367.280029,
+      "cost": 3,
+      "labelX": -250.0,
+      "labelY": 320.0,
       "points": [
-        -272.22,
-        265,
+        -290.0,
+        280.0,
         -183.59,
         353.63,
         -183.59,
         355
       ],
       "displayPoints": [
-        -310.0,
-        270.0,
+        -290.0,
+        280.0,
         -183.59,
         353.63,
         -183.59,
         355
-      ]
+      ],
+      "labelManual": true
     },
     {
       "railIndex": 17,
@@ -862,21 +849,22 @@
       "regionId": "region.capital",
       "corridorType": "mst",
       "distance": 2,
-      "cost": 6,
+      "cost": 3,
       "labelX": 120.28,
       "labelY": 81,
       "points": [
-        196.25,
-        95,
-        44.31,
-        95
+        190.0,
+        140.0,
+        60.0,
+        30.0
       ],
       "displayPoints": [
         190.0,
         140.0,
         60.0,
         30.0
-      ]
+      ],
+      "labelManual": true
     },
     {
       "railIndex": 18,
@@ -886,23 +874,22 @@
       "regionId": "region.ranch",
       "corridorType": "mst",
       "distance": 3,
-      "cost": 6,
+      "cost": 3,
       "labelX": -255.0,
       "labelY": -325.0,
       "points": [
-        -259.56,
-        -275,
-        -169.56,
-        -365,
-        -158.27,
-        -365
+        -400.0,
+        -350.0,
+        -110.0,
+        -300.0
       ],
       "displayPoints": [
         -400.0,
         -350.0,
         -110.0,
         -300.0
-      ]
+      ],
+      "labelManual": true
     },
     {
       "railIndex": 19,
@@ -912,23 +899,22 @@
       "regionId": "region.industry",
       "corridorType": "mst",
       "distance": 2,
-      "cost": 6,
+      "cost": 3,
       "labelX": -660.0,
       "labelY": 30.0,
       "points": [
-        -614.07,
-        -65,
-        -628.02,
-        -65,
-        -728.02,
-        35
+        -570.0,
+        60.0,
+        -730.0,
+        0.0
       ],
       "displayPoints": [
         -570.0,
         60.0,
         -730.0,
         0.0
-      ]
+      ],
+      "labelManual": true
     },
     {
       "railIndex": 20,
@@ -938,16 +924,20 @@
       "regionId": "region.coast",
       "corridorType": "mst",
       "distance": 2,
-      "cost": 6,
-      "labelX": 493.221466,
-      "labelY": 144.630875,
+      "cost": 3,
+      "labelX": 520.0,
+      "labelY": 140.0,
       "points": [
-        500.12,
-        45,
-        550.77,
-        95.65,
-        550.77,
-        215
+        480.0,
+        60.0,
+        480.0,
+        110.0,
+        530.0,
+        140.0,
+        530.0,
+        210.0,
+        540.0,
+        220.0
       ],
       "displayPoints": [
         480.0,
@@ -960,7 +950,8 @@
         210.0,
         540.0,
         220.0
-      ]
+      ],
+      "labelManual": true
     },
     {
       "railIndex": 21,
@@ -970,23 +961,22 @@
       "regionId": "region.coast",
       "corridorType": "mst",
       "distance": 2,
-      "cost": 6,
-      "labelX": 395.080566,
-      "labelY": 239.1128,
+      "cost": 3,
+      "labelX": 470.0,
+      "labelY": 270.0,
       "points": [
         540.0,
         220.0,
-        345.52,
-        215,
         400.0,
-        370.0
+        320.0
       ],
       "displayPoints": [
         540.0,
         220.0,
         400.0,
         320.0
-      ]
+      ],
+      "labelManual": true
     },
     {
       "railIndex": 22,
@@ -996,23 +986,22 @@
       "regionId": "region.industry",
       "corridorType": "mst",
       "distance": 3,
-      "cost": 6,
+      "cost": 3,
       "labelX": -590.0,
       "labelY": -50.0,
       "points": [
-        -614.07,
-        -65,
-        -538.1,
-        -140.97,
-        -538.1,
-        -215
+        -570.0,
+        60.0,
+        -610.0,
+        -190.0
       ],
       "displayPoints": [
         -570.0,
         60.0,
         -610.0,
         -190.0
-      ]
+      ],
+      "labelManual": true
     },
     {
       "railIndex": 23,
@@ -1022,23 +1011,22 @@
       "regionId": "line.regional",
       "corridorType": "mst",
       "distance": 1,
-      "cost": 6,
+      "cost": 3,
       "labelX": -160.0,
       "labelY": -20.0,
       "points": [
-        -145.6,
-        -25,
-        -145.6,
-        -34.35,
-        -196.25,
-        -85
+        -120.0,
+        10.0,
+        -230.0,
+        -80.0
       ],
       "displayPoints": [
         -120.0,
         10.0,
         -230.0,
         -80.0
-      ]
+      ],
+      "labelManual": true
     },
     {
       "railIndex": 24,
@@ -1048,23 +1036,22 @@
       "regionId": "line.regional",
       "corridorType": "recommended_trade",
       "distance": 1,
-      "cost": 6,
+      "cost": 3,
       "labelX": -270.0,
       "labelY": -60.0,
       "points": [
-        -272.22,
-        -45,
-        -232.22,
-        -85,
-        -196.25,
-        -85
+        -320.0,
+        -30.0,
+        -230.0,
+        -80.0
       ],
       "displayPoints": [
         -320.0,
         -30.0,
         -230.0,
         -80.0
-      ]
+      ],
+      "labelManual": true
     },
     {
       "railIndex": 25,
@@ -1074,14 +1061,12 @@
       "regionId": "region.farm",
       "corridorType": "mst",
       "distance": 2,
-      "cost": 6,
+      "cost": 3,
       "labelX": 94.955,
       "labelY": -280.0,
       "points": [
         44.31,
         -195,
-        44.31,
-        -263.71,
         145.6,
         -365
       ],
@@ -1090,7 +1075,8 @@
         -195,
         145.6,
         -365
-      ]
+      ],
+      "labelManual": true
     },
     {
       "railIndex": 26,
@@ -1100,23 +1086,22 @@
       "regionId": "region.ranch",
       "corridorType": "mst",
       "distance": 1,
-      "cost": 6,
+      "cost": 3,
       "labelX": -270.0,
       "labelY": -130.0,
       "points": [
-        -196.25,
-        -85,
-        -246.25,
-        -135,
-        -424.15,
-        -135
+        -230.0,
+        -80.0,
+        -310.0,
+        -190.0
       ],
       "displayPoints": [
         -230.0,
         -80.0,
         -310.0,
         -190.0
-      ]
+      ],
+      "labelManual": true
     },
     {
       "railIndex": 27,
@@ -1126,23 +1111,22 @@
       "regionId": "line.regional",
       "corridorType": "recommended_trade",
       "distance": 1,
-      "cost": 6,
-      "labelX": -106.28,
-      "labelY": 14.76,
+      "cost": 3,
+      "labelX": -120.0,
+      "labelY": 80.0,
       "points": [
-        -120.28,
-        65,
-        -120.28,
-        0.32,
-        -145.6,
-        -25
+        -120.0,
+        150.0,
+        -120.0,
+        10.0
       ],
       "displayPoints": [
         -120.0,
         150.0,
         -120.0,
         10.0
-      ]
+      ],
+      "labelManual": true
     },
     {
       "railIndex": 29,
@@ -1152,16 +1136,16 @@
       "regionId": "region.coast",
       "corridorType": "mst",
       "distance": 2,
-      "cost": 6,
-      "labelX": 594.575562,
-      "labelY": -20.0470886,
+      "cost": 3,
+      "labelX": 540.0,
+      "labelY": -30.0,
       "points": [
-        500.12,
-        45,
-        500.12,
-        -187.02,
-        538.1,
-        -225
+        480.0,
+        60.0,
+        500.0,
+        0.0,
+        630.0,
+        -110.0
       ],
       "displayPoints": [
         480.0,
@@ -1170,7 +1154,8 @@
         0.0,
         630.0,
         -110.0
-      ]
+      ],
+      "labelManual": true
     },
     {
       "railIndex": 30,
@@ -1180,25 +1165,26 @@
       "regionId": "region.mine",
       "corridorType": "mst",
       "distance": 3,
-      "cost": 6,
+      "cost": 3,
       "labelX": -457.000824,
       "labelY": 278.166718,
       "points": [
-        -272.22,
-        265,
-        -362.22,
-        355,
-        -576.09,
-        355
-      ],
-      "displayPoints": [
-        -310.0,
-        270.0,
+        -290.0,
+        280.0,
         -490.0,
         280.0,
         -576.09,
         355
-      ]
+      ],
+      "displayPoints": [
+        -290.0,
+        280.0,
+        -490.0,
+        280.0,
+        -576.09,
+        355
+      ],
+      "labelManual": true
     },
     {
       "railIndex": 31,
@@ -1208,16 +1194,16 @@
       "regionId": "line.regional",
       "corridorType": "recommended_trade",
       "distance": 2,
-      "cost": 6,
+      "cost": 3,
       "labelX": -150.0,
       "labelY": -80.0,
       "points": [
-        -94.96,
-        -125,
-        -156.25,
-        -125,
-        -196.25,
-        -85
+        -60.0,
+        -120.0,
+        -134.96,
+        -85,
+        -230.0,
+        -80.0
       ],
       "displayPoints": [
         -60.0,
@@ -1226,7 +1212,8 @@
         -85,
         -230.0,
         -80.0
-      ]
+      ],
+      "labelManual": true
     },
     {
       "railIndex": 32,
@@ -1236,23 +1223,22 @@
       "regionId": "region.capital",
       "corridorType": "hub",
       "distance": 2,
-      "cost": 6,
-      "labelX": 330.301453,
-      "labelY": 138.915955,
+      "cost": 3,
+      "labelX": 280.0,
+      "labelY": 70.0,
       "points": [
-        196.25,
-        95,
-        306.25,
-        -15,
-        386.17,
-        -15
+        190.0,
+        140.0,
+        350.0,
+        0.0
       ],
       "displayPoints": [
         190.0,
         140.0,
         350.0,
         0.0
-      ]
+      ],
+      "labelManual": true
     },
     {
       "railIndex": 33,
@@ -1262,23 +1248,22 @@
       "regionId": "region.capital",
       "corridorType": "economy_extra",
       "distance": 2,
-      "cost": 6,
+      "cost": 3,
       "labelX": 350.0,
       "labelY": -70.0,
       "points": [
-        348.19,
-        -115,
-        348.19,
-        -52.98,
-        386.17,
-        -15
+        350.0,
+        -150.0,
+        350.0,
+        0.0
       ],
       "displayPoints": [
         350.0,
         -150.0,
         350.0,
         0.0
-      ]
+      ],
+      "labelManual": true
     },
     {
       "railIndex": 34,
@@ -1288,23 +1273,22 @@
       "regionId": "line.regional",
       "corridorType": "recommended_trade",
       "distance": 2,
-      "cost": 6,
+      "cost": 3,
       "labelX": -380.0,
       "labelY": -90.0,
       "points": [
-        -350.0,
+        -320.0,
         -30.0,
-        -252.22,
-        -25,
-        -360.0,
-        -110.0
+        -440.0,
+        -140.0
       ],
       "displayPoints": [
         -320.0,
         -30.0,
         -440.0,
         -140.0
-      ]
+      ],
+      "labelManual": true
     },
     {
       "railIndex": 35,
@@ -1314,16 +1298,16 @@
       "regionId": "line.regional",
       "corridorType": "economy_extra",
       "distance": 2,
-      "cost": 6,
+      "cost": 3,
       "labelX": 100.0,
       "labelY": -170.0,
       "points": [
         44.31,
         -195,
-        128.27,
-        -195,
-        158.27,
-        -165
+        120.0,
+        -160.0,
+        160.0,
+        -160.0
       ],
       "displayPoints": [
         44.31,
@@ -1332,7 +1316,8 @@
         -160.0,
         160.0,
         -160.0
-      ]
+      ],
+      "labelManual": true
     },
     {
       "railIndex": 36,
@@ -1342,23 +1327,22 @@
       "regionId": "line.regional",
       "corridorType": "economy_extra",
       "distance": 2,
-      "cost": 6,
+      "cost": 3,
       "labelX": -180.0,
       "labelY": -140.0,
       "points": [
-        -196.25,
-        -85,
-        -234.23,
-        -122.98,
-        -234.23,
-        -165
+        -230.0,
+        -80.0,
+        -140.0,
+        -200.0
       ],
       "displayPoints": [
         -230.0,
         -80.0,
         -140.0,
         -200.0
-      ]
+      ],
+      "labelManual": true
     },
     {
       "railIndex": 37,
@@ -1368,14 +1352,12 @@
       "regionId": "line.regional",
       "corridorType": "economy_extra",
       "distance": 3,
-      "cost": 6,
-      "labelX": -546.623047,
-      "labelY": -324.630249,
+      "cost": 3,
+      "labelX": -510.0,
+      "labelY": -270.0,
       "points": [
         -610.0,
         -190.0,
-        -504.15,
-        -215,
         -400.0,
         -350.0
       ],
@@ -1384,7 +1366,8 @@
         -190.0,
         -400.0,
         -350.0
-      ]
+      ],
+      "labelManual": true
     },
     {
       "railIndex": 38,
@@ -1394,23 +1377,22 @@
       "regionId": "line.regional",
       "corridorType": "economy_extra",
       "distance": 2,
-      "cost": 6,
-      "labelX": -90.7,
-      "labelY": -1,
+      "cost": 3,
+      "labelX": -40.0,
+      "labelY": 20.0,
       "points": [
         -120.0,
         10.0,
-        -135.6,
-        -15,
-        30.0,
-        40.0
+        60.0,
+        30.0
       ],
       "displayPoints": [
         -120.0,
         10.0,
         60.0,
         30.0
-      ]
+      ],
+      "labelManual": true
     },
     {
       "railIndex": 39,
@@ -1420,23 +1402,22 @@
       "regionId": "line.regional",
       "corridorType": "economy_extra",
       "distance": 1,
-      "cost": 6,
-      "labelX": 430.0,
-      "labelY": 0.0,
+      "cost": 3,
+      "labelX": 420.0,
+      "labelY": 30.0,
       "points": [
-        500.12,
-        45,
-        446.17,
-        45,
-        386.17,
-        -15
+        480.0,
+        60.0,
+        350.0,
+        0.0
       ],
       "displayPoints": [
         480.0,
         60.0,
         350.0,
         0.0
-      ]
+      ],
+      "labelManual": true
     },
     {
       "railIndex": 40,
@@ -1446,23 +1427,22 @@
       "regionId": "region.ranch",
       "corridorType": "economy_extra",
       "distance": 2,
-      "cost": 6,
-      "labelX": -252.68692,
-      "labelY": -274.894867,
+      "cost": 3,
+      "labelX": -350.0,
+      "labelY": -260.0,
       "points": [
-        -259.56,
-        -275.0,
-        -234.23,
-        -249.67,
-        -340.0,
-        -200.0
+        -400.0,
+        -350.0,
+        -310.0,
+        -190.0
       ],
       "displayPoints": [
         -400.0,
         -350.0,
         -310.0,
         -190.0
-      ]
+      ],
+      "labelManual": true
     },
     {
       "railIndex": 41,
@@ -1472,23 +1452,22 @@
       "regionId": "line.regional",
       "corridorType": "economy_extra",
       "distance": 1,
-      "cost": 6,
+      "cost": 3,
       "labelX": -100.0,
       "labelY": -160.0,
       "points": [
-        -94.96,
-        -125,
-        -194.23,
-        -125,
-        -234.23,
-        -165
+        -60.0,
+        -120.0,
+        -140.0,
+        -200.0
       ],
       "displayPoints": [
         -60.0,
         -120.0,
         -140.0,
         -200.0
-      ]
+      ],
+      "labelManual": true
     },
     {
       "railIndex": 42,
@@ -1498,23 +1477,22 @@
       "regionId": "line.regional",
       "corridorType": "recommended_trade",
       "distance": 2,
-      "cost": 6,
-      "labelX": 20.79574,
-      "labelY": 166.193619,
+      "cost": 3,
+      "labelX": -20.0,
+      "labelY": 80.0,
       "points": [
         -120.0,
         150.0,
-        -40.28,
-        -15,
-        30.0,
-        40.0
+        60.0,
+        30.0
       ],
       "displayPoints": [
         -120.0,
         150.0,
         60.0,
         30.0
-      ]
+      ],
+      "labelManual": true
     },
     {
       "railIndex": 43,
@@ -1524,23 +1502,22 @@
       "regionId": "region.industry",
       "corridorType": "regional_connection",
       "distance": 1,
-      "cost": 6,
+      "cost": 3,
       "labelX": -370.0,
       "labelY": 0.0,
       "points": [
-        -500.12,
-        115,
-        -340.12,
-        -45,
-        -272.22,
-        -45
+        -430.0,
+        30.0,
+        -320.0,
+        -30.0
       ],
       "displayPoints": [
         -430.0,
         30.0,
         -320.0,
         -30.0
-      ]
+      ],
+      "labelManual": true
     },
     {
       "railIndex": 44,
@@ -1550,21 +1527,22 @@
       "regionId": "region.industry",
       "corridorType": "regional_connection",
       "distance": 1,
-      "cost": 6,
+      "cost": 3,
       "labelX": -490.0,
       "labelY": 40.0,
       "points": [
-        -510.0,
-        -30.0,
-        -410.0,
-        0.0
+        -570.0,
+        60.0,
+        -430.0,
+        30.0
       ],
       "displayPoints": [
         -570.0,
         60.0,
         -430.0,
         30.0
-      ]
+      ],
+      "labelManual": true
     },
     {
       "railIndex": 45,
@@ -1574,21 +1552,22 @@
       "regionId": "region.mine",
       "corridorType": "mst",
       "distance": 2,
-      "cost": 6,
-      "labelX": -263.899536,
-      "labelY": 132.57576,
+      "cost": 3,
+      "labelX": -200.0,
+      "labelY": 200.0,
       "points": [
-        -310.0,
-        270.0,
+        -290.0,
+        280.0,
         -120.0,
         150.0
       ],
       "displayPoints": [
-        -310.0,
-        270.0,
+        -290.0,
+        280.0,
         -120.0,
         150.0
-      ]
+      ],
+      "labelManual": true
     },
     {
       "railIndex": 46,
@@ -1598,21 +1577,22 @@
       "regionId": "region.capital",
       "corridorType": "mst",
       "distance": 2,
-      "cost": 6,
-      "labelX": 79.51447,
-      "labelY": -48.053688,
+      "cost": 3,
+      "labelX": 150.0,
+      "labelY": 0.0,
       "points": [
         60.0,
         30.0,
         220.0,
-        -40.0
+        -20.0
       ],
       "displayPoints": [
         60.0,
         30.0,
         220.0,
         -20.0
-      ]
+      ],
+      "labelManual": true
     },
     {
       "railIndex": 47,
@@ -1622,12 +1602,12 @@
       "regionId": "line.regional",
       "corridorType": "recommended_trade",
       "distance": 3,
-      "cost": 6,
+      "cost": 3,
       "labelX": 240.0,
       "labelY": 290.0,
       "points": [
-        70.0,
-        240.0,
+        80.0,
+        260.0,
         400.0,
         320.0
       ],
@@ -1636,7 +1616,8 @@
         260.0,
         400.0,
         320.0
-      ]
+      ],
+      "labelManual": true
     },
     {
       "railIndex": 48,
@@ -1646,9 +1627,9 @@
       "regionId": "line.regional",
       "corridorType": "recommended_trade",
       "distance": 2,
-      "cost": 6,
-      "labelX": 230.003662,
-      "labelY": 231.878357,
+      "cost": 3,
+      "labelX": 130.0,
+      "labelY": 200.0,
       "points": [
         80.0,
         260.0,
@@ -1660,7 +1641,8 @@
         260.0,
         190.0,
         140.0
-      ]
+      ],
+      "labelManual": true
     },
     {
       "railIndex": 49,
@@ -1670,9 +1652,9 @@
       "regionId": "line.regional",
       "corridorType": "recommended_trade",
       "distance": 3,
-      "cost": 6,
-      "labelX": 6.51545334,
-      "labelY": -376.8743,
+      "cost": 3,
+      "labelX": 20.0,
+      "labelY": -330.0,
       "points": [
         -110.0,
         -300.0,
@@ -1684,7 +1666,8 @@
         -300.0,
         145.6,
         -365.0
-      ]
+      ],
+      "labelManual": true
     },
     {
       "railIndex": 50,
@@ -1694,7 +1677,7 @@
       "regionId": "region.industry",
       "corridorType": "mst",
       "distance": 2,
-      "cost": 6,
+      "cost": 3,
       "labelX": -670.0,
       "labelY": -95.0,
       "points": [
@@ -1708,7 +1691,8 @@
         0.0,
         -610.0,
         -190.0
-      ]
+      ],
+      "labelManual": true
     }
   ]
 }

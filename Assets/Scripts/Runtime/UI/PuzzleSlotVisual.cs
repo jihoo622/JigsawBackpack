@@ -101,7 +101,7 @@ public sealed class PuzzleSlotVisual : MonoBehaviour
             cellWidth * BasicData.Float("ui.freshness.heightScale"));
 
         int percent = Mathf.Clamp(_freshness.Value, 0, 100);
-        freshnessLabel.text = Presentation.PuzzleFreshnessText(percent);
+        freshnessLabel.text = Presentation.PuzzleFreshnessDot;
         freshnessLabel.color = Presentation.PuzzleFreshnessColor(percent);
         freshnessLabel.rectTransform.anchoredPosition =
             (_cellOffset - Vector2.one * BasicData.Float("ui.freshness.offsetScale")) * cellWidth;

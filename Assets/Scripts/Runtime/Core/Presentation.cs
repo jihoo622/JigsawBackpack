@@ -623,10 +623,7 @@ public static class Presentation
             _intervalDays, _wasteName, _count));
     }
 
-    internal static string PuzzleFreshnessText(int _percent)
-    {
-        return BasicData.Format("presentation.freshness.percent", _percent);
-    }
+    internal static string PuzzleFreshnessDot => BasicData.Text("presentation.freshness.dot");
 
     internal static Color PuzzleFreshnessOutline => BasicData.Color("presentation.freshness.outline");
 
@@ -694,7 +691,8 @@ public static class Presentation
 
     internal static string PuzzleTooltipFreshnessValue(int _current)
     {
-        return BasicData.Format("presentation.tooltip.freshnessValue", ColorUtility.ToHtmlStringRGB(PuzzleFreshnessColor(_current)), _current);
+        return BasicData.Format("presentation.tooltip.freshnessValue",
+            ColorUtility.ToHtmlStringRGB(PuzzleFreshnessColor(_current)), PuzzleFreshnessDot);
     }
 
     internal static string PuzzleTooltipShelfLifeLabel()

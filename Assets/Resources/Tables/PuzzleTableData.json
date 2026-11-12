@@ -73,7 +73,7 @@
         "Supply",
         "Grain"
       ],
-      "shelfLifeHours": 48,
+      "shelfLifeHours": 168,
       "visualKey": "cargo.grainSack",
       "slotCount": 1,
       "cells": [
@@ -302,7 +302,7 @@
         "Food",
         "Fish"
       ],
-      "shelfLifeHours": 48,
+      "shelfLifeHours": 168,
       "visualKey": "cargo.fish",
       "slotCount": 2,
       "cells": [
@@ -358,7 +358,7 @@
         "Food",
         "Fruit"
       ],
-      "shelfLifeHours": 48,
+      "shelfLifeHours": 168,
       "visualKey": "cargo.smallCrate",
       "slotCount": 1,
       "cells": [
@@ -405,7 +405,7 @@
         "Food",
         "Meat"
       ],
-      "shelfLifeHours": 48,
+      "shelfLifeHours": 168,
       "visualKey": "cargo.grainSack",
       "slotCount": 1,
       "cells": [
@@ -429,7 +429,7 @@
         "Food",
         "Meat"
       ],
-      "shelfLifeHours": 48,
+      "shelfLifeHours": 168,
       "visualKey": "cargo.beef",
       "slotCount": 2,
       "durability": 100,
@@ -554,7 +554,7 @@
         "Food",
         "Fruit"
       ],
-      "shelfLifeHours": 48,
+      "shelfLifeHours": 168,
       "visualKey": "cargo.apple",
       "slotCount": 1,
       "durability": 100,
@@ -645,7 +645,7 @@
       "buyEnabled": true,
       "sellEnabled": true,
       "buyPercentOfBaseValue": 100,
-      "sellPercentOfFinalValue": 90,
+      "sellPercentOfFinalValue": 100,
       "tagPrices": [
         {
           "tag": "Metal",
@@ -657,31 +657,31 @@
           "tag": "Machinery",
           "priority": 200,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Fish",
           "priority": 201,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Fruit",
           "priority": 202,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Animal",
           "priority": 203,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Meat",
           "priority": 204,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         }
       ],
       "market": {
@@ -723,7 +723,7 @@
       "buyEnabled": true,
       "sellEnabled": true,
       "buyPercentOfBaseValue": 100,
-      "sellPercentOfFinalValue": 90,
+      "sellPercentOfFinalValue": 100,
       "tagPrices": [
         {
           "tag": "Salt",
@@ -735,31 +735,31 @@
           "tag": "Machinery",
           "priority": 200,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Fish",
           "priority": 201,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Fruit",
           "priority": 202,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Animal",
           "priority": 203,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Water",
           "priority": 204,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         }
       ],
       "market": {
@@ -801,7 +801,7 @@
       "buyEnabled": true,
       "sellEnabled": true,
       "buyPercentOfBaseValue": 100,
-      "sellPercentOfFinalValue": 90,
+      "sellPercentOfFinalValue": 100,
       "tagPrices": [
         {
           "tag": "Metal",
@@ -813,31 +813,31 @@
           "tag": "Machinery",
           "priority": 200,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Fish",
           "priority": 201,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Fruit",
           "priority": 202,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Animal",
           "priority": 203,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Grain",
           "priority": 204,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         }
       ],
       "market": {
@@ -879,7 +879,7 @@
       "buyEnabled": true,
       "sellEnabled": true,
       "buyPercentOfBaseValue": 100,
-      "sellPercentOfFinalValue": 90,
+      "sellPercentOfFinalValue": 100,
       "tagPrices": [
         {
           "tag": "Salt",
@@ -891,31 +891,31 @@
           "tag": "Machinery",
           "priority": 200,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Fish",
           "priority": 201,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Fruit",
           "priority": 202,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Animal",
           "priority": 203,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Wood",
           "priority": 204,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         }
       ],
       "market": {
@@ -957,7 +957,7 @@
       "buyEnabled": true,
       "sellEnabled": true,
       "buyPercentOfBaseValue": 100,
-      "sellPercentOfFinalValue": 90,
+      "sellPercentOfFinalValue": 100,
       "tagPrices": [
         {
           "tag": "Animal",
@@ -969,31 +969,31 @@
           "tag": "Machinery",
           "priority": 200,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Fish",
           "priority": 201,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Salt",
           "priority": 202,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Fruit",
           "priority": 203,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Metal",
           "priority": 204,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         }
       ],
       "market": {
@@ -1035,7 +1035,7 @@
       "buyEnabled": true,
       "sellEnabled": true,
       "buyPercentOfBaseValue": 100,
-      "sellPercentOfFinalValue": 90,
+      "sellPercentOfFinalValue": 100,
       "tagPrices": [
         {
           "tag": "Meat",
@@ -1047,31 +1047,31 @@
           "tag": "Machinery",
           "priority": 200,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Fish",
           "priority": 201,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Salt",
           "priority": 202,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Fruit",
           "priority": 203,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Grain",
           "priority": 204,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         }
       ],
       "market": {
@@ -1113,7 +1113,7 @@
       "buyEnabled": true,
       "sellEnabled": true,
       "buyPercentOfBaseValue": 100,
-      "sellPercentOfFinalValue": 90,
+      "sellPercentOfFinalValue": 100,
       "tagPrices": [
         {
           "tag": "Animal",
@@ -1125,31 +1125,31 @@
           "tag": "Machinery",
           "priority": 200,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Fish",
           "priority": 201,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Salt",
           "priority": 202,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Fruit",
           "priority": 203,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Water",
           "priority": 204,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         }
       ],
       "market": {
@@ -1191,7 +1191,7 @@
       "buyEnabled": true,
       "sellEnabled": true,
       "buyPercentOfBaseValue": 100,
-      "sellPercentOfFinalValue": 90,
+      "sellPercentOfFinalValue": 100,
       "tagPrices": [
         {
           "tag": "Meat",
@@ -1203,31 +1203,31 @@
           "tag": "Machinery",
           "priority": 200,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Fish",
           "priority": 201,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Salt",
           "priority": 202,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Fruit",
           "priority": 203,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Wood",
           "priority": 204,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         }
       ],
       "market": {
@@ -1269,7 +1269,7 @@
       "buyEnabled": true,
       "sellEnabled": true,
       "buyPercentOfBaseValue": 100,
-      "sellPercentOfFinalValue": 90,
+      "sellPercentOfFinalValue": 100,
       "tagPrices": [
         {
           "tag": "Machinery",
@@ -1281,31 +1281,31 @@
           "tag": "Fish",
           "priority": 200,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Salt",
           "priority": 201,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Fruit",
           "priority": 202,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Animal",
           "priority": 203,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Grain",
           "priority": 204,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         }
       ],
       "market": {
@@ -1347,7 +1347,7 @@
       "buyEnabled": true,
       "sellEnabled": true,
       "buyPercentOfBaseValue": 100,
-      "sellPercentOfFinalValue": 90,
+      "sellPercentOfFinalValue": 100,
       "tagPrices": [
         {
           "tag": "Machinery",
@@ -1359,31 +1359,31 @@
           "tag": "Fish",
           "priority": 200,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Salt",
           "priority": 201,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Fruit",
           "priority": 202,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Animal",
           "priority": 203,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Water",
           "priority": 204,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         }
       ],
       "market": {
@@ -1425,7 +1425,7 @@
       "buyEnabled": true,
       "sellEnabled": true,
       "buyPercentOfBaseValue": 100,
-      "sellPercentOfFinalValue": 90,
+      "sellPercentOfFinalValue": 100,
       "tagPrices": [
         {
           "tag": "Machinery",
@@ -1437,31 +1437,31 @@
           "tag": "Fish",
           "priority": 200,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Salt",
           "priority": 201,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Fruit",
           "priority": 202,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Animal",
           "priority": 203,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Meat",
           "priority": 204,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         }
       ],
       "market": {
@@ -1503,7 +1503,7 @@
       "buyEnabled": true,
       "sellEnabled": true,
       "buyPercentOfBaseValue": 100,
-      "sellPercentOfFinalValue": 90,
+      "sellPercentOfFinalValue": 100,
       "tagPrices": [
         {
           "tag": "Machinery",
@@ -1515,31 +1515,31 @@
           "tag": "Fish",
           "priority": 200,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Salt",
           "priority": 201,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Fruit",
           "priority": 202,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Animal",
           "priority": 203,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Wood",
           "priority": 204,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         }
       ],
       "market": {
@@ -1581,43 +1581,43 @@
       "buyEnabled": true,
       "sellEnabled": true,
       "buyPercentOfBaseValue": 100,
-      "sellPercentOfFinalValue": 90,
+      "sellPercentOfFinalValue": 100,
       "tagPrices": [
         {
           "tag": "Machinery",
           "priority": 200,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Fish",
           "priority": 201,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Salt",
           "priority": 202,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Fruit",
           "priority": 203,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Animal",
           "priority": 204,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Meat",
           "priority": 205,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         }
       ],
       "market": {
@@ -1659,43 +1659,43 @@
       "buyEnabled": true,
       "sellEnabled": true,
       "buyPercentOfBaseValue": 100,
-      "sellPercentOfFinalValue": 90,
+      "sellPercentOfFinalValue": 100,
       "tagPrices": [
         {
           "tag": "Machinery",
           "priority": 200,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Fish",
           "priority": 201,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Salt",
           "priority": 202,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Fruit",
           "priority": 203,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Animal",
           "priority": 204,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Metal",
           "priority": 205,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         }
       ],
       "market": {
@@ -1737,43 +1737,43 @@
       "buyEnabled": true,
       "sellEnabled": true,
       "buyPercentOfBaseValue": 100,
-      "sellPercentOfFinalValue": 90,
+      "sellPercentOfFinalValue": 100,
       "tagPrices": [
         {
           "tag": "Machinery",
           "priority": 200,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Fish",
           "priority": 201,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Salt",
           "priority": 202,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Fruit",
           "priority": 203,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Animal",
           "priority": 204,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Water",
           "priority": 205,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         }
       ],
       "market": {
@@ -1815,43 +1815,43 @@
       "buyEnabled": true,
       "sellEnabled": true,
       "buyPercentOfBaseValue": 100,
-      "sellPercentOfFinalValue": 90,
+      "sellPercentOfFinalValue": 100,
       "tagPrices": [
         {
           "tag": "Machinery",
           "priority": 200,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Fish",
           "priority": 201,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Salt",
           "priority": 202,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Fruit",
           "priority": 203,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Animal",
           "priority": 204,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Grain",
           "priority": 205,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         }
       ],
       "market": {
@@ -1893,7 +1893,7 @@
       "buyEnabled": true,
       "sellEnabled": true,
       "buyPercentOfBaseValue": 100,
-      "sellPercentOfFinalValue": 90,
+      "sellPercentOfFinalValue": 100,
       "tagPrices": [
         {
           "tag": "Fish",
@@ -1905,31 +1905,31 @@
           "tag": "Machinery",
           "priority": 200,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Salt",
           "priority": 201,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Fruit",
           "priority": 202,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Animal",
           "priority": 203,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Meat",
           "priority": 204,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         }
       ],
       "market": {
@@ -1971,7 +1971,7 @@
       "buyEnabled": true,
       "sellEnabled": true,
       "buyPercentOfBaseValue": 100,
-      "sellPercentOfFinalValue": 90,
+      "sellPercentOfFinalValue": 100,
       "tagPrices": [
         {
           "tag": "Water",
@@ -1983,31 +1983,31 @@
           "tag": "Machinery",
           "priority": 200,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Salt",
           "priority": 201,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Fruit",
           "priority": 202,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Animal",
           "priority": 203,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Grain",
           "priority": 204,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         }
       ],
       "market": {
@@ -2049,7 +2049,7 @@
       "buyEnabled": true,
       "sellEnabled": true,
       "buyPercentOfBaseValue": 100,
-      "sellPercentOfFinalValue": 90,
+      "sellPercentOfFinalValue": 100,
       "tagPrices": [
         {
           "tag": "Fish",
@@ -2061,31 +2061,31 @@
           "tag": "Machinery",
           "priority": 200,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Salt",
           "priority": 201,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Fruit",
           "priority": 202,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Animal",
           "priority": 203,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Wood",
           "priority": 204,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         }
       ],
       "market": {
@@ -2127,7 +2127,7 @@
       "buyEnabled": true,
       "sellEnabled": true,
       "buyPercentOfBaseValue": 100,
-      "sellPercentOfFinalValue": 90,
+      "sellPercentOfFinalValue": 100,
       "tagPrices": [
         {
           "tag": "Water",
@@ -2139,31 +2139,31 @@
           "tag": "Machinery",
           "priority": 200,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Salt",
           "priority": 201,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Fruit",
           "priority": 202,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Animal",
           "priority": 203,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Metal",
           "priority": 204,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         }
       ],
       "market": {
@@ -2205,7 +2205,7 @@
       "buyEnabled": true,
       "sellEnabled": true,
       "buyPercentOfBaseValue": 100,
-      "sellPercentOfFinalValue": 90,
+      "sellPercentOfFinalValue": 100,
       "tagPrices": [
         {
           "tag": "Grain",
@@ -2217,31 +2217,31 @@
           "tag": "Machinery",
           "priority": 200,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Fish",
           "priority": 201,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Salt",
           "priority": 202,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Animal",
           "priority": 203,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Water",
           "priority": 204,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         }
       ],
       "market": {
@@ -2283,7 +2283,7 @@
       "buyEnabled": true,
       "sellEnabled": true,
       "buyPercentOfBaseValue": 100,
-      "sellPercentOfFinalValue": 90,
+      "sellPercentOfFinalValue": 100,
       "tagPrices": [
         {
           "tag": "Fruit",
@@ -2295,31 +2295,31 @@
           "tag": "Machinery",
           "priority": 200,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Fish",
           "priority": 201,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Salt",
           "priority": 202,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Animal",
           "priority": 203,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Meat",
           "priority": 204,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         }
       ],
       "market": {
@@ -2361,7 +2361,7 @@
       "buyEnabled": true,
       "sellEnabled": true,
       "buyPercentOfBaseValue": 100,
-      "sellPercentOfFinalValue": 90,
+      "sellPercentOfFinalValue": 100,
       "tagPrices": [
         {
           "tag": "Wood",
@@ -2373,31 +2373,31 @@
           "tag": "Machinery",
           "priority": 200,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Fish",
           "priority": 201,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Salt",
           "priority": 202,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Animal",
           "priority": 203,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Metal",
           "priority": 204,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         }
       ],
       "market": {
@@ -2439,7 +2439,7 @@
       "buyEnabled": true,
       "sellEnabled": true,
       "buyPercentOfBaseValue": 100,
-      "sellPercentOfFinalValue": 90,
+      "sellPercentOfFinalValue": 100,
       "tagPrices": [
         {
           "tag": "Grain",
@@ -2451,31 +2451,31 @@
           "tag": "Machinery",
           "priority": 200,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Fish",
           "priority": 201,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Salt",
           "priority": 202,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Animal",
           "priority": 203,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Box",
           "priority": 204,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         }
       ],
       "market": {
@@ -2517,7 +2517,7 @@
       "buyEnabled": true,
       "sellEnabled": true,
       "buyPercentOfBaseValue": 100,
-      "sellPercentOfFinalValue": 90,
+      "sellPercentOfFinalValue": 100,
       "tagPrices": [
         {
           "tag": "Machinery",
@@ -2529,31 +2529,31 @@
           "tag": "Fish",
           "priority": 200,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Salt",
           "priority": 201,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Fruit",
           "priority": 202,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Animal",
           "priority": 203,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Box",
           "priority": 204,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         }
       ],
       "market": {
@@ -2595,43 +2595,43 @@
       "buyEnabled": true,
       "sellEnabled": true,
       "buyPercentOfBaseValue": 100,
-      "sellPercentOfFinalValue": 90,
+      "sellPercentOfFinalValue": 100,
       "tagPrices": [
         {
           "tag": "Machinery",
           "priority": 200,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Fish",
           "priority": 201,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Salt",
           "priority": 202,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Fruit",
           "priority": 203,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Animal",
           "priority": 204,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         },
         {
           "tag": "Box",
           "priority": 205,
           "buyPercent": 150,
-          "sellPercent": 120
+          "sellPercent": 130
         }
       ],
       "market": {
@@ -2673,7 +2673,7 @@
       "buyEnabled": true,
       "sellEnabled": true,
       "buyPercentOfBaseValue": 100,
-      "sellPercentOfFinalValue": 90,
+      "sellPercentOfFinalValue": 100,
       "tagPrices": [],
       "market": {
         "width": 7,
@@ -2714,7 +2714,7 @@
       "buyEnabled": true,
       "sellEnabled": true,
       "buyPercentOfBaseValue": 100,
-      "sellPercentOfFinalValue": 90,
+      "sellPercentOfFinalValue": 100,
       "tagPrices": [],
       "market": {
         "width": 7,
@@ -2755,7 +2755,7 @@
       "buyEnabled": true,
       "sellEnabled": true,
       "buyPercentOfBaseValue": 100,
-      "sellPercentOfFinalValue": 90,
+      "sellPercentOfFinalValue": 100,
       "tagPrices": [],
       "market": {
         "width": 7,
@@ -2796,7 +2796,7 @@
       "buyEnabled": true,
       "sellEnabled": true,
       "buyPercentOfBaseValue": 100,
-      "sellPercentOfFinalValue": 90,
+      "sellPercentOfFinalValue": 100,
       "tagPrices": [],
       "market": {
         "width": 7,

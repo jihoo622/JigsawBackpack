@@ -9,11 +9,12 @@ using UnityEditor.SceneManagement;
 using UnityEditor;
 using UnityEngine;
 
-// 저장 전 조작은 Undo 가능한 초안에만 적용한다. 역·연결·게임 시간 좌표는 편집하지 않는다.
+// 저장 전 조작은 Undo 가능한 초안에만 적용한다. 표시 경로를 왕복 시간 좌표에도 동기화한다.
 public sealed class RailRouteEditorWindow : EditorWindow
 {
     [SerializeField] RailRouteDraft draft;
     [SerializeField] string loadedJson;
+    [SerializeField] string loadedRoutesJson;
     [SerializeField] float snapStep = 10f;
     [SerializeField] int selectedPoint;
     [SerializeField] bool editTimeLabel;
@@ -95,6 +96,10 @@ public sealed class RailRouteEditorWindow : EditorWindow
                 loadedJson = File.ReadAllText(RailMapLayoutTool.LAYOUT_PATH);
             }
             document = JObject.Parse(loadedJson);
+            if (_reload || string.IsNullOrEmpty(loadedRoutesJson))
+            {
+                loadedRoutesJson = File.ReadAllText(TableManager.EditorAssetPath<PuzzleRouteTableData>());
+            }
             if (!Rails.Any() || Rails.Select(_rail => (string)_rail["sourceId"]).Distinct().Count() != Rails.Count())
             {
                 throw new InvalidDataException("고유한 sourceId를 가진 노선 목록이 필요합니다.");
@@ -157,7 +162,7 @@ public sealed class RailRouteEditorWindow : EditorWindow
         {
             WorldMapEditorWindow.Open();
         }
-        EditorGUILayout.HelpBox("지도 표시 경로만 편집합니다. 역 연결·운임·이동 시간은 유지됩니다. Scene 화면의 경유점을 드래그하거나 좌표를 수정하세요.", MessageType.Info);
+        EditorGUILayout.HelpBox("경로를 바꾸면 표시 선 길이에 비례해 이동 시간이 갱신됩니다. 역 연결과 요금 거리는 유지합니다.", MessageType.Info);
         using (new EditorGUI.DisabledScope(Application.isPlaying))
         {
             if (GUILayout.Button("파일 다시 읽기") && CanDiscard())
@@ -433,11 +438,17 @@ public sealed class RailRouteEditorWindow : EditorWindow
     void Save()
     {
         string replacement = null;
+        string routesReplacement = null;
+        string routePath = TableManager.EditorAssetPath<PuzzleRouteTableData>();
         try
         {
             if (File.ReadAllText(RailMapLayoutTool.LAYOUT_PATH) != loadedJson)
             {
                 throw new InvalidOperationException("외부에서 레이아웃 파일이 바뀌었습니다. 초안을 별도 보관한 뒤 파일을 다시 읽으세요.");
+            }
+            if (File.ReadAllText(routePath) != loadedRoutesJson)
+            {
+                throw new InvalidOperationException("노선 테이블이 외부에서 바뀌었습니다. 초안을 보관하고 다시 읽으세요.");
             }
             var stage = PrefabStageUtility.GetCurrentPrefabStage();
             if (stage != null && stage.assetPath == RailMapLayoutTool.PREFAB_PATH && stage.scene.isDirty)
@@ -463,13 +474,24 @@ public sealed class RailRouteEditorWindow : EditorWindow
             }));
             rail["labelX"] = draft.timeLabel.x;
             rail["labelY"] = draft.timeLabel.y;
+            if (!draft.timeLabel.Equals(LabelPosition(Rail)))
+            {
+                rail["labelManual"] = true;
+            }
+            var routeData = JObject.Parse(loadedRoutesJson);
+            RailMapLayoutTool.SynchronizeRoutePoints(updated, routeData);
+            routesReplacement = routeData.ToString(Formatting.Indented) + "\n";
             replacement = updated.ToString(Formatting.Indented) + "\n";
             File.WriteAllText(RailMapLayoutTool.LAYOUT_PATH, replacement, new UTF8Encoding(false));
+            File.WriteAllText(routePath, routesReplacement, new UTF8Encoding(false));
+            TableManager.Reload();
+            TableManager.Instance.RequireValid();
             if (!RailMapLayoutTool.TryApply())
             {
                 throw new InvalidOperationException("지도 프리팹 적용에 실패했습니다. Console 오류를 확인하세요.");
             }
             loadedJson = replacement;
+            loadedRoutesJson = routesReplacement;
             document = updated;
             SelectRail(rail);
             error = null;
@@ -483,6 +505,11 @@ public sealed class RailRouteEditorWindow : EditorWindow
                 {
                     File.WriteAllText(RailMapLayoutTool.LAYOUT_PATH, loadedJson, new UTF8Encoding(false));
                 }
+                if (routesReplacement != null && File.ReadAllText(routePath) == routesReplacement)
+                {
+                    File.WriteAllText(routePath, loadedRoutesJson, new UTF8Encoding(false));
+                }
+                TableManager.Reload();
             }
             catch (Exception rollback)
             {
