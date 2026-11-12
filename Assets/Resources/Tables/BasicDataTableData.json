@@ -2615,28 +2615,6 @@
       ]
     },
     {
-      "id": "rules.PuzzleInventoryService",
-      "texts": [
-        {
-          "id": "animalTag",
-          "value": "Animal"
-        },
-        {
-          "id": "animalWastePieceId",
-          "value": "piece.poo"
-        }
-      ]
-    },
-    {
-      "id": "rules.PuzzleInventoryValuation",
-      "texts": [
-        {
-          "id": "pooTag",
-          "value": "Poo"
-        }
-      ]
-    },
-    {
       "id": "rules.durability",
       "numbers": [
         {

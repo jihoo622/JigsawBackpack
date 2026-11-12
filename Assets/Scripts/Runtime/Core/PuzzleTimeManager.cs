@@ -15,7 +15,7 @@ public sealed class PuzzleTimeManager
     public long RemainingMinutes => HasDeadline ? Math.Max(0, DeadlineMinutes - ElapsedMinutes) : long.MaxValue;
     public decimal RemainingHours => RemainingMinutes / (decimal)MINUTES_PER_HOUR;
     public long Day => DayAt(ElapsedMinutes);
-    public int MinuteOfDay => (int)((ElapsedMinutes % MINUTES_PER_DAY + rules.startHour * MINUTES_PER_HOUR) % MINUTES_PER_DAY);
+    public int MinuteOfDay => MinuteOfDayAt(ElapsedMinutes);
     public int Hour => MinuteOfDay / MINUTES_PER_HOUR;
     public int Minute => MinuteOfDay % MINUTES_PER_HOUR;
     public bool IsNight => IsNightAt(ElapsedMinutes);
@@ -46,6 +46,17 @@ public sealed class PuzzleTimeManager
     {
         return _elapsedMinutes / MINUTES_PER_DAY +
             (_elapsedMinutes % MINUTES_PER_DAY + rules.startHour * MINUTES_PER_HOUR) / MINUTES_PER_DAY;
+    }
+
+    int MinuteOfDayAt(long _elapsedMinutes)
+    {
+        return (int)((_elapsedMinutes % MINUTES_PER_DAY + rules.startHour * MINUTES_PER_HOUR) % MINUTES_PER_DAY);
+    }
+
+    internal long MinutesUntilDayInterval(long _elapsedMinutes, int _intervalDays)
+    {
+        long days = _intervalDays - DayAt(_elapsedMinutes) % _intervalDays;
+        return days * MINUTES_PER_DAY - MinuteOfDayAt(_elapsedMinutes);
     }
 
     // 이동 시간의 분 미만을 올림하고, 같은 분수를 표시·가치·보유 시간에 사용한다.

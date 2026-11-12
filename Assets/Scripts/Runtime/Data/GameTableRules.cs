@@ -231,12 +231,6 @@ public sealed class GameTableRules
             double max = _tables.BasicNumber(MAX_ZOOM).value;
             Check(min > 0 && min <= max, "BasicDataTableData.numbers.zoom", "줌 범위는 0보다 크고 최소값이 최대값 이하여야 합니다.");
         }
-        const string WASTE_PIECE = "rules.PuzzleInventoryService.animalWastePieceId";
-        if (_tables.HasBasicText(WASTE_PIECE))
-        {
-            string pieceId = _tables.BasicText(WASTE_PIECE).value;
-            Reference(pieceId, "BasicDataTableData.texts." + WASTE_PIECE, _tables.TryGetPiece(pieceId, out _), "화물");
-        }
         const string LOW_FRESHNESS = "ui.freshness.lowThreshold";
         const string MEDIUM_FRESHNESS = "ui.freshness.mediumThreshold";
         if (_tables.HasBasicNumber(LOW_FRESHNESS) && _tables.HasBasicNumber(MEDIUM_FRESHNESS))
@@ -466,8 +460,70 @@ public sealed class GameTableRules
                 "설명 표시 태그", _allowEmpty: true);
             Check(rule.scope is nameof(PuzzleSynergyScope.Train) or nameof(PuzzleSynergyScope.Market)
                 or nameof(PuzzleSynergyScope.Both), path + ".scope", "적용 범위는 Train, Market, Both 중 하나여야 합니다.");
+            Check(rule.spatialRange is nameof(PuzzleSynergyRange.Adjacent) or nameof(PuzzleSynergyRange.Board),
+                path + ".spatialRange", "공간 범위는 Adjacent 또는 Board여야 합니다.");
             Check(rule.multiplierPercent > 0, path + ".multiplierPercent", "배율은 양의 정수 백분율이어야 합니다.");
             Check(!string.IsNullOrWhiteSpace(rule.description), path + ".description", "시너지 설명이 필요합니다.");
+        }
+        ValidateAnimalSynergy(_tables, tags);
+    }
+
+    void ValidateAnimalSynergy(TableManager _tables, HashSet<string> _tags)
+    {
+        const string PATH = "PuzzleSynergyTableData.animals";
+        var animals = _tables.PuzzleSynergy.animals;
+        Check(animals != null, PATH, "동물 시너지 설정이 필요합니다.");
+        if (animals == null)
+        {
+            return;
+        }
+
+        Reference(animals.animalTag, PATH + ".animalTag", _tags.Contains(animals.animalTag), "동물 태그");
+        Reference(animals.wasteTag, PATH + ".wasteTag", _tags.Contains(animals.wasteTag), "배설물 태그");
+        Check(animals.animalTag != animals.wasteTag, PATH + ".wasteTag", "동물과 배설물은 서로 다른 태그여야 합니다.");
+        bool hasWaste = _tables.TryGetPiece(animals.wastePieceId, out var waste);
+        Reference(animals.wastePieceId, PATH + ".wastePieceId", hasWaste, "배설물 화물");
+        if (hasWaste)
+        {
+            var wasteTags = waste.tags ?? Array.Empty<string>();
+            Check(wasteTags.Contains(animals.wasteTag) && !wasteTags.Contains(animals.animalTag),
+                PATH + ".wastePieceId", "배설물 화물은 배설물 태그를 가져야 하며 동물 태그를 가질 수 없습니다.");
+        }
+        Check(animals.wasteIntervalDays > 0, PATH + ".wasteIntervalDays", "배설 주기는 양의 정수 일수여야 합니다.");
+        Check(animals.wasteCountPerAnimal > 0, PATH + ".wasteCountPerAnimal", "배설물 수량은 양수여야 합니다.");
+        Check(animals.breedingHours > 0, PATH + ".breedingHours", "번식 시간은 양의 정수 시간이어야 합니다.");
+
+        var breeding = animals.breeding ?? Array.Empty<PuzzleAnimalBreedingData>();
+        for (int i = 0; i < breeding.Length; i++)
+        {
+            var rule = breeding[i];
+            string path = $"{PATH}.breeding[{i}]";
+            if (rule == null)
+            {
+                continue;
+            }
+            ValidateBreedingPiece(_tables, rule.parentPieceId, animals.animalTag, path + ".parentPieceId");
+            ValidateBreedingPiece(_tables, rule.offspringPieceId, animals.animalTag, path + ".offspringPieceId");
+            Check(rule.offspringCount > 0, path + ".offspringCount", "자식 수량은 양수여야 합니다.");
+        }
+
+        foreach (var piece in _tables.Pieces)
+        {
+            if ((piece.tags ?? Array.Empty<string>()).Contains(animals.animalTag))
+            {
+                Check(_tables.TryGetAnimalBreeding(piece.id, out _), PATH + ".breeding",
+                    $"동물 품목 '{piece.id}'의 번식 규칙이 필요합니다.");
+            }
+        }
+    }
+
+    void ValidateBreedingPiece(TableManager _tables, string _id, string _animalTag, string _path)
+    {
+        bool exists = _tables.TryGetPiece(_id, out var piece);
+        Reference(_id, _path, exists, "번식 화물");
+        if (exists)
+        {
+            Check((piece.tags ?? Array.Empty<string>()).Contains(_animalTag), _path, "번식 화물은 동물 태그를 가져야 합니다.");
         }
     }
 

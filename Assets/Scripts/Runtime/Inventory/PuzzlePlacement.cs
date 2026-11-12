@@ -145,6 +145,12 @@ public sealed class PuzzlePlacement
     {
         ActualValue += _amount;
     }
+
+    internal void CopyTimeState(PuzzlePlacement _staged)
+    {
+        ActualValue = _staged.ActualValue;
+        OwnedMinutes = _staged.OwnedMinutes;
+    }
 }
 
 public readonly struct PuzzlePlacementResult

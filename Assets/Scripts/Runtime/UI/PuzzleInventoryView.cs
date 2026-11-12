@@ -222,12 +222,13 @@ public sealed class PuzzleInventoryView : MonoBehaviour
 
             foreach (var effect in _inventory.ValueOf(target.InstanceId).SynergyBonuses)
             {
-                if (effect.NeighborId == _hiddenInstanceId)
+                if (effect.NeighborId == _hiddenInstanceId || !effect.Contact.HasValue)
                 {
                     continue;
                 }
 
-                Vector2 direction = effect.TargetCell - effect.NeighborCell;
+                var contact = effect.Contact.Value;
+                Vector2 direction = contact.Target - contact.Neighbor;
                 bool forward = direction.x > 0 || direction.y > 0;
                 bool increase = effect.Percent > 0;
                 Vector2 axis = direction.x != 0 ? Vector2.up : Vector2.right;
@@ -235,8 +236,8 @@ public sealed class PuzzleInventoryView : MonoBehaviour
                 var arrow = synergyArrows[index++];
                 arrow.sprite = increase ? increaseArrow : decreaseArrow;
                 arrow.color = Presentation.PuzzleSynergyArrow;
-                arrow.rectTransform.localPosition = (GetCellCenter(effect.TargetCell) +
-                    GetCellCenter(effect.NeighborCell)) * 0.5f + axis * (lane * cellSize);
+                arrow.rectTransform.localPosition = (GetCellCenter(contact.Target) +
+                    GetCellCenter(contact.Neighbor)) * 0.5f + axis * (lane * cellSize);
                 // 원본 스프라이트의 투명 여백을 포함한 크기다.
                 arrow.rectTransform.sizeDelta = new Vector2(cellSize * BasicData.Float("ui.PuzzleInventoryView.rectTransformsizeDeltaWidth"), cellSize * BasicData.Float("ui.PuzzleInventoryView.rectTransformsizeDeltaHeight"));
                 arrow.rectTransform.localRotation = Quaternion.Euler(0f, 0f, Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg);

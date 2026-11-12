@@ -153,15 +153,37 @@ public sealed class PuzzleStartingPlacementData
     public int clockwiseTurns = -1;
 }
 
+internal enum PuzzleSynergyRange
+{
+    Adjacent,
+    Board
+}
+
 [Serializable]
 public sealed class PuzzleSynergyRuleData
 {
     public string id, targetTag, excludedTargetTag, neighborTag, excludedNeighborTag, scope;
+    public string spatialRange;
     public int multiplierPercent;
     // 주체 태그(targetTag) 아이템의 팝업에 표시할 시너지 설명.
     public string description;
     // description을 팝업에 표시할 태그. 비우면 주체 조건(targetTag)을 따른다.
     public string descriptionTag;
+}
+
+[Serializable]
+public sealed class PuzzleAnimalSynergyData
+{
+    public string animalTag, wasteTag, wastePieceId;
+    public int wasteIntervalDays, wasteCountPerAnimal, breedingHours;
+    public PuzzleAnimalBreedingData[] breeding = Array.Empty<PuzzleAnimalBreedingData>();
+}
+
+[Serializable]
+public sealed class PuzzleAnimalBreedingData
+{
+    public string parentPieceId, offspringPieceId;
+    public int offspringCount;
 }
 
 [Serializable]

@@ -46,6 +46,7 @@ public sealed class TableManager
     internal IReadOnlyDictionary<string, BasicColorData> BasicColors => basicColors;
     readonly Dictionary<string, SceneLinkData> scenes;
     readonly Dictionary<string, PuzzlePieceData> pieces;
+    readonly Dictionary<string, PuzzleAnimalBreedingData> animalBreeding;
     readonly Dictionary<string, PuzzleCityData> cities;
     readonly Dictionary<string, PuzzleRegionData> regions;
     readonly Dictionary<string, PuzzleMarketStockData> stockProfiles;
@@ -83,6 +84,8 @@ public sealed class TableManager
         routes = IndexRoutes(PuzzleRoute.routes);
         routesFrom = IndexRoutesFrom(routes);
         var synergyRules = rules.Index(PuzzleSynergy.rules, e => e.id, "PuzzleSynergyTableData.rules");
+        animalBreeding = rules.Index(PuzzleSynergy.animals?.breeding, _row => _row.parentPieceId,
+            "PuzzleSynergyTableData.animals.breeding");
         SynergyRules = Array.AsReadOnly(synergyRules.Values.OrderBy(entry => entry.id, StringComparer.Ordinal).ToArray());
         cityActions = rules.Index(PuzzleCityAction.actions, e => e.id, "PuzzleCityActionTableData.actions");
         actionsByCity = IndexActionsByCity(cityActions);
@@ -334,6 +337,11 @@ public sealed class TableManager
         }
         _piece = null;
         return false;
+    }
+
+    internal bool TryGetAnimalBreeding(string _pieceId, out PuzzleAnimalBreedingData _rule)
+    {
+        return animalBreeding.TryGetValue(_pieceId, out _rule);
     }
     internal bool TryGetStockProfile(string _id, out PuzzleMarketStockData _profile)
     {

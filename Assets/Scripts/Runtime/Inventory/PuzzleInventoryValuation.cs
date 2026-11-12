@@ -30,17 +30,16 @@ internal readonly struct PuzzleSynergyBonus
 {
     internal string NeighborName { get; }
     internal int NeighborId { get; }
-    internal Vector2Int TargetCell { get; }
-    internal Vector2Int NeighborCell { get; }
+    internal (Vector2Int Target, Vector2Int Neighbor)? Contact { get; }
     internal decimal Percent { get; }
     internal decimal Amount { get; }
 
-    internal PuzzleSynergyBonus(PuzzlePlacement _neighbor, Vector2Int _targetCell, Vector2Int _neighborCell, decimal _percent, decimal _amount)
+    internal PuzzleSynergyBonus(PuzzlePlacement _neighbor, (Vector2Int Target, Vector2Int Neighbor)? _contact,
+        decimal _percent, decimal _amount)
     {
         NeighborName = _neighbor.Definition.DisplayName;
         NeighborId = _neighbor.InstanceId;
-        TargetCell = _targetCell;
-        NeighborCell = _neighborCell;
+        Contact = _contact;
         Percent = _percent;
         Amount = _amount;
     }
@@ -50,22 +49,21 @@ internal sealed class PuzzleInventoryValuation
 {
     internal const int BASE_PERCENT = 100;
     // 시너지 대상에서 항상 제외하는 면역 태그.
-    static string PooTag => BasicData.Text("rules.PuzzleInventoryValuation.pooTag");
+    static string PooTag => TableManager.Instance.PuzzleSynergy.animals.wasteTag;
     // 반대편 슬롯에서 같은 경계를 다시 조회하지 않도록 오른쪽과 위만 확인한다.
     static readonly Vector2Int[] FORWARD_OFFSETS = { Vector2Int.right, Vector2Int.up };
 
     readonly struct NeighborEffect
     {
         internal readonly PuzzlePlacement neighbor;
-        internal readonly Vector2Int targetCell, neighborCell;
+        internal readonly (Vector2Int Target, Vector2Int Neighbor)? contact;
         internal readonly decimal bonusPercent, reductionMultiplier;
 
-        internal NeighborEffect(PuzzlePlacement _neighbor, Vector2Int _targetCell, Vector2Int _neighborCell,
+        internal NeighborEffect(PuzzlePlacement _neighbor, (Vector2Int Target, Vector2Int Neighbor)? _contact,
             decimal _bonusPercent, decimal _reductionMultiplier)
         {
             neighbor = _neighbor;
-            targetCell = _targetCell;
-            neighborCell = _neighborCell;
+            contact = _contact;
             bonusPercent = _bonusPercent;
             reductionMultiplier = _reductionMultiplier;
         }
@@ -83,27 +81,22 @@ internal sealed class PuzzleInventoryValuation
     internal void Recalculate(PuzzleInventory _board, IReadOnlyList<PuzzleSynergyRuleData> _rules)
     {
         var effects = new Dictionary<int, List<NeighborEffect>>();
-        var pairs = new HashSet<(int First, int Second)>();
-        foreach (var placement in _board.Placements)
+        var adjacentRules = _rules.Where(_rule => _rule.spatialRange == nameof(PuzzleSynergyRange.Adjacent)).ToArray();
+        if (adjacentRules.Length > 0)
         {
-            foreach (var cell in placement.Pose.Cells)
-            {
-                foreach (var offset in FORWARD_OFFSETS)
-                {
-                    if (!_board.TryGetCell(cell.Position + offset, out var neighbor, out _) ||
-                        placement.InstanceId == neighbor.InstanceId)
-                    {
-                        continue;
-                    }
+            CollectAdjacentEffects(_board, adjacentRules, effects);
+        }
 
-                    var pair = placement.InstanceId < neighbor.InstanceId
-                        ? (placement.InstanceId, neighbor.InstanceId)
-                        : (neighbor.InstanceId, placement.InstanceId);
-                    if (pairs.Add(pair))
-                    {
-                        CollectEffects(placement, neighbor, cell.Position, cell.Position + offset, _rules, effects);
-                        CollectEffects(neighbor, placement, cell.Position + offset, cell.Position, _rules, effects);
-                    }
+        var boardRules = _rules.Where(_rule => _rule.spatialRange == nameof(PuzzleSynergyRange.Board)).ToArray();
+        if (boardRules.Length > 0)
+        {
+            var placements = _board.Placements.ToArray();
+            for (int i = 0; i < placements.Length; i++)
+            {
+                for (int j = i + 1; j < placements.Length; j++)
+                {
+                    CollectEffects(placements[i], placements[j], null, boardRules, effects);
+                    CollectEffects(placements[j], placements[i], null, boardRules, effects);
                 }
             }
         }
@@ -124,9 +117,43 @@ internal sealed class PuzzleInventoryValuation
         Total = new PuzzleValue(baseTotal, finalTotal);
     }
 
+    static void CollectAdjacentEffects(PuzzleInventory _board, IReadOnlyList<PuzzleSynergyRuleData> _rules,
+        Dictionary<int, List<NeighborEffect>> _effects)
+    {
+        var pairs = new HashSet<(int First, int Second)>();
+        foreach (var placement in _board.Placements)
+        {
+            foreach (var cell in placement.Pose.Cells)
+            {
+                foreach (var offset in FORWARD_OFFSETS)
+                {
+                    if (!_board.TryGetCell(cell.Position + offset, out var neighbor, out _) ||
+                        placement.InstanceId == neighbor.InstanceId)
+                    {
+                        continue;
+                    }
+
+                    var pair = placement.InstanceId < neighbor.InstanceId
+                        ? (placement.InstanceId, neighbor.InstanceId)
+                        : (neighbor.InstanceId, placement.InstanceId);
+                    if (pairs.Add(pair))
+                    {
+                        var neighborPosition = cell.Position + offset;
+                        CollectEffects(placement, neighbor, (cell.Position, neighborPosition), _rules, _effects);
+                        CollectEffects(neighbor, placement, (neighborPosition, cell.Position), _rules, _effects);
+                    }
+                }
+            }
+        }
+    }
+
     static PuzzleValue CalculateValue(int _baseValue, List<NeighborEffect> _effects)
     {
-        _effects.Sort((left, right) => left.neighbor.InstanceId.CompareTo(right.neighbor.InstanceId));
+        _effects.Sort((_left, _right) =>
+        {
+            int order = _left.neighbor.InstanceId.CompareTo(_right.neighbor.InstanceId);
+            return order != 0 ? order : _right.contact.HasValue.CompareTo(_left.contact.HasValue);
+        });
         var details = new List<PuzzleSynergyBonus>();
         decimal finalValue = _baseValue;
         foreach (var effect in _effects)
@@ -135,7 +162,7 @@ internal sealed class PuzzleInventoryValuation
             {
                 decimal amount = _baseValue * (effect.bonusPercent / BASE_PERCENT);
                 finalValue += amount;
-                details.Add(new PuzzleSynergyBonus(effect.neighbor, effect.targetCell, effect.neighborCell, effect.bonusPercent, amount));
+                details.Add(new PuzzleSynergyBonus(effect.neighbor, effect.contact, effect.bonusPercent, amount));
             }
         }
         foreach (var effect in _effects)
@@ -144,15 +171,15 @@ internal sealed class PuzzleInventoryValuation
             {
                 decimal reducedValue = finalValue * effect.reductionMultiplier;
                 decimal percent = (effect.reductionMultiplier - 1) * BASE_PERCENT;
-                details.Add(new PuzzleSynergyBonus(effect.neighbor, effect.targetCell, effect.neighborCell, percent, reducedValue - finalValue));
+                details.Add(new PuzzleSynergyBonus(effect.neighbor, effect.contact, percent, reducedValue - finalValue));
                 finalValue = reducedValue;
             }
         }
         return new PuzzleValue(_baseValue, finalValue, details.AsReadOnly());
     }
 
-    static void CollectEffects(PuzzlePlacement _target, PuzzlePlacement _neighbor, Vector2Int _targetCell,
-        Vector2Int _neighborCell, IReadOnlyList<PuzzleSynergyRuleData> _rules,
+    static void CollectEffects(PuzzlePlacement _target, PuzzlePlacement _neighbor,
+        (Vector2Int Target, Vector2Int Neighbor)? _contact, IReadOnlyList<PuzzleSynergyRuleData> _rules,
         Dictionary<int, List<NeighborEffect>> _effects)
     {
         // Poo 태그 아이템은 어떤 태그 시너지의 대상도 되지 않는다(음수 가치 고정).
@@ -193,7 +220,7 @@ internal sealed class PuzzleInventoryValuation
                 _effects.Add(_target.InstanceId, itemEffects);
             }
 
-            itemEffects.Add(new NeighborEffect(_neighbor, _targetCell, _neighborCell, bonusPercent, reductionMultiplier));
+            itemEffects.Add(new NeighborEffect(_neighbor, _contact, bonusPercent, reductionMultiplier));
         }
     }
 }

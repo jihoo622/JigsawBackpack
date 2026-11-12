@@ -690,7 +690,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             try
             {
                 previewActivations = session.SynergyActivationsFor(previewMinutes.Value);
-                futureValue = checked(actualValue + (value.FinalValue - value.BaseValue) * previewActivations.Value);
+                futureValue = session.PreviewValueAfter(_placement, previewMinutes.Value);
             }
             catch (System.OverflowException)
             {

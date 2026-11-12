@@ -7,7 +7,7 @@ public sealed class PuzzleInventory
 {
     readonly IReadOnlyDictionary<string, PuzzleItemDefinition> definitions;
     readonly IReadOnlyList<PuzzleSynergyRuleData> synergyRules;
-    readonly PuzzleInventoryValuation valuation = new();
+    PuzzleInventoryValuation valuation = new();
     readonly SortedDictionary<int, PuzzlePlacement> placements = new();
     readonly Dictionary<Vector2Int, (int InstanceId, PuzzleCell Cell)> occupancy = new();
 
@@ -44,33 +44,68 @@ public sealed class PuzzleInventory
         return valuation.ValueOf(_instanceId);
     }
 
+    internal decimal ActualValueOf(int _instanceId)
+    {
+        return placements[_instanceId].ActualValue;
+    }
+
+    internal PuzzleInventory CopyForTimeAdvance()
+    {
+        var copy = new PuzzleInventory(this);
+        foreach (var placement in placements.Values)
+        {
+            copy.StorePlacement(copy.CopyPlacement(placement));
+        }
+        copy.RecalculateValue();
+        return copy;
+    }
+
+    PuzzleInventory(PuzzleInventory _source)
+    {
+        Width = _source.Width;
+        Height = _source.Height;
+        definitions = _source.definitions;
+        synergyRules = _source.synergyRules;
+    }
+
+    internal void CommitTimeAdvance(PuzzleInventory _staged)
+    {
+        occupancy.Clear();
+        foreach (var staged in _staged.placements.Values)
+        {
+            if (placements.TryGetValue(staged.InstanceId, out var existing) && existing.Pose == staged.Pose &&
+                existing.Definition == staged.Definition)
+            {
+                existing.CopyTimeState(staged);
+                StorePlacement(existing);
+            }
+            else
+            {
+                StorePlacement(CopyPlacement(staged));
+            }
+        }
+        valuation = _staged.valuation;
+    }
+
+    PuzzlePlacement CopyPlacement(PuzzlePlacement _placement)
+    {
+        return new PuzzlePlacement(_placement.InstanceId, _placement.Definition, this, _placement.Pose,
+            _placement.ActualValue, _placement.OwnedMinutes, _placement.Durability);
+    }
+
     internal void RecalculateValue()
     {
         valuation.Recalculate(this, synergyRules);
     }
 
-    // 현재 인접 배치의 1회 변화량을 정산 횟수만큼 적용한다.
-    internal bool CanApplySynergyActivations(long _count)
-    {
-        RecalculateValue();
-        try
-        {
-            foreach (var placement in placements.Values)
-            {
-                var value = valuation.ValueOf(placement.InstanceId);
-                _ = checked(placement.ActualValue + (value.FinalValue - value.BaseValue) * _count);
-            }
-        }
-        catch (OverflowException)
-        {
-            return false;
-        }
-        return true;
-    }
-
+    // 현재 배치의 시너지 변화량을 정산 횟수만큼 적용한다.
     internal void ApplySynergyActivations(long _count)
     {
-        RecalculateValue();
+        if (_count == 0)
+        {
+            return;
+        }
+
         foreach (var placement in placements.Values)
         {
             var value = valuation.ValueOf(placement.InstanceId);
@@ -219,40 +254,60 @@ public sealed class PuzzleInventory
     // 비어 있는 첫 칸에 조각을 새로 올려 배치한다. 마땅한 빈 칸이 없으면 false.
     internal bool TryAutoPlace(PuzzleItemDefinition _definition, int _instanceId, out PuzzlePlacement _placement)
     {
-        _placement = null;
-        var rotation = new PuzzleRotation(_definition.Cells, 0);
-        for (int y = 0; y < Height; y++)
+        if (!TryFindAutoPlacement(_definition, out var pose))
         {
-            for (int x = 0; x < Width; x++)
-            {
-                if (!TryCreatePose(_definition.Cells, new Vector2Int(x, y), rotation, out var pose))
-                {
-                    continue;
-                }
+            _placement = null;
+            return false;
+        }
 
-                bool free = true;
-                foreach (var cell in pose.Cells)
+        _placement = PlaceSpawnedItem(_definition, _instanceId, pose);
+        return true;
+    }
+
+    internal bool TryAutoPlace(PuzzleItemDefinition _definition, ref int _lastInstanceId, bool _allowRotation = false)
+    {
+        if (!TryFindAutoPlacement(_definition, out var pose, _allowRotation))
+        {
+            return false;
+        }
+
+        PlaceSpawnedItem(_definition, checked(++_lastInstanceId), pose);
+        return true;
+    }
+
+    internal bool CanAutoPlace(PuzzleItemDefinition _definition, bool _allowRotation = false)
+    {
+        return TryFindAutoPlacement(_definition, out _, _allowRotation);
+    }
+
+    PuzzlePlacement PlaceSpawnedItem(PuzzleItemDefinition _definition, int _instanceId, PuzzlePose _pose)
+    {
+        var placement = new PuzzlePlacement(_instanceId, _definition, this, _pose, _definition.BaseValue, 0);
+        StorePlacement(placement);
+        RecalculateValue();
+        return placement;
+    }
+
+    bool TryFindAutoPlacement(PuzzleItemDefinition _definition, out PuzzlePose _pose, bool _allowRotation = false)
+    {
+        int turns = _allowRotation ? PuzzleRotation.TURN_COUNT : 1;
+        for (int turn = 0; turn < turns; turn++)
+        {
+            var rotation = new PuzzleRotation(_definition.Cells, turn);
+            for (int y = 0; y < Height; y++)
+            {
+                for (int x = 0; x < Width; x++)
                 {
-                    if (!InBounds(cell.Position) || occupancy.ContainsKey(cell.Position))
+                    if (TryCreatePose(_definition.Cells, new Vector2Int(x, y), rotation, out _pose) &&
+                        CheckPlacement(_pose.Cells, null) == PuzzlePlacementFailure.None)
                     {
-                        free = false;
-                        break;
+                        return true;
                     }
                 }
-
-                if (!free)
-                {
-                    continue;
-                }
-
-                var placement = new PuzzlePlacement(_instanceId, _definition, this, pose, _definition.BaseValue, 0);
-                StorePlacement(placement);
-                RecalculateValue();
-                _placement = placement;
-                return true;
             }
         }
 
+        _pose = null;
         return false;
     }
 
