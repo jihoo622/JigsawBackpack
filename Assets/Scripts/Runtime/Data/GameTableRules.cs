@@ -247,6 +247,18 @@ public sealed class GameTableRules
             Check(low >= 0 && low < medium && medium < 100,
                 "BasicDataTableData.ui.freshness", "신선도 구간은 0 이상이며 낮음 < 중간 < 100이어야 합니다.");
         }
+        const string LOW_FRESHNESS_VALUE = "rules.freshness.lowValuePercent";
+        const string MEDIUM_FRESHNESS_VALUE = "rules.freshness.mediumValuePercent";
+        const string HIGH_FRESHNESS_VALUE = "rules.freshness.highValuePercent";
+        if (_tables.HasBasicNumber(LOW_FRESHNESS_VALUE) && _tables.HasBasicNumber(MEDIUM_FRESHNESS_VALUE) &&
+            _tables.HasBasicNumber(HIGH_FRESHNESS_VALUE))
+        {
+            double low = _tables.BasicNumber(LOW_FRESHNESS_VALUE).value;
+            double medium = _tables.BasicNumber(MEDIUM_FRESHNESS_VALUE).value;
+            double high = _tables.BasicNumber(HIGH_FRESHNESS_VALUE).value;
+            Check(low > 0 && low <= medium && medium <= high && high <= 100,
+                "BasicDataTableData.rules.freshness", "가치 배율은 0보다 크고 낮음 ≤ 보통 ≤ 신선함 ≤ 100이어야 합니다.");
+        }
         foreach (string id in new[] { "ui.tooltip.badgeBlend", "ui.freshness.outlineWidth" })
         {
             if (_tables.HasBasicNumber(id))

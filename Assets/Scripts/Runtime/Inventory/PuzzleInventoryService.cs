@@ -387,7 +387,7 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         }
         var currentWagon = Train;
         decimal? cargoValueBeforeSettlement = activations > 0
-            ? currentWagon.Placements.Sum(item => item.ActualValue) : null;
+            ? currentWagon.Placements.Sum(item => item.FreshnessAdjustedValue) : null;
         foreach (var wagon in trainWagons)
         {
             if (!wagon.ApplySynergyActivations(activations) && wagon == currentWagon)
@@ -613,8 +613,20 @@ public sealed class PuzzleInventoryService : MonoBehaviour
             return false;
         }
         var rate = RateFor(_item.Definition);
-        decimal value = _direction == PuzzleTradeDirection.Buy ? _item.Definition.BaseValue : _item.ActualValue;
+        decimal value = _direction == PuzzleTradeDirection.Buy ? _item.Definition.BaseValue : _item.FreshnessAdjustedValue;
         return TryGetTradePrice(value, rate.PercentFor(_direction), RegionData.pricePercent, out _price);
+    }
+
+    internal decimal PreviewCargoValue(PuzzlePlacement _item, long _minutes, long _activations)
+    {
+        int? freshness = _item.FreshnessPercentAfter(_minutes);
+        if (freshness == 0 && _item.RemainingShelfLifeMinutes.HasValue)
+        {
+            return definitions[ExpiredFoodPieceId].BaseValue;
+        }
+        var value = _item.Owner.ValueOf(_item.InstanceId);
+        decimal settledValue = checked(_item.ActualValue + (value.FinalValue - value.BaseValue) * _activations);
+        return PuzzlePlacement.ApplyFreshnessToValue(settledValue, freshness);
     }
 
     static bool TryGetTradePrice(decimal _value, int _percent, int _regionPercent, out long _price)

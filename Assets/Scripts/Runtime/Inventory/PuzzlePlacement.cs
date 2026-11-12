@@ -82,6 +82,8 @@ public sealed class PuzzlePose
     }
 }
 
+internal enum PuzzleFreshnessBand { Empty, Low, Medium, High }
+
 public sealed class PuzzlePlacement
 {
     const long FRESHNESS_INTERVAL_MINUTES = 6 * PuzzleTimeManager.MINUTES_PER_HOUR;
@@ -103,25 +105,56 @@ public sealed class PuzzlePlacement
     internal long? RemainingShelfLifeMinutes => Definition.HasDurability && ShelfLifeMinutes > 0
         ? ShelfLifeMinutes - shelfLifeElapsedMinutes : null;
 
-    internal int? FreshnessPercent
+    internal int? FreshnessPercent => FreshnessPercentAfter(0);
+    internal decimal FreshnessAdjustedValue => ApplyFreshnessToValue(ActualValue, FreshnessPercent);
+
+    internal int? FreshnessPercentAfter(long _minutes)
     {
-        get
+        if (!Definition.HasDurability)
         {
-            if (!Definition.HasDurability)
-            {
-                return null;
-            }
-            if (!RemainingShelfLifeMinutes.HasValue)
-            {
-                return Durability;
-            }
-            if (RemainingShelfLifeMinutes.Value == 0)
-            {
-                return 0;
-            }
-            long settledAge = shelfLifeElapsedMinutes - shelfLifeElapsedMinutes % FRESHNESS_INTERVAL_MINUTES;
-            return (int)Math.Max(1, (ShelfLifeMinutes - settledAge) * 100 / ShelfLifeMinutes);
+            return null;
         }
+        if (RemainingShelfLifeMinutes is not long remaining)
+        {
+            return Durability;
+        }
+        if (_minutes >= remaining)
+        {
+            return 0;
+        }
+        long age = shelfLifeElapsedMinutes + _minutes;
+        long settledAge = age - age % FRESHNESS_INTERVAL_MINUTES;
+        return (int)Math.Max(1, (ShelfLifeMinutes - settledAge) * 100 / ShelfLifeMinutes);
+    }
+
+    internal static PuzzleFreshnessBand FreshnessBand(int _percent)
+    {
+        if (_percent <= 0)
+        {
+            return PuzzleFreshnessBand.Empty;
+        }
+        if (_percent < BasicData.Int("ui.freshness.lowThreshold"))
+        {
+            return PuzzleFreshnessBand.Low;
+        }
+        return _percent < BasicData.Int("ui.freshness.mediumThreshold")
+            ? PuzzleFreshnessBand.Medium : PuzzleFreshnessBand.High;
+    }
+
+    internal static decimal ApplyFreshnessToValue(decimal _value, int? _freshness)
+    {
+        if (!_freshness.HasValue)
+        {
+            return _value;
+        }
+        int percent = FreshnessBand(_freshness.Value) switch
+        {
+            PuzzleFreshnessBand.Low => BasicData.Int("rules.freshness.lowValuePercent"),
+            PuzzleFreshnessBand.Medium => BasicData.Int("rules.freshness.mediumValuePercent"),
+            PuzzleFreshnessBand.High => BasicData.Int("rules.freshness.highValuePercent"),
+            _ => 0
+        };
+        return _value * (percent / 100m);
     }
 
     internal PuzzlePlacement(int _instanceId, PuzzleItemDefinition _definition, PuzzleInventory _owner, PuzzlePose _pose,

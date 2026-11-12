@@ -484,19 +484,13 @@ public static class Presentation
 
     internal static Color PuzzleFreshnessColor(int _percent)
     {
-        if (_percent == 0)
+        return PuzzlePlacement.FreshnessBand(_percent) switch
         {
-            return BasicData.Color("presentation.freshness.empty");
-        }
-        if (_percent < BasicData.Int("ui.freshness.lowThreshold"))
-        {
-            return BasicData.Color("presentation.freshness.low");
-        }
-        if (_percent < BasicData.Int("ui.freshness.mediumThreshold"))
-        {
-            return BasicData.Color("presentation.freshness.medium");
-        }
-        return BasicData.Color("presentation.freshness.high");
+            PuzzleFreshnessBand.Low => BasicData.Color("presentation.freshness.low"),
+            PuzzleFreshnessBand.Medium => BasicData.Color("presentation.freshness.medium"),
+            PuzzleFreshnessBand.High => BasicData.Color("presentation.freshness.high"),
+            _ => BasicData.Color("presentation.freshness.empty")
+        };
     }
 
     internal static string PuzzleTooltipEffectDescription(string _description)

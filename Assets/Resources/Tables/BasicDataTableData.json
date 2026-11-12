@@ -2203,7 +2203,7 @@
         },
         {
           "id": "wasteLabel",
-          "value": "폐기물"
+          "value": "거름"
         },
         {
           "id": "puzzleTagCommon",
@@ -2946,6 +2946,29 @@
           "id": "wagonWidth",
           "value": 150.0,
           "positive": true
+        }
+      ]
+    },
+    {
+      "id": "rules.freshness",
+      "numbers": [
+        {
+          "id": "highValuePercent",
+          "value": 100,
+          "positive": true,
+          "whole": true
+        },
+        {
+          "id": "mediumValuePercent",
+          "value": 80,
+          "positive": true,
+          "whole": true
+        },
+        {
+          "id": "lowValuePercent",
+          "value": 50,
+          "positive": true,
+          "whole": true
         }
       ]
     },
