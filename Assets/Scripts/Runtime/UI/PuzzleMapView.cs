@@ -19,6 +19,7 @@ public sealed class PuzzleMapView : PanelBase
         public string fromCityId, toCityId;
         public Text label;
         public Image plate;
+        public bool manualPosition;
         [NonSerialized] public Vector2 position;
     }
 
@@ -50,6 +51,7 @@ public sealed class PuzzleMapView : PanelBase
     readonly Dictionary<Image, float> trackThickness = new Dictionary<Image, float>();
     PuzzleMapNodeView[] layoutNodes;
     RouteTimeVisual[] layoutRoutes;
+    readonly HashSet<RouteTimeVisual> manualTimeLabels = new HashSet<RouteTimeVisual>();
     string currentCityId;
     string selectedCityId;
     float labelGap;
@@ -97,8 +99,17 @@ public sealed class PuzzleMapView : PanelBase
         }
         layoutNodes = (PuzzleMapNodeView[])nodes.Clone();
         layoutRoutes = (RouteTimeVisual[])routeTimes.Clone();
+        // UGUI는 형제 순서로 그린다. 복제된 배경이 글자 위를 덮지 않도록 층을 고정한다.
         foreach (var route in layoutRoutes)
         {
+            if (route.plate)
+            {
+                route.plate.transform.SetAsLastSibling();
+            }
+        }
+        foreach (var route in layoutRoutes)
+        {
+            route.label.transform.SetAsLastSibling();
             route.position = route.label.rectTransform.anchoredPosition;
         }
         foreach (var track in routeLines)
@@ -120,6 +131,24 @@ public sealed class PuzzleMapView : PanelBase
         {
             node.PrepareLayout(_zoom);
             markerBounds.Add(node, node.MarkerBounds(_viewport));
+        }
+        manualTimeLabels.Clear();
+        if (_zoom >= BasicData.Float("ui.PuzzleMapView.updateMapLayoutAbovePercent2"))
+        {
+            foreach (var route in layoutRoutes)
+            {
+                if (!route.manualPosition || !IsReachableRoute(route))
+                {
+                    continue;
+                }
+                Vector2 size = PrepareTimeLabel(route, _zoom);
+                Rect box = Box(_viewport.InverseTransformPoint(route.label.transform.position), size);
+                if (Available(box, bounds))
+                {
+                    occupied.Add(box);
+                    manualTimeLabels.Add(route);
+                }
+            }
         }
         pendingLabels.Clear();
         regionLabelCounts.Clear();
@@ -183,20 +212,14 @@ public sealed class PuzzleMapView : PanelBase
                 }
                 continue;
             }
-            label.rectTransform.localScale = Vector3.one / _zoom;
-            label.rectTransform.anchoredPosition = route.position;
-            label.fontSize = Presentation.PuzzleMapTimeFontSize;
-            label.resizeTextForBestFit = false;
-            label.horizontalOverflow = HorizontalWrapMode.Overflow;
-            Vector2 size = new Vector2(Mathf.Ceil(label.preferredWidth) + BasicData.Float("ui.PuzzleMapView.updateMapLayoutX"), BasicData.Float("ui.PuzzleMapView.updateMapLayoutY"));
-            label.rectTransform.sizeDelta = size;
-            bool visible = false;
+            Vector2 size = PrepareTimeLabel(route, _zoom);
+            bool visible = route.manualPosition && manualTimeLabels.Contains(route);
             if (route.plate)
             {
                 var plate = route.plate.rectTransform;
                 plate.localScale = Vector3.one / _zoom;
                 plate.sizeDelta = size;
-                if (_zoom >= BasicData.Float("ui.PuzzleMapView.updateMapLayoutAbovePercent2"))
+                if (!route.manualPosition && _zoom >= BasicData.Float("ui.PuzzleMapView.updateMapLayoutAbovePercent2"))
                 {
                     Vector2 origin = _viewport.InverseTransformPoint(label.transform.position);
                     foreach (var offset in TimeOffsets)
@@ -216,6 +239,19 @@ public sealed class PuzzleMapView : PanelBase
             }
             label.gameObject.SetActive(visible);
         }
+    }
+
+    Vector2 PrepareTimeLabel(RouteTimeVisual _route, float _zoom)
+    {
+        var label = _route.label;
+        label.rectTransform.localScale = Vector3.one / _zoom;
+        label.rectTransform.anchoredPosition = _route.position;
+        label.fontSize = Presentation.PuzzleMapTimeFontSize;
+        label.resizeTextForBestFit = false;
+        label.horizontalOverflow = HorizontalWrapMode.Overflow;
+        Vector2 size = new Vector2(Mathf.Ceil(label.preferredWidth) + BasicData.Float("ui.PuzzleMapView.updateMapLayoutX"), BasicData.Float("ui.PuzzleMapView.updateMapLayoutY"));
+        label.rectTransform.sizeDelta = size;
+        return size;
     }
 
     bool PlaceNodeLabel(PuzzleMapNodeView _node, Rect _bounds, RectTransform _viewport)

@@ -6,6 +6,7 @@ using System;
 using UnityEditor;
 using UnityEngine.UI;
 using UnityEngine;
+using Newtonsoft.Json.Linq;
 
 // 생성 월드 데이터(seed 20265146)의 좌표·폴리라인을 PuzzleWorldMap 프리팹에 적용하는 에디터 도구다.
 // 표(PuzzleTableData·PuzzleRouteTableData)는 이미 갱신되어 있고, 이 도구는 표시층만 고친다.
@@ -55,6 +56,7 @@ public static class RailMapLayoutTool
         public long cost;
         public float labelX;
         public float labelY;
+        public bool labelManual;
         public float[] points;
         public float[] displayPoints;
     }
@@ -294,7 +296,7 @@ public static class RailMapLayoutTool
             }
 
             var label = new Vector2(rail.labelX, rail.labelY);
-            if (NudgeFromNodes(label, nodeById, out var nudged))
+            if (!rail.labelManual && NudgeFromNodes(label, nodeById, out var nudged))
             {
                 label = nudged;
                 labelsNudged++;
@@ -349,6 +351,7 @@ public static class RailMapLayoutTool
         }
         BindRouteTimes(view, _layout, timeByIndex, plateByIndex);
         BindLineGroups(view, imagesByRegion, activeLegs);
+        OrderTimeVisuals(_root);
         var regionBindings = new SerializedObject(view).FindProperty("regions");
         for (int i = 0; i < regionBindings.arraySize; i++)
         {
@@ -367,6 +370,45 @@ public static class RailMapLayoutTool
         }
 
         Debug.Log($"[RailMap] 노드 {nodesMoved} · 레일 {_layout.rails.Length} · 레그 {legsUsed}(신규 {legsCreated}, 비활성 {legsDisabled}) · 시간 라벨 {labelsMoved}(겹침 보정 {labelsNudged})\n{report}");
+    }
+
+    public static void SynchronizeRoutePoints(JObject _layout, JObject _routes)
+    {
+        var rows = _routes["routes"].OfType<JObject>().ToArray();
+        foreach (var rail in _layout["rails"].OfType<JObject>())
+        {
+            var display = rail["displayPoints"] as JArray;
+            var points = display != null && display.Count >= 4 ? display : (JArray)rail["points"];
+            rail["points"] = points.DeepClone();
+            var forward = rows.Single(_row => (string)_row["fromCityId"] == (string)rail["fromCityId"] && (string)_row["toCityId"] == (string)rail["toCityId"]);
+            var backward = rows.Single(_row => (string)_row["fromCityId"] == (string)rail["toCityId"] && (string)_row["toCityId"] == (string)rail["fromCityId"]);
+            forward["points"] = points.DeepClone();
+            var reverse = new JArray();
+            for (int i = points.Count - 2; i >= 0; i -= 2)
+            {
+                reverse.Add(points[i].DeepClone());
+                reverse.Add(points[i + 1].DeepClone());
+            }
+            backward["points"] = reverse;
+        }
+    }
+
+    public static void OrderTimeVisuals(GameObject _root)
+    {
+        var view = new SerializedObject(_root.GetComponentInChildren<PuzzleMapView>(true));
+        var routes = view.FindProperty("routeTimes");
+        // 모든 배경 뒤에 모든 글자를 그린다.
+        foreach (string field in new[] { "plate", "label" })
+        {
+            for (int i = 0; i < routes.arraySize; i++)
+            {
+                var graphic = routes.GetArrayElementAtIndex(i).FindPropertyRelative(field).objectReferenceValue as Graphic;
+                if (graphic)
+                {
+                    graphic.transform.SetAsLastSibling();
+                }
+            }
+        }
     }
 
     static void SynchronizeNodes(GameObject _root, PuzzleMapView _view, Dictionary<string, LayoutNode> _nodeById)
@@ -488,6 +530,7 @@ public static class RailMapLayoutTool
             var element = routes.GetArrayElementAtIndex(i);
             element.FindPropertyRelative("fromCityId").stringValue = rail.fromCityId;
             element.FindPropertyRelative("toCityId").stringValue = rail.toCityId;
+            element.FindPropertyRelative("manualPosition").boolValue = rail.labelManual;
             element.FindPropertyRelative("plate").objectReferenceValue = _plateByIndex[rail.railIndex].GetComponent<Image>();
 
             var label = element.FindPropertyRelative("label");

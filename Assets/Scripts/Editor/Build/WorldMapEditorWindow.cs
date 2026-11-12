@@ -18,8 +18,6 @@ public sealed partial class WorldMapEditorWindow : EditorWindow
     [SerializeField] int tab;
     [SerializeField] string selectedId;
     [SerializeField] float snapStep = 10f;
-    [SerializeField] bool moveTimeGeometry;
-    [SerializeField] bool editTimeGeometry;
     Vector2 listScroll, detailScroll;
     string search = "", newId = "", newName = "", newFrom, newTo;
     string message, rawText, rawKey;
@@ -112,6 +110,7 @@ public sealed partial class WorldMapEditorWindow : EditorWindow
             layout = JObject.Parse(draft.layout);
             puzzle = JObject.Parse(draft.puzzle);
             routes = JObject.Parse(draft.routes);
+            RebasePathMigration();
             rawKey = null;
             hasUnsavedChanges = Dirty;
             Repaint();
@@ -123,6 +122,53 @@ public sealed partial class WorldMapEditorWindow : EditorWindow
         }
     }
 
+    void RebasePathMigration()
+    {
+        string currentLayout = File.ReadAllText(RailMapLayoutTool.LAYOUT_PATH);
+        string currentRoutes = File.ReadAllText(RoutesPath);
+        if (currentLayout == originalLayout && currentRoutes == originalRoutes)
+        {
+            return;
+        }
+        var baselineLayout = JObject.Parse(originalLayout);
+        var baselineRoutes = JObject.Parse(originalRoutes);
+        RailMapLayoutTool.SynchronizeRoutePoints(baselineLayout, baselineRoutes);
+        foreach (var rail in baselineLayout["rails"].OfType<JObject>())
+        {
+            if (rail["labelManual"] == null)
+            {
+                rail["labelManual"] = true;
+            }
+        }
+        var diskLayout = JObject.Parse(currentLayout);
+        var diskRoutes = JObject.Parse(currentRoutes);
+        baselineLayout.Remove("note");
+        baselineRoutes.Remove("note");
+        var comparableLayout = (JObject)diskLayout.DeepClone();
+        var comparableRoutes = (JObject)diskRoutes.DeepClone();
+        comparableLayout.Remove("note");
+        comparableRoutes.Remove("note");
+        if (!JToken.DeepEquals(baselineLayout, comparableLayout) || !JToken.DeepEquals(baselineRoutes, comparableRoutes))
+        {
+            // 사용자/외부의 다른 수정은 자동 병합하지 않고 기존 저장 충돌 검사로 보호한다.
+            return;
+        }
+        RailMapLayoutTool.SynchronizeRoutePoints(layout, routes);
+        foreach (var rail in Rails)
+        {
+            if (rail["labelManual"] == null)
+            {
+                rail["labelManual"] = true;
+            }
+        }
+        layout["note"] = diskLayout["note"]?.DeepClone();
+        routes["note"] = diskRoutes["note"]?.DeepClone();
+        originalLayout = currentLayout;
+        originalRoutes = currentRoutes;
+        draft.layout = Json(layout);
+        draft.routes = Json(routes);
+    }
+
     void Change(string _name, Action _edit)
     {
         // 실패한 조작은 메모리의 원본도 복구한다.
@@ -131,6 +177,7 @@ public sealed partial class WorldMapEditorWindow : EditorWindow
         {
             string geometry = autoTimeLabels ? LabelGeometryKey() : null;
             _edit();
+            RailMapLayoutTool.SynchronizeRoutePoints(layout, routes);
             ValidateStructure();
             if (autoTimeLabels && geometry != LabelGeometryKey())
             {
@@ -378,8 +425,6 @@ public sealed partial class WorldMapEditorWindow : EditorWindow
             Change("환승역 표식", () => node["interchange"] = interchange);
         }
         snapStep = EditorGUILayout.FloatField("격자 간격 (0: 해제)", snapStep);
-        moveTimeGeometry = EditorGUILayout.Toggle("이동 시간 경로도 함께 이동", moveTimeGeometry);
-        EditorGUILayout.HelpBox(moveTimeGeometry ? "연결 노선의 시간용 끝점도 이동하므로 소요 시간이 달라집니다." : "표시 위치와 연결 노선의 표시 끝점만 이동합니다. 소요 시간은 유지됩니다.", MessageType.Info);
         EditorGUI.BeginChangeCheck();
         Vector2 point = EditorGUILayout.Vector2Field("역 위치", Position(node));
         if (EditorGUI.EndChangeCheck())
@@ -428,11 +473,6 @@ public sealed partial class WorldMapEditorWindow : EditorWindow
             }
             bool from = (string)rail["fromCityId"] == _id;
             SetEndpoint((JArray)rail["displayPoints"], from, point);
-            if (moveTimeGeometry)
-            {
-                SetEndpoint((JArray)rail["points"], from, point);
-                SyncRouteGeometry(rail);
-            }
         }
         Node(_id)["x"] = point.x;
         Node(_id)["y"] = point.y;
@@ -527,9 +567,7 @@ public sealed partial class WorldMapEditorWindow : EditorWindow
             Change("노선 색 그룹", () => rail["regionId"] = groups[nextGroup]);
         }
         TextField(rail, "corridorType", "노선 분류");
-        editTimeGeometry = EditorGUILayout.Toggle("시간 계산 경로 편집", editTimeGeometry);
-        EditorGUILayout.HelpBox(editTimeGeometry ? "시간 계산용 좌표입니다. 변경하면 왕복 이동 시간이 달라집니다." : "지도 표시 경로입니다. 변경해도 이동 시간은 유지됩니다.", MessageType.Info);
-        string key = editTimeGeometry ? "points" : "displayPoints";
+        string key = "displayPoints";
         var points = (JArray)(rail[key] ?? rail["points"]);
         for (int i = 0; i < points.Count / 2; i++)
         {
@@ -537,7 +575,7 @@ public sealed partial class WorldMapEditorWindow : EditorWindow
             Vector2 before = new Vector2((float)points[index], (float)points[index + 1]);
             using (new EditorGUILayout.HorizontalScope())
             {
-                using (new EditorGUI.DisabledScope(!editTimeGeometry && (i == 0 || i == points.Count / 2 - 1)))
+                using (new EditorGUI.DisabledScope(i == 0 || i == points.Count / 2 - 1))
                 {
                     EditorGUI.BeginChangeCheck();
                     Vector2 point = EditorGUILayout.Vector2Field("점 " + i, before);
@@ -554,10 +592,6 @@ public sealed partial class WorldMapEditorWindow : EditorWindow
                         copy.Insert(index + 2, ((float)points[index] + (float)points[index + 2]) * 0.5f);
                         copy.Insert(index + 3, ((float)points[index + 1] + (float)points[index + 3]) * 0.5f);
                         rail[key] = copy;
-                        if (editTimeGeometry)
-                        {
-                            SyncRouteGeometry(rail);
-                        }
                     });
                     GUIUtility.ExitGUI();
                 }
@@ -569,10 +603,6 @@ public sealed partial class WorldMapEditorWindow : EditorWindow
                         copy.RemoveAt(index + 1);
                         copy.RemoveAt(index);
                         rail[key] = copy;
-                        if (editTimeGeometry)
-                        {
-                            SyncRouteGeometry(rail);
-                        }
                     });
                     GUIUtility.ExitGUI();
                 }
@@ -586,7 +616,14 @@ public sealed partial class WorldMapEditorWindow : EditorWindow
             {
                 rail["labelX"] = label.x;
                 rail["labelY"] = label.y;
+                rail["labelManual"] = true;
             });
+        }
+        bool pinned = (bool?)rail["labelManual"] ?? false;
+        bool nextPinned = EditorGUILayout.Toggle("시간 라벨 위치 고정", pinned);
+        if (pinned != nextPinned)
+        {
+            Change("시간 라벨 위치 고정", () => rail["labelManual"] = nextPinned);
         }
         autoTimeLabels = EditorGUILayout.Toggle("수정 후 시간 라벨 자동 배치", autoTimeLabels);
         if (GUILayout.Button("이 노선 시간 라벨 자동 배치"))
@@ -814,6 +851,7 @@ public sealed partial class WorldMapEditorWindow : EditorWindow
             index++;
             id = "R" + (index + 1).ToString("D2");
         }
+        rail["labelManual"] = false;
         rail["railIndex"] = index;
         rail["sourceId"] = id;
         rail["fromCityId"] = newFrom;
@@ -954,6 +992,10 @@ public sealed partial class WorldMapEditorWindow : EditorWindow
             {
                 throw new IOException("지도 프리팹의 다른 미저장 편집을 먼저 정리하세요.");
             }
+            RailMapLayoutTool.SynchronizeRoutePoints(layout, routes);
+            draft.layout = Json(layout);
+            draft.routes = Json(routes);
+            replacements = new[] { draft.layout, draft.puzzle, draft.routes };
             ValidateLayout();
             prefab = File.ReadAllBytes(RailMapLayoutTool.PREFAB_PATH);
             writing = true;

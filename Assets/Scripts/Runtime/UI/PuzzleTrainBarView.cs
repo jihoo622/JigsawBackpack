@@ -24,6 +24,7 @@ public sealed class PuzzleTrainBarView : MonoBehaviour
 
     [Header("Slots Pool")]
     [SerializeField] WagonSlotUI[] wagonSlots;
+    [SerializeField] bool fitRotatedWagonArtwork;
 
     [Header("Add Wagon Button")]
     [SerializeField] Button addWagonButton;
@@ -210,6 +211,13 @@ public sealed class PuzzleTrainBarView : MonoBehaviour
             {
                 rect.anchoredPosition = new Vector2(start + i * step, y);
                 rect.sizeDelta = size;
+                if (fitRotatedWagonArtwork && wagonSlots[i].wagonImage && wagonSlots[i].wagonImage.sprite)
+                {
+                    var image = wagonSlots[i].wagonImage;
+                    float aspect = image.sprite.rect.width / image.sprite.rect.height;
+                    float height = Mathf.Min(size.x, size.y / aspect);
+                    image.rectTransform.sizeDelta = new Vector2(height * aspect, height);
+                }
             }
         }
 

@@ -248,6 +248,7 @@ public static class MapPresentationTool
             plate.raycastTarget = false;
         }
         view.ApplyModifiedPropertiesWithoutUndo();
+        RailMapLayoutTool.OrderTimeVisuals(_root);
     }
 
     static void Bind(SerializedObject _target, string _field, Object _value)
