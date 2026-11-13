@@ -4,6 +4,27 @@ using System.Linq;
 using System;
 using UnityEngine;
 
+public sealed class GameTableIssue
+{
+    public string Path { get; }
+    public string Message { get; }
+    public string PieceId { get; }
+    public string Field { get; }
+
+    public GameTableIssue(string _path, string _message, string _pieceId = null, string _field = null)
+    {
+        Path = _path;
+        Message = _message;
+        PieceId = _pieceId;
+        Field = _field;
+    }
+
+    public override string ToString()
+    {
+        return "[" + Path + "] " + Message;
+    }
+}
+
 // 검증과 파생 값 계산의 공통 구현. DTO와 로더에는 게임 규칙을 넣지 않는다.
 // 규칙을 추가할 때: Check로 항목별 오류를 모은다(첫 오류에서 멈추지 않는다) → IsValid로 보고 → 사용처는 RequireValid로 차단.
 public sealed class GameTableRules
@@ -16,26 +37,33 @@ public sealed class GameTableRules
     public bool IsValid { get; private set; } = true;
     // 비어 있지 않으면 콘솔 대신 이 목록에 오류를 모은다(편집 도구의 저장 전 검증).
     readonly List<string> errors;
+    readonly List<GameTableIssue> issues;
 
     public GameTableRules()
     {
     }
 
-    public GameTableRules(List<string> _errors)
+    public GameTableRules(List<string> _errors) : this(_errors, null)
     {
-        errors = _errors;
     }
 
-    void Check(bool _condition, string _path, string _rule)
+    public GameTableRules(List<string> _errors, List<GameTableIssue> _issues)
+    {
+        errors = _errors;
+        issues = _issues;
+    }
+
+    void Check(bool _condition, string _path, string _rule, string _pieceId = null, string _field = null)
     {
         if (_condition)
         {
             return;
         }
         IsValid = false;
-        if (errors != null)
+        issues?.Add(new GameTableIssue(_path, _rule, _pieceId, _field));
+        if (errors != null || issues != null)
         {
-            errors.Add($"[{_path}] {_rule}");
+            errors?.Add($"[{_path}] {_rule}");
             return;
         }
         Debug.LogError($"테이블 오류 [{_path}]: {_rule}");
@@ -460,7 +488,7 @@ public sealed class GameTableRules
     {
         Check(_tables.PuzzleSynergy.activationIntervalHours > 0, "PuzzleSynergyTableData.activationIntervalHours",
             "시너지 적용 주기는 양의 정수 시간이어야 합니다.");
-        var tags = new HashSet<string>(_tables.Pieces.SelectMany(item => item.tags ?? Array.Empty<string>()),
+        var tags = new HashSet<string>(_tables.Pieces.SelectMany(_item => _item.tags ?? Array.Empty<string>()),
             StringComparer.Ordinal);
         var rules = _tables.PuzzleSynergy.rules ?? Array.Empty<PuzzleSynergyRuleData>();
         for (int i = 0; i < rules.Length; i++)
@@ -476,11 +504,11 @@ public sealed class GameTableRules
                 "targetTag와 excludedTargetTag 중 하나를 지정해야 합니다.");
             Reference(rule.targetTag, path + ".targetTag", tags.Contains(rule.targetTag), "대상 태그", _allowEmpty: true);
             Check(string.IsNullOrEmpty(rule.excludedTargetTag) ||
-                  rule.excludedTargetTag.Split(',').All(tag => tags.Contains(tag.Trim())),
+                  rule.excludedTargetTag.Split(',').All(_tag => tags.Contains(_tag.Trim())),
                 path + ".excludedTargetTag", "제외 대상 태그는 쉼표로 구분된 등록 태그여야 합니다.");
             Reference(rule.neighborTag, path + ".neighborTag", tags.Contains(rule.neighborTag), "이웃 태그");
             Check(string.IsNullOrEmpty(rule.excludedNeighborTag) ||
-                  rule.excludedNeighborTag.Split(',').All(tag => tags.Contains(tag.Trim())),
+                  rule.excludedNeighborTag.Split(',').All(_tag => tags.Contains(_tag.Trim())),
                 path + ".excludedNeighborTag", "제외 이웃 태그는 쉼표로 구분된 등록 태그여야 합니다.");
             Reference(rule.descriptionTag, path + ".descriptionTag", tags.Contains(rule.descriptionTag),
                 "설명 표시 태그", _allowEmpty: true);
@@ -490,6 +518,8 @@ public sealed class GameTableRules
                 path + ".spatialRange", "공간 범위는 Adjacent 또는 Board여야 합니다.");
             Check(rule.multiplierPercent > 0, path + ".multiplierPercent", "배율은 양의 정수 백분율이어야 합니다.");
             Check(!string.IsNullOrWhiteSpace(rule.description), path + ".description", "시너지 설명이 필요합니다.");
+            Check(!string.IsNullOrWhiteSpace(rule.targetDescription), path + ".targetDescription", "효과를 받는 대상의 설명이 필요합니다.");
+            Check(!string.IsNullOrWhiteSpace(rule.sourceDescription), path + ".sourceDescription", "효과를 주는 이웃의 설명이 필요합니다.");
         }
         ValidateAnimalSynergy(_tables, tags);
         const string FRESHNESS_PATH = "PuzzleSynergyTableData.freshness";
@@ -501,15 +531,65 @@ public sealed class GameTableRules
                 "신선도 반영 주기는 양의 정수 시간이어야 합니다.");
             Reference(freshness.refrigerationTag, FRESHNESS_PATH + ".refrigerationTag",
                 tags.Contains(freshness.refrigerationTag), "냉장 태그");
-            Check(freshness.refrigerationReductionPercent > 0 &&
+            Check(freshness.refrigerationReductionPercent >= 0 &&
                 freshness.refrigerationReductionPercent <= PuzzleInventoryValuation.BASE_PERCENT,
-                FRESHNESS_PATH + ".refrigerationReductionPercent", "인접 냉장 감소율은 1~100%여야 합니다.");
+                FRESHNESS_PATH + ".refrigerationReductionPercent", "기존 냉장 효과의 이행 원본은 0~100%여야 합니다.");
             Check(freshness.wagonRefrigerationReductionPercent > 0 &&
                 freshness.wagonRefrigerationReductionPercent <= PuzzleInventoryValuation.BASE_PERCENT,
                 FRESHNESS_PATH + ".wagonRefrigerationReductionPercent", "객차 냉장 감소율은 1~100%여야 합니다.");
             Check(freshness.saltPreservationReductionPercent >= 0 &&
                 freshness.saltPreservationReductionPercent <= PuzzleInventoryValuation.BASE_PERCENT,
                 FRESHNESS_PATH + ".saltPreservationReductionPercent", "소금 보존 감소율은 0~100%여야 합니다.");
+        }
+        foreach (var piece in _tables.Pieces)
+        {
+            ValidatePieceEffects(piece, _tables.SynergyRules, freshness, _tables.PuzzleSynergy.animals?.wasteTag,
+                "PuzzleTableData.pieces." + piece.id);
+        }
+    }
+
+    public void ValidatePieceEffects(PuzzlePieceData _piece, IReadOnlyList<PuzzleSynergyRuleData> _rules,
+        PuzzleFreshnessData _freshness, string _wasteTag, string _path)
+    {
+        var tags = _piece.tags ?? Array.Empty<string>();
+        Check(_piece.synergyEffects != null, _path + ".synergyEffects", "효과 목록이 누락되었습니다. 기존 데이터는 명시적으로 이행하고 효과 없음은 빈 배열로 저장하세요.");
+        var ids = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var effect in _piece.synergyEffects ?? Array.Empty<PuzzlePieceSynergyData>())
+        {
+            if (effect == null)
+            {
+                Check(false, _path + ".synergyEffects", "효과 연결이 누락되었습니다.");
+                continue;
+            }
+            string path = _path + ".synergyEffects." + effect.ruleId;
+            bool hasId = !string.IsNullOrWhiteSpace(effect.ruleId);
+            Check(hasId && ids.Add(effect.ruleId), path, "규칙 ID는 비어 있지 않고 품목 안에서 중복되지 않아야 합니다.");
+            var rule = hasId ? _rules.FirstOrDefault(_rule => _rule != null && _rule.id == effect.ruleId) : null;
+            Check(rule != null, path, "등록된 시너지 규칙 ID가 필요합니다.");
+            Check(effect.target || effect.source, path, "받는 대상 또는 주는 이웃 역할이 하나 이상 필요합니다.");
+            if (rule != null)
+            {
+                Check(!effect.target || PuzzlePieceEffects.EligibleTarget(tags, rule, _wasteTag), path + ".target",
+                    "대상 태그·제외 태그·배설물 면역 조건과 맞지 않는 대상 역할입니다.");
+                Check(!effect.source || PuzzlePieceEffects.EligibleSource(tags, rule), path + ".source",
+                    "이웃 태그 또는 제외 이웃 태그와 맞지 않는 발생원 역할입니다.");
+            }
+        }
+        var preservation = _piece.preservationEffect;
+        Check(preservation != null, _path + ".preservationEffect", "신선 효과를 명시해야 합니다. 미부여 품목도 enabled=false, reductionPercent=0이 필요합니다.");
+        if (preservation == null)
+        {
+            return;
+        }
+        string preservationPath = _path + ".preservationEffect";
+        Check(preservation.reductionPercent >= 0 && preservation.reductionPercent <= PuzzleInventoryValuation.BASE_PERCENT,
+            preservationPath + ".reductionPercent", "품목별 신선 감소율은 0~100%여야 합니다.");
+        Check(preservation.enabled || preservation.reductionPercent == 0, preservationPath,
+            "신선 효과가 없는 품목의 감소율은 0이어야 합니다.");
+        if (_freshness != null)
+        {
+            Check(preservation.enabled == tags.Contains(_freshness.refrigerationTag), preservationPath + ".enabled",
+                "신선 효과 활성 여부와 " + _freshness.refrigerationTag + " 태그가 일치해야 합니다.");
         }
     }
 
@@ -569,7 +649,7 @@ public sealed class GameTableRules
             if (tags.Contains(animals.animalTag) && !tags.Contains(PuzzleItemDefinition.BABY_TAG))
             {
                 Check(_tables.TryGetAnimalBreeding(piece.id, out _), PATH + ".breeding",
-                    $"성체 동물 품목 '{piece.id}'의 번식 규칙이 필요합니다.");
+                    $"성체 동물 품목 '{piece.id}'의 번식 규칙이 필요합니다.", piece.id, "breeding");
             }
         }
     }
@@ -892,7 +972,7 @@ public sealed class GameTableRules
                 if (tags.Contains(pair.Key) && !pair.Value.Contains(piece.id))
                 {
                     Check(false, "PuzzleCityActionTableData.modes.conversions",
-                        $"'{pair.Key}' 태그 품목 '{piece.id}'의 개조 변환 매핑이 없습니다. 제외하려면 exemptFromModification을 설정하세요.");
+                        $"'{pair.Key}' 태그 품목 '{piece.id}'의 개조 변환 매핑이 없습니다. 제외하려면 exemptFromModification을 설정하세요.", piece.id, "exemptFromModification");
                 }
             }
         }
@@ -983,6 +1063,7 @@ public sealed class GameTableRules
     {
         const string PATH = nameof(PuzzleTableData);
         var puzzle = _tables.Puzzle;
+        ValidateTagPresentations(puzzle);
         var cities = puzzle.cities ?? Array.Empty<PuzzleCityData>();
         int maxSide = cities.Select(city => MaxBoardSide(city?.market)).Append(MaxBoardSide(puzzle.train)).Max();
 
@@ -1079,6 +1160,38 @@ public sealed class GameTableRules
             Check(!(adult.tags ?? Array.Empty<string>()).Contains(PuzzleItemDefinition.BABY_TAG),
                 _path + ".adultPieceId", "성체 화물에는 Baby 태그를 둘 수 없습니다.");
         }
+    }
+
+    void ValidateTagPresentations(PuzzleTableData _puzzle)
+    {
+        const string PATH = "PuzzleTableData.tagPresentations";
+        Check(_puzzle.tagPresentations != null, PATH, "태그 표시 목록은 null일 수 없습니다.");
+        var entries = _puzzle.tagPresentations ?? Array.Empty<PuzzleTagPresentationData>();
+        var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var entry in entries)
+        {
+            ValidateTagPresentation(entry, PATH + "." + entry?.id);
+            if (entry != null)
+            {
+                Check(seen.Add(entry.id ?? string.Empty), PATH + "." + entry.id, "태그 ID가 대소문자 구분 없이 중복되었습니다.");
+            }
+        }
+    }
+
+    public void ValidateTagPresentation(PuzzleTagPresentationData _tag, string _path)
+    {
+        Check(_tag != null, _path, "태그 표시 정의가 필요합니다.");
+        if (_tag == null)
+        {
+            return;
+        }
+        bool validId = !string.IsNullOrWhiteSpace(_tag.id) && !_tag.id.Any(char.IsWhiteSpace) && !_tag.id.Contains(",");
+        Check(validId, _path + ".id", "공백·쉼표가 없는 태그 ID가 필요합니다.");
+        Check(!Presentation.HasBuiltInPuzzleTag(_tag.id), _path + ".id", "기존 기본 태그의 표시 정의를 덮어쓸 수 없습니다.");
+        Check(!string.IsNullOrWhiteSpace(_tag.displayName) && _tag.displayName.Any(_character => _character >= '가' && _character <= '힣'),
+            _path + ".displayName", "한글이 포함된 표시명이 필요합니다.");
+        Check(new[] { _tag.r, _tag.g, _tag.b, _tag.a }.All(_value => !float.IsNaN(_value) && _value >= 0 && _value <= 1),
+            _path, "태그 색 RGBA는 0~1 범위여야 합니다.");
     }
 
     static IEnumerable<PuzzleCityTagPriceData> MatchingTagPrices(PuzzleCityData _city, IReadOnlyCollection<string> _tags)
@@ -1199,7 +1312,7 @@ public sealed class GameTableRules
         Check(slots.Length > 0, _path + ".slots", "일반 물품 배치 슬롯이 필요합니다.");
         Check(candidates.Length > 0, _path + ".pieceIds", "일반 물품 추첨 후보가 필요합니다.");
         var candidateIds = new HashSet<string>(StringComparer.Ordinal);
-        var shapes = new List<Vector2Int[]>();
+        var shapes = new Dictionary<string, Vector2Int[]>(StringComparer.Ordinal);
         foreach (string id in candidates)
         {
             Check(candidateIds.Add(id), _path + ".pieceIds", $"후보 '{id}'가 중복되었습니다.");
@@ -1207,11 +1320,11 @@ public sealed class GameTableRules
             Reference(id, _path + ".pieceIds", exists, "일반 물품");
             if (exists)
             {
-                Check(!piece.excludeFromMarket, _path + ".pieceIds", $"'{id}'는 시장 재고에 둘 수 없습니다.");
+                Check(!piece.excludeFromMarket, _path + ".pieceIds", $"'{id}'는 시장 재고에 둘 수 없습니다.", id, "excludeFromMarket");
             }
             if (exists && _shapes.TryGetValue(piece, out var shape))
             {
-                shapes.Add(shape);
+                shapes[id] = shape;
             }
         }
         var occupied = new HashSet<Vector2Int>();
@@ -1221,7 +1334,7 @@ public sealed class GameTableRules
             {
                 continue;
             }
-            Check(!piece.excludeFromMarket, _path, $"'{placement.pieceId}'는 시장 고정 재고에 둘 수 없습니다.");
+            Check(!piece.excludeFromMarket, _path, $"'{placement.pieceId}'는 시장 고정 재고에 둘 수 없습니다.", placement.pieceId, "excludeFromMarket");
             if (!_shapes.TryGetValue(piece, out var shape) || placement.clockwiseTurns < 0 ||
                 placement.clockwiseTurns >= PuzzleRotation.TURN_COUNT)
             {
@@ -1252,11 +1365,11 @@ public sealed class GameTableRules
             {
                 continue;
             }
-            foreach (var shape in shapes)
+            foreach (var shape in shapes.OrderBy(_shape => _shape.Key, StringComparer.Ordinal))
             {
-                var rotation = new PuzzleRotation(shape, 0);
-                Check(shape.All(cell => rotation.GetBoardOffset(cell).x < slot.width &&
-                    -rotation.GetBoardOffset(cell).y < slot.height), path, "모든 후보가 각 슬롯 크기 안에 들어가야 합니다.");
+                var rotation = new PuzzleRotation(shape.Value, 0);
+                Check(shape.Value.All(_cell => rotation.GetBoardOffset(_cell).x < slot.width &&
+                    -rotation.GetBoardOffset(_cell).y < slot.height), path, "모든 후보가 각 슬롯 크기 안에 들어가야 합니다.", shape.Key, "cells");
             }
             for (int x = 0; x < slot.width; x++)
             {
@@ -1281,17 +1394,24 @@ public sealed class GameTableRules
         Check(!string.IsNullOrWhiteSpace(_piece.description), _path + ".description", "조각 설명이 필요합니다.");
         Check(!string.IsNullOrWhiteSpace(_piece.visualKey), _path + ".visualKey", "표시 에셋 키가 필요합니다.");
         ValidateItemTags(_piece.tags, _path + ".tags");
-        string path = _path + ".cells";
-        var cells = _piece.cells ?? Array.Empty<PuzzleCellData>();
-        Check(cells.Length > 0, path, "슬롯이 하나 이상 필요합니다.");
-        Check(_piece.slotCount > 0 && _piece.slotCount == cells.Length, _path + ".slotCount",
-            $"슬롯 수는 1 이상이며 cells 항목 수({cells.Length})와 일치해야 합니다.");
+        Check(_piece.shelfLifeHours >= 0, _path + ".shelfLifeHours", "유통기한은 0(시간 소모 없음) 이상의 시간이어야 합니다.");
         const string DURABILITY_MAX = "rules.durability.maximum";
         if (_tables.HasBasicNumber(DURABILITY_MAX))
         {
             Check(_piece.durability >= 1 && _piece.durability <= _tables.BasicNumber(DURABILITY_MAX).value,
                 _path + ".durability", "내구도 시작값은 1 이상이며 기초데이터의 상한 이하여야 합니다.");
         }
+
+        return ValidatePieceCells(_piece.cells, _piece.slotCount, _maxSide, _path);
+    }
+
+    public Vector2Int[] ValidatePieceCells(PuzzleCellData[] _cells, int _slotCount, int _maxSide, string _path)
+    {
+        string path = _path + ".cells";
+        var cells = _cells ?? Array.Empty<PuzzleCellData>();
+        Check(cells.Length > 0, path, "슬롯이 하나 이상 필요합니다.");
+        Check(_slotCount > 0 && _slotCount == cells.Length, _path + ".slotCount",
+            $"슬롯 수는 1 이상이며 cells 항목 수({cells.Length})와 일치해야 합니다.");
 
         var positions = new HashSet<Vector2Int>();
         bool hasZeroX = false;
@@ -1366,6 +1486,18 @@ public sealed class GameTableRules
         }
     }
 
+    public void ValidateItemVisuals(IReadOnlyList<PuzzlePieceData> _items, Func<string, bool> _hasVisual, string _viewPath)
+    {
+        foreach (var item in _items)
+        {
+            if (item != null)
+            {
+                Check(_hasVisual(item.visualKey), "PuzzleTableData.pieces." + item.id + ".visualKey",
+                    "'" + item.visualKey + "'에 해당하는 스프라이트가 '" + _viewPath + "'에 없습니다.");
+            }
+        }
+    }
+
     void ValidateBoard(TableManager _tables, PuzzleBoardData _board, Dictionary<PuzzlePieceData, Vector2Int[]> _shapes,
         HashSet<string> _placementIds, string _path)
     {
@@ -1418,7 +1550,7 @@ public sealed class GameTableRules
                 long x = (long)placement.x + offset.x;
                 long y = (long)placement.y + offset.y;
                 bool inBounds = x >= 0 && x < _board.width && y >= 0 && y < _board.height;
-                Check(inBounds, path, $"회전한 슬롯 ({x}, {y})이 격자 밖에 있습니다.");
+                Check(inBounds, path, $"회전한 슬롯 ({x}, {y})이 격자 밖에 있습니다.", piece.id, "cells");
                 if (!inBounds)
                 {
                     continue;
@@ -1427,7 +1559,7 @@ public sealed class GameTableRules
                 var position = new Vector2Int((int)x, (int)y);
                 if (!occupied.TryAdd(position, path))
                 {
-                    Check(false, path, $"슬롯 {position}이 {occupied[position]}의 시작 배치와 겹칩니다.");
+                    Check(false, path, $"슬롯 {position}이 {occupied[position]}의 시작 배치와 겹칩니다.", piece.id, "cells");
                 }
             }
         }

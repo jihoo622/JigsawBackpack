@@ -39,7 +39,43 @@
         }
       ],
       "durability": 100,
-      "baseValue": 32
+      "baseValue": 32,
+      "synergyEffects": [
+        {
+          "ruleId": "cargoNearAnimal",
+          "target": true,
+          "source": false
+        },
+        {
+          "ruleId": "sample.cargoNearFood",
+          "target": true,
+          "source": false
+        },
+        {
+          "ruleId": "sample.machineryNearWood",
+          "target": false,
+          "source": true
+        },
+        {
+          "ruleId": "wasteNearbyPenalty",
+          "target": true,
+          "source": false
+        },
+        {
+          "ruleId": "woodNearFish",
+          "target": true,
+          "source": false
+        },
+        {
+          "ruleId": "woodNearWater",
+          "target": true,
+          "source": false
+        }
+      ],
+      "preservationEffect": {
+        "enabled": false,
+        "reductionPercent": 0
+      }
     },
     {
       "id": "piece.fourNotches",
@@ -62,7 +98,43 @@
         }
       ],
       "durability": 100,
-      "baseValue": 12
+      "baseValue": 12,
+      "synergyEffects": [
+        {
+          "ruleId": "cargoNearAnimal",
+          "target": true,
+          "source": false
+        },
+        {
+          "ruleId": "sample.cargoNearFood",
+          "target": true,
+          "source": false
+        },
+        {
+          "ruleId": "sample.machineryNearWood",
+          "target": false,
+          "source": true
+        },
+        {
+          "ruleId": "wasteNearbyPenalty",
+          "target": true,
+          "source": false
+        },
+        {
+          "ruleId": "woodNearFish",
+          "target": true,
+          "source": false
+        },
+        {
+          "ruleId": "woodNearWater",
+          "target": true,
+          "source": false
+        }
+      ],
+      "preservationEffect": {
+        "enabled": false,
+        "reductionPercent": 0
+      }
     },
     {
       "id": "piece.topNotch",
@@ -87,7 +159,23 @@
         }
       ],
       "durability": 100,
-      "baseValue": 10
+      "baseValue": 10,
+      "synergyEffects": [
+        {
+          "ruleId": "foodNearSalt",
+          "target": true,
+          "source": false
+        },
+        {
+          "ruleId": "wasteNearbyPenalty",
+          "target": true,
+          "source": false
+        }
+      ],
+      "preservationEffect": {
+        "enabled": false,
+        "reductionPercent": 0
+      }
     },
     {
       "id": "piece.verticalPair",
@@ -118,7 +206,43 @@
         }
       ],
       "durability": 100,
-      "baseValue": 25
+      "baseValue": 25,
+      "synergyEffects": [
+        {
+          "ruleId": "cargoNearAnimal",
+          "target": true,
+          "source": false
+        },
+        {
+          "ruleId": "sample.cargoNearFood",
+          "target": true,
+          "source": false
+        },
+        {
+          "ruleId": "sample.machineryNearWood",
+          "target": false,
+          "source": true
+        },
+        {
+          "ruleId": "wasteNearbyPenalty",
+          "target": true,
+          "source": false
+        },
+        {
+          "ruleId": "woodNearFish",
+          "target": true,
+          "source": false
+        },
+        {
+          "ruleId": "woodNearWater",
+          "target": true,
+          "source": false
+        }
+      ],
+      "preservationEffect": {
+        "enabled": false,
+        "reductionPercent": 0
+      }
     },
     {
       "id": "piece.verticalTabs",
@@ -141,7 +265,33 @@
         }
       ],
       "durability": 100,
-      "baseValue": 15
+      "baseValue": 15,
+      "synergyEffects": [
+        {
+          "ruleId": "fishNearWater",
+          "target": false,
+          "source": true
+        },
+        {
+          "ruleId": "metalNearWater",
+          "target": false,
+          "source": true
+        },
+        {
+          "ruleId": "wasteNearbyPenalty",
+          "target": true,
+          "source": false
+        },
+        {
+          "ruleId": "woodNearWater",
+          "target": false,
+          "source": true
+        }
+      ],
+      "preservationEffect": {
+        "enabled": false,
+        "reductionPercent": 0
+      }
     },
     {
       "id": "piece.uShape",
@@ -196,7 +346,33 @@
         }
       ],
       "durability": 100,
-      "baseValue": 55
+      "baseValue": 55,
+      "synergyEffects": [
+        {
+          "ruleId": "metalNearFish",
+          "target": true,
+          "source": false
+        },
+        {
+          "ruleId": "metalNearWater",
+          "target": true,
+          "source": false
+        },
+        {
+          "ruleId": "sample.machineryNearWood",
+          "target": true,
+          "source": false
+        },
+        {
+          "ruleId": "wasteNearbyPenalty",
+          "target": true,
+          "source": false
+        }
+      ],
+      "preservationEffect": {
+        "enabled": false,
+        "reductionPercent": 0
+      }
     },
     {
       "id": "piece.refrigeratedFrame",
@@ -253,7 +429,33 @@
         }
       ],
       "durability": 100,
-      "baseValue": 55
+      "baseValue": 55,
+      "synergyEffects": [
+        {
+          "ruleId": "metalNearFish",
+          "target": true,
+          "source": false
+        },
+        {
+          "ruleId": "metalNearWater",
+          "target": true,
+          "source": false
+        },
+        {
+          "ruleId": "sample.machineryNearWood",
+          "target": true,
+          "source": false
+        },
+        {
+          "ruleId": "wasteNearbyPenalty",
+          "target": true,
+          "source": false
+        }
+      ],
+      "preservationEffect": {
+        "enabled": true,
+        "reductionPercent": 50
+      }
     },
     {
       "id": "piece.elbowRight",
@@ -292,7 +494,38 @@
         }
       ],
       "durability": 100,
-      "baseValue": 36
+      "baseValue": 36,
+      "synergyEffects": [
+        {
+          "ruleId": "cargoNearAnimal",
+          "target": true,
+          "source": false
+        },
+        {
+          "ruleId": "metalNearFish",
+          "target": true,
+          "source": false
+        },
+        {
+          "ruleId": "metalNearWater",
+          "target": true,
+          "source": false
+        },
+        {
+          "ruleId": "sample.cargoNearFood",
+          "target": true,
+          "source": false
+        },
+        {
+          "ruleId": "wasteNearbyPenalty",
+          "target": true,
+          "source": false
+        }
+      ],
+      "preservationEffect": {
+        "enabled": false,
+        "reductionPercent": 0
+      }
     },
     {
       "id": "piece.fish",
@@ -324,7 +557,38 @@
         }
       ],
       "durability": 100,
-      "baseValue": 18
+      "baseValue": 18,
+      "synergyEffects": [
+        {
+          "ruleId": "fishNearWater",
+          "target": true,
+          "source": false
+        },
+        {
+          "ruleId": "foodNearSalt",
+          "target": true,
+          "source": false
+        },
+        {
+          "ruleId": "metalNearFish",
+          "target": false,
+          "source": true
+        },
+        {
+          "ruleId": "wasteNearbyPenalty",
+          "target": true,
+          "source": false
+        },
+        {
+          "ruleId": "woodNearFish",
+          "target": false,
+          "source": true
+        }
+      ],
+      "preservationEffect": {
+        "enabled": false,
+        "reductionPercent": 0
+      }
     },
     {
       "id": "piece.saltSack",
@@ -348,7 +612,23 @@
         }
       ],
       "durability": 100,
-      "baseValue": 8
+      "baseValue": 8,
+      "synergyEffects": [
+        {
+          "ruleId": "foodNearSalt",
+          "target": false,
+          "source": true
+        },
+        {
+          "ruleId": "wasteNearbyPenalty",
+          "target": true,
+          "source": false
+        }
+      ],
+      "preservationEffect": {
+        "enabled": true,
+        "reductionPercent": 10
+      }
     },
     {
       "id": "piece.fruit",
@@ -373,7 +653,33 @@
         }
       ],
       "durability": 100,
-      "baseValue": 20
+      "baseValue": 20,
+      "synergyEffects": [
+        {
+          "ruleId": "cargoNearAnimal",
+          "target": true,
+          "source": false
+        },
+        {
+          "ruleId": "foodNearSalt",
+          "target": true,
+          "source": false
+        },
+        {
+          "ruleId": "sample.cargoNearFood",
+          "target": true,
+          "source": true
+        },
+        {
+          "ruleId": "wasteNearbyPenalty",
+          "target": true,
+          "source": false
+        }
+      ],
+      "preservationEffect": {
+        "enabled": false,
+        "reductionPercent": 0
+      }
     },
     {
       "id": "piece.box",
@@ -396,7 +702,28 @@
         }
       ],
       "durability": 100,
-      "baseValue": 10
+      "baseValue": 10,
+      "synergyEffects": [
+        {
+          "ruleId": "cargoNearAnimal",
+          "target": true,
+          "source": false
+        },
+        {
+          "ruleId": "sample.cargoNearFood",
+          "target": true,
+          "source": false
+        },
+        {
+          "ruleId": "wasteNearbyPenalty",
+          "target": true,
+          "source": false
+        }
+      ],
+      "preservationEffect": {
+        "enabled": false,
+        "reductionPercent": 0
+      }
     },
     {
       "id": "piece.meat",
@@ -420,7 +747,28 @@
         }
       ],
       "durability": 100,
-      "baseValue": 24
+      "baseValue": 24,
+      "synergyEffects": [
+        {
+          "ruleId": "foodNearSalt",
+          "target": true,
+          "source": false
+        },
+        {
+          "ruleId": "sample.cargoNearFood",
+          "target": false,
+          "source": true
+        },
+        {
+          "ruleId": "wasteNearbyPenalty",
+          "target": true,
+          "source": false
+        }
+      ],
+      "preservationEffect": {
+        "enabled": false,
+        "reductionPercent": 0
+      }
     },
     {
       "id": "piece.beef",
@@ -452,7 +800,28 @@
           "west": "Flat"
         }
       ],
-      "baseValue": 20
+      "baseValue": 20,
+      "synergyEffects": [
+        {
+          "ruleId": "foodNearSalt",
+          "target": true,
+          "source": false
+        },
+        {
+          "ruleId": "sample.cargoNearFood",
+          "target": false,
+          "source": true
+        },
+        {
+          "ruleId": "wasteNearbyPenalty",
+          "target": true,
+          "source": false
+        }
+      ],
+      "preservationEffect": {
+        "enabled": false,
+        "reductionPercent": 0
+      }
     },
     {
       "id": "piece.babyCow",
@@ -488,7 +857,18 @@
           "south": "Flat",
           "west": "Flat"
         }
-      ]
+      ],
+      "synergyEffects": [
+        {
+          "ruleId": "cargoNearAnimal",
+          "target": false,
+          "source": true
+        }
+      ],
+      "preservationEffect": {
+        "enabled": false,
+        "reductionPercent": 0
+      }
     },
     {
       "id": "piece.cow",
@@ -545,7 +925,18 @@
           "west": "Flat"
         }
       ],
-      "baseValue": 65
+      "baseValue": 65,
+      "synergyEffects": [
+        {
+          "ruleId": "cargoNearAnimal",
+          "target": false,
+          "source": true
+        }
+      ],
+      "preservationEffect": {
+        "enabled": false,
+        "reductionPercent": 0
+      }
     },
     {
       "id": "piece.apple",
@@ -569,7 +960,28 @@
           "west": "Flat"
         }
       ],
-      "baseValue": 10
+      "baseValue": 10,
+      "synergyEffects": [
+        {
+          "ruleId": "foodNearSalt",
+          "target": true,
+          "source": false
+        },
+        {
+          "ruleId": "sample.cargoNearFood",
+          "target": false,
+          "source": true
+        },
+        {
+          "ruleId": "wasteNearbyPenalty",
+          "target": true,
+          "source": false
+        }
+      ],
+      "preservationEffect": {
+        "enabled": false,
+        "reductionPercent": 0
+      }
     },
     {
       "id": "piece.poo",
@@ -591,7 +1003,18 @@
           "west": "Flat"
         }
       ],
-      "baseValue": -10
+      "baseValue": -10,
+      "synergyEffects": [
+        {
+          "ruleId": "wasteNearbyPenalty",
+          "target": false,
+          "source": true
+        }
+      ],
+      "preservationEffect": {
+        "enabled": false,
+        "reductionPercent": 0
+      }
     },
     {
       "id": "piece.oreL",
@@ -630,7 +1053,30 @@
         }
       ],
       "durability": 100,
-      "baseValue": 33
+      "baseValue": 33,
+      "synergyEffects": [
+        {
+          "ruleId": "metalNearFish",
+          "target": true,
+          "source": false
+        },
+        {
+          "ruleId": "metalNearWater",
+          "target": true,
+          "source": false
+        },
+        {
+          "ruleId": "wasteNearbyPenalty",
+          "target": true,
+          "source": false
+        }
+      ],
+      "preservationEffect": {
+        "enabled": false,
+        "reductionPercent": 0
+      },
+      "iconOffsetX": -0.06,
+      "iconOffsetY": -0.03
     },
     {
       "id": "piece.oreCross",
@@ -685,7 +1131,28 @@
         }
       ],
       "durability": 100,
-      "baseValue": 55
+      "baseValue": 55,
+      "synergyEffects": [
+        {
+          "ruleId": "metalNearFish",
+          "target": true,
+          "source": false
+        },
+        {
+          "ruleId": "metalNearWater",
+          "target": true,
+          "source": false
+        },
+        {
+          "ruleId": "wasteNearbyPenalty",
+          "target": true,
+          "source": false
+        }
+      ],
+      "preservationEffect": {
+        "enabled": false,
+        "reductionPercent": 0
+      }
     },
     {
       "id": "piece.metalIngot",
@@ -709,7 +1176,28 @@
           "west": "Flat"
         }
       ],
-      "baseValue": 15
+      "baseValue": 15,
+      "synergyEffects": [
+        {
+          "ruleId": "metalNearFish",
+          "target": true,
+          "source": false
+        },
+        {
+          "ruleId": "metalNearWater",
+          "target": true,
+          "source": false
+        },
+        {
+          "ruleId": "wasteNearbyPenalty",
+          "target": true,
+          "source": false
+        }
+      ],
+      "preservationEffect": {
+        "enabled": false,
+        "reductionPercent": 0
+      }
     }
   ],
   "train": {

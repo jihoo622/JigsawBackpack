@@ -34,6 +34,7 @@ public sealed class PuzzleTableData
 {
     public string status, note;
     public PuzzlePieceData[] pieces = Array.Empty<PuzzlePieceData>();
+    public PuzzleTagPresentationData[] tagPresentations = Array.Empty<PuzzleTagPresentationData>();
     public PuzzleBoardData train;
     public string startCity;
     // 지도상 예정 목적지. 실제 상환 장소 판정인 debtCityId와 별개다.

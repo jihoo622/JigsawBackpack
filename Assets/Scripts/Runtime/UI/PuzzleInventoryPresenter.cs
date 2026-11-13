@@ -885,14 +885,13 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
 
         foreach (var rule in tables.SynergiesFor(scope))
         {
-            bool isSubject = !string.IsNullOrEmpty(rule.descriptionTag)
-                ? item.Tags.Contains(rule.descriptionTag)
-                : !string.IsNullOrEmpty(rule.targetTag)
-                    ? item.Tags.Contains(rule.targetTag)
-                    : !string.IsNullOrEmpty(rule.excludedTargetTag) && !PuzzleInventoryValuation.HasAnyTag(item.Tags, rule.excludedTargetTag);
-            if (isSubject && !string.IsNullOrWhiteSpace(rule.description))
+            if (PuzzlePieceEffects.IsTarget(item, rule, animals.wasteTag))
             {
-                synergies.Add(Presentation.PuzzleTooltipEffectDescription(rule.description));
+                synergies.Add(Presentation.PuzzleTooltipEffectDescription(rule.targetDescription));
+            }
+            if (PuzzlePieceEffects.IsSource(item, rule))
+            {
+                synergies.Add(Presentation.PuzzleTooltipEffectDescription(rule.sourceDescription));
             }
         }
 

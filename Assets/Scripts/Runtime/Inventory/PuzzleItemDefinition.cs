@@ -5,7 +5,7 @@ using UnityEngine;
 
 public sealed class PuzzleItemDefinition
 {
-    internal const string BABY_TAG = "Baby";
+    public const string BABY_TAG = "Baby";
 
     public string Id { get; }
     public string DisplayName { get; }
@@ -20,6 +20,20 @@ public sealed class PuzzleItemDefinition
     public Vector2 IconOffset { get; }
     public IReadOnlyList<string> Tags { get; }
     public IReadOnlyList<Vector2Int> Cells { get; }
+    readonly HashSet<string> targetSynergies;
+    readonly HashSet<string> sourceSynergies;
+    public bool HasPreservationEffect { get; }
+    public int PreservationReductionPercent { get; }
+
+    public bool ReceivesSynergy(string _ruleId)
+    {
+        return targetSynergies.Contains(_ruleId);
+    }
+
+    public bool EmitsSynergy(string _ruleId)
+    {
+        return sourceSynergies.Contains(_ruleId);
+    }
     internal bool IsBaby { get; }
     internal bool ExcludeFromMarket { get; }
     internal string AdultPieceId { get; }
@@ -45,7 +59,13 @@ public sealed class PuzzleItemDefinition
             ? new Vector2(_item.iconWidth, _item.iconHeight)
             : Vector2.zero;
         IconOffset = new Vector2(_item.iconOffsetX, _item.iconOffsetY);
-        Tags = Array.AsReadOnly(_item.tags.OrderBy(tag => tag, StringComparer.Ordinal).ToArray());
+        Tags = Array.AsReadOnly(_item.tags.OrderBy(_tag => _tag, StringComparer.Ordinal).ToArray());
+        targetSynergies = new HashSet<string>(_item.synergyEffects.Where(_effect => _effect.target)
+            .Select(_effect => _effect.ruleId), StringComparer.Ordinal);
+        sourceSynergies = new HashSet<string>(_item.synergyEffects.Where(_effect => _effect.source)
+            .Select(_effect => _effect.ruleId), StringComparer.Ordinal);
+        HasPreservationEffect = _item.preservationEffect.enabled;
+        PreservationReductionPercent = _item.preservationEffect.reductionPercent;
         IsBaby = Tags.Contains(BABY_TAG);
         ExcludeFromMarket = _item.excludeFromMarket;
         AdultPieceId = _item.adultPieceId;
@@ -53,7 +73,7 @@ public sealed class PuzzleItemDefinition
         GrowthMinutes = (long)_item.growthHours * PuzzleTimeManager.MINUTES_PER_HOUR;
         GrowthBlockedMinutes = (long)_item.growthBlockedHours * PuzzleTimeManager.MINUTES_PER_HOUR;
         HasDurability = Tags.Contains(BasicData.Text("rules.items.durabilityTag"));
-        Cells = Array.AsReadOnly(_item.cells.OrderBy(cell => cell.y).ThenBy(cell => cell.x)
-            .Select(cell => new Vector2Int(cell.x, cell.y)).ToArray());
+        Cells = Array.AsReadOnly(_item.cells.OrderBy(_cell => _cell.y).ThenBy(_cell => _cell.x)
+            .Select(_cell => new Vector2Int(_cell.x, _cell.y)).ToArray());
     }
 }

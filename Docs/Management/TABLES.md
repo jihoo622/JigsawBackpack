@@ -14,6 +14,7 @@
 - 새 테이블은 JSON과 `[Serializable]` DTO를 만들고 `TableManager`의 공통 `Load<T>(ref loaded)` 경로 및 `GameTableRules` 검증에 등록한다. 개별 로더나 경로를 만들지 않는다.
 - `status`·`note`는 운영 메모다. 숫자 필드의 `-1` 등 누락 판별값은 게임 기본값이 아니다. 밸런스 값을 코드·씬·UI에 중복 저장하지 않는다.
 - 오류는 항목별로 모아 `IsValid`로 제공한다. 데이터를 사용하는 초기화는 `RequireValid()`로 차단한다. 모르는 필수 키는 기본값 대신 예외를 내고 선택 조회에만 `TryGet*`를 쓴다.
+- `TableManager.ValidateSourceIssues`는 같은 `GameTableRules` 검증의 `GameTableIssue` 경로·설명과 관련 품목·필드를 돌려준다. `ValidateSources`의 문자열 목록도 이 결과에서 만든다. Item Editor는 시작 원본과 후보를 ID 기준으로 대조해 기존/추가 오류를 구분하고 속성 이동에 연결하며, 기존 오류가 있어도 유효하지 않은 후보는 저장하지 않는다.
 - 키는 순서 무관 ID다. 배열 순서를 이동 경로·우선순위로 사용하지 않고 노출 목록은 결정적으로 정렬한다.
 - JSON 저장 시 `TableEditor`가 캐시를 무효화한다. 수동 갱신은 `Tools/MyJG/Tables/Reload Tables`이며 플레이 중에는 실행하지 않는다. 에디터는 디스크 원본을 우선 읽는다.
 
@@ -35,9 +36,14 @@
 
 ## 화물·보드·시장
 
+- 품목 정의·Sprite·성장과 번식 행은 `Tools/MyJG/Item Editor`에서 초안으로 편집한다. 품목표와 번식표의 변경 파일을 함께 검토·백업·복구하며, 전체 표 검증·외부 변경·미저장 씬/프리팹 검사와 아이콘 반영을 거친다. 참조 현황은 원본 테이블 이름·행 ID·필드 경로를 표시한다. 신규 품목은 시장 제외 상태이며 기존 ID는 읽기 전용이다([사용법](ITEM_EDITOR.md)).
+- 저장 후 캐시를 갱신해 유효성을 확인하고, 품목·번식 JSON 전체와 모든 관련 `PuzzleInventoryView`의 키·Sprite를 검토 초안에 대조한다. 사용하지 않는 기존 이미지 키도 View별로 보존한다. 대조 실패는 같은 파일·메타 복구 경로로 처리한다. 실제 실행 확인 항목은 사용 문서에 둔다.
 - `pieces` 항목의 `id`, `displayName`, `description`, `tags`, `visualKey`, `baseValue`, `slotCount`, `cells`가 정의 원본이다. 태그는 대소문자를 구분하고 한 아이템 안에서 중복되지 않아야 한다.
+- 새 태그의 표시 정의는 선택적인 `tagPresentations[]`의 `id`, 한글 `displayName`, 0~1 RGBA(`r/g/b/a`)에 둔다. 생략된 목록은 빈 목록으로 읽으며 기존 기본 태그는 `Presentation`의 기초데이터 매핑을 사용한다. 새 정의는 기본 태그와 이름이 겹치거나 대소문자만 다른 중복 ID·공백/쉼표 ID를 가질 수 없다. 에디터는 새 태그의 표시 정의를 요구하고 기존 데이터의 미등록 태그 표기는 보존한다.
+- `durability`는 모든 품목에서 1~기초데이터 상한의 값이다. 신선도 표시는 기초데이터의 `rules.items.durabilityTag` 품목에 적용된다. `shelfLifeHours`는 0 이상의 시간이며 0은 시간에 따른 유통기한 소모 없음이다. 비적용 품목의 기존 값도 보존한다. `baseValue`는 음수를 허용하며 -1은 누락 판정값으로 거부한다.
 - `excludeFromMarket: true` 품목은 `stockProfiles` 후보와 시장 고정 재고에 둘 수 없고 검증이 막는다. 다만 플레이어가 판매한 품목은 그 도시 시장이 다시 만들어지기(재방문) 전까지 시장 보드에 남아 다시 살 수 있다. 미출시 품목은 정의와 아이콘만 두고 이 플래그와 재고 후보에서 제외된 상태로 유지한다.
 - `slotCount`는 `cells` 길이와 같고 슬롯은 상하좌우로 연결되어야 한다. 현재 화물의 네 방향 상태는 모두 `Flat`이다. 셀 배열 순서에는 의미가 없다.
+- Item Editor의 격자 편집은 셀 수로 `slotCount`를 갱신하며 `GameTableRules.ValidatePieceCells`로 런타임과 같은 오류를 표시한다. 회전 미리보기는 저장하지 않는다. 이미지의 `iconWidth/Height`는 회전 전 칸 단위 크기이고 둘 다 양수일 때만 사용하며, 나머지는 원본 모양의 외접 사각형을 쓴다. `iconOffsetX/Y`는 그 중심에서 오른쪽·위 방향 오프셋이다. `PuzzleIconLayout`이 게임과 에디터의 중심·회전·크기 계산을 공유한다.
 - 화물 로컬 좌표는 외접 사각형 왼쪽 위에서 오른쪽·아래로 증가한다. 보드 좌표는 왼쪽 아래에서 오른쪽·위로 증가한다. 시작 배치의 `x`·`y`는 회전 후 외접 사각형의 왼쪽 위 기준점이다. 높이 2칸 화물은 y가 1 이상이어야 한다.
 - `clockwiseTurns`는 시계 방향 90도 회전 횟수 0~3이다. 시작 배치 ID는 기차와 모든 시장에서 고유해야 하며 정의 참조·경계·점유 겹침을 검증한다.
 - `train`과 각 도시의 `market`이 `width`·`height`·`startingPlacements`를 소유한다. `startCity`는 등록된 도시 ID를 참조한다. 도시에는 고유 ID·표시 이름·양의 기본 거래 배율·거래 허용 설정이 필요하다.
@@ -54,12 +60,16 @@
 - 거래 모델과 툴팁 견적은 `PuzzleInventoryService.TryQuoteTrade`를 공유하며 기획에 없는 고정 단가 예외는 두지 않는다.
 - 현재 거래가는 구매·판매 모두 인스턴스의 신선도 반영 실제 가치(`FreshnessAdjustedValue` = `ActualValue` × 기초데이터 `rules.freshness.*` 구간 배율)에 선택된 도시 배율을 곱한다. 새 재고는 `ActualValue`가 기본 가치와 같다. 도시 배율과 지역의 `pricePercent`를 중간 반올림 없이 곱한 최종 금액을 `MidpointRounding.AwayFromZero`로 정수화한다. 범위 초과는 거래 실패로 처리한다. 미리보기와 확정 모두 `EvaluateDrop` 경로를 쓰고 확정 직전에 다시 평가한다.
 - `startingFunds`는 0 이상, `wagonAddCostBase`·`gameClearCost`는 양수다. 가격 계산에 사용하지 않던 공통 구매 할증 필드는 제거했다. 현재 구매/판매 배율은 도시와 지역 표에서 읽는다.
-- 시너지 규칙은 고유 `id`, 등록된 `neighborTag`, 보드 종류 `scope`(`Train`, `Market`, `Both`), 공간 범위 `spatialRange`(`Adjacent`, `Board`), 양의 `multiplierPercent`, 비어 있지 않은 `description`과 대상 조건을 가진다. `targetTag` 또는 `excludedTargetTag` 중 하나로 대상을 정한다. `descriptionTag`를 지정하면 해당 태그의 팝업에 효과 설명을 표시한다. `Adjacent`는 상하좌우 접촉 쌍, `Board`는 같은 보드의 모든 화물 쌍을 평가한다. 인접 효과의 화살표는 접촉 칸에 표시하고, 보드 효과는 상세 수치에 표시한다.
+- 시너지 규칙은 고유 `id`, 등록된 `neighborTag`, 보드 종류 `scope`(`Train`, `Market`, `Both`), 공간 범위 `spatialRange`(`Adjacent`, `Board`), 양의 `multiplierPercent`, 비어 있지 않은 `description`·`targetDescription`·`sourceDescription`과 대상 조건을 가진다. `targetTag` 또는 `excludedTargetTag` 중 하나로 대상을 정한다. `descriptionTag`는 이전 작성 데이터를 보존하는 메타데이터이며, 툴팁은 선택 역할에 맞는 설명을 읽는다. `Adjacent`는 상하좌우 접촉 쌍, `Board`는 같은 보드의 모든 화물 쌍을 평가한다. 인접 효과의 화살표는 접촉 칸에 표시하고, 보드 효과는 상세 수치에 표시한다.
+- `pieces[].synergyEffects`는 `{ruleId,target,source}` 목록이다. 빈 배열은 가치 효과 없음이고 누락·null·중복 ID·없는 규칙·양쪽 모두 false·태그 조건과 맞지 않는 역할은 오류다. 계산은 대상의 `target`과 이웃의 `source`를 모두 요구하고 상대 태그·제외 조건·범위·면별 합산·배설물 면역도 유지한다. 가능 효과 설명과 접촉 화살표는 같은 선택 판정을 사용한다.
+- `pieces[].preservationEffect`는 `{enabled,reductionPercent}`이며 모든 품목에 필수다. 감소율은 0~100%, 비활성은 0%이며 활성과 공통 냉장 태그가 일치해야 한다. 시간 진행·냉장 접촉·툴팁은 이 값만 읽는다. 기존 소금 10%·냉장 프레임 50%를 포함해 21개 품목을 명시적 값으로 이행했다.
+- `ItemEditorEffectMigration`은 기존 태그 판정을 동결한 비교 경로로 역할별 적격 여부와 모든 품목 쌍/규칙의 변화율·품목별 신선 감소율을 대조한다. 이행은 초안에서만 수행하고 검토·Undo·기존 저장 트랜잭션을 거친다. 이미 명시한 선택을 덮어쓰거나 런타임에서 태그 폴백으로 복구하지 않는다.
 - `animals`에 배설물 품목·태그, 배설 주기(일)·동물당 수량, 번식 시간(시간)과 `breeding`을 둔다. 번식 행은 같은 품목의 성체 쌍에 대해 `parentPieceId`, `offspringPieceId`, 양의 `offspringCount`를 지정한다. 검증은 `Baby` 태그가 없는 동물 품목마다 고유한 부모 행을 요구하고, `Baby` 태그의 부모 등록을 오류로 처리한다.
+- Item Editor는 `animals.breeding`만 편집하고 번식·배설 공통 설정과 가치 규칙·배율은 읽기 전용으로 둔다. 마을 재고·도축·개조표는 참조만 표시한다. 새 DTO 필드는 고급 속성에 JSON 값으로 노출하고 원본의 알 수 없는 필드는 읽기 전용으로 보존한다.
 - `TableManager.TryGetAnimalBreeding`은 부모 품목 ID로 조회한다. 현재 `piece.cow` 한 쌍은 `piece.babyCow` 한 마리를 낳는다. 번식 시간은 `animals.breedingHours`, 송아지의 성장 시간과 차단 구간은 `PuzzleTableData.pieces`의 `growthHours`·`growthBlockedHours`가 소유한다.
 - `animals.completionHoldHours`는 번식·출산·배설이 끝나기 직전에 기다리는 공통 시간(시간)이다. 산출물을 놓을 자리가 없으면 진행도를 `주기 − completionHoldHours`에서 멈추고, 자리가 돌아오면 그 시간만큼 더 흘러야 완료한다. 검증은 양수이고 `breedingHours`·`wasteIntervalDays × 24`보다 짧아야 함을 요구한다. 성장은 품목의 `growthBlockedHours`를 같은 방식의 대기·재시도 구간으로 쓴다(진행 정지 지점 = `growthHours − growthBlockedHours`). 대기에 새로 들어간 개체·쌍에는 가치 변동 알림과 독립된 미확인 공간 부족 알림을 남긴다. 옛 `presentation.PuzzleGrowthBlocked` 문구는 이동 실패와 함께 제거했다.
 - 동물 툴팁 원문은 `breeding[].description`(소요 시간, 자식 이름, 수량), `animals.wasteDescription`(주기 일수, 배설물 이름, 수량), `pieces[].growthDescription`(소요 시간, 성체 이름, 대기 시간)에 둔다. 괄호 안의 순서대로 `{0}`~`{2}`를 사용한다. 설명 누락과 잘못된 인자·품목 참조는 표 오류이며 시간 표기와 색은 `Presentation`이 처리한다. 설명 아래 진행도는 `presentation.tooltip.effectProgress`, 공간 부족 표시는 `presentation.tooltip.effectSpaceBlocked`가 원본이고 값은 표가 아니라 세션의 현재 상태에서 읽는다.
-- `freshness`는 신선도 반영 주기(시간), 냉장 태그와 프레임당 유통기한 소모 감소율의 원본이다. 같은 객차에서 상하좌우로 맞닿은 냉장 프레임을 인스턴스별로 한 번씩 합산하고 감소율을 100%로 제한한다. 음식의 시작 유통기한은 품목의 `shelfLifeHours`이며, 남은 유통기한이 0이면 `piece.foodWaste`로 교체한다.
+- `freshness`는 신선도 반영 주기(시간)·냉장 태그·객차 냉장 감소율의 공통 원본이다. `refrigerationReductionPercent`·`saltPreservationReductionPercent`는 이전 품목의 명시적 이행 입력으로만 남기며 런타임 품목 수치의 폴백이 아니다. 인접 발생원의 `preservationEffect.reductionPercent`를 인스턴스별로 한 번씩 합산하고 100%로 제한한다. 기존 객차 개조와의 최댓값 적용을 유지한다. 음식의 시작 유통기한은 품목의 `shelfLifeHours`이며, 남은 유통기한이 0이면 배설물 품목으로 교체한다.
 - 인접 시너지는 맞닿은 면(경계)마다 한 번씩 평가하므로 같은 이웃과 여러 면이 닿으면 면 수만큼 더해진다. 냉장 프레임의 유통기한 감소는 프레임 인스턴스당 한 번이다. `excludedTargetTag`·`excludedNeighborTag`는 쉼표로 여러 태그를 지정할 수 있다(똥 패널티는 `Waste,Animal` 제외). 증가·감소를 구분하지 않고 모든 규칙의 (배율 − 100)을 합산해 기본 가치에 곱하며 하한 없이 음수 배율도 허용한다. 인접 정보 갱신과 실제 가치 누적을 분리하며 가치의 누적 경계 정책은 게임 기획서 10장을 따른다.
 
 ## 노선·턴

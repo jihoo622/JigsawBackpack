@@ -78,6 +78,9 @@ public sealed class PuzzlePieceData
     // 아이콘 중심을 외접 사각형 중심에서 칸 단위로 어긋나게 옮긴다.
     public float iconOffsetX, iconOffsetY;
     public string[] tags = Array.Empty<string>();
+    // null은 미이행 데이터 오류, 빈 배열은 가치 시너지 없음이다.
+    public PuzzlePieceSynergyData[] synergyEffects;
+    public PuzzlePiecePreservationData preservationEffect;
     // 누락된 슬롯 수를 검증에서 거부하기 위한 값이다.
     public int slotCount = -1;
     // 내구도 시작값. 누락이 정상값으로 위장되지 않도록 검증용 값으로 둔다.
@@ -98,6 +101,27 @@ public sealed class PuzzleCellData
     public int x = -1;
     public int y = -1;
     public string north, east, south, west;
+}
+
+[Serializable]
+public sealed class PuzzleTagPresentationData
+{
+    public string id, displayName;
+    public float r = -1, g = -1, b = -1, a = -1;
+}
+
+[Serializable]
+public sealed class PuzzlePieceSynergyData
+{
+    public string ruleId;
+    public bool target, source;
+}
+
+[Serializable]
+public sealed class PuzzlePiecePreservationData
+{
+    public bool enabled;
+    public int reductionPercent = -1;
 }
 
 [Serializable]
@@ -170,9 +194,10 @@ public sealed class PuzzleSynergyRuleData
     public string id, targetTag, excludedTargetTag, neighborTag, excludedNeighborTag, scope;
     public string spatialRange;
     public int multiplierPercent;
-    // 주체 태그(targetTag) 아이템의 팝업에 표시할 시너지 설명.
+    // 공통 목록 설명과 역할별 툴팁 설명. 문구 원본은 이 테이블에 둔다.
     public string description;
-    // description을 팝업에 표시할 태그. 비우면 주체 조건(targetTag)을 따른다.
+    public string targetDescription, sourceDescription;
+    // 기존 작성 데이터의 표시 태그를 보존한다. 런타임 설명은 품목의 선택 역할을 따른다.
     public string descriptionTag;
 }
 
@@ -181,6 +206,7 @@ public sealed class PuzzleFreshnessData
 {
     public int settlementIntervalHours;
     public string refrigerationTag;
+    // 기존 품목의 명시적 이행에만 쓰는 원본 값. 런타임은 품목의 preservationEffect만 읽는다.
     public int refrigerationReductionPercent = -1;
     public int wagonRefrigerationReductionPercent = -1;
     public int saltPreservationReductionPercent = -1;

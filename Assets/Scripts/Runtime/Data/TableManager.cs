@@ -62,7 +62,7 @@ public sealed class TableManager
     }
 
     // _sources: 테이블 클래스별 대체 JSON(편집 초안 검증용). _errors: 검증 오류를 콘솔 대신 모을 목록.
-    TableManager(IReadOnlyDictionary<Type, string> _sources, List<string> _errors)
+    TableManager(IReadOnlyDictionary<Type, string> _sources, List<string> _errors, List<GameTableIssue> _issues = null)
     {
         bool loaded = true;
         Basic = Load<BasicDataTableData>(ref loaded, _sources);
@@ -75,7 +75,7 @@ public sealed class TableManager
         PuzzleRoute = Load<PuzzleRouteTableData>(ref loaded, _sources);
         PuzzleTime = Load<PuzzleTimeTableData>(ref loaded, _sources);
 
-        var rules = _errors == null ? new GameTableRules() : new GameTableRules(_errors);
+        var rules = _errors == null ? new GameTableRules() : new GameTableRules(_errors, _issues);
         var basicGroups = rules.Index(Basic.groups, _group => _group.id, "BasicDataTableData.groups");
         basicNumbers = IndexBasic(basicGroups.Values, _group => _group.numbers, _row => _row.id, "numbers", rules);
         basicTexts = IndexBasic(basicGroups.Values, _group => _group.texts, _row => _row.id, "texts", rules);
@@ -568,20 +568,26 @@ public sealed class TableManager
     // 저장 전 초안 검증. 지정한 테이블은 주어진 JSON으로 읽고, 오류는 콘솔 대신 목록으로 돌려준다.
     public static List<string> ValidateSources(IReadOnlyDictionary<Type, string> _sources)
     {
+        return ValidateSourceIssues(_sources).Select(_issue => _issue.Path == "Tables" ? _issue.Message : _issue.ToString()).ToList();
+    }
+
+    public static List<GameTableIssue> ValidateSourceIssues(IReadOnlyDictionary<Type, string> _sources)
+    {
         var errors = new List<string>();
+        var issues = new List<GameTableIssue>();
         try
         {
-            var tables = new TableManager(_sources, errors);
+            var tables = new TableManager(_sources, errors, issues);
             if (!tables.IsValid && errors.Count == 0)
             {
-                errors.Add("테이블 원본을 읽지 못했습니다. 콘솔을 확인하세요.");
+                issues.Add(new GameTableIssue("Tables", "테이블 원본을 읽지 못했습니다. 콘솔을 확인하세요."));
             }
         }
         catch (Exception exception)
         {
-            errors.Add("검증 중 예외: " + exception.Message);
+            issues.Add(new GameTableIssue("Tables", "검증 중 예외: " + exception.Message));
         }
-        return errors;
+        return issues;
     }
 
     public static string EditorAssetPath<T>()
