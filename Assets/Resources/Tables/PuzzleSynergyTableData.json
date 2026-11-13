@@ -103,8 +103,10 @@
   "activationIntervalHours": 6,
   "freshness": {
     "settlementIntervalHours": 6,
-    "refrigerationTag": "Refrigerator",
-    "refrigerationReductionPercent": 50
+    "refrigerationTag": "Fresh",
+    "refrigerationReductionPercent": 50,
+    "wagonRefrigerationReductionPercent": 50,
+    "saltPreservationReductionPercent": 10
   },
   "animals": {
     "animalTag": "Animal",

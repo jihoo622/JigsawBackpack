@@ -2069,6 +2069,20 @@
           "a": 1.0
         },
         {
+          "id": "freshBackground",
+          "r": 0.78039216,
+          "g": 0.90196078,
+          "b": 0.41960784,
+          "a": 1
+        },
+        {
+          "id": "freshTextColor",
+          "r": 0.16078431,
+          "g": 0.20784314,
+          "b": 0.05098039,
+          "a": 1
+        },
+        {
           "id": "foodBackground",
           "r": 0.8509803921568627,
           "g": 0.4666666666666667,
@@ -2282,7 +2296,7 @@
         },
         {
           "id": "refrigeratorLabel",
-          "value": "냉장"
+          "value": "신선"
         },
         {
           "id": "saltLabel",
@@ -2422,8 +2436,8 @@
         },
         {
           "id": "effectHeader",
-          "value": "<color=#{0}><b>가능 가치 시너지</b> <size=70%>({1}시간마다 정산)</size></color>",
-          "arguments": 2
+          "value": "<color=#{0}><b>가능 인접 효과</b></color>",
+          "arguments": 1
         },
         {
           "id": "effectProgress",
@@ -2477,7 +2491,7 @@
         },
         {
           "id": "shelfLifeValue",
-          "value": "<color=#{0}>D<space=0.08em>{1} {2}시간</color>",
+          "value": "<color=#{0}>{1}D {2}H</color>",
           "arguments": 3
         },
         {
@@ -2521,8 +2535,13 @@
           "arguments": 0
         },
         {
+          "id": "appliedPreservationEffect",
+          "value": "신선도 유지 +{0}%",
+          "arguments": 1
+        },
+        {
           "id": "refrigerationEffect",
-          "value": "객차에서 인접 음식의 유통기한 감소율 −{0}%",
+          "value": "인접 음식 신선도 유지 +{0}%",
           "arguments": 1
         },
         {
@@ -2722,6 +2741,15 @@
           "id": "addWagonLabel",
           "value": "증차 ${0:N0}",
           "arguments": 1
+        },
+        {
+          "id": "refrigerationButton",
+          "value": "냉장 개조 ${0:N0}",
+          "arguments": 1
+        },
+        {
+          "id": "refrigerationInstalled",
+          "value": "냉장 설치됨"
         },
         {
           "id": "trainTitle",

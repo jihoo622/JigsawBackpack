@@ -205,7 +205,7 @@
       "tags": [
         "Machinery",
         "Metal",
-        "Refrigerator"
+        "Fresh"
       ],
       "visualKey": "cargo.machineFrame",
       "slotCount": 5,
@@ -332,7 +332,8 @@
       "description": "한 칸을 차지하는 소금 자루.",
       "tags": [
         "Salt",
-        "Supply"
+        "Supply",
+        "Fresh"
       ],
       "visualKey": "cargo.saltSack",
       "slotCount": 1,

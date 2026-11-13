@@ -32,7 +32,7 @@
           "description": "기계 화물을 같은 모양의 냉장고 태그 화물로 바꿉니다. 신선도 감소율 감소는 아직 적용되지 않습니다.",
           "cost": 150,
           "inputTag": "Machinery",
-          "outputTag": "Refrigerator",
+          "outputTag": "Fresh",
           "conversions": [
             { "inputPieceId": "piece.uShape", "outputPieceId": "piece.refrigeratedFrame", "outputCount": 1 }
           ]

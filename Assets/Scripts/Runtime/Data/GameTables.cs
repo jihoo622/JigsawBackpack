@@ -68,6 +68,7 @@ public sealed class PuzzleTradeTableData
     public long startingFunds = -1;
     // 화물칸 증차 시 기본 단위 비용 (예: 50원씩 누적 증가)
     public int wagonAddCostBase = -1;
+    public int wagonRefrigerationCost = -1;
     public long gameClearCost = -1;
     // 0이면 무기한. 목표 도시가 비어 있으면 상환 장소를 제한하지 않는다.
     public int deadlineHours = -1;
