@@ -127,6 +127,41 @@ public static class GameEvents
     }
     public static event Action<TavernRumorInfo> TavernRumorRecorded;
 
+    // 의뢰 하나의 상태가 바뀔 때(수락·완료·실패) 발행한다. 값은 변화 직후의 의뢰 상태다.
+    public readonly struct QuestInfo
+    {
+        public readonly PuzzleInventoryService session;
+        public readonly int questId;
+        public readonly string templateId, pieceId, sourceCityId, targetCityId, penaltyId, state, failure;
+        public readonly long reward, deposit, payout, deadlineMinutes, elapsedMinutes;
+        public readonly int cargoInstanceId;
+
+        internal QuestInfo(PuzzleInventoryService _session, TrainventoryQuest _quest, long _elapsedMinutes)
+        {
+            session = _session;
+            questId = _quest.Id;
+            templateId = _quest.TemplateId;
+            pieceId = _quest.PieceId;
+            sourceCityId = _quest.SourceCityId;
+            targetCityId = _quest.TargetCityId;
+            penaltyId = _quest.PenaltyId;
+            state = _quest.State.ToString();
+            failure = _quest.Failure == TrainventoryQuestFailure.None ? null : _quest.Failure.ToString();
+            reward = _quest.Reward;
+            deposit = _quest.Deposit;
+            payout = _quest.Payout;
+            deadlineMinutes = _quest.DeadlineMinutes;
+            elapsedMinutes = _elapsedMinutes;
+            cargoInstanceId = _quest.CargoInstanceId;
+        }
+    }
+    public static event Action<QuestInfo> QuestChanged;
+
+    internal static void RaiseQuestChanged(PuzzleInventoryService _session, TrainventoryQuest _quest)
+    {
+        Emit(QuestChanged, new QuestInfo(_session, _quest, _session.ElapsedTime));
+    }
+
     public static void RaiseTavernRumorRecorded(PuzzleInventoryService _session, string _sourceCityId,
         string _targetCityId, string _message, long _recordedMinutes, string _tag)
     {
@@ -454,6 +489,7 @@ public static class GameEvents
         ButcheryCommitted = null;
         ButcheryReady = null;
         TavernRumorRecorded = null;
+        QuestChanged = null;
         sequence = 0;
         SceneManager.sceneLoaded -= OnSceneLoaded;
         SceneManager.sceneUnloaded -= OnSceneUnloaded;

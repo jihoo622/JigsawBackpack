@@ -296,3 +296,44 @@ public sealed class PuzzleRouteData
     // 누락된 값이 0이라는 정상값으로 위장되지 않도록 하는 검증용 값이다.
     public long cost = -1;
 }
+
+// 평판이 reputation 이상이면 동시에 maxActiveQuests개까지 진행한다.
+[Serializable]
+public sealed class TrainventoryQuestReputationData
+{
+    public int reputation = -1;
+    public int maxActiveQuests = -1;
+}
+
+public enum TrainventoryQuestPenaltyType
+{
+    // 수락할 때 보증금을 받고, 성공하면 돌려주며 실패하면 몰수한다.
+    Deposit,
+    // 실패하면 의뢰를 준 마을의 지역에서 일정 시간 구매가가 오르고 판매가가 내린다.
+    RegionTrade
+}
+
+[Serializable]
+public sealed class TrainventoryQuestPenaltyData
+{
+    public string id, type, displayName, description;
+    // Deposit: 보상 대비 보증금 비율(%).
+    public int depositPercentOfReward = -1;
+    // RegionTrade: 구매·판매 배율에 더하는 값(%p)과 지속 시간.
+    public int buyPercentDelta, sellPercentDelta;
+    public int durationHours = -1;
+}
+
+// 운송 의뢰 틀. 화물 하나를 받아 최단 이동 시간이 범위 안인 마을로 전달한다.
+// 보상 = baseReward + rewardPerCellHour × 화물 칸 수 × 최단 이동 시간. 도착 시 화물의 실제 가치와 보증금을 함께 지급한다.
+// 기한 = 최단 이동 시간 × deadlinePercent / 100(올림) + deadlineExtraHours.
+[Serializable]
+public sealed class TrainventoryCourierQuestData
+{
+    public string id, penaltyId;
+    public string[] pieceIds = Array.Empty<string>();
+    public int weight = -1;
+    public int minTravelHours = -1, maxTravelHours = -1;
+    public int baseReward = -1, rewardPerCellHour = -1;
+    public int deadlinePercent = -1, deadlineExtraHours = -1;
+}

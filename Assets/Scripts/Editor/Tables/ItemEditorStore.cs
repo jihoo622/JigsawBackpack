@@ -59,6 +59,7 @@ public static class ItemEditorStore
         AddTable<PuzzleTradeTableData>(source);
         AddTable<PuzzleRouteTableData>(source);
         AddTable<PuzzleTimeTableData>(source);
+        AddTable<TrainventoryQuestTableData>(source);
         source.puzzle = source.files.Single(_file => _file.tableType == typeof(PuzzleTableData).AssemblyQualifiedName).source;
         source.prefabs = InventoryAssets("t:Prefab");
         source.scenes = InventoryAssets("t:Scene");

@@ -65,11 +65,12 @@ public sealed class PuzzleTimeManager
         return checked(_elapsedMinutes + MinutesUntilDayInterval(_elapsedMinutes, _intervalDays));
     }
 
-    // 이동 시간의 분 미만을 올림하고, 같은 분수를 표시·가치·보유 시간에 사용한다.
+    // 이동 시간을 시간 테이블의 올림 단위(분)로 올림하고, 같은 분수를 표시·가치·보유 시간에 사용한다.
     public static long TravelMinutes(PuzzleRouteData _route, PuzzleTimeTableData _rules)
     {
         double pixels = PolylineLength(_route.points);
-        double minutes = Math.Ceiling(pixels / _rules.pixelsPerHour * MINUTES_PER_HOUR);
+        double step = _rules.travelRoundingMinutes;
+        double minutes = Math.Ceiling(pixels / _rules.pixelsPerHour * MINUTES_PER_HOUR / step) * step;
         if (double.IsNaN(minutes) || double.IsInfinity(minutes) || minutes < 1 || minutes >= long.MaxValue)
         {
             throw new OverflowException("노선의 소요 분을 계산할 수 없습니다.");

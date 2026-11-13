@@ -995,7 +995,7 @@
       "texts": [
         {
           "id": "title",
-          "value": "술집 소문 로그"
+          "value": "술집 수첩"
         },
         {
           "id": "collapse",
@@ -1012,8 +1012,8 @@
         },
         {
           "id": "collapsed",
-          "value": "소문\n{0}개\n◀",
-          "arguments": 1
+          "value": "소문 {0}\n의뢰 {1}\n◀",
+          "arguments": 2
         },
         {
           "id": "time",
@@ -1028,6 +1028,144 @@
         {
           "id": "separator",
           "value": "\n\n"
+        },
+        {
+          "id": "rumorTab",
+          "value": "소문"
+        },
+        {
+          "id": "questTab",
+          "value": "의뢰"
+        }
+      ]
+    },
+    {
+      "id": "presentation.quest",
+      "texts": [
+        {
+          "id": "boardTitle",
+          "value": "의뢰 게시판"
+        },
+        {
+          "id": "status",
+          "value": "진행 중 {0}/{1} · 평판 {2}",
+          "arguments": 3
+        },
+        {
+          "id": "offer",
+          "value": "<b>{0}</b> → <b>{1}</b>\n최단 {2}시간 · 기한 {3}시간 · 보수 ${4} + 화물 가치\n실패 시 {5}",
+          "arguments": 6
+        },
+        {
+          "id": "depositPenalty",
+          "value": "{0} (${1})",
+          "arguments": 2
+        },
+        {
+          "id": "regionPenalty",
+          "value": "{0} ({1})",
+          "arguments": 2
+        },
+        {
+          "id": "accept",
+          "value": "수락"
+        },
+        {
+          "id": "acceptWithDeposit",
+          "value": "수락\n보증금 ${0}",
+          "arguments": 1
+        },
+        {
+          "id": "noOffers",
+          "value": "지금은 맡길 일이 없대요."
+        },
+        {
+          "id": "moreOffers",
+          "value": "외 {0}건",
+          "arguments": 1
+        },
+        {
+          "id": "failRunFinished",
+          "value": "게임이 끝나 의뢰를 받을 수 없습니다."
+        },
+        {
+          "id": "failUnavailable",
+          "value": "이미 마감된 의뢰입니다."
+        },
+        {
+          "id": "failActiveLimit",
+          "value": "동시에 진행할 수 있는 의뢰는 {0}개입니다. 평판을 올리면 늘어납니다.",
+          "arguments": 1
+        },
+        {
+          "id": "failInsufficientFunds",
+          "value": "보증금 ${0}이 부족합니다.",
+          "arguments": 1
+        },
+        {
+          "id": "failNoSpace",
+          "value": "의뢰 화물을 실을 빈자리가 없습니다."
+        },
+        {
+          "id": "accepted",
+          "value": "{0} 의뢰를 수락했습니다. {1}까지 {2}에 전달하세요.",
+          "arguments": 3
+        },
+        {
+          "id": "completed",
+          "value": "{0} 의뢰 완료: ${1}을 받았습니다.",
+          "arguments": 2
+        },
+        {
+          "id": "failedOverdue",
+          "value": "{0} 의뢰 실패: 기한을 넘겼습니다.",
+          "arguments": 1
+        },
+        {
+          "id": "failedCargoLost",
+          "value": "{0} 의뢰 실패: 의뢰 화물을 잃었습니다.",
+          "arguments": 1
+        },
+        {
+          "id": "logEmpty",
+          "value": "수락한 의뢰가 없습니다.\n술집에서 의뢰를 받을 수 있습니다."
+        },
+        {
+          "id": "logHeader",
+          "value": "평판 {0} · 동시 진행 {1}/{2}",
+          "arguments": 3
+        },
+        {
+          "id": "logActive",
+          "value": "<b>[진행]</b> {0} → {1}\n기한 {2} · 보수 ${3} + 화물 가치\n실패 시 {4}",
+          "arguments": 5
+        },
+        {
+          "id": "logCompleted",
+          "value": "<b>[완료]</b> {0} → {1} · ${2}",
+          "arguments": 3
+        },
+        {
+          "id": "logFailed",
+          "value": "<b>[실패]</b> {0} → {1} · {2}",
+          "arguments": 3
+        },
+        {
+          "id": "logRegionPenalty",
+          "value": "<b>[불이익]</b> {0} · {1}까지 구매 +{2}%p · 판매 {3}%p",
+          "arguments": 4
+        },
+        {
+          "id": "failureOverdue",
+          "value": "기한 초과"
+        },
+        {
+          "id": "failureCargoLost",
+          "value": "화물 분실"
+        },
+        {
+          "id": "separator",
+          "value": "\n\n"
         }
       ]
     },
@@ -1037,6 +1175,20 @@
         {
           "id": "actionsTitle",
           "value": "역에서 할 일"
+        },
+        {
+          "id": "wagonShop",
+          "value": "화차 구매"
+        },
+        {
+          "id": "wagonShopPage",
+          "value": "다음 목록 ({0}/{1})",
+          "arguments": 2
+        },
+        {
+          "id": "wagonProduct",
+          "value": "{0}   ${1}",
+          "arguments": 2
         },
         {
           "id": "back",
@@ -1223,7 +1375,14 @@
           "r": 0.5529411764705883,
           "g": 0.35294117647058826,
           "b": 0.18823529411764706,
-          "a": 1
+          "a": 1.0
+        },
+        {
+          "id": "questBackground",
+          "r": 0.55,
+          "g": 0.36,
+          "b": 0.62,
+          "a": 1.0
         }
       ],
       "numbers": [
@@ -1376,6 +1535,10 @@
         {
           "id": "oreLabel",
           "value": "광석"
+        },
+        {
+          "id": "questLabel",
+          "value": "의뢰"
         }
       ]
     },
@@ -1900,6 +2063,14 @@
           "id": "maxReached",
           "value": "객차는 최대 {0}칸입니다",
           "arguments": 1
+        },
+        {
+          "id": "unknownProduct",
+          "value": "구매할 화차 상품을 찾을 수 없습니다."
+        },
+        {
+          "id": "modificationFailed",
+          "value": "화차에 강화를 적용할 수 없어 구매를 취소했습니다."
         }
       ]
     },

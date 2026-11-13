@@ -43,9 +43,24 @@ public static class Presentation
         return BasicData.Format("presentation.rumorLog.count", _count);
     }
 
-    public static string RumorLogCollapsed(int _count)
+    public static string RumorLogCollapsed(int _rumorCount, int _questCount)
     {
-        return BasicData.Format("presentation.rumorLog.collapsed", _count);
+        return BasicData.Format("presentation.rumorLog.collapsed", _rumorCount, _questCount);
+    }
+
+    public static string RumorLogRumorTab => BasicData.Text("presentation.rumorLog.rumorTab");
+    public static string RumorLogQuestTab => BasicData.Text("presentation.rumorLog.questTab");
+
+    // 누적 경과 분을 게임 날짜·시각으로 표기한다. 소문·의뢰 기록이 같은 표기를 쓴다.
+    internal static string GameTimestamp(long _elapsedMinutes)
+    {
+        var tables = TableManager.Instance;
+        long clock = _elapsedMinutes % PuzzleTimeManager.MINUTES_PER_DAY +
+            tables.PuzzleTime.startHour * PuzzleTimeManager.MINUTES_PER_HOUR;
+        long day = _elapsedMinutes / PuzzleTimeManager.MINUTES_PER_DAY + clock / PuzzleTimeManager.MINUTES_PER_DAY;
+        int minuteOfDay = (int)(clock % PuzzleTimeManager.MINUTES_PER_DAY);
+        return BasicData.Format("presentation.rumorLog.time", day,
+            minuteOfDay / PuzzleTimeManager.MINUTES_PER_HOUR, minuteOfDay % PuzzleTimeManager.MINUTES_PER_HOUR);
     }
 
     internal static string RumorLogEntries(IReadOnlyList<PuzzleInventoryService.TavernRumor> _rumors)
@@ -58,17 +73,134 @@ public static class Presentation
         var tables = TableManager.Instance;
         foreach (var rumor in _rumors)
         {
-            long clock = rumor.RecordedMinutes % PuzzleTimeManager.MINUTES_PER_DAY +
-                tables.PuzzleTime.startHour * PuzzleTimeManager.MINUTES_PER_HOUR;
-            long day = rumor.RecordedMinutes / PuzzleTimeManager.MINUTES_PER_DAY + clock / PuzzleTimeManager.MINUTES_PER_DAY;
-            int minuteOfDay = (int)(clock % PuzzleTimeManager.MINUTES_PER_DAY);
-            string timestamp = BasicData.Format("presentation.rumorLog.time", day,
-                minuteOfDay / PuzzleTimeManager.MINUTES_PER_HOUR, minuteOfDay % PuzzleTimeManager.MINUTES_PER_HOUR);
+            string timestamp = GameTimestamp(rumor.RecordedMinutes);
             entries.Add(BasicData.Format("presentation.rumorLog.entry", timestamp,
                 tables.CityPrice(rumor.SourceCityId).displayName, rumor.Message));
         }
         return string.Join(BasicData.Text("presentation.rumorLog.separator"), entries);
     }
+
+    #region 술집 의뢰
+
+    public static string QuestBoardTitle => BasicData.Text("presentation.quest.boardTitle");
+    public static string QuestNoOffers => BasicData.Text("presentation.quest.noOffers");
+
+    public static string QuestStatus(int _active, int _max, int _reputation)
+    {
+        return BasicData.Format("presentation.quest.status", _active, _max, _reputation);
+    }
+
+    public static string QuestMoreOffers(int _count)
+    {
+        return BasicData.Format("presentation.quest.moreOffers", _count);
+    }
+
+    static string QuestCargoName(string _pieceId)
+    {
+        return TableManager.Instance.Piece(_pieceId).displayName;
+    }
+
+    static string QuestCityName(string _cityId)
+    {
+        return TableManager.Instance.CityPrice(_cityId).displayName;
+    }
+
+    // 실패 시 받는 불이익. 보증금은 금액을, 지역 거래 불이익은 의뢰를 준 지역 이름을 함께 표시한다.
+    static string QuestPenaltyText(string _penaltyId, long _deposit, string _sourceCityId)
+    {
+        var tables = TableManager.Instance;
+        var penalty = tables.QuestPenalty(_penaltyId);
+        return penalty.type == nameof(TrainventoryQuestPenaltyType.Deposit)
+            ? BasicData.Format("presentation.quest.depositPenalty", penalty.displayName, _deposit)
+            : BasicData.Format("presentation.quest.regionPenalty", penalty.displayName,
+                tables.Region(tables.CityPrice(_sourceCityId).regionId).displayName);
+    }
+
+    internal static string QuestOffer(TrainventoryQuestOffer _offer)
+    {
+        return BasicData.Format("presentation.quest.offer", QuestCargoName(_offer.PieceId), QuestCityName(_offer.TargetCityId),
+            _offer.TravelHours, _offer.DeadlineHours, _offer.Reward,
+            QuestPenaltyText(_offer.PenaltyId, _offer.Deposit, _offer.SourceCityId));
+    }
+
+    internal static string QuestAcceptLabel(TrainventoryQuestOffer _offer)
+    {
+        return _offer.Deposit > 0
+            ? BasicData.Format("presentation.quest.acceptWithDeposit", _offer.Deposit)
+            : BasicData.Text("presentation.quest.accept");
+    }
+
+    internal static string QuestAcceptFailure(TrainventoryQuestAcceptFailure _failure, TrainventoryQuestOffer _offer, int _maxActive)
+    {
+        return _failure switch
+        {
+            TrainventoryQuestAcceptFailure.RunFinished => BasicData.Text("presentation.quest.failRunFinished"),
+            TrainventoryQuestAcceptFailure.ActiveLimit => BasicData.Format("presentation.quest.failActiveLimit", _maxActive),
+            TrainventoryQuestAcceptFailure.InsufficientFunds => BasicData.Format("presentation.quest.failInsufficientFunds", _offer.Deposit),
+            TrainventoryQuestAcceptFailure.NoSpace => BasicData.Text("presentation.quest.failNoSpace"),
+            _ => BasicData.Text("presentation.quest.failUnavailable")
+        };
+    }
+
+    // 상태 변화 직후 하단 거래 상태 줄에 띄우는 한 줄 결과.
+    internal static string QuestChanged(GameEvents.QuestInfo _info)
+    {
+        string cargo = QuestCargoName(_info.pieceId);
+        if (_info.state == nameof(TrainventoryQuestState.Completed))
+        {
+            return BasicData.Format("presentation.quest.completed", cargo, _info.payout);
+        }
+        if (_info.state == nameof(TrainventoryQuestState.Failed))
+        {
+            return _info.failure == nameof(TrainventoryQuestFailure.Overdue)
+                ? BasicData.Format("presentation.quest.failedOverdue", cargo)
+                : BasicData.Format("presentation.quest.failedCargoLost", cargo);
+        }
+        return BasicData.Format("presentation.quest.accepted", cargo, GameTimestamp(_info.deadlineMinutes),
+            QuestCityName(_info.targetCityId));
+    }
+
+    // 수첩 의뢰 탭 본문. 평판·진행 수, 지역 불이익, 진행 중 의뢰, 끝난 의뢰(최근 순) 순서다.
+    internal static string QuestLogEntries(PuzzleInventoryService _session)
+    {
+        var tables = TableManager.Instance;
+        var entries = new List<string>
+        {
+            BasicData.Format("presentation.quest.logHeader", _session.Reputation, _session.ActiveQuestCount, _session.MaxActiveQuests)
+        };
+        foreach (var region in tables.Puzzle.regions.OrderBy(_region => _region.id, StringComparer.Ordinal))
+        {
+            if (_session.TryGetRegionPenalty(region.id, out var penalty))
+            {
+                entries.Add(BasicData.Format("presentation.quest.logRegionPenalty", region.displayName,
+                    GameTimestamp(penalty.UntilMinutes), penalty.BuyPercentDelta, penalty.SellPercentDelta));
+            }
+        }
+        var quests = _session.Quests;
+        if (quests.Count == 0)
+        {
+            entries.Add(BasicData.Text("presentation.quest.logEmpty"));
+        }
+        foreach (var quest in quests.Where(_quest => _quest.State == TrainventoryQuestState.Active))
+        {
+            entries.Add(BasicData.Format("presentation.quest.logActive", QuestCargoName(quest.PieceId),
+                QuestCityName(quest.TargetCityId), GameTimestamp(quest.DeadlineMinutes), quest.Reward,
+                QuestPenaltyText(quest.PenaltyId, quest.Deposit, quest.SourceCityId)));
+        }
+        foreach (var quest in quests.Where(_quest => _quest.State != TrainventoryQuestState.Active).Reverse())
+        {
+            entries.Add(quest.State == TrainventoryQuestState.Completed
+                ? BasicData.Format("presentation.quest.logCompleted", QuestCargoName(quest.PieceId),
+                    QuestCityName(quest.TargetCityId), quest.Payout)
+                : BasicData.Format("presentation.quest.logFailed", QuestCargoName(quest.PieceId),
+                    QuestCityName(quest.TargetCityId), quest.Failure == TrainventoryQuestFailure.Overdue
+                        ? BasicData.Text("presentation.quest.failureOverdue")
+                        : BasicData.Text("presentation.quest.failureCargoLost")));
+        }
+        return string.Join(BasicData.Text("presentation.quest.separator"), entries);
+    }
+
+    #endregion
 
     public static string TavernNoRumor => BasicData.Text("presentation.station.noRumor");
     public static string TavernUnreadRumor => BasicData.Text("presentation.station.unreadRumor");
@@ -124,6 +256,11 @@ public static class Presentation
     public static string PuzzleMapFit => BasicData.Text("presentation.map.fit");
     public static string PuzzleWaitDaylight => BasicData.Text("presentation.inventory.waitDaylight");
     public static string StationActionsTitle => BasicData.Text("presentation.station.actionsTitle");
+    internal static string StationWagonShop => BasicData.Text("presentation.station.wagonShop");
+    internal static string StationWagonShopPage(int _page, int _pageCount) =>
+        BasicData.Format("presentation.station.wagonShopPage", _page, _pageCount);
+    internal static string WagonProductLabel(string _name, long _price) =>
+        BasicData.Format("presentation.station.wagonProduct", _name, _price);
     public static string StationMarket => BasicData.Text("presentation.station.market");
     public static string StationMarketClosed => BasicData.Text("presentation.station.marketClosed");
     public static string StationTavern => BasicData.Text("presentation.station.tavern");
@@ -461,6 +598,7 @@ public static class Presentation
         { "Box", "presentation.tags.boxLabel" },
         { "Fresh", "presentation.tags.refrigeratorLabel" },
         { "Refrigerator", "presentation.tags.refrigeratorLabel" },
+        { "Quest", "presentation.tags.questLabel" },
         { PuzzleItemDefinition.BABY_TAG, "presentation.PuzzleTagCommon.baby" },
 
     };
@@ -941,6 +1079,7 @@ public static class Presentation
             "meat" => BasicData.Color("presentation.tags.meatBackground"),       // 고기: 딥 레드
             "animal" => BasicData.Color("presentation.tags.animalBackground"),    // 가축: 탄/레더 탠
             "fruit" => BasicData.Color("presentation.tags.fruitBackground"),      // 과일: 사과 레드
+            "quest" => BasicData.Color("presentation.tags.questBackground"),
             "waste" => BasicData.Color("presentation.tags.wasteBackground"),         // 폐기물: 다크 브라운
             _ => BasicData.Color("presentation.tags.puzzleTagBackgroundColorColor")
         };

@@ -1198,6 +1198,178 @@
         "enabled": false,
         "reductionPercent": 0
       }
+    },
+    {
+      "id": "piece.questParcel",
+      "displayName": "의뢰 소포",
+      "description": "술집 의뢰로 맡은 소포. 지정 마을에 전달하면 보상을 받는다.",
+      "tags": [
+        "Quest",
+        "Cargo"
+      ],
+      "visualKey": "cargo.woodBundle",
+      "slotCount": 2,
+      "cells": [
+        {
+          "x": 0,
+          "y": 0,
+          "north": "Flat",
+          "east": "Flat",
+          "south": "Flat",
+          "west": "Flat"
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "north": "Flat",
+          "east": "Flat",
+          "south": "Flat",
+          "west": "Flat"
+        }
+      ],
+      "durability": 100,
+      "excludeFromMarket": true,
+      "baseValue": 20,
+      "synergyEffects": [
+        {
+          "ruleId": "cargoNearAnimal",
+          "target": true,
+          "source": false
+        },
+        {
+          "ruleId": "sample.cargoNearFood",
+          "target": true,
+          "source": false
+        },
+        {
+          "ruleId": "wasteNearbyPenalty",
+          "target": true,
+          "source": false
+        }
+      ],
+      "preservationEffect": {
+        "enabled": false,
+        "reductionPercent": 0
+      }
+    },
+    {
+      "id": "piece.questToolCrate",
+      "displayName": "의뢰 공구 상자",
+      "description": "술집 의뢰로 맡은 공구 상자. 지정 마을에 전달하면 보상을 받는다.",
+      "tags": [
+        "Quest",
+        "Cargo",
+        "Metal"
+      ],
+      "visualKey": "cargo.toolbox",
+      "slotCount": 3,
+      "cells": [
+        {
+          "x": 1,
+          "y": 0,
+          "north": "Flat",
+          "east": "Flat",
+          "south": "Flat",
+          "west": "Flat"
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "north": "Flat",
+          "east": "Flat",
+          "south": "Flat",
+          "west": "Flat"
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "north": "Flat",
+          "east": "Flat",
+          "south": "Flat",
+          "west": "Flat"
+        }
+      ],
+      "durability": 100,
+      "excludeFromMarket": true,
+      "baseValue": 30,
+      "synergyEffects": [
+        {
+          "ruleId": "cargoNearAnimal",
+          "target": true,
+          "source": false
+        },
+        {
+          "ruleId": "metalNearFish",
+          "target": true,
+          "source": false
+        },
+        {
+          "ruleId": "metalNearWater",
+          "target": true,
+          "source": false
+        },
+        {
+          "ruleId": "sample.cargoNearFood",
+          "target": true,
+          "source": false
+        },
+        {
+          "ruleId": "wasteNearbyPenalty",
+          "target": true,
+          "source": false
+        }
+      ],
+      "preservationEffect": {
+        "enabled": false,
+        "reductionPercent": 0
+      }
+    },
+    {
+      "id": "piece.questFreshCrate",
+      "displayName": "의뢰 신선 식품",
+      "description": "술집 의뢰로 맡은 신선 식품. 상하기 전에 지정 마을에 전달해야 한다.",
+      "tags": [
+        "Quest",
+        "Food",
+        "Fruit"
+      ],
+      "shelfLifeHours": 72,
+      "visualKey": "cargo.smallCrate",
+      "slotCount": 1,
+      "cells": [
+        {
+          "x": 0,
+          "y": 0,
+          "north": "Flat",
+          "east": "Flat",
+          "south": "Flat",
+          "west": "Flat"
+        }
+      ],
+      "durability": 100,
+      "excludeFromMarket": true,
+      "baseValue": 15,
+      "synergyEffects": [
+        {
+          "ruleId": "foodNearSalt",
+          "target": true,
+          "source": false
+        },
+        {
+          "ruleId": "sample.cargoNearFood",
+          "target": false,
+          "source": true
+        },
+        {
+          "ruleId": "wasteNearbyPenalty",
+          "target": true,
+          "source": false
+        }
+      ],
+      "preservationEffect": {
+        "enabled": false,
+        "reductionPercent": 0
+      }
     }
   ],
   "train": {

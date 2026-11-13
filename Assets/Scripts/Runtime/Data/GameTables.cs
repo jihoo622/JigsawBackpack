@@ -72,12 +72,21 @@ public sealed class PuzzleTradeTableData
     // 화물칸 최대 증차 상한 (8칸)
     public int maxWagonCount = -1;
     public int wagonRefrigerationCost = -1;
+    public PuzzleWagonProductData[] wagonProducts = Array.Empty<PuzzleWagonProductData>();
     public long gameClearCost = -1;
     // 0이면 무기한. 목표 도시가 비어 있으면 상환 장소를 제한하지 않는다.
     public int deadlineHours = -1;
     public string debtCityId;
     public float travelEffectSeconds = -1f;
     public float travelArrivalHoldSeconds = -1f;
+}
+
+[Serializable]
+public sealed class PuzzleWagonProductData
+{
+    public string id, displayName;
+    public long price = -1;
+    public string modificationId;
 }
 
 [Serializable]
@@ -93,11 +102,29 @@ public sealed class PuzzleRouteTableData
     public PuzzleRouteData[] routes = Array.Empty<PuzzleRouteData>();
 }
 
+// 술집 의뢰. 의뢰 생성 규칙·보상·패널티·평판 단계의 원본이다. 진행 상태는 세션이 가진다.
+[Serializable]
+public sealed class TrainventoryQuestTableData
+{
+    public string status, note;
+    // 의뢰 화물에만 붙는 전용 태그. 의뢰 화물의 판별과 표시에 쓴다.
+    public string cargoTag;
+    // 마을 방문 한 번에 술집이 내놓는 의뢰 수.
+    public int offersPerTavern = -1;
+    public int reputationPerSuccess = -1;
+    public int reputationLossPerFailure = -1;
+    public TrainventoryQuestReputationData[] reputationLevels = Array.Empty<TrainventoryQuestReputationData>();
+    public TrainventoryQuestPenaltyData[] penalties = Array.Empty<TrainventoryQuestPenaltyData>();
+    public TrainventoryCourierQuestData[] courierQuests = Array.Empty<TrainventoryCourierQuestData>();
+}
+
 [Serializable]
 public sealed class PuzzleTimeTableData
 {
     public string status, note;
     public double pixelsPerHour = -1;
+    // 노선 소요 시간의 올림 단위(분). 60이면 25시간 44분 → 26시간.
+    public int travelRoundingMinutes = -1;
     public int daylightHours = -1;
     public int nightHours = -1;
     public int daylightStartHour = -1;
