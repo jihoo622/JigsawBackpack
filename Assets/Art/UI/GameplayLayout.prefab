@@ -146443,8 +146443,8 @@ MonoBehaviour:
     sprite: {fileID: 21300000, guid: e40622e3fe6e26a43bdc8a16bdc9d1a0, type: 3}
   - key: cargo.oreCross
     sprite: {fileID: 21300000, guid: 201c88b8a5df9cd4aa9b6b0b981ab541, type: 3}
-  - key: cargo.puriMetal
-    sprite: {fileID: 21300000, guid: 7727010156dba4b46bc61732cfc36304, type: 3}
+  - key: cargo.metalIngot
+    sprite: {fileID: 21300000, guid: 0ba9c0929e5e4a98b536398b84aed18c, type: 3}
   flatTriangle: {fileID: 11400000, guid: 4e2099728f0543fd97fdcad40817628a, type: 3}
   eastFlatTriangle: {fileID: 21300000, guid: cd201bef2f7ef0dc183bae0cf1666f94, type: 3}
   southFlatTriangle: {fileID: 21300000, guid: f2334a0000de83a06a5126bbaaec1ca0, type: 3}
@@ -207281,8 +207281,8 @@ MonoBehaviour:
     sprite: {fileID: 21300000, guid: e40622e3fe6e26a43bdc8a16bdc9d1a0, type: 3}
   - key: cargo.oreCross
     sprite: {fileID: 21300000, guid: 201c88b8a5df9cd4aa9b6b0b981ab541, type: 3}
-  - key: cargo.puriMetal
-    sprite: {fileID: 21300000, guid: 7727010156dba4b46bc61732cfc36304, type: 3}
+  - key: cargo.metalIngot
+    sprite: {fileID: 21300000, guid: 0ba9c0929e5e4a98b536398b84aed18c, type: 3}
   flatTriangle: {fileID: 11400000, guid: 4e2099728f0543fd97fdcad40817628a, type: 3}
   eastFlatTriangle: {fileID: 21300000, guid: cd201bef2f7ef0dc183bae0cf1666f94, type: 3}
   southFlatTriangle: {fileID: 21300000, guid: f2334a0000de83a06a5126bbaaec1ca0, type: 3}
@@ -279870,8 +279870,8 @@ MonoBehaviour:
     sprite: {fileID: 21300000, guid: e40622e3fe6e26a43bdc8a16bdc9d1a0, type: 3}
   - key: cargo.oreCross
     sprite: {fileID: 21300000, guid: 201c88b8a5df9cd4aa9b6b0b981ab541, type: 3}
-  - key: cargo.puriMetal
-    sprite: {fileID: 21300000, guid: 7727010156dba4b46bc61732cfc36304, type: 3}
+  - key: cargo.metalIngot
+    sprite: {fileID: 21300000, guid: 0ba9c0929e5e4a98b536398b84aed18c, type: 3}
   flatTriangle: {fileID: 11400000, guid: 4e2099728f0543fd97fdcad40817628a, type: 3}
   eastFlatTriangle: {fileID: 21300000, guid: cd201bef2f7ef0dc183bae0cf1666f94, type: 3}
   southFlatTriangle: {fileID: 21300000, guid: f2334a0000de83a06a5126bbaaec1ca0, type: 3}
@@ -405112,7 +405112,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "변환표에 등록한 광석 화물을 맡기면 시간이 지나 정제 금속으로 돌려줍니다. 입력 하나의 산출 개수는 표의 범위에서 무작위로 정해집니다."
+  m_text: "변환표에 등록한 광석 화물을 맡기면 시간이 지나 금속 주괴로 돌려줍니다. 입력 하나의 산출 개수는 표의 범위에서 무작위로 정해집니다."
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: b2eeb73aa1ee10b48a7fe11797ba93c5, type: 2}
   m_sharedMaterial: {fileID: -3217437318264749832, guid: b2eeb73aa1ee10b48a7fe11797ba93c5, type: 2}

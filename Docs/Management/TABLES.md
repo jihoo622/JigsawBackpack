@@ -36,7 +36,7 @@
 ## 화물·보드·시장
 
 - `pieces` 항목의 `id`, `displayName`, `description`, `tags`, `visualKey`, `baseValue`, `slotCount`, `cells`가 정의 원본이다. 태그는 대소문자를 구분하고 한 아이템 안에서 중복되지 않아야 한다.
-- `excludeFromMarket: true` 품목은 `stockProfiles` 후보와 시장 고정 재고에 둘 수 없고 검증이 막는다. 미출시 품목은 정의와 아이콘만 두고 이 플래그와 재고 후보에서 제외된 상태로 유지한다.
+- `excludeFromMarket: true` 품목은 `stockProfiles` 후보와 시장 고정 재고에 둘 수 없고 검증이 막는다. 다만 플레이어가 판매한 품목은 그 도시 시장이 다시 만들어지기(재방문) 전까지 시장 보드에 남아 다시 살 수 있다. 미출시 품목은 정의와 아이콘만 두고 이 플래그와 재고 후보에서 제외된 상태로 유지한다.
 - `slotCount`는 `cells` 길이와 같고 슬롯은 상하좌우로 연결되어야 한다. 현재 화물의 네 방향 상태는 모두 `Flat`이다. 셀 배열 순서에는 의미가 없다.
 - 화물 로컬 좌표는 외접 사각형 왼쪽 위에서 오른쪽·아래로 증가한다. 보드 좌표는 왼쪽 아래에서 오른쪽·위로 증가한다. 시작 배치의 `x`·`y`는 회전 후 외접 사각형의 왼쪽 위 기준점이다. 높이 2칸 화물은 y가 1 이상이어야 한다.
 - `clockwiseTurns`는 시계 방향 90도 회전 횟수 0~3이다. 시작 배치 ID는 기차와 모든 시장에서 고유해야 하며 정의 참조·경계·점유 겹침을 검증한다.
@@ -82,7 +82,7 @@
 
 - `actions` 행은 고유 `id`, 알려진 `type`(`Butchery`·`Modification`·`Refining`), 비어 있지 않은 `title`·`description`, `Butchery`·`Refining`의 양의 `workMinutes`와 `Modification`의 0, 빈 `board.startingPlacements`와 양수 `width`·`height`, 등록된 `inputTag`·`outputTag` 또는 `modes`를 가진다.
 - `cityIds`는 등록된 도시 참조이며 같은 도시에서 같은 `type`의 행동은 하나만 쓸 수 있다. `TableManager.CityActionsOf(cityId)`는 action id 오름차순 목록을 주고 `TryGetCityAction(cityId, type, out row)`으로 하나를 조회한다. 전체 목록은 `CityActions` 속성(id 오름차순)이다. `modes`의 `id`·`displayName`·`description`·태그·`conversions`도 참조 무결성을 검증한다.
-- `conversions`의 `inputPieceId`는 `inputTag`를, `outputPieceId`는 `outputTag`를 가진 등록된 화물이어야 하고 `inputPieceId`는 고유하다. 도축·개조는 `outputCount` 양수를 쓰고 정제는 `minOutputCount`(양수)·`maxOutputCount`(최솟값 이상)를 쓰며 두 표기를 섞지 않는다. 산출 품목을 정제 입력으로 등록하면 오류다. 현재 `action.butchery`는 `city.darpol`(다르폴)에서 `piece.cow` 1개를 `piece.beef` 2개로 360분간 작업하고, `action.modification`은 `city.erna`의 `mode.refrigeration`으로 `piece.uShape` 1개를 `piece.refrigeratedFrame` 1개로 즉시 바꾼다. `action.refining`은 `city.riobruk`(리오브루크)에서 `piece.oreCross`→`piece.puriMetal` 4~6개, `piece.oreL`→`piece.puriMetal` 2~4개를 360분간 작업하고 시간·비용은 미확정 제안값이다.
+- `conversions`의 `inputPieceId`는 `inputTag`를, `outputPieceId`는 `outputTag`를 가진 등록된 화물이어야 하고 `inputPieceId`는 고유하다. 도축·개조는 `outputCount` 양수를 쓰고 정제는 `minOutputCount`(양수)·`maxOutputCount`(최솟값 이상)를 쓰며 두 표기를 섞지 않는다. 산출 품목을 정제 입력으로 등록하면 오류다. 현재 `action.butchery`는 `city.darpol`(다르폴)에서 `piece.cow` 1개를 `piece.beef` 2개로 360분간 작업하고, `action.modification`은 `city.erna`의 `mode.refrigeration`으로 `piece.uShape` 1개를 `piece.refrigeratedFrame` 1개로 즉시 바꾼다. `action.refining`은 `city.riobruk`(리오브루크)에서 `piece.oreCross`→`piece.metalIngot` 4~6개, `piece.oreL`→`piece.metalIngot` 2~4개를 360분간 작업하고 시간·비용은 미확정 제안값이다.
 - 개조는 `InstanceId`, 회전 후 `Pose`, `ActualValue`, `OwnedMinutes`, `Durability`와 유통기한 진행을 보존한다. `BaseValue`와 로컬 점유 셀을 같게 유지해 변환으로 이후 시너지 기준액이 바뀌지 않게 한다. 냉장 프레임의 `Refrigerator` 태그는 `PuzzleSynergyTableData.freshness`에서 참조한다.
 - 도축대·개조대·정제대 버튼·View는 Game 씬의 `Assets/Art/UI/GameplayLayout.prefab`에 연결되어 있으며 배치는 프리팹에서 수정한다. 문구 원본은 `BasicDataTableData`이며 상태·사유는 `rules.butchery.*`·`rules.modification.*`·`rules.refining.*`, 버튼·보드는 `presentation.StationButchery*`·`presentation.PuzzleButcheryTitle`·`presentation.StationModification*`·`presentation.PuzzleModification*`·`presentation.StationRefining*`·`presentation.PuzzleRefiningTitle`을 쓴다.
 

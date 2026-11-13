@@ -138,8 +138,8 @@ MonoBehaviour:
     sprite: {fileID: 21300000, guid: e40622e3fe6e26a43bdc8a16bdc9d1a0, type: 3}
   - key: cargo.oreCross
     sprite: {fileID: 21300000, guid: 201c88b8a5df9cd4aa9b6b0b981ab541, type: 3}
-  - key: cargo.puriMetal
-    sprite: {fileID: 21300000, guid: 7727010156dba4b46bc61732cfc36304, type: 3}
+  - key: cargo.metalIngot
+    sprite: {fileID: 21300000, guid: 0ba9c0929e5e4a98b536398b84aed18c, type: 3}
   - key: cargo.meatPackage
     sprite: {fileID: 21300000, guid: 962cda9249c7eba4c80ad736eb2b98f2, type: 3}
   flatTriangle: {fileID: 11400000, guid: 4e2099728f0543fd97fdcad40817628a, type: 3}

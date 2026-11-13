@@ -22,15 +22,15 @@
       "type": "Refining",
       "cityIds": ["city.riobruk"],
       "title": "정제하기",
-      "description": "변환표에 등록한 광석 화물을 맡기면 시간이 지나 정제 금속으로 돌려줍니다. 입력 하나의 산출 개수는 표의 범위에서 무작위로 정해집니다.",
+      "description": "변환표에 등록한 광석 화물을 맡기면 시간이 지나 금속 주괴로 돌려줍니다. 입력 하나의 산출 개수는 표의 범위에서 무작위로 정해집니다.",
       "board": { "width": 3, "height": 3, "startingPlacements": [] },
       "workMinutes": 360,
       "cost": 0,
       "inputTag": "Ore",
       "outputTag": "Metal",
       "conversions": [
-        { "inputPieceId": "piece.oreCross", "outputPieceId": "piece.puriMetal", "minOutputCount": 4, "maxOutputCount": 6 },
-        { "inputPieceId": "piece.oreL", "outputPieceId": "piece.puriMetal", "minOutputCount": 2, "maxOutputCount": 4 }
+        { "inputPieceId": "piece.oreCross", "outputPieceId": "piece.metalIngot", "minOutputCount": 4, "maxOutputCount": 6 },
+        { "inputPieceId": "piece.oreL", "outputPieceId": "piece.metalIngot", "minOutputCount": 2, "maxOutputCount": 4 }
       ]
     },
     {

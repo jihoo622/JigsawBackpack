@@ -688,14 +688,14 @@
       "baseValue": 55
     },
     {
-      "id": "piece.puriMetal",
-      "displayName": "정제 금속",
+      "id": "piece.metalIngot",
+      "displayName": "금속 주괴",
       "description": "한 칸을 차지하는 정제된 금속 덩어리.",
       "tags": [
         "Ore",
         "Metal"
       ],
-      "visualKey": "cargo.puriMetal",
+      "visualKey": "cargo.metalIngot",
       "slotCount": 1,
       "durability": 100,
       "excludeFromMarket": true,

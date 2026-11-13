@@ -1380,9 +1380,9 @@ public sealed class PuzzleInventoryService : MonoBehaviour
             // Move는 새 배치 객체를 만들므로 이동 완료된 인스턴스의 구매 시계를 갱신한다.
             _destination.TryGetCell(move.Candidate.Cells[0].Position, out var movedItem, out _);
             movedItem.SetOwned(result.Direction == PuzzleTradeDirection.Buy);
-            // 시장 제외 품목과 가치가 음수인 화물(처분)은 판매 즉시 사라져 다시 살 수 없다.
-            if (result.Direction == PuzzleTradeDirection.Sell &&
-                (movedItem.Definition.ExcludeFromMarket || movedItem.FreshnessAdjustedValue < 0))
+            // 가치가 음수인 화물(처분)은 판매 즉시 사라져 다시 살 수 없다.
+            // 등장 풀에서 제외된 품목은 판매해도 시장이 다시 만들어지기(재방문) 전까지 보드에 남아 다시 살 수 있다.
+            if (result.Direction == PuzzleTradeDirection.Sell && movedItem.FreshnessAdjustedValue < 0)
             {
                 _destination.Remove(movedItem);
             }
@@ -2300,7 +2300,7 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         foreach (var placement in state.Board.Placements)
         {
             // 입력 허용은 변환표에 등록한 품목 ID가 기준이다. Ore 태그를 갖지만 입력으로 등록되지 않은
-            // 정제 금속은 noConversion으로, 태그 자체가 없는 화물은 notOre로 막는다.
+            // 금속 주괴는 noConversion으로, 태그 자체가 없는 화물은 notOre로 막는다.
             if (!TryFindRefiningConversion(state.Action, placement.Definition.Id, out var conversion))
             {
                 _reason = placement.Definition.Tags.Contains(state.Action.inputTag)

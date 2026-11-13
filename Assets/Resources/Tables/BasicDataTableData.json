@@ -2254,7 +2254,7 @@
         },
         {
           "id": "refining.noConversion",
-          "value": "{0}은(는) 정제 변환이 정해지지 않았습니다. 정제 금속은 다시 정제할 수 없습니다.",
+          "value": "{0}은(는) 정제 변환이 정해지지 않았습니다. 금속 주괴는 다시 정제할 수 없습니다.",
           "arguments": 1,
           "source": "Assets/Scripts/Runtime/Inventory/PuzzleInventoryService.cs"
         },

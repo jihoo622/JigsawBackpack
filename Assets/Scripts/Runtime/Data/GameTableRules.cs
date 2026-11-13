@@ -811,7 +811,7 @@ public sealed class GameTableRules
             }
         }
 
-        // 산출 품목을 입력으로 등록하면 재정제가 된다. 예: piece.puriMetal은 Ore/Metal 태그를 갖지만 입력일 수 없다.
+        // 산출 품목을 입력으로 등록하면 재정제가 된다. 예: piece.metalIngot은 Ore/Metal 태그를 갖지만 입력일 수 없다.
         foreach (string inputId in inputPieceIds)
         {
             Check(!outputPieceIds.Contains(inputId), path + ".inputPieceId",
