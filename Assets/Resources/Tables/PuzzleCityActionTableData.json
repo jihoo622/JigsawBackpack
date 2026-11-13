@@ -29,7 +29,7 @@
         {
           "id": "mode.refrigeration",
           "displayName": "냉장 개조",
-          "description": "기계 화물을 같은 모양의 냉장고 태그 화물로 바꿉니다. 신선도 감소율 감소는 아직 적용되지 않습니다.",
+          "description": "기계 화물을 같은 모양의 냉장 프레임으로 바꿉니다. 같은 객차에서 상하좌우로 맞닿은 음식의 유통기한 소모를 50% 줄입니다.",
           "cost": 150,
           "inputTag": "Machinery",
           "outputTag": "Fresh",

@@ -407,7 +407,7 @@
         "Meat"
       ],
       "shelfLifeHours": 168,
-      "visualKey": "cargo.grainSack",
+      "visualKey": "cargo.meatPackage",
       "slotCount": 1,
       "cells": [
         {
