@@ -288,6 +288,39 @@ public sealed class GameTableRules
             "이동 연출 시간은 유한한 양수여야 합니다.");
         Check(IsFinitePositive(_tables.PuzzleTrade.travelArrivalHoldSeconds), PATH + ".travelArrivalHoldSeconds",
             "도착 표시 시간은 유한한 양수여야 합니다.");
+        ValidateWagonProducts(_tables.PuzzleTrade.wagonProducts, PATH + ".wagonProducts");
+    }
+
+    void ValidateWagonProducts(PuzzleWagonProductData[] _products, string _path)
+    {
+        if (_products == null || _products.Length == 0)
+        {
+            Check(false, _path, "화차 상품이 하나 이상 필요합니다.");
+            return;
+        }
+
+        var ids = new HashSet<string>(StringComparer.Ordinal);
+        for (int i = 0; i < _products.Length; i++)
+        {
+            var product = _products[i];
+            string path = $"{_path}[{i}]";
+            if (product == null)
+            {
+                Check(false, path, "화차 상품 데이터가 필요합니다.");
+                continue;
+            }
+
+            Check(!string.IsNullOrWhiteSpace(product.id) && ids.Add(product.id), path + ".id",
+                "화차 상품 ID는 비어 있지 않고 고유해야 합니다.");
+            Check(!string.IsNullOrWhiteSpace(product.displayName), path + ".displayName",
+                "화차 상품 이름이 필요합니다.");
+            Check(product.price > 0, path + ".price", "화차 상품 가격은 양수여야 합니다.");
+            if (!string.IsNullOrEmpty(product.modificationId))
+            {
+                Reference(product.modificationId, path + ".modificationId",
+                    PuzzleWagonModificationRegistry.Contains(product.modificationId), "화차 강화");
+            }
+        }
     }
 
     static bool IsFinitePositive(float _value)

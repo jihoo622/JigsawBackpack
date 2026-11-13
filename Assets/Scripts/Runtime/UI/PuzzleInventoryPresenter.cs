@@ -12,6 +12,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
     [SerializeField] float wagonDragHoverDelay = 0.5f;
 
     [SerializeField] PuzzleInventoryView trainView;
+    [SerializeField] TextMeshProUGUI wagonEffectsLabel;
     [SerializeField] Button wagonRefrigerationButton;
     [SerializeField] TextMeshProUGUI wagonRefrigerationLabel;
     [SerializeField] PuzzleInventoryView marketView;
@@ -71,7 +72,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         session.Initialize();
         long trainCapacity = (long)session.Train.Width * session.Train.Height;
         long dragCapacity = System.Math.Max(trainCapacity, session.MarketCapacity);
-        trainView.Initialize(trainCapacity, dragCapacity, Presentation.PuzzleTrainTitle(session.CurrentWagonIndex + 1), session.ItemDefinitions, _showSynergies: true);
+        trainView.Initialize(trainCapacity, dragCapacity, Presentation.PuzzleTrainTitle(session.Train.WagonNumber), session.ItemDefinitions, _showSynergies: true);
         marketView.Initialize(session.MarketCapacity, dragCapacity, Presentation.PuzzleMarketTitle, session.ItemDefinitions, _showSynergies: false);
         ConfigureButcheryView();
         ConfigureModificationView();
@@ -114,7 +115,8 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         if (trainBarView)
         {
             trainBarView.WagonSelected += OnWagonSelected;
-            trainBarView.AddWagonClicked += OnAddWagonClicked;
+            trainBarView.WagonProductDropped += OnWagonProductDropped;
+            trainBarView.WagonMoved += OnWagonMoved;
         }
     }
 
@@ -175,7 +177,9 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         if (trainBarView)
         {
             trainBarView.WagonSelected -= OnWagonSelected;
-            trainBarView.AddWagonClicked -= OnAddWagonClicked;
+            trainBarView.WagonProductDropped -= OnWagonProductDropped;
+            trainBarView.WagonMoved -= OnWagonMoved;
+            trainBarView.CancelWagonDrag();
         }
         OnViewDisabled();
         initialized = false;
@@ -233,7 +237,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         }
 
         SetDragView(null);
-        trainView.SetTitle(Presentation.PuzzleTrainTitle(session.CurrentWagonIndex + 1));
+        trainView.SetTitle(Presentation.PuzzleTrainTitle(session.Train.WagonNumber));
         trainView.SetBoardSize(session.Train.Width, session.Train.Height);
         RenderBoards();
         RenderValues();
@@ -372,6 +376,10 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         RefreshWagonRefrigeration();
         if (_info.open)
         {
+            if (trainBarView)
+            {
+                trainBarView.CancelWagonDrag();
+            }
             hoverPosition = null;
             currentHoveredInstanceId = null;
             if (input)
@@ -549,7 +557,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         }
         else if (droppedWagonIndex >= 0 && result.Placement.Failure == PuzzlePlacementFailure.NoSpace)
         {
-            cityView.ShowTradeStatus($"{activeDrag.Definition.DisplayName} · {droppedWagonIndex + 1}번 칸에 화물을 놓을 공간이 없습니다");
+            cityView.ShowTradeStatus($"{activeDrag.Definition.DisplayName} · {session.TrainWagons[droppedWagonIndex].WagonNumber}번 칸에 화물을 놓을 공간이 없습니다");
         }
     }
 
@@ -1064,12 +1072,18 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         RefreshWagonRefrigeration();
         if (trainBarView && session != null)
         {
-            trainBarView.Refresh(session.WagonCount, session.CurrentWagonIndex, session.NextWagonCost, session.CanAddWagon, hoveredWagonIndex);
+            trainBarView.Refresh(session.TrainWagons, session.CurrentWagonIndex, hoveredWagonIndex);
         }
     }
 
     void RefreshWagonRefrigeration()
     {
+        if (wagonEffectsLabel && session?.Train is { } wagon)
+        {
+            wagonEffectsLabel.text = string.Join(" · ", wagon.WagonModifications.Select(_effect => _effect.ActiveEffectLabel));
+            wagonEffectsLabel.gameObject.SetActive(wagon.WagonModifications.Count > 0);
+        }
+
         if (!wagonRefrigerationButton || !wagonRefrigerationLabel || session == null)
         {
             return;
@@ -1109,7 +1123,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         {
             return;
         }
-        trainView.SetTitle(Presentation.PuzzleTrainTitle(session.CurrentWagonIndex + 1));
+        trainView.SetTitle(Presentation.PuzzleTrainTitle(session.Train.WagonNumber));
         trainView.SetBoardSize(session.Train.Width, session.Train.Height);
         RenderBoards();
         RenderValues();
@@ -1117,7 +1131,15 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         RefreshTrainBar();
     }
 
-    void OnAddWagonClicked()
+    void OnWagonMoved(int _sourceIndex, int _destinationIndex)
+    {
+        if (!InventoryBlocked && drag == null && session.TryMoveWagon(_sourceIndex, _destinationIndex))
+        {
+            RefreshTrainBar();
+        }
+    }
+
+    void OnWagonProductDropped(PuzzleWagonProductData _product)
     {
         if (InventoryBlocked || session == null)
         {
@@ -1126,23 +1148,20 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
 
         input.CancelCapture();
         ClearDrag();
-        long purchaseCost = session.NextWagonCost;
-        if (!session.TryAddWagon(out string failureReason))
+        if (!session.TryPurchaseWagon(_product.id, out string failureReason))
         {
-            if (!string.IsNullOrEmpty(failureReason))
-            {
-                cityView.ShowTradeStatus($"화물칸 구매 불가 · {failureReason}");
-            }
+            cityView.ShowTradeStatus(failureReason);
             return;
         }
 
         RefreshFunds();
-        trainView.SetTitle(Presentation.PuzzleTrainTitle(session.CurrentWagonIndex + 1));
+        trainView.SetTitle(Presentation.PuzzleTrainTitle(session.Train.WagonNumber));
         trainView.SetBoardSize(session.Train.Width, session.Train.Height);
         RenderBoards();
         RenderValues();
         ShowItemDetails(null, null);
         RefreshTrainBar();
-        cityView.ShowTradeStatus(Presentation.PuzzleWagonPurchaseStatus(session.CurrentWagonIndex + 1, purchaseCost));
+        cityView.ShowTradeStatus(Presentation.PuzzleWagonPurchaseStatus(session.Train.WagonNumber, _product.price));
     }
+
 }

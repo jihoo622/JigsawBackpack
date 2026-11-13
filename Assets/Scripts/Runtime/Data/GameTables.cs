@@ -71,12 +71,21 @@ public sealed class PuzzleTradeTableData
     // 화물칸 최대 증차 상한 (8칸)
     public int maxWagonCount = -1;
     public int wagonRefrigerationCost = -1;
+    public PuzzleWagonProductData[] wagonProducts = Array.Empty<PuzzleWagonProductData>();
     public long gameClearCost = -1;
     // 0이면 무기한. 목표 도시가 비어 있으면 상환 장소를 제한하지 않는다.
     public int deadlineHours = -1;
     public string debtCityId;
     public float travelEffectSeconds = -1f;
     public float travelArrivalHoldSeconds = -1f;
+}
+
+[Serializable]
+public sealed class PuzzleWagonProductData
+{
+    public string id, displayName;
+    public long price = -1;
+    public string modificationId;
 }
 
 [Serializable]

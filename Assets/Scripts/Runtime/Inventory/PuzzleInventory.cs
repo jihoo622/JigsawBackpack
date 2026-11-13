@@ -14,6 +14,7 @@ public sealed class PuzzleInventory
 
     public int Width { get; }
     public int Height { get; }
+    internal int WagonNumber { get; set; }
     public IReadOnlyCollection<PuzzlePlacement> Placements => placements.Values;
     internal IReadOnlyCollection<PuzzleWagonModification> WagonModifications => wagonModifications.Values;
     internal PuzzleValue Value => valuation.Total;
