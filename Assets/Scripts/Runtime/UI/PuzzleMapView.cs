@@ -144,6 +144,8 @@ public sealed class PuzzleMapView : PanelBase
     readonly Dictionary<PuzzleMapNodeView, Rect> markerBounds = new Dictionary<PuzzleMapNodeView, Rect>();
     readonly List<(Vector2 start, Vector2 end)> labelLinks = new List<(Vector2 start, Vector2 end)>();
     readonly List<PuzzleMapNodeView> pendingLabels = new List<PuzzleMapNodeView>();
+    readonly HashSet<PuzzleMapNodeView> requiredLabels = new HashSet<PuzzleMapNodeView>();
+    bool requiredMarkersOnly;
     readonly Dictionary<string, int> regionLabelCounts = new Dictionary<string, int>(StringComparer.Ordinal);
     readonly Dictionary<Image, float> trackThickness = new Dictionary<Image, float>();
     PuzzleMapNodeView[] layoutNodes;
@@ -288,10 +290,15 @@ public sealed class PuzzleMapView : PanelBase
             }
         }
         pendingLabels.Clear();
+        requiredLabels.Clear();
         regionLabelCounts.Clear();
         foreach (var node in layoutNodes)
         {
             node.HideLabel();
+            if (node.IsLabelRequired(selectedCityId, nodeSettings))
+            {
+                requiredLabels.Add(node);
+            }
             if (node.ShouldShowLabel(_zoom, selectedCityId, nodeSettings) && bounds.Contains(node.MarkerPosition(_viewport)))
             {
                 pendingLabels.Add(node);
@@ -314,7 +321,7 @@ public sealed class PuzzleMapView : PanelBase
                 }
             }
             pendingLabels.Remove(best);
-            if (PlaceNodeLabel(best, bounds, _viewport))
+            if (PlaceNodeLabel(best, bounds, _viewport) || (requiredLabels.Contains(best) && PlaceRequiredNodeLabel(best, bounds, _viewport)))
             {
                 regionLabelCounts.TryGetValue(best.RegionId, out int count);
                 regionLabelCounts[best.RegionId] = count + 1;
@@ -391,6 +398,25 @@ public sealed class PuzzleMapView : PanelBase
         return size;
     }
 
+    // 줌 아웃으로 역 표식이 빽빽해지면 빈자리가 없다. 필수 이름은 다른 이름과 겹치지 않는 선에서 일반 역 표식 위에 놓는다.
+    bool PlaceRequiredNodeLabel(PuzzleMapNodeView _node, Rect _bounds, RectTransform _viewport)
+    {
+        requiredMarkersOnly = true;
+        try
+        {
+            return PlaceNodeLabel(_node, _bounds, _viewport);
+        }
+        finally
+        {
+            requiredMarkersOnly = false;
+        }
+    }
+
+    bool BlocksLabel(PuzzleMapNodeView _markerOwner)
+    {
+        return !requiredMarkersOnly || requiredLabels.Contains(_markerOwner);
+    }
+
     bool PlaceNodeLabel(PuzzleMapNodeView _node, Rect _bounds, RectTransform _viewport)
     {
         Vector2 position = _node.MarkerPosition(_viewport);
@@ -453,7 +479,7 @@ public sealed class PuzzleMapView : PanelBase
     {
         foreach (var marker in markerBounds)
         {
-            if (marker.Key != _owner && SegmentOverlaps(_start, _end, Padded(marker.Value)))
+            if (marker.Key != _owner && BlocksLabel(marker.Key) && SegmentOverlaps(_start, _end, Padded(marker.Value)))
             {
                 return false;
             }
@@ -548,9 +574,9 @@ public sealed class PuzzleMapView : PanelBase
             return false;
         }
         Rect padded = Padded(_candidate);
-        foreach (var marker in markerBounds.Values)
+        foreach (var marker in markerBounds)
         {
-            if (padded.Overlaps(marker))
+            if (BlocksLabel(marker.Key) && padded.Overlaps(marker.Value))
             {
                 return false;
             }

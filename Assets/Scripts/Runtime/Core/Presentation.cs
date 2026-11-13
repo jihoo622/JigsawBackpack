@@ -207,8 +207,14 @@ public static class Presentation
     public static Color PuzzleMapCurrentHalo => BasicData.Color("presentation.map.currentHalo");
     public static Color PuzzleMapTargetHalo => PuzzleMapCurrentHalo;
     public static Color PuzzleMapOcean => BasicData.Color("presentation.map.ocean");
-    public static Color PuzzleMapLand => BasicData.Color("presentation.map.land");
     public static Color PuzzleMapRiver => BasicData.Color("presentation.map.river");
+    public static Color PuzzleMapTerrainShallow => BasicData.Color("presentation.map.terrainShallow");
+    public static Color PuzzleMapTerrainDeep => BasicData.Color("presentation.map.terrainDeep");
+    public static Color PuzzleMapTerrainPlain => BasicData.Color("presentation.map.terrainPlain");
+    public static Color PuzzleMapTerrainGrass => BasicData.Color("presentation.map.terrainGrass");
+    public static Color PuzzleMapTerrainHill => BasicData.Color("presentation.map.terrainHill");
+    public static Color PuzzleMapTerrainMountain => BasicData.Color("presentation.map.terrainMountain");
+    public static Color PuzzleMapTerrainPeak => BasicData.Color("presentation.map.terrainPeak");
     public static Color PuzzleMapTerrainBorder => BasicData.Color("presentation.map.terrainBorder");
     public static string PuzzleMapZoom(float _percent)
     {

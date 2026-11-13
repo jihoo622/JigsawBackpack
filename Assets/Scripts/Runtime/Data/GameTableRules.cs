@@ -14,6 +14,17 @@ public sealed class GameTableRules
     };
 
     public bool IsValid { get; private set; } = true;
+    // 비어 있지 않으면 콘솔 대신 이 목록에 오류를 모은다(편집 도구의 저장 전 검증).
+    readonly List<string> errors;
+
+    public GameTableRules()
+    {
+    }
+
+    public GameTableRules(List<string> _errors)
+    {
+        errors = _errors;
+    }
 
     void Check(bool _condition, string _path, string _rule)
     {
@@ -22,6 +33,11 @@ public sealed class GameTableRules
             return;
         }
         IsValid = false;
+        if (errors != null)
+        {
+            errors.Add($"[{_path}] {_rule}");
+            return;
+        }
         Debug.LogError($"테이블 오류 [{_path}]: {_rule}");
     }
 

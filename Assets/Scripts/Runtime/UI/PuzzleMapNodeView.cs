@@ -81,10 +81,15 @@ public sealed class PuzzleMapNodeView : MonoBehaviour, IPointerEnterHandler, IPo
         return (long)labelImportance + regionPriority + state;
     }
 
+    // 주요 역·현재·목표·선택 역은 줌과 관계없이 이름을 표시해야 한다.
+    internal bool IsLabelRequired(string _selectedCityId, in PuzzleMapView.NodeLayoutSettings _settings)
+    {
+        return IsEmphasized || cityId == _selectedCityId || IsMajor(_settings.majorStationThreshold);
+    }
+
     internal bool ShouldShowLabel(float _zoom, string _selectedCityId, in PuzzleMapView.NodeLayoutSettings _settings)
     {
-        return IsEmphasized || cityId == _selectedCityId || IsMajor(_settings.majorStationThreshold)
-            || _zoom >= _settings.labelDetailMinZoom;
+        return IsLabelRequired(_selectedCityId, _settings) || _zoom >= _settings.labelDetailMinZoom;
     }
 
     internal void PrepareLayout(float _zoom, in PuzzleMapView.NodeLayoutSettings _settings)

@@ -18,7 +18,6 @@ public sealed partial class WorldMapEditorWindow
     [SerializeField] bool showTimes;
     [SerializeField] bool fitCanvas = true;
     bool frameSelection;
-    Texture2D terrainTexture;
     int canvasDragControl, canvasUndoGroup = -1, dragPoint = -1;
     string dragCity, dragRail;
     bool panCanvas;
@@ -130,13 +129,14 @@ public sealed partial class WorldMapEditorWindow
                     }
                     DrawCanvasRails();
                     DrawCanvasStations();
+                    DrawTerrainBrush();
                 }
                 finally
                 {
                     Handles.color = previous;
                     Handles.EndGUI();
                 }
-                string mode = "이동 시간은 표시 선 길이에 비례합니다";
+                string mode = tab == TERRAIN_TAB ? "지형: 왼쪽 드래그로 칠하기 · " + (paintRegion ? "지역" : WorldMapGeography.KindName(WorldMapGeography.KINDS[paintKindIndex])) : "이동 시간은 표시 선 길이에 비례합니다";
                 GUI.Label(new Rect(8f, canvasRect.height - 24f, canvasRect.width - 16f, 22f), mode, EditorStyles.helpBox);
             }
             HandleCanvasInput(control);
@@ -145,26 +145,6 @@ public sealed partial class WorldMapEditorWindow
         {
             GUI.EndGroup();
         }
-    }
-
-    void DrawCanvasTerrain()
-    {
-        if (!showTerrain)
-        {
-            return;
-        }
-        if (!terrainTexture)
-        {
-            terrainTexture = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Art/PuzzleMapTerrain.png");
-        }
-        if (!terrainTexture)
-        {
-            return;
-        }
-        float width = BasicData.Float("editor.MapPresentationTool.terrainBackgroundWidth");
-        float height = BasicData.Float("editor.MapPresentationTool.terrainBackgroundHeight");
-        Vector2 corner = CanvasPoint(new Vector2(-width * 0.5f, height * 0.5f));
-        GUI.DrawTexture(new Rect(corner, new Vector2(width, height) * canvasZoom), terrainTexture, ScaleMode.StretchToFill);
     }
 
     void DrawCanvasGrid()
@@ -186,11 +166,11 @@ public sealed partial class WorldMapEditorWindow
         }
     }
 
-    GUIStyle CanvasLabelStyle(bool _selected)
+    GUIStyle CanvasLabelStyle(bool _selected, bool _major = false)
     {
         var style = new GUIStyle(EditorStyles.miniLabel);
         style.normal.textColor = _selected ? Presentation.PuzzleMapTarget : Presentation.PuzzleHeading;
-        style.fontStyle = _selected ? FontStyle.Bold : FontStyle.Normal;
+        style.fontStyle = _selected || _major ? FontStyle.Bold : FontStyle.Normal;
         return style;
     }
 
@@ -268,7 +248,7 @@ public sealed partial class WorldMapEditorWindow
             {
                 continue;
             }
-            var style = CanvasLabelStyle(id == selectedId);
+            var style = CanvasLabelStyle(id == selectedId, IsMajor(City(id)));
             string name = CityName(id);
             Vector2 size = style.CalcSize(new GUIContent(name)) + new Vector2(6f, 2f);
             for (int attempt = 0; attempt < 16; attempt++)
@@ -348,6 +328,10 @@ public sealed partial class WorldMapEditorWindow
 
     void ReleaseCanvasDrag()
     {
+        if (paintingTerrain)
+        {
+            CommitTerrainStroke();
+        }
         if (pendingTimeLabels && draft && layout != null)
         {
             pendingTimeLabels = false;
@@ -385,7 +369,11 @@ public sealed partial class WorldMapEditorWindow
         }
         if (input.type == EventType.MouseDrag && canvasDragControl != 0 && GUIUtility.hotControl == canvasDragControl)
         {
-            if (panCanvas)
+            if (paintingTerrain)
+            {
+                ContinueTerrainPaint(mouse);
+            }
+            else if (panCanvas)
             {
                 canvasCenter += new Vector2(-input.delta.x, input.delta.y) / canvasZoom;
             }
@@ -419,6 +407,11 @@ public sealed partial class WorldMapEditorWindow
         {
             return;
         }
+        if (input.type == EventType.MouseMove && tab == TERRAIN_TAB)
+        {
+            Repaint();
+            return;
+        }
         if (input.type == EventType.ScrollWheel)
         {
             Vector2 anchor = WorldPoint(mouse);
@@ -435,6 +428,10 @@ public sealed partial class WorldMapEditorWindow
         {
             BeginCanvasDrag(_control);
             panCanvas = true;
+        }
+        else if (input.button == 0 && tab == TERRAIN_TAB)
+        {
+            BeginTerrainPaint(_control, mouse);
         }
         else if (input.button == 0)
         {

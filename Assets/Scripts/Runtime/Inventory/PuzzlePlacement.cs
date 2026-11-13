@@ -29,9 +29,9 @@ public readonly struct PuzzleCell
     }
 }
 
-internal readonly struct PuzzleRotation
+public readonly struct PuzzleRotation
 {
-    internal const int TURN_COUNT = 4;
+    public const int TURN_COUNT = 4;
 
     readonly Vector2Int minimum;
 

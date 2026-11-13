@@ -57,20 +57,25 @@ public sealed class TableManager
     readonly Dictionary<string, Dictionary<string, PuzzleRouteData>> routes;
     readonly Dictionary<string, IReadOnlyList<PuzzleRouteData>> routesFrom;
 
-    TableManager()
+    TableManager() : this(null, null)
+    {
+    }
+
+    // _sources: 테이블 클래스별 대체 JSON(편집 초안 검증용). _errors: 검증 오류를 콘솔 대신 모을 목록.
+    TableManager(IReadOnlyDictionary<Type, string> _sources, List<string> _errors)
     {
         bool loaded = true;
-        Basic = Load<BasicDataTableData>(ref loaded);
-        Gameplay = Load<GameplayTableData>(ref loaded);
-        Flow = Load<FlowTableData>(ref loaded);
-        Puzzle = Load<PuzzleTableData>(ref loaded);
-        PuzzleSynergy = Load<PuzzleSynergyTableData>(ref loaded);
-        PuzzleCityAction = Load<PuzzleCityActionTableData>(ref loaded);
-        PuzzleTrade = Load<PuzzleTradeTableData>(ref loaded);
-        PuzzleRoute = Load<PuzzleRouteTableData>(ref loaded);
-        PuzzleTime = Load<PuzzleTimeTableData>(ref loaded);
+        Basic = Load<BasicDataTableData>(ref loaded, _sources);
+        Gameplay = Load<GameplayTableData>(ref loaded, _sources);
+        Flow = Load<FlowTableData>(ref loaded, _sources);
+        Puzzle = Load<PuzzleTableData>(ref loaded, _sources);
+        PuzzleSynergy = Load<PuzzleSynergyTableData>(ref loaded, _sources);
+        PuzzleCityAction = Load<PuzzleCityActionTableData>(ref loaded, _sources);
+        PuzzleTrade = Load<PuzzleTradeTableData>(ref loaded, _sources);
+        PuzzleRoute = Load<PuzzleRouteTableData>(ref loaded, _sources);
+        PuzzleTime = Load<PuzzleTimeTableData>(ref loaded, _sources);
 
-        var rules = new GameTableRules();
+        var rules = _errors == null ? new GameTableRules() : new GameTableRules(_errors);
         var basicGroups = rules.Index(Basic.groups, _group => _group.id, "BasicDataTableData.groups");
         basicNumbers = IndexBasic(basicGroups.Values, _group => _group.numbers, _row => _row.id, "numbers", rules);
         basicTexts = IndexBasic(basicGroups.Values, _group => _group.texts, _row => _row.id, "texts", rules);
@@ -502,7 +507,7 @@ public sealed class TableManager
         throw new KeyNotFoundException($"{_table} 테이블에 '{_id}' 키가 없습니다.");
     }
 
-    static T Load<T>(ref bool _valid) where T : class, new()
+    static T Load<T>(ref bool _valid, IReadOnlyDictionary<Type, string> _sources = null) where T : class, new()
     {
         string path = RESOURCE_FOLDER + typeof(T).Name;
         var asset = Resources.Load<TextAsset>(path);
@@ -523,6 +528,10 @@ public sealed class TableManager
                 json = System.IO.File.ReadAllText(diskPath);
             }
 #endif
+            if (_sources != null && _sources.TryGetValue(typeof(T), out var source))
+            {
+                json = source;
+            }
             var table = JsonUtility.FromJson<T>(json);
             if (table != null)
             {
@@ -554,6 +563,25 @@ public sealed class TableManager
             throw new InvalidOperationException("테이블 원본을 읽을 수 없습니다: " + typeof(T).Name);
         }
         return data;
+    }
+
+    // 저장 전 초안 검증. 지정한 테이블은 주어진 JSON으로 읽고, 오류는 콘솔 대신 목록으로 돌려준다.
+    public static List<string> ValidateSources(IReadOnlyDictionary<Type, string> _sources)
+    {
+        var errors = new List<string>();
+        try
+        {
+            var tables = new TableManager(_sources, errors);
+            if (!tables.IsValid && errors.Count == 0)
+            {
+                errors.Add("테이블 원본을 읽지 못했습니다. 콘솔을 확인하세요.");
+            }
+        }
+        catch (Exception exception)
+        {
+            errors.Add("검증 중 예외: " + exception.Message);
+        }
+        return errors;
     }
 
     public static string EditorAssetPath<T>()
