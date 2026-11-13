@@ -1,7 +1,8 @@
 {
   "status": "provisional",
-  "note": "고정 좌표 폴라인 길이 기준. K=28픽셀/시간은 플레이 검증 전 잠정치. 이동 시간은 분 미만 올림. 시작·일출 06:00, 야간 00:00~06:00.",
+  "note": "고정 좌표 폴라인 길이 기준. K=28픽셀/시간은 플레이 검증 전 잠정치. 이동 시간은 travelRoundingMinutes(60분) 단위로 올림. 시작·일출 06:00, 야간 00:00~06:00.",
   "pixelsPerHour": 28,
+  "travelRoundingMinutes": 60,
   "daylightHours": 18,
   "nightHours": 6,
   "daylightStartHour": 6,

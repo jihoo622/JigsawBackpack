@@ -306,6 +306,7 @@ public sealed class GameTableRules
         }
         Check(!double.IsNaN(_time.pixelsPerHour) && !double.IsInfinity(_time.pixelsPerHour) && _time.pixelsPerHour > 0,
             PATH + ".pixelsPerHour", "픽셀/시간 환산값은 유한한 양수여야 합니다.");
+        Check(_time.travelRoundingMinutes > 0, PATH + ".travelRoundingMinutes", "이동 시간 올림 단위는 양수여야 합니다.");
         Check(_time.daylightHours > 0 && _time.nightHours > 0 &&
             _time.daylightHours + _time.nightHours == PuzzleTimeManager.HOURS_PER_DAY, PATH, "일출·야간 합은 하루여야 합니다.");
         Check(_time.startHour >= 0 && _time.startHour < PuzzleTimeManager.HOURS_PER_DAY, PATH + ".startHour", "시작 시각이 범위를 벗어났습니다.");

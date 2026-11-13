@@ -97,6 +97,8 @@ public sealed class PuzzleTimeTableData
 {
     public string status, note;
     public double pixelsPerHour = -1;
+    // 노선 소요 시간의 올림 단위(분). 60이면 25시간 44분 → 26시간.
+    public int travelRoundingMinutes = -1;
     public int daylightHours = -1;
     public int nightHours = -1;
     public int daylightStartHour = -1;
