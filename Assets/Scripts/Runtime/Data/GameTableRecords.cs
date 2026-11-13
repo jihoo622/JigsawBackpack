@@ -336,4 +336,6 @@ public sealed class TrainventoryCourierQuestData
     public int minTravelHours = -1, maxTravelHours = -1;
     public int baseReward = -1, rewardPerCellHour = -1;
     public int deadlinePercent = -1, deadlineExtraHours = -1;
+    // 의뢰 화물에 생산 태그가 없을 때 완료 숙련 경험치를 받을 태그. 화물에 생산 태그가 있으면 쓰지 않는다.
+    public string[] fallbackProficiencyTags = Array.Empty<string>();
 }

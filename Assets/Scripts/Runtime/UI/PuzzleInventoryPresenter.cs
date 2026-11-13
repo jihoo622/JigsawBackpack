@@ -26,6 +26,8 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
 
     PuzzleInventoryInput input;
     PuzzleInventoryService session;
+    // 아직 상태 줄에 띄우지 않은 숙련 레벨 상승 알림.
+    string pendingProficiencyNotice;
     PuzzleInventoryDrag drag;
     PuzzleInventoryView dragView;
     Vector2 pointerPosition;
@@ -121,6 +123,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         GameEvents.RefiningChanged += OnRefiningChanged;
         GameEvents.FundsChanged += OnFundsChanged;
         GameEvents.QuestChanged += OnQuestChanged;
+        GameEvents.ProficiencyChanged += OnProficiencyChanged;
         if (wagonRefrigerationButton)
         {
             wagonRefrigerationButton.onClick.AddListener(OnWagonRefrigerationClicked);
@@ -190,6 +193,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         GameEvents.RefiningChanged -= OnRefiningChanged;
         GameEvents.FundsChanged -= OnFundsChanged;
         GameEvents.QuestChanged -= OnQuestChanged;
+        GameEvents.ProficiencyChanged -= OnProficiencyChanged;
         if (wagonRefrigerationButton)
         {
             wagonRefrigerationButton.onClick.RemoveListener(OnWagonRefrigerationClicked);
@@ -514,7 +518,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             RefreshTrainBar();
         }
         RefreshHover();
-        cityView.ShowTradeStatus(Presentation.PuzzleTradeStatus(result, placement.Definition, _committed: true));
+        cityView.ShowTradeStatus(WithProficiencyNotice(Presentation.PuzzleTradeStatus(result, placement.Definition, _committed: true)));
     }
 
     void OnDragged(PointerEventData _eventData)
@@ -585,7 +589,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         }
         if (result.Direction != PuzzleTradeDirection.None)
         {
-            cityView.ShowTradeStatus(Presentation.PuzzleTradeStatus(result, activeDrag.Definition, _committed: true));
+            cityView.ShowTradeStatus(WithProficiencyNotice(Presentation.PuzzleTradeStatus(result, activeDrag.Definition, _committed: true)));
         }
         else if (droppedWagonIndex >= 0 && result.Placement.Failure == PuzzlePlacementFailure.NoSpace)
         {
@@ -1217,7 +1221,31 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         RenderValues();
         RefreshTrainBar();
         RefreshHover();
-        cityView.ShowTradeStatus(Presentation.QuestChanged(_info));
+        cityView.ShowTradeStatus(WithProficiencyNotice(Presentation.QuestChanged(_info)));
+    }
+
+    // 판매·의뢰 완료 중에 오른 숙련 레벨. 그 결과를 상태 줄에 띄울 때 끝에 붙이고 비운다.
+    void OnProficiencyChanged(GameEvents.ProficiencyInfo _info)
+    {
+        if (_info.session != session || !_info.LeveledUp)
+        {
+            return;
+        }
+        string notice = Presentation.ProficiencyLevelUp(session, _info);
+        pendingProficiencyNotice = string.IsNullOrEmpty(pendingProficiencyNotice)
+            ? notice
+            : pendingProficiencyNotice + Presentation.ProficiencyNoticeSeparator + notice;
+    }
+
+    string WithProficiencyNotice(string _status)
+    {
+        if (string.IsNullOrEmpty(pendingProficiencyNotice))
+        {
+            return _status;
+        }
+        string notice = pendingProficiencyNotice;
+        pendingProficiencyNotice = null;
+        return string.IsNullOrEmpty(_status) ? notice : _status + Presentation.ProficiencyNoticeSeparator + notice;
     }
 
     void OnWagonSelected(int _index)

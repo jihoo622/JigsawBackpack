@@ -118,6 +118,7 @@ introduced의 ID는 적용 중인 S에 없어야 한다. moved/values/durability
 ## 다른 이벤트와 시간
 
 - quest_updated는 의뢰 하나의 상태가 바뀔 때(Active=수락, Completed, Failed) questId/cargoInstanceId/templateId/pieceId/sourceCityId/targetCityId/penaltyId/state/failure(CargoLost·Overdue)/reward/deposit/payout/deadlineMinutes/elapsedMinutes를 기록한다. 실패 자체는 자금·화물을 바꾸지 않으며 지역 거래 불이익은 이후 거래 가격에만 반영된다.
+- proficiency_gained는 태그 하나의 숙련 경험치가 늘 때 tag/source(Sale·Quest)/gainedXp/xp(누적)/previousLevel/level/instanceId/questId(판매면 0)/elapsedMinutes를 기록한다. 판매는 그 판매의 puzzle_action보다 먼저, 의뢰는 complete_quest보다 먼저 나온다. 판매 moneyDelta에는 숙련 이득이 이미 반영되어 있다.
 - rumor_learned는 targetCityId/tag/elapsedMinutes를 기록한다. 출처는 그 시점 S.cityId이며 의미상 소문 한 건을 목록에 추가한다. UI 문장·서식 전체 재생은 범위 밖이다.
 - run_end.reason은 won/deadline/restart/scene_unloaded/shutdown/recorder_disabled/replaced다. 승패와 중단을 구분하고 S를 닫는다. 결과 패널/씬 이벤트가 뒤에 있어도 새 run_start 전까지 이전 판 행동으로 추가하지 않는다.
 - session_start는 schemaVersion/reason/appVersion/unityVersion/platform/isEditor/scene, session_end는 reason이다. scene_change는 scene/loaded, panel_visibility는 panel/open, upgrade_granted는 id다. 원본 시각은 공통 봉투에서 읽는다.

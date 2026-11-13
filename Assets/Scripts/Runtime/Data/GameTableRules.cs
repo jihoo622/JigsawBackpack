@@ -202,6 +202,7 @@ public sealed class GameTableRules
         ValidateTime(_tables.PuzzleTime);
         ValidateRoutes(_tables);
         ValidateQuests(_tables);
+        ValidateProficiency(_tables);
     }
 
     void ValidateBasic(TableManager _tables)
@@ -352,6 +353,25 @@ public sealed class GameTableRules
         }
     }
 
+    void ValidateProficiency(TableManager _tables)
+    {
+        const string PATH = nameof(TrainventoryProficiencyTableData);
+        var proficiency = _tables.Proficiency;
+        Inspect(proficiency, PATH);
+        Check(_tables.ProficiencyTags.Count > 0, "PuzzleTableData.regions.productionTags",
+            "숙련 대상이 될 지역 생산 태그가 하나 이상 필요합니다.");
+        Check(proficiency.xpPercentOfSalePrice > 0, PATH + ".xpPercentOfSalePrice", "판매 경험치 비율은 양수여야 합니다.");
+        var thresholds = proficiency.levelThresholds ?? Array.Empty<long>();
+        Check(thresholds.Length > 0, PATH + ".levelThresholds", "레벨 기준이 하나 이상 필요합니다.");
+        for (int i = 0; i < thresholds.Length; i++)
+        {
+            Check(thresholds[i] > (i == 0 ? 0 : thresholds[i - 1]), $"{PATH}.levelThresholds[{i}]",
+                "레벨 기준은 양수이고 앞 기준보다 커야 합니다.");
+        }
+        Check(proficiency.extraLevelXp > 0, PATH + ".extraLevelXp", "추가 레벨 경험치는 양수여야 합니다.");
+        Check(proficiency.bonusPercentPerLevel > 0, PATH + ".bonusPercentPerLevel", "레벨당 거래 이득은 양수여야 합니다.");
+    }
+
     void ValidateQuests(TableManager _tables)
     {
         const string PATH = nameof(TrainventoryQuestTableData);
@@ -359,8 +379,8 @@ public sealed class GameTableRules
         Inspect(quest, PATH);
         Check(!string.IsNullOrWhiteSpace(quest.cargoTag), PATH + ".cargoTag", "의뢰 전용 태그가 필요합니다.");
         Check(quest.offersPerTavern > 0, PATH + ".offersPerTavern", "술집 의뢰 수는 양수여야 합니다.");
-        Check(quest.reputationPerSuccess >= 0, PATH + ".reputationPerSuccess", "성공 평판은 0 이상이어야 합니다.");
-        Check(quest.reputationLossPerFailure >= 0, PATH + ".reputationLossPerFailure", "실패 평판 감소는 0 이상이어야 합니다.");
+        Check(quest.proficiencyXpPercentOfReward >= 0, PATH + ".proficiencyXpPercentOfReward",
+            "의뢰 숙련 경험치 비율은 0 이상이어야 합니다.");
 
         var levels = quest.reputationLevels ?? Array.Empty<TrainventoryQuestReputationData>();
         Check(levels.Any(_level => _level != null && _level.reputation == 0), PATH + ".reputationLevels",
@@ -424,6 +444,11 @@ public sealed class GameTableRules
                 courier.baseReward + courier.rewardPerCellHour > 0, path, "보상 계수는 0 이상이고 둘 다 0일 수 없습니다.");
             Check(courier.deadlinePercent >= 100, path + ".deadlinePercent", "기한 배율은 100% 이상이어야 합니다.");
             Check(courier.deadlineExtraHours >= 0, path + ".deadlineExtraHours", "기한 여유 시간은 0 이상이어야 합니다.");
+            foreach (string tag in courier.fallbackProficiencyTags ?? Array.Empty<string>())
+            {
+                Check(_tables.ProficiencyTags.Contains(tag), path + ".fallbackProficiencyTags",
+                    $"'{tag}'은 숙련 대상(지역 생산) 태그가 아닙니다.");
+            }
             var pieceIds = courier.pieceIds ?? Array.Empty<string>();
             Check(pieceIds.Length > 0, path + ".pieceIds", "의뢰 화물이 하나 이상 필요합니다.");
             foreach (string pieceId in pieceIds)
@@ -436,6 +461,9 @@ public sealed class GameTableRules
                         $"의뢰 화물 '{pieceId}'은 시장 재고에서 제외(excludeFromMarket)되어야 합니다.");
                     Check((piece.tags ?? Array.Empty<string>()).Contains(quest.cargoTag),
                         path + ".pieceIds", $"의뢰 화물 '{pieceId}'에 의뢰 전용 태그가 필요합니다.");
+                    Check((piece.tags ?? Array.Empty<string>()).Any(_tag => _tables.ProficiencyTags.Contains(_tag)) ||
+                        (courier.fallbackProficiencyTags ?? Array.Empty<string>()).Length > 0, path + ".fallbackProficiencyTags",
+                        $"생산 태그가 없는 의뢰 화물 '{pieceId}'이 있으면 숙련 경험치를 받을 태그를 지정해야 합니다.");
                 }
             }
         }

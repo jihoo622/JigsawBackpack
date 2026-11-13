@@ -16,6 +16,7 @@ public static class TelemetryEvents
     public const string PUZZLE_ACTION = "puzzle_action";
     public const string RUMOR_LEARNED = "rumor_learned";
     public const string QUEST_UPDATED = "quest_updated";
+    public const string PROFICIENCY_GAINED = "proficiency_gained";
     public const string RULES_CHUNK = "rules_chunk";
 }
 

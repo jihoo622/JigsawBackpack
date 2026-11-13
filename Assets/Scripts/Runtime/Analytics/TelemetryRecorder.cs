@@ -29,6 +29,7 @@ public sealed class TelemetryRecorder : MonoBehaviour
         GameEvents.PuzzleActionCommitted += OnPuzzleAction;
         GameEvents.TavernRumorRecorded += OnRumorRecorded;
         GameEvents.QuestChanged += OnQuestChanged;
+        GameEvents.ProficiencyChanged += OnProficiencyChanged;
         TelemetryLog.BeforeClose += OnSessionClosing;
     }
 
@@ -45,6 +46,7 @@ public sealed class TelemetryRecorder : MonoBehaviour
         GameEvents.PuzzleActionCommitted -= OnPuzzleAction;
         GameEvents.TavernRumorRecorded -= OnRumorRecorded;
         GameEvents.QuestChanged -= OnQuestChanged;
+        GameEvents.ProficiencyChanged -= OnProficiencyChanged;
         TelemetryLog.BeforeClose -= OnSessionClosing;
     }
 
@@ -115,6 +117,25 @@ public sealed class TelemetryRecorder : MonoBehaviour
                 targetCityId = _info.targetCityId,
                 tag = _info.tag,
                 elapsedMinutes = _info.recordedMinutes
+            });
+        }
+    }
+
+    void OnProficiencyChanged(GameEvents.ProficiencyInfo _info)
+    {
+        if (ReferenceEquals(activeRun, _info.session))
+        {
+            TelemetryLog.Write(TelemetryEvents.PROFICIENCY_GAINED, new PuzzleProficiencyPayload
+            {
+                tag = _info.tag,
+                source = _info.source,
+                gainedXp = _info.gainedXp,
+                xp = _info.xp,
+                previousLevel = _info.previousLevel,
+                level = _info.level,
+                instanceId = _info.instanceId,
+                questId = _info.questId,
+                elapsedMinutes = _info.elapsedMinutes
             });
         }
     }

@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-// 술집 운송 의뢰. 의뢰 생성·수락·완료·실패와 평판, 지역 거래 불이익을 세션 상태로 가진다.
+// 술집 운송 의뢰. 의뢰 생성·수락·완료·실패와 지역 거래 불이익을 세션 상태로 가진다. 평판은 숙련 레벨 합이다.
 // 규칙 수치는 TrainventoryQuestTableData가 원본이고, 여기에는 진행 상태만 둔다.
 public sealed partial class PuzzleInventoryService
 {
@@ -14,7 +14,6 @@ public sealed partial class PuzzleInventoryService
     int lastQuestId;
     System.Random questRandom = new System.Random();
 
-    internal int Reputation { get; private set; }
     internal IReadOnlyList<TrainventoryQuest> Quests => quests;
     internal int ActiveQuestCount => quests.Count(_quest => _quest.State == TrainventoryQuestState.Active);
 
@@ -42,7 +41,6 @@ public sealed partial class PuzzleInventoryService
         regionPenalties.Clear();
         questOfferVisit = -1;
         lastQuestId = 0;
-        Reputation = 0;
     }
 
     internal bool IsQuestCargo(PuzzleItemDefinition _definition)
@@ -223,6 +221,8 @@ public sealed partial class PuzzleInventoryService
         int instanceId = lastInstanceId;
         var cargo = wagon.Placements.First(_placement => _placement.InstanceId == instanceId);
         cargo.SetOwned(true);
+        // 의뢰 화물은 일반 화물처럼 받은 마을 출신으로 기록한다(그 마을에서 팔면 숙련 경험치 없음).
+        RecordLocalOrigin(instanceId);
         CurrentWagonIndex = trainWagons.IndexOf(wagon);
 
         long previousFunds = Funds;
@@ -241,7 +241,8 @@ public sealed partial class PuzzleInventoryService
 
     #region 완료·실패
 
-    // 도착한 도시가 목적지인 의뢰를 완료한다. 화물을 내리고 보상 + 화물 실제 가치 + 보증금을 지급한다.
+    // 도착한 도시가 목적지인 의뢰를 완료한다. 화물을 내리고 보상 + 화물 실제 가치 + 보증금을 지급하며
+    // 의뢰 화물의 생산 태그에 숙련 경험치를 준다.
     void CompleteArrivedQuests()
     {
         if (RunStatus != PuzzleRunStatus.InProgress)
@@ -265,7 +266,7 @@ public sealed partial class PuzzleInventoryService
             cargo.Owner.Remove(cargo);
             Funds = checked(Funds + payout);
             quest.Finish(TrainventoryQuestState.Completed, TrainventoryQuestFailure.None, payout, Time.ElapsedMinutes);
-            Reputation += tables.Quest.reputationPerSuccess;
+            GrantQuestProficiency(quest);
             completed.Add(quest);
         }
         if (completed.Count == 0)
@@ -305,7 +306,6 @@ public sealed partial class PuzzleInventoryService
     void FailQuest(TrainventoryQuest _quest, TrainventoryQuestFailure _failure)
     {
         _quest.Finish(TrainventoryQuestState.Failed, _failure, 0, Time.ElapsedMinutes);
-        Reputation = Math.Max(0, Reputation - tables.Quest.reputationLossPerFailure);
         var penalty = tables.QuestPenalty(_quest.PenaltyId);
         if (PenaltyType(penalty) == TrainventoryQuestPenaltyType.RegionTrade)
         {

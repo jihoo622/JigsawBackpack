@@ -29,7 +29,8 @@
 | `PuzzleTradeTableData` | 시작 자금·증차 비용·최대 객차 수(maxWagonCount)·클리어 비용·상환 조건·이동 연출 시간 |
 | `PuzzleTimeTableData` | 고정 폴라인의 픽셀/시간 비율·시작 및 일출 시각·일출/야간 길이·휴식 분수 |
 | `PuzzleRouteTableData` | 방향별 연결·고정 폴라인 좌표·기본 비용·거리·거리 및 적재 단가 |
-| `TrainventoryQuestTableData` | 술집 의뢰 전용 태그·방문당 의뢰 수·평판 증감과 단계별 동시 진행 수·실패 패널티(`Deposit`·`RegionTrade`)·운송 의뢰 틀(화물·거리 범위·보상·기한 계수·가중치) |
+| `TrainventoryQuestTableData` | 술집 의뢰 전용 태그·방문당 의뢰 수·완료 숙련 경험치 비율·평판 단계별 동시 진행 수·실패 패널티(`Deposit`·`RegionTrade`)·운송 의뢰 틀(화물·거리 범위·보상·기한 계수·가중치) |
+| `TrainventoryProficiencyTableData` | 거래 숙련 판매 경험치 비율·레벨 기준(누적)·마지막 기준 이후 레벨당 경험치·레벨당 거래 이득(%) |
 | `FlowTableData` | 씬 이름·다음 씬·재시작 씬 |
 | `GameplayTableData` | 템플릿의 player·sequence·upgrades 샘플 |
 
@@ -100,8 +101,15 @@
 ## 술집 의뢰
 
 - 새 테이블은 `Trainventory` 접두사를 쓴다. `TrainventoryQuestTableData`의 `cargoTag`가 의뢰 화물 판별 태그이며 `courierQuests[].pieceIds`는 이 태그와 `excludeFromMarket`을 가진 등록 화물이어야 한다.
+- 평판은 저장하지 않고 숙련 레벨 합으로 계산한다. `proficiencyXpPercentOfReward`(0 이상)는 완료 시 보상 대비 숙련 경험치 비율이며, `courierQuests[].pieceIds` 화물에 숙련 대상 생산 태그가 없으면 그 의뢰 틀의 `fallbackProficiencyTags`(숙련 대상 태그만 허용)가 비어 있으면 안 된다. 이 태그는 화물에 생산 태그가 없을 때만 완료 경험치를 받는다.
 - `reputationLevels`에는 평판 0 단계가 있어야 하고 기준은 중복되지 않으며 평판이 높을수록 동시 진행 수가 줄지 않는다. `penalties[].type`은 `Deposit`(보증금 비율 1~1000%) 또는 `RegionTrade`(구매 +·판매 −, 양의 지속 시간)다.
 - 운송 의뢰는 `penaltyId`가 등록된 패널티이고 가중치·거리 범위가 양수, 기한 배율 100% 이상이어야 한다. 보상 = `baseReward + rewardPerCellHour × 칸 수 × 최단 이동 시간`, 기한 = `⌈최단 시간 × deadlinePercent / 100⌉ + deadlineExtraHours`. 최단 시간은 이동과 같은 `TravelMinutes`로 구한다.
+
+## 거래 숙련
+
+- 숙련 대상 태그는 테이블에 따로 두지 않고 `PuzzleTableData.regions[].productionTags`의 합집합을 쓴다. 비어 있으면 오류다.
+- `TrainventoryProficiencyTableData`: `xpPercentOfSalePrice` 양수, `levelThresholds`는 양수 오름차순 1개 이상, `extraLevelXp` 양수, `bonusPercentPerLevel` 양수.
+- 레벨 = 넘은 기준 수, 마지막 기준 이후는 `(경험치 − 마지막 기준) / extraLevelXp`만큼 더한다. 거래 이득 = 화물 생산 태그 중 최고 레벨 × `bonusPercentPerLevel`%이며 구매가 × (100 − 이득)%(0 하한), 판매가 × (100 + 이득)%로 최종가를 반올림한다.
 
 ## 씬·분석 설정
 

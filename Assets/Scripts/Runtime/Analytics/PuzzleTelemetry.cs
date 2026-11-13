@@ -99,6 +99,14 @@ public struct PuzzleQuestPayload
 }
 
 [Serializable]
+public struct PuzzleProficiencyPayload
+{
+    public string tag, source;
+    public long gainedXp, xp, elapsedMinutes;
+    public int previousLevel, level, instanceId, questId;
+}
+
+[Serializable]
 public struct PuzzleRumorPayload
 {
     public string targetCityId, tag;

@@ -31,6 +31,9 @@ public sealed class TableManager
     public PuzzleRouteTableData PuzzleRoute { get; }
     public PuzzleTimeTableData PuzzleTime { get; }
     public TrainventoryQuestTableData Quest { get; }
+    public TrainventoryProficiencyTableData Proficiency { get; }
+    // 숙련 대상 태그. 지역 생산 태그의 합집합이며 id 오름차순이다.
+    public IReadOnlyList<string> ProficiencyTags { get; }
     public IReadOnlyList<TrainventoryCourierQuestData> CourierQuests { get; }
     public IReadOnlyList<PuzzleSynergyRuleData> SynergyRules { get; }
     public IReadOnlyList<PuzzleCityActionData> CityActions { get; }
@@ -78,6 +81,7 @@ public sealed class TableManager
         PuzzleRoute = Load<PuzzleRouteTableData>(ref loaded, _sources);
         PuzzleTime = Load<PuzzleTimeTableData>(ref loaded, _sources);
         Quest = Load<TrainventoryQuestTableData>(ref loaded, _sources);
+        Proficiency = Load<TrainventoryProficiencyTableData>(ref loaded, _sources);
 
         var rules = _errors == null ? new GameTableRules() : new GameTableRules(_errors, _issues);
         var basicGroups = rules.Index(Basic.groups, _group => _group.id, "BasicDataTableData.groups");
@@ -96,6 +100,13 @@ public sealed class TableManager
         questPenalties = rules.Index(Quest.penalties, _row => _row.id, "TrainventoryQuestTableData.penalties");
         var courierQuests = rules.Index(Quest.courierQuests, _row => _row.id, "TrainventoryQuestTableData.courierQuests");
         CourierQuests = Array.AsReadOnly(courierQuests.Values.OrderBy(_row => _row.id, StringComparer.Ordinal).ToArray());
+        ProficiencyTags = Array.AsReadOnly((Puzzle.regions ?? Array.Empty<PuzzleRegionData>())
+            .Where(_region => _region != null)
+            .SelectMany(_region => _region.productionTags ?? Array.Empty<string>())
+            .Where(_tag => !string.IsNullOrWhiteSpace(_tag))
+            .Distinct(StringComparer.Ordinal)
+            .OrderBy(_tag => _tag, StringComparer.Ordinal)
+            .ToArray());
         var synergyRules = rules.Index(PuzzleSynergy.rules, e => e.id, "PuzzleSynergyTableData.rules");
         animalBreeding = rules.Index(PuzzleSynergy.animals?.breeding, _row => _row.parentPieceId,
             "PuzzleSynergyTableData.animals.breeding");

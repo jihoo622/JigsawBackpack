@@ -1,21 +1,20 @@
 {
   "status": "provisional",
-  "note": "술집 운송 의뢰 잠정값. 보상 = baseReward + rewardPerCellHour × 화물 칸 수 × 최단 이동 시간이며 도착 시 화물의 실제 가치와 보증금을 함께 지급한다. 기한 = 최단 이동 시간 × deadlinePercent(올림) + deadlineExtraHours. 평판은 성공 +1·실패 -1이고 0 미만으로 내려가지 않는다. 플레이 검증 전 수치다.",
+  "note": "술집 운송 의뢰 잠정값. 보상 = baseReward + rewardPerCellHour × 화물 칸 수 × 최단 이동 시간이며 도착 시 화물의 실제 가치와 보증금을 함께 지급한다. 기한 = 최단 이동 시간 × deadlinePercent(올림) + deadlineExtraHours. 평판은 TrainventoryProficiencyTableData의 숙련 레벨 합이다. 완료하면 보상 × proficiencyXpPercentOfReward / 100만큼 의뢰 화물의 생산 태그에 숙련 경험치를 주고, 화물에 생산 태그가 없으면 의뢰 틀의 fallbackProficiencyTags에 준다. 실패해도 평판·숙련은 줄지 않고 패널티만 적용한다. 플레이 검증 전 수치다.",
   "cargoTag": "Quest",
   "offersPerTavern": 2,
-  "reputationPerSuccess": 1,
-  "reputationLossPerFailure": 1,
+  "proficiencyXpPercentOfReward": 100,
   "reputationLevels": [
     {
       "reputation": 0,
       "maxActiveQuests": 1
     },
     {
-      "reputation": 3,
+      "reputation": 4,
       "maxActiveQuests": 2
     },
     {
-      "reputation": 6,
+      "reputation": 8,
       "maxActiveQuests": 3
     }
   ],
@@ -54,7 +53,8 @@
       "baseReward": 25,
       "rewardPerCellHour": 2,
       "deadlinePercent": 130,
-      "deadlineExtraHours": 6
+      "deadlineExtraHours": 6,
+      "fallbackProficiencyTags": []
     },
     {
       "id": "courier.parcel",
@@ -69,7 +69,10 @@
       "baseReward": 30,
       "rewardPerCellHour": 1,
       "deadlinePercent": 150,
-      "deadlineExtraHours": 12
+      "deadlineExtraHours": 12,
+      "fallbackProficiencyTags": [
+        "Wood"
+      ]
     }
   ]
 }

@@ -103,6 +103,7 @@ public sealed class PuzzleRouteTableData
 }
 
 // 술집 의뢰. 의뢰 생성 규칙·보상·패널티·평판 단계의 원본이다. 진행 상태는 세션이 가진다.
+// 평판은 별도로 쌓지 않고 거래 숙련 레벨의 합으로 계산한다(TrainventoryProficiencyTableData).
 [Serializable]
 public sealed class TrainventoryQuestTableData
 {
@@ -111,11 +112,27 @@ public sealed class TrainventoryQuestTableData
     public string cargoTag;
     // 마을 방문 한 번에 술집이 내놓는 의뢰 수.
     public int offersPerTavern = -1;
-    public int reputationPerSuccess = -1;
-    public int reputationLossPerFailure = -1;
+    // 완료 시 의뢰 화물의 생산 태그에 주는 숙련 경험치. 의뢰 보상 금액 대비 백분율이다.
+    public int proficiencyXpPercentOfReward = -1;
     public TrainventoryQuestReputationData[] reputationLevels = Array.Empty<TrainventoryQuestReputationData>();
     public TrainventoryQuestPenaltyData[] penalties = Array.Empty<TrainventoryQuestPenaltyData>();
     public TrainventoryCourierQuestData[] courierQuests = Array.Empty<TrainventoryCourierQuestData>();
+}
+
+// 태그별 거래 숙련도. 숙련 대상 태그는 PuzzleTableData.regions[].productionTags의 합집합이다.
+// 경험치·레벨 진행은 세션이 가지고, 여기에는 경험치 획득률·레벨 기준·거래 이득 수치만 둔다.
+[Serializable]
+public sealed class TrainventoryProficiencyTableData
+{
+    public string status, note;
+    // 다른 마을에서 실어 온 화물을 팔 때 판매 금액 대비 얻는 경험치 백분율.
+    public int xpPercentOfSalePrice = -1;
+    // 1레벨부터 차례로 필요한 누적 경험치. 오름차순이다.
+    public long[] levelThresholds = Array.Empty<long>();
+    // 마지막 기준을 넘은 뒤 1레벨마다 더 필요한 경험치. 레벨 상한은 없다.
+    public long extraLevelXp = -1;
+    // 1레벨당 최종 구매가 할인·최종 판매가 할증 비율(%).
+    public float bonusPercentPerLevel = -1;
 }
 
 [Serializable]

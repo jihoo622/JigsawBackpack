@@ -17,6 +17,7 @@ public sealed class TrainventoryQuestBoardPresenter : MonoBehaviour
         session.Initialize();
         view.OfferAccepted += OnOfferAccepted;
         GameEvents.QuestChanged += OnQuestChanged;
+        GameEvents.ProficiencyChanged += OnProficiencyChanged;
         GameEvents.FundsChanged += OnFundsChanged;
         GameEvents.TimeAdvanced += OnTimeAdvanced;
         Refresh();
@@ -26,6 +27,7 @@ public sealed class TrainventoryQuestBoardPresenter : MonoBehaviour
     {
         view.OfferAccepted -= OnOfferAccepted;
         GameEvents.QuestChanged -= OnQuestChanged;
+        GameEvents.ProficiencyChanged -= OnProficiencyChanged;
         GameEvents.FundsChanged -= OnFundsChanged;
         GameEvents.TimeAdvanced -= OnTimeAdvanced;
     }
@@ -33,6 +35,15 @@ public sealed class TrainventoryQuestBoardPresenter : MonoBehaviour
     void OnQuestChanged(GameEvents.QuestInfo _info)
     {
         if (_info.session == session)
+        {
+            Refresh();
+        }
+    }
+
+    // 평판은 숙련 레벨 합이므로 판매로 레벨이 오르면 동시 진행 수 표시도 바뀐다.
+    void OnProficiencyChanged(GameEvents.ProficiencyInfo _info)
+    {
+        if (_info.session == session && _info.LeveledUp)
         {
             Refresh();
         }

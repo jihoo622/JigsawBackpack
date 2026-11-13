@@ -1,0 +1,14 @@
+{
+  "status": "provisional",
+  "note": "태그별 거래 숙련도 잠정값. 숙련 대상은 PuzzleTableData.regions[].productionTags의 합집합(생산 태그)이다. 다른 마을에서 실어 온 화물을 팔면 판매 금액 × xpPercentOfSalePrice / 100만큼 그 화물의 생산 태그에 경험치를 나눠 준다. 레벨은 levelThresholds 누적 경험치로 오르고 마지막 기준 이후에는 extraLevelXp마다 1레벨씩 끝없이 오른다. 화물의 생산 태그 중 가장 높은 레벨 × bonusPercentPerLevel%만큼 최종 구매가를 깎고 최종 판매가를 올린다. 평판은 모든 숙련 레벨의 합이다. 플레이 검증 전 수치다.",
+  "xpPercentOfSalePrice": 100,
+  "levelThresholds": [
+    50,
+    150,
+    350,
+    700,
+    1200
+  ],
+  "extraLevelXp": 500,
+  "bonusPercentPerLevel": 0.5
+}

@@ -343,6 +343,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         tavernRumors.Clear();
         lastRumorVisit = -1;
         ResetQuests();
+        ResetProficiency();
         Funds = tables.PuzzleTrade.startingFunds;
         CityMoveCount = 0;
         RunStatus = PuzzleRunStatus.InProgress;
@@ -1232,7 +1233,8 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         {
             failure = PuzzleTradeFailure.BalanceOverflow;
         }
-        return new PuzzleDropResult(placement, direction, price, failure, percent, tag);
+        return new PuzzleDropResult(placement, direction, price, failure, percent, tag,
+            !buying && IsPurchaseCancel(_original, out _));
     }
 
     // 현재 도시에서 이 아이템에 적용되는 태그 규칙과 구매·판매 비율.
@@ -1271,7 +1273,8 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         {
             return false;
         }
-        return TryQuoteTradeAt(CurrentCityId, _item.Definition, _item.FreshnessAdjustedValue, _direction, out _price);
+        return TryQuoteTradeAt(CurrentCityId, _item.Definition, _item.FreshnessAdjustedValue, _direction, out _price) &&
+            TryApplyProficiency(_item, _direction, ref _price);
     }
 
     // 지정 도시에서 주어진 가치의 거래 금액. 경제 분석이 다른 도시를 같은 공식으로 견적한다.
@@ -1435,6 +1438,13 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
                 _tag: result.AppliedTag);
         }
 
+        // 작업대 산출물을 기차로 옮기면 이 마을에서 얻은 화물로 기록한다(판매 숙련 경험치 판정).
+        if ((IsButchery(_original.Owner) || IsModification(_original.Owner) || IsRefining(_original.Owner)) &&
+            IsTrainWagon(_destination))
+        {
+            RecordLocalOrigin(_original.InstanceId);
+        }
+
         // 객차에서 사라진 동물의 대기 상태는 다음 진행까지 기다리지 않고 정리한다.
         if (IsTrainWagon(_original.Owner) || IsTrainWagon(_destination))
         {
@@ -1458,8 +1468,13 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
                 _original.InstanceId, result.Direction, result.Price, Funds, move.Candidate.Origin,
                 move.Candidate.ClockwiseTurns));
             GameEvents.RaiseFundsChanged(this, previousFunds);
+            if (result.Direction == PuzzleTradeDirection.Buy)
+            {
+                RecordPurchase(_original, result.Price);
+            }
             if (result.Direction == PuzzleTradeDirection.Sell)
             {
+                GrantSaleProficiency(_original, result.Price);
                 // 판매한 의뢰 화물은 기차에서 사라지므로 그 의뢰는 실패한다.
                 CheckQuestFailures();
             }
@@ -2713,11 +2728,15 @@ internal readonly struct PuzzleDropResult
     // 적용된 도시·태그 비율. 태그가 없으면 기본 비율이다.
     internal int AppliedPercent { get; }
     internal string AppliedTag { get; }
+    // 같은 방문 중 산 마을에 되파는 구매 취소. 판매가는 낸 금액 그대로다.
+    internal bool PurchaseCancel { get; }
     internal bool CanDrop => Placement.CanPlace && TradeFailure == PuzzleTradeFailure.None;
 
     internal PuzzleDropResult(PuzzlePlacementResult _placement, PuzzleTradeDirection _direction = PuzzleTradeDirection.None,
-        long _price = 0, PuzzleTradeFailure _tradeFailure = PuzzleTradeFailure.None, int _percent = 0, string _tag = null)
+        long _price = 0, PuzzleTradeFailure _tradeFailure = PuzzleTradeFailure.None, int _percent = 0, string _tag = null,
+        bool _purchaseCancel = false)
     {
+        PurchaseCancel = _purchaseCancel;
         Placement = _placement;
         Direction = _direction;
         Price = _price;

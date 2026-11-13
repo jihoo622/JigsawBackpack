@@ -160,13 +160,47 @@ public static class Presentation
             QuestCityName(_info.targetCityId));
     }
 
-    // 수첩 의뢰 탭 본문. 평판·진행 수, 지역 불이익, 진행 중 의뢰, 끝난 의뢰(최근 순) 순서다.
+    // 숙련 레벨이 오를 때 하단 상태 줄 끝에 붙이는 알림.
+    internal static string ProficiencyLevelUp(PuzzleInventoryService _session, GameEvents.ProficiencyInfo _info)
+    {
+        return BasicData.Format("presentation.proficiency.levelUp", PuzzleTagLabel(_info.tag), _info.level,
+            ProficiencyPercent(_session.ProficiencyBonusPercent(_info.level)));
+    }
+
+    public static string ProficiencyNoticeSeparator => BasicData.Text("presentation.proficiency.noticeSeparator");
+
+    static string ProficiencyPercent(decimal _percent)
+    {
+        return _percent.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);
+    }
+
+    // 수첩 의뢰 탭의 숙련 묶음. 경험치가 있는 태그만 높은 순으로 보인다.
+    static string ProficiencyLog(PuzzleInventoryService _session)
+    {
+        var lines = new List<string> { BasicData.Text("presentation.proficiency.logHeader") };
+        var tags = _session.KnownProficiencyTags;
+        if (tags.Count == 0)
+        {
+            lines.Add(BasicData.Text("presentation.proficiency.logEmpty"));
+        }
+        foreach (string tag in tags)
+        {
+            int level = _session.ProficiencyLevel(tag);
+            lines.Add(BasicData.Format("presentation.proficiency.logEntry", PuzzleTagLabel(tag), level,
+                ProficiencyPercent(_session.ProficiencyBonusPercent(level)), _session.ProficiencyXp(tag),
+                _session.NextProficiencyXp(level)));
+        }
+        return string.Join(BasicData.Text("presentation.proficiency.lineSeparator"), lines);
+    }
+
+    // 수첩 의뢰 탭 본문. 평판·진행 수, 숙련, 지역 불이익, 진행 중 의뢰, 끝난 의뢰(최근 순) 순서다.
     internal static string QuestLogEntries(PuzzleInventoryService _session)
     {
         var tables = TableManager.Instance;
         var entries = new List<string>
         {
-            BasicData.Format("presentation.quest.logHeader", _session.Reputation, _session.ActiveQuestCount, _session.MaxActiveQuests)
+            BasicData.Format("presentation.quest.logHeader", _session.Reputation, _session.ActiveQuestCount, _session.MaxActiveQuests),
+            ProficiencyLog(_session)
         };
         foreach (var region in tables.Puzzle.regions.OrderBy(_region => _region.id, StringComparer.Ordinal))
         {
@@ -1241,7 +1275,9 @@ public static class Presentation
             return string.Empty;
         }
 
-        string direction = _result.Direction == PuzzleTradeDirection.Buy ? BasicData.Text("presentation.trade.tradeStatusText6") : BasicData.Text("presentation.trade.tradeStatusText7");
+        string direction = _result.Direction == PuzzleTradeDirection.Buy ? BasicData.Text("presentation.trade.tradeStatusText6")
+            : _result.PurchaseCancel ? BasicData.Text("presentation.trade.purchaseCancel")
+            : BasicData.Text("presentation.trade.tradeStatusText7");
         string quote = BasicData.Format("presentation.trade.tradeStatus", _item.DisplayName, direction);
         if (_result.Placement.Failure != PuzzlePlacementFailure.StaleSource &&
             _result.TradeFailure != PuzzleTradeFailure.PriceOverflow)

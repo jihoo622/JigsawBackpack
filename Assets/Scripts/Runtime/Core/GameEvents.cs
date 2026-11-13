@@ -162,6 +162,38 @@ public static class GameEvents
         Emit(QuestChanged, new QuestInfo(_session, _quest, _session.ElapsedTime));
     }
 
+    // 태그 하나의 숙련 경험치가 늘었다. 판매(source=Sale)는 거래 직후, 의뢰(Quest)는 완료 처리 중에 발행한다.
+    public readonly struct ProficiencyInfo
+    {
+        public readonly PuzzleInventoryService session;
+        public readonly string tag, source;
+        public readonly long gainedXp, xp, elapsedMinutes;
+        public readonly int previousLevel, level, instanceId, questId;
+
+        internal ProficiencyInfo(PuzzleInventoryService _session, string _tag, string _source, long _gainedXp, long _xp,
+            int _previousLevel, int _level, int _instanceId, int _questId, long _elapsedMinutes)
+        {
+            session = _session;
+            tag = _tag;
+            source = _source;
+            gainedXp = _gainedXp;
+            xp = _xp;
+            previousLevel = _previousLevel;
+            level = _level;
+            instanceId = _instanceId;
+            questId = _questId;
+            elapsedMinutes = _elapsedMinutes;
+        }
+
+        public bool LeveledUp => level > previousLevel;
+    }
+    public static event Action<ProficiencyInfo> ProficiencyChanged;
+
+    internal static void RaiseProficiencyChanged(ProficiencyInfo _info)
+    {
+        Emit(ProficiencyChanged, _info);
+    }
+
     public static void RaiseTavernRumorRecorded(PuzzleInventoryService _session, string _sourceCityId,
         string _targetCityId, string _message, long _recordedMinutes, string _tag)
     {
@@ -490,6 +522,7 @@ public static class GameEvents
         ButcheryReady = null;
         TavernRumorRecorded = null;
         QuestChanged = null;
+        ProficiencyChanged = null;
         sequence = 0;
         SceneManager.sceneLoaded -= OnSceneLoaded;
         SceneManager.sceneUnloaded -= OnSceneUnloaded;

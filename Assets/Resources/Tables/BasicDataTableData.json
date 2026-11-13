@@ -1099,7 +1099,7 @@
         },
         {
           "id": "failActiveLimit",
-          "value": "동시에 진행할 수 있는 의뢰는 {0}개입니다. 평판을 올리면 늘어납니다.",
+          "value": "동시에 진행할 수 있는 의뢰는 {0}개입니다. 거래 숙련을 올려 평판을 높이면 늘어납니다.",
           "arguments": 1
         },
         {
@@ -1171,6 +1171,37 @@
         {
           "id": "separator",
           "value": "\n\n"
+        }
+      ]
+    },
+    {
+      "id": "presentation.proficiency",
+      "texts": [
+        {
+          "id": "logHeader",
+          "value": "<b>거래 숙련</b> (평판 = 숙련 레벨 합)"
+        },
+        {
+          "id": "logEmpty",
+          "value": "다른 마을에서 실어 온 화물을 팔면 품목 숙련이 오릅니다."
+        },
+        {
+          "id": "logEntry",
+          "value": "{0} {1}레벨 · 거래 이득 {2}% · 경험치 {3}/{4}",
+          "arguments": 5
+        },
+        {
+          "id": "lineSeparator",
+          "value": "\n"
+        },
+        {
+          "id": "levelUp",
+          "value": "{0} 숙련 {1}레벨 (거래 이득 {2}%)",
+          "arguments": 3
+        },
+        {
+          "id": "noticeSeparator",
+          "value": " · "
         }
       ]
     },
@@ -1924,6 +1955,10 @@
         {
           "id": "tradeStatusText7",
           "value": "판매"
+        },
+        {
+          "id": "purchaseCancel",
+          "value": "구매 취소"
         },
         {
           "id": "tradeStatusText8",

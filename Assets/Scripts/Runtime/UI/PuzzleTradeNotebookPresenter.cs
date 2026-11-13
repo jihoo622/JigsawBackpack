@@ -12,6 +12,7 @@ public sealed class PuzzleTradeNotebookPresenter : MonoBehaviour
         session.Initialize();
         GameEvents.TavernRumorRecorded += OnRumorRecorded;
         GameEvents.QuestChanged += OnQuestChanged;
+        GameEvents.ProficiencyChanged += OnProficiencyChanged;
         GameEvents.TimeAdvanced += OnTimeAdvanced;
         view.TabSelected += OnTabSelected;
         Refresh();
@@ -21,6 +22,7 @@ public sealed class PuzzleTradeNotebookPresenter : MonoBehaviour
     {
         GameEvents.TavernRumorRecorded -= OnRumorRecorded;
         GameEvents.QuestChanged -= OnQuestChanged;
+        GameEvents.ProficiencyChanged -= OnProficiencyChanged;
         GameEvents.TimeAdvanced -= OnTimeAdvanced;
         view.TabSelected -= OnTabSelected;
     }
@@ -34,6 +36,14 @@ public sealed class PuzzleTradeNotebookPresenter : MonoBehaviour
     }
 
     void OnQuestChanged(GameEvents.QuestInfo _info)
+    {
+        if (_info.session == session)
+        {
+            Refresh();
+        }
+    }
+
+    void OnProficiencyChanged(GameEvents.ProficiencyInfo _info)
     {
         if (_info.session == session)
         {
