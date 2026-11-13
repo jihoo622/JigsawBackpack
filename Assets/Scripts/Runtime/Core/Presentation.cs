@@ -1310,6 +1310,25 @@ public static class Presentation
         return BasicData.Format("presentation.trade.tradeStatusText5", quote, reason);
     }
 
+    // 효과 품목 전용 테두리. 냉장(신선 보존 효과) 품목은 하늘색, 배설물(Waste) 품목은 갈색이며 나머지는 기본 테두리다.
+    internal static Color? PuzzlePieceAccentOutline(PuzzleItemDefinition _item, float _alpha)
+    {
+        if (_item == null)
+        {
+            return null;
+        }
+        if (_item.HasPreservationEffect)
+        {
+            return BasicData.Color("presentation.inventory.refrigerationOutline", _alpha);
+        }
+        string wasteTag = TableManager.Instance.PuzzleSynergy?.animals?.wasteTag;
+        if (PuzzlePieceEffects.HasAnyTag(_item.Tags, wasteTag))
+        {
+            return BasicData.Color("presentation.inventory.wasteOutline", _alpha);
+        }
+        return null;
+    }
+
     public static Color PuzzlePieceOutline(float _alpha)
     {
         return BasicData.Color("presentation.inventory.pieceOutline", _alpha);

@@ -218,7 +218,8 @@ public sealed class PuzzleInventoryView : MonoBehaviour
             index = RenderPose(placementSlots, index, placement.Pose, Vector2.zero, color,
                 iconIndex[placement.Definition.VisualKey].sprite, placement.Definition.IconSize, placement.Definition.IconOffset,
                 // 가치 변동과 공간 부족은 별도 상태지만 같은 알림 아이콘을 쓴다. 읽지 않은 쪽이 남아 있으면 아이콘은 유지한다.
-                placement.FreshnessPercent, placement.HasUnreadSynergySettlement || placement.HasUnreadSpaceNotice);
+                placement.FreshnessPercent, placement.HasUnreadSynergySettlement || placement.HasUnreadSpaceNotice,
+                Presentation.PuzzlePieceAccentOutline(placement.Definition, color.a));
         }
 
         HideSlots(placementSlots, index);
@@ -344,8 +345,10 @@ public sealed class PuzzleInventoryView : MonoBehaviour
         }
 
         var offset = local - GetCellCenter(_grabbedBoardCell);
-        int used = RenderPose(ghostSlots, 0, _pose, offset, Presentation.PuzzleGhost,
-            iconIndex[_item.VisualKey].sprite, _item.IconSize, _item.IconOffset, _freshness);
+        var ghost = Presentation.PuzzleGhost;
+        int used = RenderPose(ghostSlots, 0, _pose, offset, ghost,
+            iconIndex[_item.VisualKey].sprite, _item.IconSize, _item.IconOffset, _freshness,
+            _outlineColor: Presentation.PuzzlePieceAccentOutline(_item, ghost.a));
         HideSlots(ghostSlots, used);
     }
 
@@ -356,7 +359,8 @@ public sealed class PuzzleInventoryView : MonoBehaviour
     }
 
     int RenderPose(PuzzleSlotVisual[] _slots, int _start, PuzzlePose _pose, Vector2 _offset, Color _color, Sprite _icon = null,
-        Vector2 _iconSize = default, Vector2 _iconOffset = default, int? _freshness = null, bool _showSynergyNotice = false)
+        Vector2 _iconSize = default, Vector2 _iconOffset = default, int? _freshness = null, bool _showSynergyNotice = false,
+        Color? _outlineColor = null)
     {
         piecePositions.Clear();
         foreach (var cell in _pose.Cells)
@@ -395,7 +399,7 @@ public sealed class PuzzleInventoryView : MonoBehaviour
         {
             int hiddenEdges = GetHiddenEdges(cell.Position);
             _slots[index].Show(GetCellCenter(cell.Position) + _offset, cellSize, _color, hiddenEdges,
-                index == _start ? _icon : null, iconOffset, iconLayout.Size, _pose.ClockwiseTurns);
+                index == _start ? _icon : null, iconOffset, iconLayout.Size, _pose.ClockwiseTurns, _outlineColor);
             _slots[index].ShowFreshness(index == _start ? _freshness : null,
                 bottomLeft - cell.Position, boardTitle.font, freshnessMaterial);
             _slots[index].ShowSynergyNotice(index == _start && _showSynergyNotice,

@@ -281,6 +281,20 @@
           "a": 1
         },
         {
+          "id": "refrigerationOutline",
+          "r": 0.45,
+          "g": 0.82,
+          "b": 1,
+          "a": 1
+        },
+        {
+          "id": "wasteOutline",
+          "r": 0.55,
+          "g": 0.34,
+          "b": 0.16,
+          "a": 1
+        },
+        {
           "id": "refrigerationArrow",
           "r": 0.67451,
           "g": 0.929412,

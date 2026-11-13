@@ -49,13 +49,14 @@ public sealed class PuzzleSlotVisual : MonoBehaviour
     }
 
     internal void Show(Vector2 _center, float _cellSize, Color _color, int _hiddenEdges, Sprite _icon,
-        Vector2 _iconOffset, Vector2 _iconSize, int _clockwiseTurns)
+        Vector2 _iconOffset, Vector2 _iconSize, int _clockwiseTurns, Color? _outlineColor = null)
     {
         Rect.localPosition = _center;
         Rect.localScale = Vector3.one * (_cellSize / Rect.rect.width);
 
         bool hasFill = fillSprites != null;
-        var outlineColor = hasFill ? Presentation.PuzzlePieceOutline(_color.a) : _color;
+        // 채운 화물은 기본 테두리, 효과 품목은 전용 테두리 색이다. 미리보기 외곽선은 지정 색 그대로다.
+        var outlineColor = !hasFill ? _color : _outlineColor ?? Presentation.PuzzlePieceOutline(_color.a);
         for (int direction = 0; direction < DIRECTION_COUNT; direction++)
         {
             var fill = fillDirections[direction];
