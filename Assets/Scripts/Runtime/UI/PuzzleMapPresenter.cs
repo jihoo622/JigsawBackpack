@@ -34,6 +34,8 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
         }
         GameEvents.CityArrived += OnCityArrived;
         GameEvents.TavernRumorRecorded += OnRumorRecorded;
+        GameEvents.QuestChanged += OnQuestChanged;
+        GameEvents.TimeAdvanced += OnTimeAdvanced;
         GameEvents.PanelVisibility += OnPanelVisibility;
         GameEvents.MapRequested += OnMapRequested;
         travelView.Confirmed += ConfirmTravel;
@@ -53,6 +55,8 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
         }
         GameEvents.CityArrived -= OnCityArrived;
         GameEvents.TavernRumorRecorded -= OnRumorRecorded;
+        GameEvents.QuestChanged -= OnQuestChanged;
+        GameEvents.TimeAdvanced -= OnTimeAdvanced;
         GameEvents.PanelVisibility -= OnPanelVisibility;
         GameEvents.MapRequested -= OnMapRequested;
         travelView.Confirmed -= ConfirmTravel;
@@ -103,6 +107,32 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
         }
     }
 
+    // 의뢰 수락·완료·실패와 시간 진행은 목적지 표식과 남은 시간을 바꾼다.
+    void OnQuestChanged(GameEvents.QuestInfo _info)
+    {
+        if (_info.session == session)
+        {
+            RefreshQuestMarkers();
+        }
+    }
+
+    void OnTimeAdvanced(GameEvents.TimeAdvanceInfo _info)
+    {
+        if (_info.session == session)
+        {
+            RefreshQuestMarkers();
+        }
+    }
+
+    void RefreshQuestMarkers()
+    {
+        Refresh();
+        if (view.IsOpen && phase == TravelPhase.None && !string.IsNullOrEmpty(hoveredCityId))
+        {
+            ShowCity(hoveredCityId);
+        }
+    }
+
     void Refresh()
     {
         view.ShowGuide(Presentation.PuzzleMapGuide(session.ElapsedTime));
@@ -136,7 +166,8 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
                 canAfford,
                 !string.IsNullOrEmpty(targetCityId) && string.Equals(cityId, targetCityId, System.StringComparison.Ordinal),
                 session.HasRumorForCity(cityId),
-                view.GetNodeLayoutSettings());
+                view.GetNodeLayoutSettings(),
+                Presentation.QuestMapBadge(session, cityId));
         }
         if (currentNode)
         {
@@ -166,14 +197,17 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
             }
         }
 
-        view.ShowInformation(Presentation.PuzzleMapInformation(
+        string information = Presentation.PuzzleMapInformation(
             TableManager.Instance.CityPrice(_cityId),
             session.HasVisitedCity(_cityId),
             isCurrent,
             isConnected,
             eval,
             TableManager.Instance.Region(TableManager.Instance.CityPrice(_cityId).regionId),
-            session.TavernRumors));
+            session.TavernRumors);
+        string quests = Presentation.QuestMapInformation(session, _cityId);
+        view.ShowInformation(string.IsNullOrEmpty(quests) ? information
+            : information + BasicData.Text("presentation.quest.separator") + quests);
     }
 
     void ClearInformation()

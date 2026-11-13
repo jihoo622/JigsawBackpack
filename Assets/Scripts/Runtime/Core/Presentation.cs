@@ -160,6 +160,44 @@ public static class Presentation
             QuestCityName(_info.targetCityId));
     }
 
+    public static Color QuestMapMarker => BasicData.Color("presentation.quest.mapMarker");
+
+    static IEnumerable<TrainventoryQuest> ActiveQuestsTo(PuzzleInventoryService _session, string _cityId)
+    {
+        return _session.Quests.Where(_quest => _quest.State == TrainventoryQuestState.Active &&
+            string.Equals(_quest.TargetCityId, _cityId, StringComparison.Ordinal));
+    }
+
+    // 지도 역 이름 옆 의뢰 표식. 이 역이 목적지인 진행 중 의뢰가 없으면 null이다.
+    // 의뢰가 여럿이면 건수와 가장 급한 의뢰의 남은 시간을 보인다.
+    internal static string QuestMapBadge(PuzzleInventoryService _session, string _cityId)
+    {
+        var quests = ActiveQuestsTo(_session, _cityId).ToList();
+        if (quests.Count == 0)
+        {
+            return null;
+        }
+        string remaining = PuzzleMapTime(Math.Max(0, quests.Min(_quest => _quest.DeadlineMinutes) - _session.ElapsedTime));
+        return quests.Count == 1
+            ? BasicData.Format("presentation.quest.mapBadge", remaining)
+            : BasicData.Format("presentation.quest.mapBadgeMany", quests.Count, remaining);
+    }
+
+    internal static string QuestMapStation(string _stationName, string _badge)
+    {
+        return string.IsNullOrEmpty(_badge) ? _stationName
+            : BasicData.Format("presentation.quest.mapStation", _stationName, _badge, ColorUtility.ToHtmlStringRGB(QuestMapMarker));
+    }
+
+    // 지도 역 정보 끝에 붙이는 진행 중 의뢰 목록. 없으면 빈 문자열이다.
+    internal static string QuestMapInformation(PuzzleInventoryService _session, string _cityId)
+    {
+        return string.Join("\n", ActiveQuestsTo(_session, _cityId)
+            .OrderBy(_quest => _quest.DeadlineMinutes)
+            .Select(_quest => BasicData.Format("presentation.quest.mapInformation", QuestCargoName(_quest.PieceId),
+                PuzzleMapTime(Math.Max(0, _quest.DeadlineMinutes - _session.ElapsedTime)), _quest.Reward)));
+    }
+
     // 숙련 레벨이 오를 때 하단 상태 줄 끝에 붙이는 알림.
     internal static string ProficiencyLevelUp(PuzzleInventoryService _session, GameEvents.ProficiencyInfo _info)
     {

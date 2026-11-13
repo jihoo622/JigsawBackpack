@@ -16,6 +16,8 @@ public sealed class PuzzleMapNodeView : MonoBehaviour, IPointerEnterHandler, IPo
 
     bool isCurrent;
     bool isTarget;
+    // 진행 중 의뢰의 목적지. 줌과 관계없이 이름·의뢰 표식을 보인다.
+    bool isQuestTarget;
     bool isConnected;
     bool layoutPrepared;
     Vector2 preferredLabelDirection;
@@ -74,7 +76,7 @@ public sealed class PuzzleMapNodeView : MonoBehaviour, IPointerEnterHandler, IPo
     {
         int state = isCurrent ? _settings.labelPriorityCurrent
             : cityId == _selectedCityId ? _settings.labelPrioritySelected
-            : isTarget ? _settings.labelPriorityTarget
+            : isTarget || isQuestTarget ? _settings.labelPriorityTarget
             : isConnected ? _settings.labelPriorityConnected
             : interchange ? _settings.labelPriorityInterchange
             : _settings.labelPriorityOther;
@@ -84,7 +86,7 @@ public sealed class PuzzleMapNodeView : MonoBehaviour, IPointerEnterHandler, IPo
     // 주요 역·현재·목표·선택 역은 줌과 관계없이 이름을 표시해야 한다.
     internal bool IsLabelRequired(string _selectedCityId, in PuzzleMapView.NodeLayoutSettings _settings)
     {
-        return IsEmphasized || cityId == _selectedCityId || IsMajor(_settings.majorStationThreshold);
+        return IsEmphasized || isQuestTarget || cityId == _selectedCityId || IsMajor(_settings.majorStationThreshold);
     }
 
     internal bool ShouldShowLabel(float _zoom, string _selectedCityId, in PuzzleMapView.NodeLayoutSettings _settings)
@@ -201,13 +203,16 @@ public sealed class PuzzleMapNodeView : MonoBehaviour, IPointerEnterHandler, IPo
         currentBadge.gameObject.SetActive(IsEmphasized);
     }
 
-    internal void Show(PuzzleCityData _city, bool _visited, bool _current, bool _connected, bool _canAfford, bool _planningTarget, bool _hasRumor)
+    internal void Show(PuzzleCityData _city, bool _visited, bool _current, bool _connected, bool _canAfford, bool _planningTarget, bool _hasRumor,
+        string _questBadge = null)
     {
         var settings = map ? map.GetNodeLayoutSettings() : default;
-        Show(_city, _visited, _current, _connected, _canAfford, _planningTarget, _hasRumor, settings);
+        Show(_city, _visited, _current, _connected, _canAfford, _planningTarget, _hasRumor, settings, _questBadge);
     }
 
-    internal void Show(PuzzleCityData _city, bool _visited, bool _current, bool _connected, bool _canAfford, bool _planningTarget, bool _hasRumor, in PuzzleMapView.NodeLayoutSettings _settings)
+    // _questBadge: 이 역이 목적지인 진행 중 의뢰의 표식(남은 시간 포함). 없으면 null.
+    internal void Show(PuzzleCityData _city, bool _visited, bool _current, bool _connected, bool _canAfford, bool _planningTarget, bool _hasRumor, in PuzzleMapView.NodeLayoutSettings _settings,
+        string _questBadge = null)
     {
         if (!string.Equals(cityId, _city.id, StringComparison.Ordinal))
         {
@@ -219,10 +224,12 @@ public sealed class PuzzleMapNodeView : MonoBehaviour, IPointerEnterHandler, IPo
         regionPriority = TableManager.Instance.Region(regionId).mapLabelPriority;
         isTarget = _planningTarget;
         isConnected = _connected;
+        isQuestTarget = !string.IsNullOrEmpty(_questBadge);
         bool emphasized = IsEmphasized;
         Color highlight = _current ? Presentation.PuzzleMapCurrent : Presentation.PuzzleMapTarget;
         label.supportRichText = true;
-        label.text = Presentation.PuzzleMapStationName(_city.displayName, _planningTarget, !_visited && _hasRumor);
+        label.text = Presentation.QuestMapStation(
+            Presentation.PuzzleMapStationName(_city.displayName, _planningTarget, !_visited && _hasRumor), _questBadge);
         label.color = emphasized ? highlight : Presentation.PuzzleHeading;
         labelConnector.color = emphasized ? highlight : Presentation.PuzzleMapLineColor(_city.regionId);
         label.fontStyle = emphasized || IsMajor(_settings.majorStationThreshold) ? FontStyle.Bold : FontStyle.Normal;
@@ -237,6 +244,7 @@ public sealed class PuzzleMapNodeView : MonoBehaviour, IPointerEnterHandler, IPo
         }
         stationRing.rectTransform.localScale = Vector3.one * (emphasized ? _settings.nodeEmphasizedScale : 1f);
         stationRing.color = emphasized ? highlight :
+            isQuestTarget ? Presentation.QuestMapMarker :
             Presentation.PuzzleMapLineColor(_city.regionId);
         marker.color = Presentation.PuzzleMapNodeMarkerColor(_current, _visited, _connected, _canAfford);
     }

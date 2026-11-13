@@ -1060,7 +1060,36 @@
     },
     {
       "id": "presentation.quest",
+      "colors": [
+        {
+          "id": "mapMarker",
+          "r": 0.86,
+          "g": 0.58,
+          "b": 1,
+          "a": 1
+        }
+      ],
       "texts": [
+        {
+          "id": "mapBadge",
+          "value": "의뢰 {0}",
+          "arguments": 1
+        },
+        {
+          "id": "mapBadgeMany",
+          "value": "의뢰 {0}건 · {1}",
+          "arguments": 2
+        },
+        {
+          "id": "mapStation",
+          "value": "{0} <color=#{2}>[{1}]</color>",
+          "arguments": 3
+        },
+        {
+          "id": "mapInformation",
+          "value": "<b>[의뢰]</b> {0} 전달 · 남은 시간 {1} · 보수 {2}$ + 화물 가치",
+          "arguments": 3
+        },
         {
           "id": "boardTitle",
           "value": "의뢰 게시판"
