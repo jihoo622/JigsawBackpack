@@ -47,6 +47,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         refiningView.gameObject.activeInHierarchy;
     decimal? pendingSettlementValue;
     decimal? pendingFreshnessLossValue;
+    bool pendingFundsRefresh;
     bool InventoryBlocked => isMapOpen;
 
     void OnEnable()
@@ -179,6 +180,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         isMapOpen = false;
         pendingSettlementValue = null;
         pendingFreshnessLossValue = null;
+        pendingFundsRefresh = false;
         GameEvents.CityArrived -= OnCityArrived;
         GameEvents.TimeAdvanced -= OnTimeAdvanced;
         GameEvents.PanelVisibility -= OnPanelVisibility;
@@ -382,6 +384,12 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
 
     void RefreshFunds()
     {
+        if (InventoryBlocked)
+        {
+            pendingFundsRefresh = true;
+            return;
+        }
+        pendingFundsRefresh = false;
         cityView.ShowFunds(session.Funds, session.CanClearGame);
     }
 
@@ -416,6 +424,10 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         else
         {
             PlayPendingSettlement();
+            if (pendingFundsRefresh)
+            {
+                RefreshFunds();
+            }
         }
     }
 

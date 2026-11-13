@@ -466,7 +466,8 @@ public static class Presentation
             string rareColor = ColorUtility.ToHtmlStringRGB(PuzzleMapCurrent);
             trade = BasicData.Format("presentation.map.informationText8", (_region.tradeHub ? BasicData.Text("presentation.map.informationText13") : PuzzleTagLabel(_city.specialtyTag))) +
                 BasicData.Format("presentation.map.informationText9", commonColor, (string.IsNullOrEmpty(common) ? BasicData.Text("presentation.map.informationText14") : common)) +
-                BasicData.Format("presentation.map.informationText10", rareColor, (string.IsNullOrEmpty(rare) ? BasicData.Text("presentation.map.informationText15") : rare));
+                BasicData.Format("presentation.map.informationText10", rareColor, (string.IsNullOrEmpty(rare) ? BasicData.Text("presentation.map.informationText15") : rare)) +
+                FarmWastePurchaseLine("presentation.map.wastePurchase", _region.id);
         }
 
         return BasicData.Format("presentation.map.informationText11", heading, status, trade);
@@ -629,7 +630,7 @@ public static class Presentation
 
     internal static string PuzzleBoardActualValue(decimal _actualValue, long _baseValue)
     {
-        string amount = $"${_actualValue:#,0.##}".PadRight(7, '\u00A0');
+        string amount = $"{_actualValue:#,0.##}$".PadRight(7, '\u00A0');
         return BasicData.Format("presentation.inventory.boardActualValue", amount, _baseValue);
     }
 
@@ -960,8 +961,18 @@ public static class Presentation
         string rareColor = ColorUtility.ToHtmlStringRGB(PuzzleMapCurrent);
         return BasicData.Format("presentation.trade.cityTagPreferences", commonColor, (string.IsNullOrEmpty(commonText) ? BasicData.Text("presentation.trade.cityTagPreferencesText3") : commonText)) +
             BasicData.Format("presentation.trade.cityTagPreferencesText2", rareColor, (string.IsNullOrEmpty(rareText) ? BasicData.Text("presentation.trade.cityTagPreferencesText4") : rareText)) +
-            BasicData.Format("presentation.trade.regionPrice", _city.buyPercentOfBaseValue, _city.sellPercentOfFinalValue);
+            BasicData.Format("presentation.trade.regionPrice", _city.buyPercentOfBaseValue, _city.sellPercentOfFinalValue) +
+            FarmWastePurchaseLine("presentation.trade.wastePurchase", _city?.regionId);
 
+    }
+
+    static string FarmWastePurchaseLine(string _textKey, string _regionId)
+    {
+        if (!string.Equals(_regionId, "region.farm", StringComparison.Ordinal))
+        {
+            return string.Empty;
+        }
+        return BasicData.Format(_textKey, ColorUtility.ToHtmlStringRGB(PuzzleTooltipGreen), PuzzleTagLabel("Waste"));
     }
 
     public static string PuzzleTagLabel(string _tag)

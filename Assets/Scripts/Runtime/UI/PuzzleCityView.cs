@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -31,6 +32,7 @@ public sealed class PuzzleCityView : MonoBehaviour
 
     void OnDisable()
     {
+        StopFundsAnimation();
         if (waitButton)
         {
             waitButton.onClick.RemoveListener(OnWait);
@@ -58,6 +60,9 @@ public sealed class PuzzleCityView : MonoBehaviour
 
     Func<string> getRumor;
     string heardRumor;
+    long? displayedFunds;
+    long targetFunds;
+    Coroutine fundsAnimation;
 
     internal void Initialize(long _clearCost)
     {
@@ -118,8 +123,77 @@ public sealed class PuzzleCityView : MonoBehaviour
 
     internal void ShowFunds(long _funds, bool _canClear)
     {
-        funds.text = Presentation.PuzzleFunds(_funds);
         clearButton.interactable = _canClear;
+        funds.richText = true;
+        if (!displayedFunds.HasValue)
+        {
+            displayedFunds = _funds;
+            targetFunds = _funds;
+            funds.text = Presentation.PuzzleFunds(_funds);
+            return;
+        }
+
+        if (fundsAnimation != null && _funds == targetFunds)
+        {
+            return;
+        }
+
+        if (fundsAnimation == null && _funds == displayedFunds.Value)
+        {
+            funds.text = Presentation.PuzzleFunds(_funds);
+            return;
+        }
+
+        if (fundsAnimation != null)
+        {
+            StopCoroutine(fundsAnimation);
+            fundsAnimation = null;
+        }
+
+        long from = displayedFunds.Value;
+        targetFunds = _funds;
+        if (!isActiveAndEnabled)
+        {
+            displayedFunds = _funds;
+            funds.text = Presentation.PuzzleFunds(_funds);
+            return;
+        }
+
+        fundsAnimation = StartCoroutine(AnimateFunds(from, _funds));
+    }
+
+    IEnumerator AnimateFunds(long _before, long _after)
+    {
+        const float countSeconds = 0.55f;
+        const float holdSeconds = 0.85f;
+        Color highlight = _after < _before ? Presentation.PuzzleTooltipRed : Presentation.PuzzleTooltipGreen;
+        string color = ColorUtility.ToHtmlStringRGB(highlight);
+        for (float elapsed = 0f; elapsed < holdSeconds; elapsed += Time.unscaledDeltaTime)
+        {
+            decimal progress = (decimal)Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(elapsed / countSeconds));
+            long value = (long)Math.Round(_before * (1m - progress) + _after * progress, MidpointRounding.AwayFromZero);
+            displayedFunds = value;
+            funds.text = $"<color=#{color}>{Presentation.PuzzleFunds(value)}</color>";
+            yield return null;
+        }
+
+        displayedFunds = _after;
+        funds.text = Presentation.PuzzleFunds(_after);
+        fundsAnimation = null;
+    }
+
+    void StopFundsAnimation()
+    {
+        if (fundsAnimation != null)
+        {
+            StopCoroutine(fundsAnimation);
+            fundsAnimation = null;
+            displayedFunds = targetFunds;
+            if (funds)
+            {
+                funds.text = Presentation.PuzzleFunds(targetFunds);
+            }
+        }
     }
 
     internal void ShowTradeStatus(string _status)
