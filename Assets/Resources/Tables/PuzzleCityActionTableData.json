@@ -22,7 +22,7 @@
       "type": "Modification",
       "cityIds": ["city.industry.ironworks"],
       "title": "개조하기",
-      "description": "작업 보드의 기계 화물을 선택한 모드의 결과 화물로 즉시 바꿉니다. 누적되는 가치는 그대로 남습니다.",
+      "description": "기계 태그 화물에 특수 효과를 부여합니다.",
       "board": { "width": 3, "height": 3, "startingPlacements": [] },
       "workMinutes": 0,
       "modes": [
