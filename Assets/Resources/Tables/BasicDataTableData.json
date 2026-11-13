@@ -2008,7 +2008,7 @@
       "texts": [
         {
           "id": "expiredFoodPieceId",
-          "value": "piece.poo"
+          "value": "piece.foodWaste"
         }
       ]
     },
