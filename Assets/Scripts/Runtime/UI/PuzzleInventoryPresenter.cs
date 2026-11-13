@@ -195,7 +195,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         }
 
         if (trainBarView.TryGetWagonAtScreenPosition(pointerPosition, out int wagonIndex) &&
-            IsValidDragTargetWagon(wagonIndex))
+            wagonIndex < session.WagonCount && wagonIndex != session.CurrentWagonIndex)
         {
             if (hoveredWagonIndex != wagonIndex)
             {
@@ -203,8 +203,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
                 hoveredWagonStartTime = Time.unscaledTime;
                 RefreshTrainBar();
             }
-            else if (wagonIndex != session.CurrentWagonIndex &&
-                     Time.unscaledTime - hoveredWagonStartTime >= wagonDragHoverDelay)
+            else if (Time.unscaledTime - hoveredWagonStartTime >= wagonDragHoverDelay)
             {
                 SwitchWagonDuringDrag(wagonIndex);
             }
@@ -216,7 +215,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         }
     }
 
-    bool IsValidDragTargetWagon(int _wagonIndex)
+    bool CanQuickDropToWagon(int _wagonIndex)
     {
         if (drag == null || session == null || _wagonIndex < 0 || _wagonIndex >= session.WagonCount)
         {
@@ -527,7 +526,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
                 }
             }
             else if (trainBarView && trainBarView.TryGetWagonAtScreenPosition(_eventData.position, out int candidateWagon) &&
-                     IsValidDragTargetWagon(candidateWagon))
+                     CanQuickDropToWagon(candidateWagon))
             {
                 droppedWagonIndex = candidateWagon;
                 result = activeDrag.QuickDropToWagon(session, droppedWagonIndex);

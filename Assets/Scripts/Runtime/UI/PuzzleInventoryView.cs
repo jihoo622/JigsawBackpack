@@ -65,6 +65,7 @@ public sealed class PuzzleInventoryView : MonoBehaviour
     Material freshnessMaterial;
     Coroutine settlementFeedback;
     Canvas canvas;
+    [SerializeField] RectTransform ghostLayer;
     Vector2Int gridSize;
     Vector2 gridMin;
     float cellSize;
@@ -112,7 +113,8 @@ public sealed class PuzzleInventoryView : MonoBehaviour
         var fillSprites = new[] { reference, eastFlatTriangle, southFlatTriangle, westFlatTriangle };
         if (!reference || !fillSprites.All(sprite => MatchesReference(sprite, reference)) ||
             !MatchesReference(flatOutline, reference) ||
-            !HasSlots(placementSlots, board.rectTransform, reference) || !HasSlots(ghostSlots, transform, reference) ||
+            !HasSlots(placementSlots, board.rectTransform, reference) ||
+            !HasSlots(ghostSlots, ghostLayer ? ghostLayer : transform, reference) ||
             !HasSlots(outlineSlots, board.rectTransform, reference))
         {
             throw new InvalidOperationException("화물 슬롯의 스프라이트 참조·크기 또는 슬롯 구성이 올바르지 않습니다.");
