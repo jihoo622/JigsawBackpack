@@ -28,17 +28,17 @@
         },
         {
           "id": "endpointtolerance",
-          "value": 2.0,
+          "value": 2,
           "positive": true
         },
         {
           "id": "labelnodeclearance",
-          "value": 60.0,
+          "value": 60,
           "positive": true
         },
         {
           "id": "labelnudge",
-          "value": 34.0,
+          "value": 34,
           "positive": true
         },
         {
@@ -47,7 +47,7 @@
         },
         {
           "id": "sidethickness",
-          "value": 5.0,
+          "value": 5,
           "positive": true
         },
         {
@@ -144,14 +144,14 @@
         },
         {
           "id": "low",
-          "r": 1.0,
+          "r": 1,
           "g": 0.4,
           "b": 0.4,
           "a": 1
         },
         {
           "id": "medium",
-          "r": 1.0,
+          "r": 1,
           "g": 0.8627450980392157,
           "b": 0.3137254901960784,
           "a": 1
@@ -165,9 +165,9 @@
         },
         {
           "id": "outline",
-          "r": 0.0,
-          "g": 0.0,
-          "b": 0.0,
+          "r": 0,
+          "g": 0,
+          "b": 0,
           "a": 1
         }
       ]
@@ -180,55 +180,55 @@
           "r": 0.1,
           "g": 0.13,
           "b": 0.17,
-          "a": 1.0
+          "a": 1
         },
         {
           "id": "cell",
           "r": 0.17,
           "g": 0.21,
           "b": 0.26,
-          "a": 1.0
+          "a": 1
         },
         {
           "id": "color",
           "r": 0.9,
           "g": 0.33,
           "b": 0.29,
-          "a": 1.0
+          "a": 1
         },
         {
           "id": "colorColor",
           "r": 0.33,
           "g": 0.58,
           "b": 0.95,
-          "a": 1.0
+          "a": 1
         },
         {
           "id": "colorColor2",
           "r": 0.35,
           "g": 0.76,
           "b": 0.44,
-          "a": 1.0
+          "a": 1
         },
         {
           "id": "colorColor3",
           "r": 0.96,
           "g": 0.78,
           "b": 0.27,
-          "a": 1.0
+          "a": 1
         },
         {
           "id": "colorColor4",
           "r": 0.72,
           "g": 0.74,
           "b": 0.8,
-          "a": 1.0
+          "a": 1
         },
         {
           "id": "ghost",
-          "r": 1.0,
-          "g": 1.0,
-          "b": 1.0,
+          "r": 1,
+          "g": 1,
+          "b": 1,
           "a": 0.42
         },
         {
@@ -236,35 +236,35 @@
           "r": 0.92,
           "g": 0.94,
           "b": 0.97,
-          "a": 1.0
+          "a": 1
         },
         {
           "id": "itemIcon",
-          "r": 1.0,
-          "g": 1.0,
-          "b": 1.0,
-          "a": 1.0
+          "r": 1,
+          "g": 1,
+          "b": 1,
+          "a": 1
         },
         {
           "id": "moveTarget",
           "r": 0.53,
           "g": 0.79,
-          "b": 1.0,
-          "a": 1.0
+          "b": 1,
+          "a": 1
         },
         {
           "id": "outline",
           "r": 0.39,
           "g": 0.91,
           "b": 0.67,
-          "a": 1.0
+          "a": 1
         },
         {
           "id": "outlineColor",
-          "r": 1.0,
+          "r": 1,
           "g": 0.43,
           "b": 0.39,
-          "a": 1.0
+          "a": 1
         },
         {
           "id": "piece",
@@ -275,17 +275,17 @@
         },
         {
           "id": "pieceOutline",
-          "r": 0.0,
-          "g": 0.0,
-          "b": 0.0,
-          "a": 1.0
+          "r": 0,
+          "g": 0,
+          "b": 0,
+          "a": 1
         },
         {
           "id": "refrigerationArrow",
           "r": 0.67451,
           "g": 0.929412,
           "b": 0.603922,
-          "a": 1.0
+          "a": 1
         },
         {
           "id": "synergyArrow",
@@ -313,7 +313,7 @@
           "r": 0.10588235294117647,
           "g": 0.1411764705882353,
           "b": 0.1843137254901961,
-          "a": 1.0
+          "a": 1
         },
         {
           "id": "travelDim",
@@ -363,7 +363,7 @@
         },
         {
           "id": "puzzleTravelProgress",
-          "value": 100.0
+          "value": 100
         },
         {
           "id": "stationRestDurationAbovePercent",
@@ -618,25 +618,25 @@
           "r": 0.39,
           "g": 0.91,
           "b": 0.67,
-          "a": 1.0
+          "a": 1
         },
         {
           "id": "connectedDisabled",
           "r": 0.85,
           "g": 0.45,
           "b": 0.45,
-          "a": 1.0
+          "a": 1
         },
         {
           "id": "current",
-          "r": 1.0,
+          "r": 1,
           "g": 0.78,
           "b": 0.3,
-          "a": 1.0
+          "a": 1
         },
         {
           "id": "currentHalo",
-          "r": 1.0,
+          "r": 1,
           "g": 0.78,
           "b": 0.3,
           "a": 0.25
@@ -646,14 +646,14 @@
           "r": 0.8941176470588236,
           "g": 0.9137254901960784,
           "b": 0.9372549019607843,
-          "a": 1.0
+          "a": 1
         },
         {
           "id": "ocean",
           "r": 0.08235294117647059,
           "g": 0.1607843137254902,
           "b": 0.22745098039215686,
-          "a": 1.0
+          "a": 1
         },
         {
           "id": "region.capital",
@@ -716,84 +716,84 @@
           "r": 0.23,
           "g": 0.56,
           "b": 0.69,
-          "a": 1.0
+          "a": 1
         },
         {
           "id": "route",
           "r": 0.3,
           "g": 0.68,
           "b": 0.82,
-          "a": 1.0
+          "a": 1
         },
         {
           "id": "terrainBorder",
           "r": 0.44313725490196076,
           "g": 0.5450980392156862,
           "b": 0.5764705882352941,
-          "a": 1.0
+          "a": 1
         },
         {
           "id": "terrainDeep",
           "r": 0.11,
           "g": 0.3,
           "b": 0.45,
-          "a": 1.0
+          "a": 1
         },
         {
           "id": "terrainGrass",
           "r": 0.49,
           "g": 0.56,
           "b": 0.39,
-          "a": 1.0
+          "a": 1
         },
         {
           "id": "terrainHill",
           "r": 0.55,
           "g": 0.53,
           "b": 0.4,
-          "a": 1.0
+          "a": 1
         },
         {
           "id": "terrainMountain",
           "r": 0.6,
           "g": 0.55,
           "b": 0.45,
-          "a": 1.0
+          "a": 1
         },
         {
           "id": "terrainPeak",
           "r": 0.79,
           "g": 0.75,
           "b": 0.66,
-          "a": 1.0
+          "a": 1
         },
         {
           "id": "terrainPlain",
           "r": 0.68,
           "g": 0.76,
           "b": 0.55,
-          "a": 1.0
+          "a": 1
         },
         {
           "id": "terrainShallow",
           "r": 0.2,
           "g": 0.45,
           "b": 0.6,
-          "a": 1.0
+          "a": 1
         },
         {
           "id": "unknown",
           "r": 0.4,
           "g": 0.46,
           "b": 0.55,
-          "a": 1.0
+          "a": 1
         },
         {
           "id": "visited",
           "r": 0.34,
           "g": 0.86,
           "b": 0.72,
-          "a": 1.0
+          "a": 1
         },
         {
           "id": "neutralLine",
@@ -1256,28 +1256,28 @@
           "r": 0.6274509803921569,
           "g": 0.47058823529411764,
           "b": 0.2901960784313726,
-          "a": 1.0
+          "a": 1
         },
         {
           "id": "boxBackground",
           "r": 0.5529411764705883,
           "g": 0.43137254901960786,
           "b": 0.38823529411764707,
-          "a": 1.0
+          "a": 1
         },
         {
           "id": "cargoBackground",
           "r": 0.5529411764705883,
           "g": 0.43137254901960786,
           "b": 0.38823529411764707,
-          "a": 1.0
+          "a": 1
         },
         {
           "id": "fishBackground",
           "r": 0.00784313725490196,
           "g": 0.5176470588235295,
           "b": 0.7803921568627451,
-          "a": 1.0
+          "a": 1
         },
         {
           "id": "freshBackground",
@@ -1298,77 +1298,77 @@
           "r": 0.8509803921568627,
           "g": 0.4666666666666667,
           "b": 0.023529411764705882,
-          "a": 1.0
+          "a": 1
         },
         {
           "id": "fruitBackground",
           "r": 0.7686274509803922,
           "g": 0.24705882352941178,
           "b": 0.24705882352941178,
-          "a": 1.0
+          "a": 1
         },
         {
           "id": "machineryBackground",
           "r": 0.7058823529411765,
           "g": 0.3254901960784314,
           "b": 0.03529411764705882,
-          "a": 1.0
+          "a": 1
         },
         {
           "id": "meatBackground",
           "r": 0.6235294117647059,
           "g": 0.17647058823529413,
           "b": 0.22745098039215686,
-          "a": 1.0
+          "a": 1
         },
         {
           "id": "metalBackground",
           "r": 0.32941176470588235,
           "g": 0.43137254901960786,
           "b": 0.47843137254901963,
-          "a": 1.0
+          "a": 1
         },
         {
           "id": "wasteBackground",
           "r": 0.3764705882352941,
           "g": 0.25098039215686274,
           "b": 0.14901960784313725,
-          "a": 1.0
+          "a": 1
         },
         {
           "id": "puzzleTagBackgroundColorColor",
           "r": 0.2784313725490196,
           "g": 0.3333333333333333,
           "b": 0.4117647058823529,
-          "a": 1.0
+          "a": 1
         },
         {
           "id": "puzzleTagTextColor",
-          "r": 1.0,
-          "g": 1.0,
-          "b": 1.0,
-          "a": 1.0
+          "r": 1,
+          "g": 1,
+          "b": 1,
+          "a": 1
         },
         {
           "id": "saltBackground",
           "r": 0.39215686274509803,
           "g": 0.4549019607843137,
           "b": 0.5450980392156862,
-          "a": 1.0
+          "a": 1
         },
         {
           "id": "supplyBackground",
           "r": 0.08627450980392157,
           "g": 0.6392156862745098,
           "b": 0.2901960784313726,
-          "a": 1.0
+          "a": 1
         },
         {
           "id": "waterBackground",
           "r": 0.054901960784313725,
           "g": 0.6470588235294118,
           "b": 0.9137254901960784,
-          "a": 1.0
+          "a": 1
         },
         {
           "id": "woodBackground",
@@ -1533,6 +1533,10 @@
           "value": "목재"
         },
         {
+          "id": "oreLabel",
+          "value": "광석"
+        },
+        {
           "id": "questLabel",
           "value": "의뢰"
         }
@@ -1543,10 +1547,10 @@
       "colors": [
         {
           "id": "accent",
-          "r": 1.0,
+          "r": 1,
           "g": 0.82,
           "b": 0.42,
-          "a": 1.0
+          "a": 1
         }
       ],
       "texts": [
@@ -1573,49 +1577,49 @@
           "r": 0.117647,
           "g": 0.12549,
           "b": 0.160784,
-          "a": 1.0
+          "a": 1
         },
         {
           "id": "divider",
           "r": 0.427451,
           "g": 0.403922,
           "b": 0.392157,
-          "a": 1.0
+          "a": 1
         },
         {
           "id": "gold",
           "r": 0.960784,
           "g": 0.87451,
           "b": 0.752941,
-          "a": 1.0
+          "a": 1
         },
         {
           "id": "green",
           "r": 0.67451,
           "g": 0.929412,
           "b": 0.603922,
-          "a": 1.0
+          "a": 1
         },
         {
           "id": "headerBackground",
           "r": 0.117647,
           "g": 0.12549,
           "b": 0.160784,
-          "a": 1.0
+          "a": 1
         },
         {
           "id": "red",
           "r": 1,
           "g": 0.619608,
           "b": 0.580392,
-          "a": 1.0
+          "a": 1
         },
         {
           "id": "text",
           "r": 0.964706,
           "g": 0.937255,
           "b": 0.87451,
-          "a": 1.0
+          "a": 1
         }
       ],
       "numbers": [
@@ -1934,7 +1938,7 @@
           "r": 0.1568627450980392,
           "g": 0.6549019607843137,
           "b": 0.27058823529411763,
-          "a": 1.0
+          "a": 1
         },
         {
           "id": "addWagonBoxDisabled",
@@ -1955,21 +1959,21 @@
           "r": 0.39,
           "g": 0.91,
           "b": 0.67,
-          "a": 1.0
+          "a": 1
         },
         {
           "id": "wagonNormalBorder",
           "r": 0.35294117647058826,
           "g": 0.37254901960784315,
           "b": 0.4117647058823529,
-          "a": 1.0
+          "a": 1
         },
         {
           "id": "wagonSelectedBorder",
-          "r": 1.0,
+          "r": 1,
           "g": 0.8431372549019608,
-          "b": 0.0,
-          "a": 1.0
+          "b": 0,
+          "a": 1
         }
       ],
       "texts": [
@@ -2203,6 +2207,48 @@
           "value": "물건을 받아가세요",
           "arguments": 0,
           "source": "Assets/Scripts/Runtime/Core/Presentation.cs:114"
+        },
+        {
+          "id": "PuzzleRefiningTitle",
+          "value": "정제대",
+          "arguments": 0,
+          "source": "Assets/Scripts/Runtime/Core/Presentation.cs:PuzzleRefiningTitle"
+        },
+        {
+          "id": "StationRefining",
+          "value": "정제",
+          "arguments": 0,
+          "source": "Assets/Scripts/Runtime/Core/Presentation.cs:StationRefining"
+        },
+        {
+          "id": "StationRefiningConfirm",
+          "value": "정제하기",
+          "arguments": 0,
+          "source": "Assets/Scripts/Runtime/Core/Presentation.cs:StationRefiningConfirm"
+        },
+        {
+          "id": "StationRefiningConfirmCost",
+          "value": "정제하기 · ${0:N0}",
+          "arguments": 1,
+          "source": "Assets/Scripts/Runtime/Core/Presentation.cs:StationRefiningConfirmCost"
+        },
+        {
+          "id": "StationRefiningCountdown.text1",
+          "value": "{0} 후 마무리",
+          "arguments": 1,
+          "source": "Assets/Scripts/Runtime/Core/Presentation.cs:StationRefiningStatus"
+        },
+        {
+          "id": "StationRefiningIdleHint",
+          "value": "원석을 정제대에 놓은 뒤 확인을 누르세요",
+          "arguments": 0,
+          "source": "Assets/Scripts/Runtime/Core/Presentation.cs:StationRefiningStatus"
+        },
+        {
+          "id": "StationRefiningReady",
+          "value": "물건을 받아가세요",
+          "arguments": 0,
+          "source": "Assets/Scripts/Runtime/Core/Presentation.cs:StationRefiningStatus"
         }
       ]
     },
@@ -2334,6 +2380,72 @@
           "value": "도축 완료 시각이 게임 시간 범위를 넘습니다.",
           "arguments": 0,
           "source": "Assets/Scripts/Runtime/Inventory/PuzzleInventoryService.cs"
+        },
+        {
+          "id": "refining.blocked",
+          "value": "지금은 정제를 진행할 수 없습니다.",
+          "arguments": 0,
+          "source": "Assets/Scripts/Runtime/Inventory/PuzzleInventoryService.cs"
+        },
+        {
+          "id": "refining.unavailable",
+          "value": "이 마을에서는 정제할 수 없습니다.",
+          "arguments": 0,
+          "source": "Assets/Scripts/Runtime/Inventory/PuzzleInventoryService.cs"
+        },
+        {
+          "id": "refining.inProgress",
+          "value": "정제가 진행 중입니다. 시간이 지나면 완료됩니다.",
+          "arguments": 0,
+          "source": "Assets/Scripts/Runtime/Inventory/PuzzleInventoryService.cs"
+        },
+        {
+          "id": "refining.insufficientFunds",
+          "value": "정제 비용이 부족합니다. (필요: ${0})",
+          "arguments": 1,
+          "source": "Assets/Scripts/Runtime/Inventory/PuzzleInventoryService.cs"
+        },
+        {
+          "id": "refining.awaitingPickup",
+          "value": "받을 준비가 되었습니다. 화물을 기차로 옮기세요.",
+          "arguments": 0,
+          "source": "Assets/Scripts/Runtime/Inventory/PuzzleInventoryService.cs"
+        },
+        {
+          "id": "refining.empty",
+          "value": "정제할 광석을 정제대에 놓으세요.",
+          "arguments": 0,
+          "source": "Assets/Scripts/Runtime/Inventory/PuzzleInventoryService.cs"
+        },
+        {
+          "id": "refining.notOre",
+          "value": "{0}은(는) 광석이 아니라 정제할 수 없습니다.",
+          "arguments": 1,
+          "source": "Assets/Scripts/Runtime/Inventory/PuzzleInventoryService.cs"
+        },
+        {
+          "id": "refining.noConversion",
+          "value": "{0}은(는) 정제 변환이 정해지지 않았습니다. 금속 주괴는 다시 정제할 수 없습니다.",
+          "arguments": 1,
+          "source": "Assets/Scripts/Runtime/Inventory/PuzzleInventoryService.cs"
+        },
+        {
+          "id": "refining.noSpace",
+          "value": "정제대가 부족해 결과를 모두 놓을 수 없습니다. 입력을 줄이세요.",
+          "arguments": 0,
+          "source": "Assets/Scripts/Runtime/Inventory/PuzzleInventoryService.cs"
+        },
+        {
+          "id": "refining.returnItems",
+          "value": "정제대에 남은 화물을 먼저 기차로 옮기세요.",
+          "arguments": 0,
+          "source": "Assets/Scripts/Runtime/Inventory/PuzzleInventoryService.cs"
+        },
+        {
+          "id": "refining.timeOverflow",
+          "value": "정제 완료 시각이 게임 시간 범위를 넘습니다.",
+          "arguments": 0,
+          "source": "Assets/Scripts/Runtime/Inventory/PuzzleInventoryService.cs"
         }
       ]
     },
@@ -2414,12 +2526,12 @@
         },
         {
           "id": "refrigeration",
-          "value": "• 냉장 프레임: 맞닿은 음식의 유통기한 소모 −{0}% (여러 면이 닿아도 프레임당 한 번)",
+          "value": "• 품목별 인접 보존율: {0} (발생원당 한 번 합산·최대 100%)",
           "arguments": 1
         },
         {
           "id": "rules",
-          "value": "• 화물이 가진 태그마다 해당 행의 효과를 모두 더한다.\n• 맞닿은 면 하나마다 적용하고 {0}시간 정산마다 실제 가치에 누적한다.\n• 기차 화물칸 안에서만 정산하며 시장 보드는 표시만 한다.",
+          "value": "• 이 표는 공통 태그 조건이며 품목별로 선택한 대상·발생원 역할이 모두 있어야 적용한다.\n• 맞닿은 면 하나마다 효과를 합산하고 {0}시간 정산마다 실제 가치에 누적한다.\n• 기차 화물칸 안에서만 정산하며 시장 보드는 표시만 한다.",
           "arguments": 1
         },
         {

@@ -324,6 +324,27 @@ public static class GameEvents
         }
     }
 
+    /// <summary>마을 정제대의 상태·화물 변화. 확인·완료·회수 직후 발행된다.</summary>
+    public readonly struct RefiningInfo
+    {
+        /// <summary>정제대를 소유한 세션. 다른 씬의 이벤트를 구분하는 데 사용한다.</summary>
+        public readonly PuzzleInventoryService session;
+        /// <summary>정제대가 있는 도시.</summary>
+        public readonly string cityId;
+        /// <summary>변화 후 상태.</summary>
+        public readonly PuzzleRefiningPhase phase;
+        /// <summary>변화 후 보드 조작을 받는 여부.</summary>
+        public readonly bool open;
+
+        public RefiningInfo(PuzzleInventoryService _session, string _cityId, PuzzleRefiningPhase _phase, bool _open)
+        {
+            session = _session;
+            cityId = _cityId;
+            phase = _phase;
+            open = _open;
+        }
+    }
+
     /// <summary>도축 확정 사건. 입력 화물을 소진하고 작업이 시작된 시점의 스냅샷이다.</summary>
     public readonly struct ButcheryCommittedInfo
     {
@@ -366,6 +387,7 @@ public static class GameEvents
     public static event Action<FundsInfo> FundsChanged;
     public static event Action<ButcheryInfo> ButcheryChanged;
     public static event Action<ModificationInfo> ModificationChanged;
+    public static event Action<RefiningInfo> RefiningChanged;
     public static event Action<ButcheryCommittedInfo> ButcheryCommitted;
     public static event Action<ButcheryReadyInfo> ButcheryReady;
 
@@ -402,6 +424,11 @@ public static class GameEvents
         bool _modeSelected, bool _open)
     {
         Emit(ModificationChanged, new ModificationInfo(_session, _cityId, _modeSelected, _open));
+    }
+    public static void RaiseRefiningChanged(PuzzleInventoryService _session, string _cityId,
+        PuzzleRefiningPhase _phase, bool _open)
+    {
+        Emit(RefiningChanged, new RefiningInfo(_session, _cityId, _phase, _open));
     }
     public static void RaiseButcheryCommitted(string _actionId, string _cityId, int _inputCount, long _readyAtMinutes)
     {
@@ -458,6 +485,7 @@ public static class GameEvents
         MapRequested = null;
         ButcheryChanged = null;
         ModificationChanged = null;
+        RefiningChanged = null;
         ButcheryCommitted = null;
         ButcheryReady = null;
         TavernRumorRecorded = null;

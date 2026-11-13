@@ -290,6 +290,24 @@ public static class Presentation
             _ => BasicData.Text("presentation.StationButcheryIdleHint")
         };
     }
+    public static string StationRefining => BasicData.Text("presentation.StationRefining");
+    public static string StationRefiningConfirm => BasicData.Text("presentation.StationRefiningConfirm");
+    // 확인 버튼 라벨에 표 행동 비용을 붙인다. 비용을 모르면 기본 라벨을 쓴다.
+    public static string StationRefiningConfirmCost(long _cost) =>
+        BasicData.Format("presentation.StationRefiningConfirmCost", _cost);
+    public static string PuzzleRefiningInsufficientFunds(long _cost) =>
+        BasicData.Format("rules.refining.insufficientFunds", _cost);
+    public static string PuzzleRefiningTitle => BasicData.Text("presentation.PuzzleRefiningTitle");
+    // 정제대 상태 문구의 단일 출처. 버튼·보드·hint가 같은 문구를 읽는다.
+    public static string StationRefiningStatus(PuzzleRefiningPhase _phase, long _remainingMinutes)
+    {
+        return _phase switch
+        {
+            PuzzleRefiningPhase.Working => BasicData.Format("presentation.StationRefiningCountdown.text1", PuzzleMapTime(_remainingMinutes)),
+            PuzzleRefiningPhase.Ready => BasicData.Text("presentation.StationRefiningReady"),
+            _ => BasicData.Text("presentation.StationRefiningIdleHint")
+        };
+    }
     public static string StationModification => BasicData.Text("presentation.StationModification");
     public static string StationModificationConfirm => BasicData.Text("presentation.StationModificationConfirm");
     // 확인 버튼 라벨에 선택 모드의 비용을 붙인다. 모드를 고르지 않았으면 기본 라벨을 쓴다.
@@ -570,6 +588,7 @@ public static class Presentation
         { "Water", "presentation.tags.waterLabel" },
         { "Machinery", "presentation.tags.machineryLabel" },
         { "Metal", "presentation.tags.metalLabel" },
+        { "Ore", "presentation.tags.oreLabel" },
         { "Fish", "presentation.tags.fishLabel" },
         { "Salt", "presentation.tags.saltLabel" },
         { "Meat", "presentation.tags.meatLabel" },
@@ -742,8 +761,12 @@ public static class Presentation
 
     internal static string PuzzleRefrigerationEffect(int _reductionPercent)
     {
-        return PuzzleTooltipEffectDescription(
-            BasicData.Format("presentation.tooltip.refrigerationEffect", _reductionPercent));
+        return PuzzleTooltipEffectDescription(PuzzlePreservationDescription(_reductionPercent, BasicData.Text));
+    }
+
+    public static string PuzzlePreservationDescription(int _reductionPercent, Func<string, string> _text)
+    {
+        return string.Format(_text("presentation.tooltip.refrigerationEffect"), _reductionPercent);
     }
 
     internal static string PuzzleAppliedPreservationEffect(int _reductionPercent)
@@ -943,11 +966,24 @@ public static class Presentation
 
     public static string PuzzleTagLabel(string _tag)
     {
+        return PuzzleTagLabel(_tag, BasicData.Text, TableManager.Instance.Puzzle.tagPresentations);
+    }
+
+    public static string PuzzleTagLabel(string _tag, Func<string, string> _text,
+        IReadOnlyList<PuzzleTagPresentationData> _customTags = null)
+    {
         if (string.IsNullOrEmpty(_tag))
         {
             return string.Empty;
         }
-        return PUZZLE_TAG_LABELS.TryGetValue(_tag, out string label) ? BasicData.Text(label) : _tag;
+        var custom = _customTags?.FirstOrDefault(_entry => _entry != null && _entry.id == _tag);
+        return custom != null ? custom.displayName :
+            PUZZLE_TAG_LABELS.TryGetValue(_tag, out string label) ? _text(label) : _tag;
+    }
+
+    public static bool HasBuiltInPuzzleTag(string _tag)
+    {
+        return PUZZLE_TAG_LABELS.Keys.Any(_key => string.Equals(_key, _tag, StringComparison.OrdinalIgnoreCase));
     }
 
     #region 시너지 상성표
@@ -991,13 +1027,16 @@ public static class Presentation
             : _percent < 0 ? "presentation.synergyChart.negative" : "presentation.synergyChart.empty");
     }
 
-    // 계산 규칙 설명, 냉장 프레임, 각주(효과가 없는 이웃 태그)를 한 덩어리로 만든다.
-    public static string SynergyChartNotes(IReadOnlyList<string> _footnotes, int _refrigerationPercent, int _intervalHours)
+    // 계산 규칙, 품목별 신선 감소율, 제외 이웃 태그 각주를 모은다.
+    public static string SynergyChartNotes(IReadOnlyList<string> _footnotes, IReadOnlyList<PuzzlePieceData> _pieces, int _intervalHours)
     {
         var lines = new List<string>
         {
             BasicData.Format("presentation.synergyChart.rules", _intervalHours),
-            BasicData.Format("presentation.synergyChart.refrigeration", _refrigerationPercent)
+            BasicData.Format("presentation.synergyChart.refrigeration", string.Join(" · ", _pieces
+                .Where(_piece => _piece.preservationEffect.enabled)
+                .OrderBy(_piece => _piece.id, StringComparer.Ordinal)
+                .Select(_piece => _piece.displayName + " " + _piece.preservationEffect.reductionPercent + "%")))
         };
         for (int i = 0; i < _footnotes.Count; i++)
         {
@@ -1019,6 +1058,11 @@ public static class Presentation
 
     public static Color PuzzleTagBackgroundColor(string _tag)
     {
+        var custom = TableManager.Instance.Puzzle.tagPresentations.FirstOrDefault(_entry => _entry.id == _tag);
+        if (custom != null)
+        {
+            return new Color(custom.r, custom.g, custom.b, custom.a);
+        }
         return (_tag ?? string.Empty).ToLowerInvariant() switch
         {
             "wood" => BasicData.Color("presentation.tags.woodBackground"),       // 목재: 팔레트같은 따뜻한 브라운
@@ -1043,8 +1087,29 @@ public static class Presentation
 
     public static Color PuzzleTagTextColor(string _tag)
     {
+        if (TableManager.Instance.Puzzle.tagPresentations.Any(_entry => _entry.id == _tag))
+        {
+            return PuzzleTagTextOnBackground(PuzzleTagBackgroundColor(_tag));
+        }
         return IsFreshTag(_tag) ? BasicData.Color("presentation.tags.freshTextColor")
             : BasicData.Color("presentation.tags.puzzleTagTextColor");
+    }
+
+    static Color PuzzleTagTextOnBackground(Color _background)
+    {
+        Color light = BasicData.Color("presentation.tags.puzzleTagTextColor");
+        Color dark = BasicData.Color("presentation.tags.freshTextColor");
+        return PuzzleTagContrast(_background, light) >= PuzzleTagContrast(_background, dark) ? light : dark;
+    }
+
+    static float PuzzleTagContrast(Color _background, Color _text)
+    {
+        Color background = _background.linear;
+        Color text = _text.linear;
+        float backgroundLuminance = background.r * 0.2126f + background.g * 0.7152f + background.b * 0.0722f;
+        float textLuminance = text.r * 0.2126f + text.g * 0.7152f + text.b * 0.0722f;
+        return (Mathf.Max(backgroundLuminance, textLuminance) + 0.05f) /
+            (Mathf.Min(backgroundLuminance, textLuminance) + 0.05f);
     }
 
     static bool IsFreshTag(string _tag)
@@ -1060,8 +1125,12 @@ public static class Presentation
             : UnityEngine.Color.Lerp(background, PuzzleTooltipBodyBackground, _blend);
     }
 
-    internal static Color PuzzleTooltipTagTextColor(string _tag)
+    internal static Color PuzzleTooltipTagTextColor(string _tag, float _blend)
     {
+        if (TableManager.Instance.Puzzle.tagPresentations.Any(_entry => _entry.id == _tag))
+        {
+            return PuzzleTagTextOnBackground(PuzzleTooltipTagBackground(_tag, _blend));
+        }
         return IsFreshTag(_tag) ? PuzzleTagTextColor(_tag) : PuzzleTooltipText;
     }
 

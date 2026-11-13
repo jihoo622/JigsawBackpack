@@ -92,13 +92,6 @@ internal sealed class PuzzleInventoryValuation
 
     readonly Dictionary<int, PuzzleValue> items = new();
 
-    // 쉼표로 구분한 태그 목록 중 하나라도 가지고 있는지. 제외 대상·제외 이웃 태그에 공통으로 쓴다.
-    internal static bool HasAnyTag(IEnumerable<string> _tags, string _commaSeparated)
-    {
-        return !string.IsNullOrEmpty(_commaSeparated) &&
-            _commaSeparated.Split(',').Any(_tag => _tags.Contains(_tag.Trim()));
-    }
-
     internal PuzzleValue Total { get; private set; }
 
     internal PuzzleValue ValueOf(int _instanceId)
@@ -202,11 +195,8 @@ internal sealed class PuzzleInventoryValuation
         decimal percent = 0;
         foreach (var rule in _rules)
         {
-            bool matchesTarget = string.IsNullOrEmpty(rule.excludedTargetTag)
-                ? _target.Definition.Tags.Contains(rule.targetTag)
-                : !HasAnyTag(_target.Definition.Tags, rule.excludedTargetTag);
-            if (!matchesTarget || !_neighbor.Definition.Tags.Contains(rule.neighborTag) ||
-                HasAnyTag(_neighbor.Definition.Tags, rule.excludedNeighborTag))
+            if (!PuzzlePieceEffects.IsTarget(_target.Definition, rule, WasteTag) ||
+                !PuzzlePieceEffects.IsSource(_neighbor.Definition, rule))
             {
                 continue;
             }

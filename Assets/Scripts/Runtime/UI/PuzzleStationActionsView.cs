@@ -11,6 +11,7 @@ public sealed class PuzzleStationActionsView : PanelBase
     [SerializeField] RectTransform tavernContent;
     [SerializeField] GameObject butcheryContent;
     [SerializeField] GameObject modificationContent;
+    [SerializeField] GameObject refiningContent;
     [SerializeField] GameObject wagonShopContent;
     [SerializeField] Button wagonShopButton;
     [SerializeField] Button wagonShopNextPage;
@@ -31,6 +32,9 @@ public sealed class PuzzleStationActionsView : PanelBase
     [SerializeField] TextMeshProUGUI modificationHint;
     [SerializeField] TextMeshProUGUI modificationModeLabel;
     [SerializeField] TextMeshProUGUI modificationConfirmLabel;
+    [SerializeField] TextMeshProUGUI refiningLabel;
+    [SerializeField] TextMeshProUGUI refiningHint;
+    [SerializeField] TextMeshProUGUI refiningConfirmLabel;
     [SerializeField] Button marketButton;
     [SerializeField] Button tavernButton;
     [SerializeField] Button restButton;
@@ -42,6 +46,8 @@ public sealed class PuzzleStationActionsView : PanelBase
     [SerializeField] Button modificationButton;
     [SerializeField] Button modificationModeButton;
     [SerializeField] Button modificationConfirmButton;
+    [SerializeField] Button refiningButton;
+    [SerializeField] Button refiningConfirmButton;
     [SerializeField] CanvasGroup interaction;
 
     internal event Action MarketRequested;
@@ -54,6 +60,8 @@ public sealed class PuzzleStationActionsView : PanelBase
     internal event Action ModificationRequested;
     internal event Action ModificationModeRequested;
     internal event Action ModificationConfirmed;
+    internal event Action RefiningRequested;
+    internal event Action RefiningConfirmed;
     internal event Action ActionBackRequested;
     public RectTransform TavernContent => tavernContent;
     // 도축 UI는 버튼·라벨·content·hint·확인 버튼이 모두 배선됐을 때만 동작한다. 일부만 있으면 기능이 꺼지고 로그만 남긴다.
@@ -61,10 +69,15 @@ public sealed class PuzzleStationActionsView : PanelBase
         butcheryConfirmButton && butcheryConfirmLabel;
     bool ModificationWired => modificationButton && modificationLabel && modificationContent && modificationHint &&
         modificationModeButton && modificationModeLabel && modificationConfirmButton && modificationConfirmLabel;
+    // 정제 UI는 버튼·라벨·content·hint·확인 버튼이 모두 배선됐을 때만 동작한다. 일부만 있으면 기능이 꺼지고 로그만 남긴다.
+    bool RefiningWired => refiningButton && refiningLabel && refiningContent && refiningHint &&
+        refiningConfirmButton && refiningConfirmLabel;
     public bool HasButcheryButton => ButcheryWired;
     public bool HasModificationButton => ModificationWired;
+    public bool HasRefiningButton => RefiningWired;
     internal bool ShowingButchery => butcheryContent && butcheryContent.activeSelf;
     internal bool ShowingModification => modificationContent && modificationContent.activeSelf;
+    internal bool ShowingRefining => refiningContent && refiningContent.activeSelf;
     PuzzleWagonProductData[] wagonProducts;
     int wagonShopPage;
 
@@ -97,6 +110,16 @@ public sealed class PuzzleStationActionsView : PanelBase
             modificationConfirmLabel.text = Presentation.StationModificationConfirm;
             modificationContent.SetActive(false);
         }
+        if (refiningButton && !RefiningWired)
+        {
+            Debug.LogError("정제 버튼이 있는 View에는 행동 라벨·작업 화면·상태 라벨·확인 버튼과 확인 라벨 참조가 모두 필요합니다.", this);
+        }
+        if (RefiningWired)
+        {
+            refiningLabel.text = Presentation.StationRefining;
+            refiningConfirmLabel.text = Presentation.StationRefiningConfirm;
+            refiningContent.SetActive(false);
+        }
         base.Awake();
     }
 
@@ -122,6 +145,11 @@ public sealed class PuzzleStationActionsView : PanelBase
             modificationModeButton.onClick.AddListener(OnModificationMode);
             modificationConfirmButton.onClick.AddListener(OnModificationConfirm);
         }
+        if (RefiningWired)
+        {
+            refiningButton.onClick.AddListener(OnRefining);
+            refiningConfirmButton.onClick.AddListener(OnRefiningConfirm);
+        }
     }
 
     protected override void OnDisable()
@@ -144,6 +172,11 @@ public sealed class PuzzleStationActionsView : PanelBase
             modificationButton.onClick.RemoveListener(OnModification);
             modificationModeButton.onClick.RemoveListener(OnModificationMode);
             modificationConfirmButton.onClick.RemoveListener(OnModificationConfirm);
+        }
+        if (RefiningWired)
+        {
+            refiningButton.onClick.RemoveListener(OnRefining);
+            refiningConfirmButton.onClick.RemoveListener(OnRefiningConfirm);
         }
         base.OnDisable();
     }
@@ -193,6 +226,22 @@ public sealed class PuzzleStationActionsView : PanelBase
             ? Presentation.StationModificationConfirmCost(_modificationCost)
             : Presentation.StationModificationConfirm;
         modificationConfirmButton.interactable = _confirmEnabled;
+    }
+
+    internal void RefreshRefining(bool _inProgress, bool _available, bool _enabled, bool _confirmEnabled,
+        string _hint, long _refiningCost)
+    {
+        if (!RefiningWired)
+        {
+            return;
+        }
+        refiningButton.gameObject.SetActive(_available && _inProgress);
+        refiningButton.interactable = _enabled;
+        refiningHint.text = _hint;
+        refiningConfirmLabel.text = _refiningCost >= 0
+            ? Presentation.StationRefiningConfirmCost(_refiningCost)
+            : Presentation.StationRefiningConfirm;
+        refiningConfirmButton.interactable = _confirmEnabled;
     }
 
     // 닫기를 막거나 확인이 실패한 사유를 임시로 보여 준다. 다음 Refresh가 상태 문구로 되돌린다.
@@ -268,11 +317,25 @@ public sealed class PuzzleStationActionsView : PanelBase
         ShowMode(modificationContent, Presentation.StationModification);
     }
 
+    internal void ShowRefining()
+    {
+        ShowMode(refiningContent, Presentation.StationRefining);
+    }
+
     internal void ShowModificationNotice(string _message)
     {
         if (modificationHint)
         {
             modificationHint.text = _message;
+        }
+    }
+
+    // 닫기를 막거나 확인이 실패한 사유를 임시로 보여 준다. 다음 Refresh가 상태 문구로 되돌린다.
+    internal void ShowRefiningNotice(string _message)
+    {
+        if (refiningHint)
+        {
+            refiningHint.text = _message;
         }
     }
 
@@ -299,6 +362,10 @@ public sealed class PuzzleStationActionsView : PanelBase
         if (modificationContent)
         {
             modificationContent.SetActive(_content == modificationContent);
+        }
+        if (refiningContent)
+        {
+            refiningContent.SetActive(_content == refiningContent);
         }
         backButton.interactable = true;
         backButton.gameObject.SetActive(_content != actionsList);
@@ -359,6 +426,16 @@ public sealed class PuzzleStationActionsView : PanelBase
     void OnModificationConfirm()
     {
         ModificationConfirmed?.Invoke();
+    }
+
+    void OnRefining()
+    {
+        RefiningRequested?.Invoke();
+    }
+
+    void OnRefiningConfirm()
+    {
+        RefiningConfirmed?.Invoke();
     }
 
     // 뒤로 버튼은 Presenter가 닫기 가능 여부를 판단할 수 있게 올린다. 구독자가 없으면 그대로 목록으로 돌아간다.

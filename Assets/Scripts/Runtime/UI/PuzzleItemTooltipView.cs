@@ -269,7 +269,7 @@ public sealed class PuzzleItemTooltipView : PanelBase
                 if (badgeText)
                 {
                     badgeText.text = Presentation.PuzzleTagLabel(tag);
-                    badgeText.color = Presentation.PuzzleTooltipTagTextColor(tag);
+                    badgeText.color = Presentation.PuzzleTooltipTagTextColor(tag, badgeBlend);
                 }
             }
             else

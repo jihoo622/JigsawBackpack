@@ -1,6 +1,6 @@
 {
   "status": "sample",
-  "note": "게임 경과 시간의 적용 주기 경계를 넘을 때 정산한다. 증가는 기본 가치에 더하고 감소는 그 뒤 곱한다. 배치 계산값과 기본 가치의 차이가 1회 적용량이다.",
+  "note": "품목의 synergyEffects에서 선택한 대상·발생원 역할과 태그 조건이 함께 맞는 규칙만 적용한다. 면별 변화량은 (multiplierPercent - 100)의 합이며 게임 경과 시간의 activationIntervalHours 경계마다 기본 가치에 대한 변화량을 누적한다.",
   "rules": [
     {
       "id": "sample.cargoNearFood",
@@ -10,7 +10,9 @@
       "scope": "Both",
       "spatialRange": "Adjacent",
       "multiplierPercent": 120,
-      "description": "음식과 인접 시 +20% (곡물·물고기 제외)"
+      "description": "음식과 인접 시 +20% (곡물·물고기 제외)",
+      "targetDescription": "음식과 인접 시 +20% (곡물·물고기 제외)",
+      "sourceDescription": "인접한 화물(Cargo)에게 +20% (곡물·물고기는 발생원에서 제외)"
     },
     {
       "id": "sample.machineryNearWood",
@@ -19,7 +21,9 @@
       "scope": "Both",
       "spatialRange": "Adjacent",
       "multiplierPercent": 110,
-      "description": "목재와 인접 시 +10%"
+      "description": "목재와 인접 시 +10%",
+      "targetDescription": "목재와 인접 시 +10%",
+      "sourceDescription": "인접한 기계에게 +10%"
     },
     {
       "id": "foodNearSalt",
@@ -28,7 +32,9 @@
       "scope": "Both",
       "spatialRange": "Adjacent",
       "multiplierPercent": 120,
-      "description": "소금과 인접 시 +20%"
+      "description": "소금과 인접 시 +20%",
+      "targetDescription": "소금과 인접 시 +20%",
+      "sourceDescription": "인접한 음식에게 +20%"
     },
     {
       "id": "woodNearWater",
@@ -38,7 +44,9 @@
       "spatialRange": "Adjacent",
       "multiplierPercent": 90,
       "descriptionTag": "Water",
-      "description": "인접한 목재에게 -10%"
+      "description": "인접한 목재에게 -10%",
+      "targetDescription": "물과 인접 시 -10%",
+      "sourceDescription": "인접한 목재에게 -10%"
     },
     {
       "id": "woodNearFish",
@@ -48,7 +56,9 @@
       "spatialRange": "Adjacent",
       "multiplierPercent": 90,
       "descriptionTag": "Fish",
-      "description": "인접한 목재에게 -10%"
+      "description": "인접한 목재에게 -10%",
+      "targetDescription": "물고기와 인접 시 -10%",
+      "sourceDescription": "인접한 목재에게 -10%"
     },
     {
       "id": "metalNearWater",
@@ -58,7 +68,9 @@
       "spatialRange": "Adjacent",
       "multiplierPercent": 80,
       "descriptionTag": "Water",
-      "description": "인접한 금속에게 -20%"
+      "description": "인접한 금속에게 -20%",
+      "targetDescription": "물과 인접 시 -20%",
+      "sourceDescription": "인접한 금속에게 -20%"
     },
     {
       "id": "metalNearFish",
@@ -68,7 +80,9 @@
       "spatialRange": "Adjacent",
       "multiplierPercent": 80,
       "descriptionTag": "Fish",
-      "description": "인접한 금속에게 -20%"
+      "description": "인접한 금속에게 -20%",
+      "targetDescription": "물고기와 인접 시 -20%",
+      "sourceDescription": "인접한 금속에게 -20%"
     },
     {
       "id": "fishNearWater",
@@ -77,7 +91,9 @@
       "scope": "Both",
       "spatialRange": "Adjacent",
       "multiplierPercent": 130,
-      "description": "물과 인접 시 +30%"
+      "description": "물과 인접 시 +30%",
+      "targetDescription": "물과 인접 시 +30%",
+      "sourceDescription": "인접한 물고기에게 +30%"
     },
     {
       "id": "wasteNearbyPenalty",
@@ -87,7 +103,9 @@
       "spatialRange": "Adjacent",
       "multiplierPercent": 50,
       "descriptionTag": "Waste",
-      "description": "상하좌우로 맞닿은 화물에게 -50% (가축 제외)"
+      "description": "상하좌우로 맞닿은 화물에게 -50% (가축 제외)",
+      "targetDescription": "똥과 상하좌우 인접 시 -50% (배설물·가축 면역)",
+      "sourceDescription": "상하좌우로 맞닿은 화물에게 -50% (가축 제외)"
     },
     {
       "id": "cargoNearAnimal",
@@ -97,7 +115,9 @@
       "spatialRange": "Adjacent",
       "multiplierPercent": 90,
       "descriptionTag": "Animal",
-      "description": "인접한 화물(Cargo)에게 -10%"
+      "description": "인접한 화물(Cargo)에게 -10%",
+      "targetDescription": "동물과 인접 시 -10%",
+      "sourceDescription": "인접한 화물(Cargo)에게 -10%"
     }
   ],
   "activationIntervalHours": 6,
@@ -106,7 +126,8 @@
     "refrigerationTag": "Fresh",
     "refrigerationReductionPercent": 50,
     "wagonRefrigerationReductionPercent": 50,
-    "saltPreservationReductionPercent": 10
+    "saltPreservationReductionPercent": 10,
+    "note": "refrigerationReductionPercent와 saltPreservationReductionPercent는 기존 품목 이행 입력이다. 실제 품목의 감소율은 PuzzleTableData.pieces.preservationEffect가 원본이며 객차 냉장과 정산 주기는 공통 설정이다."
   },
   "animals": {
     "animalTag": "Animal",

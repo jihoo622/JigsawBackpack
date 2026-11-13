@@ -31,14 +31,12 @@ internal static class PuzzleRefrigeration
 
     internal static int SourceReductionPercent(PuzzleItemDefinition _source, PuzzleFreshnessData _freshness)
     {
-        if (!_source.Tags.Contains(_freshness.refrigerationTag))
+        if (!_source.HasPreservationEffect || !_source.Tags.Contains(_freshness.refrigerationTag))
         {
             return 0;
         }
 
-        return _source.Tags.Contains("Salt")
-            ? _freshness.saltPreservationReductionPercent
-            : _freshness.refrigerationReductionPercent;
+        return _source.PreservationReductionPercent;
     }
 
     internal static int AdjacentReductionPercent(IEnumerable<PuzzlePlacement> _sources, PuzzlePlacement _item,

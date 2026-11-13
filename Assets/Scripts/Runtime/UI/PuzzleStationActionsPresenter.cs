@@ -19,12 +19,15 @@ public sealed class PuzzleStationActionsPresenter : MonoBehaviour
         view.ModificationRequested += OpenModification;
         view.ModificationModeRequested += ToggleModificationMode;
         view.ModificationConfirmed += ConfirmModification;
+        view.RefiningRequested += OpenRefining;
+        view.RefiningConfirmed += ConfirmRefining;
         view.ActionBackRequested += OnBack;
         GameEvents.CityArrived += OnArrived;
         GameEvents.TimeAdvanced += OnTimeAdvanced;
         GameEvents.PanelVisibility += OnPanelVisibility;
         GameEvents.ButcheryChanged += OnButcheryChanged;
         GameEvents.ModificationChanged += OnModificationChanged;
+        GameEvents.RefiningChanged += OnRefiningChanged;
         GameEvents.FundsChanged += OnFundsChanged;
         Refresh();
     }
@@ -41,12 +44,15 @@ public sealed class PuzzleStationActionsPresenter : MonoBehaviour
         view.ModificationRequested -= OpenModification;
         view.ModificationModeRequested -= ToggleModificationMode;
         view.ModificationConfirmed -= ConfirmModification;
+        view.RefiningRequested -= OpenRefining;
+        view.RefiningConfirmed -= ConfirmRefining;
         view.ActionBackRequested -= OnBack;
         GameEvents.CityArrived -= OnArrived;
         GameEvents.TimeAdvanced -= OnTimeAdvanced;
         GameEvents.PanelVisibility -= OnPanelVisibility;
         GameEvents.ButcheryChanged -= OnButcheryChanged;
         GameEvents.ModificationChanged -= OnModificationChanged;
+        GameEvents.RefiningChanged -= OnRefiningChanged;
         GameEvents.FundsChanged -= OnFundsChanged;
     }
 
@@ -87,11 +93,29 @@ public sealed class PuzzleStationActionsPresenter : MonoBehaviour
         {
             session.CloseModification();
         }
+        // 정제 버튼이 씬에 없는 판은 조회조차 하지 않는다. 상태 조회가 상태를 만들기 때문이다.
+        bool refiningAvailable = view.HasRefiningButton && session.HasRefining();
+        PuzzleRefiningPhase refiningPhase = refiningAvailable ? session.RefiningPhase() : PuzzleRefiningPhase.Idle;
+        long refiningCost = refiningAvailable ? session.RefiningCost() : -1;
+        bool refiningNoFunds = refiningAvailable && refiningPhase == PuzzleRefiningPhase.Idle && refiningCost >= 0 &&
+            session.Funds < refiningCost;
+        string refiningHint = !refiningAvailable
+            ? string.Empty
+            : refiningNoFunds
+                ? Presentation.PuzzleRefiningInsufficientFunds(refiningCost)
+                : Presentation.StationRefiningStatus(refiningPhase, session.RefiningRemainingMinutes());
+        if (!view.ShowingRefining)
+        {
+            session.CloseRefining();
+        }
         view.Refresh(session.IsMarketOpen, inProgress, TableManager.Instance.PuzzleTime.restMinutes,
             available, available && phase != PuzzleButcheryPhase.Working,
             available && session.ButcheryConfirmable(), hint, butcheryCost);
         view.RefreshModification(inProgress, modificationAvailable, modificationModeSelected,
             modificationConfirmable, modificationModeName, modificationHint, modificationCost);
+        view.RefreshRefining(inProgress, refiningAvailable,
+            refiningAvailable && refiningPhase != PuzzleRefiningPhase.Working,
+            refiningAvailable && session.RefiningConfirmable(), refiningHint, refiningCost);
     }
 
     string FirstModificationModeName()
@@ -178,6 +202,28 @@ public sealed class PuzzleStationActionsPresenter : MonoBehaviour
         Refresh();
     }
 
+    // View의 content를 먼저 켜고 세션에 조작 허락을 받는다. 열리기 전 View는 초기화·좌표가 준비되지 않는다.
+    void OpenRefining()
+    {
+        view.ShowRefining();
+        if (!session.OpenRefining())
+        {
+            view.ShowHome();
+        }
+        Refresh();
+    }
+
+    void ConfirmRefining()
+    {
+        if (!session.TryConfirmRefining(out string reason))
+        {
+            Refresh();
+            view.ShowRefiningNotice(reason);
+            return;
+        }
+        Refresh();
+    }
+
     void OnBack()
     {
         if (view.ShowingButchery && !session.TryLeaveButchery(out string reason))
@@ -190,9 +236,15 @@ public sealed class PuzzleStationActionsPresenter : MonoBehaviour
             view.ShowModificationNotice(Presentation.PuzzleModificationReturnItems());
             return;
         }
+        if (view.ShowingRefining && !session.TryLeaveRefining(out string refiningReason))
+        {
+            view.ShowRefiningNotice(refiningReason);
+            return;
+        }
 
         session.CloseButchery();
         session.CloseModification();
+        session.CloseRefining();
         view.ShowHome();
     }
 
@@ -209,6 +261,7 @@ public sealed class PuzzleStationActionsPresenter : MonoBehaviour
             {
                 session.CloseButchery();
                 session.CloseModification();
+                session.CloseRefining();
             }
             Refresh();
         }
@@ -223,6 +276,14 @@ public sealed class PuzzleStationActionsPresenter : MonoBehaviour
     }
 
     void OnModificationChanged(GameEvents.ModificationInfo _info)
+    {
+        if (_info.session == session)
+        {
+            Refresh();
+        }
+    }
+
+    void OnRefiningChanged(GameEvents.RefiningInfo _info)
     {
         if (_info.session == session)
         {

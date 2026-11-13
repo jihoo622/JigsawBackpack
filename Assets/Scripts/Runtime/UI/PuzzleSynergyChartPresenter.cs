@@ -52,7 +52,7 @@ public sealed class PuzzleSynergyChartPresenter : MonoBehaviour
         var items = tables.Pieces.Select(_piece => Presentation.SynergyChartItemLine(_piece.displayName, _piece.tags));
         view.RenderFrame(Presentation.SynergyChartTitle, Presentation.SynergyChartToggle, Presentation.SynergyChartClose,
             Presentation.SynergyChartCorner,
-            Presentation.SynergyChartNotes(footnotes, tables.PuzzleSynergy.freshness.refrigerationReductionPercent, tables.PuzzleSynergy.activationIntervalHours),
+            Presentation.SynergyChartNotes(footnotes, tables.Pieces, tables.PuzzleSynergy.activationIntervalHours),
             Presentation.SynergyChartItemTitle, string.Join("\n", items));
     }
 }

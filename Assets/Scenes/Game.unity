@@ -2038,6 +2038,7 @@ MonoBehaviour:
   marketView: {fileID: 1500000032}
   butcheryView: {fileID: 437323952}
   modificationView: {fileID: 2052500359}
+  refiningView: {fileID: 482293}
   cityView: {fileID: 1500000042}
   tooltipView: {fileID: 1424905557}
   trainBarView: {fileID: 949481809}
@@ -5680,6 +5681,17 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: bbbee2d7cf1c87849a26919dabc69a89, type: 3}
+--- !u!114 &482293 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8000000000000000002, guid: 19721697f67784642beb8b705f757d8b, type: 3}
+  m_PrefabInstance: {fileID: 720373350394814051}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1c994b03afe34e12b62c2578d8f39e50, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PuzzleInventoryView
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
