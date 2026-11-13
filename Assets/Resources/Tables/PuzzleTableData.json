@@ -75,7 +75,11 @@
       "preservationEffect": {
         "enabled": false,
         "reductionPercent": 0
-      }
+      },
+      "iconWidth": -1.0,
+      "iconHeight": -1.0,
+      "iconOffsetX": 0.0,
+      "iconOffsetY": 0.0
     },
     {
       "id": "piece.fourNotches",
@@ -134,7 +138,9 @@
       "preservationEffect": {
         "enabled": false,
         "reductionPercent": 0
-      }
+      },
+      "iconWidth": 1.5,
+      "iconHeight": 1.5
     },
     {
       "id": "piece.topNotch",
@@ -291,7 +297,9 @@
       "preservationEffect": {
         "enabled": false,
         "reductionPercent": 0
-      }
+      },
+      "iconWidth": 1.2,
+      "iconHeight": 1.18667734
     },
     {
       "id": "piece.uShape",
@@ -372,7 +380,9 @@
       "preservationEffect": {
         "enabled": false,
         "reductionPercent": 0
-      }
+      },
+      "iconWidth": 3.44999981,
+      "iconHeight": 2.3
     },
     {
       "id": "piece.refrigeratedFrame",
@@ -455,7 +465,9 @@
       "preservationEffect": {
         "enabled": true,
         "reductionPercent": 50
-      }
+      },
+      "iconWidth": 3.44999981,
+      "iconHeight": 2.3
     },
     {
       "id": "piece.elbowRight",
@@ -628,7 +640,9 @@
       "preservationEffect": {
         "enabled": true,
         "reductionPercent": 10
-      }
+      },
+      "iconWidth": 1.2,
+      "iconHeight": 1.2
     },
     {
       "id": "piece.fruit",
@@ -679,7 +693,9 @@
       "preservationEffect": {
         "enabled": false,
         "reductionPercent": 0
-      }
+      },
+      "iconWidth": 1.5,
+      "iconHeight": 1.5
     },
     {
       "id": "piece.box",
@@ -723,7 +739,9 @@
       "preservationEffect": {
         "enabled": false,
         "reductionPercent": 0
-      }
+      },
+      "iconWidth": 1.5,
+      "iconHeight": 1.5
     },
     {
       "id": "piece.meat",
@@ -1355,7 +1373,11 @@
       "preservationEffect": {
         "enabled": false,
         "reductionPercent": 0
-      }
+      },
+      "iconWidth": -1.0,
+      "iconHeight": -1.0,
+      "iconOffsetX": 0.0,
+      "iconOffsetY": 0.0
     },
     {
       "id": "piece.questFreshCrate",
@@ -1402,7 +1424,9 @@
       "preservationEffect": {
         "enabled": false,
         "reductionPercent": 0
-      }
+      },
+      "iconWidth": 1.5,
+      "iconHeight": 1.5
     }
   ],
   "train": {
