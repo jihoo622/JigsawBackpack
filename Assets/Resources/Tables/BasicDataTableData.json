@@ -2273,6 +2273,10 @@
           "value": "금속"
         },
         {
+          "id": "oreLabel",
+          "value": "광석"
+        },
+        {
           "id": "wasteLabel",
           "value": "거름"
         },
@@ -3252,6 +3256,48 @@
           "positive": true
         },
         {
+          "id": "refiningBoardSize",
+          "source": "Assets/Scripts/Editor/Build/PuzzleUiLayoutTool.cs",
+          "value": 396,
+          "whole": true,
+          "positive": true
+        },
+        {
+          "id": "refiningBoardTop",
+          "source": "Assets/Scripts/Editor/Build/PuzzleUiLayoutTool.cs",
+          "value": 104,
+          "whole": true,
+          "positive": true
+        },
+        {
+          "id": "refiningButtonBottom",
+          "source": "Assets/Scripts/Editor/Build/PuzzleUiLayoutTool.cs",
+          "value": 24,
+          "whole": true,
+          "positive": true
+        },
+        {
+          "id": "refiningButtonHeight",
+          "source": "Assets/Scripts/Editor/Build/PuzzleUiLayoutTool.cs",
+          "value": 84,
+          "whole": true,
+          "positive": true
+        },
+        {
+          "id": "refiningInfoHeight",
+          "source": "Assets/Scripts/Editor/Build/PuzzleUiLayoutTool.cs",
+          "value": 64,
+          "whole": true,
+          "positive": true
+        },
+        {
+          "id": "refiningInfoY",
+          "source": "Assets/Scripts/Editor/Build/PuzzleUiLayoutTool.cs",
+          "value": 32,
+          "whole": true,
+          "positive": true
+        },
+        {
           "id": "actionDescriptionBottom",
           "value": 16,
           "whole": true,
@@ -4048,6 +4094,48 @@
           "value": "물건을 받아가세요",
           "arguments": 0,
           "source": "Assets/Scripts/Runtime/Core/Presentation.cs:114"
+        },
+        {
+          "id": "PuzzleRefiningTitle",
+          "value": "정제대",
+          "arguments": 0,
+          "source": "Assets/Scripts/Runtime/Core/Presentation.cs:PuzzleRefiningTitle"
+        },
+        {
+          "id": "StationRefining",
+          "value": "정제",
+          "arguments": 0,
+          "source": "Assets/Scripts/Runtime/Core/Presentation.cs:StationRefining"
+        },
+        {
+          "id": "StationRefiningConfirm",
+          "value": "정제하기",
+          "arguments": 0,
+          "source": "Assets/Scripts/Runtime/Core/Presentation.cs:StationRefiningConfirm"
+        },
+        {
+          "id": "StationRefiningConfirmCost",
+          "value": "정제하기 · ${0:N0}",
+          "arguments": 1,
+          "source": "Assets/Scripts/Runtime/Core/Presentation.cs:StationRefiningConfirmCost"
+        },
+        {
+          "id": "StationRefiningCountdown.text1",
+          "value": "{0} 후 마무리",
+          "arguments": 1,
+          "source": "Assets/Scripts/Runtime/Core/Presentation.cs:StationRefiningStatus"
+        },
+        {
+          "id": "StationRefiningIdleHint",
+          "value": "원석을 정제대에 놓은 뒤 확인을 누르세요",
+          "arguments": 0,
+          "source": "Assets/Scripts/Runtime/Core/Presentation.cs:StationRefiningStatus"
+        },
+        {
+          "id": "StationRefiningReady",
+          "value": "물건을 받아가세요",
+          "arguments": 0,
+          "source": "Assets/Scripts/Runtime/Core/Presentation.cs:StationRefiningStatus"
         }
       ]
     },
@@ -4177,6 +4265,72 @@
         {
           "id": "butchery.timeOverflow",
           "value": "도축 완료 시각이 게임 시간 범위를 넘습니다.",
+          "arguments": 0,
+          "source": "Assets/Scripts/Runtime/Inventory/PuzzleInventoryService.cs"
+        },
+        {
+          "id": "refining.blocked",
+          "value": "지금은 정제를 진행할 수 없습니다.",
+          "arguments": 0,
+          "source": "Assets/Scripts/Runtime/Inventory/PuzzleInventoryService.cs"
+        },
+        {
+          "id": "refining.unavailable",
+          "value": "이 마을에서는 정제할 수 없습니다.",
+          "arguments": 0,
+          "source": "Assets/Scripts/Runtime/Inventory/PuzzleInventoryService.cs"
+        },
+        {
+          "id": "refining.inProgress",
+          "value": "정제가 진행 중입니다. 시간이 지나면 완료됩니다.",
+          "arguments": 0,
+          "source": "Assets/Scripts/Runtime/Inventory/PuzzleInventoryService.cs"
+        },
+        {
+          "id": "refining.insufficientFunds",
+          "value": "정제 비용이 부족합니다. (필요: ${0})",
+          "arguments": 1,
+          "source": "Assets/Scripts/Runtime/Inventory/PuzzleInventoryService.cs"
+        },
+        {
+          "id": "refining.awaitingPickup",
+          "value": "받을 준비가 되었습니다. 화물을 기차로 옮기세요.",
+          "arguments": 0,
+          "source": "Assets/Scripts/Runtime/Inventory/PuzzleInventoryService.cs"
+        },
+        {
+          "id": "refining.empty",
+          "value": "정제할 광석을 정제대에 놓으세요.",
+          "arguments": 0,
+          "source": "Assets/Scripts/Runtime/Inventory/PuzzleInventoryService.cs"
+        },
+        {
+          "id": "refining.notOre",
+          "value": "{0}은(는) 광석이 아니라 정제할 수 없습니다.",
+          "arguments": 1,
+          "source": "Assets/Scripts/Runtime/Inventory/PuzzleInventoryService.cs"
+        },
+        {
+          "id": "refining.noConversion",
+          "value": "{0}은(는) 정제 변환이 정해지지 않았습니다. 정제 금속은 다시 정제할 수 없습니다.",
+          "arguments": 1,
+          "source": "Assets/Scripts/Runtime/Inventory/PuzzleInventoryService.cs"
+        },
+        {
+          "id": "refining.noSpace",
+          "value": "정제대가 부족해 결과를 모두 놓을 수 없습니다. 입력을 줄이세요.",
+          "arguments": 0,
+          "source": "Assets/Scripts/Runtime/Inventory/PuzzleInventoryService.cs"
+        },
+        {
+          "id": "refining.returnItems",
+          "value": "정제대에 남은 화물을 먼저 기차로 옮기세요.",
+          "arguments": 0,
+          "source": "Assets/Scripts/Runtime/Inventory/PuzzleInventoryService.cs"
+        },
+        {
+          "id": "refining.timeOverflow",
+          "value": "정제 완료 시각이 게임 시간 범위를 넘습니다.",
           "arguments": 0,
           "source": "Assets/Scripts/Runtime/Inventory/PuzzleInventoryService.cs"
         }

@@ -214,7 +214,8 @@ public sealed class PuzzleCityTagPriceData
 public enum PuzzleCityActionType
 {
     Butchery,
-    Modification
+    Modification,
+    Refining
 }
 
 // 도시별 추가 행동. cityIds에 지정한 마을의 역에서만 버튼이 보인다.
@@ -224,9 +225,9 @@ public sealed class PuzzleCityActionData
     public string id, type, title, description, inputTag, outputTag;
     public string[] cityIds = Array.Empty<string>();
     public PuzzleBoardData board;
-    // 확인 버튼을 누른 시점부터 완성에 걸리는 분. 도축 전용이며 누락이 0으로 위장되지 않도록 검증용 값으로 둔다.
+    // 확인 버튼을 누른 시점부터 완성에 걸리는 분. 도축·정제 등 시간 기반 행동이 쓰고 개조는 0이다. 누락이 0으로 위장되지 않도록 검증용 값으로 둔다.
     public long workMinutes = -1;
-    // 도축 확인 1회당 차감하는 비용. 개조는 모드별 cost를 쓰므로 이 값은 도축 전용이다. 누락과 무료(0)를 구별하기 위한 검증용 값.
+    // 도축·정제 확인 1회당 차감하는 비용. 개조는 모드별 cost를 쓰므로 이 값을 쓰지 않는다. 누락과 무료(0)를 구별하기 위한 검증용 값.
     public long cost = -1;
     public PuzzleActionConversionData[] conversions = Array.Empty<PuzzleActionConversionData>();
     // 개조(Modification) 전용 모드 목록. 도축은 모드 대신 행동 자체의 inputTag·conversions을 쓴다.
@@ -234,11 +235,14 @@ public sealed class PuzzleCityActionData
 }
 
 // 행동의 입력 아이템 하나를 산출물로 바꾸는 대응. inputPieceId 기준 고유하다.
+// 도축·개조는 outputCount를 쓰고 정제는 minOutputCount~maxOutputCount 무작위 범위를 쓴다.
 [Serializable]
 public sealed class PuzzleActionConversionData
 {
     public string inputPieceId, outputPieceId;
     public int outputCount = -1;
+    // 정제 전용. 입력 하나의 산출 개수 하한·상한이며 범위의 양 끝을 포함한다. 누락과 0을 구별하기 위한 검증용 값.
+    public int minOutputCount = -1, maxOutputCount = -1;
 }
 
 // 개조 행동의 선택 모드. 입력 태그의 화물을 결과 태그가 붙은 품목으로 즉시 바꾼다.

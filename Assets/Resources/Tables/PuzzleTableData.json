@@ -613,6 +613,124 @@
         }
       ],
       "baseValue": -10
+    },
+    {
+      "id": "piece.oreL",
+      "displayName": "꺾인 광석",
+      "description": "L자로 꺾인 세 칸 광석.",
+      "tags": [
+        "Ore",
+        "Metal"
+      ],
+      "visualKey": "cargo.oreL",
+      "slotCount": 3,
+      "cells": [
+        {
+          "x": 0,
+          "y": 0,
+          "north": "Flat",
+          "east": "Flat",
+          "south": "Flat",
+          "west": "Flat"
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "north": "Flat",
+          "east": "Flat",
+          "south": "Flat",
+          "west": "Flat"
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "north": "Flat",
+          "east": "Flat",
+          "south": "Flat",
+          "west": "Flat"
+        }
+      ],
+      "durability": 100,
+      "baseValue": 33
+    },
+    {
+      "id": "piece.oreCross",
+      "displayName": "십자 광석",
+      "description": "십자 모양으로 붙은 다섯 칸 광석.",
+      "tags": [
+        "Ore",
+        "Metal"
+      ],
+      "visualKey": "cargo.oreCross",
+      "slotCount": 5,
+      "cells": [
+        {
+          "x": 1,
+          "y": 0,
+          "north": "Flat",
+          "east": "Flat",
+          "south": "Flat",
+          "west": "Flat"
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "north": "Flat",
+          "east": "Flat",
+          "south": "Flat",
+          "west": "Flat"
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "north": "Flat",
+          "east": "Flat",
+          "south": "Flat",
+          "west": "Flat"
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "north": "Flat",
+          "east": "Flat",
+          "south": "Flat",
+          "west": "Flat"
+        },
+        {
+          "x": 1,
+          "y": 2,
+          "north": "Flat",
+          "east": "Flat",
+          "south": "Flat",
+          "west": "Flat"
+        }
+      ],
+      "durability": 100,
+      "baseValue": 55
+    },
+    {
+      "id": "piece.puriMetal",
+      "displayName": "정제 금속",
+      "description": "한 칸을 차지하는 정제된 금속 덩어리.",
+      "tags": [
+        "Ore",
+        "Metal"
+      ],
+      "visualKey": "cargo.puriMetal",
+      "slotCount": 1,
+      "durability": 100,
+      "excludeFromMarket": true,
+      "cells": [
+        {
+          "x": 0,
+          "y": 0,
+          "north": "Flat",
+          "east": "Flat",
+          "south": "Flat",
+          "west": "Flat"
+        }
+      ],
+      "baseValue": 15
     }
   ],
   "train": {
@@ -690,24 +808,38 @@
         "startingPlacements": [
           {
             "id": "city.mine.iron.stock.0",
-            "pieceId": "piece.elbowRight",
-            "x": 0,
-            "y": 1,
+            "pieceId": "piece.oreCross",
+            "x": 2,
+            "y": 2,
             "clockwiseTurns": 0
           },
           {
             "id": "city.mine.iron.stock.1",
-            "pieceId": "piece.elbowRight",
-            "x": 4,
+            "pieceId": "piece.oreL",
+            "x": 1,
             "y": 1,
             "clockwiseTurns": 0
           },
           {
             "id": "city.mine.iron.stock.2",
-            "pieceId": "piece.elbowRight",
+            "pieceId": "piece.oreL",
             "x": 0,
             "y": 3,
-            "clockwiseTurns": 0
+            "clockwiseTurns": 2
+          },
+          {
+            "id": "city.mine.iron.stock.3",
+            "pieceId": "piece.oreL",
+            "x": 2,
+            "y": 3,
+            "clockwiseTurns": 1
+          },
+          {
+            "id": "city.mine.iron.stock.4",
+            "pieceId": "piece.oreL",
+            "x": 5,
+            "y": 1,
+            "clockwiseTurns": 2
           }
         ]
       },

@@ -98,6 +98,19 @@ public static class StationActionsSetupTool
         var modificationModeButton = Button(modificationView.transform, template, "ModificationMode", ModificationModeName());
         var modificationConfirm = Button(modificationView.transform, template, "ModificationConfirm", Presentation.StationModificationConfirm);
         Label(modificationButton.transform, "ActionDescription", font, ModificationDescription());
+        var refiningView = (PuzzleInventoryView)inventoryData.FindProperty("refiningView").objectReferenceValue;
+        if (!refiningView)
+        {
+            var clone = Object.Instantiate(market.gameObject, surface);
+            clone.name = "Refining";
+            refiningView = clone.GetComponent<PuzzleInventoryView>();
+        }
+        refiningView.gameObject.name = "Refining";
+        refiningView.transform.SetParent(surface, false);
+        refiningView.transform.localScale = Vector3.one;
+        var refiningButton = Button(list, template, "RefiningAction", Presentation.StationRefining);
+        var refiningConfirm = Button(refiningView.transform, template, "RefiningConfirm", Presentation.StationRefiningConfirm);
+        Label(refiningButton.transform, "ActionDescription", font, RefiningDescription());
         market.transform.SetParent(surface, false);
         var marketData = new SerializedObject(market);
         ((TMP_Text)marketData.FindProperty("boardTitle").objectReferenceValue).gameObject.SetActive(false);
@@ -139,9 +152,16 @@ public static class StationActionsSetupTool
         Bind(data, "modificationModeLabel", modificationModeButton.GetComponentInChildren<TextMeshProUGUI>(true));
         Bind(data, "modificationConfirmLabel", modificationConfirm.GetComponentInChildren<TextMeshProUGUI>(true));
         Bind(data, "modificationHint", new SerializedObject(modificationView).FindProperty("boardValue").objectReferenceValue);
+        Bind(data, "refiningContent", refiningView.gameObject);
+        Bind(data, "refiningButton", refiningButton);
+        Bind(data, "refiningConfirmButton", refiningConfirm);
+        Bind(data, "refiningLabel", refiningButton.GetComponentInChildren<TextMeshProUGUI>(true));
+        Bind(data, "refiningConfirmLabel", refiningConfirm.GetComponentInChildren<TextMeshProUGUI>(true));
+        Bind(data, "refiningHint", new SerializedObject(refiningView).FindProperty("boardValue").objectReferenceValue);
         data.ApplyModifiedPropertiesWithoutUndo();
         Bind(inventoryData, "butcheryView", butcherView);
         Bind(inventoryData, "modificationView", modificationView);
+        Bind(inventoryData, "refiningView", refiningView);
         inventoryData.ApplyModifiedPropertiesWithoutUndo();
         var presenter = Component<PuzzleStationActionsPresenter>(host);
         var presenterData = new SerializedObject(presenter);
@@ -155,6 +175,8 @@ public static class StationActionsSetupTool
         butcherButton.gameObject.SetActive(false);
         modificationView.gameObject.SetActive(false);
         modificationButton.gameObject.SetActive(false);
+        refiningView.gameObject.SetActive(false);
+        refiningButton.gameObject.SetActive(false);
         back.gameObject.SetActive(false);
         PuzzleUiLayoutTool.ApplyTo(_scene);
     }
@@ -168,6 +190,12 @@ public static class StationActionsSetupTool
     static string ModificationDescription()
     {
         var action = TableManager.Instance.CityActions.FirstOrDefault(_entry => _entry.type == "Modification");
+        return action != null ? action.description : string.Empty;
+    }
+
+    static string RefiningDescription()
+    {
+        var action = TableManager.Instance.CityActions.FirstOrDefault(_entry => _entry.type == "Refining");
         return action != null ? action.description : string.Empty;
     }
 

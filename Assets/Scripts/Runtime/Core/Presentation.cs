@@ -157,6 +157,24 @@ public static class Presentation
             _ => BasicData.Text("presentation.StationButcheryIdleHint")
         };
     }
+    public static string StationRefining => BasicData.Text("presentation.StationRefining");
+    public static string StationRefiningConfirm => BasicData.Text("presentation.StationRefiningConfirm");
+    // 확인 버튼 라벨에 표 행동 비용을 붙인다. 비용을 모르면 기본 라벨을 쓴다.
+    public static string StationRefiningConfirmCost(long _cost) =>
+        BasicData.Format("presentation.StationRefiningConfirmCost", _cost);
+    public static string PuzzleRefiningInsufficientFunds(long _cost) =>
+        BasicData.Format("rules.refining.insufficientFunds", _cost);
+    public static string PuzzleRefiningTitle => BasicData.Text("presentation.PuzzleRefiningTitle");
+    // 정제대 상태 문구의 단일 출처. 버튼·보드·hint가 같은 문구를 읽는다.
+    public static string StationRefiningStatus(PuzzleRefiningPhase _phase, long _remainingMinutes)
+    {
+        return _phase switch
+        {
+            PuzzleRefiningPhase.Working => BasicData.Format("presentation.StationRefiningCountdown.text1", PuzzleMapTime(_remainingMinutes)),
+            PuzzleRefiningPhase.Ready => BasicData.Text("presentation.StationRefiningReady"),
+            _ => BasicData.Text("presentation.StationRefiningIdleHint")
+        };
+    }
     public static string StationModification => BasicData.Text("presentation.StationModification");
     public static string StationModificationConfirm => BasicData.Text("presentation.StationModificationConfirm");
     // 확인 버튼 라벨에 선택 모드의 비용을 붙인다. 모드를 고르지 않았으면 기본 라벨을 쓴다.
@@ -438,6 +456,7 @@ public static class Presentation
         { "Water", "presentation.tags.waterLabel" },
         { "Machinery", "presentation.tags.machineryLabel" },
         { "Metal", "presentation.tags.metalLabel" },
+        { "Ore", "presentation.tags.oreLabel" },
         { "Fish", "presentation.tags.fishLabel" },
         { "Salt", "presentation.tags.saltLabel" },
         { "Meat", "presentation.tags.meatLabel" },

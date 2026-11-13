@@ -601,7 +601,7 @@ public sealed class GameTableRules
     }
 
     // 마을별 추가 행동. 도시·조각·태그 참조와 같은 도시 같은 종류의 중복 등록을 검사하고,
-    // 도축과 개조는 완성 방식이 다르므로 변환·시간 규칙을 유형별로 분리해 검증한다.
+    // 도축·개조·정제는 완성 방식과 변환 규칙이 다르므로 유형별로 분리해 검증한다.
     void ValidateCityActions(TableManager _tables)
     {
         const string PATH = nameof(PuzzleCityActionTableData);
@@ -636,6 +636,14 @@ public sealed class GameTableRules
                 (!string.IsNullOrWhiteSpace(action.inputTag) && !string.IsNullOrWhiteSpace(action.outputTag) &&
                 (action.conversions ?? Array.Empty<PuzzleActionConversionData>()).Length > 0),
                 path, "도축은 행동 차원의 입력·산출 태그와 변환 규칙이 필요합니다.");
+            Check(!knownType || type != PuzzleCityActionType.Refining || action.workMinutes > 0,
+                path + ".workMinutes", "정제 작업 시간은 0보다 큰 분 단위여야 합니다.");
+            Check(!knownType || type != PuzzleCityActionType.Refining || action.cost >= 0,
+                path + ".cost", "정제 확인 1회당 비용은 0 이상의 정수여야 합니다.");
+            Check(!knownType || type != PuzzleCityActionType.Refining ||
+                (!string.IsNullOrWhiteSpace(action.inputTag) && !string.IsNullOrWhiteSpace(action.outputTag) &&
+                (action.conversions ?? Array.Empty<PuzzleActionConversionData>()).Length > 0),
+                path, "정제는 행동 차원의 입력·산출 태그와 변환 규칙이 필요합니다.");
             Check(!knownType || type == PuzzleCityActionType.Modification ||
                 (action.modes ?? Array.Empty<PuzzleActionModeData>()).Length == 0,
                 path, "모드는 개조 행동만 가질 수 있습니다.");
@@ -672,6 +680,10 @@ public sealed class GameTableRules
             {
                 ValidateActionConversions(_tables, type, action.inputTag, action.outputTag,
                     action.conversions, path, false);
+            }
+            else if (knownType && type == PuzzleCityActionType.Refining)
+            {
+                ValidateRefiningConversions(_tables, action, action.board, path);
             }
             ValidateModificationModes(_tables, type, knownType, action, knownTags, path,
                 mappedInputs, outputTags, outputIds);
@@ -737,6 +749,62 @@ public sealed class GameTableRules
                 }
                 _outputTags.Add(mode.outputTag);
             }
+        }
+    }
+
+    // 정제 변환 규칙. 입력 허용은 태그 단독이 아니라 변환표에 등록한 품목 ID가 기준이고,
+    // 입력 하나의 산출 개수는 minOutputCount~maxOutputCount 범위로 표가 원본이다. outputCount는 쓰지 않는다.
+    void ValidateRefiningConversions(TableManager _tables, PuzzleCityActionData _action,
+        PuzzleBoardData _board, string _path)
+    {
+        var conversions = _action.conversions ?? Array.Empty<PuzzleActionConversionData>();
+        string path = _path + ".conversions";
+        Check(conversions.Length > 0, path, "변환 규칙이 하나 이상 필요합니다.");
+        var inputPieceIds = new HashSet<string>(StringComparer.Ordinal);
+        var outputPieceIds = new HashSet<string>(StringComparer.Ordinal);
+        for (int c = 0; c < conversions.Length; c++)
+        {
+            var conversion = conversions[c];
+            if (conversion == null)
+            {
+                Check(false, $"{path}[{c}]", "변환 규칙이 누락되었습니다.");
+                continue;
+            }
+
+            string conversionPath = $"{path}[{c}]";
+            bool hasInput = _tables.TryGetPiece(conversion.inputPieceId, out var inputPiece);
+            bool hasOutput = _tables.TryGetPiece(conversion.outputPieceId, out var outputPiece);
+            Reference(conversion.inputPieceId, conversionPath + ".inputPieceId", hasInput, "입력 화물");
+            Reference(conversion.outputPieceId, conversionPath + ".outputPieceId", hasOutput, "산출 화물");
+            Check(inputPieceIds.Add(conversion.inputPieceId ?? string.Empty), conversionPath + ".inputPieceId",
+                "같은 입력 화물의 변환 규칙은 하나만 둘 수 있습니다.");
+            if (hasOutput && !string.IsNullOrEmpty(conversion.outputPieceId))
+            {
+                outputPieceIds.Add(conversion.outputPieceId);
+            }
+            Check(conversion.outputCount < 0, conversionPath + ".outputCount",
+                "정제 변환은 수량을 minOutputCount·maxOutputCount로 표현하므로 outputCount를 두지 않습니다.");
+            Check(conversion.minOutputCount > 0, conversionPath + ".minOutputCount",
+                "정제 최소 산출 개수는 0보다 커야 합니다.");
+            Check(conversion.maxOutputCount >= conversion.minOutputCount, conversionPath + ".maxOutputCount",
+                "정제 최대 산출 개수는 최소 산출 개수 이상이어야 합니다.");
+            Check(hasInput && (inputPiece.tags ?? Array.Empty<string>()).Contains(_action.inputTag),
+                conversionPath + ".inputPieceId", "입력 화물은 입력 태그를 가져야 합니다.");
+            Check(hasOutput && (outputPiece.tags ?? Array.Empty<string>()).Contains(_action.outputTag),
+                conversionPath + ".outputPieceId", "산출 화물은 산출 태그를 가져야 합니다.");
+            if (hasOutput && conversion.maxOutputCount > 0 && _board != null && _board.width > 0 && _board.height > 0)
+            {
+                long outputSlots = (long)conversion.maxOutputCount * Math.Max(outputPiece.slotCount, 1);
+                Check(outputSlots <= (long)_board.width * _board.height, conversionPath + ".maxOutputCount",
+                    "최대 산출 개수를 빈 작업 보드에 모두 놓을 수 있어야 합니다.");
+            }
+        }
+
+        // 산출 품목을 입력으로 등록하면 재정제가 된다. 예: piece.puriMetal은 Ore/Metal 태그를 갖지만 입력일 수 없다.
+        foreach (string inputId in inputPieceIds)
+        {
+            Check(!outputPieceIds.Contains(inputId), path + ".inputPieceId",
+                $"정제 산출 품목 '{inputId}'을 정제 입력으로 등록할 수 없습니다.");
         }
     }
 

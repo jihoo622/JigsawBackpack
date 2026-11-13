@@ -134,6 +134,12 @@ MonoBehaviour:
     sprite: {fileID: 21300000, guid: 5207a54b01d14cc3a974a06fe4fb703d, type: 3}
   - key: cargo.foodWaste
     sprite: {fileID: 21300000, guid: 7df5fae88e3343baa8d472ff12ea683c, type: 3}
+  - key: cargo.oreL
+    sprite: {fileID: 21300000, guid: e40622e3fe6e26a43bdc8a16bdc9d1a0, type: 3}
+  - key: cargo.oreCross
+    sprite: {fileID: 21300000, guid: 201c88b8a5df9cd4aa9b6b0b981ab541, type: 3}
+  - key: cargo.puriMetal
+    sprite: {fileID: 21300000, guid: 7727010156dba4b46bc61732cfc36304, type: 3}
   flatTriangle: {fileID: 11400000, guid: 4e2099728f0543fd97fdcad40817628a, type: 3}
   eastFlatTriangle: {fileID: 21300000, guid: cd201bef2f7ef0dc183bae0cf1666f94, type: 3}
   southFlatTriangle: {fileID: 21300000, guid: f2334a0000de83a06a5126bbaaec1ca0, type: 3}

@@ -19,6 +19,8 @@ public sealed class PuzzleInventoryService : MonoBehaviour
     readonly List<TavernRumor> tavernRumors = new List<TavernRumor>();
     int lastRumorVisit = -1;
     System.Random stockRandom = new System.Random();
+    // 정제 산출 수량 전용 난수원. 시장 재고의 stockRandom 순서를 바꾸지 않는다.
+    System.Random refiningRandom = new System.Random();
 
     internal readonly struct TavernRumor
     {
@@ -64,6 +66,8 @@ public sealed class PuzzleInventoryService : MonoBehaviour
     Dictionary<int, WasteState> wasteProgress = new();
     // 도시별 도축대. 행동이 없는 도시는 항목을 만들지 않는다.
     readonly Dictionary<string, PuzzleButcheryState> butcheries = new Dictionary<string, PuzzleButcheryState>(StringComparer.Ordinal);
+    // 도시별 정제대. 도축과 독립적인 보드·진행 상태를 가지며 행동이 없는 도시는 항목을 만들지 않는다.
+    readonly Dictionary<string, PuzzleRefiningState> refinings = new Dictionary<string, PuzzleRefiningState>(StringComparer.Ordinal);
     readonly Dictionary<string, PuzzleModificationState> modifications = new Dictionary<string, PuzzleModificationState>(StringComparer.Ordinal);
     public IReadOnlyList<PuzzleInventory> TrainWagons => trainWagons;
     public int CurrentWagonIndex { get; private set; }
@@ -265,8 +269,10 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         CurrentWagonIndex = 0;
         butcheries.Clear();
         modifications.Clear();
+        refinings.Clear();
         IsButcheryOpen = false;
         IsModificationOpen = false;
+        IsRefiningOpen = false;
         GameEvents.RaisePuzzleRunStarted(this);
     }
 
@@ -952,6 +958,7 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         if (_minutes > 0)
         {
             CheckButcheryReady();
+            CheckRefiningReady();
             GameEvents.RaiseTimeAdvanced(previous, Time.ElapsedMinutes, this, _plan.cargoValueBeforeSettlement,
                 _plan.cargoValueBeforeFreshnessLoss);
         }
@@ -997,6 +1004,7 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         // 떠난 도시의 도축대는 조작 대상이 아니다. 도착 후 패널을 다시 열 때 열어 준다.
         IsButcheryOpen = false;
         IsModificationOpen = false;
+        IsRefiningOpen = false;
         bool previewChanged = PreviewCityId != null;
         PreviewCityId = null;
         CityMoveCount++;
@@ -1045,6 +1053,14 @@ public sealed class PuzzleInventoryService : MonoBehaviour
                 ? source.EvaluateMove(_original, _destination, _grabbedCell, _targetCell, _clockwiseTurns)
                 : new PuzzlePlacementResult(PuzzlePlacementFailure.InvalidDestination);
             return new PuzzleDropResult(modificationPlacement);
+        }
+        // 정제대도 거래가 아니다. 기차↔정제대·보드 내부 이동만 받고 상태가 허용하는 방향만 통과한다.
+        if (IsRefining(source) || IsRefining(_destination))
+        {
+            var refiningPlacement = source != null && CanMoveToRefining(source, _destination)
+                ? source.EvaluateMove(_original, _destination, _grabbedCell, _targetCell, _clockwiseTurns)
+                : new PuzzlePlacementResult(PuzzlePlacementFailure.InvalidDestination);
+            return new PuzzleDropResult(refiningPlacement);
         }
         if ((source == market || _destination == market) && !IsMarketOpen)
         {
@@ -2058,6 +2074,403 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         }
 
         return false;
+    }
+
+    #endregion
+
+    #region 마을별 행동 · 정제
+
+    // 정제 패널이 열려 보드 조작을 받는 여부. 반입·반출 허용 범위는 CanMoveToRefining이 결정한다.
+    internal bool IsRefiningOpen { get; private set; }
+
+    // 현재 도시(또는 지정한 도시)의 정제 행동 정의. 없는 도시면 null.
+    internal PuzzleCityActionData RefiningAction(string _cityId = null)
+    {
+        return tables != null &&
+            tables.TryGetCityAction(string.IsNullOrEmpty(_cityId) ? CurrentCityId : _cityId,
+                PuzzleCityActionType.Refining, out var action)
+            ? action
+            : null;
+    }
+
+    internal bool HasRefining(string _cityId = null)
+    {
+        return RefiningAction(_cityId) != null;
+    }
+
+    // 확인 1회당 정제 비용. 표의 행동 cost가 원본이며 없으면 -1.
+    internal long RefiningCost(string _cityId = null)
+    {
+        var action = RefiningAction(_cityId);
+        return action != null ? action.cost : -1;
+    }
+
+    // 정제대를 처음 다룰 때 만든다. 기차·시장과 같은 인스턴스 발급 경로를 쓰기 위해 지연 생성한다.
+    PuzzleRefiningState EnsureRefining(string _cityId)
+    {
+        if (definitions == null || tables == null || string.IsNullOrEmpty(_cityId) ||
+            !tables.TryGetCityAction(_cityId, PuzzleCityActionType.Refining, out var action))
+        {
+            return null;
+        }
+        if (refinings.TryGetValue(_cityId, out var existing))
+        {
+            return RefreshRefiningReady(existing);
+        }
+
+        var board = new PuzzleInventory(action.board, Array.Empty<PuzzleStartingPlacementData>(), definitions,
+            marketRules, ref lastInstanceId);
+        var state = new PuzzleRefiningState(_cityId, action, board);
+        refinings.Add(_cityId, state);
+        return state;
+    }
+
+    internal PuzzleInventory RefiningBoard(string _cityId = null)
+    {
+        return EnsureRefining(string.IsNullOrEmpty(_cityId) ? CurrentCityId : _cityId)?.Board;
+    }
+
+    internal PuzzleRefiningPhase RefiningPhase(string _cityId = null)
+    {
+        var state = EnsureRefining(string.IsNullOrEmpty(_cityId) ? CurrentCityId : _cityId);
+        return state == null ? PuzzleRefiningPhase.Idle : state.Phase;
+    }
+
+    // 작업 중일 때 remaining, 그 외에는 -1.
+    internal long RefiningRemainingMinutes(string _cityId = null)
+    {
+        var state = EnsureRefining(string.IsNullOrEmpty(_cityId) ? CurrentCityId : _cityId);
+        if (state == null || state.Phase != PuzzleRefiningPhase.Working || Time == null)
+        {
+            return -1;
+        }
+        return Math.Max(0, state.ReadyAtMinutes - Time.ElapsedMinutes);
+    }
+
+    internal bool IsRefining(PuzzleInventory _inventory)
+    {
+        return RefiningStateOf(_inventory) != null;
+    }
+
+    // 보드가 어느 도시의 정제대인지 되찾는다. 기차·시장은 null.
+    PuzzleRefiningState RefiningStateOf(PuzzleInventory _board)
+    {
+        if (_board == null)
+        {
+            return null;
+        }
+        foreach (var state in refinings.Values)
+        {
+            if (ReferenceEquals(state.Board, _board))
+            {
+                return state;
+            }
+        }
+
+        return null;
+    }
+
+    internal bool OpenRefining()
+    {
+        var state = EnsureRefining(CurrentCityId);
+        if (state == null || RunStatus != PuzzleRunStatus.InProgress ||
+            state.Phase == PuzzleRefiningPhase.Working)
+        {
+            IsRefiningOpen = false;
+            return false;
+        }
+
+        IsRefiningOpen = true;
+        NotifyRefining(state);
+        return true;
+    }
+
+    internal void CloseRefining()
+    {
+        IsRefiningOpen = false;
+    }
+
+    // 닫을 수 있는지. Ready는 산출물을 도시에 남긴 채 닫고, Idle은 보드를 비운 뒤에만 닫는다.
+    internal bool TryLeaveRefining(out string _reason)
+    {
+        _reason = null;
+        var state = EnsureRefining(CurrentCityId);
+        if (state == null || state.Phase == PuzzleRefiningPhase.Ready)
+        {
+            return true;
+        }
+        if (state.Board.Placements.Count > 0)
+        {
+            _reason = BasicData.Text("rules.refining.returnItems");
+            return false;
+        }
+
+        return true;
+    }
+
+    internal bool RefiningConfirmable(string _cityId = null)
+    {
+        return TryEvaluateRefining(string.IsNullOrEmpty(_cityId) ? CurrentCityId : _cityId, out _);
+    }
+
+    // 확인 버튼의 조건과 사유를 한 곳에서 정한다. 반복 조회해도 상태·돈·난수는 바뀌지 않는다.
+    // 공간 검사는 최대 산출 기준으로 해서 완료 후 산출물을 잃는 상황을 막는다.
+    bool TryEvaluateRefining(string _cityId, out string _reason)
+    {
+        _reason = null;
+        if (RunStatus != PuzzleRunStatus.InProgress || Time == null)
+        {
+            _reason = BasicData.Text("rules.refining.blocked");
+            return false;
+        }
+
+        var state = EnsureRefining(_cityId);
+        if (state == null)
+        {
+            _reason = BasicData.Text("rules.refining.unavailable");
+            return false;
+        }
+        if (state.Phase == PuzzleRefiningPhase.Working)
+        {
+            _reason = BasicData.Text("rules.refining.inProgress");
+            return false;
+        }
+        if (state.Phase == PuzzleRefiningPhase.Ready)
+        {
+            _reason = BasicData.Text("rules.refining.awaitingPickup");
+            return false;
+        }
+        if (state.Board.Placements.Count == 0)
+        {
+            _reason = BasicData.Text("rules.refining.empty");
+            return false;
+        }
+
+        var maxOutputs = new List<string>();
+        foreach (var placement in state.Board.Placements)
+        {
+            // 입력 허용은 변환표에 등록한 품목 ID가 기준이다. Ore 태그를 갖지만 입력으로 등록되지 않은
+            // 정제 금속은 noConversion으로, 태그 자체가 없는 화물은 notOre로 막는다.
+            if (!TryFindRefiningConversion(state.Action, placement.Definition.Id, out var conversion))
+            {
+                _reason = placement.Definition.Tags.Contains(state.Action.inputTag)
+                    ? BasicData.Format("rules.refining.noConversion", placement.Definition.DisplayName)
+                    : BasicData.Format("rules.refining.notOre", placement.Definition.DisplayName);
+                return false;
+            }
+            for (int i = 0; i < conversion.maxOutputCount; i++)
+            {
+                maxOutputs.Add(conversion.outputPieceId);
+            }
+        }
+
+        // 모든 입력의 최대 산출 합이 빈 보드에 모두 들어갈 때만 확인을 허용한다.
+        if (!TryFitsOutputs(state.Action, maxOutputs))
+        {
+            _reason = BasicData.Text("rules.refining.noSpace");
+            return false;
+        }
+
+        if (Funds < state.Action.cost)
+        {
+            _reason = BasicData.Format("rules.refining.insufficientFunds", state.Action.cost);
+            return false;
+        }
+
+        return true;
+    }
+
+    internal bool TryConfirmRefining(out string _reason)
+    {
+        if (!TryEvaluateRefining(CurrentCityId, out _reason))
+        {
+            return false;
+        }
+        if (!IsRefiningOpen)
+        {
+            _reason = BasicData.Text("rules.refining.blocked");
+            return false;
+        }
+
+        var state = EnsureRefining(CurrentCityId);
+        if (state == null)
+        {
+            _reason = BasicData.Text("rules.refining.unavailable");
+            return false;
+        }
+
+        // 확인 직전에 비용·잔액과 완료 시각을 다시 계산한다. 여기까지 실패하면 보드·상태·자금을 하나도 바꾸지 않는다.
+        long cost = state.Action.cost;
+        if (Funds < cost)
+        {
+            _reason = BasicData.Format("rules.refining.insufficientFunds", cost);
+            return false;
+        }
+
+        long readyAtMinutes;
+        try
+        {
+            readyAtMinutes = checked(Time.ElapsedMinutes + state.Action.workMinutes);
+        }
+        catch (OverflowException)
+        {
+            _reason = BasicData.Text("rules.refining.timeOverflow");
+            return false;
+        }
+
+        // 성공 확인 후에만 난수를 쓴다. 인스턴스 ID의 결정적 순서로 품목별 범위에서 독립적으로 한 번씩 추첨한다.
+        var inputs = state.Board.Placements.OrderBy(_placement => _placement.InstanceId).ToArray();
+        var outputs = new List<string>();
+        foreach (var placement in inputs)
+        {
+            if (!TryFindRefiningConversion(state.Action, placement.Definition.Id, out var conversion))
+            {
+                _reason = BasicData.Format("rules.refining.noConversion", placement.Definition.DisplayName);
+                return false;
+            }
+            int count = refiningRandom.Next(conversion.minOutputCount, conversion.maxOutputCount + 1);
+            for (int i = 0; i < count; i++)
+            {
+                outputs.Add(conversion.outputPieceId);
+            }
+        }
+
+        // 입력 제거·산출물 예약·상태 변경·비용 차감을 한 확정 단위로 처리한다.
+        foreach (var placement in inputs)
+        {
+            _ = state.Board.Remove(placement);
+        }
+
+        long previousFunds = Funds;
+        Funds -= cost;
+        state.PendingOutputs.Clear();
+        state.PendingOutputs.AddRange(outputs);
+        state.OutputCount = outputs.Count;
+        state.ReadyAtMinutes = readyAtMinutes;
+        state.Phase = PuzzleRefiningPhase.Working;
+        NotifyRefining(state);
+        GameEvents.RaiseFundsChanged(this, previousFunds);
+        return true;
+    }
+
+    // 입력 품목 ID의 정제 변환. 변환표 등록이 허용 기준이며 산출 금속은 입력으로 등록되지 않는다.
+    static bool TryFindRefiningConversion(PuzzleCityActionData _action, string _pieceId,
+        out PuzzleActionConversionData _conversion)
+    {
+        foreach (var conversion in _action.conversions ?? Array.Empty<PuzzleActionConversionData>())
+        {
+            if (conversion != null && conversion.minOutputCount > 0 &&
+                conversion.maxOutputCount >= conversion.minOutputCount &&
+                !string.IsNullOrEmpty(conversion.outputPieceId) &&
+                string.Equals(conversion.inputPieceId, _pieceId, StringComparison.Ordinal))
+            {
+                _conversion = conversion;
+                return true;
+            }
+        }
+
+        _conversion = null;
+        return false;
+    }
+
+    // 시간이 흐른 뒤 완료된 정제를 처리한다. 조회 시점에도 같은 판정을 하므로 지연 판정이다.
+    void CheckRefiningReady()
+    {
+        // 완료 발행 중 구독자가 정제대를 새로 만들 수 있어 스냅샷을 순회한다.
+        foreach (var state in refinings.Values.ToArray())
+        {
+            RefreshRefiningReady(state);
+        }
+    }
+
+    PuzzleRefiningState RefreshRefiningReady(PuzzleRefiningState _state)
+    {
+        if (_state.Phase != PuzzleRefiningPhase.Working || Time == null ||
+            Time.ElapsedMinutes < _state.ReadyAtMinutes)
+        {
+            return _state;
+        }
+
+        bool changed = false;
+        foreach (string pieceId in _state.PendingOutputs.ToArray())
+        {
+            if (lastInstanceId == int.MaxValue)
+            {
+                break;
+            }
+            // 예약한 결과는 재추첨하지 않는다. 배치에 실패하면 예약을 보존해 다음 판정 때 다시 놓는다.
+            if (definitions.TryGetValue(pieceId, out var definition) &&
+                _state.Board.TryAutoPlace(definition, ref lastInstanceId))
+            {
+                _state.PendingOutputs.Remove(pieceId);
+                changed = true;
+            }
+        }
+
+        if (_state.PendingOutputs.Count == 0)
+        {
+            _state.Phase = PuzzleRefiningPhase.Ready;
+            _state.ReadyAtMinutes = -1;
+            changed = true;
+        }
+        if (changed)
+        {
+            NotifyRefining(_state);
+        }
+        return _state;
+    }
+
+    // 정제대가 관계하는 이동의 허용 범위. 거래는 없고 상태별 방향만 검사한다.
+    internal bool CanMoveToRefining(PuzzleInventory _source, PuzzleInventory _destination)
+    {
+        if (!IsRefiningOpen)
+        {
+            return false;
+        }
+        var state = RefiningStateOf(_source) ?? RefiningStateOf(_destination);
+        if (state == null || !ReferenceEquals(state.Action, RefiningAction()))
+        {
+            return false;
+        }
+
+        bool sameBoard = ReferenceEquals(state.Board, _source) && ReferenceEquals(state.Board, _destination);
+        switch (state.Phase)
+        {
+            case PuzzleRefiningPhase.Idle:
+                // 맡기러 넣는 이동과 기차로 되 빼내는 이동, 보드 안 재배치를 모두 허용한다.
+                return sameBoard || (ReferenceEquals(state.Board, _destination)
+                    ? IsTrainWagon(_source)
+                    : IsTrainWagon(_destination));
+            case PuzzleRefiningPhase.Ready:
+                // 산출물 회수와 보드 안 재배치만 허용한다. 새 화물은 넣지 못한다.
+                return sameBoard || ReferenceEquals(state.Board, _source) && IsTrainWagon(_destination);
+            default:
+                return false;
+        }
+    }
+
+    // 드래그 확정 후 호출한다. Ready에서 산출물을 모두 꺼내면 다시 맡길 수 있는 Idle로 돌아간다.
+    internal void RefreshRefiningAfterMove(PuzzleInventory _board)
+    {
+        var state = RefiningStateOf(_board);
+        if (state == null)
+        {
+            return;
+        }
+
+        RefreshRefiningReady(state);
+        if (state.Phase == PuzzleRefiningPhase.Ready && state.Board.Placements.Count == 0)
+        {
+            state.Phase = PuzzleRefiningPhase.Idle;
+        }
+        NotifyRefining(state);
+    }
+
+    // 정제대는 UI가 상태를 조회해 스스로 그린다. 변화가 있을 때 발행지 한 곳에서만 알린다.
+    void NotifyRefining(PuzzleRefiningState _state)
+    {
+        GameEvents.RaiseRefiningChanged(this, _state.CityId, _state.Phase,
+            IsRefiningOpen && string.Equals(_state.CityId, CurrentCityId, StringComparison.Ordinal));
     }
 
     #endregion
