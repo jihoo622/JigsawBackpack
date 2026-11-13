@@ -1219,7 +1219,18 @@
           "west": "Flat"
         }
       ],
-      "baseValue": -10
+      "baseValue": -10,
+      "synergyEffects": [
+        {
+          "ruleId": "wasteNearbyPenalty",
+          "target": false,
+          "source": true
+        }
+      ],
+      "preservationEffect": {
+        "enabled": false,
+        "reductionPercent": 0
+      }
     },
     {
       "id": "piece.questParcel",
