@@ -1292,7 +1292,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
             effectiveValue < 0 &&
             string.Equals(city.regionId, FARM_REGION_ID, StringComparison.Ordinal) &&
             !string.IsNullOrEmpty(wasteTag) &&
-            PuzzleInventoryValuation.HasAnyTag(_definition.Tags, wasteTag))
+            PuzzlePieceEffects.HasAnyTag(_definition.Tags, wasteTag))
         {
             effectiveValue = -effectiveValue;
         }
