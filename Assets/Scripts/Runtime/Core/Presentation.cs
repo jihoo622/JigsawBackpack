@@ -124,6 +124,11 @@ public static class Presentation
     public static string PuzzleMapFit => BasicData.Text("presentation.map.fit");
     public static string PuzzleWaitDaylight => BasicData.Text("presentation.inventory.waitDaylight");
     public static string StationActionsTitle => BasicData.Text("presentation.station.actionsTitle");
+    internal static string StationWagonShop => BasicData.Text("presentation.station.wagonShop");
+    internal static string StationWagonShopPage(int _page, int _pageCount) =>
+        BasicData.Format("presentation.station.wagonShopPage", _page, _pageCount);
+    internal static string WagonProductLabel(string _name, long _price) =>
+        BasicData.Format("presentation.station.wagonProduct", _name, _price);
     public static string StationMarket => BasicData.Text("presentation.station.market");
     public static string StationMarketClosed => BasicData.Text("presentation.station.marketClosed");
     public static string StationTavern => BasicData.Text("presentation.station.tavern");

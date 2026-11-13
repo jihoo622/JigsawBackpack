@@ -1039,6 +1039,20 @@
           "value": "역에서 할 일"
         },
         {
+          "id": "wagonShop",
+          "value": "화차 구매"
+        },
+        {
+          "id": "wagonShopPage",
+          "value": "다음 목록 ({0}/{1})",
+          "arguments": 2
+        },
+        {
+          "id": "wagonProduct",
+          "value": "{0}   ${1}",
+          "arguments": 2
+        },
+        {
           "id": "back",
           "value": "행동 목록으로"
         },
@@ -1896,6 +1910,14 @@
           "id": "maxReached",
           "value": "객차는 최대 {0}칸입니다",
           "arguments": 1
+        },
+        {
+          "id": "unknownProduct",
+          "value": "구매할 화차 상품을 찾을 수 없습니다."
+        },
+        {
+          "id": "modificationFailed",
+          "value": "화차에 강화를 적용할 수 없어 구매를 취소했습니다."
         }
       ]
     },

@@ -5,6 +5,10 @@
   "wagonAddCostBase": 50,
   "maxWagonCount": 8,
   "wagonRefrigerationCost": 50,
+  "wagonProducts": [
+    { "id": "standard", "displayName": "일반 화차", "price": 50 },
+    { "id": "refrigerated", "displayName": "냉장 화차", "price": 100, "modificationId": "refrigeration" }
+  ],
   "gameClearCost": 1500,
   "deadlineHours": 336,
   "debtCityId": "city.finance",

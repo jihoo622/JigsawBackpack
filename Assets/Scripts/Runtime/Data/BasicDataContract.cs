@@ -181,6 +181,9 @@ public static class BasicDataContract
         "presentation.rumorLog.time",
         "presentation.rumorLog.title",
         "presentation.station.actionsTitle",
+        "presentation.station.wagonShop",
+        "presentation.station.wagonShopPage",
+        "presentation.station.wagonProduct",
         "presentation.station.back",
         "presentation.station.market",
         "presentation.station.marketClosed",
@@ -317,6 +320,8 @@ public static class BasicDataContract
         "rules.wagon.inProgressOnly",
         "rules.wagon.insufficientFunds",
         "rules.wagon.maxReached",
+        "rules.wagon.unknownProduct",
+        "rules.wagon.modificationFailed",
     };
     public static readonly string[] Colors =
     {
@@ -535,6 +540,9 @@ public static class BasicDataContract
             { "presentation.rumorLog.time", 3 },
             { "presentation.rumorLog.title", 0 },
             { "presentation.station.actionsTitle", 0 },
+            { "presentation.station.wagonShop", 0 },
+            { "presentation.station.wagonShopPage", 2 },
+            { "presentation.station.wagonProduct", 2 },
             { "presentation.station.back", 0 },
             { "presentation.station.market", 0 },
             { "presentation.station.marketClosed", 0 },
@@ -671,5 +679,7 @@ public static class BasicDataContract
             { "rules.wagon.inProgressOnly", 0 },
             { "rules.wagon.insufficientFunds", 1 },
             { "rules.wagon.maxReached", 1 },
+            { "rules.wagon.unknownProduct", 0 },
+            { "rules.wagon.modificationFailed", 0 },
         };
 }

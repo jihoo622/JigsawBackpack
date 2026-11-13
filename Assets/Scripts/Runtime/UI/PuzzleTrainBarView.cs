@@ -1,10 +1,12 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using TMPro;
 
 [DisallowMultipleComponent]
-public sealed class PuzzleTrainBarView : MonoBehaviour
+public sealed class PuzzleTrainBarView : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IDropHandler
 {
     [Serializable]
     public sealed class WagonSlotUI
@@ -20,12 +22,7 @@ public sealed class PuzzleTrainBarView : MonoBehaviour
     [Header("Slots Pool")]
     [SerializeField] WagonSlotUI[] wagonSlots;
     [SerializeField] bool fitRotatedWagonArtwork;
-
-    [Header("Add Wagon Button")]
-    [SerializeField] Button addWagonButton;
-    [SerializeField] RectTransform addWagonRect;
-    [SerializeField] Image addWagonBox;
-    [SerializeField] TextMeshProUGUI addWagonText;
+    [SerializeField] Image wagonDragPreview;
 
     [Header("Layout Settings")]
     [SerializeField] float wagonWidth = 150f;
@@ -36,9 +33,12 @@ public sealed class PuzzleTrainBarView : MonoBehaviour
     [SerializeField] float originY = 0f;
 
     int visibleWagonCount = -1;
+    int? draggedWagonIndex;
+    int dragPointerId;
 
     public event Action<int> WagonSelected;
-    public event Action AddWagonClicked;
+    internal event Action<PuzzleWagonProductData> WagonProductDropped;
+    internal event Action<int, int> WagonMoved;
 
     void Awake()
     {
@@ -46,11 +46,6 @@ public sealed class PuzzleTrainBarView : MonoBehaviour
         if (maxWagonCount > 0 && (wagonSlots == null || wagonSlots.Length < maxWagonCount))
         {
             throw new InvalidOperationException($"객차 바 슬롯 수({wagonSlots?.Length ?? 0})가 최대 객차 수({maxWagonCount})보다 적습니다.");
-        }
-
-        if (addWagonButton)
-        {
-            addWagonButton.onClick.AddListener(OnAddWagonClicked);
         }
 
         if (wagonSlots != null)
@@ -68,11 +63,6 @@ public sealed class PuzzleTrainBarView : MonoBehaviour
 
     void OnDestroy()
     {
-        if (addWagonButton)
-        {
-            addWagonButton.onClick.RemoveListener(OnAddWagonClicked);
-        }
-
         if (wagonSlots != null)
         {
             for (int i = 0; i < wagonSlots.Length; i++)
@@ -90,9 +80,82 @@ public sealed class PuzzleTrainBarView : MonoBehaviour
         WagonSelected?.Invoke(_index);
     }
 
-    void OnAddWagonClicked()
+    public void OnDrop(PointerEventData _eventData)
     {
-        AddWagonClicked?.Invoke();
+        if (_eventData.pointerDrag == gameObject && draggedWagonIndex is int source &&
+            _eventData.pointerId == dragPointerId)
+        {
+            CancelWagonDrag();
+            if (TryGetWagonAtScreenPosition(_eventData.position, out int target))
+            {
+                WagonMoved?.Invoke(source, target);
+            }
+            return;
+        }
+
+        if (_eventData.button == PointerEventData.InputButton.Left && _eventData.pointerDrag &&
+            _eventData.pointerDrag.TryGetComponent<PuzzleWagonProductRow>(out var row) &&
+            row.TakeDroppedProduct(_eventData.pointerId) is { } product)
+        {
+            WagonProductDropped?.Invoke(product);
+        }
+    }
+
+    public void OnBeginDrag(PointerEventData _eventData)
+    {
+        if (_eventData.button != PointerEventData.InputButton.Left || visibleWagonCount < 2 ||
+            !wagonDragPreview || wagonDragPreview.gameObject.activeSelf ||
+            !TryGetWagonAtScreenPosition(_eventData.pressPosition, out int index))
+        {
+            return;
+        }
+
+        var artwork = wagonSlots[index].wagonImage;
+        draggedWagonIndex = index;
+        dragPointerId = _eventData.pointerId;
+        wagonDragPreview.sprite = artwork.sprite;
+        wagonDragPreview.color = artwork.color;
+        wagonDragPreview.rectTransform.sizeDelta = artwork.rectTransform.rect.size;
+        wagonDragPreview.rectTransform.rotation = artwork.rectTransform.rotation;
+        wagonDragPreview.gameObject.SetActive(true);
+        OnDrag(_eventData);
+    }
+
+    public void OnDrag(PointerEventData _eventData)
+    {
+        if (draggedWagonIndex.HasValue && _eventData.pointerId == dragPointerId &&
+            RectTransformUtility.ScreenPointToWorldPointInRectangle(wagonDragPreview.rectTransform,
+                _eventData.position, _eventData.pressEventCamera, out var position))
+        {
+            wagonDragPreview.rectTransform.position = position;
+        }
+    }
+
+    public void OnEndDrag(PointerEventData _eventData)
+    {
+        if (_eventData.pointerId == dragPointerId)
+        {
+            CancelWagonDrag();
+        }
+    }
+
+    internal void CancelWagonDrag()
+    {
+        if (draggedWagonIndex.HasValue)
+        {
+            draggedWagonIndex = null;
+            wagonDragPreview.gameObject.SetActive(false);
+        }
+    }
+
+    void OnDisable() => CancelWagonDrag();
+
+    void OnApplicationFocus(bool _focused)
+    {
+        if (!_focused)
+        {
+            CancelWagonDrag();
+        }
     }
 
     public bool TryGetWagonAtScreenPosition(Vector2 _screenPosition, out int _wagonIndex)
@@ -120,7 +183,7 @@ public sealed class PuzzleTrainBarView : MonoBehaviour
         return false;
     }
 
-    public void Refresh(int _wagonCount, int _selectedIndex, long _nextCost, bool _canAfford, int? _dragHoveredIndex = null)
+    internal void Refresh(IReadOnlyList<PuzzleInventory> _wagons, int _selectedIndex, int? _dragHoveredIndex = null)
     {
         if (wagonSlots == null)
         {
@@ -133,7 +196,7 @@ public sealed class PuzzleTrainBarView : MonoBehaviour
             throw new InvalidOperationException($"객차 바 슬롯 수({wagonSlots.Length})가 최대 객차 수({maxWagonCount})보다 적습니다.");
         }
 
-        visibleWagonCount = Mathf.Min(_wagonCount, wagonSlots.Length);
+        visibleWagonCount = Mathf.Min(_wagons.Count, wagonSlots.Length);
 
         for (int i = 0; i < wagonSlots.Length; i++)
         {
@@ -143,7 +206,7 @@ public sealed class PuzzleTrainBarView : MonoBehaviour
                 continue;
             }
 
-            bool active = i < _wagonCount;
+            bool active = i < _wagons.Count;
             slot.root.SetActive(active);
 
             if (active)
@@ -157,7 +220,7 @@ public sealed class PuzzleTrainBarView : MonoBehaviour
 
                 if (slot.numberText != null)
                 {
-                    slot.numberText.text = (i + 1).ToString();
+                    slot.numberText.text = _wagons[i].WagonNumber.ToString();
                 }
 
                 if (slot.highlightBorder != null)
@@ -168,25 +231,6 @@ public sealed class PuzzleTrainBarView : MonoBehaviour
                         : Presentation.PuzzleWagonSelectedBorder;
                 }
             }
-        }
-
-        bool isMaxWagons = maxWagonCount > 0 && _wagonCount >= maxWagonCount;
-        bool canAdd = _canAfford && !isMaxWagons;
-
-        if (addWagonButton != null && addWagonRect != null)
-        {
-            if (addWagonBox != null)
-            {
-                addWagonBox.color = canAdd ? Presentation.PuzzleAddWagonBox : Presentation.PuzzleAddWagonBoxDisabled;
-            }
-
-            if (addWagonText != null)
-            {
-                addWagonText.text = Presentation.PuzzleAddWagonLabel(_nextCost);
-                addWagonText.color = canAdd ? Presentation.PuzzleUnmodifiedTint : Presentation.PuzzleAddWagonTextDisabled;
-            }
-
-            addWagonButton.interactable = canAdd;
         }
 
         LayoutButtons();
@@ -200,7 +244,7 @@ public sealed class PuzzleTrainBarView : MonoBehaviour
 
     void LayoutButtons()
     {
-        if (visibleWagonCount < 0)
+        if (visibleWagonCount <= 0)
         {
             return;
         }
@@ -211,11 +255,11 @@ public sealed class PuzzleTrainBarView : MonoBehaviour
             return;
         }
 
-        int count = visibleWagonCount + 1;
+        int count = visibleWagonCount;
         float gap = Mathf.Min(wagonSpacing, available / (count * 2f));
-        float width = Mathf.Min(wagonWidth, (available - gap * visibleWagonCount) / count);
+        float width = Mathf.Min(wagonWidth, (available - gap * (count - 1)) / count);
         float step = width + gap;
-        float start = originX - visibleWagonCount * step * 0.5f;
+        float start = originX + (count - 1) * step * 0.5f;
         float y = originY;
         var size = new Vector2(width, wagonHeight);
 
@@ -224,7 +268,7 @@ public sealed class PuzzleTrainBarView : MonoBehaviour
             var rect = wagonSlots[i]?.rectTransform;
             if (rect)
             {
-                rect.anchoredPosition = new Vector2(start + i * step, y);
+                rect.anchoredPosition = new Vector2(start - i * step, y);
                 rect.sizeDelta = size;
                 if (fitRotatedWagonArtwork && wagonSlots[i].wagonImage && wagonSlots[i].wagonImage.sprite)
                 {
@@ -234,12 +278,6 @@ public sealed class PuzzleTrainBarView : MonoBehaviour
                     image.rectTransform.sizeDelta = new Vector2(height * aspect, height);
                 }
             }
-        }
-
-        if (addWagonRect)
-        {
-            addWagonRect.anchoredPosition = new Vector2(start + visibleWagonCount * step, y);
-            addWagonRect.sizeDelta = size;
         }
     }
 }
