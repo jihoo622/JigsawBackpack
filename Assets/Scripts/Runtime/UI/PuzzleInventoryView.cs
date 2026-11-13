@@ -505,6 +505,7 @@ public sealed class PuzzleInventoryView : MonoBehaviour
 
     internal void ShowBoardInfo(string _text)
     {
+        boardValue.overflowMode = TextOverflowModes.Overflow;
         boardValue.text = _text;
     }
 

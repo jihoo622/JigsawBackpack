@@ -7,6 +7,7 @@ using UnityEngine;
 public sealed partial class PuzzleInventoryService : MonoBehaviour
 {
     const int PERCENT_SCALE = 100;
+    const string FARM_REGION_ID = "region.farm";
     static string ExpiredFoodPieceId => BasicData.Text("rules.PuzzleInventoryService.expiredFoodPieceId");
 
     TableManager tables;
@@ -1268,7 +1269,18 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         }
         var city = tables.CityPrice(_cityId);
         var rate = RateFor(city, _definition);
-        return TryGetTradePrice(_value, rate.PercentFor(_direction), tables.Region(city.regionId).pricePercent, out _price);
+        decimal effectiveValue = _value;
+        string wasteTag = tables.PuzzleSynergy?.animals?.wasteTag;
+        // 농업 지역에서는 음수 가치의 거름(Waste)을 팔 때만 양수 가격으로 매입한다.
+        if (_direction == PuzzleTradeDirection.Sell &&
+            effectiveValue < 0 &&
+            string.Equals(city.regionId, FARM_REGION_ID, StringComparison.Ordinal) &&
+            !string.IsNullOrEmpty(wasteTag) &&
+            PuzzleInventoryValuation.HasAnyTag(_definition.Tags, wasteTag))
+        {
+            effectiveValue = -effectiveValue;
+        }
+        return TryGetTradePrice(effectiveValue, rate.PercentFor(_direction), tables.Region(city.regionId).pricePercent, out _price);
     }
 
     static bool TryGetTradePrice(decimal _value, int _percent, int _regionPercent, out long _price)

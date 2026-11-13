@@ -574,7 +574,7 @@
     {
       "id": "piece.poo",
       "displayName": "똥",
-      "description": "한 칸을 차지하는 불쾌한 화물. 근처의 다른 화물 가치를 떨어뜨린다.",
+      "description": "한 칸을 차지하는 불쾌한 화물. 근처의 다른 화물 가치를 떨어뜨린다. 농업 지역에서는 값을 받고 팔 수 있다.",
       "tags": [
         "Waste"
       ],
@@ -596,7 +596,7 @@
     {
       "id": "piece.foodWaste",
       "displayName": "폐기물",
-      "description": "유통기한이 지난 식품. 근처의 다른 화물 가치를 떨어뜨린다.",
+      "description": "유통기한이 지난 식품. 근처의 다른 화물 가치를 떨어뜨린다. 농업 지역에서는 값을 받고 팔 수 있다.",
       "tags": [
         "Waste"
       ],

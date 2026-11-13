@@ -1,4 +1,4 @@
-{
+﻿{
   "displayName": "기초데이터",
   "status": "active",
   "note": "공통 표시·UI 배치·제작·규칙 참조 값을 그룹과 항목 ID로 관리한다. 전체 키는 그룹 ID와 항목 ID를 점으로 연결한다.",
@@ -410,7 +410,7 @@
         },
         {
           "id": "funds",
-          "value": "보유 자금 {0:N0}",
+          "value": "보유 자금 {0:N0}$",
           "arguments": 1
         },
         {
@@ -583,7 +583,7 @@
         },
         {
           "id": "valueText",
-          "value": "화물 가치  ${0:#,0.##}  <size=18>기본 ${1:N0}</size>",
+          "value": "화물 가치  {0:#,0.##}$  <size=18>기본 {1:N0}$</size>",
           "arguments": 2
         },
         {
@@ -600,12 +600,12 @@
         },
         {
           "id": "boardActualValue",
-          "value": "화물 현재 가치  <nobr><mspace=0.6em>{0}</mspace></nobr> <size=18>기본 ${1:N0}</size>",
+          "value": "화물 현재 가치  <nobr><mspace=0.6em>{0}</mspace></nobr> <size=18>기본 {1:N0}$</size>",
           "arguments": 2
         },
         {
           "id": "lossSummary",
-          "value": "상환 기한이 지났습니다.\n남은 자금 ${0:N0}\n재시작하거나 종료하세요.",
+          "value": "상환 기한이 지났습니다.\n남은 자금 {0:N0}$\n재시작하거나 종료하세요.",
           "arguments": 1
         }
       ]
@@ -905,6 +905,11 @@
           "arguments": 2
         },
         {
+          "id": "wastePurchase",
+          "value": "\n<color=#{0}><b>특수 매입</b></color>   {1} (+10$)",
+          "arguments": 2
+        },
+        {
           "id": "locate",
           "value": "현재 위치"
         },
@@ -1053,12 +1058,12 @@
         },
         {
           "id": "offer",
-          "value": "<b>{0}</b> → <b>{1}</b>\n최단 {2}시간 · 기한 {3}시간 · 보수 ${4} + 화물 가치\n실패 시 {5}",
+          "value": "<b>{0}</b> → <b>{1}</b>\n최단 {2}시간 · 기한 {3}시간 · 보수 {4}$ + 화물 가치\n실패 시 {5}",
           "arguments": 6
         },
         {
           "id": "depositPenalty",
-          "value": "{0} (${1})",
+          "value": "{0} ({1}$)",
           "arguments": 2
         },
         {
@@ -1072,7 +1077,7 @@
         },
         {
           "id": "acceptWithDeposit",
-          "value": "수락\n보증금 ${0}",
+          "value": "수락\n보증금 {0}$",
           "arguments": 1
         },
         {
@@ -1099,7 +1104,7 @@
         },
         {
           "id": "failInsufficientFunds",
-          "value": "보증금 ${0}이 부족합니다.",
+          "value": "보증금 {0}$이 부족합니다.",
           "arguments": 1
         },
         {
@@ -1113,7 +1118,7 @@
         },
         {
           "id": "completed",
-          "value": "{0} 의뢰 완료: ${1}을 받았습니다.",
+          "value": "{0} 의뢰 완료: {1}$을 받았습니다.",
           "arguments": 2
         },
         {
@@ -1137,12 +1142,12 @@
         },
         {
           "id": "logActive",
-          "value": "<b>[진행]</b> {0} → {1}\n기한 {2} · 보수 ${3} + 화물 가치\n실패 시 {4}",
+          "value": "<b>[진행]</b> {0} → {1}\n기한 {2} · 보수 {3}$ + 화물 가치\n실패 시 {4}",
           "arguments": 5
         },
         {
           "id": "logCompleted",
-          "value": "<b>[완료]</b> {0} → {1} · ${2}",
+          "value": "<b>[완료]</b> {0} → {1} · {2}$",
           "arguments": 3
         },
         {
@@ -1187,7 +1192,7 @@
         },
         {
           "id": "wagonProduct",
-          "value": "{0}   ${1}",
+          "value": "{0}   {1}$",
           "arguments": 2
         },
         {
@@ -1837,6 +1842,11 @@
           "value": "없음"
         },
         {
+          "id": "wastePurchase",
+          "value": "   ·   <color=#{0}><b>특수 매입</b></color> {1} (+10$)",
+          "arguments": 2
+        },
+        {
           "id": "cityTitle",
           "value": "{0} · {1}",
           "arguments": 2
@@ -1885,17 +1895,17 @@
         },
         {
           "id": "tradeStatusText2",
-          "value": " · ${0:N0}",
+          "value": " · {0:N0}$",
           "arguments": 1
         },
         {
           "id": "tradeStatusText3",
-          "value": "{0} {1} 완료 · ${2:N0}",
+          "value": "{0} {1} 완료 · {2:N0}$",
           "arguments": 3
         },
         {
           "id": "tradeStatusText4",
-          "value": "{0} {1} 예정 · ${2:N0}",
+          "value": "{0} {1} 예정 · {2:N0}$",
           "arguments": 3
         },
         {
@@ -1975,12 +1985,12 @@
       "texts": [
         {
           "id": "addWagonLabel",
-          "value": "증차 ${0:N0}",
+          "value": "증차 {0:N0}$",
           "arguments": 1
         },
         {
           "id": "refrigerationButton",
-          "value": "냉장 개조 ${0:N0}",
+          "value": "냉장 개조 {0:N0}$",
           "arguments": 1
         },
         {
@@ -1998,7 +2008,7 @@
         },
         {
           "id": "wagonPurchaseStatus",
-          "value": "화물칸 구매 완료 · ${0:N0} · {1}번 칸 추가",
+          "value": "화물칸 구매 완료 · {0:N0}$ · {1}번 칸 추가",
           "arguments": 2
         }
       ]
@@ -2052,7 +2062,7 @@
         },
         {
           "id": "insufficientFunds",
-          "value": "자금이 부족합니다. (필요: ${0})",
+          "value": "자금이 부족합니다. (필요: {0}$)",
           "arguments": 1
         },
         {
@@ -2128,7 +2138,7 @@
         },
         {
           "id": "StationModificationConfirmCost",
-          "value": "개조하기 · ${0:N0}",
+          "value": "개조하기 · {0:N0}$",
           "arguments": 1,
           "source": "Assets/Scripts/Runtime/Core/Presentation.cs:StationModificationConfirmCost"
         },
@@ -2182,7 +2192,7 @@
         },
         {
           "id": "StationButcheryConfirmCost",
-          "value": "도축하기 · ${0:N0}",
+          "value": "도축하기 · {0:N0}$",
           "arguments": 1,
           "source": "Assets/Scripts/Runtime/Core/Presentation.cs:StationButcheryConfirmCost"
         },
@@ -2235,7 +2245,7 @@
         },
         {
           "id": "modification.insufficientFunds",
-          "value": "개조 비용이 부족합니다. (필요: ${0})",
+          "value": "개조 비용이 부족합니다. (필요: {0}$)",
           "arguments": 1,
           "source": "Assets/Scripts/Runtime/Core/Presentation.cs:PuzzleModificationReason"
         },
@@ -2289,7 +2299,7 @@
         },
         {
           "id": "butchery.insufficientFunds",
-          "value": "도축 비용이 부족합니다. (필요: ${0})",
+          "value": "도축 비용이 부족합니다. (필요: {0}$)",
           "arguments": 1,
           "source": "Assets/Scripts/Runtime/Inventory/PuzzleInventoryService.cs"
         },
