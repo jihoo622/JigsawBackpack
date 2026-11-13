@@ -6,11 +6,6 @@ using TMPro;
 [DisallowMultipleComponent]
 public sealed class PuzzleTrainBarView : MonoBehaviour
 {
-    static float WagonWidth => BasicData.Float("ui.PuzzleTrainBarView.wagonWidth");
-    static float WagonHeight => BasicData.Float("ui.PuzzleTrainBarView.wagonHeight");
-    static float WagonSpacing => BasicData.Float("ui.PuzzleTrainBarView.wagonSpacing");
-    static float WagonDragHoverScale => BasicData.Float("ui.PuzzleTrainBarView.wagonDragHoverScale");
-
     [Serializable]
     public sealed class WagonSlotUI
     {
@@ -32,16 +27,27 @@ public sealed class PuzzleTrainBarView : MonoBehaviour
     [SerializeField] Image addWagonBox;
     [SerializeField] TextMeshProUGUI addWagonText;
 
-    int visibleWagonCount = -1;
+    [Header("Layout Settings")]
+    [SerializeField] float wagonWidth = 150f;
+    [SerializeField] float wagonHeight = 56f;
+    [SerializeField] float wagonSpacing = 50f;
+    [SerializeField] float wagonDragHoverScale = 1.08f;
+    [SerializeField] float originX = 0f;
+    [SerializeField] float originY = 0f;
 
-    float OriginX => BasicData.Float("ui.PuzzleTrainBarView.originX");
-    float OriginY => BasicData.Float("ui.PuzzleTrainBarView.originY");
+    int visibleWagonCount = -1;
 
     public event Action<int> WagonSelected;
     public event Action AddWagonClicked;
 
     void Awake()
     {
+        int maxWagonCount = TableManager.Instance?.PuzzleTrade?.maxWagonCount ?? 0;
+        if (maxWagonCount > 0 && (wagonSlots == null || wagonSlots.Length < maxWagonCount))
+        {
+            throw new InvalidOperationException($"객차 바 슬롯 수({wagonSlots?.Length ?? 0})가 최대 객차 수({maxWagonCount})보다 적습니다.");
+        }
+
         if (addWagonButton)
         {
             addWagonButton.onClick.AddListener(OnAddWagonClicked);
@@ -121,6 +127,12 @@ public sealed class PuzzleTrainBarView : MonoBehaviour
             return;
         }
 
+        int maxWagonCount = TableManager.Instance?.PuzzleTrade?.maxWagonCount ?? 0;
+        if (maxWagonCount > 0 && wagonSlots.Length < maxWagonCount)
+        {
+            throw new InvalidOperationException($"객차 바 슬롯 수({wagonSlots.Length})가 최대 객차 수({maxWagonCount})보다 적습니다.");
+        }
+
         visibleWagonCount = Mathf.Min(_wagonCount, wagonSlots.Length);
 
         for (int i = 0; i < wagonSlots.Length; i++)
@@ -140,7 +152,7 @@ public sealed class PuzzleTrainBarView : MonoBehaviour
                 bool isDragHovered = _dragHoveredIndex == i;
                 if (slot.rectTransform != null)
                 {
-                    slot.rectTransform.localScale = isDragHovered ? Vector3.one * WagonDragHoverScale : Vector3.one;
+                    slot.rectTransform.localScale = isDragHovered ? Vector3.one * wagonDragHoverScale : Vector3.one;
                 }
 
                 if (slot.numberText != null)
@@ -158,20 +170,23 @@ public sealed class PuzzleTrainBarView : MonoBehaviour
             }
         }
 
+        bool isMaxWagons = maxWagonCount > 0 && _wagonCount >= maxWagonCount;
+        bool canAdd = _canAfford && !isMaxWagons;
+
         if (addWagonButton != null && addWagonRect != null)
         {
             if (addWagonBox != null)
             {
-                addWagonBox.color = _canAfford ? Presentation.PuzzleAddWagonBox : Presentation.SharedColor("ui.PuzzleTrainBarView.addWagonBoxcolorColor");
+                addWagonBox.color = canAdd ? Presentation.PuzzleAddWagonBox : Presentation.PuzzleAddWagonBoxDisabled;
             }
 
             if (addWagonText != null)
             {
                 addWagonText.text = Presentation.PuzzleAddWagonLabel(_nextCost);
-                addWagonText.color = _canAfford ? Presentation.PuzzleUnmodifiedTint : Presentation.SharedColor("ui.PuzzleTrainBarView.addWagonTextcolorColor");
+                addWagonText.color = canAdd ? Presentation.PuzzleUnmodifiedTint : Presentation.PuzzleAddWagonTextDisabled;
             }
 
-            addWagonButton.interactable = _canAfford;
+            addWagonButton.interactable = canAdd;
         }
 
         LayoutButtons();
@@ -179,7 +194,7 @@ public sealed class PuzzleTrainBarView : MonoBehaviour
 
     void OnRectTransformDimensionsChange()
     {
-        // The parent layout group can assign the bar's width after the first refresh.
+        // 상위 레이아웃 그룹이 첫 갱신 뒤에 너비를 지정할 수 있다.
         LayoutButtons();
     }
 
@@ -197,12 +212,12 @@ public sealed class PuzzleTrainBarView : MonoBehaviour
         }
 
         int count = visibleWagonCount + 1;
-        float gap = Mathf.Min(WagonSpacing, available / (count * 2f));
-        float width = Mathf.Min(WagonWidth, (available - gap * visibleWagonCount) / count);
+        float gap = Mathf.Min(wagonSpacing, available / (count * 2f));
+        float width = Mathf.Min(wagonWidth, (available - gap * visibleWagonCount) / count);
         float step = width + gap;
-        float start = OriginX - visibleWagonCount * step * 0.5f;
-        float y = OriginY;
-        var size = new Vector2(width, WagonHeight);
+        float start = originX - visibleWagonCount * step * 0.5f;
+        float y = originY;
+        var size = new Vector2(width, wagonHeight);
 
         for (int i = 0; i < visibleWagonCount; i++)
         {

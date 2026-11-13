@@ -29,19 +29,24 @@ internal static class PuzzleRefrigeration
         Vector2Int.right, Vector2Int.up, Vector2Int.left, Vector2Int.down
     };
 
-    /// <summary>냉장이 남은 유통기한 소모율. _contacts를 넘기면 실제로 소모율에 기여한 접촉 관계도 남는다.</summary>
-    internal static decimal DecayRate(PuzzleInventory _wagon, PuzzlePlacement _item, PuzzleFreshnessData _freshness,
-        ICollection<PuzzleRefrigerationContact> _contacts = null)
+    internal static int SourceReductionPercent(PuzzleItemDefinition _source, PuzzleFreshnessData _freshness)
     {
-        return DecayRate(_wagon.Placements, _item, _freshness, _contacts);
+        if (!_source.Tags.Contains(_freshness.refrigerationTag))
+        {
+            return 0;
+        }
+
+        return _source.Tags.Contains("Salt")
+            ? _freshness.saltPreservationReductionPercent
+            : _freshness.refrigerationReductionPercent;
     }
 
-    internal static decimal DecayRate(IEnumerable<PuzzlePlacement> _sources, PuzzlePlacement _item,
+    internal static int AdjacentReductionPercent(IEnumerable<PuzzlePlacement> _sources, PuzzlePlacement _item,
         PuzzleFreshnessData _freshness, ICollection<PuzzleRefrigerationContact> _contacts = null)
     {
         if (_item.RemainingShelfLifeMinutes is not > 0)
         {
-            return 1;
+            return 0;
         }
 
         int remainingPercent = PuzzleInventoryValuation.BASE_PERCENT;
@@ -53,21 +58,22 @@ internal static class PuzzleRefrigeration
                 break;
             }
 
-            if (source == _item || !source.Definition.Tags.Contains(_freshness.refrigerationTag))
+            if (source == _item)
             {
                 continue;
             }
 
-            if (!TryGetContact(source, _item, out var cells))
+            int reduction = SourceReductionPercent(source.Definition, _freshness);
+            if (reduction <= 0 || !TryGetContact(source, _item, out var cells))
             {
                 continue;
             }
 
-            remainingPercent -= _freshness.refrigerationReductionPercent;
+            remainingPercent -= reduction;
             _contacts?.Add(new PuzzleRefrigerationContact(source, _item, cells));
         }
 
-        return remainingPercent > 0 ? (decimal)remainingPercent / PuzzleInventoryValuation.BASE_PERCENT : 0;
+        return PuzzleInventoryValuation.BASE_PERCENT - System.Math.Max(0, remainingPercent);
     }
 
     // 보드 전체의 냉장 접촉 관계. 목록 순서는 이동 이력으로 달라질 수 있어 인스턴스 ID 순서로 결정적으로 남긴다.
@@ -78,7 +84,7 @@ internal static class PuzzleRefrigeration
         var contacts = new List<PuzzleRefrigerationContact>();
         foreach (var item in ordered)
         {
-            DecayRate(ordered, item, _freshness, contacts);
+            AdjacentReductionPercent(ordered, item, _freshness, contacts);
         }
 
         return contacts;

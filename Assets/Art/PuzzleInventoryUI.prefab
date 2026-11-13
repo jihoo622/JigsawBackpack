@@ -140,6 +140,8 @@ MonoBehaviour:
     sprite: {fileID: 21300000, guid: 201c88b8a5df9cd4aa9b6b0b981ab541, type: 3}
   - key: cargo.puriMetal
     sprite: {fileID: 21300000, guid: 7727010156dba4b46bc61732cfc36304, type: 3}
+  - key: cargo.meatPackage
+    sprite: {fileID: 21300000, guid: 962cda9249c7eba4c80ad736eb2b98f2, type: 3}
   flatTriangle: {fileID: 11400000, guid: 4e2099728f0543fd97fdcad40817628a, type: 3}
   eastFlatTriangle: {fileID: 21300000, guid: cd201bef2f7ef0dc183bae0cf1666f94, type: 3}
   southFlatTriangle: {fileID: 21300000, guid: f2334a0000de83a06a5126bbaaec1ca0, type: 3}
@@ -656,6 +658,14 @@ MonoBehaviour:
   - {fileID: 401343}
   increaseArrow: {fileID: 21300000, guid: acb2b9a51d51490da805e90620c0aa01, type: 3}
   decreaseArrow: {fileID: 21300000, guid: acb2b9a51d51490da805e90620c0aa03, type: 3}
+  cellGap: 2
+  freshnessOutlineWidth: 0.35
+  synergyArrowsCapacityMultiplier: 8
+  refrigerationLaneOffset: 0.34
+  synergyArrowWidthScale: 1.8
+  synergyArrowHeightScale: 0.55
+  synergyIncreaseLaneOffset: 0.08
+  synergyDecreaseLaneOffset: 0.2
 --- !u!225 &5162449441332754863
 CanvasGroup:
   m_ObjectHideFlags: 0

@@ -7,9 +7,12 @@ using UnityEngine;
 // The viewport owns navigation; map objects remain authored in the prefab.
 public sealed class PuzzleMapNavigation : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
-    static float MinZoom => BasicData.Float("ui.PuzzleMapNavigation.minZoom");
-    static float MaxZoom => BasicData.Float("ui.PuzzleMapNavigation.maxZoom");
-    static float ZoomStep => BasicData.Float("ui.PuzzleMapNavigation.zoomStep");
+    [Header("Zoom Settings")]
+    [SerializeField] float minZoom = 0.35f;
+    [SerializeField] float maxZoom = 2.5f;
+    [SerializeField] float zoomStep = 1.2f;
+    [SerializeField] float focusCurrent = 1.2f;
+    [SerializeField] float zoomDisplayMultiplier = 100f;
 
     [SerializeField] InputActionAsset inputActions;
     [SerializeField] RectTransform content;
@@ -20,6 +23,32 @@ public sealed class PuzzleMapNavigation : MonoBehaviour, IBeginDragHandler, IDra
     [SerializeField] Button locate;
     [SerializeField] Text zoomLabel;
     [SerializeField] PuzzleMapView view;
+
+    public float MinZoom => minZoom;
+    public float MaxZoom => maxZoom;
+    public float ZoomStep => zoomStep;
+    public float FocusCurrentZoom => focusCurrent;
+    public float ZoomDisplayMultiplier => zoomDisplayMultiplier;
+
+    void OnValidate()
+    {
+        if (minZoom <= 0f)
+        {
+            minZoom = 0.01f;
+        }
+        if (maxZoom < minZoom)
+        {
+            maxZoom = minZoom;
+        }
+        if (zoomStep <= 1f)
+        {
+            zoomStep = 1.01f;
+        }
+        if (focusCurrent <= 0f)
+        {
+            focusCurrent = minZoom;
+        }
+    }
 
     InputActionAsset actions;
     InputAction zoom;
@@ -152,7 +181,7 @@ public sealed class PuzzleMapNavigation : MonoBehaviour, IBeginDragHandler, IDra
     {
         if (current)
         {
-            SetZoom(Mathf.Max(scale, BasicData.Float("ui.PuzzleMapNavigation.focusCurrent")), Vector2.zero);
+            SetZoom(Mathf.Max(scale, focusCurrent), Vector2.zero);
             content.anchoredPosition = -(Vector2)current.localPosition * scale;
             Clamp();
         }
@@ -164,7 +193,7 @@ public sealed class PuzzleMapNavigation : MonoBehaviour, IBeginDragHandler, IDra
         content.anchoredPosition = _anchor - (_anchor - content.anchoredPosition) * (next / scale);
         scale = next;
         content.localScale = Vector3.one * scale;
-        zoomLabel.text = Presentation.PuzzleMapZoom(scale);
+        zoomLabel.text = Presentation.PuzzleMapZoom(scale * zoomDisplayMultiplier);
         zoomIn.interactable = scale < MaxZoom;
         zoomOut.interactable = scale > MinZoom;
         Clamp();

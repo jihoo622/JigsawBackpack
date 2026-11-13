@@ -135,7 +135,8 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
                 isConnected,
                 canAfford,
                 !string.IsNullOrEmpty(targetCityId) && string.Equals(cityId, targetCityId, System.StringComparison.Ordinal),
-                session.HasRumorForCity(cityId));
+                session.HasRumorForCity(cityId),
+                view.GetNodeLayoutSettings());
         }
         if (currentNode)
         {

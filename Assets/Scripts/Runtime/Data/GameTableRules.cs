@@ -14,6 +14,17 @@ public sealed class GameTableRules
     };
 
     public bool IsValid { get; private set; } = true;
+    // 비어 있지 않으면 콘솔 대신 이 목록에 오류를 모은다(편집 도구의 저장 전 검증).
+    readonly List<string> errors;
+
+    public GameTableRules()
+    {
+    }
+
+    public GameTableRules(List<string> _errors)
+    {
+        errors = _errors;
+    }
 
     void Check(bool _condition, string _path, string _rule)
     {
@@ -22,6 +33,11 @@ public sealed class GameTableRules
             return;
         }
         IsValid = false;
+        if (errors != null)
+        {
+            errors.Add($"[{_path}] {_rule}");
+            return;
+        }
         Debug.LogError($"테이블 오류 [{_path}]: {_rule}");
     }
 
@@ -223,28 +239,20 @@ public sealed class GameTableRules
                     "BasicDataTableData.colors." + id, "RGBA는 0~1 범위여야 합니다.");
             }
         }
-        const string MIN_ZOOM = "ui.PuzzleMapNavigation.minZoom";
-        const string MAX_ZOOM = "ui.PuzzleMapNavigation.maxZoom";
-        if (_tables.HasBasicNumber(MIN_ZOOM) && _tables.HasBasicNumber(MAX_ZOOM))
-        {
-            double min = _tables.BasicNumber(MIN_ZOOM).value;
-            double max = _tables.BasicNumber(MAX_ZOOM).value;
-            Check(min > 0 && min <= max, "BasicDataTableData.numbers.zoom", "줌 범위는 0보다 크고 최소값이 최대값 이하여야 합니다.");
-        }
         const string EXPIRED_FOOD = "rules.PuzzleInventoryService.expiredFoodPieceId";
         if (_tables.HasBasicText(EXPIRED_FOOD))
         {
             string pieceId = _tables.BasicText(EXPIRED_FOOD).value;
             Reference(pieceId, "BasicDataTableData.texts." + EXPIRED_FOOD, _tables.TryGetPiece(pieceId, out _), "화물");
         }
-        const string LOW_FRESHNESS = "ui.freshness.lowThreshold";
-        const string MEDIUM_FRESHNESS = "ui.freshness.mediumThreshold";
+        const string LOW_FRESHNESS = "rules.freshness.lowThreshold";
+        const string MEDIUM_FRESHNESS = "rules.freshness.mediumThreshold";
         if (_tables.HasBasicNumber(LOW_FRESHNESS) && _tables.HasBasicNumber(MEDIUM_FRESHNESS))
         {
             double low = _tables.BasicNumber(LOW_FRESHNESS).value;
             double medium = _tables.BasicNumber(MEDIUM_FRESHNESS).value;
             Check(low >= 0 && low < medium && medium < 100,
-                "BasicDataTableData.ui.freshness", "신선도 구간은 0 이상이며 낮음 < 중간 < 100이어야 합니다.");
+                "BasicDataTableData.rules.freshness", "신선도 구간은 0 이상이며 낮음 < 중간 < 100이어야 합니다.");
         }
         const string LOW_FRESHNESS_VALUE = "rules.freshness.lowValuePercent";
         const string MEDIUM_FRESHNESS_VALUE = "rules.freshness.mediumValuePercent";
@@ -258,14 +266,6 @@ public sealed class GameTableRules
             Check(low > 0 && low <= medium && medium <= high && high <= 100,
                 "BasicDataTableData.rules.freshness", "가치 배율은 0보다 크고 낮음 ≤ 보통 ≤ 신선함 ≤ 100이어야 합니다.");
         }
-        foreach (string id in new[] { "ui.tooltip.badgeBlend", "ui.freshness.outlineWidth" })
-        {
-            if (_tables.HasBasicNumber(id))
-            {
-                double value = _tables.BasicNumber(id).value;
-                Check(value >= 0 && value <= 1, "BasicDataTableData.numbers." + id, "비율은 0~1 범위여야 합니다.");
-            }
-        }
     }
 
     void ValidatePuzzleTrade(TableManager _tables)
@@ -278,8 +278,12 @@ public sealed class GameTableRules
         {
             Reference(_tables.PuzzleTrade.debtCityId, PATH + ".debtCityId", _tables.HasCity(_tables.PuzzleTrade.debtCityId), "상환 도시");
         }
+        Check(_tables.PuzzleTrade.wagonRefrigerationCost > 0, PATH + ".wagonRefrigerationCost",
+            "객차 냉장 개조 비용은 양수여야 합니다.");
         Check(_tables.PuzzleTrade.wagonAddCostBase > 0, PATH + ".wagonAddCostBase",
             "화물칸 증차 기본 비용은 0보다 커야 합니다.");
+        Check(_tables.PuzzleTrade.maxWagonCount >= 1, PATH + ".maxWagonCount",
+            "최대 객차 수는 1 이상이어야 합니다.");
         Check(IsFinitePositive(_tables.PuzzleTrade.travelEffectSeconds), PATH + ".travelEffectSeconds",
             "이동 연출 시간은 유한한 양수여야 합니다.");
         Check(IsFinitePositive(_tables.PuzzleTrade.travelArrivalHoldSeconds), PATH + ".travelArrivalHoldSeconds",
@@ -471,8 +475,9 @@ public sealed class GameTableRules
             Check(string.IsNullOrEmpty(rule.targetTag) != string.IsNullOrEmpty(rule.excludedTargetTag), path,
                 "targetTag와 excludedTargetTag 중 하나를 지정해야 합니다.");
             Reference(rule.targetTag, path + ".targetTag", tags.Contains(rule.targetTag), "대상 태그", _allowEmpty: true);
-            Reference(rule.excludedTargetTag, path + ".excludedTargetTag", tags.Contains(rule.excludedTargetTag),
-                "제외 대상 태그", _allowEmpty: true);
+            Check(string.IsNullOrEmpty(rule.excludedTargetTag) ||
+                  rule.excludedTargetTag.Split(',').All(tag => tags.Contains(tag.Trim())),
+                path + ".excludedTargetTag", "제외 대상 태그는 쉼표로 구분된 등록 태그여야 합니다.");
             Reference(rule.neighborTag, path + ".neighborTag", tags.Contains(rule.neighborTag), "이웃 태그");
             Check(string.IsNullOrEmpty(rule.excludedNeighborTag) ||
                   rule.excludedNeighborTag.Split(',').All(tag => tags.Contains(tag.Trim())),
@@ -498,7 +503,13 @@ public sealed class GameTableRules
                 tags.Contains(freshness.refrigerationTag), "냉장 태그");
             Check(freshness.refrigerationReductionPercent > 0 &&
                 freshness.refrigerationReductionPercent <= PuzzleInventoryValuation.BASE_PERCENT,
-                FRESHNESS_PATH + ".refrigerationReductionPercent", "냉장 감소율은 1~100%여야 합니다.");
+                FRESHNESS_PATH + ".refrigerationReductionPercent", "인접 냉장 감소율은 1~100%여야 합니다.");
+            Check(freshness.wagonRefrigerationReductionPercent > 0 &&
+                freshness.wagonRefrigerationReductionPercent <= PuzzleInventoryValuation.BASE_PERCENT,
+                FRESHNESS_PATH + ".wagonRefrigerationReductionPercent", "객차 냉장 감소율은 1~100%여야 합니다.");
+            Check(freshness.saltPreservationReductionPercent >= 0 &&
+                freshness.saltPreservationReductionPercent <= PuzzleInventoryValuation.BASE_PERCENT,
+                FRESHNESS_PATH + ".saltPreservationReductionPercent", "소금 보존 감소율은 0~100%여야 합니다.");
         }
     }
 
@@ -1070,6 +1081,11 @@ public sealed class GameTableRules
         }
     }
 
+    static IEnumerable<PuzzleCityTagPriceData> MatchingTagPrices(PuzzleCityData _city, IReadOnlyCollection<string> _tags)
+    {
+        return (_city.tagPrices ?? Array.Empty<PuzzleCityTagPriceData>()).Where(_price => _price != null && _tags.Contains(_price.tag));
+    }
+
     static bool HasNearbyTradeMatch(TableManager _tables, PuzzleCityData _from, PuzzleCityData _to)
     {
         _tables.TryGetStockProfile(_from.regionalStockId, out var regional);
@@ -1084,19 +1100,16 @@ public sealed class GameTableRules
                 continue;
             }
             var tags = piece.tags ?? Array.Empty<string>();
-            var fromRule = (_from.tagPrices ?? Array.Empty<PuzzleCityTagPriceData>())
-                .Where(_price => _price != null && tags.Contains(_price.tag))
-                .OrderByDescending(_price => _price.priority).FirstOrDefault();
-            bool nativeSupply = (fromRule != null && fromRule.buyPercent < 100 && fromRule.sellPercent < 100) ||
+            // 실제 거래와 같은 합산 배율로 판정한다.
+            var fromRate = PuzzleTradeRate.Combine(_from, MatchingTagPrices(_from, tags));
+            bool nativeSupply = (fromRate.BuyPercent < 100 && fromRate.SellPercent < 100) ||
                 (region != null && !string.IsNullOrEmpty(region.specialtyTag) && tags.Contains(region.specialtyTag));
             if (!nativeSupply)
             {
                 continue;
             }
-            var toRule = (_to.tagPrices ?? Array.Empty<PuzzleCityTagPriceData>())
-                .Where(_price => _price != null && tags.Contains(_price.tag))
-                .OrderByDescending(_price => _price.priority).FirstOrDefault();
-            if (toRule != null && toRule.buyPercent > 100 && toRule.sellPercent > 100)
+            var toRate = PuzzleTradeRate.Combine(_to, MatchingTagPrices(_to, tags));
+            if (toRate.Tag != null && toRate.BuyPercent > 100 && toRate.SellPercent > 100)
             {
                 return true;
             }

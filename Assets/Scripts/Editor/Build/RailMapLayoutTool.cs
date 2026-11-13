@@ -18,6 +18,7 @@ public static class RailMapLayoutTool
     public const string LAYOUT_PATH = "Docs/Management/rail_map_layout_seed_20265146.json";
     const string MENU = "Tools/MyJG/Apply Rail Map Layout (seed 20265146)";
     const string TRACK_PARENT_NAME = "SubwayMapTracks";
+    const string TERRAIN_NAME = "TerrainBackground";
     static float BackboneThickness => BasicData.Float("editor.RailMapLayoutTool.backbonethickness");
     static float SideThickness => BasicData.Float("editor.RailMapLayoutTool.sidethickness");
     static float LabelNodeClearance => BasicData.Float("editor.RailMapLayoutTool.labelnodeclearance");
@@ -90,7 +91,8 @@ public static class RailMapLayoutTool
         TryApply();
     }
 
-    public static bool TryApply()
+    // _renamedCities: 이전 역 ID → 새 역 ID. 지정한 역 노드는 다시 만들지 않고 ID와 이름만 바꾼다.
+    public static bool TryApply(IReadOnlyDictionary<string, string> _renamedCities = null)
     {
         if (Application.isPlaying)
         {
@@ -129,7 +131,8 @@ public static class RailMapLayoutTool
         var root = PrefabUtility.LoadPrefabContents(PREFAB_PATH);
         try
         {
-            ApplyTo(root, layout);
+            ApplyTo(root, layout, _renamedCities);
+            ApplyTerrain(root, WorldMapGeography.Load());
             if (!PrefabUtility.SaveAsPrefabAsset(root, PREFAB_PATH))
             {
                 throw new InvalidOperationException("지도 프리팹을 저장하지 못했습니다.");
@@ -143,7 +146,19 @@ public static class RailMapLayoutTool
         return true;
     }
 
-    static void ApplyTo(GameObject _root, LayoutFile _layout)
+    // 지형 이미지 영역은 지형 격자 크기·중심과 같다.
+    static void ApplyTerrain(GameObject _root, WorldMapGeography _geography)
+    {
+        var terrain = FindChild(_root.transform, TERRAIN_NAME) as RectTransform;
+        if (terrain == null)
+        {
+            throw new InvalidOperationException($"{TERRAIN_NAME} 자식을 찾지 못했습니다.");
+        }
+        terrain.sizeDelta = _geography.Size;
+        terrain.anchoredPosition = _geography.Center;
+    }
+
+    static void ApplyTo(GameObject _root, LayoutFile _layout, IReadOnlyDictionary<string, string> _renamedCities)
     {
         var view = _root.GetComponentInChildren<PuzzleMapView>(true);
         if (view == null)
@@ -158,7 +173,7 @@ public static class RailMapLayoutTool
         }
 
         var report = new StringBuilder();
-        SynchronizeNodes(_root, view, nodeById);
+        SynchronizeNodes(_root, view, nodeById, _renamedCities);
         var nodesMoved = ApplyNodes(_root, nodeById, _layout.planningTargetCityId, report);
         if (nodesMoved != _layout.nodes.Length)
         {
@@ -411,13 +426,24 @@ public static class RailMapLayoutTool
         }
     }
 
-    static void SynchronizeNodes(GameObject _root, PuzzleMapView _view, Dictionary<string, LayoutNode> _nodeById)
+    static void SynchronizeNodes(GameObject _root, PuzzleMapView _view, Dictionary<string, LayoutNode> _nodeById, IReadOnlyDictionary<string, string> _renamedCities)
     {
         var nodes = _root.GetComponentsInChildren<PuzzleMapNodeView>(true).ToList();
         var template = nodes.FirstOrDefault();
         if (!template)
         {
             throw new InvalidOperationException("역을 만들 프리팹 템플릿이 없습니다.");
+        }
+        foreach (var node in nodes)
+        {
+            var serialized = new SerializedObject(node);
+            var cityId = serialized.FindProperty("cityId");
+            if (_renamedCities != null && _renamedCities.TryGetValue(cityId.stringValue, out var renamed))
+            {
+                node.gameObject.name = node.gameObject.name.Replace(cityId.stringValue, renamed);
+                cityId.stringValue = renamed;
+                serialized.ApplyModifiedPropertiesWithoutUndo();
+            }
         }
         // 삭제 전에 복제해야 템플릿으로 선택된 역을 지운 경우에도 참조가 유효하다.
         foreach (var pair in _nodeById.OrderBy(_pair => _pair.Key, StringComparer.Ordinal))

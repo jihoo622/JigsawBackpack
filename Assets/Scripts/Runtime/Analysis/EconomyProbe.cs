@@ -138,6 +138,45 @@ public static class EconomyProbe
         return rows;
     }
 
+    // 품목×도시마다 실제 거래가 고르는 가격 규칙. 일치하는 태그 규칙이 둘 이상이면 Matches에 모두 남긴다.
+    public static List<EconomyTagRow> BuildTagRows()
+    {
+        var tables = Tables;
+        var rows = new List<EconomyTagRow>();
+        using (var session = new Session(0))
+        {
+            foreach (var city in tables.Cities)
+            {
+                var region = tables.Region(city.regionId);
+                var candidates = MarketCandidates(city.id);
+                foreach (var item in session.Definitions.OrderBy(_item => _item.Id, StringComparer.Ordinal))
+                {
+                    var matches = city.tagPrices.Where(_rule => item.Tags.Contains(_rule.tag))
+                        .OrderByDescending(_rule => _rule.priority).ToList();
+                    var rate = session.Service.RateAt(city.id, item);
+                    rows.Add(new EconomyTagRow
+                    {
+                        CityId = city.id,
+                        RegionId = city.regionId,
+                        ItemId = item.Id,
+                        ItemTags = string.Join("·", item.Tags),
+                        AppliedTag = rate.Tag,
+                        Category = matches.Count == 0 ? "일반" : matches.Count > 1 ? "복합"
+                            : matches[0].buyPercent < 100 ? "흔함" : matches[0].buyPercent > 100 ? "귀함" : "기타",
+                        BuyPercent = rate.BuyPercent,
+                        SellPercent = rate.SellPercent,
+                        RegionPercent = region.pricePercent,
+                        Matches = string.Join(" > ", matches.Select(_rule => $"{_rule.tag}({_rule.buyPercent}/{_rule.sellPercent})")),
+                        MatchCount = matches.Count,
+                        Stocked = candidates.ContainsKey(item.Id),
+                        ExcludeFromMarket = item.ExcludeFromMarket
+                    });
+                }
+            }
+        }
+        return rows;
+    }
+
     // 노선별로 출발 시장 후보 중 칸당 차익이 가장 큰 품목과, 객차 1량을 그 품목으로 채웠을 때의 시간당 이익.
     public static List<EconomyRouteRow> BuildRouteRows()
     {
@@ -195,6 +234,16 @@ public static class EconomyProbe
         }
         return rows;
     }
+}
+
+public sealed class EconomyTagRow
+{
+    public string CityId, RegionId, ItemId, ItemTags, AppliedTag, Category, Matches;
+    public int BuyPercent, SellPercent, RegionPercent, MatchCount;
+    public bool Stocked, ExcludeFromMarket;
+    // 지역 물가까지 곱한 최종 배율(%).
+    public float EffectiveBuyPercent => BuyPercent * RegionPercent / 100f;
+    public float EffectiveSellPercent => SellPercent * RegionPercent / 100f;
 }
 
 public sealed class EconomyItemRow

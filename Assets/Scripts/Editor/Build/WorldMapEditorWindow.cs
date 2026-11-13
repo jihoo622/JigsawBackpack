@@ -15,6 +15,9 @@ public sealed partial class WorldMapEditorWindow : EditorWindow
     [SerializeField] string originalLayout;
     [SerializeField] string originalPuzzle;
     [SerializeField] string originalRoutes;
+    [SerializeField] string originalGeography;
+    [SerializeField] string originalCityActions;
+    [SerializeField] string originalTrade;
     [SerializeField] int tab;
     [SerializeField] string selectedId;
     [SerializeField] float snapStep = 10f;
@@ -25,12 +28,14 @@ public sealed partial class WorldMapEditorWindow : EditorWindow
 
     static string PuzzlePath => TableManager.EditorAssetPath<PuzzleTableData>();
     static string RoutesPath => TableManager.EditorAssetPath<PuzzleRouteTableData>();
+    static string CityActionsPath => TableManager.EditorAssetPath<PuzzleCityActionTableData>();
+    static string TradePath => TableManager.EditorAssetPath<PuzzleTradeTableData>();
     IEnumerable<JObject> Nodes => layout["nodes"].OfType<JObject>();
     IEnumerable<JObject> Rails => layout["rails"].OfType<JObject>();
     IEnumerable<JObject> Cities => puzzle["cities"].OfType<JObject>();
     IEnumerable<JObject> Regions => puzzle["regions"].OfType<JObject>();
     IEnumerable<JObject> Routes => routes["routes"].OfType<JObject>();
-    bool Dirty => draft && (draft.layout != originalLayout || draft.puzzle != originalPuzzle || draft.routes != originalRoutes);
+    bool Dirty => draft && (draft.layout != originalLayout || draft.puzzle != originalPuzzle || draft.routes != originalRoutes || draft.geography != originalGeography || draft.cityActions != originalCityActions || draft.trade != originalTrade);
 
     [MenuItem("Tools/MyJG/Map Editor")]
     public static void Open()
@@ -42,7 +47,8 @@ public sealed partial class WorldMapEditorWindow : EditorWindow
     void OnEnable()
     {
         minSize = new Vector2(1080f, 620f);
-        saveChangesMessage = "맵 편집 초안을 저장할까요? 테이블·레이아웃·지도 프리팹을 함께 반영합니다.";
+        wantsMouseMove = true;
+        saveChangesMessage = "맵 편집 초안을 저장할까요? 테이블·레이아웃·지형·지도 프리팹을 함께 반영합니다.";
         Undo.undoRedoPerformed += RestoreDraft;
         if (draft)
         {
@@ -62,6 +68,10 @@ public sealed partial class WorldMapEditorWindow : EditorWindow
 
     void OnDestroy()
     {
+        if (terrainPreview)
+        {
+            DestroyImmediate(terrainPreview);
+        }
         if (draft)
         {
             Undo.ClearUndo(draft);
@@ -83,6 +93,9 @@ public sealed partial class WorldMapEditorWindow : EditorWindow
             originalLayout = File.ReadAllText(RailMapLayoutTool.LAYOUT_PATH);
             originalPuzzle = File.ReadAllText(PuzzlePath);
             originalRoutes = File.ReadAllText(RoutesPath);
+            originalGeography = File.ReadAllText(WorldMapGeography.PATH);
+            originalCityActions = File.ReadAllText(CityActionsPath);
+            originalTrade = File.ReadAllText(TradePath);
             if (!draft)
             {
                 draft = CreateInstance<WorldMapDraft>();
@@ -92,6 +105,10 @@ public sealed partial class WorldMapEditorWindow : EditorWindow
             draft.layout = originalLayout;
             draft.puzzle = originalPuzzle;
             draft.routes = originalRoutes;
+            draft.geography = originalGeography;
+            draft.cityActions = originalCityActions;
+            draft.trade = originalTrade;
+            majorThreshold = null;
             RestoreDraft();
             fitCanvas = true;
             message = null;
@@ -110,6 +127,23 @@ public sealed partial class WorldMapEditorWindow : EditorWindow
             layout = JObject.Parse(draft.layout);
             puzzle = JObject.Parse(draft.puzzle);
             routes = JObject.Parse(draft.routes);
+            if (draft.geography == null)
+            {
+                // 지형 편집 추가 전에 만든 초안은 디스크 지형을 기준으로 이어서 편집한다.
+                originalGeography = File.ReadAllText(WorldMapGeography.PATH);
+                draft.geography = originalGeography;
+            }
+            if (draft.cityActions == null || draft.trade == null)
+            {
+                // 역 ID 바꾸기 추가 전에 만든 초안은 디스크의 마을 행동·거래 테이블을 기준으로 이어서 편집한다.
+                originalCityActions = File.ReadAllText(CityActionsPath);
+                originalTrade = File.ReadAllText(TradePath);
+                draft.cityActions = originalCityActions;
+                draft.trade = originalTrade;
+            }
+            geography = WorldMapGeography.Parse(draft.geography);
+            terrainPreviewDirty = true;
+            validationDirty = true;
             RebasePathMigration();
             rawKey = null;
             hasUnsavedChanges = Dirty;
@@ -194,6 +228,7 @@ public sealed partial class WorldMapEditorWindow : EditorWindow
             draft.puzzle = Json(puzzle);
             draft.routes = Json(routes);
             hasUnsavedChanges = Dirty;
+            validationDirty = true;
             message = null;
             rawKey = null;
             Repaint();
@@ -232,6 +267,11 @@ public sealed partial class WorldMapEditorWindow : EditorWindow
                     }
                 }
                 GUILayout.Label(Dirty ? "미저장 초안" : "저장됨", EditorStyles.miniLabel);
+                if (layout != null && puzzle != null && routes != null)
+                {
+                    GUILayout.FlexibleSpace();
+                    DrawValidationBadge();
+                }
             }
             if (!string.IsNullOrEmpty(message))
             {
@@ -241,7 +281,8 @@ public sealed partial class WorldMapEditorWindow : EditorWindow
             {
                 return;
             }
-            int nextTab = GUILayout.Toolbar(tab, new[] { "역", "노선", "지역", "공통 설정" });
+            DrawDraftErrors();
+            int nextTab = GUILayout.Toolbar(tab, new[] { "역", "노선", "지역", "지형", "공통 설정" });
             if (tab != nextTab)
             {
                 tab = nextTab;
@@ -275,6 +316,10 @@ public sealed partial class WorldMapEditorWindow : EditorWindow
                     else if (tab == 2)
                     {
                         DrawRegion();
+                    }
+                    else if (tab == TERRAIN_TAB)
+                    {
+                        DrawTerrain();
                     }
                     else
                     {
@@ -326,8 +371,9 @@ public sealed partial class WorldMapEditorWindow : EditorWindow
             if (tab == 0)
             {
                 EditorGUILayout.LabelField("선택 역의 시장·교역 설정을 복제", EditorStyles.miniLabel);
-                newId = EditorGUILayout.TextField("새 역 ID", newId);
                 newName = EditorGUILayout.TextField("새 역 이름", newName);
+                newId = EditorGUILayout.TextField("새 역 ID", newId);
+                EditorGUILayout.LabelField("ID를 비우면 " + SuggestCityId(newName), EditorStyles.miniLabel);
                 if (GUILayout.Button("선택 역을 템플릿으로 추가"))
                 {
                     Change("역 추가", AddStation);
@@ -396,7 +442,8 @@ public sealed partial class WorldMapEditorWindow : EditorWindow
             return;
         }
         var node = Node(selectedId);
-        EditorGUILayout.LabelField(selectedId, EditorStyles.boldLabel);
+        EditorGUILayout.LabelField((string)city["displayName"], EditorStyles.boldLabel);
+        DrawStationId(city);
         string name = EditorGUILayout.DelayedTextField("역 이름", (string)city["displayName"]);
         if (name != (string)city["displayName"])
         {
@@ -415,10 +462,16 @@ public sealed partial class WorldMapEditorWindow : EditorWindow
             {
                 city["regionId"] = regionRows[nextRegion]["id"].DeepClone();
                 node["regionId"] = city["regionId"].DeepClone();
+                ApplyRegionTrade(city);
                 UpdateTopology();
             });
         }
+        if (GUILayout.Button("교역 설정을 지역 기준으로 맞추기"))
+        {
+            Change("교역 설정 맞추기", () => ApplyRegionTrade(city));
+        }
         IntField(city, "mapLabelImportance", "지명 중요도");
+        DrawMajorStation(city);
         bool interchange = EditorGUILayout.Toggle("환승역 표식", (bool)node["interchange"]);
         if (interchange != (bool)node["interchange"])
         {
@@ -437,9 +490,7 @@ public sealed partial class WorldMapEditorWindow : EditorWindow
         BoolField(city, "sellEnabled", "판매 허용");
         IntField(city, "buyPercentOfBaseValue", "기본 구매 배율 (%)");
         IntField(city, "sellPercentOfFinalValue", "기본 판매 배율 (%)");
-        TextField(city, "specialtyTag", "특산 태그");
-        TextField(city, "generalStockId", "일반 재고 ID");
-        TextField(city, "regionalStockId", "지역 재고 ID");
+        DrawMarket(city);
         DrawRaw(city, "역 상세 데이터", _updated =>
         {
             if ((string)_updated["id"] != selectedId)
@@ -702,6 +753,15 @@ public sealed partial class WorldMapEditorWindow : EditorWindow
         TextField(region, "displayName", "지역 이름");
         IntField(region, "mapLabelPriority", "지명 표시 우선순위");
         IntField(region, "pricePercent", "지역 물가 (%)");
+        EditorGUILayout.Space();
+        EditorGUILayout.LabelField("소속 역 지명 중요도", EditorStyles.boldLabel);
+        EditorGUILayout.LabelField(MajorThresholdText, EditorStyles.wordWrappedMiniLabel);
+        foreach (var city in Cities.Where(_city => (string)_city["regionId"] == selectedId).OrderByDescending(_city => (int)_city["mapLabelImportance"]).ThenBy(_city => (string)_city["id"], StringComparer.Ordinal).ToArray())
+        {
+            IntField(city, "mapLabelImportance", (IsMajor(city) ? "★ " : "") + (string)city["displayName"]);
+        }
+        EditorGUILayout.Space();
+        DrawRegionStock(region);
         DrawRaw(region, "지역 상세 데이터", _updated =>
         {
             if ((string)_updated["id"] != selectedId)
@@ -804,21 +864,26 @@ public sealed partial class WorldMapEditorWindow : EditorWindow
     void AddStation()
     {
         var template = Cities.FirstOrDefault(_city => (string)_city["id"] == selectedId);
-        if (template == null || string.IsNullOrWhiteSpace(newId) || string.IsNullOrWhiteSpace(newName) || Cities.Any(_city => (string)_city["id"] == newId))
+        if (template == null || string.IsNullOrWhiteSpace(newName))
         {
-            throw new InvalidOperationException("템플릿 역을 선택하고 중복되지 않는 새 ID와 이름을 입력하세요.");
+            throw new InvalidOperationException("템플릿 역을 선택하고 새 역 이름을 입력하세요.");
         }
         var city = (JObject)template.DeepClone();
-        city["id"] = newId.Trim();
+        city["id"] = string.IsNullOrWhiteSpace(newId) ? SuggestCityId(newName) : newId.Trim();
         city["displayName"] = newName.Trim();
+        if (!CITY_ID.IsMatch((string)city["id"]))
+        {
+            throw new InvalidOperationException("역 ID는 city.<영문 소문자·숫자> 형식이어야 합니다(예: city.riobruk).");
+        }
         if (Cities.Any(_city => (string)_city["id"] == (string)city["id"]))
         {
             throw new InvalidOperationException("역 ID가 중복됩니다.");
         }
+        RenamePlacements(city);
         var node = (JObject)Node(selectedId).DeepClone();
         node["cityId"] = city["id"].DeepClone();
         node["displayName"] = city["displayName"].DeepClone();
-        node["sourceId"] = "editor." + (string)city["id"];
+        node["sourceId"] = EDITOR_SOURCE + (string)city["id"];
         node["degree"] = 0;
         node["interchange"] = false;
         ((JArray)puzzle["cities"]).Add(city);
@@ -826,6 +891,46 @@ public sealed partial class WorldMapEditorWindow : EditorWindow
         selectedId = (string)city["id"];
         newId = "";
         newName = "";
+    }
+
+    // 교역 설정(특산 태그·태그 가격·고정 재고·지역 재고)은 지역 규칙을 따르므로 같은 지역의 다른 역에서 복사한다.
+    // 특산 태그가 지역 생산 목록에 있는 역만 쓰며(교역 중심지는 모두), 현재 특산 태그를 쓰는 역을 우선하고
+    // 없으면 지역 대표 특산품 역, 그다음 ID 순 첫 역을 쓴다.
+    void ApplyRegionTrade(JObject _city)
+    {
+        string regionId = (string)_city["regionId"];
+        var region = Regions.First(_region => (string)_region["id"] == regionId);
+        bool tradeHub = (bool?)region["tradeHub"] == true;
+        var production = (region["productionTags"] ?? new JArray()).Select(_tag => (string)_tag).ToArray();
+        var candidates = Cities.Where(_other => _other != _city && (string)_other["regionId"] == regionId)
+            .Where(_other => tradeHub || production.Contains((string)_other["specialtyTag"]))
+            .OrderBy(_other => (string)_other["id"], StringComparer.Ordinal).ToArray();
+        var template = candidates.FirstOrDefault(_other => (string)_other["specialtyTag"] == (string)_city["specialtyTag"])
+            ?? candidates.FirstOrDefault(_other => (string)_other["specialtyTag"] == (string)region["specialtyTag"])
+            ?? candidates.FirstOrDefault();
+        if (template == null)
+        {
+            throw new InvalidOperationException((string)region["displayName"] + "에 교역 설정을 가져올 다른 역이 없습니다. 역 상세 데이터에서 직접 입력하세요.");
+        }
+        foreach (string key in new[] { "specialtyTag", "tagPrices", "market", "regionalStockId" })
+        {
+            _city[key] = template[key].DeepClone();
+        }
+        RenamePlacements(_city);
+    }
+
+    // 고정 재고 배치 ID는 전체 역에서 유일해야 한다.
+    static void RenamePlacements(JObject _city)
+    {
+        var placements = _city["market"]?["startingPlacements"] as JArray;
+        if (placements == null)
+        {
+            return;
+        }
+        for (int i = 0; i < placements.Count; i++)
+        {
+            placements[i]["id"] = (string)_city["id"] + ".stock." + i;
+        }
     }
 
     void AddRail()
@@ -887,8 +992,8 @@ public sealed partial class WorldMapEditorWindow : EditorWindow
     void DeleteStation()
     {
         string id = selectedId;
-        var trade = TableManager.ReadSourceForAuthoring<PuzzleTradeTableData>();
-        if (Cities.Count() <= 1 || id == (string)puzzle["startCity"] || id == (string)puzzle["planningTargetCityId"] || id == trade.debtCityId)
+        string debtCityId = (string)JObject.Parse(draft.trade)["debtCityId"];
+        if (Cities.Count() <= 1 || id == (string)puzzle["startCity"] || id == (string)puzzle["planningTargetCityId"] || id == debtCityId)
         {
             throw new InvalidOperationException("시작 역·목표 역·상환 역 또는 마지막 역은 삭제할 수 없습니다. 참조를 먼저 변경하세요.");
         }
@@ -973,10 +1078,10 @@ public sealed partial class WorldMapEditorWindow : EditorWindow
 
     void Save()
     {
-        var paths = new[] { RailMapLayoutTool.LAYOUT_PATH, PuzzlePath, RoutesPath };
-        var originals = new[] { originalLayout, originalPuzzle, originalRoutes };
-        var replacements = new[] { draft.layout, draft.puzzle, draft.routes };
-        byte[] prefab = null;
+        var paths = new[] { RailMapLayoutTool.LAYOUT_PATH, PuzzlePath, RoutesPath, WorldMapGeography.PATH, CityActionsPath, TradePath };
+        var originals = new[] { originalLayout, originalPuzzle, originalRoutes, originalGeography, originalCityActions, originalTrade };
+        var replacements = new[] { draft.layout, draft.puzzle, draft.routes, draft.geography, draft.cityActions, draft.trade };
+        byte[] prefab = null, terrain = null;
         bool writing = false;
         try
         {
@@ -995,9 +1100,16 @@ public sealed partial class WorldMapEditorWindow : EditorWindow
             RailMapLayoutTool.SynchronizeRoutePoints(layout, routes);
             draft.layout = Json(layout);
             draft.routes = Json(routes);
-            replacements = new[] { draft.layout, draft.puzzle, draft.routes };
+            replacements = new[] { draft.layout, draft.puzzle, draft.routes, draft.geography, draft.cityActions, draft.trade };
             ValidateLayout();
+            var errors = DraftErrors;
+            if (errors.Count > 0)
+            {
+                throw new InvalidDataException("테이블 검증 오류 " + errors.Count + "건이 있어 저장하지 않았습니다. 첫 오류: " + errors[0]);
+            }
+            var renamedCities = RenamedCities();
             prefab = File.ReadAllBytes(RailMapLayoutTool.PREFAB_PATH);
+            terrain = File.Exists(MapPresentationTool.TERRAIN_PATH) ? File.ReadAllBytes(MapPresentationTool.TERRAIN_PATH) : null;
             writing = true;
             for (int i = 0; i < paths.Length; i++)
             {
@@ -1005,16 +1117,23 @@ public sealed partial class WorldMapEditorWindow : EditorWindow
             }
             TableManager.Reload();
             TableManager.Instance.RequireValid();
-            if (!RailMapLayoutTool.TryApply())
+            if (draft.geography != originalGeography || terrain == null)
+            {
+                MapPresentationTool.WriteTerrain(geography);
+            }
+            if (!RailMapLayoutTool.TryApply(renamedCities))
             {
                 throw new IOException("지도 프리팹 반영에 실패했습니다.");
             }
             originalLayout = draft.layout;
             originalPuzzle = draft.puzzle;
             originalRoutes = draft.routes;
+            originalGeography = draft.geography;
+            originalCityActions = draft.cityActions;
+            originalTrade = draft.trade;
             hasUnsavedChanges = false;
             Undo.ClearUndo(draft);
-            message = "테이블·레이아웃·지도 프리팹을 저장했습니다.";
+            message = "테이블·레이아웃·지형·지도 프리팹을 저장했습니다.";
         }
         catch (Exception exception)
         {
@@ -1028,6 +1147,10 @@ public sealed partial class WorldMapEditorWindow : EditorWindow
                         File.WriteAllText(paths[i], originals[i], new UTF8Encoding(false));
                     }
                     File.WriteAllBytes(RailMapLayoutTool.PREFAB_PATH, prefab);
+                    if (terrain != null)
+                    {
+                        File.WriteAllBytes(MapPresentationTool.TERRAIN_PATH, terrain);
+                    }
                     TableManager.Reload();
                     message += "\n원본 파일과 프리팹을 복구했습니다.";
                 }

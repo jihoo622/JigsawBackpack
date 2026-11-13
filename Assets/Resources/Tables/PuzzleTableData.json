@@ -1,6 +1,6 @@
 {
   "status": "active",
-  "note": "레일 생성 seed 20265146의 ProjectWorldData.stations를 그대로 쓴 지도다. 마을 표시 이름은 원본 역 이름이고 ID는 기존 city.*를 유지한다. 지역 구분은 원본과 같다(공업5·광산4·해안4·농업4·목축4·수도권5에 중립 경유 마을4). 시작은 원본 startCityId와 같은 공업 허브, planningTargetCityId는 원본 goalStation과 같은 금융마을이며 지도 표식일 뿐 상환 판정을 설정하지 않는다.",
+  "note": "레일 생성 seed 20265146의 ProjectWorldData.stations를 그대로 쓴 지도다. 마을 표시 이름은 원본 역 이름이고 ID는 city.<역 이름 로마자>로 지역과 무관하다. 지역 구분은 공업5·광산6·해안4·농업4·목축4·수도권5에 중립 경유 마을3이다. 시작은 원본 startCityId와 같은 공업 허브, planningTargetCityId는 원본 goalStation과 같은 금융마을이며 지도 표식일 뿐 상환 판정을 설정하지 않는다.",
   "pieces": [
     {
       "id": "piece.elbowLeft",
@@ -205,7 +205,7 @@
       "tags": [
         "Machinery",
         "Metal",
-        "Refrigerator"
+        "Fresh"
       ],
       "visualKey": "cargo.machineFrame",
       "slotCount": 5,
@@ -332,7 +332,8 @@
       "description": "한 칸을 차지하는 소금 자루.",
       "tags": [
         "Salt",
-        "Supply"
+        "Supply",
+        "Fresh"
       ],
       "visualKey": "cargo.saltSack",
       "slotCount": 1,
@@ -406,7 +407,7 @@
         "Meat"
       ],
       "shelfLifeHours": 168,
-      "visualKey": "cargo.grainSack",
+      "visualKey": "cargo.meatPackage",
       "slotCount": 1,
       "cells": [
         {
@@ -573,33 +574,11 @@
     {
       "id": "piece.poo",
       "displayName": "똥",
-      "description": "한 칸을 차지하는 불쾌한 화물. 근처의 다른 화물 가치를 떨어뜨린다.",
+      "description": "동물 배설과 상한 음식에서 생기는 한 칸 화물. 근처의 다른 화물 가치를 떨어뜨린다.",
       "tags": [
         "Waste"
       ],
       "visualKey": "cargo.poo",
-      "slotCount": 1,
-      "durability": 100,
-      "cells": [
-        {
-          "x": 0,
-          "y": 0,
-          "north": "Flat",
-          "east": "Flat",
-          "south": "Flat",
-          "west": "Flat"
-        }
-      ],
-      "baseValue": -10
-    },
-    {
-      "id": "piece.foodWaste",
-      "displayName": "폐기물",
-      "description": "유통기한이 지난 식품. 근처의 다른 화물 가치를 떨어뜨린다.",
-      "tags": [
-        "Waste"
-      ],
-      "visualKey": "cargo.foodWaste",
       "slotCount": 1,
       "durability": 100,
       "cells": [
@@ -753,10 +732,10 @@
       }
     ]
   },
-  "startCity": "city.industry.ironworks",
+  "startCity": "city.erna",
   "cities": [
     {
-      "id": "city.mine.iron",
+      "id": "city.riobruk",
       "displayName": "리오브루크",
       "regionId": "region.mine",
       "specialtyTag": "Metal",
@@ -807,35 +786,35 @@
         "height": 6,
         "startingPlacements": [
           {
-            "id": "city.mine.iron.stock.0",
+            "id": "city.riobruk.stock.0",
             "pieceId": "piece.oreCross",
             "x": 2,
             "y": 2,
             "clockwiseTurns": 0
           },
           {
-            "id": "city.mine.iron.stock.1",
+            "id": "city.riobruk.stock.1",
             "pieceId": "piece.oreL",
             "x": 1,
             "y": 1,
             "clockwiseTurns": 0
           },
           {
-            "id": "city.mine.iron.stock.2",
+            "id": "city.riobruk.stock.2",
             "pieceId": "piece.oreL",
             "x": 0,
             "y": 3,
             "clockwiseTurns": 2
           },
           {
-            "id": "city.mine.iron.stock.3",
+            "id": "city.riobruk.stock.3",
             "pieceId": "piece.oreL",
             "x": 2,
             "y": 3,
             "clockwiseTurns": 1
           },
           {
-            "id": "city.mine.iron.stock.4",
+            "id": "city.riobruk.stock.4",
             "pieceId": "piece.oreL",
             "x": 5,
             "y": 1,
@@ -848,7 +827,7 @@
       "mapLabelImportance": 60
     },
     {
-      "id": "city.mine.salt",
+      "id": "city.daran",
       "displayName": "다르안",
       "regionId": "region.mine",
       "specialtyTag": "Salt",
@@ -899,21 +878,21 @@
         "height": 6,
         "startingPlacements": [
           {
-            "id": "city.mine.salt.stock.0",
+            "id": "city.daran.stock.0",
             "pieceId": "piece.saltSack",
             "x": 0,
             "y": 1,
             "clockwiseTurns": 0
           },
           {
-            "id": "city.mine.salt.stock.1",
+            "id": "city.daran.stock.1",
             "pieceId": "piece.saltSack",
             "x": 4,
             "y": 1,
             "clockwiseTurns": 0
           },
           {
-            "id": "city.mine.salt.stock.2",
+            "id": "city.daran.stock.2",
             "pieceId": "piece.saltSack",
             "x": 0,
             "y": 3,
@@ -926,7 +905,7 @@
       "mapLabelImportance": 60
     },
     {
-      "id": "city.mine.dig",
+      "id": "city.rasenton",
       "displayName": "라센턴",
       "regionId": "region.mine",
       "specialtyTag": "Metal",
@@ -977,21 +956,21 @@
         "height": 6,
         "startingPlacements": [
           {
-            "id": "city.mine.dig.stock.0",
+            "id": "city.rasenton.stock.0",
             "pieceId": "piece.elbowRight",
             "x": 0,
             "y": 1,
             "clockwiseTurns": 0
           },
           {
-            "id": "city.mine.dig.stock.1",
+            "id": "city.rasenton.stock.1",
             "pieceId": "piece.elbowRight",
             "x": 4,
             "y": 1,
             "clockwiseTurns": 0
           },
           {
-            "id": "city.mine.dig.stock.2",
+            "id": "city.rasenton.stock.2",
             "pieceId": "piece.elbowRight",
             "x": 0,
             "y": 3,
@@ -1004,7 +983,7 @@
       "mapLabelImportance": 240
     },
     {
-      "id": "city.mine.cave",
+      "id": "city.karka",
       "displayName": "카르카",
       "regionId": "region.mine",
       "specialtyTag": "Salt",
@@ -1055,21 +1034,21 @@
         "height": 6,
         "startingPlacements": [
           {
-            "id": "city.mine.cave.stock.0",
+            "id": "city.karka.stock.0",
             "pieceId": "piece.saltSack",
             "x": 0,
             "y": 1,
             "clockwiseTurns": 0
           },
           {
-            "id": "city.mine.cave.stock.1",
+            "id": "city.karka.stock.1",
             "pieceId": "piece.saltSack",
             "x": 4,
             "y": 1,
             "clockwiseTurns": 0
           },
           {
-            "id": "city.mine.cave.stock.2",
+            "id": "city.karka.stock.2",
             "pieceId": "piece.saltSack",
             "x": 0,
             "y": 3,
@@ -1082,7 +1061,7 @@
       "mapLabelImportance": 60
     },
     {
-      "id": "city.ranch.pass",
+      "id": "city.rasenpol",
       "displayName": "라센폴",
       "regionId": "region.ranch",
       "specialtyTag": "Animal",
@@ -1133,21 +1112,21 @@
         "height": 6,
         "startingPlacements": [
           {
-            "id": "city.ranch.pass.stock.0",
+            "id": "city.rasenpol.stock.0",
             "pieceId": "piece.cow",
             "x": 0,
             "y": 1,
             "clockwiseTurns": 0
           },
           {
-            "id": "city.ranch.pass.stock.1",
+            "id": "city.rasenpol.stock.1",
             "pieceId": "piece.cow",
             "x": 4,
             "y": 1,
             "clockwiseTurns": 0
           },
           {
-            "id": "city.ranch.pass.stock.2",
+            "id": "city.rasenpol.stock.2",
             "pieceId": "piece.cow",
             "x": 0,
             "y": 3,
@@ -1160,7 +1139,7 @@
       "mapLabelImportance": 60
     },
     {
-      "id": "city.ranch.butcher",
+      "id": "city.heilheim",
       "displayName": "헤일하임",
       "regionId": "region.ranch",
       "specialtyTag": "Meat",
@@ -1211,21 +1190,21 @@
         "height": 6,
         "startingPlacements": [
           {
-            "id": "city.ranch.butcher.stock.0",
+            "id": "city.heilheim.stock.0",
             "pieceId": "piece.beef",
             "x": 0,
             "y": 1,
             "clockwiseTurns": 0
           },
           {
-            "id": "city.ranch.butcher.stock.1",
+            "id": "city.heilheim.stock.1",
             "pieceId": "piece.beef",
             "x": 4,
             "y": 1,
             "clockwiseTurns": 0
           },
           {
-            "id": "city.ranch.butcher.stock.2",
+            "id": "city.heilheim.stock.2",
             "pieceId": "piece.beef",
             "x": 0,
             "y": 3,
@@ -1238,7 +1217,7 @@
       "mapLabelImportance": 240
     },
     {
-      "id": "city.ranch.highland",
+      "id": "city.darpol",
       "displayName": "다르폴",
       "regionId": "region.ranch",
       "specialtyTag": "Animal",
@@ -1289,21 +1268,21 @@
         "height": 6,
         "startingPlacements": [
           {
-            "id": "city.ranch.highland.stock.0",
+            "id": "city.darpol.stock.0",
             "pieceId": "piece.cow",
             "x": 0,
             "y": 1,
             "clockwiseTurns": 0
           },
           {
-            "id": "city.ranch.highland.stock.1",
+            "id": "city.darpol.stock.1",
             "pieceId": "piece.cow",
             "x": 4,
             "y": 1,
             "clockwiseTurns": 0
           },
           {
-            "id": "city.ranch.highland.stock.2",
+            "id": "city.darpol.stock.2",
             "pieceId": "piece.cow",
             "x": 0,
             "y": 3,
@@ -1316,7 +1295,7 @@
       "mapLabelImportance": 140
     },
     {
-      "id": "city.ranch.jerky",
+      "id": "city.osgrad",
       "displayName": "오스그라드",
       "regionId": "region.ranch",
       "specialtyTag": "Meat",
@@ -1367,21 +1346,21 @@
         "height": 6,
         "startingPlacements": [
           {
-            "id": "city.ranch.jerky.stock.0",
+            "id": "city.osgrad.stock.0",
             "pieceId": "piece.beef",
             "x": 0,
             "y": 1,
             "clockwiseTurns": 0
           },
           {
-            "id": "city.ranch.jerky.stock.1",
+            "id": "city.osgrad.stock.1",
             "pieceId": "piece.beef",
             "x": 4,
             "y": 1,
             "clockwiseTurns": 0
           },
           {
-            "id": "city.ranch.jerky.stock.2",
+            "id": "city.osgrad.stock.2",
             "pieceId": "piece.beef",
             "x": 0,
             "y": 3,
@@ -1394,7 +1373,7 @@
       "mapLabelImportance": 60
     },
     {
-      "id": "city.industry.ironworks",
+      "id": "city.erna",
       "displayName": "에른아 공업역",
       "regionId": "region.industry",
       "specialtyTag": "Machinery",
@@ -1445,21 +1424,21 @@
         "height": 6,
         "startingPlacements": [
           {
-            "id": "city.industry.ironworks.stock.0",
+            "id": "city.erna.stock.0",
             "pieceId": "piece.uShape",
             "x": 0,
             "y": 1,
             "clockwiseTurns": 0
           },
           {
-            "id": "city.industry.ironworks.stock.1",
+            "id": "city.erna.stock.1",
             "pieceId": "piece.uShape",
             "x": 4,
             "y": 1,
             "clockwiseTurns": 0
           },
           {
-            "id": "city.industry.ironworks.stock.2",
+            "id": "city.erna.stock.2",
             "pieceId": "piece.uShape",
             "x": 0,
             "y": 3,
@@ -1472,7 +1451,7 @@
       "mapLabelImportance": 300
     },
     {
-      "id": "city.industry.assembly",
+      "id": "city.porber",
       "displayName": "포르베르",
       "regionId": "region.industry",
       "specialtyTag": "Machinery",
@@ -1523,21 +1502,21 @@
         "height": 6,
         "startingPlacements": [
           {
-            "id": "city.industry.assembly.stock.0",
+            "id": "city.porber.stock.0",
             "pieceId": "piece.uShape",
             "x": 0,
             "y": 1,
             "clockwiseTurns": 0
           },
           {
-            "id": "city.industry.assembly.stock.1",
+            "id": "city.porber.stock.1",
             "pieceId": "piece.uShape",
             "x": 4,
             "y": 1,
             "clockwiseTurns": 0
           },
           {
-            "id": "city.industry.assembly.stock.2",
+            "id": "city.porber.stock.2",
             "pieceId": "piece.uShape",
             "x": 0,
             "y": 3,
@@ -1550,7 +1529,7 @@
       "mapLabelImportance": 60
     },
     {
-      "id": "city.industry.meatlover",
+      "id": "city.karport",
       "displayName": "카르포트",
       "regionId": "region.industry",
       "specialtyTag": "Machinery",
@@ -1601,21 +1580,21 @@
         "height": 6,
         "startingPlacements": [
           {
-            "id": "city.industry.meatlover.stock.0",
+            "id": "city.karport.stock.0",
             "pieceId": "piece.uShape",
             "x": 0,
             "y": 1,
             "clockwiseTurns": 0
           },
           {
-            "id": "city.industry.meatlover.stock.1",
+            "id": "city.karport.stock.1",
             "pieceId": "piece.uShape",
             "x": 4,
             "y": 1,
             "clockwiseTurns": 0
           },
           {
-            "id": "city.industry.meatlover.stock.2",
+            "id": "city.karport.stock.2",
             "pieceId": "piece.uShape",
             "x": 0,
             "y": 3,
@@ -1628,7 +1607,7 @@
       "mapLabelImportance": 60
     },
     {
-      "id": "city.industry.engine",
+      "id": "city.nornova",
       "displayName": "노르노바",
       "regionId": "region.industry",
       "specialtyTag": "Machinery",
@@ -1679,21 +1658,21 @@
         "height": 6,
         "startingPlacements": [
           {
-            "id": "city.industry.engine.stock.0",
+            "id": "city.nornova.stock.0",
             "pieceId": "piece.uShape",
             "x": 0,
             "y": 1,
             "clockwiseTurns": 0
           },
           {
-            "id": "city.industry.engine.stock.1",
+            "id": "city.nornova.stock.1",
             "pieceId": "piece.uShape",
             "x": 4,
             "y": 1,
             "clockwiseTurns": 0
           },
           {
-            "id": "city.industry.engine.stock.2",
+            "id": "city.nornova.stock.2",
             "pieceId": "piece.uShape",
             "x": 0,
             "y": 3,
@@ -1706,14 +1685,14 @@
       "mapLabelImportance": 60
     },
     {
-      "id": "city.capital.central",
+      "id": "city.aiport",
       "displayName": "아이포트 중앙",
       "regionId": "region.capital",
       "specialtyTag": "",
       "buyEnabled": true,
       "sellEnabled": true,
-      "buyPercentOfBaseValue": 100,
-      "sellPercentOfFinalValue": 100,
+      "buyPercentOfBaseValue": 125,
+      "sellPercentOfFinalValue": 125,
       "tagPrices": [
         {
           "tag": "Machinery",
@@ -1744,12 +1723,6 @@
           "priority": 204,
           "buyPercent": 150,
           "sellPercent": 130
-        },
-        {
-          "tag": "Meat",
-          "priority": 205,
-          "buyPercent": 150,
-          "sellPercent": 130
         }
       ],
       "market": {
@@ -1757,21 +1730,21 @@
         "height": 6,
         "startingPlacements": [
           {
-            "id": "city.capital.central.stock.0",
+            "id": "city.aiport.stock.0",
             "pieceId": "piece.box",
             "x": 0,
             "y": 1,
             "clockwiseTurns": 0
           },
           {
-            "id": "city.capital.central.stock.1",
+            "id": "city.aiport.stock.1",
             "pieceId": "piece.box",
             "x": 4,
             "y": 1,
             "clockwiseTurns": 0
           },
           {
-            "id": "city.capital.central.stock.2",
+            "id": "city.aiport.stock.2",
             "pieceId": "piece.box",
             "x": 0,
             "y": 3,
@@ -1784,14 +1757,14 @@
       "mapLabelImportance": 240
     },
     {
-      "id": "city.capital.wholesale",
+      "id": "city.trenford",
       "displayName": "트렌포드",
       "regionId": "region.capital",
       "specialtyTag": "",
       "buyEnabled": true,
       "sellEnabled": true,
-      "buyPercentOfBaseValue": 100,
-      "sellPercentOfFinalValue": 100,
+      "buyPercentOfBaseValue": 125,
+      "sellPercentOfFinalValue": 125,
       "tagPrices": [
         {
           "tag": "Machinery",
@@ -1822,12 +1795,6 @@
           "priority": 204,
           "buyPercent": 150,
           "sellPercent": 130
-        },
-        {
-          "tag": "Metal",
-          "priority": 205,
-          "buyPercent": 150,
-          "sellPercent": 130
         }
       ],
       "market": {
@@ -1835,21 +1802,21 @@
         "height": 6,
         "startingPlacements": [
           {
-            "id": "city.capital.wholesale.stock.0",
+            "id": "city.trenford.stock.0",
             "pieceId": "piece.box",
             "x": 0,
             "y": 1,
             "clockwiseTurns": 0
           },
           {
-            "id": "city.capital.wholesale.stock.1",
+            "id": "city.trenford.stock.1",
             "pieceId": "piece.box",
             "x": 4,
             "y": 1,
             "clockwiseTurns": 0
           },
           {
-            "id": "city.capital.wholesale.stock.2",
+            "id": "city.trenford.stock.2",
             "pieceId": "piece.box",
             "x": 0,
             "y": 3,
@@ -1862,14 +1829,14 @@
       "mapLabelImportance": 140
     },
     {
-      "id": "city.capital.merchant",
+      "id": "city.sergrad",
       "displayName": "세르그라드",
       "regionId": "region.capital",
       "specialtyTag": "",
       "buyEnabled": true,
       "sellEnabled": true,
-      "buyPercentOfBaseValue": 100,
-      "sellPercentOfFinalValue": 100,
+      "buyPercentOfBaseValue": 125,
+      "sellPercentOfFinalValue": 125,
       "tagPrices": [
         {
           "tag": "Machinery",
@@ -1900,12 +1867,6 @@
           "priority": 204,
           "buyPercent": 150,
           "sellPercent": 130
-        },
-        {
-          "tag": "Water",
-          "priority": 205,
-          "buyPercent": 150,
-          "sellPercent": 130
         }
       ],
       "market": {
@@ -1913,21 +1874,21 @@
         "height": 6,
         "startingPlacements": [
           {
-            "id": "city.capital.merchant.stock.0",
+            "id": "city.sergrad.stock.0",
             "pieceId": "piece.box",
             "x": 0,
             "y": 1,
             "clockwiseTurns": 0
           },
           {
-            "id": "city.capital.merchant.stock.1",
+            "id": "city.sergrad.stock.1",
             "pieceId": "piece.box",
             "x": 4,
             "y": 1,
             "clockwiseTurns": 0
           },
           {
-            "id": "city.capital.merchant.stock.2",
+            "id": "city.sergrad.stock.2",
             "pieceId": "piece.box",
             "x": 0,
             "y": 3,
@@ -1940,14 +1901,14 @@
       "mapLabelImportance": 60
     },
     {
-      "id": "city.capital.outskirts",
+      "id": "city.diaan",
       "displayName": "디아안",
       "regionId": "region.capital",
       "specialtyTag": "",
       "buyEnabled": true,
       "sellEnabled": true,
-      "buyPercentOfBaseValue": 100,
-      "sellPercentOfFinalValue": 100,
+      "buyPercentOfBaseValue": 125,
+      "sellPercentOfFinalValue": 125,
       "tagPrices": [
         {
           "tag": "Machinery",
@@ -1978,12 +1939,6 @@
           "priority": 204,
           "buyPercent": 150,
           "sellPercent": 130
-        },
-        {
-          "tag": "Grain",
-          "priority": 205,
-          "buyPercent": 150,
-          "sellPercent": 130
         }
       ],
       "market": {
@@ -1991,21 +1946,21 @@
         "height": 6,
         "startingPlacements": [
           {
-            "id": "city.capital.outskirts.stock.0",
+            "id": "city.diaan.stock.0",
             "pieceId": "piece.box",
             "x": 0,
             "y": 1,
             "clockwiseTurns": 0
           },
           {
-            "id": "city.capital.outskirts.stock.1",
+            "id": "city.diaan.stock.1",
             "pieceId": "piece.box",
             "x": 4,
             "y": 1,
             "clockwiseTurns": 0
           },
           {
-            "id": "city.capital.outskirts.stock.2",
+            "id": "city.diaan.stock.2",
             "pieceId": "piece.box",
             "x": 0,
             "y": 3,
@@ -2018,7 +1973,7 @@
       "mapLabelImportance": 140
     },
     {
-      "id": "city.coast.fish",
+      "id": "city.teratia",
       "displayName": "테라티아",
       "regionId": "region.coast",
       "specialtyTag": "Fish",
@@ -2069,21 +2024,21 @@
         "height": 6,
         "startingPlacements": [
           {
-            "id": "city.coast.fish.stock.0",
+            "id": "city.teratia.stock.0",
             "pieceId": "piece.fish",
             "x": 0,
             "y": 1,
             "clockwiseTurns": 0
           },
           {
-            "id": "city.coast.fish.stock.1",
+            "id": "city.teratia.stock.1",
             "pieceId": "piece.fish",
             "x": 4,
             "y": 1,
             "clockwiseTurns": 0
           },
           {
-            "id": "city.coast.fish.stock.2",
+            "id": "city.teratia.stock.2",
             "pieceId": "piece.fish",
             "x": 0,
             "y": 3,
@@ -2096,7 +2051,7 @@
       "mapLabelImportance": 60
     },
     {
-      "id": "city.coast.spring",
+      "id": "city.teraka",
       "displayName": "테라카",
       "regionId": "region.coast",
       "specialtyTag": "Water",
@@ -2147,21 +2102,21 @@
         "height": 6,
         "startingPlacements": [
           {
-            "id": "city.coast.spring.stock.0",
+            "id": "city.teraka.stock.0",
             "pieceId": "piece.verticalTabs",
             "x": 0,
             "y": 1,
             "clockwiseTurns": 0
           },
           {
-            "id": "city.coast.spring.stock.1",
+            "id": "city.teraka.stock.1",
             "pieceId": "piece.verticalTabs",
             "x": 4,
             "y": 1,
             "clockwiseTurns": 0
           },
           {
-            "id": "city.coast.spring.stock.2",
+            "id": "city.teraka.stock.2",
             "pieceId": "piece.verticalTabs",
             "x": 0,
             "y": 3,
@@ -2174,7 +2129,7 @@
       "mapLabelImportance": 60
     },
     {
-      "id": "city.coast.port",
+      "id": "city.pioa",
       "displayName": "피오아 항",
       "regionId": "region.coast",
       "specialtyTag": "Fish",
@@ -2225,21 +2180,21 @@
         "height": 6,
         "startingPlacements": [
           {
-            "id": "city.coast.port.stock.0",
+            "id": "city.pioa.stock.0",
             "pieceId": "piece.fish",
             "x": 0,
             "y": 1,
             "clockwiseTurns": 0
           },
           {
-            "id": "city.coast.port.stock.1",
+            "id": "city.pioa.stock.1",
             "pieceId": "piece.fish",
             "x": 4,
             "y": 1,
             "clockwiseTurns": 0
           },
           {
-            "id": "city.coast.port.stock.2",
+            "id": "city.pioa.stock.2",
             "pieceId": "piece.fish",
             "x": 0,
             "y": 3,
@@ -2252,7 +2207,7 @@
       "mapLabelImportance": 240
     },
     {
-      "id": "city.coast.sea",
+      "id": "city.valenrie",
       "displayName": "발렌리에",
       "regionId": "region.coast",
       "specialtyTag": "Water",
@@ -2303,21 +2258,21 @@
         "height": 6,
         "startingPlacements": [
           {
-            "id": "city.coast.sea.stock.0",
+            "id": "city.valenrie.stock.0",
             "pieceId": "piece.verticalTabs",
             "x": 0,
             "y": 1,
             "clockwiseTurns": 0
           },
           {
-            "id": "city.coast.sea.stock.1",
+            "id": "city.valenrie.stock.1",
             "pieceId": "piece.verticalTabs",
             "x": 4,
             "y": 1,
             "clockwiseTurns": 0
           },
           {
-            "id": "city.coast.sea.stock.2",
+            "id": "city.valenrie.stock.2",
             "pieceId": "piece.verticalTabs",
             "x": 0,
             "y": 3,
@@ -2330,7 +2285,7 @@
       "mapLabelImportance": 60
     },
     {
-      "id": "city.farm.grain",
+      "id": "city.ibt",
       "displayName": "이브트",
       "regionId": "region.farm",
       "specialtyTag": "Grain",
@@ -2381,21 +2336,21 @@
         "height": 6,
         "startingPlacements": [
           {
-            "id": "city.farm.grain.stock.0",
+            "id": "city.ibt.stock.0",
             "pieceId": "piece.topNotch",
             "x": 0,
             "y": 1,
             "clockwiseTurns": 0
           },
           {
-            "id": "city.farm.grain.stock.1",
+            "id": "city.ibt.stock.1",
             "pieceId": "piece.topNotch",
             "x": 4,
             "y": 1,
             "clockwiseTurns": 0
           },
           {
-            "id": "city.farm.grain.stock.2",
+            "id": "city.ibt.stock.2",
             "pieceId": "piece.topNotch",
             "x": 0,
             "y": 3,
@@ -2408,7 +2363,7 @@
       "mapLabelImportance": 240
     },
     {
-      "id": "city.farm.orchard",
+      "id": "city.terapol",
       "displayName": "테라폴",
       "regionId": "region.farm",
       "specialtyTag": "Fruit",
@@ -2459,21 +2414,21 @@
         "height": 6,
         "startingPlacements": [
           {
-            "id": "city.farm.orchard.stock.0",
+            "id": "city.terapol.stock.0",
             "pieceId": "piece.fruit",
             "x": 0,
             "y": 1,
             "clockwiseTurns": 0
           },
           {
-            "id": "city.farm.orchard.stock.1",
+            "id": "city.terapol.stock.1",
             "pieceId": "piece.fruit",
             "x": 4,
             "y": 1,
             "clockwiseTurns": 0
           },
           {
-            "id": "city.farm.orchard.stock.2",
+            "id": "city.terapol.stock.2",
             "pieceId": "piece.fruit",
             "x": 0,
             "y": 3,
@@ -2486,7 +2441,7 @@
       "mapLabelImportance": 140
     },
     {
-      "id": "city.farm.lumber",
+      "id": "city.berska",
       "displayName": "베르스카",
       "regionId": "region.farm",
       "specialtyTag": "Wood",
@@ -2537,21 +2492,21 @@
         "height": 6,
         "startingPlacements": [
           {
-            "id": "city.farm.lumber.stock.0",
+            "id": "city.berska.stock.0",
             "pieceId": "piece.verticalPair",
             "x": 0,
             "y": 1,
             "clockwiseTurns": 0
           },
           {
-            "id": "city.farm.lumber.stock.1",
+            "id": "city.berska.stock.1",
             "pieceId": "piece.verticalPair",
             "x": 4,
             "y": 1,
             "clockwiseTurns": 0
           },
           {
-            "id": "city.farm.lumber.stock.2",
+            "id": "city.berska.stock.2",
             "pieceId": "piece.verticalPair",
             "x": 0,
             "y": 3,
@@ -2564,7 +2519,7 @@
       "mapLabelImportance": 140
     },
     {
-      "id": "city.farm.field",
+      "id": "city.dart",
       "displayName": "다르트",
       "regionId": "region.farm",
       "specialtyTag": "Grain",
@@ -2604,7 +2559,7 @@
           "sellPercent": 130
         },
         {
-          "tag": "Box",
+          "tag": "Water",
           "priority": 204,
           "buyPercent": 150,
           "sellPercent": 130
@@ -2615,21 +2570,21 @@
         "height": 6,
         "startingPlacements": [
           {
-            "id": "city.farm.field.stock.0",
+            "id": "city.dart.stock.0",
             "pieceId": "piece.topNotch",
             "x": 0,
             "y": 1,
             "clockwiseTurns": 0
           },
           {
-            "id": "city.farm.field.stock.1",
+            "id": "city.dart.stock.1",
             "pieceId": "piece.topNotch",
             "x": 4,
             "y": 1,
             "clockwiseTurns": 0
           },
           {
-            "id": "city.farm.field.stock.2",
+            "id": "city.dart.stock.2",
             "pieceId": "piece.topNotch",
             "x": 0,
             "y": 3,
@@ -2642,7 +2597,7 @@
       "mapLabelImportance": 60
     },
     {
-      "id": "city.industry.logistics",
+      "id": "city.heilford",
       "displayName": "헤일포드",
       "regionId": "region.industry",
       "specialtyTag": "Machinery",
@@ -2693,21 +2648,21 @@
         "height": 6,
         "startingPlacements": [
           {
-            "id": "city.industry.logistics.stock.0",
+            "id": "city.heilford.stock.0",
             "pieceId": "piece.uShape",
             "x": 0,
             "y": 1,
             "clockwiseTurns": 0
           },
           {
-            "id": "city.industry.logistics.stock.1",
+            "id": "city.heilford.stock.1",
             "pieceId": "piece.uShape",
             "x": 4,
             "y": 1,
             "clockwiseTurns": 0
           },
           {
-            "id": "city.industry.logistics.stock.2",
+            "id": "city.heilford.stock.2",
             "pieceId": "piece.uShape",
             "x": 0,
             "y": 3,
@@ -2720,14 +2675,14 @@
       "mapLabelImportance": 60
     },
     {
-      "id": "city.capital.finance",
+      "id": "city.finance",
       "displayName": "금융마을",
       "regionId": "region.capital",
       "specialtyTag": "",
       "buyEnabled": true,
       "sellEnabled": true,
-      "buyPercentOfBaseValue": 100,
-      "sellPercentOfFinalValue": 100,
+      "buyPercentOfBaseValue": 125,
+      "sellPercentOfFinalValue": 125,
       "tagPrices": [
         {
           "tag": "Machinery",
@@ -2758,12 +2713,6 @@
           "priority": 204,
           "buyPercent": 150,
           "sellPercent": 130
-        },
-        {
-          "tag": "Box",
-          "priority": 205,
-          "buyPercent": 150,
-          "sellPercent": 130
         }
       ],
       "market": {
@@ -2771,21 +2720,21 @@
         "height": 6,
         "startingPlacements": [
           {
-            "id": "city.capital.finance.stock.0",
+            "id": "city.finance.stock.0",
             "pieceId": "piece.box",
             "x": 0,
             "y": 1,
             "clockwiseTurns": 0
           },
           {
-            "id": "city.capital.finance.stock.1",
+            "id": "city.finance.stock.1",
             "pieceId": "piece.box",
             "x": 4,
             "y": 1,
             "clockwiseTurns": 0
           },
           {
-            "id": "city.capital.finance.stock.2",
+            "id": "city.finance.stock.2",
             "pieceId": "piece.box",
             "x": 0,
             "y": 3,
@@ -2798,36 +2747,73 @@
       "mapLabelImportance": 320
     },
     {
-      "id": "city.common.crossing",
+      "id": "city.teragrad",
       "displayName": "테라그라드",
-      "regionId": "region.common",
-      "specialtyTag": "",
+      "regionId": "region.industry",
+      "specialtyTag": "Machinery",
       "buyEnabled": true,
       "sellEnabled": true,
       "buyPercentOfBaseValue": 100,
       "sellPercentOfFinalValue": 100,
-      "tagPrices": [],
+      "tagPrices": [
+        {
+          "tag": "Machinery",
+          "priority": 1000,
+          "buyPercent": 80,
+          "sellPercent": 70
+        },
+        {
+          "tag": "Fish",
+          "priority": 200,
+          "buyPercent": 150,
+          "sellPercent": 130
+        },
+        {
+          "tag": "Salt",
+          "priority": 201,
+          "buyPercent": 150,
+          "sellPercent": 130
+        },
+        {
+          "tag": "Fruit",
+          "priority": 202,
+          "buyPercent": 150,
+          "sellPercent": 130
+        },
+        {
+          "tag": "Animal",
+          "priority": 203,
+          "buyPercent": 150,
+          "sellPercent": 130
+        },
+        {
+          "tag": "Grain",
+          "priority": 204,
+          "buyPercent": 150,
+          "sellPercent": 130
+        }
+      ],
       "market": {
         "width": 7,
         "height": 6,
         "startingPlacements": [
           {
-            "id": "city.common.crossing.stock.0",
-            "pieceId": "piece.box",
+            "id": "city.teragrad.stock.0",
+            "pieceId": "piece.uShape",
             "x": 0,
             "y": 1,
             "clockwiseTurns": 0
           },
           {
-            "id": "city.common.crossing.stock.1",
-            "pieceId": "piece.verticalTabs",
+            "id": "city.teragrad.stock.1",
+            "pieceId": "piece.uShape",
             "x": 4,
             "y": 1,
             "clockwiseTurns": 0
           },
           {
-            "id": "city.common.crossing.stock.2",
-            "pieceId": "piece.topNotch",
+            "id": "city.teragrad.stock.2",
+            "pieceId": "piece.uShape",
             "x": 0,
             "y": 3,
             "clockwiseTurns": 0
@@ -2835,11 +2821,11 @@
         ]
       },
       "generalStockId": "stock.general",
-      "regionalStockId": "stock.hub",
+      "regionalStockId": "stock.industry",
       "mapLabelImportance": 60
     },
     {
-      "id": "city.common.wayfarer",
+      "id": "city.sera",
       "displayName": "세르아",
       "regionId": "region.common",
       "specialtyTag": "",
@@ -2853,21 +2839,21 @@
         "height": 6,
         "startingPlacements": [
           {
-            "id": "city.common.wayfarer.stock.0",
+            "id": "city.sera.stock.0",
             "pieceId": "piece.box",
             "x": 0,
             "y": 1,
             "clockwiseTurns": 0
           },
           {
-            "id": "city.common.wayfarer.stock.1",
+            "id": "city.sera.stock.1",
             "pieceId": "piece.verticalTabs",
             "x": 4,
             "y": 1,
             "clockwiseTurns": 0
           },
           {
-            "id": "city.common.wayfarer.stock.2",
+            "id": "city.sera.stock.2",
             "pieceId": "piece.topNotch",
             "x": 0,
             "y": 3,
@@ -2880,36 +2866,73 @@
       "mapLabelImportance": 240
     },
     {
-      "id": "city.common.rest",
+      "id": "city.osber",
       "displayName": "오스베르",
-      "regionId": "region.common",
-      "specialtyTag": "",
+      "regionId": "region.mine",
+      "specialtyTag": "Salt",
       "buyEnabled": true,
       "sellEnabled": true,
       "buyPercentOfBaseValue": 100,
       "sellPercentOfFinalValue": 100,
-      "tagPrices": [],
+      "tagPrices": [
+        {
+          "tag": "Salt",
+          "priority": 1000,
+          "buyPercent": 80,
+          "sellPercent": 70
+        },
+        {
+          "tag": "Machinery",
+          "priority": 200,
+          "buyPercent": 150,
+          "sellPercent": 130
+        },
+        {
+          "tag": "Fish",
+          "priority": 201,
+          "buyPercent": 150,
+          "sellPercent": 130
+        },
+        {
+          "tag": "Fruit",
+          "priority": 202,
+          "buyPercent": 150,
+          "sellPercent": 130
+        },
+        {
+          "tag": "Animal",
+          "priority": 203,
+          "buyPercent": 150,
+          "sellPercent": 130
+        },
+        {
+          "tag": "Wood",
+          "priority": 204,
+          "buyPercent": 150,
+          "sellPercent": 130
+        }
+      ],
       "market": {
         "width": 7,
         "height": 6,
         "startingPlacements": [
           {
-            "id": "city.common.rest.stock.0",
-            "pieceId": "piece.box",
+            "id": "city.osber.stock.0",
+            "pieceId": "piece.saltSack",
             "x": 0,
             "y": 1,
             "clockwiseTurns": 0
           },
           {
-            "id": "city.common.rest.stock.1",
-            "pieceId": "piece.verticalTabs",
+            "id": "city.osber.stock.1",
+            "pieceId": "piece.saltSack",
             "x": 4,
             "y": 1,
             "clockwiseTurns": 0
           },
           {
-            "id": "city.common.rest.stock.2",
-            "pieceId": "piece.topNotch",
+            "id": "city.osber.stock.2",
+            "pieceId": "piece.saltSack",
             "x": 0,
             "y": 3,
             "clockwiseTurns": 0
@@ -2917,11 +2940,11 @@
         ]
       },
       "generalStockId": "stock.general",
-      "regionalStockId": "stock.hub",
+      "regionalStockId": "stock.mine",
       "mapLabelImportance": 140
     },
     {
-      "id": "city.common.roadside",
+      "id": "city.mert",
       "displayName": "메르트",
       "regionId": "region.common",
       "specialtyTag": "",
@@ -2935,21 +2958,21 @@
         "height": 6,
         "startingPlacements": [
           {
-            "id": "city.common.roadside.stock.0",
+            "id": "city.mert.stock.0",
             "pieceId": "piece.box",
             "x": 0,
             "y": 1,
             "clockwiseTurns": 0
           },
           {
-            "id": "city.common.roadside.stock.1",
+            "id": "city.mert.stock.1",
             "pieceId": "piece.verticalTabs",
             "x": 4,
             "y": 1,
             "clockwiseTurns": 0
           },
           {
-            "id": "city.common.roadside.stock.2",
+            "id": "city.mert.stock.2",
             "pieceId": "piece.topNotch",
             "x": 0,
             "y": 3,
@@ -2960,6 +2983,84 @@
       "generalStockId": "stock.general",
       "regionalStockId": "stock.hub",
       "mapLabelImportance": 140
+    },
+    {
+      "id": "city.rasburk",
+      "displayName": "라스부르크",
+      "regionId": "region.mine",
+      "specialtyTag": "Salt",
+      "buyEnabled": true,
+      "sellEnabled": true,
+      "buyPercentOfBaseValue": 100,
+      "sellPercentOfFinalValue": 100,
+      "tagPrices": [
+        {
+          "tag": "Salt",
+          "priority": 1000,
+          "buyPercent": 80,
+          "sellPercent": 70
+        },
+        {
+          "tag": "Machinery",
+          "priority": 200,
+          "buyPercent": 150,
+          "sellPercent": 130
+        },
+        {
+          "tag": "Fish",
+          "priority": 201,
+          "buyPercent": 150,
+          "sellPercent": 130
+        },
+        {
+          "tag": "Fruit",
+          "priority": 202,
+          "buyPercent": 150,
+          "sellPercent": 130
+        },
+        {
+          "tag": "Animal",
+          "priority": 203,
+          "buyPercent": 150,
+          "sellPercent": 130
+        },
+        {
+          "tag": "Wood",
+          "priority": 204,
+          "buyPercent": 150,
+          "sellPercent": 130
+        }
+      ],
+      "market": {
+        "width": 7,
+        "height": 6,
+        "startingPlacements": [
+          {
+            "id": "city.rasburk.stock.0",
+            "pieceId": "piece.saltSack",
+            "x": 0,
+            "y": 1,
+            "clockwiseTurns": 0
+          },
+          {
+            "id": "city.rasburk.stock.1",
+            "pieceId": "piece.saltSack",
+            "x": 4,
+            "y": 1,
+            "clockwiseTurns": 0
+          },
+          {
+            "id": "city.rasburk.stock.2",
+            "pieceId": "piece.saltSack",
+            "x": 0,
+            "y": 3,
+            "clockwiseTurns": 0
+          }
+        ]
+      },
+      "generalStockId": "stock.general",
+      "regionalStockId": "stock.mine",
+      "mapLabelImportance": 60
     }
   ],
   "regions": [
@@ -3003,7 +3104,7 @@
       "displayName": "수도권",
       "specialtyTag": "",
       "productionTags": [],
-      "pricePercent": 125,
+      "pricePercent": 100,
       "tradeHub": true,
       "mapLabelPriority": 30
     },
@@ -3042,7 +3143,7 @@
       "mapLabelPriority": 10
     }
   ],
-  "planningTargetCityId": "city.capital.finance",
+  "planningTargetCityId": "city.finance",
   "stockProfiles": [
     {
       "id": "stock.hub",

@@ -29,9 +29,9 @@ public readonly struct PuzzleCell
     }
 }
 
-internal readonly struct PuzzleRotation
+public readonly struct PuzzleRotation
 {
-    internal const int TURN_COUNT = 4;
+    public const int TURN_COUNT = 4;
 
     readonly Vector2Int minimum;
 
@@ -139,6 +139,47 @@ public sealed class PuzzlePlacement
             : long.MaxValue;
     }
 
+    internal long? MinutesUntilNextFreshnessBand(decimal _decayRate, long _settlementInterval)
+    {
+        if (RemainingShelfLife is not decimal remaining)
+        {
+            return null;
+        }
+        if (remaining <= 0)
+        {
+            return 0;
+        }
+
+        long untilExpiry = MinutesUntilShelfLifeExpires(_decayRate);
+        int threshold = FreshnessBand(FreshnessPercent.Value) switch
+        {
+            PuzzleFreshnessBand.High => BasicData.Int("rules.freshness.mediumThreshold"),
+            PuzzleFreshnessBand.Medium => BasicData.Int("rules.freshness.lowThreshold"),
+            _ => 0
+        };
+        if (threshold <= 1)
+        {
+            return untilExpiry;
+        }
+
+        // 등급 경계에 정확히 닿았을 때는 기존 등급을 유지한다.
+        decimal ageAtThreshold = ShelfLifeMinutes * (100 - threshold) / 100m;
+        long untilSettlement = _settlementInterval - ShelfLifeAge.SinceSettlement;
+        decimal ageAtSettlement = ShelfLifeAge.Elapsed + untilSettlement * _decayRate;
+        if (ageAtSettlement > ageAtThreshold)
+        {
+            return Math.Min(untilExpiry, untilSettlement);
+        }
+        if (_decayRate == 0)
+        {
+            return untilExpiry;
+        }
+
+        decimal extraSettlements = decimal.Floor(
+            (ageAtThreshold - ageAtSettlement) / (_settlementInterval * _decayRate)) + 1;
+        return (long)Math.Min(untilExpiry, untilSettlement + extraSettlements * _settlementInterval);
+    }
+
     // 성장 완료까지 남은 분. 성장하지 않는 품목과 미소유 물건은 경계가 없다.
     // 대기 중에는 다음 완료 시각이 아니라 자리를 다시 확인하는 재시도 시각을 경계로 제시한다.
     internal long MinutesUntilGrowthCompletion
@@ -178,11 +219,11 @@ public sealed class PuzzlePlacement
         {
             return PuzzleFreshnessBand.Empty;
         }
-        if (_percent < BasicData.Int("ui.freshness.lowThreshold"))
+        if (_percent < BasicData.Int("rules.freshness.lowThreshold"))
         {
             return PuzzleFreshnessBand.Low;
         }
-        return _percent < BasicData.Int("ui.freshness.mediumThreshold")
+        return _percent < BasicData.Int("rules.freshness.mediumThreshold")
             ? PuzzleFreshnessBand.Medium : PuzzleFreshnessBand.High;
     }
 
@@ -239,6 +280,10 @@ public sealed class PuzzlePlacement
     }
 
     /// <summary>보유 시간·성장 시계·유통기한에 반영할 경과 분을 누적한다.</summary>
+    /// <remarks>
+    /// 유통기한 소모량 = 경과한 게임 시간 × (1 − 최종 보존율).
+    /// 최종 보존율은 0~1로 환산한다. 100% 보존이 유지되는 동안 소모량은 0이며, 남은 유통기한이 그대로 유지된다.
+    /// </remarks>
     /// <param name="_minutes">이번 행동으로 경과한 분. 0은 무변화이며 미소유 물건은 무시한다.</param>
     /// <param name="_decayRate">유통기한 소모율. 0이면 소모하지 않는다.</param>
     /// <param name="_settlementInterval">신선도 표시를 갱신하는 경과 분 주기.</param>

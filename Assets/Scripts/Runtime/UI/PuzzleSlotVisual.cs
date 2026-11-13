@@ -17,7 +17,14 @@ public sealed class PuzzleSlotVisual : MonoBehaviour
     Sprite[] fillSprites;
     Sprite outlineSprite;
     [SerializeField] TextMeshProUGUI freshnessLabel;
-    TextMeshProUGUI synergyNotice;
+    [SerializeField] TextMeshProUGUI synergyNotice;
+    [SerializeField] float freshnessFontScale = 0.3f;
+    [SerializeField] float freshnessWidthScale = 0.9f;
+    [SerializeField] float freshnessHeightScale = 0.35f;
+    [SerializeField] float freshnessOffsetScale = 0.43f;
+    [SerializeField] float synergyNoticeFontScale = 0.24f;
+    [SerializeField] float synergyNoticeSizeScale = 0.3f;
+    [SerializeField] float synergyNoticeOffsetScale = 0.37f;
 
     RectTransform Rect => (RectTransform)transform;
 
@@ -96,19 +103,19 @@ public sealed class PuzzleSlotVisual : MonoBehaviour
         }
         freshnessLabel.font = _font;
         freshnessLabel.fontSharedMaterial = _material;
-        freshnessLabel.fontSize = cellWidth * BasicData.Float("ui.freshness.fontScale");
-        freshnessLabel.rectTransform.sizeDelta = new Vector2(cellWidth * BasicData.Float("ui.freshness.widthScale"),
-            cellWidth * BasicData.Float("ui.freshness.heightScale"));
+        freshnessLabel.fontSize = cellWidth * freshnessFontScale;
+        freshnessLabel.rectTransform.sizeDelta = new Vector2(cellWidth * freshnessWidthScale,
+            cellWidth * freshnessHeightScale);
 
         int percent = Mathf.Clamp(_freshness.Value, 0, 100);
         freshnessLabel.text = Presentation.PuzzleFreshnessDot;
         freshnessLabel.color = Presentation.PuzzleFreshnessColor(percent);
         freshnessLabel.rectTransform.anchoredPosition =
-            (_cellOffset - Vector2.one * BasicData.Float("ui.freshness.offsetScale")) * cellWidth;
+            (_cellOffset - Vector2.one * freshnessOffsetScale) * cellWidth;
         freshnessLabel.enabled = true;
     }
 
-    internal void ShowSynergyNotice(bool _visible, Vector2 _cellOffset, TMP_FontAsset _font)
+    internal void ShowSynergyNotice(bool _visible, Vector2 _cellOffset)
     {
         if (!_visible)
         {
@@ -119,22 +126,16 @@ public sealed class PuzzleSlotVisual : MonoBehaviour
             return;
         }
 
-        float cellWidth = Rect.rect.width;
         if (!synergyNotice)
         {
-            var notice = new GameObject("Synergy Notice", typeof(RectTransform), typeof(TextMeshProUGUI));
-            notice.transform.SetParent(transform, false);
-            synergyNotice = notice.GetComponent<TextMeshProUGUI>();
-            synergyNotice.font = _font;
-            synergyNotice.text = "●";
-            synergyNotice.color = new Color32(255, 107, 82, 255);
-            synergyNotice.alignment = TextAlignmentOptions.Center;
-            synergyNotice.raycastTarget = false;
-            synergyNotice.fontSize = cellWidth * 0.24f;
-            synergyNotice.rectTransform.sizeDelta = Vector2.one * (cellWidth * 0.3f);
+            throw new System.InvalidOperationException("시너지 알림 슬롯을 프리팹에 먼저 연결하세요.");
         }
 
-        synergyNotice.rectTransform.anchoredPosition = (_cellOffset + Vector2.one * 0.37f) * cellWidth;
+        float cellWidth = Rect.rect.width;
+        synergyNotice.color = Presentation.PuzzleSynergyNotice;
+        synergyNotice.fontSize = cellWidth * synergyNoticeFontScale;
+        synergyNotice.rectTransform.sizeDelta = Vector2.one * (cellWidth * synergyNoticeSizeScale);
+        synergyNotice.rectTransform.anchoredPosition = (_cellOffset + Vector2.one * synergyNoticeOffsetScale) * cellWidth;
         synergyNotice.enabled = true;
     }
 

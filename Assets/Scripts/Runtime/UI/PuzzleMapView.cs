@@ -6,6 +6,42 @@ using UnityEngine;
 public sealed class PuzzleMapView : PanelBase
 {
     [System.Serializable]
+    public struct NodeLayoutSettings
+    {
+        public float nodeSize;
+        public float nodeEmphasizedScale;
+        public float stationHaloSize;
+        public int stationBadgeFontSize;
+        public float stationLabelExtraWidth;
+        public float stationLabelHeight;
+        public float stationBadgeExtraWidth;
+        public float stationBadgeMinWidth;
+        public float stationBadgeHeight;
+        public float labelGap;
+        public float labelConnectorThickness;
+        public int stationFontSizeEmphasized;
+        public int stationFontSizeMajor;
+        public float stationFontSizeThreshold;
+        public int stationFontSizeSmall;
+        public int stationFontSizeNormal;
+        public int majorStationThreshold;
+        public float labelDetailMinZoom;
+        public int labelPriorityCurrent;
+        public int labelPrioritySelected;
+        public int labelPriorityTarget;
+        public int labelPriorityConnected;
+        public int labelPriorityInterchange;
+        public int labelPriorityOther;
+
+        public int CalculateStationFontSize(float _zoom, bool _emphasized, bool _major)
+        {
+            return _emphasized ? stationFontSizeEmphasized
+                : _major ? stationFontSizeMajor
+                : _zoom < stationFontSizeThreshold ? stationFontSizeSmall : stationFontSizeNormal;
+        }
+    }
+
+    [System.Serializable]
     sealed class RegionVisual
     {
         public string regionId;
@@ -43,10 +79,73 @@ public sealed class PuzzleMapView : PanelBase
     [SerializeField] LineVisual[] lines;
     [SerializeField] PuzzleMapNavigation navigation;
 
+    [Header("Map Viewport Padding")]
+    [SerializeField] float viewportPaddingLeft = 8f;
+    [SerializeField] float viewportPaddingBottom = 8f;
+    [SerializeField] float viewportPaddingRight = 8f;
+    [SerializeField] float viewportPaddingTop = 8f;
+
+    [Header("Time Label Layout")]
+    [SerializeField] float timeLabelMinZoom = 0.85f;
+    [SerializeField] float timeLabelPaddingX = 16f;
+    [SerializeField] float timeLabelHeight = 28f;
+    [SerializeField] int timeFontSize = 18;
+    [SerializeField] float timeOffsetX = 28f;
+    [SerializeField] float timeOffsetX2 = 28f;
+    [SerializeField] float timeOffsetY = 24f;
+    [SerializeField] float timeOffsetY2 = 24f;
+
+    [Header("Track Visual")]
+    [SerializeField] float trackThicknessMultiplier = 0.65f;
+
+    [Header("Label Search & Layout")]
+    [SerializeField] float labelGap = 6f;
+    [SerializeField] float labelSearchDistance = 60f;
+    [SerializeField] float labelSearchStep = 12f;
+    [SerializeField] float labelConnectorThickness = 2f;
+
+    [Header("Station Node Layout & Visual")]
+    [SerializeField] float nodeSize = 44f;
+    [SerializeField] float nodeEmphasizedScale = 1.5f;
+    [SerializeField] float stationHaloSize = 56f;
+    [SerializeField] int stationBadgeFontSize = 16;
+    [SerializeField] float stationLabelExtraWidth = 12f;
+    [SerializeField] float stationLabelHeight = 28f;
+    [SerializeField] float stationBadgeExtraWidth = 12f;
+    [SerializeField] float stationBadgeMinWidth = 160f;
+    [SerializeField] float stationBadgeHeight = 24f;
+
+    [Header("Station Font Sizes")]
+    [SerializeField] int stationFontSizeEmphasized = 24;
+    [SerializeField] int stationFontSizeMajor = 22;
+    [SerializeField] float stationFontSizeThreshold = 0.8f;
+    [SerializeField] int stationFontSizeSmall = 18;
+    [SerializeField] int stationFontSizeNormal = 22;
+
+    [Header("Map Label Priorities & Policies")]
+    [SerializeField] int majorStationThreshold = 200;
+    [SerializeField] float labelDetailMinZoom = 0.85f;
+    [SerializeField] float regionBalanceBelowZoom = 1.0f;
+    [SerializeField] int regionCrowdingPenalty = 180;
+    [SerializeField] int labelPriorityCurrent = 10000;
+    [SerializeField] int labelPrioritySelected = 9000;
+    [SerializeField] int labelPriorityTarget = 500;
+    [SerializeField] int labelPriorityConnected = 80;
+    [SerializeField] int labelPriorityInterchange = 40;
+    [SerializeField] int labelPriorityOther = 0;
+
+    [Header("Map Route Priorities")]
+    [SerializeField] int routePriorityCurrentSelected = 3;
+    [SerializeField] int routePriorityCurrent = 2;
+    [SerializeField] int routePrioritySelected = 1;
+    [SerializeField] int routePriorityOther = 0;
+
     readonly List<Rect> occupied = new List<Rect>();
     readonly Dictionary<PuzzleMapNodeView, Rect> markerBounds = new Dictionary<PuzzleMapNodeView, Rect>();
     readonly List<(Vector2 start, Vector2 end)> labelLinks = new List<(Vector2 start, Vector2 end)>();
     readonly List<PuzzleMapNodeView> pendingLabels = new List<PuzzleMapNodeView>();
+    readonly HashSet<PuzzleMapNodeView> requiredLabels = new HashSet<PuzzleMapNodeView>();
+    bool requiredMarkersOnly;
     readonly Dictionary<string, int> regionLabelCounts = new Dictionary<string, int>(StringComparer.Ordinal);
     readonly Dictionary<Image, float> trackThickness = new Dictionary<Image, float>();
     PuzzleMapNodeView[] layoutNodes;
@@ -54,17 +153,57 @@ public sealed class PuzzleMapView : PanelBase
     readonly HashSet<RouteTimeVisual> manualTimeLabels = new HashSet<RouteTimeVisual>();
     string currentCityId;
     string selectedCityId;
-    float labelGap;
     float LabelGap => labelGap;
     static readonly Vector2[] LABEL_DIRECTIONS =
     {
         Vector2.up, Vector2.right, Vector2.down, Vector2.left,
         new Vector2(1f, 1f), new Vector2(-1f, 1f), new Vector2(1f, -1f), new Vector2(-1f, -1f)
     };
-    static Vector2[] TimeOffsets => new Vector2[]
+    Vector2[] TimeOffsets => new Vector2[]
     {
-        Vector2.zero, new Vector2(0f, BasicData.Float("ui.PuzzleMapView.puzzleMapViewY")), new Vector2(0f, -BasicData.Float("ui.PuzzleMapView.puzzleMapViewY2")), new Vector2(BasicData.Float("ui.PuzzleMapView.puzzleMapViewX"), 0f), new Vector2(-BasicData.Float("ui.PuzzleMapView.puzzleMapViewX2"), 0f)
+        Vector2.zero, new Vector2(0f, timeOffsetY), new Vector2(0f, -timeOffsetY2), new Vector2(timeOffsetX, 0f), new Vector2(-timeOffsetX2, 0f)
     };
+
+    public int TimeFontSize => timeFontSize;
+    public int MajorStationThreshold => majorStationThreshold;
+
+    public int CalculateStationFontSize(float _zoom, bool _emphasized, bool _major)
+    {
+        return _emphasized ? stationFontSizeEmphasized
+            : _major ? stationFontSizeMajor
+            : _zoom < stationFontSizeThreshold ? stationFontSizeSmall : stationFontSizeNormal;
+    }
+
+    public NodeLayoutSettings GetNodeLayoutSettings()
+    {
+        return new NodeLayoutSettings
+        {
+            nodeSize = nodeSize,
+            nodeEmphasizedScale = nodeEmphasizedScale,
+            stationHaloSize = stationHaloSize,
+            stationBadgeFontSize = stationBadgeFontSize,
+            stationLabelExtraWidth = stationLabelExtraWidth,
+            stationLabelHeight = stationLabelHeight,
+            stationBadgeExtraWidth = stationBadgeExtraWidth,
+            stationBadgeMinWidth = stationBadgeMinWidth,
+            stationBadgeHeight = stationBadgeHeight,
+            labelGap = labelGap,
+            labelConnectorThickness = labelConnectorThickness,
+            stationFontSizeEmphasized = stationFontSizeEmphasized,
+            stationFontSizeMajor = stationFontSizeMajor,
+            stationFontSizeThreshold = stationFontSizeThreshold,
+            stationFontSizeSmall = stationFontSizeSmall,
+            stationFontSizeNormal = stationFontSizeNormal,
+            majorStationThreshold = majorStationThreshold,
+            labelDetailMinZoom = labelDetailMinZoom,
+            labelPriorityCurrent = labelPriorityCurrent,
+            labelPrioritySelected = labelPrioritySelected,
+            labelPriorityTarget = labelPriorityTarget,
+            labelPriorityConnected = labelPriorityConnected,
+            labelPriorityInterchange = labelPriorityInterchange,
+            labelPriorityOther = labelPriorityOther
+        };
+    }
 
     internal PuzzleMapNodeView[] Nodes => nodes;
 
@@ -121,19 +260,19 @@ public sealed class PuzzleMapView : PanelBase
     internal void UpdateMapLayout(float _zoom, RectTransform _viewport)
     {
         PrepareLayout();
-        labelGap = BasicData.Float("ui.PuzzleMapView.labelGap");
         occupied.Clear();
         markerBounds.Clear();
         labelLinks.Clear();
         Rect bounds = _viewport.rect;
-        bounds = Rect.MinMaxRect(bounds.xMin + BasicData.Float("ui.PuzzleMapView.updateMapLayout"), bounds.yMin + BasicData.Float("ui.PuzzleMapView.updateMapLayout2"), bounds.xMax - BasicData.Float("ui.PuzzleMapView.updateMapLayout3"), bounds.yMax - BasicData.Float("ui.PuzzleMapView.updateMapLayout4"));
+        bounds = Rect.MinMaxRect(bounds.xMin + viewportPaddingLeft, bounds.yMin + viewportPaddingBottom, bounds.xMax - viewportPaddingRight, bounds.yMax - viewportPaddingTop);
+        var nodeSettings = GetNodeLayoutSettings();
         foreach (var node in layoutNodes)
         {
-            node.PrepareLayout(_zoom);
+            node.PrepareLayout(_zoom, nodeSettings);
             markerBounds.Add(node, node.MarkerBounds(_viewport));
         }
         manualTimeLabels.Clear();
-        if (_zoom >= BasicData.Float("ui.PuzzleMapView.updateMapLayoutAbovePercent2"))
+        if (_zoom >= timeLabelMinZoom)
         {
             foreach (var route in layoutRoutes)
             {
@@ -151,17 +290,22 @@ public sealed class PuzzleMapView : PanelBase
             }
         }
         pendingLabels.Clear();
+        requiredLabels.Clear();
         regionLabelCounts.Clear();
         foreach (var node in layoutNodes)
         {
             node.HideLabel();
-            if (node.ShouldShowLabel(_zoom, selectedCityId) && bounds.Contains(node.MarkerPosition(_viewport)))
+            if (node.IsLabelRequired(selectedCityId, nodeSettings))
+            {
+                requiredLabels.Add(node);
+            }
+            if (node.ShouldShowLabel(_zoom, selectedCityId, nodeSettings) && bounds.Contains(node.MarkerPosition(_viewport)))
             {
                 pendingLabels.Add(node);
             }
         }
-        long regionPenalty = _zoom < BasicData.Float("ui.mapLabels.regionBalanceBelowZoom")
-            ? BasicData.Int("ui.mapLabels.regionCrowdingPenalty") : 0;
+        long regionPenalty = _zoom < regionBalanceBelowZoom
+            ? regionCrowdingPenalty : 0;
         while (pendingLabels.Count > 0)
         {
             PuzzleMapNodeView best = null;
@@ -169,7 +313,7 @@ public sealed class PuzzleMapView : PanelBase
             foreach (var candidate in pendingLabels)
             {
                 regionLabelCounts.TryGetValue(candidate.RegionId, out int count);
-                long score = candidate.LabelPriority(selectedCityId) - count * regionPenalty;
+                long score = candidate.LabelPriority(selectedCityId, nodeSettings) - count * regionPenalty;
                 if (best == null || score > bestScore || (score == bestScore && string.CompareOrdinal(candidate.CityId, best.CityId) < 0))
                 {
                     best = candidate;
@@ -177,7 +321,7 @@ public sealed class PuzzleMapView : PanelBase
                 }
             }
             pendingLabels.Remove(best);
-            if (PlaceNodeLabel(best, bounds, _viewport))
+            if (PlaceNodeLabel(best, bounds, _viewport) || (requiredLabels.Contains(best) && PlaceRequiredNodeLabel(best, bounds, _viewport)))
             {
                 regionLabelCounts.TryGetValue(best.RegionId, out int count);
                 regionLabelCounts[best.RegionId] = count + 1;
@@ -187,7 +331,7 @@ public sealed class PuzzleMapView : PanelBase
         foreach (var track in routeLines)
         {
             Vector2 size = track.rectTransform.sizeDelta;
-            size.y = Presentation.PuzzleMapTrackThickness(trackThickness[track]) / _zoom;
+            size.y = trackThickness[track] * trackThicknessMultiplier / _zoom;
             track.rectTransform.sizeDelta = size;
         }
         Array.Sort(layoutRoutes, (_a, _b) =>
@@ -219,7 +363,7 @@ public sealed class PuzzleMapView : PanelBase
                 var plate = route.plate.rectTransform;
                 plate.localScale = Vector3.one / _zoom;
                 plate.sizeDelta = size;
-                if (!route.manualPosition && _zoom >= BasicData.Float("ui.PuzzleMapView.updateMapLayoutAbovePercent2"))
+                if (!route.manualPosition && _zoom >= timeLabelMinZoom)
                 {
                     Vector2 origin = _viewport.InverseTransformPoint(label.transform.position);
                     foreach (var offset in TimeOffsets)
@@ -246,12 +390,31 @@ public sealed class PuzzleMapView : PanelBase
         var label = _route.label;
         label.rectTransform.localScale = Vector3.one / _zoom;
         label.rectTransform.anchoredPosition = _route.position;
-        label.fontSize = Presentation.PuzzleMapTimeFontSize;
+        label.fontSize = timeFontSize;
         label.resizeTextForBestFit = false;
         label.horizontalOverflow = HorizontalWrapMode.Overflow;
-        Vector2 size = new Vector2(Mathf.Ceil(label.preferredWidth) + BasicData.Float("ui.PuzzleMapView.updateMapLayoutX"), BasicData.Float("ui.PuzzleMapView.updateMapLayoutY"));
+        Vector2 size = new Vector2(Mathf.Ceil(label.preferredWidth) + timeLabelPaddingX, timeLabelHeight);
         label.rectTransform.sizeDelta = size;
         return size;
+    }
+
+    // 줌 아웃으로 역 표식이 빽빽해지면 빈자리가 없다. 필수 이름은 다른 이름과 겹치지 않는 선에서 일반 역 표식 위에 놓는다.
+    bool PlaceRequiredNodeLabel(PuzzleMapNodeView _node, Rect _bounds, RectTransform _viewport)
+    {
+        requiredMarkersOnly = true;
+        try
+        {
+            return PlaceNodeLabel(_node, _bounds, _viewport);
+        }
+        finally
+        {
+            requiredMarkersOnly = false;
+        }
+    }
+
+    bool BlocksLabel(PuzzleMapNodeView _markerOwner)
+    {
+        return !requiredMarkersOnly || requiredLabels.Contains(_markerOwner);
     }
 
     bool PlaceNodeLabel(PuzzleMapNodeView _node, Rect _bounds, RectTransform _viewport)
@@ -262,8 +425,8 @@ public sealed class PuzzleMapView : PanelBase
             _node.HideLabel();
             return false;
         }
-        float step = BasicData.Float("ui.PuzzleMapView.labelSearchStep");
-        float distance = BasicData.Float("ui.PuzzleMapView.labelSearchDistance");
+        float step = labelSearchStep;
+        float distance = labelSearchDistance;
         // 직전 방향(최초에는 프리팹 배치 방향)의 공간을 먼저 찾아 방향 전환을 최소화한다.
         for (int i = 0; i <= LABEL_DIRECTIONS.Length; i++)
         {
@@ -294,7 +457,7 @@ public sealed class PuzzleMapView : PanelBase
                 }
                 occupied.Add(candidate);
                 labelLinks.Add((start, end));
-                _node.PlaceLabel(candidate, start, end, _viewport, direction);
+                _node.PlaceLabel(candidate, start, end, _viewport, direction, labelConnectorThickness);
                 return true;
             }
         }
@@ -316,7 +479,7 @@ public sealed class PuzzleMapView : PanelBase
     {
         foreach (var marker in markerBounds)
         {
-            if (marker.Key != _owner && SegmentOverlaps(_start, _end, Padded(marker.Value)))
+            if (marker.Key != _owner && BlocksLabel(marker.Key) && SegmentOverlaps(_start, _end, Padded(marker.Value)))
             {
                 return false;
             }
@@ -397,10 +560,10 @@ public sealed class PuzzleMapView : PanelBase
     {
         bool current = _route.fromCityId == currentCityId || _route.toCityId == currentCityId;
         bool selected = _route.fromCityId == selectedCityId || _route.toCityId == selectedCityId;
-        return current && selected ? BasicData.Int("ui.mapRoutes.currentSelected")
-            : current ? BasicData.Int("ui.mapRoutes.current")
-            : selected ? BasicData.Int("ui.mapRoutes.selected")
-            : BasicData.Int("ui.mapRoutes.other");
+        return current && selected ? routePriorityCurrentSelected
+            : current ? routePriorityCurrent
+            : selected ? routePrioritySelected
+            : routePriorityOther;
     }
 
     bool Available(Rect _candidate, Rect _bounds)
@@ -411,9 +574,9 @@ public sealed class PuzzleMapView : PanelBase
             return false;
         }
         Rect padded = Padded(_candidate);
-        foreach (var marker in markerBounds.Values)
+        foreach (var marker in markerBounds)
         {
-            if (padded.Overlaps(marker))
+            if (BlocksLabel(marker.Key) && padded.Overlaps(marker.Value))
             {
                 return false;
             }

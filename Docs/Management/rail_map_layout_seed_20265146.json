@@ -8,12 +8,12 @@
     "coordinates": "RectTransform anchoredPosition, center origin",
     "note": "Prefab is handled in Unity project; this export does not modify it."
   },
-  "startCity": "city.industry.ironworks",
-  "planningTargetCityId": "city.capital.finance",
-  "debtCityId": "city.capital.finance",
+  "startCity": "city.erna",
+  "planningTargetCityId": "city.finance",
+  "debtCityId": "city.finance",
   "nodes": [
     {
-      "cityId": "city.capital.central",
+      "cityId": "city.aiport",
       "displayName": "아이포트 중앙",
       "regionId": "region.capital",
       "settlementType": "city",
@@ -26,12 +26,12 @@
       "sourceId": "S02"
     },
     {
-      "cityId": "city.capital.finance",
+      "cityId": "city.finance",
       "displayName": "금융마을",
       "regionId": "region.capital",
       "settlementType": "town",
-      "x": 350.0,
-      "y": -150.0,
+      "x": 310.0,
+      "y": -160.0,
       "interchange": true,
       "degree": 3,
       "tileX": 89,
@@ -39,20 +39,20 @@
       "sourceId": "S07"
     },
     {
-      "cityId": "city.capital.merchant",
+      "cityId": "city.sergrad",
       "displayName": "세르그라드",
       "regionId": "region.capital",
       "settlementType": "town",
-      "x": 60.0,
+      "x": 90.0,
       "y": 30.0,
       "interchange": false,
-      "degree": 4,
+      "degree": 3,
       "tileX": 65,
       "tileY": 31,
       "sourceId": "S25"
     },
     {
-      "cityId": "city.capital.outskirts",
+      "cityId": "city.diaan",
       "displayName": "디아안",
       "regionId": "region.capital",
       "settlementType": "town",
@@ -65,7 +65,7 @@
       "sourceId": "S26"
     },
     {
-      "cityId": "city.capital.wholesale",
+      "cityId": "city.trenford",
       "displayName": "트렌포드",
       "regionId": "region.capital",
       "settlementType": "city",
@@ -78,11 +78,11 @@
       "sourceId": "S09"
     },
     {
-      "cityId": "city.coast.fish",
+      "cityId": "city.teratia",
       "displayName": "테라티아",
       "regionId": "region.coast",
       "settlementType": "town",
-      "x": 540.0,
+      "x": 530.0,
       "y": 220.0,
       "interchange": false,
       "degree": 2,
@@ -91,12 +91,12 @@
       "sourceId": "S17"
     },
     {
-      "cityId": "city.coast.port",
+      "cityId": "city.pioa",
       "displayName": "피오아 항",
       "regionId": "region.coast",
       "settlementType": "city",
       "x": 480.0,
-      "y": 60.0,
+      "y": 90.0,
       "interchange": true,
       "degree": 3,
       "tileX": 101,
@@ -104,12 +104,12 @@
       "sourceId": "S03"
     },
     {
-      "cityId": "city.coast.sea",
+      "cityId": "city.valenrie",
       "displayName": "발렌리에",
       "regionId": "region.coast",
       "settlementType": "town",
-      "x": 630.0,
-      "y": -110.0,
+      "x": 610.0,
+      "y": -70.0,
       "interchange": false,
       "degree": 2,
       "tileX": 104,
@@ -117,12 +117,12 @@
       "sourceId": "S18"
     },
     {
-      "cityId": "city.coast.spring",
+      "cityId": "city.teraka",
       "displayName": "테라카",
       "regionId": "region.coast",
       "settlementType": "town",
-      "x": 400.0,
-      "y": 320.0,
+      "x": 610.0,
+      "y": 310.0,
       "interchange": false,
       "degree": 2,
       "tileX": 88,
@@ -130,12 +130,12 @@
       "sourceId": "S19"
     },
     {
-      "cityId": "city.common.crossing",
+      "cityId": "city.teragrad",
       "displayName": "테라그라드",
-      "regionId": "region.common",
+      "regionId": "region.industry",
       "settlementType": "town",
-      "x": -440.0,
-      "y": -140.0,
+      "x": -430.0,
+      "y": -80.0,
       "interchange": false,
       "degree": 4,
       "tileX": 28,
@@ -143,20 +143,20 @@
       "sourceId": "S27"
     },
     {
-      "cityId": "city.common.rest",
+      "cityId": "city.osber",
       "displayName": "오스베르",
-      "regionId": "region.common",
+      "regionId": "region.mine",
       "settlementType": "town",
-      "x": 80.0,
-      "y": 260.0,
+      "x": -110.0,
+      "y": 330.0,
       "interchange": true,
-      "degree": 4,
+      "degree": 3,
       "tileX": 59,
       "tileY": 42,
       "sourceId": "S29"
     },
     {
-      "cityId": "city.common.roadside",
+      "cityId": "city.mert",
       "displayName": "메르트",
       "regionId": "region.common",
       "settlementType": "town",
@@ -169,25 +169,25 @@
       "sourceId": "S30"
     },
     {
-      "cityId": "city.common.wayfarer",
+      "cityId": "city.sera",
       "displayName": "세르아",
       "regionId": "region.common",
       "settlementType": "town",
-      "x": -140.0,
-      "y": -200.0,
+      "x": -160.0,
+      "y": -220.0,
       "interchange": true,
-      "degree": 3,
+      "degree": 4,
       "tileX": 43,
       "tileY": 57,
       "sourceId": "S28"
     },
     {
-      "cityId": "city.farm.field",
+      "cityId": "city.dart",
       "displayName": "다르트",
       "regionId": "region.farm",
       "settlementType": "town",
-      "x": 145.6,
-      "y": -365,
+      "x": 120.0,
+      "y": -320.0,
       "interchange": false,
       "degree": 3,
       "tileX": 73,
@@ -195,20 +195,20 @@
       "sourceId": "S20"
     },
     {
-      "cityId": "city.farm.grain",
+      "cityId": "city.ibt",
       "displayName": "이브트",
       "regionId": "region.farm",
       "settlementType": "city",
       "x": 44.31,
       "y": -195,
       "interchange": true,
-      "degree": 4,
+      "degree": 3,
       "tileX": 65,
       "tileY": 60,
       "sourceId": "S04"
     },
     {
-      "cityId": "city.farm.lumber",
+      "cityId": "city.berska",
       "displayName": "베르스카",
       "regionId": "region.farm",
       "settlementType": "town",
@@ -221,7 +221,7 @@
       "sourceId": "S21"
     },
     {
-      "cityId": "city.farm.orchard",
+      "cityId": "city.terapol",
       "displayName": "테라폴",
       "regionId": "region.farm",
       "settlementType": "city",
@@ -234,51 +234,51 @@
       "sourceId": "S08"
     },
     {
-      "cityId": "city.industry.assembly",
+      "cityId": "city.porber",
       "displayName": "포르베르",
       "regionId": "region.industry",
       "settlementType": "town",
       "x": -430.0,
       "y": 30.0,
       "interchange": false,
-      "degree": 2,
+      "degree": 3,
       "tileX": 22,
       "tileY": 29,
       "sourceId": "S10"
     },
     {
-      "cityId": "city.industry.engine",
+      "cityId": "city.nornova",
       "displayName": "노르노바",
       "regionId": "region.industry",
       "settlementType": "town",
-      "x": -610.0,
-      "y": -190.0,
+      "x": -570.0,
+      "y": -150.0,
       "interchange": false,
-      "degree": 3,
+      "degree": 4,
       "tileX": 19,
       "tileY": 62,
       "sourceId": "S11"
     },
     {
-      "cityId": "city.industry.ironworks",
+      "cityId": "city.erna",
       "displayName": "에른아 공업역",
       "regionId": "region.industry",
       "settlementType": "city",
-      "x": -570.0,
-      "y": 60.0,
+      "x": -540.0,
+      "y": -20.0,
       "interchange": true,
-      "degree": 5,
+      "degree": 4,
       "tileX": 13,
       "tileY": 47,
       "sourceId": "S01"
     },
     {
-      "cityId": "city.industry.logistics",
+      "cityId": "city.heilford",
       "displayName": "헤일포드",
       "regionId": "region.industry",
       "settlementType": "town",
-      "x": -730.0,
-      "y": 0.0,
+      "x": -690.0,
+      "y": -50.0,
       "interchange": false,
       "degree": 2,
       "tileX": 4,
@@ -286,7 +286,7 @@
       "sourceId": "S12"
     },
     {
-      "cityId": "city.industry.meatlover",
+      "cityId": "city.karport",
       "displayName": "카르포트",
       "regionId": "region.industry",
       "settlementType": "town",
@@ -299,90 +299,90 @@
       "sourceId": "S13"
     },
     {
-      "cityId": "city.mine.cave",
+      "cityId": "city.karka",
       "displayName": "카르카",
       "regionId": "region.mine",
       "settlementType": "town",
-      "x": -576.09,
-      "y": 355,
+      "x": -410.0,
+      "y": 360.0,
       "interchange": false,
-      "degree": 1,
+      "degree": 2,
       "tileX": 16,
       "tileY": 5,
       "sourceId": "S16"
     },
     {
-      "cityId": "city.mine.dig",
+      "cityId": "city.rasenton",
       "displayName": "라센턴",
       "regionId": "region.mine",
       "settlementType": "city",
-      "x": -290.0,
-      "y": 280.0,
+      "x": -320.0,
+      "y": 190.0,
       "interchange": true,
-      "degree": 5,
+      "degree": 3,
       "tileX": 40,
       "tileY": 14,
       "sourceId": "S05"
     },
     {
-      "cityId": "city.mine.iron",
+      "cityId": "city.riobruk",
       "displayName": "리오브루크",
       "regionId": "region.mine",
       "settlementType": "town",
-      "x": -183.59,
-      "y": 355,
+      "x": -270.0,
+      "y": 360.0,
       "interchange": false,
-      "degree": 1,
+      "degree": 2,
       "tileX": 47,
       "tileY": 5,
       "sourceId": "S14"
     },
     {
-      "cityId": "city.mine.salt",
+      "cityId": "city.daran",
       "displayName": "다르안",
       "regionId": "region.mine",
       "settlementType": "town",
-      "x": -120.0,
-      "y": 150.0,
+      "x": -160.0,
+      "y": 190.0,
       "interchange": false,
-      "degree": 4,
+      "degree": 3,
       "tileX": 52,
       "tileY": 34,
       "sourceId": "S15"
     },
     {
-      "cityId": "city.ranch.butcher",
+      "cityId": "city.heilheim",
       "displayName": "헤일하임",
       "regionId": "region.ranch",
       "settlementType": "town",
-      "x": -230.0,
-      "y": -80.0,
+      "x": -220.0,
+      "y": -100.0,
       "interchange": true,
-      "degree": 5,
+      "degree": 6,
       "tileX": 46,
       "tileY": 49,
       "sourceId": "S22"
     },
     {
-      "cityId": "city.ranch.highland",
+      "cityId": "city.darpol",
       "displayName": "다르폴",
       "regionId": "region.ranch",
       "settlementType": "city",
-      "x": -400.0,
-      "y": -350.0,
+      "x": -290.0,
+      "y": -290.0,
       "interchange": true,
-      "degree": 4,
+      "degree": 3,
       "tileX": 41,
       "tileY": 68,
       "sourceId": "S06"
     },
     {
-      "cityId": "city.ranch.jerky",
+      "cityId": "city.osgrad",
       "displayName": "오스그라드",
       "regionId": "region.ranch",
       "settlementType": "town",
-      "x": -110.0,
-      "y": -300.0,
+      "x": -200.0,
+      "y": -290.0,
       "interchange": false,
       "degree": 3,
       "tileX": 49,
@@ -390,75 +390,88 @@
       "sourceId": "S23"
     },
     {
-      "cityId": "city.ranch.pass",
+      "cityId": "city.rasenpol",
       "displayName": "라센폴",
       "regionId": "region.ranch",
       "settlementType": "town",
       "x": -310.0,
       "y": -190.0,
       "interchange": false,
-      "degree": 4,
+      "degree": 3,
       "tileX": 28,
       "tileY": 54,
       "sourceId": "S24"
+    },
+    {
+      "cityId": "city.rasburk",
+      "displayName": "라스부르크",
+      "regionId": "region.mine",
+      "settlementType": "town",
+      "x": -50.0,
+      "y": 220.0,
+      "interchange": false,
+      "degree": 3,
+      "tileX": 28,
+      "tileY": 41,
+      "sourceId": "editor.city.rasburk"
     }
   ],
   "rails": [
     {
       "railIndex": 0,
       "sourceId": "R01",
-      "fromCityId": "city.industry.ironworks",
-      "toCityId": "city.mine.dig",
+      "fromCityId": "city.porber",
+      "toCityId": "city.rasenton",
       "regionId": "line.regional",
       "corridorType": "trade_backbone",
       "distance": 3,
       "cost": 3,
-      "labelX": -440.0,
-      "labelY": 165.0,
+      "labelX": -370.0,
+      "labelY": 120.0,
       "points": [
-        -570.0,
-        60.0,
-        -290.0,
-        280.0
+        -430.0,
+        30.0,
+        -320.0,
+        190.0
       ],
       "displayPoints": [
-        -570.0,
-        60.0,
-        -290.0,
-        280.0
+        -430.0,
+        30.0,
+        -320.0,
+        190.0
       ],
       "labelManual": true
     },
     {
       "railIndex": 1,
       "sourceId": "R02",
-      "fromCityId": "city.mine.dig",
-      "toCityId": "city.common.rest",
-      "regionId": "line.regional",
+      "fromCityId": "city.riobruk",
+      "toCityId": "city.osber",
+      "regionId": "region.mine",
       "corridorType": "trade_backbone",
       "distance": 4,
       "cost": 3,
-      "labelX": -114.88147,
-      "labelY": 269.74408,
+      "labelX": -180.0,
+      "labelY": 340.0,
       "points": [
-        -290.0,
-        280.0,
-        80.0,
-        260.0
+        -270.0,
+        360.0,
+        -110.0,
+        330.0
       ],
       "displayPoints": [
-        -290.0,
-        280.0,
-        80.0,
-        260.0
+        -270.0,
+        360.0,
+        -110.0,
+        330.0
       ],
       "labelManual": true
     },
     {
       "railIndex": 2,
       "sourceId": "R03",
-      "fromCityId": "city.coast.sea",
-      "toCityId": "city.farm.field",
+      "fromCityId": "city.valenrie",
+      "toCityId": "city.dart",
       "regionId": "line.regional",
       "corridorType": "trade_backbone",
       "distance": 6,
@@ -466,32 +479,32 @@
       "labelX": 427.368835,
       "labelY": -309.5787,
       "points": [
-        630.0,
-        -110.0,
+        610.0,
+        -70.0,
         510.0,
         -260.0,
         410.0,
         -320.0,
-        145.6,
-        -365.0
+        120.0,
+        -320.0
       ],
       "displayPoints": [
-        630.0,
-        -110.0,
+        610.0,
+        -70.0,
         510.0,
         -260.0,
         410.0,
         -320.0,
-        145.6,
-        -365.0
+        120.0,
+        -320.0
       ],
       "labelManual": true
     },
     {
       "railIndex": 3,
       "sourceId": "R04",
-      "fromCityId": "city.common.roadside",
-      "toCityId": "city.capital.central",
+      "fromCityId": "city.mert",
+      "toCityId": "city.aiport",
       "regionId": "line.regional",
       "corridorType": "trade_backbone",
       "distance": 4,
@@ -515,8 +528,8 @@
     {
       "railIndex": 4,
       "sourceId": "R05",
-      "fromCityId": "city.capital.central",
-      "toCityId": "city.capital.finance",
+      "fromCityId": "city.aiport",
+      "toCityId": "city.finance",
       "regionId": "region.capital",
       "corridorType": "trade_backbone",
       "distance": 2,
@@ -526,72 +539,72 @@
       "points": [
         220.0,
         -20.0,
-        350.0,
-        -150.0
+        310.0,
+        -160.0
       ],
       "displayPoints": [
         220.0,
         -20.0,
-        350.0,
-        -150.0
+        310.0,
+        -160.0
       ],
       "labelManual": true
     },
     {
       "railIndex": 5,
       "sourceId": "R06",
-      "fromCityId": "city.industry.ironworks",
-      "toCityId": "city.common.crossing",
-      "regionId": "line.regional",
+      "fromCityId": "city.erna",
+      "toCityId": "city.teragrad",
+      "regionId": "region.industry",
       "corridorType": "express_backbone",
       "distance": 2,
       "cost": 3,
-      "labelX": -500.0,
-      "labelY": -40.0,
+      "labelX": -480.0,
+      "labelY": -80.0,
       "points": [
-        -570.0,
-        60.0,
-        -440.0,
-        -140.0
+        -540.0,
+        -20.0,
+        -430.0,
+        -80.0
       ],
       "displayPoints": [
-        -570.0,
-        60.0,
-        -440.0,
-        -140.0
+        -540.0,
+        -20.0,
+        -430.0,
+        -80.0
       ],
       "labelManual": true
     },
     {
       "railIndex": 6,
       "sourceId": "R07",
-      "fromCityId": "city.common.crossing",
-      "toCityId": "city.ranch.pass",
+      "fromCityId": "city.teragrad",
+      "toCityId": "city.heilheim",
       "regionId": "line.regional",
       "corridorType": "express_backbone",
-      "distance": 1,
+      "distance": 2,
       "cost": 3,
-      "labelX": -370.0,
-      "labelY": -170.0,
+      "labelX": -320.0,
+      "labelY": -100.0,
       "points": [
-        -440.0,
-        -140.0,
-        -310.0,
-        -190.0
+        -430.0,
+        -80.0,
+        -220.0,
+        -100.0
       ],
       "displayPoints": [
-        -440.0,
-        -140.0,
-        -310.0,
-        -190.0
+        -430.0,
+        -80.0,
+        -220.0,
+        -100.0
       ],
       "labelManual": true
     },
     {
       "railIndex": 7,
       "sourceId": "R08",
-      "fromCityId": "city.common.wayfarer",
-      "toCityId": "city.ranch.pass",
+      "fromCityId": "city.sera",
+      "toCityId": "city.rasenpol",
       "regionId": "line.regional",
       "corridorType": "express_backbone",
       "distance": 2,
@@ -599,14 +612,14 @@
       "labelX": -220.0,
       "labelY": -200.0,
       "points": [
-        -140.0,
-        -200.0,
+        -160.0,
+        -220.0,
         -310.0,
         -190.0
       ],
       "displayPoints": [
-        -140.0,
-        -200.0,
+        -160.0,
+        -220.0,
         -310.0,
         -190.0
       ],
@@ -615,33 +628,33 @@
     {
       "railIndex": 8,
       "sourceId": "R09",
-      "fromCityId": "city.common.rest",
-      "toCityId": "city.mine.salt",
-      "regionId": "line.regional",
+      "fromCityId": "city.rasburk",
+      "toCityId": "city.daran",
+      "regionId": "region.mine",
       "corridorType": "recommended_trade",
-      "distance": 2,
+      "distance": 1,
       "cost": 3,
-      "labelX": -20.0,
+      "labelX": -90.0,
       "labelY": 210.0,
       "points": [
-        80.0,
-        260.0,
-        -120.0,
-        150.0
+        -50.0,
+        220.0,
+        -160.0,
+        190.0
       ],
       "displayPoints": [
-        80.0,
-        260.0,
-        -120.0,
-        150.0
+        -50.0,
+        220.0,
+        -160.0,
+        190.0
       ],
       "labelManual": true
     },
     {
       "railIndex": 9,
       "sourceId": "R10",
-      "fromCityId": "city.common.roadside",
-      "toCityId": "city.capital.finance",
+      "fromCityId": "city.mert",
+      "toCityId": "city.finance",
       "regionId": "line.regional",
       "corridorType": "recommended_trade",
       "distance": 3,
@@ -651,72 +664,72 @@
       "points": [
         160.0,
         -160.0,
-        350.0,
-        -150.0
+        310.0,
+        -160.0
       ],
       "displayPoints": [
         160.0,
         -160.0,
-        350.0,
-        -150.0
+        310.0,
+        -160.0
       ],
       "labelManual": true
     },
     {
       "railIndex": 10,
       "sourceId": "R11",
-      "fromCityId": "city.ranch.highland",
-      "toCityId": "city.common.crossing",
-      "regionId": "line.regional",
+      "fromCityId": "city.nornova",
+      "toCityId": "city.teragrad",
+      "regionId": "region.industry",
       "corridorType": "recommended_trade",
       "distance": 2,
       "cost": 3,
-      "labelX": -420.0,
-      "labelY": -230.0,
+      "labelX": -490.0,
+      "labelY": -140.0,
       "points": [
-        -400.0,
-        -350.0,
-        -440.0,
-        -140.0
+        -570.0,
+        -150.0,
+        -430.0,
+        -80.0
       ],
       "displayPoints": [
-        -400.0,
-        -350.0,
-        -440.0,
-        -140.0
+        -570.0,
+        -150.0,
+        -430.0,
+        -80.0
       ],
       "labelManual": true
     },
     {
       "railIndex": 11,
       "sourceId": "R12",
-      "fromCityId": "city.ranch.jerky",
-      "toCityId": "city.farm.grain",
+      "fromCityId": "city.osgrad",
+      "toCityId": "city.sera",
       "regionId": "line.regional",
       "corridorType": "recommended_trade",
-      "distance": 2,
+      "distance": 3,
       "cost": 3,
-      "labelX": -30.0,
-      "labelY": -250.0,
+      "labelX": -160.0,
+      "labelY": -240.0,
       "points": [
-        -110.0,
-        -300.0,
-        44.31,
-        -195.0
+        -200.0,
+        -290.0,
+        -160.0,
+        -220.0
       ],
       "displayPoints": [
-        -110.0,
-        -300.0,
-        44.31,
-        -195.0
+        -200.0,
+        -290.0,
+        -160.0,
+        -220.0
       ],
       "labelManual": true
     },
     {
       "railIndex": 12,
       "sourceId": "R13",
-      "fromCityId": "city.capital.central",
-      "toCityId": "city.capital.wholesale",
+      "fromCityId": "city.aiport",
+      "toCityId": "city.trenford",
       "regionId": "region.capital",
       "corridorType": "mst",
       "distance": 2,
@@ -740,8 +753,8 @@
     {
       "railIndex": 13,
       "sourceId": "R14",
-      "fromCityId": "city.farm.grain",
-      "toCityId": "city.farm.orchard",
+      "fromCityId": "city.ibt",
+      "toCityId": "city.terapol",
       "regionId": "region.farm",
       "corridorType": "recommended_trade",
       "distance": 1,
@@ -765,8 +778,8 @@
     {
       "railIndex": 14,
       "sourceId": "R15",
-      "fromCityId": "city.capital.central",
-      "toCityId": "city.capital.outskirts",
+      "fromCityId": "city.aiport",
+      "toCityId": "city.diaan",
       "regionId": "region.capital",
       "corridorType": "mst",
       "distance": 1,
@@ -790,8 +803,8 @@
     {
       "railIndex": 15,
       "sourceId": "R16",
-      "fromCityId": "city.farm.orchard",
-      "toCityId": "city.farm.lumber",
+      "fromCityId": "city.terapol",
+      "toCityId": "city.berska",
       "regionId": "region.farm",
       "corridorType": "mst",
       "distance": 1,
@@ -815,37 +828,33 @@
     {
       "railIndex": 16,
       "sourceId": "R17",
-      "fromCityId": "city.mine.dig",
-      "toCityId": "city.mine.iron",
+      "fromCityId": "city.karka",
+      "toCityId": "city.riobruk",
       "regionId": "region.mine",
       "corridorType": "mst",
       "distance": 2,
       "cost": 3,
-      "labelX": -250.0,
-      "labelY": 320.0,
+      "labelX": -330.0,
+      "labelY": 360.0,
       "points": [
-        -290.0,
-        280.0,
-        -183.59,
-        353.63,
-        -183.59,
-        355
+        -410.0,
+        360.0,
+        -270.0,
+        360.0
       ],
       "displayPoints": [
-        -290.0,
-        280.0,
-        -183.59,
-        353.63,
-        -183.59,
-        355
+        -410.0,
+        360.0,
+        -270.0,
+        360.0
       ],
       "labelManual": true
     },
     {
       "railIndex": 17,
       "sourceId": "R18",
-      "fromCityId": "city.capital.wholesale",
-      "toCityId": "city.capital.merchant",
+      "fromCityId": "city.trenford",
+      "toCityId": "city.sergrad",
       "regionId": "region.capital",
       "corridorType": "mst",
       "distance": 2,
@@ -855,13 +864,13 @@
       "points": [
         190.0,
         140.0,
-        60.0,
+        90.0,
         30.0
       ],
       "displayPoints": [
         190.0,
         140.0,
-        60.0,
+        90.0,
         30.0
       ],
       "labelManual": true
@@ -869,58 +878,58 @@
     {
       "railIndex": 18,
       "sourceId": "R19",
-      "fromCityId": "city.ranch.highland",
-      "toCityId": "city.ranch.jerky",
+      "fromCityId": "city.darpol",
+      "toCityId": "city.osgrad",
       "regionId": "region.ranch",
       "corridorType": "mst",
-      "distance": 3,
+      "distance": 1,
       "cost": 3,
-      "labelX": -255.0,
-      "labelY": -325.0,
+      "labelX": -240.0,
+      "labelY": -290.0,
       "points": [
-        -400.0,
-        -350.0,
-        -110.0,
-        -300.0
+        -290.0,
+        -290.0,
+        -200.0,
+        -290.0
       ],
       "displayPoints": [
-        -400.0,
-        -350.0,
-        -110.0,
-        -300.0
+        -290.0,
+        -290.0,
+        -200.0,
+        -290.0
       ],
       "labelManual": true
     },
     {
       "railIndex": 19,
       "sourceId": "R20",
-      "fromCityId": "city.industry.ironworks",
-      "toCityId": "city.industry.logistics",
+      "fromCityId": "city.erna",
+      "toCityId": "city.heilford",
       "regionId": "region.industry",
       "corridorType": "mst",
       "distance": 2,
       "cost": 3,
-      "labelX": -660.0,
-      "labelY": 30.0,
+      "labelX": -620.0,
+      "labelY": -30.0,
       "points": [
-        -570.0,
-        60.0,
-        -730.0,
-        0.0
+        -540.0,
+        -20.0,
+        -690.0,
+        -50.0
       ],
       "displayPoints": [
-        -570.0,
-        60.0,
-        -730.0,
-        0.0
+        -540.0,
+        -20.0,
+        -690.0,
+        -50.0
       ],
       "labelManual": true
     },
     {
       "railIndex": 20,
       "sourceId": "R21",
-      "fromCityId": "city.coast.port",
-      "toCityId": "city.coast.fish",
+      "fromCityId": "city.pioa",
+      "toCityId": "city.teratia",
       "regionId": "region.coast",
       "corridorType": "mst",
       "distance": 2,
@@ -929,26 +938,18 @@
       "labelY": 140.0,
       "points": [
         480.0,
-        60.0,
-        480.0,
-        110.0,
+        90.0,
         530.0,
-        140.0,
+        150.0,
         530.0,
-        210.0,
-        540.0,
         220.0
       ],
       "displayPoints": [
         480.0,
-        60.0,
-        480.0,
-        110.0,
+        90.0,
         530.0,
-        140.0,
+        150.0,
         530.0,
-        210.0,
-        540.0,
         220.0
       ],
       "labelManual": true
@@ -956,58 +957,62 @@
     {
       "railIndex": 21,
       "sourceId": "R22",
-      "fromCityId": "city.coast.fish",
-      "toCityId": "city.coast.spring",
+      "fromCityId": "city.teratia",
+      "toCityId": "city.teraka",
       "regionId": "region.coast",
       "corridorType": "mst",
       "distance": 2,
       "cost": 3,
-      "labelX": 470.0,
-      "labelY": 270.0,
+      "labelX": 530.0,
+      "labelY": 280.0,
       "points": [
-        540.0,
+        530.0,
         220.0,
-        400.0,
-        320.0
+        530.0,
+        280.0,
+        610.0,
+        310.0
       ],
       "displayPoints": [
-        540.0,
+        530.0,
         220.0,
-        400.0,
-        320.0
+        530.0,
+        280.0,
+        610.0,
+        310.0
       ],
       "labelManual": true
     },
     {
       "railIndex": 22,
       "sourceId": "R23",
-      "fromCityId": "city.industry.ironworks",
-      "toCityId": "city.industry.engine",
+      "fromCityId": "city.erna",
+      "toCityId": "city.nornova",
       "regionId": "region.industry",
       "corridorType": "mst",
       "distance": 3,
       "cost": 3,
-      "labelX": -590.0,
-      "labelY": -50.0,
+      "labelX": -550.0,
+      "labelY": -80.0,
       "points": [
+        -540.0,
+        -20.0,
         -570.0,
-        60.0,
-        -610.0,
-        -190.0
+        -150.0
       ],
       "displayPoints": [
+        -540.0,
+        -20.0,
         -570.0,
-        60.0,
-        -610.0,
-        -190.0
+        -150.0
       ],
       "labelManual": true
     },
     {
       "railIndex": 23,
       "sourceId": "R24",
-      "fromCityId": "city.farm.lumber",
-      "toCityId": "city.ranch.butcher",
+      "fromCityId": "city.berska",
+      "toCityId": "city.heilheim",
       "regionId": "line.regional",
       "corridorType": "mst",
       "distance": 1,
@@ -1017,22 +1022,22 @@
       "points": [
         -120.0,
         10.0,
-        -230.0,
-        -80.0
+        -220.0,
+        -100.0
       ],
       "displayPoints": [
         -120.0,
         10.0,
-        -230.0,
-        -80.0
+        -220.0,
+        -100.0
       ],
       "labelManual": true
     },
     {
       "railIndex": 24,
       "sourceId": "R25",
-      "fromCityId": "city.industry.meatlover",
-      "toCityId": "city.ranch.butcher",
+      "fromCityId": "city.karport",
+      "toCityId": "city.heilheim",
       "regionId": "line.regional",
       "corridorType": "recommended_trade",
       "distance": 1,
@@ -1042,47 +1047,47 @@
       "points": [
         -320.0,
         -30.0,
-        -230.0,
-        -80.0
+        -220.0,
+        -100.0
       ],
       "displayPoints": [
         -320.0,
         -30.0,
-        -230.0,
-        -80.0
+        -220.0,
+        -100.0
       ],
       "labelManual": true
     },
     {
       "railIndex": 25,
       "sourceId": "R26",
-      "fromCityId": "city.farm.grain",
-      "toCityId": "city.farm.field",
+      "fromCityId": "city.ibt",
+      "toCityId": "city.dart",
       "regionId": "region.farm",
       "corridorType": "mst",
-      "distance": 2,
+      "distance": 1,
       "cost": 3,
       "labelX": 94.955,
       "labelY": -280.0,
       "points": [
         44.31,
         -195,
-        145.6,
-        -365
+        120.0,
+        -320.0
       ],
       "displayPoints": [
         44.31,
         -195,
-        145.6,
-        -365
+        120.0,
+        -320.0
       ],
       "labelManual": true
     },
     {
       "railIndex": 26,
       "sourceId": "R27",
-      "fromCityId": "city.ranch.butcher",
-      "toCityId": "city.ranch.pass",
+      "fromCityId": "city.heilheim",
+      "toCityId": "city.rasenpol",
       "regionId": "region.ranch",
       "corridorType": "mst",
       "distance": 1,
@@ -1090,14 +1095,14 @@
       "labelX": -270.0,
       "labelY": -130.0,
       "points": [
-        -230.0,
-        -80.0,
+        -220.0,
+        -100.0,
         -310.0,
         -190.0
       ],
       "displayPoints": [
-        -230.0,
-        -80.0,
+        -220.0,
+        -100.0,
         -310.0,
         -190.0
       ],
@@ -1106,8 +1111,8 @@
     {
       "railIndex": 27,
       "sourceId": "R28",
-      "fromCityId": "city.mine.salt",
-      "toCityId": "city.farm.lumber",
+      "fromCityId": "city.daran",
+      "toCityId": "city.berska",
       "regionId": "line.regional",
       "corridorType": "recommended_trade",
       "distance": 1,
@@ -1115,14 +1120,14 @@
       "labelX": -120.0,
       "labelY": 80.0,
       "points": [
-        -120.0,
-        150.0,
+        -160.0,
+        190.0,
         -120.0,
         10.0
       ],
       "displayPoints": [
-        -120.0,
-        150.0,
+        -160.0,
+        190.0,
         -120.0,
         10.0
       ],
@@ -1131,37 +1136,37 @@
     {
       "railIndex": 29,
       "sourceId": "R30",
-      "fromCityId": "city.coast.port",
-      "toCityId": "city.coast.sea",
+      "fromCityId": "city.pioa",
+      "toCityId": "city.valenrie",
       "regionId": "region.coast",
       "corridorType": "mst",
       "distance": 2,
       "cost": 3,
       "labelX": 540.0,
-      "labelY": -30.0,
+      "labelY": -10.0,
       "points": [
         480.0,
-        60.0,
-        500.0,
-        0.0,
-        630.0,
-        -110.0
+        90.0,
+        480.0,
+        40.0,
+        610.0,
+        -70.0
       ],
       "displayPoints": [
         480.0,
-        60.0,
-        500.0,
-        0.0,
-        630.0,
-        -110.0
+        90.0,
+        480.0,
+        40.0,
+        610.0,
+        -70.0
       ],
       "labelManual": true
     },
     {
       "railIndex": 30,
       "sourceId": "R31",
-      "fromCityId": "city.mine.dig",
-      "toCityId": "city.mine.cave",
+      "fromCityId": "city.rasenton",
+      "toCityId": "city.karka",
       "regionId": "region.mine",
       "corridorType": "mst",
       "distance": 3,
@@ -1169,28 +1174,28 @@
       "labelX": -457.000824,
       "labelY": 278.166718,
       "points": [
-        -290.0,
-        280.0,
-        -490.0,
-        280.0,
-        -576.09,
-        355
+        -320.0,
+        190.0,
+        -410.0,
+        260.0,
+        -410.0,
+        360.0
       ],
       "displayPoints": [
-        -290.0,
-        280.0,
-        -490.0,
-        280.0,
-        -576.09,
-        355
+        -320.0,
+        190.0,
+        -410.0,
+        260.0,
+        -410.0,
+        360.0
       ],
       "labelManual": true
     },
     {
       "railIndex": 31,
       "sourceId": "R32",
-      "fromCityId": "city.farm.orchard",
-      "toCityId": "city.ranch.butcher",
+      "fromCityId": "city.terapol",
+      "toCityId": "city.heilheim",
       "regionId": "line.regional",
       "corridorType": "recommended_trade",
       "distance": 2,
@@ -1200,26 +1205,22 @@
       "points": [
         -60.0,
         -120.0,
-        -134.96,
-        -85,
-        -230.0,
-        -80.0
+        -220.0,
+        -100.0
       ],
       "displayPoints": [
         -60.0,
         -120.0,
-        -134.96,
-        -85,
-        -230.0,
-        -80.0
+        -220.0,
+        -100.0
       ],
       "labelManual": true
     },
     {
       "railIndex": 32,
       "sourceId": "R33",
-      "fromCityId": "city.capital.wholesale",
-      "toCityId": "city.capital.outskirts",
+      "fromCityId": "city.trenford",
+      "toCityId": "city.diaan",
       "regionId": "region.capital",
       "corridorType": "hub",
       "distance": 2,
@@ -1243,8 +1244,8 @@
     {
       "railIndex": 33,
       "sourceId": "R34",
-      "fromCityId": "city.capital.finance",
-      "toCityId": "city.capital.outskirts",
+      "fromCityId": "city.finance",
+      "toCityId": "city.diaan",
       "regionId": "region.capital",
       "corridorType": "economy_extra",
       "distance": 2,
@@ -1252,14 +1253,14 @@
       "labelX": 350.0,
       "labelY": -70.0,
       "points": [
-        350.0,
-        -150.0,
+        310.0,
+        -160.0,
         350.0,
         0.0
       ],
       "displayPoints": [
-        350.0,
-        -150.0,
+        310.0,
+        -160.0,
         350.0,
         0.0
       ],
@@ -1268,9 +1269,9 @@
     {
       "railIndex": 34,
       "sourceId": "R35",
-      "fromCityId": "city.industry.meatlover",
-      "toCityId": "city.common.crossing",
-      "regionId": "line.regional",
+      "fromCityId": "city.karport",
+      "toCityId": "city.teragrad",
+      "regionId": "region.industry",
       "corridorType": "recommended_trade",
       "distance": 2,
       "cost": 3,
@@ -1279,22 +1280,22 @@
       "points": [
         -320.0,
         -30.0,
-        -440.0,
-        -140.0
+        -430.0,
+        -80.0
       ],
       "displayPoints": [
         -320.0,
         -30.0,
-        -440.0,
-        -140.0
+        -430.0,
+        -80.0
       ],
       "labelManual": true
     },
     {
       "railIndex": 35,
       "sourceId": "R36",
-      "fromCityId": "city.farm.grain",
-      "toCityId": "city.common.roadside",
+      "fromCityId": "city.ibt",
+      "toCityId": "city.mert",
       "regionId": "line.regional",
       "corridorType": "economy_extra",
       "distance": 2,
@@ -1322,8 +1323,8 @@
     {
       "railIndex": 36,
       "sourceId": "R37",
-      "fromCityId": "city.ranch.butcher",
-      "toCityId": "city.common.wayfarer",
+      "fromCityId": "city.heilheim",
+      "toCityId": "city.sera",
       "regionId": "line.regional",
       "corridorType": "economy_extra",
       "distance": 2,
@@ -1331,49 +1332,49 @@
       "labelX": -180.0,
       "labelY": -140.0,
       "points": [
-        -230.0,
-        -80.0,
-        -140.0,
-        -200.0
+        -220.0,
+        -100.0,
+        -160.0,
+        -220.0
       ],
       "displayPoints": [
-        -230.0,
-        -80.0,
-        -140.0,
-        -200.0
+        -220.0,
+        -100.0,
+        -160.0,
+        -220.0
       ],
       "labelManual": true
     },
     {
       "railIndex": 37,
       "sourceId": "R38",
-      "fromCityId": "city.industry.engine",
-      "toCityId": "city.ranch.highland",
+      "fromCityId": "city.nornova",
+      "toCityId": "city.darpol",
       "regionId": "line.regional",
       "corridorType": "economy_extra",
       "distance": 3,
       "cost": 3,
-      "labelX": -510.0,
-      "labelY": -270.0,
+      "labelX": -440.0,
+      "labelY": -220.0,
       "points": [
-        -610.0,
-        -190.0,
-        -400.0,
-        -350.0
+        -570.0,
+        -150.0,
+        -290.0,
+        -290.0
       ],
       "displayPoints": [
-        -610.0,
-        -190.0,
-        -400.0,
-        -350.0
+        -570.0,
+        -150.0,
+        -290.0,
+        -290.0
       ],
       "labelManual": true
     },
     {
       "railIndex": 38,
       "sourceId": "R39",
-      "fromCityId": "city.farm.lumber",
-      "toCityId": "city.capital.merchant",
+      "fromCityId": "city.berska",
+      "toCityId": "city.sergrad",
       "regionId": "line.regional",
       "corridorType": "economy_extra",
       "distance": 2,
@@ -1383,13 +1384,13 @@
       "points": [
         -120.0,
         10.0,
-        60.0,
+        90.0,
         30.0
       ],
       "displayPoints": [
         -120.0,
         10.0,
-        60.0,
+        90.0,
         30.0
       ],
       "labelManual": true
@@ -1397,23 +1398,23 @@
     {
       "railIndex": 39,
       "sourceId": "R40",
-      "fromCityId": "city.coast.port",
-      "toCityId": "city.capital.outskirts",
+      "fromCityId": "city.pioa",
+      "toCityId": "city.diaan",
       "regionId": "line.regional",
       "corridorType": "economy_extra",
       "distance": 1,
       "cost": 3,
       "labelX": 420.0,
-      "labelY": 30.0,
+      "labelY": 50.0,
       "points": [
         480.0,
-        60.0,
+        90.0,
         350.0,
         0.0
       ],
       "displayPoints": [
         480.0,
-        60.0,
+        90.0,
         350.0,
         0.0
       ],
@@ -1422,23 +1423,23 @@
     {
       "railIndex": 40,
       "sourceId": "R41",
-      "fromCityId": "city.ranch.highland",
-      "toCityId": "city.ranch.pass",
+      "fromCityId": "city.darpol",
+      "toCityId": "city.rasenpol",
       "regionId": "region.ranch",
       "corridorType": "economy_extra",
-      "distance": 2,
+      "distance": 1,
       "cost": 3,
-      "labelX": -350.0,
-      "labelY": -260.0,
+      "labelX": -310.0,
+      "labelY": -230.0,
       "points": [
-        -400.0,
-        -350.0,
+        -290.0,
+        -290.0,
         -310.0,
         -190.0
       ],
       "displayPoints": [
-        -400.0,
-        -350.0,
+        -290.0,
+        -290.0,
         -310.0,
         -190.0
       ],
@@ -1447,8 +1448,8 @@
     {
       "railIndex": 41,
       "sourceId": "R42",
-      "fromCityId": "city.farm.orchard",
-      "toCityId": "city.common.wayfarer",
+      "fromCityId": "city.terapol",
+      "toCityId": "city.sera",
       "regionId": "line.regional",
       "corridorType": "economy_extra",
       "distance": 1,
@@ -1458,47 +1459,47 @@
       "points": [
         -60.0,
         -120.0,
-        -140.0,
-        -200.0
+        -160.0,
+        -220.0
       ],
       "displayPoints": [
         -60.0,
         -120.0,
-        -140.0,
-        -200.0
+        -160.0,
+        -220.0
       ],
       "labelManual": true
     },
     {
       "railIndex": 42,
       "sourceId": "R43",
-      "fromCityId": "city.mine.salt",
-      "toCityId": "city.capital.merchant",
+      "fromCityId": "city.rasburk",
+      "toCityId": "city.trenford",
       "regionId": "line.regional",
       "corridorType": "recommended_trade",
-      "distance": 2,
+      "distance": 3,
       "cost": 3,
-      "labelX": -20.0,
-      "labelY": 80.0,
+      "labelX": 60.0,
+      "labelY": 180.0,
       "points": [
-        -120.0,
-        150.0,
-        60.0,
-        30.0
+        -50.0,
+        220.0,
+        190.0,
+        140.0
       ],
       "displayPoints": [
-        -120.0,
-        150.0,
-        60.0,
-        30.0
+        -50.0,
+        220.0,
+        190.0,
+        140.0
       ],
       "labelManual": true
     },
     {
       "railIndex": 43,
       "sourceId": "R44",
-      "fromCityId": "city.industry.assembly",
-      "toCityId": "city.industry.meatlover",
+      "fromCityId": "city.porber",
+      "toCityId": "city.karport",
       "regionId": "region.industry",
       "corridorType": "regional_connection",
       "distance": 1,
@@ -1522,23 +1523,23 @@
     {
       "railIndex": 44,
       "sourceId": "R45",
-      "fromCityId": "city.industry.ironworks",
-      "toCityId": "city.industry.assembly",
+      "fromCityId": "city.erna",
+      "toCityId": "city.porber",
       "regionId": "region.industry",
       "corridorType": "regional_connection",
       "distance": 1,
       "cost": 3,
       "labelX": -490.0,
-      "labelY": 40.0,
+      "labelY": 10.0,
       "points": [
-        -570.0,
-        60.0,
+        -540.0,
+        -20.0,
         -430.0,
         30.0
       ],
       "displayPoints": [
-        -570.0,
-        60.0,
+        -540.0,
+        -20.0,
         -430.0,
         30.0
       ],
@@ -1547,8 +1548,8 @@
     {
       "railIndex": 45,
       "sourceId": "R46",
-      "fromCityId": "city.mine.dig",
-      "toCityId": "city.mine.salt",
+      "fromCityId": "city.rasenton",
+      "toCityId": "city.daran",
       "regionId": "region.mine",
       "corridorType": "mst",
       "distance": 2,
@@ -1556,24 +1557,24 @@
       "labelX": -200.0,
       "labelY": 200.0,
       "points": [
-        -290.0,
-        280.0,
-        -120.0,
-        150.0
+        -320.0,
+        190.0,
+        -160.0,
+        190.0
       ],
       "displayPoints": [
-        -290.0,
-        280.0,
-        -120.0,
-        150.0
+        -320.0,
+        190.0,
+        -160.0,
+        190.0
       ],
       "labelManual": true
     },
     {
       "railIndex": 46,
       "sourceId": "R47",
-      "fromCityId": "city.capital.merchant",
-      "toCityId": "city.capital.central",
+      "fromCityId": "city.sergrad",
+      "toCityId": "city.aiport",
       "regionId": "region.capital",
       "corridorType": "mst",
       "distance": 2,
@@ -1581,13 +1582,13 @@
       "labelX": 150.0,
       "labelY": 0.0,
       "points": [
-        60.0,
+        90.0,
         30.0,
         220.0,
         -20.0
       ],
       "displayPoints": [
-        60.0,
+        90.0,
         30.0,
         220.0,
         -20.0
@@ -1597,100 +1598,100 @@
     {
       "railIndex": 47,
       "sourceId": "R48",
-      "fromCityId": "city.common.rest",
-      "toCityId": "city.coast.spring",
+      "fromCityId": "city.osber",
+      "toCityId": "city.teraka",
       "regionId": "line.regional",
       "corridorType": "recommended_trade",
-      "distance": 3,
+      "distance": 5,
       "cost": 3,
-      "labelX": 240.0,
-      "labelY": 290.0,
+      "labelX": 150.0,
+      "labelY": 320.0,
       "points": [
-        80.0,
-        260.0,
-        400.0,
-        320.0
+        -110.0,
+        330.0,
+        610.0,
+        310.0
       ],
       "displayPoints": [
-        80.0,
-        260.0,
-        400.0,
-        320.0
+        -110.0,
+        330.0,
+        610.0,
+        310.0
       ],
       "labelManual": true
     },
     {
       "railIndex": 48,
       "sourceId": "R49",
-      "fromCityId": "city.common.rest",
-      "toCityId": "city.capital.wholesale",
-      "regionId": "line.regional",
+      "fromCityId": "city.osber",
+      "toCityId": "city.rasburk",
+      "regionId": "region.mine",
       "corridorType": "recommended_trade",
-      "distance": 2,
+      "distance": 1,
       "cost": 3,
-      "labelX": 130.0,
-      "labelY": 200.0,
+      "labelX": -70.0,
+      "labelY": 280.0,
       "points": [
-        80.0,
-        260.0,
-        190.0,
-        140.0
+        -110.0,
+        330.0,
+        -50.0,
+        220.0
       ],
       "displayPoints": [
-        80.0,
-        260.0,
-        190.0,
-        140.0
+        -110.0,
+        330.0,
+        -50.0,
+        220.0
       ],
       "labelManual": true
     },
     {
       "railIndex": 49,
       "sourceId": "R50",
-      "fromCityId": "city.ranch.jerky",
-      "toCityId": "city.farm.field",
+      "fromCityId": "city.osgrad",
+      "toCityId": "city.dart",
       "regionId": "line.regional",
       "corridorType": "recommended_trade",
       "distance": 3,
       "cost": 3,
-      "labelX": 20.0,
-      "labelY": -330.0,
+      "labelX": -30.0,
+      "labelY": -310.0,
       "points": [
-        -110.0,
-        -300.0,
-        145.6,
-        -365.0
+        -200.0,
+        -290.0,
+        120.0,
+        -320.0
       ],
       "displayPoints": [
-        -110.0,
-        -300.0,
-        145.6,
-        -365.0
+        -200.0,
+        -290.0,
+        120.0,
+        -320.0
       ],
       "labelManual": true
     },
     {
       "railIndex": 50,
       "sourceId": "R51",
-      "fromCityId": "city.industry.logistics",
-      "toCityId": "city.industry.engine",
+      "fromCityId": "city.heilford",
+      "toCityId": "city.nornova",
       "regionId": "region.industry",
       "corridorType": "mst",
       "distance": 2,
       "cost": 3,
-      "labelX": -670.0,
-      "labelY": -95.0,
+      "labelX": -640.0,
+      "labelY": -100.0,
       "points": [
-        -730.0,
-        0.0,
-        -610.0,
-        -190.0
+        -690.0,
+        -50.0,
+        -570.0,
+        -150.0
       ],
       "displayPoints": [
-        -730.0,
-        0.0,
-        -610.0,
-        -190.0
+        -690.0,
+        -50.0,
+        -570.0,
+        -150.0
       ],
       "labelManual": true
     }

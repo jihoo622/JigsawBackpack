@@ -7,666 +7,14 @@
       "id": "editor.MapPresentationTool",
       "numbers": [
         {
-          "id": "buttonY",
-          "value": 48.0
-        },
-        {
-          "id": "cityInformationHeight",
-          "value": 116.0
-        },
-        {
-          "id": "cityInformationWidth",
-          "value": 1744.0
-        },
-        {
-          "id": "cityInformationWidth2",
-          "value": 1744.0
-        },
-        {
-          "id": "cityInformationY",
-          "value": 426.0
-        },
-        {
-          "id": "cityInformationY2",
-          "value": 458.0
-        },
-        {
-          "id": "closeButtonHeight",
-          "value": 48.0
-        },
-        {
-          "id": "closeButtonWidth",
-          "value": 192.0
-        },
-        {
-          "id": "closeButtonX",
-          "value": 816.0
-        },
-        {
-          "id": "closeButtonY",
-          "value": 488.0
-        },
-        {
-          "id": "closeanchoredPositionX",
-          "value": 144.0
-        },
-        {
-          "id": "closeanchoredPositionY",
-          "value": 52.0
-        },
-        {
-          "id": "contentlocalScale",
-          "value": 0.65
-        },
-        {
-          "id": "controlsanchoredPositionY",
-          "value": 192.0
-        },
-        {
-          "id": "controlssizeDeltaHeight",
-          "value": 52.0
-        },
-        {
-          "id": "controlssizeDeltaWidth",
-          "value": 96.0
-        },
-        {
-          "id": "currentBadgeFontSize",
-          "value": 20,
-          "whole": true
-        },
-        {
-          "id": "currentBadgeHeight",
-          "value": 30.0
-        },
-        {
-          "id": "currentBadgeOffsetY",
-          "value": 58.0
-        },
-        {
-          "id": "currentBadgeWidth",
-          "value": 190.0
-        },
-        {
-          "id": "currentHaloX",
-          "value": 76.0
-        },
-        {
-          "id": "currentHaloY",
-          "value": 76.0
-        },
-        {
-          "id": "fitMap",
-          "value": 56.0
-        },
-        {
-          "id": "fitMap2",
-          "value": 216.0
-        },
-        {
-          "id": "generateTerrain",
-          "value": 0.28
-        },
-        {
-          "id": "generateTerrain2",
-          "value": 0.82
-        },
-        {
-          "id": "generateTerrain3",
-          "value": 0.42
-        },
-        {
           "id": "generateTerrain4",
           "value": 0.35
         },
         {
-          "id": "generateTerrain5",
-          "value": 0.15
-        },
-        {
-          "id": "guide",
-          "value": 48.0
-        },
-        {
-          "id": "guide2",
-          "value": 48.0
-        },
-        {
-          "id": "guide3",
-          "value": 136.0
-        },
-        {
-          "id": "guide4",
-          "value": 76.0
-        },
-        {
-          "id": "guideFontSize",
-          "value": 20,
-          "whole": true
-        },
-        {
-          "id": "guideHeight",
-          "value": 76.0
-        },
-        {
-          "id": "guideWidth",
-          "value": 1760.0
-        },
-        {
-          "id": "guideY",
-          "value": 366.0
-        },
-        {
-          "id": "infofontSizeFontSize",
-          "value": 18,
-          "whole": true
-        },
-        {
-          "id": "inforesizeTextMaxSize",
-          "value": 20,
-          "whole": true
-        },
-        {
-          "id": "inforesizeTextMinSize",
-          "value": 14,
-          "whole": true
-        },
-        {
-          "id": "labelsoffsetMaxX",
-          "value": 48.0
-        },
-        {
-          "id": "labelsoffsetMinX",
-          "value": 48.0
-        },
-        {
-          "id": "legendFontSize",
-          "value": 19,
-          "whole": true
-        },
-        {
-          "id": "legendLabelHeight",
-          "value": 30.0
-        },
-        {
-          "id": "legendLabelOffsetX",
-          "value": 116.0
-        },
-        {
-          "id": "legendLabelWidth",
-          "value": 202.0
-        },
-        {
-          "id": "legendLabelY",
-          "value": 432.0
-        },
-        {
-          "id": "legendOriginX",
-          "value": 796.0
-        },
-        {
-          "id": "legendStep",
-          "value": 252.0
-        },
-        {
-          "id": "lineSwatchHeight",
-          "value": 6.0
-        },
-        {
-          "id": "lineSwatchWidth",
-          "value": 20.0
-        },
-        {
-          "id": "lineSwatchY",
-          "value": 432.0
-        },
-        {
-          "id": "locateCurrent",
-          "value": 304.0
-        },
-        {
-          "id": "locateCurrent2",
-          "value": 216.0
-        },
-        {
-          "id": "mapContentX",
-          "value": 1760.0
-        },
-        {
-          "id": "mapContentY",
-          "value": 960.0
-        },
-        {
-          "id": "mapControlsHeight",
-          "value": 52.0
-        },
-        {
-          "id": "mapControlsWidth",
-          "value": 1744.0
-        },
-        {
-          "id": "mapControlsY",
-          "value": 348.0
-        },
-        {
           "id": "pixelspertile",
-          "value": 12,
+          "value": 4,
           "whole": true,
           "positive": true
-        },
-        {
-          "id": "rectTransformanchoredPositionY",
-          "value": 82.0
-        },
-        {
-          "id": "rectTransformsizeDeltaHeight",
-          "value": 116.0
-        },
-        {
-          "id": "rectTransformsizeDeltaWidth",
-          "value": 96.0
-        },
-        {
-          "id": "rectanchorMaxX",
-          "value": 7.0
-        },
-        {
-          "id": "rectanchorMinX",
-          "value": 7.0
-        },
-        {
-          "id": "rectanchoredPositionX",
-          "value": 12.0
-        },
-        {
-          "id": "rectanchoredPositionY",
-          "value": 108.0
-        },
-        {
-          "id": "rectsizeDeltaHeight",
-          "value": 30.0
-        },
-        {
-          "id": "rectsizeDeltaWidth",
-          "value": 44.0
-        },
-        {
-          "id": "swatchanchorMinX",
-          "value": 7.0
-        },
-        {
-          "id": "swatchanchoredPositionX",
-          "value": 18.0
-        },
-        {
-          "id": "swatchanchoredPositionY",
-          "value": 108.0
-        },
-        {
-          "id": "terrainBackgroundHeight",
-          "value": 820.0
-        },
-        {
-          "id": "terrainBackgroundWidth",
-          "value": 1570.0
-        },
-        {
-          "id": "title",
-          "value": 288.0
-        },
-        {
-          "id": "title2",
-          "value": 288.0
-        },
-        {
-          "id": "title3",
-          "value": 28.0
-        },
-        {
-          "id": "title4",
-          "value": 48.0
-        },
-        {
-          "id": "titleHeight",
-          "value": 48.0
-        },
-        {
-          "id": "titleWidth",
-          "value": 1344.0
-        },
-        {
-          "id": "titleY",
-          "value": 488.0
-        },
-        {
-          "id": "viewportoffsetMaxX",
-          "value": 48.0
-        },
-        {
-          "id": "viewportoffsetMaxY",
-          "value": 228.0
-        },
-        {
-          "id": "viewportoffsetMinX",
-          "value": 48.0
-        },
-        {
-          "id": "viewportoffsetMinY",
-          "value": 228.0
-        },
-        {
-          "id": "zoomIn",
-          "value": 118.0
-        },
-        {
-          "id": "zoomIn2",
-          "value": 64.0
-        },
-        {
-          "id": "zoomOut",
-          "value": 294.0
-        },
-        {
-          "id": "zoomOut2",
-          "value": 64.0
-        },
-        {
-          "id": "zoomPercentFontSize",
-          "value": 0.65
-        },
-        {
-          "id": "zoomPercentFontSize2",
-          "value": 22,
-          "whole": true
-        },
-        {
-          "id": "zoomPercentHeight",
-          "value": 48.0
-        },
-        {
-          "id": "zoomPercentWidth",
-          "value": 100.0
-        },
-        {
-          "id": "zoomPercentX",
-          "value": 206.0
-        }
-      ]
-    },
-    {
-      "id": "editor.MapTravelSetupTool",
-      "numbers": [
-        {
-          "id": "bodyHeight",
-          "value": 24.0
-        },
-        {
-          "id": "bodyWidth",
-          "value": 42.0
-        },
-        {
-          "id": "bodyX",
-          "value": 6.0
-        },
-        {
-          "id": "cabHeight",
-          "value": 36.0
-        },
-        {
-          "id": "cabWidth",
-          "value": 16.0
-        },
-        {
-          "id": "cabX",
-          "value": 20.0
-        },
-        {
-          "id": "cabY",
-          "value": 6.0
-        },
-        {
-          "id": "cancelTravelX",
-          "value": 150.0
-        },
-        {
-          "id": "cancelTravelY",
-          "value": 138.0
-        },
-        {
-          "id": "canvassortingOrder",
-          "value": 100,
-          "whole": true
-        },
-        {
-          "id": "confirmTravelX",
-          "value": 150.0
-        },
-        {
-          "id": "confirmTravelY",
-          "value": 138.0
-        },
-        {
-          "id": "confirmationX",
-          "value": 680.0
-        },
-        {
-          "id": "confirmationY",
-          "value": 392.0
-        },
-        {
-          "id": "departureX",
-          "value": 240.0
-        },
-        {
-          "id": "departureY",
-          "value": 6.0
-        },
-        {
-          "id": "destinationX",
-          "value": 240.0
-        },
-        {
-          "id": "destinationY",
-          "value": 6.0
-        },
-        {
-          "id": "journeyRouteFontSize",
-          "value": 22,
-          "whole": true
-        },
-        {
-          "id": "journeyRouteHeight",
-          "value": 40.0
-        },
-        {
-          "id": "journeyRouteWidth",
-          "value": 624.0
-        },
-        {
-          "id": "journeyRouteY",
-          "value": 56.0
-        },
-        {
-          "id": "journeyTitleFontSize",
-          "value": 28,
-          "whole": true
-        },
-        {
-          "id": "journeyTitleHeight",
-          "value": 48.0
-        },
-        {
-          "id": "journeyTitleWidth",
-          "value": 624.0
-        },
-        {
-          "id": "journeyTitleY",
-          "value": 114.0
-        },
-        {
-          "id": "journeyX",
-          "value": 720.0
-        },
-        {
-          "id": "journeyY",
-          "value": 340.0
-        },
-        {
-          "id": "percentFontSize",
-          "value": 20,
-          "whole": true
-        },
-        {
-          "id": "percentHeight",
-          "value": 36.0
-        },
-        {
-          "id": "percentWidth",
-          "value": 240.0
-        },
-        {
-          "id": "percentY",
-          "value": 114.0
-        },
-        {
-          "id": "progressTrackHeight",
-          "value": 10.0
-        },
-        {
-          "id": "progressTrackWidth",
-          "value": 480.0
-        },
-        {
-          "id": "progressTrackY",
-          "value": 72.0
-        },
-        {
-          "id": "questionFontSize",
-          "value": 30,
-          "whole": true
-        },
-        {
-          "id": "questionHeight",
-          "value": 48.0
-        },
-        {
-          "id": "questionWidth",
-          "value": 592.0
-        },
-        {
-          "id": "questionY",
-          "value": 132.0
-        },
-        {
-          "id": "quoteFontSize",
-          "value": 22,
-          "whole": true
-        },
-        {
-          "id": "quoteHeight",
-          "value": 174.0
-        },
-        {
-          "id": "quoteWidth",
-          "value": 592.0
-        },
-        {
-          "id": "quoteY",
-          "value": 12.0
-        },
-        {
-          "id": "rectsizeDeltaHeight",
-          "value": 52.0
-        },
-        {
-          "id": "rectsizeDeltaWidth",
-          "value": 248.0
-        },
-        {
-          "id": "sleeperCount",
-          "value": 11,
-          "whole": true
-        },
-        {
-          "id": "sleeperHeight",
-          "value": 18.0
-        },
-        {
-          "id": "sleeperWidth",
-          "value": 5.0
-        },
-        {
-          "id": "sleeperX",
-          "value": 240.0
-        },
-        {
-          "id": "sleeperX2",
-          "value": 48.0
-        },
-        {
-          "id": "sleeperY",
-          "value": 12.0
-        },
-        {
-          "id": "trackHeight",
-          "value": 6.0
-        },
-        {
-          "id": "trackWidth",
-          "value": 520.0
-        },
-        {
-          "id": "trackY",
-          "value": 12.0
-        },
-        {
-          "id": "trainX",
-          "value": 64.0
-        },
-        {
-          "id": "trainY",
-          "value": 44.0
-        },
-        {
-          "id": "wheelCount",
-          "value": 3,
-          "whole": true
-        },
-        {
-          "id": "wheelHeight",
-          "value": 12.0
-        },
-        {
-          "id": "wheelWidth",
-          "value": 12.0
-        },
-        {
-          "id": "wheelX",
-          "value": 22.0
-        },
-        {
-          "id": "wheelX2",
-          "value": 20.0
-        },
-        {
-          "id": "wheelY",
-          "value": 15.0
-        },
-        {
-          "id": "windowHeight",
-          "value": 12.0
-        },
-        {
-          "id": "windowWidth",
-          "value": 10.0
-        },
-        {
-          "id": "windowX",
-          "value": 20.0
-        },
-        {
-          "id": "windowY",
-          "value": 14.0
         }
       ]
     },
@@ -680,17 +28,17 @@
         },
         {
           "id": "endpointtolerance",
-          "value": 2.0,
+          "value": 2,
           "positive": true
         },
         {
           "id": "labelnodeclearance",
-          "value": 60.0,
+          "value": 60,
           "positive": true
         },
         {
           "id": "labelnudge",
-          "value": 34.0,
+          "value": 34,
           "positive": true
         },
         {
@@ -699,7 +47,7 @@
         },
         {
           "id": "sidethickness",
-          "value": 5.0,
+          "value": 5,
           "positive": true
         },
         {
@@ -728,292 +76,6 @@
           "id": "regionalOrder",
           "value": 2,
           "whole": true
-        }
-      ]
-    },
-    {
-      "id": "editor.TooltipSceneSetup",
-      "numbers": [
-        {
-          "id": "badgecount",
-          "value": 3,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "bodyLayoutpaddingPaddingBottom",
-          "value": 16,
-          "whole": true
-        },
-        {
-          "id": "bodyLayoutpaddingPaddingLeft",
-          "value": 16,
-          "whole": true
-        },
-        {
-          "id": "bodyLayoutpaddingPaddingRight",
-          "value": 16,
-          "whole": true
-        },
-        {
-          "id": "bodyLayoutpaddingPaddingTop",
-          "value": 14,
-          "whole": true
-        },
-        {
-          "id": "bodyLayoutspacing",
-          "value": 10,
-          "whole": true
-        },
-        {
-          "id": "catRowLayoutspacing",
-          "value": 6,
-          "whole": true
-        },
-        {
-          "id": "createTooltipHierarchy",
-          "value": 6,
-          "whole": true
-        },
-        {
-          "id": "ensureFontAsset",
-          "value": 9,
-          "whole": true
-        },
-        {
-          "id": "ensureFontAsset2",
-          "value": 1024,
-          "whole": true
-        },
-        {
-          "id": "ensureFontAsset3",
-          "value": 1024,
-          "whole": true
-        },
-        {
-          "id": "headerLayoutpaddingPaddingBottom",
-          "value": 12,
-          "whole": true
-        },
-        {
-          "id": "headerLayoutpaddingPaddingLeft",
-          "value": 16,
-          "whole": true
-        },
-        {
-          "id": "headerLayoutpaddingPaddingRight",
-          "value": 16,
-          "whole": true
-        },
-        {
-          "id": "headerLayoutpaddingPaddingTop",
-          "value": 12,
-          "whole": true
-        },
-        {
-          "id": "headerLayoutspacing",
-          "value": 8,
-          "whole": true
-        },
-        {
-          "id": "layoutpaddingPaddingLeft",
-          "value": 16,
-          "whole": true
-        },
-        {
-          "id": "layoutpaddingPaddingRight",
-          "value": 16,
-          "whole": true
-        },
-        {
-          "id": "rootRectsizeDeltaHeight",
-          "value": 200.0
-        },
-        {
-          "id": "rootRectsizeDeltaWidth",
-          "value": 300.0
-        },
-        {
-          "id": "synSectionLayoutpaddingPaddingTop",
-          "value": 6,
-          "whole": true
-        },
-        {
-          "id": "synSectionLayoutspacing",
-          "value": 6,
-          "whole": true
-        },
-        {
-          "id": "tmpfontSizeFontSize",
-          "value": 18.0
-        },
-        {
-          "id": "tmpfontSizeMaxFontSize",
-          "value": 24.0
-        },
-        {
-          "id": "tmpfontSizeMinFontSize",
-          "value": 18.0
-        }
-      ]
-    },
-    {
-      "id": "editor.TrainBarSceneSetup",
-      "colors": [
-        {
-          "id": "addColorsdisabledColorColor",
-          "r": 0.18,
-          "g": 0.55,
-          "b": 0.28,
-          "a": 0.35
-        },
-        {
-          "id": "addColorshighlightedColorColor",
-          "r": 0.24,
-          "g": 0.72,
-          "b": 0.36,
-          "a": 1.0
-        },
-        {
-          "id": "addColorspressedColorColor",
-          "r": 0.12,
-          "g": 0.42,
-          "b": 0.2,
-          "a": 1.0
-        },
-        {
-          "id": "bgImgcolorColor",
-          "r": 0.0,
-          "g": 0.0,
-          "b": 0.0,
-          "a": 0.01
-        }
-      ],
-      "numbers": [
-        {
-          "id": "addBtnRectanchoredPositionX",
-          "value": 650.0
-        },
-        {
-          "id": "addBtnRectsizeDeltaHeight",
-          "value": 60.0
-        },
-        {
-          "id": "addBtnRectsizeDeltaWidth",
-          "value": 150.0
-        },
-        {
-          "id": "addTextfontSizeFontSize",
-          "value": 18,
-          "whole": true
-        },
-        {
-          "id": "borderRectsizeDeltaHeight",
-          "value": 66.0
-        },
-        {
-          "id": "borderRectsizeDeltaWidth",
-          "value": 156.0
-        },
-        {
-          "id": "createTrainBarHierarchy",
-          "value": 5,
-          "whole": true
-        },
-        {
-          "id": "imgRectsizeDeltaHeight",
-          "value": 60.0
-        },
-        {
-          "id": "imgRectsizeDeltaWidth",
-          "value": 150.0
-        },
-        {
-          "id": "numRectanchoredPositionY",
-          "value": 8.0
-        },
-        {
-          "id": "numRectsizeDeltaHeight",
-          "value": 40.0
-        },
-        {
-          "id": "numRectsizeDeltaWidth",
-          "value": 60.0
-        },
-        {
-          "id": "numTextfontSizeFontSize",
-          "value": 28,
-          "whole": true
-        },
-        {
-          "id": "numTextoutlineWidth",
-          "value": 0.25
-        },
-        {
-          "id": "poolsize",
-          "value": 8,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "rootRectanchoredPositionY",
-          "value": 430.0
-        },
-        {
-          "id": "rootRectsizeDeltaHeight",
-          "value": 80.0
-        },
-        {
-          "id": "rootRectsizeDeltaWidth",
-          "value": 1000.0
-        },
-        {
-          "id": "slotRectsizeDeltaHeight",
-          "value": 60.0
-        },
-        {
-          "id": "slotRectsizeDeltaWidth",
-          "value": 150.0
-        }
-      ]
-    },
-    {
-      "id": "editor.map",
-      "numbers": [
-        {
-          "id": "cityInformationHeight",
-          "value": 180,
-          "whole": true,
-          "positive": true
-        }
-      ]
-    },
-    {
-      "id": "editor.tooltip",
-      "numbers": [
-        {
-          "id": "badgeVerticalPadding",
-          "value": 2,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "dividerHeight",
-          "value": 2,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "fontSamplingSize",
-          "value": 90,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "synergySpacing",
-          "value": 4,
-          "whole": true,
-          "positive": true
         }
       ]
     },
@@ -1082,14 +144,14 @@
         },
         {
           "id": "low",
-          "r": 1.0,
+          "r": 1,
           "g": 0.4,
           "b": 0.4,
           "a": 1
         },
         {
           "id": "medium",
-          "r": 1.0,
+          "r": 1,
           "g": 0.8627450980392157,
           "b": 0.3137254901960784,
           "a": 1
@@ -1103,9 +165,9 @@
         },
         {
           "id": "outline",
-          "r": 0.0,
-          "g": 0.0,
-          "b": 0.0,
+          "r": 0,
+          "g": 0,
+          "b": 0,
           "a": 1
         }
       ]
@@ -1118,55 +180,55 @@
           "r": 0.1,
           "g": 0.13,
           "b": 0.17,
-          "a": 1.0
+          "a": 1
         },
         {
           "id": "cell",
           "r": 0.17,
           "g": 0.21,
           "b": 0.26,
-          "a": 1.0
+          "a": 1
         },
         {
           "id": "color",
           "r": 0.9,
           "g": 0.33,
           "b": 0.29,
-          "a": 1.0
+          "a": 1
         },
         {
           "id": "colorColor",
           "r": 0.33,
           "g": 0.58,
           "b": 0.95,
-          "a": 1.0
+          "a": 1
         },
         {
           "id": "colorColor2",
           "r": 0.35,
           "g": 0.76,
           "b": 0.44,
-          "a": 1.0
+          "a": 1
         },
         {
           "id": "colorColor3",
           "r": 0.96,
           "g": 0.78,
           "b": 0.27,
-          "a": 1.0
+          "a": 1
         },
         {
           "id": "colorColor4",
           "r": 0.72,
           "g": 0.74,
           "b": 0.8,
-          "a": 1.0
+          "a": 1
         },
         {
           "id": "ghost",
-          "r": 1.0,
-          "g": 1.0,
-          "b": 1.0,
+          "r": 1,
+          "g": 1,
+          "b": 1,
           "a": 0.42
         },
         {
@@ -1174,35 +236,35 @@
           "r": 0.92,
           "g": 0.94,
           "b": 0.97,
-          "a": 1.0
+          "a": 1
         },
         {
           "id": "itemIcon",
-          "r": 1.0,
-          "g": 1.0,
-          "b": 1.0,
-          "a": 1.0
+          "r": 1,
+          "g": 1,
+          "b": 1,
+          "a": 1
         },
         {
           "id": "moveTarget",
           "r": 0.53,
           "g": 0.79,
-          "b": 1.0,
-          "a": 1.0
+          "b": 1,
+          "a": 1
         },
         {
           "id": "outline",
           "r": 0.39,
           "g": 0.91,
           "b": 0.67,
-          "a": 1.0
+          "a": 1
         },
         {
           "id": "outlineColor",
-          "r": 1.0,
+          "r": 1,
           "g": 0.43,
           "b": 0.39,
-          "a": 1.0
+          "a": 1
         },
         {
           "id": "piece",
@@ -1213,23 +275,30 @@
         },
         {
           "id": "pieceOutline",
-          "r": 0.0,
-          "g": 0.0,
-          "b": 0.0,
-          "a": 1.0
+          "r": 0,
+          "g": 0,
+          "b": 0,
+          "a": 1
         },
         {
           "id": "refrigerationArrow",
           "r": 0.67451,
           "g": 0.929412,
           "b": 0.603922,
-          "a": 1.0
+          "a": 1
         },
         {
           "id": "synergyArrow",
           "r": 1,
           "g": 1,
           "b": 1,
+          "a": 1
+        },
+        {
+          "id": "synergyNotice",
+          "r": 1,
+          "g": 0.42,
+          "b": 0.32,
           "a": 1
         },
         {
@@ -1244,7 +313,7 @@
           "r": 0.10588235294117647,
           "g": 0.1411764705882353,
           "b": 0.1843137254901961,
-          "a": 1.0
+          "a": 1
         },
         {
           "id": "travelDim",
@@ -1294,7 +363,7 @@
         },
         {
           "id": "puzzleTravelProgress",
-          "value": 100.0
+          "value": 100
         },
         {
           "id": "stationRestDurationAbovePercent",
@@ -1549,25 +618,25 @@
           "r": 0.39,
           "g": 0.91,
           "b": 0.67,
-          "a": 1.0
+          "a": 1
         },
         {
           "id": "connectedDisabled",
           "r": 0.85,
           "g": 0.45,
           "b": 0.45,
-          "a": 1.0
+          "a": 1
         },
         {
           "id": "current",
-          "r": 1.0,
+          "r": 1,
           "g": 0.78,
           "b": 0.3,
-          "a": 1.0
+          "a": 1
         },
         {
           "id": "currentHalo",
-          "r": 1.0,
+          "r": 1,
           "g": 0.78,
           "b": 0.3,
           "a": 0.25
@@ -1577,21 +646,14 @@
           "r": 0.8941176470588236,
           "g": 0.9137254901960784,
           "b": 0.9372549019607843,
-          "a": 1.0
-        },
-        {
-          "id": "land",
-          "r": 0.16470588235294117,
-          "g": 0.21568627450980393,
-          "b": 0.22745098039215686,
-          "a": 1.0
+          "a": 1
         },
         {
           "id": "ocean",
           "r": 0.08235294117647059,
           "g": 0.1607843137254902,
           "b": 0.22745098039215686,
-          "a": 1.0
+          "a": 1
         },
         {
           "id": "region.capital",
@@ -1651,38 +713,87 @@
         },
         {
           "id": "river",
-          "r": 0.1411764705882353,
-          "g": 0.4470588235294118,
-          "b": 0.6588235294117647,
-          "a": 1.0
+          "r": 0.23,
+          "g": 0.56,
+          "b": 0.69,
+          "a": 1
         },
         {
           "id": "route",
           "r": 0.3,
           "g": 0.68,
           "b": 0.82,
-          "a": 1.0
+          "a": 1
         },
         {
           "id": "terrainBorder",
           "r": 0.44313725490196076,
           "g": 0.5450980392156862,
           "b": 0.5764705882352941,
-          "a": 1.0
+          "a": 1
+        },
+        {
+          "id": "terrainDeep",
+          "r": 0.11,
+          "g": 0.3,
+          "b": 0.45,
+          "a": 1
+        },
+        {
+          "id": "terrainGrass",
+          "r": 0.49,
+          "g": 0.56,
+          "b": 0.39,
+          "a": 1
+        },
+        {
+          "id": "terrainHill",
+          "r": 0.55,
+          "g": 0.53,
+          "b": 0.4,
+          "a": 1
+        },
+        {
+          "id": "terrainMountain",
+          "r": 0.6,
+          "g": 0.55,
+          "b": 0.45,
+          "a": 1
+        },
+        {
+          "id": "terrainPeak",
+          "r": 0.79,
+          "g": 0.75,
+          "b": 0.66,
+          "a": 1
+        },
+        {
+          "id": "terrainPlain",
+          "r": 0.68,
+          "g": 0.76,
+          "b": 0.55,
+          "a": 1
+        },
+        {
+          "id": "terrainShallow",
+          "r": 0.2,
+          "g": 0.45,
+          "b": 0.6,
+          "a": 1
         },
         {
           "id": "unknown",
           "r": 0.4,
           "g": 0.46,
           "b": 0.55,
-          "a": 1.0
+          "a": 1
         },
         {
           "id": "visited",
           "r": 0.34,
           "g": 0.86,
           "b": 0.72,
-          "a": 1.0
+          "a": 1
         },
         {
           "id": "neutralLine",
@@ -1690,58 +801,6 @@
           "g": 0.8,
           "b": 0.86,
           "a": 1
-        }
-      ],
-      "numbers": [
-        {
-          "id": "badgeFontSize",
-          "value": 16,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "haloSize",
-          "value": 56.0,
-          "positive": true
-        },
-        {
-          "id": "majorStationFontSize",
-          "value": 22,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "puzzleMapStationFontSize",
-          "value": 24,
-          "whole": true
-        },
-        {
-          "id": "puzzleMapStationFontSizeBelowPercent",
-          "value": 0.8
-        },
-        {
-          "id": "puzzleMapStationFontSizeBelowPercent2",
-          "value": 18,
-          "whole": true
-        },
-        {
-          "id": "puzzleMapStationFontSizeBelowPercent3",
-          "value": 22,
-          "whole": true
-        },
-        {
-          "id": "puzzleMapTrackThickness",
-          "value": 0.65
-        },
-        {
-          "id": "puzzleMapZoom",
-          "value": 100.0
-        },
-        {
-          "id": "timeFontSize",
-          "value": 18,
-          "whole": true,
-          "positive": true
         }
       ],
       "texts": [
@@ -1807,8 +866,8 @@
         },
         {
           "id": "informationText2",
-          "value": " <size=18>{0} · 물가 {1}%</size>",
-          "arguments": 2
+          "value": " <size=18>{0} · 전 품목 구매 {1}% · 판매 {2}%</size>",
+          "arguments": 3
         },
         {
           "id": "informationText3",
@@ -2045,112 +1104,126 @@
           "r": 0.6274509803921569,
           "g": 0.47058823529411764,
           "b": 0.2901960784313726,
-          "a": 1.0
+          "a": 1
         },
         {
           "id": "boxBackground",
           "r": 0.5529411764705883,
           "g": 0.43137254901960786,
           "b": 0.38823529411764707,
-          "a": 1.0
+          "a": 1
         },
         {
           "id": "cargoBackground",
           "r": 0.5529411764705883,
           "g": 0.43137254901960786,
           "b": 0.38823529411764707,
-          "a": 1.0
+          "a": 1
         },
         {
           "id": "fishBackground",
           "r": 0.00784313725490196,
           "g": 0.5176470588235295,
           "b": 0.7803921568627451,
-          "a": 1.0
+          "a": 1
+        },
+        {
+          "id": "freshBackground",
+          "r": 0.78039216,
+          "g": 0.90196078,
+          "b": 0.41960784,
+          "a": 1
+        },
+        {
+          "id": "freshTextColor",
+          "r": 0.16078431,
+          "g": 0.20784314,
+          "b": 0.05098039,
+          "a": 1
         },
         {
           "id": "foodBackground",
           "r": 0.8509803921568627,
           "g": 0.4666666666666667,
           "b": 0.023529411764705882,
-          "a": 1.0
+          "a": 1
         },
         {
           "id": "fruitBackground",
           "r": 0.7686274509803922,
           "g": 0.24705882352941178,
           "b": 0.24705882352941178,
-          "a": 1.0
+          "a": 1
         },
         {
           "id": "machineryBackground",
           "r": 0.7058823529411765,
           "g": 0.3254901960784314,
           "b": 0.03529411764705882,
-          "a": 1.0
+          "a": 1
         },
         {
           "id": "meatBackground",
           "r": 0.6235294117647059,
           "g": 0.17647058823529413,
           "b": 0.22745098039215686,
-          "a": 1.0
+          "a": 1
         },
         {
           "id": "metalBackground",
           "r": 0.32941176470588235,
           "g": 0.43137254901960786,
           "b": 0.47843137254901963,
-          "a": 1.0
+          "a": 1
         },
         {
           "id": "wasteBackground",
           "r": 0.3764705882352941,
           "g": 0.25098039215686274,
           "b": 0.14901960784313725,
-          "a": 1.0
+          "a": 1
         },
         {
           "id": "puzzleTagBackgroundColorColor",
           "r": 0.2784313725490196,
           "g": 0.3333333333333333,
           "b": 0.4117647058823529,
-          "a": 1.0
+          "a": 1
         },
         {
           "id": "puzzleTagTextColor",
-          "r": 1.0,
-          "g": 1.0,
-          "b": 1.0,
-          "a": 1.0
+          "r": 1,
+          "g": 1,
+          "b": 1,
+          "a": 1
         },
         {
           "id": "saltBackground",
           "r": 0.39215686274509803,
           "g": 0.4549019607843137,
           "b": 0.5450980392156862,
-          "a": 1.0
+          "a": 1
         },
         {
           "id": "supplyBackground",
           "r": 0.08627450980392157,
           "g": 0.6392156862745098,
           "b": 0.2901960784313726,
-          "a": 1.0
+          "a": 1
         },
         {
           "id": "waterBackground",
           "r": 0.054901960784313725,
           "g": 0.6470588235294118,
           "b": 0.9137254901960784,
-          "a": 1.0
+          "a": 1
         },
         {
           "id": "woodBackground",
           "r": 0.5529411764705883,
           "g": 0.35294117647058826,
           "b": 0.18823529411764706,
-          "a": 1.0
+          "a": 1
         }
       ],
       "numbers": [
@@ -2273,10 +1346,6 @@
           "value": "금속"
         },
         {
-          "id": "oreLabel",
-          "value": "광석"
-        },
-        {
           "id": "wasteLabel",
           "value": "거름"
         },
@@ -2286,7 +1355,7 @@
         },
         {
           "id": "refrigeratorLabel",
-          "value": "냉장"
+          "value": "신선"
         },
         {
           "id": "saltLabel",
@@ -2303,6 +1372,10 @@
         {
           "id": "woodLabel",
           "value": "목재"
+        },
+        {
+          "id": "oreLabel",
+          "value": "광석"
         }
       ]
     },
@@ -2311,10 +1384,10 @@
       "colors": [
         {
           "id": "accent",
-          "r": 1.0,
+          "r": 1,
           "g": 0.82,
           "b": 0.42,
-          "a": 1.0
+          "a": 1
         }
       ],
       "texts": [
@@ -2341,49 +1414,49 @@
           "r": 0.117647,
           "g": 0.12549,
           "b": 0.160784,
-          "a": 1.0
+          "a": 1
         },
         {
           "id": "divider",
           "r": 0.427451,
           "g": 0.403922,
           "b": 0.392157,
-          "a": 1.0
+          "a": 1
         },
         {
           "id": "gold",
           "r": 0.960784,
           "g": 0.87451,
           "b": 0.752941,
-          "a": 1.0
+          "a": 1
         },
         {
           "id": "green",
           "r": 0.67451,
           "g": 0.929412,
           "b": 0.603922,
-          "a": 1.0
+          "a": 1
         },
         {
           "id": "headerBackground",
           "r": 0.117647,
           "g": 0.12549,
           "b": 0.160784,
-          "a": 1.0
+          "a": 1
         },
         {
           "id": "red",
           "r": 1,
           "g": 0.619608,
           "b": 0.580392,
-          "a": 1.0
+          "a": 1
         },
         {
           "id": "text",
           "r": 0.964706,
           "g": 0.937255,
           "b": 0.87451,
-          "a": 1.0
+          "a": 1
         }
       ],
       "numbers": [
@@ -2426,8 +1499,8 @@
         },
         {
           "id": "effectHeader",
-          "value": "<color=#{0}><b>가능 가치 시너지</b> <size=70%>({1}시간마다 정산)</size></color>",
-          "arguments": 2
+          "value": "<color=#{0}><b>가능 인접 효과</b></color>",
+          "arguments": 1
         },
         {
           "id": "effectProgress",
@@ -2476,13 +1549,18 @@
         },
         {
           "id": "shelfLifeLabel",
-          "value": "<color=#{0}>유통기한</color>",
+          "value": "<color=#{0}>신선도 하락까지</color>",
           "arguments": 1
         },
         {
           "id": "shelfLifeValue",
-          "value": "<color=#{0}>{1}</color>",
-          "arguments": 2
+          "value": "<color=#{0}>{1}D {2}H</color>",
+          "arguments": 3
+        },
+        {
+          "id": "shelfLifePaused",
+          "value": "<color=#{0}>정지</color>",
+          "arguments": 1
         },
         {
           "id": "futureValueLabel",
@@ -2520,8 +1598,13 @@
           "arguments": 0
         },
         {
+          "id": "appliedPreservationEffect",
+          "value": "신선도 유지 +{0}%",
+          "arguments": 1
+        },
+        {
           "id": "refrigerationEffect",
-          "value": "객차에서 인접 음식의 유통기한 감소율 −{0}%",
+          "value": "인접 음식 신선도 유지 +{0}%",
           "arguments": 1
         },
         {
@@ -2543,6 +1626,11 @@
           "id": "activeEffectsHeader",
           "value": "<b>현재 적용 효과</b> <size=70%>(정산 1회 기준)</size>",
           "arguments": 0
+        },
+        {
+          "id": "activeEffectFaces",
+          "value": "{0} ×{1}면",
+          "arguments": 2
         },
         {
           "id": "activeEffectLabel",
@@ -2674,8 +1762,8 @@
         },
         {
           "id": "regionPrice",
-          "value": "\n지역 물가 {0}%",
-          "arguments": 1
+          "value": "\n전 품목 구매 {0}% · 판매 {1}%",
+          "arguments": 2
         }
       ]
     },
@@ -2687,28 +1775,42 @@
           "r": 0.1568627450980392,
           "g": 0.6549019607843137,
           "b": 0.27058823529411763,
-          "a": 1.0
+          "a": 1
+        },
+        {
+          "id": "addWagonBoxDisabled",
+          "r": 0.18,
+          "g": 0.55,
+          "b": 0.28,
+          "a": 0.5
+        },
+        {
+          "id": "addWagonTextDisabled",
+          "r": 0.8,
+          "g": 0.8,
+          "b": 0.8,
+          "a": 0.6
         },
         {
           "id": "wagonDragHoverBorder",
           "r": 0.39,
           "g": 0.91,
           "b": 0.67,
-          "a": 1.0
+          "a": 1
         },
         {
           "id": "wagonNormalBorder",
           "r": 0.35294117647058826,
           "g": 0.37254901960784315,
           "b": 0.4117647058823529,
-          "a": 1.0
+          "a": 1
         },
         {
           "id": "wagonSelectedBorder",
-          "r": 1.0,
+          "r": 1,
           "g": 0.8431372549019608,
-          "b": 0.0,
-          "a": 1.0
+          "b": 0,
+          "a": 1
         }
       ],
       "texts": [
@@ -2716,6 +1818,15 @@
           "id": "addWagonLabel",
           "value": "증차 ${0:N0}",
           "arguments": 1
+        },
+        {
+          "id": "refrigerationButton",
+          "value": "냉장 개조 ${0:N0}",
+          "arguments": 1
+        },
+        {
+          "id": "refrigerationInstalled",
+          "value": "냉장 설치됨"
         },
         {
           "id": "trainTitle",
@@ -2738,7 +1849,7 @@
       "texts": [
         {
           "id": "expiredFoodPieceId",
-          "value": "piece.foodWaste"
+          "value": "piece.poo"
         }
       ]
     },
@@ -2784,242 +1895,29 @@
           "id": "insufficientFunds",
           "value": "자금이 부족합니다. (필요: ${0})",
           "arguments": 1
-        }
-      ]
-    },
-    {
-      "id": "ui.PuzzleInventoryPresenter",
-      "numbers": [
-        {
-          "id": "wagonDragHoverDelay",
-          "value": 0.5,
-          "positive": true
-        }
-      ]
-    },
-    {
-      "id": "ui.PuzzleInventoryView",
-      "numbers": [
-        {
-          "id": "cellGap",
-          "value": 2.0,
-          "positive": true
         },
         {
-          "id": "rectTransformsizeDeltaHeight",
-          "value": 0.55
-        },
-        {
-          "id": "rectTransformsizeDeltaWidth",
-          "value": 1.8
-        },
-        {
-          "id": "renderRefrigeration",
-          "value": 0.34
-        },
-        {
-          "id": "renderSynergies",
-          "value": 0.08
-        },
-        {
-          "id": "renderSynergies2",
-          "value": 0.2
-        },
-        {
-          "id": "setMarketOpen",
-          "value": 8,
-          "whole": true
-        }
-      ]
-    },
-    {
-      "id": "ui.PuzzleItemTooltipView",
-      "numbers": [
-        {
-          "id": "defaultFollowSpeed",
-          "value": 25.0,
-          "positive": true
-        }
-      ]
-    },
-    {
-      "id": "ui.PuzzleMapNavigation",
-      "numbers": [
-        {
-          "id": "focusCurrent",
-          "value": 1.2
-        },
-        {
-          "id": "maxZoom",
-          "value": 2.5,
-          "positive": true
-        },
-        {
-          "id": "minZoom",
-          "value": 0.35,
-          "positive": true
-        },
-        {
-          "id": "zoomStep",
-          "value": 1.2,
-          "positive": true
-        }
-      ]
-    },
-    {
-      "id": "ui.PuzzleMapNodeView",
-      "numbers": [
-        {
-          "id": "prepareLayout",
-          "value": 44.0
-        },
-        {
-          "id": "prepareLayout2",
-          "value": 12.0
-        },
-        {
-          "id": "prepareLayout3",
-          "value": 12.0
-        },
-        {
-          "id": "rectTransformlocalScale",
-          "value": 1.5
-        },
-        {
-          "id": "rectTransformsizeDeltaHeight",
-          "value": 28.0
-        },
-        {
-          "id": "rectTransformsizeDeltaHeight2",
-          "value": 24.0
-        },
-        {
-          "id": "rectTransformsizeDeltaWidth",
-          "value": 160.0
-        }
-      ]
-    },
-    {
-      "id": "ui.PuzzleMapView",
-      "numbers": [
-        {
-          "id": "labelConnectorThickness",
-          "value": 2,
-          "positive": true
-        },
-        {
-          "id": "labelGap",
-          "value": 6.0,
-          "positive": true
-        },
-        {
-          "id": "labelSearchDistance",
-          "value": 60,
-          "positive": true
-        },
-        {
-          "id": "labelSearchStep",
-          "value": 12,
-          "positive": true
-        },
-        {
-          "id": "puzzleMapViewX",
-          "value": 28.0
-        },
-        {
-          "id": "puzzleMapViewX2",
-          "value": 28.0
-        },
-        {
-          "id": "puzzleMapViewY",
-          "value": 24.0
-        },
-        {
-          "id": "puzzleMapViewY2",
-          "value": 24.0
-        },
-        {
-          "id": "updateMapLayout",
-          "value": 8.0
-        },
-        {
-          "id": "updateMapLayout2",
-          "value": 8.0
-        },
-        {
-          "id": "updateMapLayout3",
-          "value": 8.0
-        },
-        {
-          "id": "updateMapLayout4",
-          "value": 8.0
-        },
-        {
-          "id": "updateMapLayoutAbovePercent2",
-          "value": 0.85
-        },
-        {
-          "id": "updateMapLayoutX",
-          "value": 16.0
-        },
-        {
-          "id": "updateMapLayoutY",
-          "value": 28.0
-        }
-      ]
-    },
-    {
-      "id": "ui.PuzzleTrainBarView",
-      "colors": [
-        {
-          "id": "addWagonBoxcolorColor",
-          "r": 0.18,
-          "g": 0.55,
-          "b": 0.28,
-          "a": 0.5
-        },
-        {
-          "id": "addWagonTextcolorColor",
-          "r": 0.8,
-          "g": 0.8,
-          "b": 0.8,
-          "a": 0.6
-        }
-      ],
-      "numbers": [
-        {
-          "id": "originX",
-          "value": 0
-        },
-        {
-          "id": "originY",
-          "value": 0.0
-        },
-        {
-          "id": "wagonDragHoverScale",
-          "value": 1.08,
-          "positive": true
-        },
-        {
-          "id": "wagonHeight",
-          "value": 56,
-          "positive": true
-        },
-        {
-          "id": "wagonSpacing",
-          "value": 50.0,
-          "positive": true
-        },
-        {
-          "id": "wagonWidth",
-          "value": 150.0,
-          "positive": true
+          "id": "maxReached",
+          "value": "객차는 최대 {0}칸입니다",
+          "arguments": 1
         }
       ]
     },
     {
       "id": "rules.freshness",
       "numbers": [
+        {
+          "id": "lowThreshold",
+          "value": 20,
+          "positive": true,
+          "whole": true
+        },
+        {
+          "id": "mediumThreshold",
+          "value": 60,
+          "positive": true,
+          "whole": true
+        },
         {
           "id": "highValuePercent",
           "value": 100,
@@ -3037,962 +1935,6 @@
           "value": 50,
           "positive": true,
           "whole": true
-        }
-      ]
-    },
-    {
-      "id": "ui.freshness",
-      "numbers": [
-        {
-          "id": "outlineWidth",
-          "value": 0.35,
-          "positive": true
-        },
-        {
-          "id": "fontScale",
-          "value": 0.30,
-          "positive": true
-        },
-        {
-          "id": "widthScale",
-          "value": 0.9,
-          "positive": true
-        },
-        {
-          "id": "heightScale",
-          "value": 0.35,
-          "positive": true
-        },
-        {
-          "id": "offsetScale",
-          "value": 0.43,
-          "positive": true
-        },
-        {
-          "id": "lowThreshold",
-          "value": 20,
-          "positive": true,
-          "whole": true
-        },
-        {
-          "id": "mediumThreshold",
-          "value": 60,
-          "positive": true,
-          "whole": true
-        }
-      ]
-    },
-    {
-      "id": "ui.layout",
-      "colors": [
-        {
-          "id": "accent",
-          "r": 0.94,
-          "g": 0.75,
-          "b": 0.39,
-          "a": 1
-        },
-        {
-          "id": "background",
-          "r": 0.045,
-          "g": 0.065,
-          "b": 0.09,
-          "a": 1
-        },
-        {
-          "id": "border",
-          "r": 0.18,
-          "g": 0.28,
-          "b": 0.34,
-          "a": 1
-        },
-        {
-          "id": "button.disabled",
-          "r": 0.13,
-          "g": 0.16,
-          "b": 0.19,
-          "a": 0.55
-        },
-        {
-          "id": "button.highlight",
-          "r": 0.2,
-          "g": 0.32,
-          "b": 0.39,
-          "a": 1
-        },
-        {
-          "id": "button.normal",
-          "r": 0.13,
-          "g": 0.21,
-          "b": 0.27,
-          "a": 1
-        },
-        {
-          "id": "button.pressed",
-          "r": 0.09,
-          "g": 0.16,
-          "b": 0.21,
-          "a": 1
-        },
-        {
-          "id": "muted",
-          "r": 0.61,
-          "g": 0.7,
-          "b": 0.75,
-          "a": 1
-        },
-        {
-          "id": "surface",
-          "r": 0.075,
-          "g": 0.11,
-          "b": 0.15,
-          "a": 1
-        },
-        {
-          "id": "text",
-          "r": 0.91,
-          "g": 0.95,
-          "b": 0.96,
-          "a": 1
-        }
-      ],
-      "numbers": [
-        {
-          "id": "butcheryBoardSize",
-          "source": "Assets/Scripts/Editor/Build/PuzzleUiLayoutTool.cs",
-          "value": 396,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "butcheryBoardTop",
-          "source": "Assets/Scripts/Editor/Build/PuzzleUiLayoutTool.cs",
-          "value": 104,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "butcheryButtonBottom",
-          "source": "Assets/Scripts/Editor/Build/PuzzleUiLayoutTool.cs",
-          "value": 24,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "butcheryButtonHeight",
-          "source": "Assets/Scripts/Editor/Build/PuzzleUiLayoutTool.cs",
-          "value": 84,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "butcheryInfoHeight",
-          "source": "Assets/Scripts/Editor/Build/PuzzleUiLayoutTool.cs",
-          "value": 64,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "butcheryInfoY",
-          "source": "Assets/Scripts/Editor/Build/PuzzleUiLayoutTool.cs",
-          "value": 32,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "modificationBoardSize",
-          "source": "Assets/Scripts/Editor/Build/PuzzleUiLayoutTool.cs",
-          "value": 396,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "modificationBoardTop",
-          "source": "Assets/Scripts/Editor/Build/PuzzleUiLayoutTool.cs",
-          "value": 116,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "modificationButtonBottom",
-          "source": "Assets/Scripts/Editor/Build/PuzzleUiLayoutTool.cs",
-          "value": 24,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "modificationButtonHeight",
-          "source": "Assets/Scripts/Editor/Build/PuzzleUiLayoutTool.cs",
-          "value": 84,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "modificationInfoHeight",
-          "source": "Assets/Scripts/Editor/Build/PuzzleUiLayoutTool.cs",
-          "value": 32,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "modificationInfoY",
-          "source": "Assets/Scripts/Editor/Build/PuzzleUiLayoutTool.cs",
-          "value": 64,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "modificationModeHeight",
-          "source": "Assets/Scripts/Editor/Build/PuzzleUiLayoutTool.cs",
-          "value": 48,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "modificationModeTop",
-          "source": "Assets/Scripts/Editor/Build/PuzzleUiLayoutTool.cs",
-          "value": 8,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "refiningBoardSize",
-          "source": "Assets/Scripts/Editor/Build/PuzzleUiLayoutTool.cs",
-          "value": 396,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "refiningBoardTop",
-          "source": "Assets/Scripts/Editor/Build/PuzzleUiLayoutTool.cs",
-          "value": 104,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "refiningButtonBottom",
-          "source": "Assets/Scripts/Editor/Build/PuzzleUiLayoutTool.cs",
-          "value": 24,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "refiningButtonHeight",
-          "source": "Assets/Scripts/Editor/Build/PuzzleUiLayoutTool.cs",
-          "value": 84,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "refiningInfoHeight",
-          "source": "Assets/Scripts/Editor/Build/PuzzleUiLayoutTool.cs",
-          "value": 64,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "refiningInfoY",
-          "source": "Assets/Scripts/Editor/Build/PuzzleUiLayoutTool.cs",
-          "value": 32,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "actionDescriptionBottom",
-          "value": 16,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "actionDescriptionTop",
-          "value": 60,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "actionFont",
-          "value": 30,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "actionGap",
-          "value": 16,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "actionHeight",
-          "value": 112,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "actionIconSize",
-          "value": 64,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "actionIconX",
-          "value": 56,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "actionTextLeft",
-          "value": 112,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "actionTextTop",
-          "value": 16,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "actionTitleBottom",
-          "value": 52,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "backWidth",
-          "value": 220,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "bodyBottom",
-          "value": 112,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "bodyFont",
-          "value": 24,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "bodyTop",
-          "value": 160,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "bottom",
-          "value": 24,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "buttonFade",
-          "value": 0.12,
-          "positive": true
-        },
-        {
-          "id": "buttonFont",
-          "value": 26,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "buttonHeight",
-          "value": 44,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "buttonPadding",
-          "value": 16,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "buttonVerticalPadding",
-          "value": 4,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "clearWidth",
-          "value": 260,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "edge",
-          "value": 40,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "footerHeight",
-          "value": 64,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "footerPadding",
-          "value": 12,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "fundsWidth",
-          "value": 200,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "gap",
-          "value": 24,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "headerHeight",
-          "value": 72,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "infoHeight",
-          "value": 32,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "mapButtonHeight",
-          "value": 64,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "mapOrder",
-          "value": 100,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "mapWidth",
-          "value": 132,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "marketBoardHeight",
-          "value": 496,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "marketBoardTop",
-          "value": 136,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "marketBoardWidth",
-          "value": 616,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "marketGuideY",
-          "value": 20,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "marketInfoHeight",
-          "value": 96,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "marketInfoY",
-          "value": 32,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "minFont",
-          "value": 20,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "modalButtonHeight",
-          "value": 56,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "modalButtonWidth",
-          "value": 280,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "modalButtonX",
-          "value": 160,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "modalButtonY",
-          "value": 56,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "modalHeight",
-          "value": 520,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "modalInnerWidth",
-          "value": 680,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "modalQuoteHeight",
-          "value": 280,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "modalQuoteY",
-          "value": 240,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "modalTitleHeight",
-          "value": 48,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "modalTitleY",
-          "value": 52,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "modalWidth",
-          "value": 760,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "padding",
-          "value": 24,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "pauseOrder",
-          "value": 300,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "referenceHeight",
-          "value": 1080,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "referenceWidth",
-          "value": 1920,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "restButtonHeight",
-          "value": 84,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "restHintHeight",
-          "value": 160,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "ruleThickness",
-          "value": 2,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "rumorFont",
-          "value": 28,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "smallFont",
-          "value": 20,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "smallHeight",
-          "value": 28,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "stationTitleWidth",
-          "value": 600,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "tavernTitleHeight",
-          "value": 64,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "timeWidth",
-          "value": 360,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "titleFont",
-          "value": 30,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "titleHeight",
-          "value": 40,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "titleY",
-          "value": 36,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "tooltipOrder",
-          "value": 50,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "tooltipPointerOffset",
-          "value": 24,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "tooltipScreenMargin",
-          "value": 20,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "tooltipWidth",
-          "value": 300,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "top",
-          "value": 24,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "topHeight",
-          "value": 112,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "trainBoardSize",
-          "value": 520,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "trainBoardTop",
-          "value": 88,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "trainGuideY",
-          "value": 28,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "trainValueY",
-          "value": 66,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "travelOrder",
-          "value": 200,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "wagonBarHeight",
-          "value": 80,
-          "whole": true,
-          "positive": true
-        }
-      ],
-      "texts": [
-        {
-          "id": "marketDescription",
-          "value": "마을의 재고와 가격을 확인하고 화물을 거래합니다."
-        },
-        {
-          "id": "restBadge",
-          "value": "03"
-        },
-        {
-          "id": "restDescription",
-          "value": "시간을 보내거나 다음 아침까지 기다립니다."
-        },
-        {
-          "id": "tavernDescription",
-          "value": "다음 마을의 수요에 관한 소식을 듣습니다."
-        },
-        {
-          "id": "travelBadge",
-          "value": "04"
-        },
-        {
-          "id": "travelDescription",
-          "value": "노선도에서 다음 목적지를 선택합니다."
-        }
-      ]
-    },
-    {
-      "id": "ui.mapLabels",
-      "numbers": [
-        {
-          "id": "connected",
-          "value": 80,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "current",
-          "value": 10000,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "detailMinZoom",
-          "value": 0.85,
-          "positive": true
-        },
-        {
-          "id": "interchange",
-          "value": 40,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "majorThreshold",
-          "value": 200,
-          "positive": true,
-          "whole": true
-        },
-        {
-          "id": "other",
-          "value": 0,
-          "whole": true
-        },
-        {
-          "id": "regionBalanceBelowZoom",
-          "value": 1.0,
-          "positive": true
-        },
-        {
-          "id": "regionCrowdingPenalty",
-          "value": 180,
-          "positive": true,
-          "whole": true
-        },
-        {
-          "id": "selected",
-          "value": 9000,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "target",
-          "value": 500,
-          "whole": true,
-          "positive": true
-        }
-      ]
-    },
-    {
-      "id": "ui.mapRoutes",
-      "numbers": [
-        {
-          "id": "current",
-          "value": 2,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "currentSelected",
-          "value": 3,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "other",
-          "value": 0,
-          "whole": true
-        },
-        {
-          "id": "selected",
-          "value": 1,
-          "whole": true,
-          "positive": true
-        }
-      ]
-    },
-    {
-      "id": "ui.rumorLog",
-      "numbers": [
-        {
-          "id": "panelWidth",
-          "value": 480,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "panelHeight",
-          "value": 744,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "rightMargin",
-          "value": 20,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "centerY",
-          "value": -20,
-          "whole": true
-        },
-        {
-          "id": "padding",
-          "value": 20,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "gap",
-          "value": 12,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "headerHeight",
-          "value": 48,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "fontSize",
-          "value": 22,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "titleFontSize",
-          "value": 24,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "countWidth",
-          "value": 64,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "collapseWidth",
-          "value": 88,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "toggleWidth",
-          "value": 96,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "toggleHeight",
-          "value": 132,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "scrollbarWidth",
-          "value": 8,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "scrollSensitivity",
-          "value": 36,
-          "whole": true,
-          "positive": true
-        },
-        {
-          "id": "sortingOrder",
-          "value": 150,
-          "whole": true,
-          "positive": true
-        }
-      ]
-    },
-    {
-      "id": "ui.tooltip",
-      "numbers": [
-        {
-          "id": "badgeBlend",
-          "value": 0.35,
-          "positive": true
-        },
-        {
-          "id": "pointerTopInset",
-          "value": 32,
-          "positive": true
-        },
-        {
-          "id": "pointerEdgeInset",
-          "value": 20,
-          "positive": true
         }
       ]
     },
@@ -4333,6 +2275,101 @@
           "value": "정제 완료 시각이 게임 시간 범위를 넘습니다.",
           "arguments": 0,
           "source": "Assets/Scripts/Runtime/Inventory/PuzzleInventoryService.cs"
+        }
+      ]
+    },
+    {
+      "id": "presentation.synergyChart",
+      "colors": [
+        {
+          "id": "backdrop",
+          "r": 0,
+          "g": 0,
+          "b": 0,
+          "a": 0.6
+        },
+        {
+          "id": "empty",
+          "r": 0.1,
+          "g": 0.14,
+          "b": 0.18,
+          "a": 1
+        },
+        {
+          "id": "negative",
+          "r": 0.62,
+          "g": 0.22,
+          "b": 0.22,
+          "a": 1
+        },
+        {
+          "id": "positive",
+          "r": 0.2,
+          "g": 0.55,
+          "b": 0.32,
+          "a": 1
+        }
+      ],
+      "texts": [
+        {
+          "id": "allTargets",
+          "value": "모든 화물\n({0} 제외)",
+          "arguments": 1
+        },
+        {
+          "id": "cell",
+          "value": "{0:+0;-0;0}%{1}",
+          "arguments": 2
+        },
+        {
+          "id": "close",
+          "value": "닫기"
+        },
+        {
+          "id": "corner",
+          "value": "이 화물이 ↓\n옆에 닿으면 →"
+        },
+        {
+          "id": "footnote",
+          "value": "*{0} {1} 이웃은 이 효과를 주지 않음",
+          "arguments": 2
+        },
+        {
+          "id": "footnoteMark",
+          "value": "*{0}",
+          "arguments": 1
+        },
+        {
+          "id": "itemLine",
+          "value": "{0}  {1}",
+          "arguments": 2
+        },
+        {
+          "id": "itemTag",
+          "value": "<mark=#{0}AA> {1} </mark>",
+          "arguments": 2
+        },
+        {
+          "id": "itemTitle",
+          "value": "화물별 태그"
+        },
+        {
+          "id": "refrigeration",
+          "value": "• 냉장 프레임: 맞닿은 음식의 유통기한 소모 −{0}% (여러 면이 닿아도 프레임당 한 번)",
+          "arguments": 1
+        },
+        {
+          "id": "rules",
+          "value": "• 화물이 가진 태그마다 해당 행의 효과를 모두 더한다.\n• 맞닿은 면 하나마다 적용하고 {0}시간 정산마다 실제 가치에 누적한다.\n• 기차 화물칸 안에서만 정산하며 시장 보드는 표시만 한다.",
+          "arguments": 1
+        },
+        {
+          "id": "title",
+          "value": "시너지 상성표"
+        },
+        {
+          "id": "toggle",
+          "value": "상성표"
         }
       ]
     }

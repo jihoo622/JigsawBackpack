@@ -13,7 +13,7 @@ public sealed class EconomyAnalyzerWindow : EditorWindow
     const string MENU = "Tools/MyJG/Economy Analyzer";
     const string EXPORT_FOLDER = "Logs/Economy";
     const float CHART_HEIGHT = 220f;
-    static readonly string[] TABS = { "품목", "노선", "시뮬레이션" };
+    static readonly string[] TABS = { "품목", "노선", "태그 판정", "시뮬레이션" };
     static readonly string[] ROUTE_SORTS = { "1량 시간당 이익", "칸당 차익", "출발 도시" };
 
     int tab;
@@ -23,6 +23,10 @@ public sealed class EconomyAnalyzerWindow : EditorWindow
     string error;
     List<EconomyItemRow> itemRows;
     List<EconomyRouteRow> routeRows;
+    List<EconomyTagRow> tagRows;
+    string[] tagCityOptions = Array.Empty<string>(), tagItemOptions = Array.Empty<string>();
+    int tagCity, tagItem;
+    bool tagConflictsOnly, tagStockedOnly;
     EconomySimulationReport report;
     readonly EconomySimulationSettings settings = new EconomySimulationSettings();
 
@@ -53,6 +57,9 @@ public sealed class EconomyAnalyzerWindow : EditorWindow
                 break;
             case 1:
                 DrawRoutes();
+                break;
+            case 2:
+                DrawTags();
                 break;
             default:
                 DrawSimulation();
@@ -193,6 +200,92 @@ public sealed class EconomyAnalyzerWindow : EditorWindow
 
     #endregion
 
+    #region 태그 판정
+
+    void DrawTags()
+    {
+        using (new EditorGUILayout.HorizontalScope())
+        {
+            if (GUILayout.Button("계산", GUILayout.Width(80)))
+            {
+                Guard(() =>
+                {
+                    tagRows = EconomyProbe.BuildTagRows();
+                    tagCityOptions = new[] { "전체 도시" }.Concat(tagRows.Select(_row => _row.CityId).Distinct()).ToArray();
+                    tagItemOptions = new[] { "전체 품목" }.Concat(tagRows.Select(_row => _row.ItemId).Distinct()).ToArray();
+                    tagCity = Mathf.Min(tagCity, tagCityOptions.Length - 1);
+                    tagItem = Mathf.Min(tagItem, tagItemOptions.Length - 1);
+                });
+            }
+            using (new EditorGUI.DisabledScope(tagRows == null))
+            {
+                if (GUILayout.Button("CSV 내보내기", GUILayout.Width(100)))
+                {
+                    Guard(ExportTags);
+                }
+            }
+        }
+        EditorGUILayout.HelpBox("품목×도시마다 실제 거래가 고르는 규칙이다. 일치하는 태그 규칙 중 priority가 가장 높은 하나를 쓰고, 없으면 도시 기본 배율(일반)을 쓴다. 최종 배율은 지역 물가를 곱한 값이다.", MessageType.None);
+        if (tagRows == null)
+        {
+            return;
+        }
+
+        using (new EditorGUILayout.HorizontalScope())
+        {
+            tagCity = EditorGUILayout.Popup(tagCity, tagCityOptions.Select(CityLabel).ToArray(), GUILayout.Width(180));
+            tagItem = EditorGUILayout.Popup(tagItem, tagItemOptions.Select(ItemLabel).ToArray(), GUILayout.Width(160));
+            tagConflictsOnly = EditorGUILayout.ToggleLeft("복수 일치만", tagConflictsOnly, GUILayout.Width(90));
+            tagStockedOnly = EditorGUILayout.ToggleLeft("그 도시 입고 품목만", tagStockedOnly, GUILayout.Width(130));
+        }
+
+        Row(true, ("도시", 110), ("품목", 100), ("태그", 150), ("적용", 90), ("구매/판매", 70), ("최종", 90), ("일치 규칙(우선순위 순)", 260));
+        foreach (var row in tagRows.Where(TagRowVisible))
+        {
+            Row(false,
+                (EconomyProbe.CityName(row.CityId), 110),
+                (EconomyProbe.ItemName(row.ItemId) + (row.Stocked ? "" : " ·"), 100),
+                (row.ItemTags, 150),
+                (row.Category + (row.AppliedTag == null ? "" : " " + row.AppliedTag), 90),
+                ($"{row.BuyPercent}/{row.SellPercent}", 70),
+                ($"{row.EffectiveBuyPercent:0.#}/{row.EffectiveSellPercent:0.#}", 90),
+                (row.MatchCount == 0 ? "-" : row.Matches, 260));
+        }
+        EditorGUILayout.LabelField("· 그 도시 시장 후보에 없는 품목(다른 곳에서 사 와서 파는 경우만 해당)", EditorStyles.miniLabel);
+    }
+
+    bool TagRowVisible(EconomyTagRow _row)
+    {
+        return (tagCity == 0 || _row.CityId == tagCityOptions[tagCity]) &&
+            (tagItem == 0 || _row.ItemId == tagItemOptions[tagItem]) &&
+            (!tagConflictsOnly || _row.MatchCount > 1) &&
+            (!tagStockedOnly || _row.Stocked);
+    }
+
+    static string CityLabel(string _cityId)
+    {
+        return _cityId.StartsWith("city.") ? EconomyProbe.CityName(_cityId) : _cityId;
+    }
+
+    static string ItemLabel(string _itemId)
+    {
+        return _itemId.StartsWith("piece.") ? EconomyProbe.ItemName(_itemId) : _itemId;
+    }
+
+    void ExportTags()
+    {
+        var csv = new StringBuilder("cityId,cityName,regionId,itemId,itemName,itemTags,category,appliedTag,buyPercent,sellPercent,regionPercent,effectiveBuy,effectiveSell,matchCount,matches,stocked,excludeFromMarket\n");
+        foreach (var row in tagRows)
+        {
+            csv.AppendLine(string.Join(",", row.CityId, Csv(EconomyProbe.CityName(row.CityId)), row.RegionId, row.ItemId, Csv(EconomyProbe.ItemName(row.ItemId)),
+                row.ItemTags, row.Category, row.AppliedTag, row.BuyPercent, row.SellPercent, row.RegionPercent,
+                row.EffectiveBuyPercent.ToString("0.##"), row.EffectiveSellPercent.ToString("0.##"), row.MatchCount, Csv(row.Matches), row.Stocked, row.ExcludeFromMarket));
+        }
+        Reveal(WriteExport("tags", ("tags.csv", csv.ToString())));
+    }
+
+    #endregion
+
     #region 시뮬레이션
 
     void DrawSimulation()
@@ -223,7 +316,7 @@ public sealed class EconomyAnalyzerWindow : EditorWindow
                 }
             }
         }
-        EditorGUILayout.HelpBox("Planner: 2구간 앞까지의 경로 중 (보유 화물 차익 + 살 화물 차익 − 운임) ÷ 시간이 가장 큰 경로의 첫 구간으로 간다. Greedy: 같은 기준으로 바로 옆 도시만 본다. Random: 무작위 거래·이동(하한 기준). 모두 기한 안에 상환 도시로 돌아가며 배치 최적화·도축·개조는 쓰지 않는다.", MessageType.None);
+        EditorGUILayout.HelpBox("Loop: 고정 재고 기준 시간당 수익이 가장 큰 인접 왕복을 골라 그곳으로 가서 오간다(기본). Planner: 2구간 앞까지의 경로 중 (보유 화물 차익 + 살 화물 차익 − 운임) ÷ 시간이 가장 큰 경로의 첫 구간으로 간다. Greedy: 같은 기준으로 바로 옆 도시만 본다. Random: 무작위 거래·이동(하한 기준). 모두 기한 안에 상환 도시로 돌아가며 배치 최적화·도축·개조는 쓰지 않는다.", MessageType.None);
         if (report == null)
         {
             return;

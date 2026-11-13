@@ -81,13 +81,13 @@
     },
     {
       "id": "wasteNearbyPenalty",
-      "excludedTargetTag": "Waste",
+      "excludedTargetTag": "Waste,Animal",
       "neighborTag": "Waste",
       "scope": "Both",
       "spatialRange": "Adjacent",
       "multiplierPercent": 50,
       "descriptionTag": "Waste",
-      "description": "상하좌우로 맞닿은 화물에게 -50%"
+      "description": "상하좌우로 맞닿은 화물에게 -50% (가축 제외)"
     },
     {
       "id": "cargoNearAnimal",
@@ -103,8 +103,10 @@
   "activationIntervalHours": 6,
   "freshness": {
     "settlementIntervalHours": 6,
-    "refrigerationTag": "Refrigerator",
-    "refrigerationReductionPercent": 50
+    "refrigerationTag": "Fresh",
+    "refrigerationReductionPercent": 50,
+    "wagonRefrigerationReductionPercent": 50,
+    "saltPreservationReductionPercent": 10
   },
   "animals": {
     "animalTag": "Animal",

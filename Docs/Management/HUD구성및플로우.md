@@ -18,10 +18,11 @@
 | `PuzzleInventoryView` | 좌측 기차 보드: 5×5 화물칸 격자(`boardCells`)와 사전 배치 슬롯 풀 `placementSlots`/`ghostSlots`/`outlineSlots`; 인접 시너지 화살표(`synergyArrows`, 증가/감소 구분 스프라이트); 아이템 상세·호버용 아이콘 키셋 `PuzzleInventoryUI.itemIcons`. 모델 조회 후 이동 가이드(`moveGuide`, 근거리 N시간·소요 시간 형식), 보드 제목/실제 가치 텍스트 갱신 담당 |
 | `PuzzleInventoryPresenter` | 위 보드의 표시 갱신 Presenter. 패널 열림/닫힘 시 대기 코루틴 중단 등 정리(`Active=false` 경로 포함), OnEnable/OnDisable 대칭 구독 |
 | `PuzzleItemTooltipView` (`PanelBase`) | Cargo 화물 호버 팝업. 기본·실제 가치, 적용 배율·정확한 거래 예상 금액, 현재 적용 효과·일반 효과·가능 가치 시너지, 소요 시간 기준 미래 가치(`futureValue*Text`)를 표시한다. 폰트 스타일은 툴팁 프리팹이 소유하며 런타임 상하한 보정은 사용하지 않는다. 거래 예상은 실제 거래 모델과 같은 계산을 사용한다. 닫히면 열린 상태를 정리한다. |
-| `PuzzleCityView` | 현재 마을의 시장 보드: 재고 고정집산품·수입품·랜덤, 태그 선호·지역 물가 표시 |
+| `PuzzleCityView` | 현재 마을의 시장 보드: 재고 고정집산품·수입품·랜덤, 태그 선호·전 품목 구매·판매 배율 표시 |
 | `PuzzleTrainBarView` | 하단 화물칸 바: WagonSlotUI 프리팹 슬롯 풀(button/Image/highlightBorder/numberText) 선택·증차 용도; 드래시 호버 배율(`wagonDragHoverScale`)로 색 보정 — 코드에서만 색·배율 변경 |
 | `PuzzleSlotVisual` | 미리 배치된 HUD 슬롯 비주얼 — 시각·색·표시 타이밍을 코드가 제어, Instantiate 금지 원칙 준수 대상 |
 | `PuzzleTradeNotebookView / PuzzleTradeNotebookPresenter` | 우측 접이식 대화 로그. 게임 날짜·시각 - 들은 마을 - 소문 내용 순으로 기록하고 새 기록은 맨 아래로 스크롤. PanelBase와 사전 배치 ScrollRect를 사용하며 지도/역 화면이 같은 로그를 공유 |
+| `PuzzleSynergyChartView / PuzzleSynergyChartPresenter` | 하단 상태 바 오른쪽 `상성표` 버튼으로 여닫는 시너지 상성표. 대상 태그 × 이웃 태그 칸에 면당 효과 %, 제외 이웃 각주, 화물별 태그 배지를 표시한다. 프리팹 `PuzzleSynergyChart`가 배치 원본이고 Presenter는 시너지 표에서 문구·색만 채운다 |
 | `PuzzleMapView` | 지역 철도 노선도 화면(어두운 배경, 생산 5개 지역·수도권 6색·일반 회색·연결역 이중 링·선 위 숫자는 소비 시간). 줌에 따라 이름·마커·현재 위치 배지·시간 라벨·굵기를 역배율로 보정; 겹치는 이름·시간 라벨은 우선순위별 생략; 85% 미만에서는 시간 라벨 숨김. 확대·축소·드래그·호버·도착 시 `UpdateMapLayout` 재배열 |
 | `PuzzleMapNavigation` | 지도 줌 레벨 상수(`ui.PuzzleMapNavigation.*`) 보유 |
 | `PuzzleMapNodeView` | 원형 노드 표식·현재 역 하이라이팅(_current 여부·planningTargetCityId 비교로 강조색 결정)·라벨 위치 프리팹 값(`ui.PuzzleMapNodeView.*`)으로 노드·환승 표기 |
@@ -48,7 +49,7 @@
 
 ## D. 테스트 버전 변형 지점 체크리스트
 
-- 패널 시작 상태(`startOpen`) 오버라이드 가능성: 빌더 설정 도구들(Build Setup 계열)에서 각 패널의 직렬화된 `startOpen` 필드 값을 별도 보관함(`StationActionsSetupTool` 등은 true로 세팅됨). 다른 버전 테스트에서 어떤 패널을 처음부터 열지 결정하는 변수.
+- 패널 시작 상태(`startOpen`) 오버라이드 가능성: 각 패널 프리팹의 직렬화된 `startOpen` 필드 값으로 관리함. 다른 버전 테스트에서 어떤 패널을 처음부터 열지 결정하는 변수.
 - 비활성화 복귀 정책: `OnDisable`는 열려 있으면 상태를 닫고 `OnShow` 초기화 루틴 없이 재점성 시 꺼진 상태로 시작. 비활성화된 뒤 다시 켜졌을 때 상태가 꼬이지 않는지 확인 항목.
 - `TelemetryRecorder` 구독 범위: Run/Scene/Upgrade/Panel/Trade 다섯 개 이벤트만 기록하므로 HUD 버전 차이도 이 중 해당 이벤트로만 대조해야 함(물건 보유 시간은 Debug.Log로만 남고 분석 사건 로그 계약에 이동·시간이 정의되어 있지 않다는 점도 같이).
 - 제출/취소 우선순위: UI 모듈의 Submit/Cancel 액션이 게임 입력보다 우선이므로, 여러 버전을 비교할 때 UI 입력과 게임 내 조작이 겹칠 때 어떤 쪽이 적용되는지도 확인.

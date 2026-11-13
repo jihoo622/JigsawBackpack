@@ -30,7 +30,7 @@ public sealed class PuzzleMapNodeView : MonoBehaviour, IPointerEnterHandler, IPo
 
     internal string CityId => cityId;
     internal string RegionId => regionId;
-    bool IsMajor => labelImportance >= BasicData.Int("ui.mapLabels.majorThreshold");
+    bool IsMajor(int _majorThreshold) => labelImportance >= _majorThreshold;
     internal event Action<string> Hovered;
     internal event Action<string> Exited;
     internal event Action<string> Clicked;
@@ -70,24 +70,29 @@ public sealed class PuzzleMapNodeView : MonoBehaviour, IPointerEnterHandler, IPo
         return RectTransformUtility.RectangleContainsScreenPoint(stationRing.rectTransform, _screenPoint, _camera);
     }
 
-    internal long LabelPriority(string _selectedCityId)
+    internal long LabelPriority(string _selectedCityId, in PuzzleMapView.NodeLayoutSettings _settings)
     {
-        int state = isCurrent ? BasicData.Int("ui.mapLabels.current")
-            : cityId == _selectedCityId ? BasicData.Int("ui.mapLabels.selected")
-            : isTarget ? BasicData.Int("ui.mapLabels.target")
-            : isConnected ? BasicData.Int("ui.mapLabels.connected")
-            : interchange ? BasicData.Int("ui.mapLabels.interchange")
-            : BasicData.Int("ui.mapLabels.other");
+        int state = isCurrent ? _settings.labelPriorityCurrent
+            : cityId == _selectedCityId ? _settings.labelPrioritySelected
+            : isTarget ? _settings.labelPriorityTarget
+            : isConnected ? _settings.labelPriorityConnected
+            : interchange ? _settings.labelPriorityInterchange
+            : _settings.labelPriorityOther;
         return (long)labelImportance + regionPriority + state;
     }
 
-    internal bool ShouldShowLabel(float _zoom, string _selectedCityId)
+    // 주요 역·현재·목표·선택 역은 줌과 관계없이 이름을 표시해야 한다.
+    internal bool IsLabelRequired(string _selectedCityId, in PuzzleMapView.NodeLayoutSettings _settings)
     {
-        return IsEmphasized || cityId == _selectedCityId || IsMajor
-            || _zoom >= BasicData.Float("ui.mapLabels.detailMinZoom");
+        return IsEmphasized || cityId == _selectedCityId || IsMajor(_settings.majorStationThreshold);
     }
 
-    internal void PrepareLayout(float _zoom)
+    internal bool ShouldShowLabel(float _zoom, string _selectedCityId, in PuzzleMapView.NodeLayoutSettings _settings)
+    {
+        return IsLabelRequired(_selectedCityId, _settings) || _zoom >= _settings.labelDetailMinZoom;
+    }
+
+    internal void PrepareLayout(float _zoom, in PuzzleMapView.NodeLayoutSettings _settings)
     {
         if (!layoutPrepared)
         {
@@ -101,31 +106,31 @@ public sealed class PuzzleMapNodeView : MonoBehaviour, IPointerEnterHandler, IPo
             layoutPrepared = true;
         }
         transform.localScale = Vector3.one / _zoom;
-        ((RectTransform)transform).sizeDelta = Vector2.one * BasicData.Float("ui.PuzzleMapNodeView.prepareLayout");
+        ((RectTransform)transform).sizeDelta = Vector2.one * _settings.nodeSize;
         label.raycastTarget = false;
         label.alignment = TextAnchor.MiddleCenter;
-        label.fontSize = Presentation.PuzzleMapStationFontSize(_zoom, IsEmphasized, IsMajor);
+        label.fontSize = _settings.CalculateStationFontSize(_zoom, IsEmphasized, IsMajor(_settings.majorStationThreshold));
         label.horizontalOverflow = HorizontalWrapMode.Overflow;
         label.verticalOverflow = VerticalWrapMode.Overflow;
         label.resizeTextForBestFit = false;
-        float width = Mathf.Ceil(label.preferredWidth) + BasicData.Float("ui.PuzzleMapNodeView.prepareLayout2");
+        float width = Mathf.Ceil(label.preferredWidth) + _settings.stationLabelExtraWidth;
         CenterAnchor(label.rectTransform);
-        label.rectTransform.sizeDelta = new Vector2(width, BasicData.Float("ui.PuzzleMapNodeView.rectTransformsizeDeltaHeight"));
+        label.rectTransform.sizeDelta = new Vector2(width, _settings.stationLabelHeight);
         float nameHeight = Mathf.Max(label.rectTransform.sizeDelta.y, Mathf.Ceil(label.preferredHeight));
         label.rectTransform.sizeDelta = new Vector2(width, nameHeight);
-        currentHalo.rectTransform.sizeDelta = Vector2.one * Presentation.PuzzleMapHaloSize;
+        currentHalo.rectTransform.sizeDelta = Vector2.one * _settings.stationHaloSize;
         currentBadge.horizontalOverflow = HorizontalWrapMode.Overflow;
         currentBadge.verticalOverflow = VerticalWrapMode.Overflow;
-        currentBadge.fontSize = Presentation.PuzzleMapBadgeFontSize;
+        currentBadge.fontSize = _settings.stationBadgeFontSize;
         currentBadge.alignment = TextAnchor.MiddleCenter;
         currentBadge.raycastTarget = false;
         currentBadge.resizeTextForBestFit = false;
         CenterAnchor(currentBadge.rectTransform);
-        float badgeWidth = Mathf.Ceil(currentBadge.preferredWidth) + BasicData.Float("ui.PuzzleMapNodeView.prepareLayout3");
-        currentBadge.rectTransform.sizeDelta = new Vector2(Mathf.Max(badgeWidth, BasicData.Float("ui.PuzzleMapNodeView.rectTransformsizeDeltaWidth")), BasicData.Float("ui.PuzzleMapNodeView.rectTransformsizeDeltaHeight2"));
+        float badgeWidth = Mathf.Ceil(currentBadge.preferredWidth) + _settings.stationBadgeExtraWidth;
+        currentBadge.rectTransform.sizeDelta = new Vector2(Mathf.Max(badgeWidth, _settings.stationBadgeMinWidth), _settings.stationBadgeHeight);
         float badgeHeight = Mathf.Max(currentBadge.rectTransform.sizeDelta.y, Mathf.Ceil(currentBadge.preferredHeight));
         currentBadge.rectTransform.sizeDelta = new Vector2(currentBadge.rectTransform.sizeDelta.x, badgeHeight);
-        float gap = BasicData.Float("ui.PuzzleMapView.labelGap");
+        float gap = _settings.labelGap;
         nameOffsetY = IsEmphasized ? -(badgeHeight + gap) * 0.5f : 0f;
         badgeOffsetY = (nameHeight + gap) * 0.5f;
         LabelSize = new Vector2(IsEmphasized ? Mathf.Max(width, currentBadge.rectTransform.sizeDelta.x) : width,
@@ -178,7 +183,7 @@ public sealed class PuzzleMapNodeView : MonoBehaviour, IPointerEnterHandler, IPo
         labelConnector.gameObject.SetActive(false);
     }
 
-    internal void PlaceLabel(Rect _footprint, Vector2 _start, Vector2 _end, RectTransform _viewport, Vector2 _direction)
+    internal void PlaceLabel(Rect _footprint, Vector2 _start, Vector2 _end, RectTransform _viewport, Vector2 _direction, float _connectorThickness)
     {
         preferredLabelDirection = _direction;
         Vector2 center = transform.InverseTransformPoint(_viewport.TransformPoint(_footprint.center));
@@ -189,7 +194,7 @@ public sealed class PuzzleMapNodeView : MonoBehaviour, IPointerEnterHandler, IPo
         Vector2 delta = end - start;
         var connector = labelConnector.rectTransform;
         connector.anchoredPosition = (start + end) * 0.5f;
-        connector.sizeDelta = new Vector2(delta.magnitude, BasicData.Float("ui.PuzzleMapView.labelConnectorThickness"));
+        connector.sizeDelta = new Vector2(delta.magnitude, _connectorThickness);
         connector.localRotation = Quaternion.Euler(0f, 0f, Mathf.Atan2(delta.y, delta.x) * Mathf.Rad2Deg);
         labelConnector.gameObject.SetActive(true);
         label.gameObject.SetActive(true);
@@ -197,6 +202,12 @@ public sealed class PuzzleMapNodeView : MonoBehaviour, IPointerEnterHandler, IPo
     }
 
     internal void Show(PuzzleCityData _city, bool _visited, bool _current, bool _connected, bool _canAfford, bool _planningTarget, bool _hasRumor)
+    {
+        var settings = map ? map.GetNodeLayoutSettings() : default;
+        Show(_city, _visited, _current, _connected, _canAfford, _planningTarget, _hasRumor, settings);
+    }
+
+    internal void Show(PuzzleCityData _city, bool _visited, bool _current, bool _connected, bool _canAfford, bool _planningTarget, bool _hasRumor, in PuzzleMapView.NodeLayoutSettings _settings)
     {
         if (!string.Equals(cityId, _city.id, StringComparison.Ordinal))
         {
@@ -214,7 +225,7 @@ public sealed class PuzzleMapNodeView : MonoBehaviour, IPointerEnterHandler, IPo
         label.text = Presentation.PuzzleMapStationName(_city.displayName, _planningTarget, !_visited && _hasRumor);
         label.color = emphasized ? highlight : Presentation.PuzzleHeading;
         labelConnector.color = emphasized ? highlight : Presentation.PuzzleMapLineColor(_city.regionId);
-        label.fontStyle = emphasized || IsMajor ? FontStyle.Bold : FontStyle.Normal;
+        label.fontStyle = emphasized || IsMajor(_settings.majorStationThreshold) ? FontStyle.Bold : FontStyle.Normal;
         currentHalo.gameObject.SetActive(emphasized);
         currentHalo.color = _current ? Presentation.PuzzleMapCurrentHalo : Presentation.PuzzleMapTargetHalo;
         currentBadge.gameObject.SetActive(emphasized);
@@ -224,7 +235,7 @@ public sealed class PuzzleMapNodeView : MonoBehaviour, IPointerEnterHandler, IPo
         {
             transform.SetAsLastSibling();
         }
-        stationRing.rectTransform.localScale = Vector3.one * (emphasized ? BasicData.Float("ui.PuzzleMapNodeView.rectTransformlocalScale") : 1f);
+        stationRing.rectTransform.localScale = Vector3.one * (emphasized ? _settings.nodeEmphasizedScale : 1f);
         stationRing.color = emphasized ? highlight :
             Presentation.PuzzleMapLineColor(_city.regionId);
         marker.color = Presentation.PuzzleMapNodeMarkerColor(_current, _visited, _connected, _canAfford);
