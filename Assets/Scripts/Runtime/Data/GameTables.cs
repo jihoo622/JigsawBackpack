@@ -70,6 +70,7 @@ public sealed class PuzzleTradeTableData
     public int wagonAddCostBase = -1;
     // 화물칸 최대 증차 상한 (8칸)
     public int maxWagonCount = -1;
+    public int wagonRefrigerationCost = -1;
     public long gameClearCost = -1;
     // 0이면 무기한. 목표 도시가 비어 있으면 상환 장소를 제한하지 않는다.
     public int deadlineHours = -1;

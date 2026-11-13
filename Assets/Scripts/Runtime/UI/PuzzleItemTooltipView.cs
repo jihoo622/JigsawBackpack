@@ -105,7 +105,7 @@ public sealed class PuzzleItemTooltipView : PanelBase
     internal void Show(PuzzleItemDefinition _item, decimal _actualValue, PuzzleTradeRate _rate,
         IReadOnlyList<string> _generalEffects, IReadOnlyList<string> _synergyEffects, decimal? _futureValue, Vector2 _screenPosition,
         bool _isTrainInventory, int? _freshness, long? _minutesUntilNextFreshnessBand, long? _previewMinutes, string _previewCityName,
-        long? _previewActivations, long? _tradePrice, IReadOnlyList<PuzzleSynergyBonus> _activeEffects)
+        long? _previewActivations, long? _tradePrice, IReadOnlyList<PuzzleSynergyBonus> _activeEffects, int _appliedPreservation)
     {
         if (_item == null)
         {
@@ -132,7 +132,7 @@ public sealed class PuzzleItemTooltipView : PanelBase
 
         SetRow(baseValueLabelText, baseValueValueText,
             Presentation.PuzzleTooltipBaseValueLabel, Presentation.PuzzleTooltipActualValueValue(_item.BaseValue));
-        UpdateActiveEffects(_isTrainInventory, _activeEffects);
+        UpdateActiveEffects(_isTrainInventory, _activeEffects, _appliedPreservation);
         SetRow(actualValueLabelText, actualValueValueText,
             Presentation.PuzzleTooltipActualValueLabel(), Presentation.PuzzleTooltipActualValueValue(_actualValue));
 
@@ -264,13 +264,12 @@ public sealed class PuzzleItemTooltipView : PanelBase
                 if (badgeImage)
                 {
                     badgeImage.gameObject.SetActive(true);
-                    badgeImage.color = Color.Lerp(Presentation.PuzzleTagBackgroundColor(tag),
-                        Presentation.PuzzleTooltipBodyBackground, badgeBlend);
+                    badgeImage.color = Presentation.PuzzleTooltipTagBackground(tag, badgeBlend);
                 }
                 if (badgeText)
                 {
                     badgeText.text = Presentation.PuzzleTagLabel(tag);
-                    badgeText.color = Presentation.PuzzleTooltipText;
+                    badgeText.color = Presentation.PuzzleTooltipTagTextColor(tag);
                 }
             }
             else
@@ -398,14 +397,17 @@ public sealed class PuzzleItemTooltipView : PanelBase
         panelRect.anchoredPosition = Vector2.Lerp(panelRect.anchoredPosition, targetCanvasPosition, Time.unscaledDeltaTime * FollowSpeed);
     }
 
-    void UpdateActiveEffects(bool _isTrainInventory, IReadOnlyList<PuzzleSynergyBonus> _activeEffects)
+    void UpdateActiveEffects(bool _isTrainInventory, IReadOnlyList<PuzzleSynergyBonus> _activeEffects, int _appliedPreservation)
     {
-        int activeCount = _isTrainInventory && _activeEffects != null ? _activeEffects.Count : 0;
+        int valueCount = _isTrainInventory ? _activeEffects?.Count ?? 0 : 0;
+        bool hasPreservation = _isTrainInventory && _appliedPreservation > 0;
+        int activeCount = valueCount + (hasPreservation ? 1 : 0);
+        string preservation = hasPreservation ? Presentation.PuzzleAppliedPreservationEffect(_appliedPreservation) : null;
         int rowCount = activeEffectRows?.Length ?? 0;
         bool useRows = activeEffectsListRoot && activeCount > 0 && activeCount <= rowCount;
         if (activeEffectsText)
         {
-            activeEffectsText.text = activeCount > 0
+            activeEffectsText.text = valueCount > 0 && !hasPreservation
                 ? Presentation.PuzzleTooltipActiveEffectsHeader()
                 : Presentation.PuzzleTooltipActiveEffectsTitle;
         }
@@ -415,8 +417,9 @@ public sealed class PuzzleItemTooltipView : PanelBase
             if (!useRows)
             {
                 activeEffectsMessageText.color = Presentation.PuzzleTooltipText;
+                string valueSummary = valueCount > 0 ? Presentation.PuzzleTooltipActiveEffectsSummary(_activeEffects) : null;
                 activeEffectsMessageText.text = activeCount > 0
-                    ? Presentation.PuzzleTooltipActiveEffectsSummary(_activeEffects)
+                    ? string.Join("\n", new[] { valueSummary, preservation }.Where(_line => !string.IsNullOrEmpty(_line)))
                     : _isTrainInventory ? Presentation.PuzzleNoActiveEffects : Presentation.PuzzleMarketNoSettlement;
             }
         }
@@ -435,11 +438,15 @@ public sealed class PuzzleItemTooltipView : PanelBase
         {
             ActiveEffectRow row = activeEffectRows[i];
             bool active = i < activeCount;
-            if (active)
+            if (i < valueCount)
             {
                 SetRow(row.labelText, row.valueText,
                     Presentation.PuzzleTooltipActiveEffectLabel(_activeEffects[i]),
                     Presentation.PuzzleTooltipActiveEffectValue(_activeEffects[i]));
+            }
+            else if (active)
+            {
+                SetRow(row.labelText, row.valueText, preservation, string.Empty);
             }
             SetRowActive(row.labelText, row.valueText, active);
         }

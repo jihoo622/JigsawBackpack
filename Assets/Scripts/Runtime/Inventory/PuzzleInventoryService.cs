@@ -74,6 +74,10 @@ public sealed class PuzzleInventoryService : MonoBehaviour
     public bool CanAddWagon => RunStatus == PuzzleRunStatus.InProgress
         && (tables.PuzzleTrade.maxWagonCount <= 0 || trainWagons.Count < tables.PuzzleTrade.maxWagonCount)
         && Funds >= NextWagonCost;
+    internal long WagonRefrigerationCost => tables.PuzzleTrade.wagonRefrigerationCost;
+    internal bool HasWagonRefrigeration => Train?.HasWagonModification(PuzzleWagonRefrigeration.ModificationId) == true;
+    internal bool CanInstallWagonRefrigeration => RunStatus == PuzzleRunStatus.InProgress && Train != null &&
+        !HasWagonRefrigeration && Funds >= WagonRefrigerationCost;
 
     public int TotalTrainOccupiedCells
     {
@@ -91,6 +95,27 @@ public sealed class PuzzleInventoryService : MonoBehaviour
     internal bool IsTrainWagon(PuzzleInventory _inventory)
     {
         return _inventory != null && trainWagons.Contains(_inventory);
+    }
+
+    internal bool TryInstallWagonModification(PuzzleInventory _wagon, PuzzleWagonModification _modification)
+    {
+        return RunStatus == PuzzleRunStatus.InProgress && IsTrainWagon(_wagon) && _modification != null &&
+            _wagon.TryInstallWagonModification(_modification);
+    }
+
+    internal bool TryInstallWagonRefrigeration()
+    {
+        if (!CanInstallWagonRefrigeration ||
+            !TryInstallWagonModification(Train,
+                new PuzzleWagonRefrigeration(tables.PuzzleSynergy.freshness.wagonRefrigerationReductionPercent)))
+        {
+            return false;
+        }
+
+        long previousFunds = Funds;
+        Funds -= WagonRefrigerationCost;
+        GameEvents.RaiseFundsChanged(this, previousFunds);
+        return true;
     }
 
     internal string BoardId(PuzzleInventory _inventory)
@@ -525,6 +550,7 @@ public sealed class PuzzleInventoryService : MonoBehaviour
             long holdMinutes = (long)animals.completionHoldHours * PuzzleTimeManager.MINUTES_PER_HOUR;
             long synergyInterval = SynergyIntervalMinutes;
             var freshness = tables.PuzzleSynergy.freshness;
+            var preservation = CreatePreservation(freshness);
             long freshnessInterval = (long)freshness.settlementIntervalHours * PuzzleTimeManager.MINUTES_PER_HOUR;
             long cursor = Time.ElapsedMinutes;
             var growth = new List<PuzzleGrowth>();
@@ -538,7 +564,7 @@ public sealed class PuzzleInventoryService : MonoBehaviour
             {
                 EnsureWasteStates(plan, wagons, animals, wasteMinutes, cursor);
                 var pairs = SelectBreedingPairs(wagons, plan.breedingProgress);
-                long step = Math.Min(arrival - cursor, MinutesUntilCargoChange(wagons, freshness));
+                long step = Math.Min(arrival - cursor, MinutesUntilCargoChange(wagons, preservation));
                 step = Math.Min(step, MinutesUntilBirth(pairs, breedingMinutes, animalEventsThrough - cursor));
                 step = Math.Min(step, MinutesUntilWaste(wagons, plan.wasteProgress, animals.animalTag, wasteMinutes,
                     animalEventsThrough - cursor));
@@ -555,7 +581,7 @@ public sealed class PuzzleInventoryService : MonoBehaviour
                     {
                         bool trackFreshness = wagon == selectedWagon && item.RemainingShelfLifeMinutes.HasValue;
                         decimal valueBefore = trackFreshness ? item.FreshnessAdjustedValue : 0;
-                        item.ApplyElapsedMinutes(step, ShelfLifeDecayRate(wagon, item, freshness), freshnessInterval);
+                        item.ApplyElapsedMinutes(step, preservation.DecayRate(wagon, item), freshnessInterval);
                         if (trackFreshness)
                         {
                             freshnessDelta += item.FreshnessAdjustedValue - valueBefore;
@@ -652,7 +678,7 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         }
     }
 
-    static long MinutesUntilCargoChange(PuzzleInventory[] _wagons, PuzzleFreshnessData _freshness)
+    static long MinutesUntilCargoChange(PuzzleInventory[] _wagons, PuzzleShelfLifePreservation _preservation)
     {
         long minutes = long.MaxValue;
         foreach (var wagon in _wagons)
@@ -663,7 +689,7 @@ public sealed class PuzzleInventoryService : MonoBehaviour
                 minutes = Math.Min(minutes, Math.Max(1, item.MinutesUntilGrowthCompletion));
                 if (item.OwnedMinutes >= 0 && item.RemainingShelfLifeMinutes > 0)
                 {
-                    minutes = Math.Min(minutes, item.MinutesUntilShelfLifeExpires(ShelfLifeDecayRate(wagon, item, _freshness)));
+                    minutes = Math.Min(minutes, item.MinutesUntilShelfLifeExpires(_preservation.DecayRate(wagon, item)));
                 }
             }
         }
@@ -673,15 +699,28 @@ public sealed class PuzzleInventoryService : MonoBehaviour
     internal long? MinutesUntilNextFreshnessBand(PuzzlePlacement _item)
     {
         var freshness = tables.PuzzleSynergy.freshness;
-        decimal decayRate = IsTrainWagon(_item.Owner) ? PuzzleRefrigeration.DecayRate(_item.Owner, _item, freshness) : 1m;
+        decimal decayRate = IsTrainWagon(_item.Owner) ? CreatePreservation(freshness).DecayRate(_item.Owner, _item) : 1m;
         long interval = (long)freshness.settlementIntervalHours * PuzzleTimeManager.MINUTES_PER_HOUR;
         return _item.MinutesUntilNextFreshnessBand(decayRate, interval);
     }
 
-    // 냉장 소모율은 표시와 공유하는 PuzzleRefrigeration 판정이 원본이다.
-    static decimal ShelfLifeDecayRate(PuzzleInventory _wagon, PuzzlePlacement _item, PuzzleFreshnessData _freshness)
+    internal int AppliedPreservationPercent(PuzzlePlacement _item)
     {
-        return PuzzleRefrigeration.DecayRate(_wagon, _item, _freshness);
+        if (!IsTrainWagon(_item.Owner) || _item.RemainingShelfLifeMinutes is not > 0)
+        {
+            return 0;
+        }
+
+        decimal decayRate = CreatePreservation(tables.PuzzleSynergy.freshness).DecayRate(_item.Owner, _item);
+        return (int)((1m - decayRate) * PuzzleInventoryValuation.BASE_PERCENT);
+    }
+
+    static PuzzleShelfLifePreservation CreatePreservation(PuzzleFreshnessData _freshness)
+    {
+        return new PuzzleShelfLifePreservation(new IPuzzlePreservationEffect[]
+        {
+            new PuzzleAdjacentPreservation(_freshness)
+        });
     }
 
     // 출산까지의 진행 분과 공간 부족 대기 여부. 대기 중에는 진행이 멈추고 자리가 돌아오면 남은 시간을 흘려보낸다.

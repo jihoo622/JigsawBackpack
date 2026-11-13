@@ -280,6 +280,10 @@ public sealed class PuzzlePlacement
     }
 
     /// <summary>보유 시간·성장 시계·유통기한에 반영할 경과 분을 누적한다.</summary>
+    /// <remarks>
+    /// 유통기한 소모량 = 경과한 게임 시간 × (1 − 최종 보존율).
+    /// 최종 보존율은 0~1로 환산한다. 100% 보존이 유지되는 동안 소모량은 0이며, 남은 유통기한이 그대로 유지된다.
+    /// </remarks>
     /// <param name="_minutes">이번 행동으로 경과한 분. 0은 무변화이며 미소유 물건은 무시한다.</param>
     /// <param name="_decayRate">유통기한 소모율. 0이면 소모하지 않는다.</param>
     /// <param name="_settlementInterval">신선도 표시를 갱신하는 경과 분 주기.</param>

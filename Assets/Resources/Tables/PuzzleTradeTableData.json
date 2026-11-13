@@ -4,6 +4,7 @@
   "startingFunds": 200,
   "wagonAddCostBase": 50,
   "maxWagonCount": 8,
+  "wagonRefrigerationCost": 50,
   "gameClearCost": 1500,
   "deadlineHours": 336,
   "debtCityId": "city.finance",

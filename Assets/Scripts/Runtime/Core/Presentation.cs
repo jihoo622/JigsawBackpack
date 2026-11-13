@@ -400,6 +400,13 @@ public static class Presentation
     {
         return BasicData.Format("presentation.train.addWagonLabel", _cost);
     }
+    internal static string PuzzleWagonRefrigerationInstalled => BasicData.Text("presentation.train.refrigerationInstalled");
+
+    internal static string PuzzleWagonRefrigerationLabel(long _cost)
+    {
+        return BasicData.Format("presentation.train.refrigerationButton", _cost);
+    }
+
     internal static string PuzzleWagonPurchaseStatus(int _wagonNumber, long _cost)
     {
         return BasicData.Format("presentation.train.wagonPurchaseStatus", _cost, _wagonNumber);
@@ -433,6 +440,7 @@ public static class Presentation
         { "Fruit", "presentation.tags.fruitLabel" },
         { "Waste", "presentation.tags.wasteLabel" },
         { "Box", "presentation.tags.boxLabel" },
+        { "Fresh", "presentation.tags.refrigeratorLabel" },
         { "Refrigerator", "presentation.tags.refrigeratorLabel" },
         { PuzzleItemDefinition.BABY_TAG, "presentation.PuzzleTagCommon.baby" },
 
@@ -591,14 +599,19 @@ public static class Presentation
 
     public static string PuzzleTooltipValueSynergyHeader()
     {
-        return BasicData.Format("presentation.tooltip.effectHeader", TooltipLabelHtml(), TableManager.Instance.RequireValid().PuzzleSynergy.activationIntervalHours);
+        return BasicData.Format("presentation.tooltip.effectHeader", TooltipLabelHtml());
     }
 
     internal static string PuzzleRefrigerationEffect(int _reductionPercent)
     {
-        string description = BasicData.Format("presentation.tooltip.refrigerationEffect", _reductionPercent);
-        return BasicData.Format("presentation.tooltip.effectDescription",
-            ColorUtility.ToHtmlStringRGB(PuzzleTooltipGreen), description);
+        return PuzzleTooltipEffectDescription(
+            BasicData.Format("presentation.tooltip.refrigerationEffect", _reductionPercent));
+    }
+
+    internal static string PuzzleAppliedPreservationEffect(int _reductionPercent)
+    {
+        string description = BasicData.Format("presentation.tooltip.appliedPreservationEffect", _reductionPercent);
+        return BasicData.Format("presentation.tooltip.activeEffectLabel", TooltipLabelHtml(), HighlightEffectPercentages(description));
     }
 
     internal static string PuzzleAnimalBreedingEffect(string _description, long _minutes, string _offspringName, int _count)
@@ -636,13 +649,18 @@ public static class Presentation
 
     internal static string PuzzleTooltipEffectDescription(string _description)
     {
-        string highlighted = Regex.Replace(_description, @"[+−-]\d+(?:[.,]\d+)?%", match =>
+        string highlighted = HighlightEffectPercentages(_description);
+        highlighted = Regex.Replace(highlighted, @"\([^)]*\)", match => $"<size=70%>{match.Value}</size>");
+        return BasicData.Format("presentation.tooltip.effectDescription", TooltipLabelHtml(), highlighted);
+    }
+
+    static string HighlightEffectPercentages(string _description)
+    {
+        return Regex.Replace(_description, @"[+−-]\d+(?:[.,]\d+)?%", match =>
         {
             Color color = match.Value[0] == '+' ? PuzzleTooltipGreen : PuzzleTooltipRed;
             return $"<color=#{ColorUtility.ToHtmlStringRGB(color)}><b>{match.Value}</b></color>";
         });
-        highlighted = Regex.Replace(highlighted, @"\([^)]*\)", match => $"<size=70%>{match.Value}</size>");
-        return BasicData.Format("presentation.tooltip.effectDescription", TooltipLabelHtml(), highlighted);
     }
 
     // 일반 효과 한 행. 진행도가 있으면 설명 바로 아래에 녹색으로 놓고, 공간을 막혀 있으면 같은 줄에 빨간 표시를 덧붙인다.
@@ -874,6 +892,7 @@ public static class Presentation
             "salt" => BasicData.Color("presentation.tags.saltBackground"),     // 소금: 미네랄 실버 슬레이트
             "box" => BasicData.Color("presentation.tags.boxBackground"),
             "supply" => BasicData.Color("presentation.tags.supplyBackground"),     // 보급품: 포레스트 그린
+            "fresh" or "refrigerator" => BasicData.Color("presentation.tags.freshBackground"),
             "cargo" => BasicData.Color("presentation.tags.cargoBackground"),      // 화물/상자: 가죽/카톤 브라운
             "meat" => BasicData.Color("presentation.tags.meatBackground"),       // 고기: 딥 레드
             "animal" => BasicData.Color("presentation.tags.animalBackground"),    // 가축: 탄/레더 탠
@@ -885,8 +904,26 @@ public static class Presentation
 
     public static Color PuzzleTagTextColor(string _tag)
     {
-        // 다크/미디엄 톤 테마 배경 위에서 선명하게 읽히는 흰색
-        return BasicData.Color("presentation.tags.puzzleTagTextColor");
+        return IsFreshTag(_tag) ? BasicData.Color("presentation.tags.freshTextColor")
+            : BasicData.Color("presentation.tags.puzzleTagTextColor");
+    }
+
+    static bool IsFreshTag(string _tag)
+    {
+        return string.Equals(_tag, "Fresh", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(_tag, "Refrigerator", StringComparison.OrdinalIgnoreCase);
+    }
+
+    internal static Color PuzzleTooltipTagBackground(string _tag, float _blend)
+    {
+        Color background = PuzzleTagBackgroundColor(_tag);
+        return IsFreshTag(_tag) ? background
+            : UnityEngine.Color.Lerp(background, PuzzleTooltipBodyBackground, _blend);
+    }
+
+    internal static Color PuzzleTooltipTagTextColor(string _tag)
+    {
+        return IsFreshTag(_tag) ? PuzzleTagTextColor(_tag) : PuzzleTooltipText;
     }
 
     public static IReadOnlyList<string> PrioritizeTags(IEnumerable<string> _tags)

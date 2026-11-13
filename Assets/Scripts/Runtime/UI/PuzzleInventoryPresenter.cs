@@ -2,6 +2,8 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine.EventSystems;
 using UnityEngine;
+using UnityEngine.UI;
+using TMPro;
 
 [DisallowMultipleComponent]
 public sealed class PuzzleInventoryPresenter : MonoBehaviour
@@ -10,6 +12,8 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
     [SerializeField] float wagonDragHoverDelay = 0.5f;
 
     [SerializeField] PuzzleInventoryView trainView;
+    [SerializeField] Button wagonRefrigerationButton;
+    [SerializeField] TextMeshProUGUI wagonRefrigerationLabel;
     [SerializeField] PuzzleInventoryView marketView;
     [SerializeField] PuzzleInventoryView butcheryView;
     [SerializeField] PuzzleInventoryView modificationView;
@@ -102,6 +106,10 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         GameEvents.ButcheryChanged += OnButcheryChanged;
         GameEvents.ModificationChanged += OnModificationChanged;
         GameEvents.FundsChanged += OnFundsChanged;
+        if (wagonRefrigerationButton)
+        {
+            wagonRefrigerationButton.onClick.AddListener(OnWagonRefrigerationClicked);
+        }
         cityView.WaitRequested += WaitForDaylight;
         if (trainBarView)
         {
@@ -159,6 +167,10 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         GameEvents.ButcheryChanged -= OnButcheryChanged;
         GameEvents.ModificationChanged -= OnModificationChanged;
         GameEvents.FundsChanged -= OnFundsChanged;
+        if (wagonRefrigerationButton)
+        {
+            wagonRefrigerationButton.onClick.RemoveListener(OnWagonRefrigerationClicked);
+        }
         cityView.WaitRequested -= WaitForDaylight;
         if (trainBarView)
         {
@@ -358,6 +370,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             return;
         }
         isMapOpen = _info.open;
+        RefreshWagonRefrigeration();
         if (_info.open)
         {
             hoverPosition = null;
@@ -757,7 +770,8 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             long? price = !isActionBoard && session.TryQuoteTrade(_placement, direction, out long quote) ? quote : (long?)null;
             tooltipView.Show(item, actualValue, rate, effects.General, effects.Synergies, futureValue, pos, isTrain, _placement.FreshnessPercent,
                 session.MinutesUntilNextFreshnessBand(_placement), previewMinutes,
-                previewName, previewActivations, price, isTrain ? PuzzleSynergyBonus.GroupByNeighbor(value.SynergyBonuses) : null);
+                previewName, previewActivations, price, isTrain ? PuzzleSynergyBonus.GroupByNeighbor(value.SynergyBonuses) : null,
+                isTrain ? session.AppliedPreservationPercent(_placement) : 0);
             // 툴팁을 열면 미확인 알림만 지운다. 실제로 대기 중인 진행도와 빨간 표시는 상태가 풀릴 때까지 남는다.
             if ((_placement.HasUnreadSynergySettlement || _placement.HasUnreadSpaceNotice) && tooltipView.IsOpen)
             {
@@ -797,11 +811,10 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         var general = new List<PuzzleEffectDisplay>();
         var synergies = new List<string>();
         var tables = TableManager.Instance;
-        var freshness = tables.PuzzleSynergy.freshness;
-        if (item.Tags.Contains(freshness.refrigerationTag))
+        int preservation = PuzzleRefrigeration.SourceReductionPercent(item, tables.PuzzleSynergy.freshness);
+        if (preservation > 0)
         {
-            general.Add(new PuzzleEffectDisplay(
-                Presentation.PuzzleRefrigerationEffect(freshness.refrigerationReductionPercent)));
+            synergies.Add(Presentation.PuzzleRefrigerationEffect(preservation));
         }
 
         var animals = tables.PuzzleSynergy.animals;
@@ -1049,9 +1062,38 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
 
     void RefreshTrainBar()
     {
+        RefreshWagonRefrigeration();
         if (trainBarView && session != null)
         {
             trainBarView.Refresh(session.WagonCount, session.CurrentWagonIndex, session.NextWagonCost, session.CanAddWagon, hoveredWagonIndex);
+        }
+    }
+
+    void RefreshWagonRefrigeration()
+    {
+        if (!wagonRefrigerationButton || !wagonRefrigerationLabel || session == null)
+        {
+            return;
+        }
+        wagonRefrigerationButton.interactable = !InventoryBlocked && session.CanInstallWagonRefrigeration;
+        wagonRefrigerationLabel.text = session.HasWagonRefrigeration
+            ? Presentation.PuzzleWagonRefrigerationInstalled
+            : Presentation.PuzzleWagonRefrigerationLabel(session.WagonRefrigerationCost);
+    }
+
+    void OnWagonRefrigerationClicked()
+    {
+        if (InventoryBlocked || session == null)
+        {
+            return;
+        }
+
+        bool installed = session.TryInstallWagonRefrigeration();
+        RefreshWagonRefrigeration();
+        if (installed)
+        {
+            cityView.ShowTradeStatus(Presentation.PuzzleWagonRefrigerationInstalled);
+            RefreshHover();
         }
     }
 
