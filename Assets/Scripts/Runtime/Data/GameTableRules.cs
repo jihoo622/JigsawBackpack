@@ -278,6 +278,8 @@ public sealed class GameTableRules
         {
             Reference(_tables.PuzzleTrade.debtCityId, PATH + ".debtCityId", _tables.HasCity(_tables.PuzzleTrade.debtCityId), "상환 도시");
         }
+        Check(_tables.PuzzleTrade.wagonRefrigerationCost > 0, PATH + ".wagonRefrigerationCost",
+            "객차 냉장 개조 비용은 양수여야 합니다.");
         Check(_tables.PuzzleTrade.wagonAddCostBase > 0, PATH + ".wagonAddCostBase",
             "화물칸 증차 기본 비용은 0보다 커야 합니다.");
         Check(IsFinitePositive(_tables.PuzzleTrade.travelEffectSeconds), PATH + ".travelEffectSeconds",
@@ -499,7 +501,13 @@ public sealed class GameTableRules
                 tags.Contains(freshness.refrigerationTag), "냉장 태그");
             Check(freshness.refrigerationReductionPercent > 0 &&
                 freshness.refrigerationReductionPercent <= PuzzleInventoryValuation.BASE_PERCENT,
-                FRESHNESS_PATH + ".refrigerationReductionPercent", "냉장 감소율은 1~100%여야 합니다.");
+                FRESHNESS_PATH + ".refrigerationReductionPercent", "인접 냉장 감소율은 1~100%여야 합니다.");
+            Check(freshness.wagonRefrigerationReductionPercent > 0 &&
+                freshness.wagonRefrigerationReductionPercent <= PuzzleInventoryValuation.BASE_PERCENT,
+                FRESHNESS_PATH + ".wagonRefrigerationReductionPercent", "객차 냉장 감소율은 1~100%여야 합니다.");
+            Check(freshness.saltPreservationReductionPercent >= 0 &&
+                freshness.saltPreservationReductionPercent <= PuzzleInventoryValuation.BASE_PERCENT,
+                FRESHNESS_PATH + ".saltPreservationReductionPercent", "소금 보존 감소율은 0~100%여야 합니다.");
         }
     }
 

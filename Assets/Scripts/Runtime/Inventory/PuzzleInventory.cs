@@ -10,10 +10,12 @@ public sealed class PuzzleInventory
     PuzzleInventoryValuation valuation = new();
     readonly SortedDictionary<int, PuzzlePlacement> placements = new();
     readonly Dictionary<Vector2Int, (int InstanceId, PuzzleCell Cell)> occupancy = new();
+    readonly Dictionary<string, PuzzleWagonModification> wagonModifications = new(StringComparer.Ordinal);
 
     public int Width { get; }
     public int Height { get; }
     public IReadOnlyCollection<PuzzlePlacement> Placements => placements.Values;
+    internal IReadOnlyCollection<PuzzleWagonModification> WagonModifications => wagonModifications.Values;
     internal PuzzleValue Value => valuation.Total;
 
     internal PuzzleInventory(PuzzleBoardData _board, IReadOnlyList<PuzzleStartingPlacementData> _startingPlacements,
@@ -49,6 +51,17 @@ public sealed class PuzzleInventory
         return placements[_instanceId].FreshnessAdjustedValue;
     }
 
+    internal bool TryInstallWagonModification(PuzzleWagonModification _modification)
+    {
+        return !wagonModifications.ContainsKey(_modification.Id) && _modification.CanInstallOn(this) &&
+            wagonModifications.TryAdd(_modification.Id, _modification);
+    }
+
+    internal bool HasWagonModification(string _id)
+    {
+        return wagonModifications.ContainsKey(_id);
+    }
+
     internal PuzzleInventory CopyForTimeAdvance()
     {
         var copy = new PuzzleInventory(this);
@@ -66,6 +79,7 @@ public sealed class PuzzleInventory
         Height = _source.Height;
         definitions = _source.definitions;
         synergyRules = _source.synergyRules;
+        wagonModifications = new Dictionary<string, PuzzleWagonModification>(_source.wagonModifications, StringComparer.Ordinal);
     }
 
     internal void CommitTimeAdvance(PuzzleInventory _staged)

@@ -145,10 +145,14 @@ public sealed class PuzzleInventoryInput : MonoBehaviour, IPointerDownHandler, I
 
     public void OnInitializePotentialDrag(PointerEventData _eventData)
     {
-        if (pointerId == _eventData.pointerId && _eventData.button == PointerEventData.InputButton.Left)
+        if (pointerId != _eventData.pointerId || _eventData.button != PointerEventData.InputButton.Left)
         {
-            _eventData.useDragThreshold = false;
+            // Buttons inside the inventory still resolve this parent as their drag handler.
+            _eventData.pointerDrag = null;
+            return;
         }
+
+        _eventData.useDragThreshold = false;
     }
 
     public void OnDrag(PointerEventData _eventData)

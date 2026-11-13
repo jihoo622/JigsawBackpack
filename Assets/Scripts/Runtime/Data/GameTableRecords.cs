@@ -181,7 +181,9 @@ public sealed class PuzzleFreshnessData
 {
     public int settlementIntervalHours;
     public string refrigerationTag;
-    public int refrigerationReductionPercent;
+    public int refrigerationReductionPercent = -1;
+    public int wagonRefrigerationReductionPercent = -1;
+    public int saltPreservationReductionPercent = -1;
 }
 
 [Serializable]
