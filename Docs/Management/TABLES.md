@@ -63,12 +63,12 @@
 
 ## 노선·턴
 
-- `routes`는 `(fromCityId, toCityId)`를 키로 하는 방향 그래프다. 자기 자신·중복 방향·미등록 도시 참조를 금지한다. `cost`는 0 이상, `distance`는 양수다. 현재 표는 레일 생성 seed 20265146의 `projectMapData.rails`가 마을 ID로 준 양방향 연결 43개(마을 30)이며 시작 도시에서 모든 도시에 도달할 수 있어야 한다. 같은 이름이 다른 `city.*`에 붙을 수 있어 표시 이름과 ID는 따로 관리한다.
+- `routes`는 `(fromCityId, toCityId)`를 키로 하는 방향 그래프다. 자기 자신·중복 방향·미등록 도시 참조를 금지한다. `cost`는 0 이상, `distance`는 양수다. 현재 표는 레일 생성 seed 20265146의 `projectMapData.rails` 연결에 프로젝트 보완 노선을 더한 양방향 연결 50개(마을 31)이며 시작 도시에서 모든 도시에 도달할 수 있어야 한다. 역 ID는 `city.<역 이름 로마자>`로 지역과 무관하다.
 - `TableManager.TryGetRoute`·`HasRoute`는 개별 연결을 조회하고 `RoutesFrom(cityId)`는 도착 ID 오름차순 목록을 제공한다. 노출 정렬은 연결 관계가 아니다. 동일 방향의 복수 간선은 지원하지 않는다.
 - 반대 방향이 있으면 거리와 `highSpeed`가 같아야 한다. 방향별 기본요금은 달라도 된다. 같은 지역의 근거리에서는 보장 재고의 복수 태그와 거래 우선순위를 사용해 어느 방향으로든 공급·수요가 맞물리는 연결을 금지한다.
 - `distance`는 비용용 양수 게임 거리다. 시간은 `points`의 고정 폴라인 길이 ÷ `PuzzleTimeTableData.pixelsPerHour`를 분 단위로 올림한다. `points`는 유한한 x,y 쌍이 두 점 이상이며 왕복은 역순이다. 시간 가중치와 기본값 폴백은 제거했다. K=28은 잠정치다.
 - 경과 시간은 `PuzzleInventoryService.Time` 하나가 소유한다. 이동·휴식·아침 대기는 배설·식품 만료·성장·출산 경계별로 보유 시간과 가치를 계산한 뒤 한 번 확정하고 `TimeAdvanced`를 발행한다. 진행 시뮬레이션은 객차 사본과 번식·배설 상태 사본에서 돌고 확정 시에만 본래 상태에 반영하므로 미리보기가 원본을 바꾸지 않는다. 배설은 동물 인스턴스별 진행 상태를 갖고 첫 발생을 이후 처음 맞는 달력 경계에 맞추며, 공간이 부족한 동물만 완료 직전에서 대기한다. 출산도 산출물 전체가 들어갈 때만 주기를 넘긴다. 성장 진행도는 `OwnedMinutes`와 분리한 성장 시계로 계산하고, 성체 자리가 없으면 그 품목의 성장 시계만 `growthHours − growthBlockedHours`에서 멈춘다. 공간 부족은 더 이상 이동·휴식의 실패 사유가 아니다. 같은 시각에는 정산·배설·식품 만료·성장·출산 순서로 처리한다.
-- `planningTargetCityId`는 등록된 도시 ID를 가리키는 선택적 지도 표식이다. 현재 `city.capital.finance`(금융마을)이며 실제 상환 장소 설정인 `PuzzleTradeTableData.debtCityId`와 분리한다. `debtCityId`도 같은 도시를 가리켜 금융마을에서만 상환할 수 있다.
+- `planningTargetCityId`는 등록된 도시 ID를 가리키는 선택적 지도 표식이다. 현재 `city.finance`(금융마을)이며 실제 상환 장소 설정인 `PuzzleTradeTableData.debtCityId`와 분리한다. `debtCityId`도 같은 도시를 가리켜 금융마을에서만 상환할 수 있다.
 - `PuzzleTradeTableData.maxWagonCount`는 최대 객차 수 상한(8칸)이며 1 이상의 정수여야 한다. `PuzzleInventoryService`가 상한 도달 시 증차를 거부하고, UI 객차 바 슬롯 수가 이 값보다 적으면 예외를 발생시킨다.
 - `PuzzleTradeTableData.travelEffectSeconds`·`travelArrivalHoldSeconds`는 UI 이동 연출·도착 표시의 실제 초 단위 시간이며 유한한 양수여야 한다. 게임 내 소요 시간·기한과 분리한다.
 - 비용은 `cost + distance × costPerDistance + TotalTrainOccupiedCells × costPerCell`이다. 보유 시간·견적·표시는 같은 소요 분을 사용한다. 가치 배수는 `floor(행동 후 경과 분 / 주기 분) − floor(행동 전 경과 분 / 주기 분)`이다. `PuzzleSynergyTableData.activationIntervalHours`는 양의 정수이며 현재 6이다. 현재 배율의 증감량을 정산 1회당 한 번 적용한다.
@@ -81,7 +81,7 @@
 
 - `actions` 행은 고유 `id`, 알려진 `type`(`Butchery`·`Modification`), 비어 있지 않은 `title`·`description`, `Butchery`의 양의 `workMinutes`와 `Modification`의 0, 빈 `board.startingPlacements`와 양수 `width`·`height`, 등록된 `inputTag`·`outputTag` 또는 `modes`를 가진다.
 - `cityIds`는 등록된 도시 참조이며 같은 도시에서 같은 `type`의 행동은 하나만 쓸 수 있다. `TableManager.CityActionsOf(cityId)`는 action id 오름차순 목록을 주고 `TryGetCityAction(cityId, type, out row)`으로 하나를 조회한다. 전체 목록은 `CityActions` 속성(id 오름차순)이다. `modes`의 `id`·`displayName`·`description`·태그·`conversions`도 참조 무결성을 검증한다.
-- `conversions`의 `inputPieceId`는 `inputTag`를, `outputPieceId`는 `outputTag`를 가진 등록된 화물이어야 하고 `inputPieceId`는 고유하며 `outputCount`는 양수다. 현재 `action.butchery`는 `city.ranch.highland`(다르폴)에서 `piece.cow` 1개를 `piece.beef` 2개로 360분간 작업하고, `action.modification`은 `city.industry.ironworks`의 `mode.refrigeration`으로 `piece.uShape` 1개를 `piece.refrigeratedFrame` 1개로 즉시 바꾼다.
+- `conversions`의 `inputPieceId`는 `inputTag`를, `outputPieceId`는 `outputTag`를 가진 등록된 화물이어야 하고 `inputPieceId`는 고유하며 `outputCount`는 양수다. 현재 `action.butchery`는 `city.darpol`(다르폴)에서 `piece.cow` 1개를 `piece.beef` 2개로 360분간 작업하고, `action.modification`은 `city.erna`(에른아 공업역)의 `mode.refrigeration`으로 `piece.uShape` 1개를 `piece.refrigeratedFrame` 1개로 즉시 바꾼다.
 - 개조는 `InstanceId`, 회전 후 `Pose`, `ActualValue`, `OwnedMinutes`, `Durability`와 유통기한 진행을 보존한다. `BaseValue`와 로컬 점유 셀을 같게 유지해 변환으로 이후 시너지 기준액이 바뀌지 않게 한다. 냉장 프레임의 `Refrigerator` 태그는 `PuzzleSynergyTableData.freshness`에서 참조한다.
 - 도축대는 Game 씬에 연결했고 개조대 버튼·View 배치는 역 메뉴 프리팹(`Assets/Art/UI/StationActionsPanel.prefab`)에서 수정한다. 문구 원본은 `BasicDataTableData`이며 상태·사유는 `rules.butchery.*`·`rules.modification.*`, 버튼·보드는 `presentation.StationButchery*`·`presentation.PuzzleButcheryTitle`·`presentation.StationModification*`·`presentation.PuzzleModification*`를 쓴다.
 

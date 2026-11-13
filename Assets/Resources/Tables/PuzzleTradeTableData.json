@@ -6,7 +6,7 @@
   "maxWagonCount": 8,
   "gameClearCost": 1500,
   "deadlineHours": 336,
-  "debtCityId": "city.capital.finance",
+  "debtCityId": "city.finance",
   "travelEffectSeconds": 1.25,
   "travelArrivalHoldSeconds": 0.35
 }

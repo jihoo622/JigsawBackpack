@@ -6,21 +6,21 @@
   "costPerCell": 1,
   "routes": [
     {
-      "fromCityId": "city.capital.central",
-      "toCityId": "city.capital.finance",
+      "fromCityId": "city.aiport",
+      "toCityId": "city.finance",
       "cost": 3,
       "distance": 2,
       "highSpeed": false,
       "points": [
         220.0,
         -20.0,
-        350.0,
-        -150.0
+        310.0,
+        -160.0
       ]
     },
     {
-      "fromCityId": "city.capital.central",
-      "toCityId": "city.capital.outskirts",
+      "fromCityId": "city.aiport",
+      "toCityId": "city.diaan",
       "cost": 3,
       "distance": 1,
       "highSpeed": false,
@@ -32,8 +32,8 @@
       ]
     },
     {
-      "fromCityId": "city.capital.central",
-      "toCityId": "city.capital.wholesale",
+      "fromCityId": "city.aiport",
+      "toCityId": "city.trenford",
       "cost": 3,
       "distance": 2,
       "highSpeed": false,
@@ -45,8 +45,8 @@
       ]
     },
     {
-      "fromCityId": "city.capital.central",
-      "toCityId": "city.common.roadside",
+      "fromCityId": "city.aiport",
+      "toCityId": "city.mert",
       "cost": 3,
       "distance": 4,
       "highSpeed": false,
@@ -58,60 +58,60 @@
       ]
     },
     {
-      "fromCityId": "city.capital.finance",
-      "toCityId": "city.capital.central",
+      "fromCityId": "city.finance",
+      "toCityId": "city.aiport",
       "cost": 3,
       "distance": 2,
       "highSpeed": false,
       "points": [
-        350.0,
-        -150.0,
+        310.0,
+        -160.0,
         220.0,
         -20.0
       ]
     },
     {
-      "fromCityId": "city.capital.finance",
-      "toCityId": "city.capital.outskirts",
+      "fromCityId": "city.finance",
+      "toCityId": "city.diaan",
       "cost": 3,
       "distance": 2,
       "highSpeed": false,
       "points": [
-        350.0,
-        -150.0,
+        310.0,
+        -160.0,
         350.0,
         0.0
       ]
     },
     {
-      "fromCityId": "city.capital.finance",
-      "toCityId": "city.common.roadside",
+      "fromCityId": "city.finance",
+      "toCityId": "city.mert",
       "cost": 3,
       "distance": 3,
       "highSpeed": false,
       "points": [
-        350.0,
-        -150.0,
+        310.0,
+        -160.0,
         160.0,
         -160.0
       ]
     },
     {
-      "fromCityId": "city.capital.merchant",
-      "toCityId": "city.capital.wholesale",
+      "fromCityId": "city.sergrad",
+      "toCityId": "city.trenford",
       "cost": 3,
       "distance": 2,
       "highSpeed": false,
       "points": [
-        60.0,
+        90.0,
         30.0,
         190.0,
         140.0
       ]
     },
     {
-      "fromCityId": "city.capital.outskirts",
-      "toCityId": "city.capital.central",
+      "fromCityId": "city.diaan",
+      "toCityId": "city.aiport",
       "cost": 3,
       "distance": 1,
       "highSpeed": false,
@@ -123,21 +123,21 @@
       ]
     },
     {
-      "fromCityId": "city.capital.outskirts",
-      "toCityId": "city.capital.finance",
+      "fromCityId": "city.diaan",
+      "toCityId": "city.finance",
       "cost": 3,
       "distance": 2,
       "highSpeed": false,
       "points": [
         350.0,
         0.0,
-        350.0,
-        -150.0
+        310.0,
+        -160.0
       ]
     },
     {
-      "fromCityId": "city.capital.outskirts",
-      "toCityId": "city.capital.wholesale",
+      "fromCityId": "city.diaan",
+      "toCityId": "city.trenford",
       "cost": 3,
       "distance": 2,
       "highSpeed": false,
@@ -149,8 +149,8 @@
       ]
     },
     {
-      "fromCityId": "city.capital.outskirts",
-      "toCityId": "city.coast.port",
+      "fromCityId": "city.diaan",
+      "toCityId": "city.pioa",
       "cost": 3,
       "distance": 1,
       "highSpeed": false,
@@ -158,12 +158,12 @@
         350.0,
         0.0,
         480.0,
-        60.0
+        90.0
       ]
     },
     {
-      "fromCityId": "city.capital.wholesale",
-      "toCityId": "city.capital.central",
+      "fromCityId": "city.trenford",
+      "toCityId": "city.aiport",
       "cost": 3,
       "distance": 2,
       "highSpeed": false,
@@ -175,21 +175,21 @@
       ]
     },
     {
-      "fromCityId": "city.capital.wholesale",
-      "toCityId": "city.capital.merchant",
+      "fromCityId": "city.trenford",
+      "toCityId": "city.sergrad",
       "cost": 3,
       "distance": 2,
       "highSpeed": false,
       "points": [
         190.0,
         140.0,
-        60.0,
+        90.0,
         30.0
       ]
     },
     {
-      "fromCityId": "city.capital.wholesale",
-      "toCityId": "city.capital.outskirts",
+      "fromCityId": "city.trenford",
+      "toCityId": "city.diaan",
       "cost": 3,
       "distance": 2,
       "highSpeed": false,
@@ -201,249 +201,245 @@
       ]
     },
     {
-      "fromCityId": "city.coast.fish",
-      "toCityId": "city.coast.port",
+      "fromCityId": "city.teratia",
+      "toCityId": "city.pioa",
       "cost": 3,
       "distance": 2,
       "highSpeed": false,
       "points": [
-        540.0,
+        530.0,
         220.0,
         530.0,
-        210.0,
-        530.0,
-        140.0,
+        150.0,
         480.0,
-        110.0,
-        480.0,
-        60.0
+        90.0
       ]
     },
     {
-      "fromCityId": "city.coast.fish",
-      "toCityId": "city.coast.spring",
+      "fromCityId": "city.teratia",
+      "toCityId": "city.teraka",
       "cost": 3,
       "distance": 2,
       "highSpeed": false,
       "points": [
-        540.0,
+        530.0,
         220.0,
-        400.0,
-        320.0
+        530.0,
+        280.0,
+        610.0,
+        310.0
       ]
     },
     {
-      "fromCityId": "city.coast.port",
-      "toCityId": "city.capital.outskirts",
+      "fromCityId": "city.pioa",
+      "toCityId": "city.diaan",
       "cost": 3,
       "distance": 1,
       "highSpeed": false,
       "points": [
         480.0,
-        60.0,
+        90.0,
         350.0,
         0.0
       ]
     },
     {
-      "fromCityId": "city.coast.port",
-      "toCityId": "city.coast.fish",
+      "fromCityId": "city.pioa",
+      "toCityId": "city.teratia",
       "cost": 3,
       "distance": 2,
       "highSpeed": false,
       "points": [
         480.0,
-        60.0,
-        480.0,
-        110.0,
+        90.0,
         530.0,
-        140.0,
+        150.0,
         530.0,
-        210.0,
-        540.0,
         220.0
       ]
     },
     {
-      "fromCityId": "city.coast.port",
-      "toCityId": "city.coast.sea",
+      "fromCityId": "city.pioa",
+      "toCityId": "city.valenrie",
       "cost": 3,
       "distance": 2,
       "highSpeed": false,
       "points": [
         480.0,
-        60.0,
-        500.0,
-        0.0,
-        630.0,
-        -110.0
+        90.0,
+        480.0,
+        40.0,
+        610.0,
+        -70.0
       ]
     },
     {
-      "fromCityId": "city.coast.sea",
-      "toCityId": "city.farm.field",
+      "fromCityId": "city.valenrie",
+      "toCityId": "city.dart",
       "cost": 3,
       "distance": 6,
       "highSpeed": false,
       "points": [
-        630.0,
-        -110.0,
+        610.0,
+        -70.0,
         510.0,
         -260.0,
         410.0,
         -320.0,
-        145.6,
-        -365.0
+        120.0,
+        -320.0
       ]
     },
     {
-      "fromCityId": "city.common.rest",
-      "toCityId": "city.mine.dig",
+      "fromCityId": "city.osber",
+      "toCityId": "city.riobruk",
       "cost": 3,
       "distance": 4,
       "highSpeed": false,
       "points": [
-        80.0,
-        260.0,
-        -290.0,
-        280.0
-      ]
-    },
-    {
-      "fromCityId": "city.coast.sea",
-      "toCityId": "city.coast.port",
-      "cost": 3,
-      "distance": 2,
-      "highSpeed": false,
-      "points": [
-        630.0,
         -110.0,
-        500.0,
-        0.0,
-        480.0,
-        60.0
+        330.0,
+        -270.0,
+        360.0
       ]
     },
     {
-      "fromCityId": "city.coast.spring",
-      "toCityId": "city.coast.fish",
+      "fromCityId": "city.valenrie",
+      "toCityId": "city.pioa",
       "cost": 3,
       "distance": 2,
       "highSpeed": false,
       "points": [
-        400.0,
-        320.0,
-        540.0,
+        610.0,
+        -70.0,
+        480.0,
+        40.0,
+        480.0,
+        90.0
+      ]
+    },
+    {
+      "fromCityId": "city.teraka",
+      "toCityId": "city.teratia",
+      "cost": 3,
+      "distance": 2,
+      "highSpeed": false,
+      "points": [
+        610.0,
+        310.0,
+        530.0,
+        280.0,
+        530.0,
         220.0
       ]
     },
     {
-      "fromCityId": "city.common.crossing",
-      "toCityId": "city.ranch.pass",
+      "fromCityId": "city.teragrad",
+      "toCityId": "city.heilheim",
+      "cost": 3,
+      "distance": 2,
+      "highSpeed": false,
+      "points": [
+        -430.0,
+        -80.0,
+        -220.0,
+        -100.0
+      ]
+    },
+    {
+      "fromCityId": "city.teragrad",
+      "toCityId": "city.erna",
+      "cost": 3,
+      "distance": 2,
+      "highSpeed": false,
+      "points": [
+        -430.0,
+        -80.0,
+        -540.0,
+        -20.0
+      ]
+    },
+    {
+      "fromCityId": "city.rasburk",
+      "toCityId": "city.daran",
       "cost": 3,
       "distance": 1,
       "highSpeed": false,
       "points": [
-        -440.0,
-        -140.0,
-        -310.0,
-        -190.0
+        -50.0,
+        220.0,
+        -160.0,
+        190.0
       ]
     },
     {
-      "fromCityId": "city.common.crossing",
-      "toCityId": "city.industry.ironworks",
-      "cost": 3,
-      "distance": 2,
-      "highSpeed": false,
-      "points": [
-        -440.0,
-        -140.0,
-        -570.0,
-        60.0
-      ]
-    },
-    {
-      "fromCityId": "city.common.rest",
-      "toCityId": "city.mine.salt",
-      "cost": 3,
-      "distance": 2,
-      "highSpeed": false,
-      "points": [
-        80.0,
-        260.0,
-        -120.0,
-        150.0
-      ]
-    },
-    {
-      "fromCityId": "city.ranch.pass",
-      "toCityId": "city.common.wayfarer",
+      "fromCityId": "city.rasenpol",
+      "toCityId": "city.sera",
       "cost": 3,
       "distance": 2,
       "highSpeed": false,
       "points": [
         -310.0,
         -190.0,
-        -140.0,
-        -200.0
+        -160.0,
+        -220.0
       ]
     },
     {
-      "fromCityId": "city.capital.merchant",
-      "toCityId": "city.farm.lumber",
+      "fromCityId": "city.sergrad",
+      "toCityId": "city.berska",
       "cost": 3,
       "distance": 2,
       "highSpeed": false,
       "points": [
-        60.0,
+        90.0,
         30.0,
         -120.0,
         10.0
       ]
     },
     {
-      "fromCityId": "city.capital.merchant",
-      "toCityId": "city.mine.salt",
+      "fromCityId": "city.trenford",
+      "toCityId": "city.rasburk",
       "cost": 3,
-      "distance": 2,
+      "distance": 3,
       "highSpeed": false,
       "points": [
-        60.0,
-        30.0,
-        -120.0,
-        150.0
+        190.0,
+        140.0,
+        -50.0,
+        220.0
       ]
     },
     {
-      "fromCityId": "city.common.roadside",
-      "toCityId": "city.capital.finance",
+      "fromCityId": "city.mert",
+      "toCityId": "city.finance",
       "cost": 3,
       "distance": 3,
       "highSpeed": false,
       "points": [
         160.0,
         -160.0,
-        350.0,
-        -150.0
+        310.0,
+        -160.0
       ]
     },
     {
-      "fromCityId": "city.mine.salt",
-      "toCityId": "city.common.rest",
+      "fromCityId": "city.daran",
+      "toCityId": "city.rasburk",
       "cost": 3,
-      "distance": 2,
+      "distance": 1,
       "highSpeed": false,
       "points": [
-        -120.0,
-        150.0,
-        80.0,
-        260.0
+        -160.0,
+        190.0,
+        -50.0,
+        220.0
       ]
     },
     {
-      "fromCityId": "city.common.roadside",
-      "toCityId": "city.farm.grain",
+      "fromCityId": "city.mert",
+      "toCityId": "city.ibt",
       "cost": 3,
       "distance": 2,
       "highSpeed": false,
@@ -457,86 +453,86 @@
       ]
     },
     {
-      "fromCityId": "city.ranch.pass",
-      "toCityId": "city.common.crossing",
-      "cost": 3,
-      "distance": 1,
-      "highSpeed": false,
-      "points": [
-        -310.0,
-        -190.0,
-        -440.0,
-        -140.0
-      ]
-    },
-    {
-      "fromCityId": "city.common.wayfarer",
-      "toCityId": "city.ranch.pass",
+      "fromCityId": "city.heilheim",
+      "toCityId": "city.teragrad",
       "cost": 3,
       "distance": 2,
       "highSpeed": false,
       "points": [
-        -140.0,
-        -200.0,
+        -220.0,
+        -100.0,
+        -430.0,
+        -80.0
+      ]
+    },
+    {
+      "fromCityId": "city.sera",
+      "toCityId": "city.rasenpol",
+      "cost": 3,
+      "distance": 2,
+      "highSpeed": false,
+      "points": [
+        -160.0,
+        -220.0,
         -310.0,
         -190.0
       ]
     },
     {
-      "fromCityId": "city.common.wayfarer",
-      "toCityId": "city.farm.orchard",
+      "fromCityId": "city.sera",
+      "toCityId": "city.terapol",
       "cost": 3,
       "distance": 1,
       "highSpeed": false,
       "points": [
-        -140.0,
-        -200.0,
+        -160.0,
+        -220.0,
         -60.0,
         -120.0
       ]
     },
     {
-      "fromCityId": "city.common.wayfarer",
-      "toCityId": "city.ranch.butcher",
+      "fromCityId": "city.sera",
+      "toCityId": "city.heilheim",
       "cost": 3,
       "distance": 2,
       "highSpeed": false,
       "points": [
-        -140.0,
-        -200.0,
-        -230.0,
-        -80.0
+        -160.0,
+        -220.0,
+        -220.0,
+        -100.0
       ]
     },
     {
-      "fromCityId": "city.ranch.pass",
-      "toCityId": "city.ranch.highland",
+      "fromCityId": "city.rasenpol",
+      "toCityId": "city.darpol",
       "cost": 3,
-      "distance": 2,
+      "distance": 1,
       "highSpeed": false,
       "points": [
         -310.0,
         -190.0,
-        -400.0,
-        -350.0
+        -290.0,
+        -290.0
       ]
     },
     {
-      "fromCityId": "city.farm.field",
-      "toCityId": "city.farm.grain",
+      "fromCityId": "city.dart",
+      "toCityId": "city.ibt",
       "cost": 3,
-      "distance": 2,
+      "distance": 1,
       "highSpeed": false,
       "points": [
-        145.6,
-        -365,
+        120.0,
+        -320.0,
         44.31,
         -195
       ]
     },
     {
-      "fromCityId": "city.common.roadside",
-      "toCityId": "city.capital.central",
+      "fromCityId": "city.mert",
+      "toCityId": "city.aiport",
       "cost": 3,
       "distance": 4,
       "highSpeed": false,
@@ -548,25 +544,25 @@
       ]
     },
     {
-      "fromCityId": "city.farm.field",
-      "toCityId": "city.coast.sea",
+      "fromCityId": "city.dart",
+      "toCityId": "city.valenrie",
       "cost": 3,
       "distance": 6,
       "highSpeed": false,
       "points": [
-        145.6,
-        -365.0,
+        120.0,
+        -320.0,
         410.0,
         -320.0,
         510.0,
         -260.0,
-        630.0,
-        -110.0
+        610.0,
+        -70.0
       ]
     },
     {
-      "fromCityId": "city.farm.grain",
-      "toCityId": "city.common.roadside",
+      "fromCityId": "city.ibt",
+      "toCityId": "city.mert",
       "cost": 3,
       "distance": 2,
       "highSpeed": false,
@@ -580,21 +576,21 @@
       ]
     },
     {
-      "fromCityId": "city.farm.grain",
-      "toCityId": "city.farm.field",
+      "fromCityId": "city.ibt",
+      "toCityId": "city.dart",
       "cost": 3,
-      "distance": 2,
+      "distance": 1,
       "highSpeed": false,
       "points": [
         44.31,
         -195,
-        145.6,
-        -365
+        120.0,
+        -320.0
       ]
     },
     {
-      "fromCityId": "city.farm.grain",
-      "toCityId": "city.farm.orchard",
+      "fromCityId": "city.ibt",
+      "toCityId": "city.terapol",
       "cost": 3,
       "distance": 1,
       "highSpeed": false,
@@ -606,34 +602,34 @@
       ]
     },
     {
-      "fromCityId": "city.farm.grain",
-      "toCityId": "city.ranch.jerky",
+      "fromCityId": "city.sera",
+      "toCityId": "city.osgrad",
       "cost": 3,
-      "distance": 2,
+      "distance": 3,
       "highSpeed": false,
       "points": [
-        44.31,
-        -195.0,
-        -110.0,
-        -300.0
+        -160.0,
+        -220.0,
+        -200.0,
+        -290.0
       ]
     },
     {
-      "fromCityId": "city.farm.lumber",
-      "toCityId": "city.capital.merchant",
+      "fromCityId": "city.berska",
+      "toCityId": "city.sergrad",
       "cost": 3,
       "distance": 2,
       "highSpeed": false,
       "points": [
         -120.0,
         10.0,
-        60.0,
+        90.0,
         30.0
       ]
     },
     {
-      "fromCityId": "city.farm.lumber",
-      "toCityId": "city.farm.orchard",
+      "fromCityId": "city.berska",
+      "toCityId": "city.terapol",
       "cost": 3,
       "distance": 1,
       "highSpeed": false,
@@ -645,60 +641,60 @@
       ]
     },
     {
-      "fromCityId": "city.common.crossing",
-      "toCityId": "city.industry.meatlover",
+      "fromCityId": "city.teragrad",
+      "toCityId": "city.karport",
       "cost": 3,
       "distance": 2,
       "highSpeed": false,
       "points": [
-        -440.0,
-        -140.0,
+        -430.0,
+        -80.0,
         -320.0,
         -30.0
       ]
     },
     {
-      "fromCityId": "city.farm.lumber",
-      "toCityId": "city.mine.salt",
+      "fromCityId": "city.berska",
+      "toCityId": "city.daran",
       "cost": 3,
       "distance": 1,
       "highSpeed": false,
       "points": [
         -120.0,
         10.0,
-        -120.0,
-        150.0
+        -160.0,
+        190.0
       ]
     },
     {
-      "fromCityId": "city.farm.lumber",
-      "toCityId": "city.ranch.butcher",
+      "fromCityId": "city.berska",
+      "toCityId": "city.heilheim",
       "cost": 3,
       "distance": 1,
       "highSpeed": false,
       "points": [
         -120.0,
         10.0,
-        -230.0,
-        -80.0
+        -220.0,
+        -100.0
       ]
     },
     {
-      "fromCityId": "city.farm.orchard",
-      "toCityId": "city.common.wayfarer",
+      "fromCityId": "city.terapol",
+      "toCityId": "city.sera",
       "cost": 3,
       "distance": 1,
       "highSpeed": false,
       "points": [
         -60.0,
         -120.0,
-        -140.0,
-        -200.0
+        -160.0,
+        -220.0
       ]
     },
     {
-      "fromCityId": "city.farm.orchard",
-      "toCityId": "city.farm.grain",
+      "fromCityId": "city.terapol",
+      "toCityId": "city.ibt",
       "cost": 3,
       "distance": 1,
       "highSpeed": false,
@@ -710,8 +706,8 @@
       ]
     },
     {
-      "fromCityId": "city.farm.orchard",
-      "toCityId": "city.farm.lumber",
+      "fromCityId": "city.terapol",
+      "toCityId": "city.berska",
       "cost": 3,
       "distance": 1,
       "highSpeed": false,
@@ -723,23 +719,21 @@
       ]
     },
     {
-      "fromCityId": "city.farm.orchard",
-      "toCityId": "city.ranch.butcher",
+      "fromCityId": "city.terapol",
+      "toCityId": "city.heilheim",
       "cost": 3,
       "distance": 2,
       "highSpeed": false,
       "points": [
         -60.0,
         -120.0,
-        -134.96,
-        -85,
-        -230.0,
-        -80.0
+        -220.0,
+        -100.0
       ]
     },
     {
-      "fromCityId": "city.industry.assembly",
-      "toCityId": "city.industry.meatlover",
+      "fromCityId": "city.porber",
+      "toCityId": "city.karport",
       "cost": 3,
       "distance": 1,
       "highSpeed": false,
@@ -751,125 +745,125 @@
       ]
     },
     {
-      "fromCityId": "city.industry.engine",
-      "toCityId": "city.industry.ironworks",
-      "cost": 3,
-      "distance": 3,
-      "highSpeed": false,
-      "points": [
-        -610.0,
-        -190.0,
-        -570.0,
-        60.0
-      ]
-    },
-    {
-      "fromCityId": "city.industry.engine",
-      "toCityId": "city.ranch.highland",
-      "cost": 3,
-      "distance": 3,
-      "highSpeed": false,
-      "points": [
-        -610.0,
-        -190.0,
-        -400.0,
-        -350.0
-      ]
-    },
-    {
-      "fromCityId": "city.industry.ironworks",
-      "toCityId": "city.common.crossing",
-      "cost": 3,
-      "distance": 2,
-      "highSpeed": false,
-      "points": [
-        -570.0,
-        60.0,
-        -440.0,
-        -140.0
-      ]
-    },
-    {
-      "fromCityId": "city.industry.ironworks",
-      "toCityId": "city.industry.engine",
+      "fromCityId": "city.nornova",
+      "toCityId": "city.erna",
       "cost": 3,
       "distance": 3,
       "highSpeed": false,
       "points": [
         -570.0,
-        60.0,
-        -610.0,
-        -190.0
+        -150.0,
+        -540.0,
+        -20.0
       ]
     },
     {
-      "fromCityId": "city.industry.ironworks",
-      "toCityId": "city.industry.logistics",
-      "cost": 3,
-      "distance": 2,
-      "highSpeed": false,
-      "points": [
-        -570.0,
-        60.0,
-        -730.0,
-        0.0
-      ]
-    },
-    {
-      "fromCityId": "city.industry.ironworks",
-      "toCityId": "city.mine.dig",
+      "fromCityId": "city.nornova",
+      "toCityId": "city.darpol",
       "cost": 3,
       "distance": 3,
       "highSpeed": false,
       "points": [
         -570.0,
-        60.0,
+        -150.0,
         -290.0,
-        280.0
+        -290.0
       ]
     },
     {
-      "fromCityId": "city.common.crossing",
-      "toCityId": "city.ranch.highland",
+      "fromCityId": "city.erna",
+      "toCityId": "city.teragrad",
       "cost": 3,
       "distance": 2,
       "highSpeed": false,
       "points": [
-        -440.0,
-        -140.0,
-        -400.0,
-        -350.0
+        -540.0,
+        -20.0,
+        -430.0,
+        -80.0
       ]
     },
     {
-      "fromCityId": "city.industry.logistics",
-      "toCityId": "city.industry.ironworks",
+      "fromCityId": "city.erna",
+      "toCityId": "city.nornova",
       "cost": 3,
-      "distance": 2,
+      "distance": 3,
       "highSpeed": false,
       "points": [
-        -730.0,
-        0.0,
+        -540.0,
+        -20.0,
         -570.0,
-        60.0
+        -150.0
       ]
     },
     {
-      "fromCityId": "city.industry.meatlover",
-      "toCityId": "city.common.crossing",
+      "fromCityId": "city.erna",
+      "toCityId": "city.heilford",
+      "cost": 3,
+      "distance": 2,
+      "highSpeed": false,
+      "points": [
+        -540.0,
+        -20.0,
+        -690.0,
+        -50.0
+      ]
+    },
+    {
+      "fromCityId": "city.porber",
+      "toCityId": "city.rasenton",
+      "cost": 3,
+      "distance": 3,
+      "highSpeed": false,
+      "points": [
+        -430.0,
+        30.0,
+        -320.0,
+        190.0
+      ]
+    },
+    {
+      "fromCityId": "city.teragrad",
+      "toCityId": "city.nornova",
+      "cost": 3,
+      "distance": 2,
+      "highSpeed": false,
+      "points": [
+        -430.0,
+        -80.0,
+        -570.0,
+        -150.0
+      ]
+    },
+    {
+      "fromCityId": "city.heilford",
+      "toCityId": "city.erna",
+      "cost": 3,
+      "distance": 2,
+      "highSpeed": false,
+      "points": [
+        -690.0,
+        -50.0,
+        -540.0,
+        -20.0
+      ]
+    },
+    {
+      "fromCityId": "city.karport",
+      "toCityId": "city.teragrad",
       "cost": 3,
       "distance": 2,
       "highSpeed": false,
       "points": [
         -320.0,
         -30.0,
-        -440.0,
-        -140.0
+        -430.0,
+        -80.0
       ]
     },
     {
-      "fromCityId": "city.industry.meatlover",
-      "toCityId": "city.industry.assembly",
+      "fromCityId": "city.karport",
+      "toCityId": "city.porber",
       "cost": 3,
       "distance": 1,
       "highSpeed": false,
@@ -881,468 +875,462 @@
       ]
     },
     {
-      "fromCityId": "city.industry.meatlover",
-      "toCityId": "city.ranch.butcher",
+      "fromCityId": "city.karport",
+      "toCityId": "city.heilheim",
       "cost": 3,
       "distance": 1,
       "highSpeed": false,
       "points": [
         -320.0,
         -30.0,
-        -230.0,
-        -80.0
+        -220.0,
+        -100.0
       ]
     },
     {
-      "fromCityId": "city.mine.cave",
-      "toCityId": "city.mine.dig",
+      "fromCityId": "city.karka",
+      "toCityId": "city.rasenton",
       "cost": 3,
       "distance": 3,
       "highSpeed": false,
       "points": [
-        -576.09,
-        355,
-        -490.0,
-        280.0,
-        -290.0,
-        280.0
+        -410.0,
+        360.0,
+        -410.0,
+        260.0,
+        -320.0,
+        190.0
       ]
     },
     {
-      "fromCityId": "city.mine.dig",
-      "toCityId": "city.common.rest",
+      "fromCityId": "city.riobruk",
+      "toCityId": "city.osber",
       "cost": 3,
       "distance": 4,
       "highSpeed": false,
       "points": [
-        -290.0,
-        280.0,
-        80.0,
-        260.0
+        -270.0,
+        360.0,
+        -110.0,
+        330.0
       ]
     },
     {
-      "fromCityId": "city.mine.dig",
-      "toCityId": "city.industry.ironworks",
+      "fromCityId": "city.rasenton",
+      "toCityId": "city.porber",
       "cost": 3,
       "distance": 3,
       "highSpeed": false,
       "points": [
-        -290.0,
-        280.0,
-        -570.0,
-        60.0
-      ]
-    },
-    {
-      "fromCityId": "city.mine.dig",
-      "toCityId": "city.mine.cave",
-      "cost": 3,
-      "distance": 3,
-      "highSpeed": false,
-      "points": [
-        -290.0,
-        280.0,
-        -490.0,
-        280.0,
-        -576.09,
-        355
-      ]
-    },
-    {
-      "fromCityId": "city.mine.dig",
-      "toCityId": "city.mine.iron",
-      "cost": 3,
-      "distance": 2,
-      "highSpeed": false,
-      "points": [
-        -290.0,
-        280.0,
-        -183.59,
-        353.63,
-        -183.59,
-        355
-      ]
-    },
-    {
-      "fromCityId": "city.mine.iron",
-      "toCityId": "city.mine.dig",
-      "cost": 3,
-      "distance": 2,
-      "highSpeed": false,
-      "points": [
-        -183.59,
-        355,
-        -183.59,
-        353.63,
-        -290.0,
-        280.0
-      ]
-    },
-    {
-      "fromCityId": "city.mine.salt",
-      "toCityId": "city.capital.merchant",
-      "cost": 3,
-      "distance": 2,
-      "highSpeed": false,
-      "points": [
-        -120.0,
-        150.0,
-        60.0,
+        -320.0,
+        190.0,
+        -430.0,
         30.0
       ]
     },
     {
-      "fromCityId": "city.mine.salt",
-      "toCityId": "city.farm.lumber",
+      "fromCityId": "city.rasenton",
+      "toCityId": "city.karka",
+      "cost": 3,
+      "distance": 3,
+      "highSpeed": false,
+      "points": [
+        -320.0,
+        190.0,
+        -410.0,
+        260.0,
+        -410.0,
+        360.0
+      ]
+    },
+    {
+      "fromCityId": "city.karka",
+      "toCityId": "city.riobruk",
+      "cost": 3,
+      "distance": 2,
+      "highSpeed": false,
+      "points": [
+        -410.0,
+        360.0,
+        -270.0,
+        360.0
+      ]
+    },
+    {
+      "fromCityId": "city.riobruk",
+      "toCityId": "city.karka",
+      "cost": 3,
+      "distance": 2,
+      "highSpeed": false,
+      "points": [
+        -270.0,
+        360.0,
+        -410.0,
+        360.0
+      ]
+    },
+    {
+      "fromCityId": "city.rasburk",
+      "toCityId": "city.trenford",
+      "cost": 3,
+      "distance": 3,
+      "highSpeed": false,
+      "points": [
+        -50.0,
+        220.0,
+        190.0,
+        140.0
+      ]
+    },
+    {
+      "fromCityId": "city.daran",
+      "toCityId": "city.berska",
       "cost": 3,
       "distance": 1,
       "highSpeed": false,
       "points": [
-        -120.0,
-        150.0,
+        -160.0,
+        190.0,
         -120.0,
         10.0
       ]
     },
     {
-      "fromCityId": "city.ranch.butcher",
-      "toCityId": "city.common.wayfarer",
+      "fromCityId": "city.heilheim",
+      "toCityId": "city.sera",
       "cost": 3,
       "distance": 2,
       "highSpeed": false,
       "points": [
-        -230.0,
-        -80.0,
-        -140.0,
-        -200.0
+        -220.0,
+        -100.0,
+        -160.0,
+        -220.0
       ]
     },
     {
-      "fromCityId": "city.ranch.butcher",
-      "toCityId": "city.farm.lumber",
+      "fromCityId": "city.heilheim",
+      "toCityId": "city.berska",
       "cost": 3,
       "distance": 1,
       "highSpeed": false,
       "points": [
-        -230.0,
-        -80.0,
+        -220.0,
+        -100.0,
         -120.0,
         10.0
       ]
     },
     {
-      "fromCityId": "city.ranch.butcher",
-      "toCityId": "city.farm.orchard",
+      "fromCityId": "city.heilheim",
+      "toCityId": "city.terapol",
       "cost": 3,
       "distance": 2,
       "highSpeed": false,
       "points": [
-        -230.0,
-        -80.0,
-        -134.96,
-        -85,
+        -220.0,
+        -100.0,
         -60.0,
         -120.0
       ]
     },
     {
-      "fromCityId": "city.ranch.butcher",
-      "toCityId": "city.industry.meatlover",
+      "fromCityId": "city.heilheim",
+      "toCityId": "city.karport",
       "cost": 3,
       "distance": 1,
       "highSpeed": false,
       "points": [
-        -230.0,
-        -80.0,
+        -220.0,
+        -100.0,
         -320.0,
         -30.0
       ]
     },
     {
-      "fromCityId": "city.ranch.butcher",
-      "toCityId": "city.ranch.pass",
+      "fromCityId": "city.heilheim",
+      "toCityId": "city.rasenpol",
       "cost": 3,
       "distance": 1,
       "highSpeed": false,
       "points": [
-        -230.0,
-        -80.0,
+        -220.0,
+        -100.0,
         -310.0,
         -190.0
       ]
     },
     {
-      "fromCityId": "city.ranch.highland",
-      "toCityId": "city.ranch.pass",
+      "fromCityId": "city.darpol",
+      "toCityId": "city.rasenpol",
       "cost": 3,
-      "distance": 2,
+      "distance": 1,
       "highSpeed": false,
       "points": [
-        -400.0,
-        -350.0,
+        -290.0,
+        -290.0,
         -310.0,
         -190.0
       ]
     },
     {
-      "fromCityId": "city.ranch.jerky",
-      "toCityId": "city.farm.grain",
+      "fromCityId": "city.osgrad",
+      "toCityId": "city.sera",
+      "cost": 3,
+      "distance": 3,
+      "highSpeed": false,
+      "points": [
+        -200.0,
+        -290.0,
+        -160.0,
+        -220.0
+      ]
+    },
+    {
+      "fromCityId": "city.nornova",
+      "toCityId": "city.teragrad",
       "cost": 3,
       "distance": 2,
       "highSpeed": false,
       "points": [
-        -110.0,
-        -300.0,
-        44.31,
-        -195.0
+        -570.0,
+        -150.0,
+        -430.0,
+        -80.0
       ]
     },
     {
-      "fromCityId": "city.ranch.highland",
-      "toCityId": "city.common.crossing",
+      "fromCityId": "city.darpol",
+      "toCityId": "city.osgrad",
       "cost": 3,
-      "distance": 2,
+      "distance": 1,
       "highSpeed": false,
       "points": [
-        -400.0,
-        -350.0,
-        -440.0,
-        -140.0
+        -290.0,
+        -290.0,
+        -200.0,
+        -290.0
       ]
     },
     {
-      "fromCityId": "city.ranch.highland",
-      "toCityId": "city.ranch.jerky",
+      "fromCityId": "city.osgrad",
+      "toCityId": "city.darpol",
       "cost": 3,
-      "distance": 3,
+      "distance": 1,
       "highSpeed": false,
       "points": [
-        -400.0,
-        -350.0,
-        -110.0,
-        -300.0
+        -200.0,
+        -290.0,
+        -290.0,
+        -290.0
       ]
     },
     {
-      "fromCityId": "city.ranch.jerky",
-      "toCityId": "city.ranch.highland",
-      "cost": 3,
-      "distance": 3,
-      "highSpeed": false,
-      "points": [
-        -110.0,
-        -300.0,
-        -400.0,
-        -350.0
-      ]
-    },
-    {
-      "fromCityId": "city.ranch.highland",
-      "toCityId": "city.industry.engine",
+      "fromCityId": "city.darpol",
+      "toCityId": "city.nornova",
       "cost": 3,
       "distance": 3,
       "highSpeed": false,
       "points": [
-        -400.0,
-        -350.0,
-        -610.0,
-        -190.0
+        -290.0,
+        -290.0,
+        -570.0,
+        -150.0
       ]
     },
     {
-      "fromCityId": "city.ranch.pass",
-      "toCityId": "city.ranch.butcher",
+      "fromCityId": "city.rasenpol",
+      "toCityId": "city.heilheim",
       "cost": 3,
       "distance": 1,
       "highSpeed": false,
       "points": [
         -310.0,
         -190.0,
-        -230.0,
-        -80.0
+        -220.0,
+        -100.0
       ]
     },
     {
-      "fromCityId": "city.industry.ironworks",
-      "toCityId": "city.industry.assembly",
+      "fromCityId": "city.erna",
+      "toCityId": "city.porber",
       "cost": 3,
       "distance": 1,
       "highSpeed": false,
       "points": [
-        -570.0,
-        60.0,
+        -540.0,
+        -20.0,
         -430.0,
         30.0
       ]
     },
     {
-      "fromCityId": "city.industry.assembly",
-      "toCityId": "city.industry.ironworks",
+      "fromCityId": "city.porber",
+      "toCityId": "city.erna",
       "cost": 3,
       "distance": 1,
       "highSpeed": false,
       "points": [
         -430.0,
         30.0,
-        -570.0,
-        60.0
+        -540.0,
+        -20.0
       ]
     },
     {
-      "fromCityId": "city.mine.dig",
-      "toCityId": "city.mine.salt",
+      "fromCityId": "city.rasenton",
+      "toCityId": "city.daran",
       "cost": 3,
       "distance": 2,
       "highSpeed": false,
       "points": [
-        -290.0,
-        280.0,
-        -120.0,
-        150.0
+        -320.0,
+        190.0,
+        -160.0,
+        190.0
       ]
     },
     {
-      "fromCityId": "city.mine.salt",
-      "toCityId": "city.mine.dig",
+      "fromCityId": "city.daran",
+      "toCityId": "city.rasenton",
       "cost": 3,
       "distance": 2,
       "highSpeed": false,
       "points": [
-        -120.0,
-        150.0,
-        -290.0,
-        280.0
+        -160.0,
+        190.0,
+        -320.0,
+        190.0
       ]
     },
     {
-      "fromCityId": "city.capital.merchant",
-      "toCityId": "city.capital.central",
+      "fromCityId": "city.sergrad",
+      "toCityId": "city.aiport",
       "cost": 3,
       "distance": 2,
       "highSpeed": false,
       "points": [
-        60.0,
+        90.0,
         30.0,
         220.0,
         -20.0
       ]
     },
     {
-      "fromCityId": "city.capital.central",
-      "toCityId": "city.capital.merchant",
+      "fromCityId": "city.aiport",
+      "toCityId": "city.sergrad",
       "cost": 3,
       "distance": 2,
       "highSpeed": false,
       "points": [
         220.0,
         -20.0,
-        60.0,
+        90.0,
         30.0
       ]
     },
     {
-      "fromCityId": "city.common.rest",
-      "toCityId": "city.coast.spring",
+      "fromCityId": "city.osber",
+      "toCityId": "city.teraka",
       "cost": 3,
-      "distance": 3,
-      "highSpeed": false,
-      "points": [
-        80.0,
-        260.0,
-        400.0,
-        320.0
-      ]
-    },
-    {
-      "fromCityId": "city.coast.spring",
-      "toCityId": "city.common.rest",
-      "cost": 3,
-      "distance": 3,
-      "highSpeed": false,
-      "points": [
-        400.0,
-        320.0,
-        80.0,
-        260.0
-      ]
-    },
-    {
-      "fromCityId": "city.common.rest",
-      "toCityId": "city.capital.wholesale",
-      "cost": 3,
-      "distance": 2,
-      "highSpeed": false,
-      "points": [
-        80.0,
-        260.0,
-        190.0,
-        140.0
-      ]
-    },
-    {
-      "fromCityId": "city.capital.wholesale",
-      "toCityId": "city.common.rest",
-      "cost": 3,
-      "distance": 2,
-      "highSpeed": false,
-      "points": [
-        190.0,
-        140.0,
-        80.0,
-        260.0
-      ]
-    },
-    {
-      "fromCityId": "city.ranch.jerky",
-      "toCityId": "city.farm.field",
-      "cost": 3,
-      "distance": 3,
+      "distance": 5,
       "highSpeed": false,
       "points": [
         -110.0,
-        -300.0,
-        145.6,
-        -365.0
+        330.0,
+        610.0,
+        310.0
       ]
     },
     {
-      "fromCityId": "city.farm.field",
-      "toCityId": "city.ranch.jerky",
+      "fromCityId": "city.teraka",
+      "toCityId": "city.osber",
+      "cost": 3,
+      "distance": 5,
+      "highSpeed": false,
+      "points": [
+        610.0,
+        310.0,
+        -110.0,
+        330.0
+      ]
+    },
+    {
+      "fromCityId": "city.osber",
+      "toCityId": "city.rasburk",
+      "cost": 3,
+      "distance": 1,
+      "highSpeed": false,
+      "points": [
+        -110.0,
+        330.0,
+        -50.0,
+        220.0
+      ]
+    },
+    {
+      "fromCityId": "city.rasburk",
+      "toCityId": "city.osber",
+      "cost": 3,
+      "distance": 1,
+      "highSpeed": false,
+      "points": [
+        -50.0,
+        220.0,
+        -110.0,
+        330.0
+      ]
+    },
+    {
+      "fromCityId": "city.osgrad",
+      "toCityId": "city.dart",
       "cost": 3,
       "distance": 3,
       "highSpeed": false,
       "points": [
-        145.6,
-        -365.0,
-        -110.0,
-        -300.0
+        -200.0,
+        -290.0,
+        120.0,
+        -320.0
       ]
     },
     {
-      "fromCityId": "city.industry.logistics",
-      "toCityId": "city.industry.engine",
+      "fromCityId": "city.dart",
+      "toCityId": "city.osgrad",
+      "cost": 3,
+      "distance": 3,
+      "highSpeed": false,
+      "points": [
+        120.0,
+        -320.0,
+        -200.0,
+        -290.0
+      ]
+    },
+    {
+      "fromCityId": "city.heilford",
+      "toCityId": "city.nornova",
       "cost": 3,
       "distance": 2,
       "highSpeed": false,
       "points": [
-        -730.0,
-        0.0,
-        -610.0,
-        -190.0
+        -690.0,
+        -50.0,
+        -570.0,
+        -150.0
       ]
     },
     {
-      "fromCityId": "city.industry.engine",
-      "toCityId": "city.industry.logistics",
+      "fromCityId": "city.nornova",
+      "toCityId": "city.heilford",
       "cost": 3,
       "distance": 2,
       "highSpeed": false,
       "points": [
-        -610.0,
-        -190.0,
-        -730.0,
-        0.0
+        -570.0,
+        -150.0,
+        -690.0,
+        -50.0
       ]
     }
   ],

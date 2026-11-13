@@ -127,24 +127,18 @@ MonoBehaviour:
   background: {fileID: 700043}
   routeLines:
   - {fileID: 3049557282909714510}
-  - {fileID: 6897212099650984624}
   - {fileID: 4450174727913932820}
   - {fileID: 6488153663666142677}
   - {fileID: 5287130198777241116}
   - {fileID: 3765183699752531454}
-  - {fileID: 1343543642367917130}
   - {fileID: 4345628945514871095}
   - {fileID: 3310354269722131972}
-  - {fileID: 110064285036973787}
   - {fileID: 295772930258697778}
-  - {fileID: 7189959013984031487}
   - {fileID: 6298369487559206467}
   - {fileID: 3248161073202000384}
   - {fileID: 3493220883901771781}
   - {fileID: 4810562449065204659}
   - {fileID: 7904506709472876931}
-  - {fileID: 7531983084256026811}
-  - {fileID: 8144154492467580475}
   - {fileID: 3993388638564112604}
   - {fileID: 2645254509956482386}
   - {fileID: 7553456976897560607}
@@ -154,23 +148,24 @@ MonoBehaviour:
   - {fileID: 1903517002973059916}
   - {fileID: 1593994239651440228}
   - {fileID: 8099090160150437294}
-  - {fileID: 3410203881263210517}
   - {fileID: 772133138221593552}
+  - {fileID: 6897212099650984624}
   - {fileID: 3496842147816703340}
+  - {fileID: 1343543642367917130}
+  - {fileID: 110064285036973787}
+  - {fileID: 7189959013984031487}
   - {fileID: 4836269558589732415}
   - {fileID: 7025639431416042571}
   - {fileID: 7864226037593886980}
   - {fileID: 1544422268688468664}
   - {fileID: 3425702617556181905}
-  - {fileID: 7723591651005198247}
   - {fileID: 1033150925430019229}
   - {fileID: 7187174517598290799}
   - {fileID: 8786706531317070877}
   - {fileID: 1779986246993889079}
   - {fileID: 6122909723561749366}
-  - {fileID: 7823011716706472067}
-  - {fileID: 3139248228066832922}
   - {fileID: 6965167932101710116}
+  - {fileID: 5752462061578368024}
   - {fileID: 6670105166918224225}
   - {fileID: 2425366053114698403}
   - {fileID: 8074242630893396318}
@@ -180,43 +175,46 @@ MonoBehaviour:
   - {fileID: 4053635059100067420}
   - {fileID: 5289459725490570986}
   - {fileID: 7052098746737414859}
+  - {fileID: 8144154492467580475}
   - {fileID: 5412808146945075921}
   - {fileID: 1948199648913787895}
   - {fileID: 3129020837050066505}
   - {fileID: 7468743317263219465}
   - {fileID: 3276524150423002438}
+  - {fileID: 3410203881263210517}
   - {fileID: 5529372893881880892}
   nodes:
   - {fileID: 5972460873667738359}
-  - {fileID: 6483477625720587397}
-  - {fileID: 7360252209017684629}
-  - {fileID: 3472157007501896651}
-  - {fileID: 2126861243158908108}
-  - {fileID: 850375411155049897}
-  - {fileID: 3053983381413796231}
-  - {fileID: 1865904193279820597}
-  - {fileID: 3792221814711901379}
-  - {fileID: 980743954757144858}
-  - {fileID: 912697369784485356}
-  - {fileID: 1829280380977770361}
-  - {fileID: 2372812281079392345}
-  - {fileID: 1688589844774440143}
-  - {fileID: 7890148435922369144}
   - {fileID: 6214303995514142243}
-  - {fileID: 3848180619317221954}
-  - {fileID: 1676225180979992734}
-  - {fileID: 7016998358326501911}
+  - {fileID: 7591484773591987029}
+  - {fileID: 4420141143657028656}
+  - {fileID: 1688589844774440143}
+  - {fileID: 3472157007501896651}
   - {fileID: 3690990556679536}
+  - {fileID: 6483477625720587397}
   - {fileID: 5355017502218024725}
-  - {fileID: 808966025244546128}
+  - {fileID: 5375332356172756559}
+  - {fileID: 7890148435922369144}
   - {fileID: 4267985725141726305}
+  - {fileID: 808966025244546128}
+  - {fileID: 1829280380977770361}
+  - {fileID: 7016998358326501911}
+  - {fileID: 912697369784485356}
+  - {fileID: 712907897883576940}
+  - {fileID: 3053983381413796231}
+  - {fileID: 1676225180979992734}
+  - {fileID: 8011031347865443825}
+  - {fileID: 4577987437141449362}
   - {fileID: 6048969001570123643}
   - {fileID: 1922630739606406269}
-  - {fileID: 7591484773591987029}
-  - {fileID: 5375332356172756559}
-  - {fileID: 4420141143657028656}
-  - {fileID: 712907897883576940}
-  - {fileID: 4577987437141449362}
+  - {fileID: 2372812281079392345}
+  - {fileID: 7360252209017684629}
+  - {fileID: 980743954757144858}
+  - {fileID: 3792221814711901379}
+  - {fileID: 3848180619317221954}
+  - {fileID: 850375411155049897}
+  - {fileID: 2126861243158908108}
+  - {fileID: 1865904193279820597}
   regions:
   - regionId: region.mine
     label: {fileID: 8283466691692287854}
@@ -240,253 +238,253 @@ MonoBehaviour:
     label: {fileID: 7556159166130947778}
     area: {fileID: 3214534650679468419}
   routeTimes:
-  - fromCityId: city.industry.ironworks
-    toCityId: city.mine.dig
+  - fromCityId: city.porber
+    toCityId: city.rasenton
     label: {fileID: 4258536435036005089}
     plate: {fileID: 3450833707990302372}
     manualPosition: 1
-  - fromCityId: city.mine.dig
-    toCityId: city.common.rest
+  - fromCityId: city.riobruk
+    toCityId: city.osber
     label: {fileID: 6975411743106430264}
     plate: {fileID: 2966327063066530845}
     manualPosition: 1
-  - fromCityId: city.coast.sea
-    toCityId: city.farm.field
+  - fromCityId: city.valenrie
+    toCityId: city.dart
     label: {fileID: 774464189743990621}
     plate: {fileID: 6956280443715952165}
     manualPosition: 1
-  - fromCityId: city.common.roadside
-    toCityId: city.capital.central
+  - fromCityId: city.mert
+    toCityId: city.aiport
     label: {fileID: 5477214430987312420}
     plate: {fileID: 5390035446101450926}
     manualPosition: 1
-  - fromCityId: city.capital.central
-    toCityId: city.capital.finance
+  - fromCityId: city.aiport
+    toCityId: city.finance
     label: {fileID: 6598309339806731116}
     plate: {fileID: 6587685268568762843}
     manualPosition: 1
-  - fromCityId: city.industry.ironworks
-    toCityId: city.common.crossing
+  - fromCityId: city.erna
+    toCityId: city.teragrad
     label: {fileID: 8868376902561698764}
     plate: {fileID: 9113721247546626566}
     manualPosition: 1
-  - fromCityId: city.common.crossing
-    toCityId: city.ranch.pass
+  - fromCityId: city.teragrad
+    toCityId: city.heilheim
     label: {fileID: 5051670510317357975}
     plate: {fileID: 272924978109855960}
     manualPosition: 1
-  - fromCityId: city.common.wayfarer
-    toCityId: city.ranch.pass
+  - fromCityId: city.sera
+    toCityId: city.rasenpol
     label: {fileID: 4724639027063654901}
     plate: {fileID: 4199032444535813139}
     manualPosition: 1
-  - fromCityId: city.common.rest
-    toCityId: city.mine.salt
+  - fromCityId: city.rasburk
+    toCityId: city.daran
     label: {fileID: 3746701901534545360}
     plate: {fileID: 5105814014686909738}
     manualPosition: 1
-  - fromCityId: city.common.roadside
-    toCityId: city.capital.finance
+  - fromCityId: city.mert
+    toCityId: city.finance
     label: {fileID: 4763105296719533066}
     plate: {fileID: 8838314572276445578}
     manualPosition: 1
-  - fromCityId: city.ranch.highland
-    toCityId: city.common.crossing
+  - fromCityId: city.nornova
+    toCityId: city.teragrad
     label: {fileID: 2717520018976117872}
     plate: {fileID: 3545130171814296221}
     manualPosition: 1
-  - fromCityId: city.ranch.jerky
-    toCityId: city.farm.grain
+  - fromCityId: city.osgrad
+    toCityId: city.sera
     label: {fileID: 8731557047324304239}
     plate: {fileID: 868328016182220832}
     manualPosition: 1
-  - fromCityId: city.capital.central
-    toCityId: city.capital.wholesale
+  - fromCityId: city.aiport
+    toCityId: city.trenford
     label: {fileID: 415361811740408655}
     plate: {fileID: 6105034971930443341}
     manualPosition: 1
-  - fromCityId: city.farm.grain
-    toCityId: city.farm.orchard
+  - fromCityId: city.ibt
+    toCityId: city.terapol
     label: {fileID: 82016523505983749}
     plate: {fileID: 3249766236819034799}
     manualPosition: 1
-  - fromCityId: city.capital.central
-    toCityId: city.capital.outskirts
+  - fromCityId: city.aiport
+    toCityId: city.diaan
     label: {fileID: 7705949138111084154}
     plate: {fileID: 5477681857229103883}
     manualPosition: 1
-  - fromCityId: city.farm.orchard
-    toCityId: city.farm.lumber
+  - fromCityId: city.terapol
+    toCityId: city.berska
     label: {fileID: 4273065856258137009}
     plate: {fileID: 6716532108906672110}
     manualPosition: 1
-  - fromCityId: city.mine.dig
-    toCityId: city.mine.iron
+  - fromCityId: city.karka
+    toCityId: city.riobruk
     label: {fileID: 8857368064538536031}
     plate: {fileID: 6249376742868206865}
     manualPosition: 1
-  - fromCityId: city.capital.wholesale
-    toCityId: city.capital.merchant
+  - fromCityId: city.trenford
+    toCityId: city.sergrad
     label: {fileID: 2233915311882089316}
     plate: {fileID: 6993374425709233966}
     manualPosition: 1
-  - fromCityId: city.ranch.highland
-    toCityId: city.ranch.jerky
+  - fromCityId: city.darpol
+    toCityId: city.osgrad
     label: {fileID: 825147785778619829}
     plate: {fileID: 3075623706259945735}
     manualPosition: 1
-  - fromCityId: city.industry.ironworks
-    toCityId: city.industry.logistics
+  - fromCityId: city.erna
+    toCityId: city.heilford
     label: {fileID: 778014679942597381}
     plate: {fileID: 6825835285428407129}
     manualPosition: 1
-  - fromCityId: city.coast.port
-    toCityId: city.coast.fish
+  - fromCityId: city.pioa
+    toCityId: city.teratia
     label: {fileID: 4594348080416805202}
     plate: {fileID: 1063364813060078867}
     manualPosition: 1
-  - fromCityId: city.coast.fish
-    toCityId: city.coast.spring
+  - fromCityId: city.teratia
+    toCityId: city.teraka
     label: {fileID: 5635870335088721383}
     plate: {fileID: 6404652146829071257}
     manualPosition: 1
-  - fromCityId: city.industry.ironworks
-    toCityId: city.industry.engine
+  - fromCityId: city.erna
+    toCityId: city.nornova
     label: {fileID: 573429667801619660}
     plate: {fileID: 6739609589401554394}
     manualPosition: 1
-  - fromCityId: city.farm.lumber
-    toCityId: city.ranch.butcher
+  - fromCityId: city.berska
+    toCityId: city.heilheim
     label: {fileID: 9163913719256242245}
     plate: {fileID: 3700098434706871601}
     manualPosition: 1
-  - fromCityId: city.industry.meatlover
-    toCityId: city.ranch.butcher
+  - fromCityId: city.karport
+    toCityId: city.heilheim
     label: {fileID: 7461555862939512663}
     plate: {fileID: 4318643642354558899}
     manualPosition: 1
-  - fromCityId: city.farm.grain
-    toCityId: city.farm.field
+  - fromCityId: city.ibt
+    toCityId: city.dart
     label: {fileID: 52643133518496246}
     plate: {fileID: 3429664520564974462}
     manualPosition: 1
-  - fromCityId: city.ranch.butcher
-    toCityId: city.ranch.pass
+  - fromCityId: city.heilheim
+    toCityId: city.rasenpol
     label: {fileID: 8487258502852754375}
     plate: {fileID: 2724733188718192553}
     manualPosition: 1
-  - fromCityId: city.mine.salt
-    toCityId: city.farm.lumber
+  - fromCityId: city.daran
+    toCityId: city.berska
     label: {fileID: 1287809434240302348}
     plate: {fileID: 754695584904239269}
     manualPosition: 1
-  - fromCityId: city.coast.port
-    toCityId: city.coast.sea
+  - fromCityId: city.pioa
+    toCityId: city.valenrie
     label: {fileID: 2447909212688277670}
     plate: {fileID: 7414187119850444152}
     manualPosition: 1
-  - fromCityId: city.mine.dig
-    toCityId: city.mine.cave
+  - fromCityId: city.rasenton
+    toCityId: city.karka
     label: {fileID: 8813305567550041253}
     plate: {fileID: 1056660753976470241}
     manualPosition: 1
-  - fromCityId: city.farm.orchard
-    toCityId: city.ranch.butcher
+  - fromCityId: city.terapol
+    toCityId: city.heilheim
     label: {fileID: 2169564761614306869}
     plate: {fileID: 2727378068787433188}
     manualPosition: 1
-  - fromCityId: city.capital.wholesale
-    toCityId: city.capital.outskirts
+  - fromCityId: city.trenford
+    toCityId: city.diaan
     label: {fileID: 2401110927796219794}
     plate: {fileID: 1666197957810572591}
     manualPosition: 1
-  - fromCityId: city.capital.finance
-    toCityId: city.capital.outskirts
+  - fromCityId: city.finance
+    toCityId: city.diaan
     label: {fileID: 219441889574540888}
     plate: {fileID: 7358838490923217416}
     manualPosition: 1
-  - fromCityId: city.industry.meatlover
-    toCityId: city.common.crossing
+  - fromCityId: city.karport
+    toCityId: city.teragrad
     label: {fileID: 39992765997154483}
     plate: {fileID: 4904881897839074785}
     manualPosition: 1
-  - fromCityId: city.farm.grain
-    toCityId: city.common.roadside
+  - fromCityId: city.ibt
+    toCityId: city.mert
     label: {fileID: 6924908218055654203}
     plate: {fileID: 1723200431982584987}
     manualPosition: 1
-  - fromCityId: city.ranch.butcher
-    toCityId: city.common.wayfarer
+  - fromCityId: city.heilheim
+    toCityId: city.sera
     label: {fileID: 6447755253404808542}
     plate: {fileID: 807622924974468862}
     manualPosition: 1
-  - fromCityId: city.industry.engine
-    toCityId: city.ranch.highland
+  - fromCityId: city.nornova
+    toCityId: city.darpol
     label: {fileID: 3282498713843788407}
     plate: {fileID: 8729893261028134157}
     manualPosition: 1
-  - fromCityId: city.farm.lumber
-    toCityId: city.capital.merchant
+  - fromCityId: city.berska
+    toCityId: city.sergrad
     label: {fileID: 2230224392767393400}
     plate: {fileID: 4406849137193324137}
     manualPosition: 1
-  - fromCityId: city.coast.port
-    toCityId: city.capital.outskirts
+  - fromCityId: city.pioa
+    toCityId: city.diaan
     label: {fileID: 1970217943816840876}
     plate: {fileID: 3871125304226381508}
     manualPosition: 1
-  - fromCityId: city.ranch.highland
-    toCityId: city.ranch.pass
+  - fromCityId: city.darpol
+    toCityId: city.rasenpol
     label: {fileID: 7505184380395199818}
     plate: {fileID: 7610498406862603086}
     manualPosition: 1
-  - fromCityId: city.farm.orchard
-    toCityId: city.common.wayfarer
+  - fromCityId: city.terapol
+    toCityId: city.sera
     label: {fileID: 7995661061508825641}
     plate: {fileID: 9032257982941118348}
     manualPosition: 1
-  - fromCityId: city.mine.salt
-    toCityId: city.capital.merchant
+  - fromCityId: city.rasburk
+    toCityId: city.trenford
     label: {fileID: 3879558142624764293}
     plate: {fileID: 4697502120554413181}
     manualPosition: 1
-  - fromCityId: city.industry.assembly
-    toCityId: city.industry.meatlover
+  - fromCityId: city.porber
+    toCityId: city.karport
     label: {fileID: 9051082125335249007}
     plate: {fileID: 7914690669166611852}
     manualPosition: 1
-  - fromCityId: city.industry.ironworks
-    toCityId: city.industry.assembly
+  - fromCityId: city.erna
+    toCityId: city.porber
     label: {fileID: 6008421951012583319}
     plate: {fileID: 6686625614078068557}
     manualPosition: 1
-  - fromCityId: city.mine.dig
-    toCityId: city.mine.salt
+  - fromCityId: city.rasenton
+    toCityId: city.daran
     label: {fileID: 656129493281144015}
     plate: {fileID: 3347907817858819893}
     manualPosition: 1
-  - fromCityId: city.capital.merchant
-    toCityId: city.capital.central
+  - fromCityId: city.sergrad
+    toCityId: city.aiport
     label: {fileID: 1823010040065340634}
     plate: {fileID: 7266365155438209819}
     manualPosition: 1
-  - fromCityId: city.common.rest
-    toCityId: city.coast.spring
+  - fromCityId: city.osber
+    toCityId: city.teraka
     label: {fileID: 8978988960062957374}
     plate: {fileID: 2601670564466530160}
     manualPosition: 1
-  - fromCityId: city.common.rest
-    toCityId: city.capital.wholesale
+  - fromCityId: city.osber
+    toCityId: city.rasburk
     label: {fileID: 7960498917834476333}
     plate: {fileID: 3589006061321339523}
     manualPosition: 1
-  - fromCityId: city.ranch.jerky
-    toCityId: city.farm.field
+  - fromCityId: city.osgrad
+    toCityId: city.dart
     label: {fileID: 7151182338654313554}
     plate: {fileID: 2160777361621867576}
     manualPosition: 1
-  - fromCityId: city.industry.logistics
-    toCityId: city.industry.engine
+  - fromCityId: city.heilford
+    toCityId: city.nornova
     label: {fileID: 5585752789406257263}
     plate: {fileID: 4480314089689742446}
     manualPosition: 1
@@ -494,24 +492,18 @@ MonoBehaviour:
   - regionId: line.regional
     segments:
     - {fileID: 3049557282909714510}
-    - {fileID: 6897212099650984624}
     - {fileID: 4450174727913932820}
     - {fileID: 6488153663666142677}
     - {fileID: 5287130198777241116}
     - {fileID: 3765183699752531454}
-    - {fileID: 1343543642367917130}
     - {fileID: 4345628945514871095}
     - {fileID: 3310354269722131972}
-    - {fileID: 110064285036973787}
     - {fileID: 295772930258697778}
-    - {fileID: 7189959013984031487}
     - {fileID: 6298369487559206467}
     - {fileID: 3248161073202000384}
     - {fileID: 3493220883901771781}
     - {fileID: 4810562449065204659}
     - {fileID: 7904506709472876931}
-    - {fileID: 7531983084256026811}
-    - {fileID: 8144154492467580475}
     - {fileID: 3993388638564112604}
     - {fileID: 2645254509956482386}
     - {fileID: 7553456976897560607}
@@ -521,7 +513,6 @@ MonoBehaviour:
     - {fileID: 1903517002973059916}
     - {fileID: 1593994239651440228}
     - {fileID: 8099090160150437294}
-    - {fileID: 3410203881263210517}
     - {fileID: 772133138221593552}
   - regionId: region.capital
     segments:
@@ -536,9 +527,8 @@ MonoBehaviour:
     segments:
     - {fileID: 1779986246993889079}
     - {fileID: 6122909723561749366}
-    - {fileID: 7823011716706472067}
-    - {fileID: 3139248228066832922}
     - {fileID: 6965167932101710116}
+    - {fileID: 5752462061578368024}
     - {fileID: 7201832807487077443}
     - {fileID: 9011697554567494356}
   - regionId: region.common
@@ -550,18 +540,23 @@ MonoBehaviour:
     - {fileID: 2425366053114698403}
   - regionId: region.industry
     segments:
+    - {fileID: 1343543642367917130}
+    - {fileID: 7189959013984031487}
     - {fileID: 8786706531317070877}
     - {fileID: 6670105166918224225}
+    - {fileID: 8144154492467580475}
     - {fileID: 1948199648913787895}
     - {fileID: 3129020837050066505}
     - {fileID: 5529372893881880892}
   - regionId: region.mine
     segments:
+    - {fileID: 6897212099650984624}
+    - {fileID: 110064285036973787}
     - {fileID: 3425702617556181905}
-    - {fileID: 7723591651005198247}
     - {fileID: 5650817715488239737}
     - {fileID: 4053635059100067420}
     - {fileID: 7468743317263219465}
+    - {fileID: 3410203881263210517}
   - regionId: region.ranch
     segments:
     - {fileID: 7187174517598290799}
@@ -1754,8 +1749,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
-  m_EffectColor: {r: 0.1, g: 0.13, b: 0.17, a: 1}
-  m_EffectDistance: {x: 1, y: -1}
+  m_EffectColor: {r: 0.07, g: 0.09, b: 0.12, a: 1}
+  m_EffectDistance: {x: 2, y: -2}
   m_UseGraphicAlpha: 1
 --- !u!1 &134643573123956580
 GameObject:
@@ -1768,6 +1763,7 @@ GameObject:
   - component: {fileID: 196561766303136800}
   - component: {fileID: 7136601295297737355}
   - component: {fileID: 5018442169826994424}
+  - component: {fileID: 8227661228295956465}
   m_Layer: 0
   m_Name: CurrentBadge
   m_TagString: Untagged
@@ -1836,6 +1832,21 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: "\u25BC \uD604\uC7AC \uC704\uCE58"
+--- !u!114 &8227661228295956465
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 134643573123956580}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
+  m_EffectColor: {r: 0.07, g: 0.09, b: 0.12, a: 1}
+  m_EffectDistance: {x: 2, y: -2}
+  m_UseGraphicAlpha: 1
 --- !u!1 &137298573519503192
 GameObject:
   m_ObjectHideFlags: 0
@@ -2051,7 +2062,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 174639745165138716}
-  m_LocalRotation: {x: 0, y: 0, z: -0.94179547, w: 0.33618644}
+  m_LocalRotation: {x: 0, y: 0, z: -0.9145143, w: 0.4045536}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -2060,8 +2071,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -175, y: -35}
-  m_SizeDelta: {x: 142.12671, y: 5}
+  m_AnchoredPosition: {x: -170, y: -45}
+  m_SizeDelta: {x: 148.66069, y: 5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &8709918336179658728
 CanvasRenderer:
@@ -2156,7 +2167,7 @@ GameObject:
   - component: {fileID: 3438369685154981158}
   - component: {fileID: 1922630739606406269}
   m_Layer: 5
-  m_Name: Village_city.mine.iron
+  m_Name: Village_city.riobruk
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2185,7 +2196,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -183.59, y: 355}
+  m_AnchoredPosition: {x: -270, y: 360}
   m_SizeDelta: {x: 190, y: 80}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &3470035128225117453
@@ -2238,7 +2249,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4cfc01cf097a44d18fef83e9279afdf5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cityId: city.mine.iron
+  cityId: city.riobruk
   marker: {fileID: 1899305863913735301}
   label: {fileID: 7734663055708318431}
   stationRing: {fileID: 96160018296699055}
@@ -2324,7 +2335,82 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "6\uC2DC\uAC04 29\uBD84"
+  m_Text: "7\uC2DC\uAC04 33\uBD84"
+--- !u!1 &275950490624426662
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5896337200394884847}
+  - component: {fileID: 3529734744376852743}
+  - component: {fileID: 4290119257182731020}
+  m_Layer: 5
+  m_Name: LabelConnector
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!224 &5896337200394884847
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 275950490624426662}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1902290210369686509}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 2}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!222 &3529734744376852743
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 275950490624426662}
+  m_CullTransparentMesh: 1
+--- !u!114 &4290119257182731020
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 275950490624426662}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 0.92, g: 0.94, b: 0.97, a: 1}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 0}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
 --- !u!1 &311565966274062144
 GameObject:
   m_ObjectHideFlags: 0
@@ -2842,8 +2928,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
-  m_EffectColor: {r: 0.1, g: 0.13, b: 0.17, a: 1}
-  m_EffectDistance: {x: 1, y: -1}
+  m_EffectColor: {r: 0.07, g: 0.09, b: 0.12, a: 1}
+  m_EffectDistance: {x: 2, y: -2}
   m_UseGraphicAlpha: 1
 --- !u!1 &435898744986312639
 GameObject:
@@ -3008,7 +3094,7 @@ GameObject:
   - component: {fileID: 4374168181504418018}
   - component: {fileID: 7890148435922369144}
   m_Layer: 5
-  m_Name: Village_city.farm.grain
+  m_Name: Village_city.ibt
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3090,7 +3176,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4cfc01cf097a44d18fef83e9279afdf5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cityId: city.farm.grain
+  cityId: city.ibt
   marker: {fileID: 6916641638319309089}
   label: {fileID: 201596017056011340}
   stationRing: {fileID: 7826638183738575800}
@@ -3190,8 +3276,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
-  m_EffectColor: {r: 0.1, g: 0.13, b: 0.17, a: 1}
-  m_EffectDistance: {x: 1, y: -1}
+  m_EffectColor: {r: 0.07, g: 0.09, b: 0.12, a: 1}
+  m_EffectDistance: {x: 2, y: -2}
   m_UseGraphicAlpha: 1
 --- !u!1 &466914092610196131
 GameObject:
@@ -3227,7 +3313,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 565, y: -55}
+  m_AnchoredPosition: {x: 545, y: -15}
   m_SizeDelta: {x: 170.29387, y: 5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &3519335953245118292
@@ -3364,7 +3450,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &6885396090178959847
 RectTransform:
   m_ObjectHideFlags: 0
@@ -3372,7 +3458,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 502505197033428310}
-  m_LocalRotation: {x: 0, y: 0, z: -0.92387956, w: 0.38268346}
+  m_LocalRotation: {x: 0, y: 0, z: 0.1784248, w: 0.98395354}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -3381,8 +3467,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 340.52, y: 210}
-  m_SizeDelta: {x: 14.142136, y: 5}
+  m_AnchoredPosition: {x: 570, y: 295}
+  m_SizeDelta: {x: 85.44004, y: 5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &3477271948786024082
 CanvasRenderer:
@@ -3597,7 +3683,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 578317539618270817}
-  m_LocalRotation: {x: 0, y: 0, z: -0.89111495, w: 0.45377764}
+  m_LocalRotation: {x: 0, y: 0, z: -0.92387956, w: 0.38268346}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -3606,8 +3692,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -270, y: -135}
-  m_SizeDelta: {x: 136.01471, y: 5}
+  m_AnchoredPosition: {x: -265, y: -145}
+  m_SizeDelta: {x: 127.27922, y: 5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1206023444999287742
 CanvasRenderer:
@@ -3725,7 +3811,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "7\uC2DC\uAC04 5\uBD84"
+  m_Text: "5\uC2DC\uAC04 14\uBD84"
 --- !u!1 &613452936520982865
 GameObject:
   m_ObjectHideFlags: 0
@@ -3893,8 +3979,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
-  m_EffectColor: {r: 0.1, g: 0.13, b: 0.17, a: 1}
-  m_EffectDistance: {x: 1, y: -1}
+  m_EffectColor: {r: 0.07, g: 0.09, b: 0.12, a: 1}
+  m_EffectDistance: {x: 2, y: -2}
   m_UseGraphicAlpha: 1
 --- !u!1 &642110101549968120
 GameObject:
@@ -3974,7 +4060,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "20\uC2DC\uAC04 37\uBD84"
+  m_Text: "22\uC2DC\uAC04 12\uBD84"
 --- !u!1 &655030199638848238
 GameObject:
   m_ObjectHideFlags: 0
@@ -4154,7 +4240,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 713330781226487704}
-  m_LocalRotation: {x: 0, y: 0, z: -0.99644965, w: 0.08419092}
+  m_LocalRotation: {x: 0, y: 0, z: 1, w: -0.00000004371139}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -4163,8 +4249,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 277.8, y: -342.5}
-  m_SizeDelta: {x: 268.2021, y: 5}
+  m_AnchoredPosition: {x: 265, y: -320}
+  m_SizeDelta: {x: 290, y: 5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4073516632798639821
 CanvasRenderer:
@@ -4754,7 +4840,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1924892498733021369
 RectTransform:
   m_ObjectHideFlags: 0
@@ -4837,7 +4923,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 877335492421029542}
-  m_LocalRotation: {x: 0, y: 0, z: -0.9767189, w: 0.21452335}
+  m_LocalRotation: {x: 0, y: 0, z: -0.95451355, w: 0.29816762}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -4846,8 +4932,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 415, y: 30}
-  m_SizeDelta: {x: 143.1782, y: 5}
+  m_AnchoredPosition: {x: 415, y: 45}
+  m_SizeDelta: {x: 158.11388, y: 5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5270545112301463398
 CanvasRenderer:
@@ -5118,7 +5204,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 1570, y: 820}
+  m_SizeDelta: {x: 5267.0967, y: 1840}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5393042809462311630
 CanvasRenderer:
@@ -5626,8 +5712,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
-  m_EffectColor: {r: 0.1, g: 0.13, b: 0.17, a: 1}
-  m_EffectDistance: {x: 1, y: -1}
+  m_EffectColor: {r: 0.07, g: 0.09, b: 0.12, a: 1}
+  m_EffectDistance: {x: 2, y: -2}
   m_UseGraphicAlpha: 1
 --- !u!1 &1130192272744659870
 GameObject:
@@ -5738,7 +5824,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -255, y: -325}
+  m_AnchoredPosition: {x: -240, y: -290}
   m_SizeDelta: {x: 62, y: 27}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6356008765893606757
@@ -5813,7 +5899,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -490, y: 40}
+  m_AnchoredPosition: {x: -490, y: 10}
   m_SizeDelta: {x: 62, y: 27}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &291896917099807299
@@ -5857,7 +5943,82 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "5\uC2DC\uAC04 7\uBD84"
+  m_Text: "4\uC2DC\uAC04 19\uBD84"
+--- !u!1 &1195388838169680110
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5789989364242318828}
+  - component: {fileID: 5384686661439589164}
+  - component: {fileID: 4673083480229123640}
+  m_Layer: 0
+  m_Name: StationFace
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &5789989364242318828
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1195388838169680110}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1902290210369686509}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 24, y: 24}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!222 &5384686661439589164
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1195388838169680110}
+  m_CullTransparentMesh: 1
+--- !u!114 &4673083480229123640
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1195388838169680110}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 0.1, g: 0.13, b: 0.17, a: 1}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
 --- !u!1 &1202136801605094184
 GameObject:
   m_ObjectHideFlags: 0
@@ -6104,8 +6265,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
-  m_EffectColor: {r: 0.1, g: 0.13, b: 0.17, a: 1}
-  m_EffectDistance: {x: 1, y: -1}
+  m_EffectColor: {r: 0.07, g: 0.09, b: 0.12, a: 1}
+  m_EffectDistance: {x: 2, y: -2}
   m_UseGraphicAlpha: 1
 --- !u!1 &1224675867782133646
 GameObject:
@@ -6282,7 +6443,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1255810425776863525}
-  m_LocalRotation: {x: 0, y: 0, z: 0.32686517, w: 0.945071}
+  m_LocalRotation: {x: 0, y: 0, z: 0.46554872, w: 0.8850223}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -6291,8 +6452,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -430, y: 170}
-  m_SizeDelta: {x: 356.08987, y: 5}
+  m_AnchoredPosition: {x: -375, y: 110}
+  m_SizeDelta: {x: 194.16487, y: 5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &143076836638359252
 CanvasRenderer:
@@ -6874,7 +7035,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "6\uC2DC\uAC04 22\uBD84"
+  m_Text: "5\uC2DC\uAC04 46\uBD84"
 --- !u!1 &1367997273681494067
 GameObject:
   m_ObjectHideFlags: 0
@@ -7047,6 +7208,7 @@ RectTransform:
   - {fileID: 5383111127261966231}
   - {fileID: 6923194063185623110}
   - {fileID: 468674378897041198}
+  - {fileID: 1902290210369686509}
   - {fileID: 5892048502679414399}
   - {fileID: 5222304024748297235}
   - {fileID: 6818547235640159692}
@@ -7390,6 +7552,7 @@ GameObject:
   - component: {fileID: 9054201024253415249}
   - component: {fileID: 1409858374650676253}
   - component: {fileID: 2205564591467301130}
+  - component: {fileID: 232543960329886190}
   m_Layer: 0
   m_Name: CurrentBadge
   m_TagString: Untagged
@@ -7458,6 +7621,21 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: "\u25BC \uD604\uC7AC \uC704\uCE58"
+--- !u!114 &232543960329886190
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1497178759007769261}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
+  m_EffectColor: {r: 0.07, g: 0.09, b: 0.12, a: 1}
+  m_EffectDistance: {x: 2, y: -2}
+  m_UseGraphicAlpha: 1
 --- !u!1 &1526439469854970508
 GameObject:
   m_ObjectHideFlags: 0
@@ -7881,6 +8059,81 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!1 &1662696376167809326
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7458348204411410099}
+  - component: {fileID: 589308092569862668}
+  - component: {fileID: 7822570263623119321}
+  m_Layer: 5
+  m_Name: Marker
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &7458348204411410099
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1662696376167809326}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1902290210369686509}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 12, y: 12}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!222 &589308092569862668
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1662696376167809326}
+  m_CullTransparentMesh: 1
+--- !u!114 &7822570263623119321
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1662696376167809326}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 0.4, g: 0.46, b: 0.55, a: 1}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
 --- !u!1 &1686532814517468933
 GameObject:
   m_ObjectHideFlags: 0
@@ -7973,8 +8226,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
-  m_EffectColor: {r: 0.1, g: 0.13, b: 0.17, a: 1}
-  m_EffectDistance: {x: 1, y: -1}
+  m_EffectColor: {r: 0.07, g: 0.09, b: 0.12, a: 1}
+  m_EffectDistance: {x: 2, y: -2}
   m_UseGraphicAlpha: 1
 --- !u!1 &1689113243198828931
 GameObject:
@@ -8212,6 +8465,7 @@ GameObject:
   - component: {fileID: 1148235114585421852}
   - component: {fileID: 4741185215705631876}
   - component: {fileID: 82114359712914483}
+  - component: {fileID: 7932061756518837819}
   m_Layer: 0
   m_Name: CurrentBadge
   m_TagString: Untagged
@@ -8280,6 +8534,21 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: "\u25BC \uD604\uC7AC \uC704\uCE58"
+--- !u!114 &7932061756518837819
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1703384776570554528}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
+  m_EffectColor: {r: 0.07, g: 0.09, b: 0.12, a: 1}
+  m_EffectDistance: {x: 2, y: -2}
+  m_UseGraphicAlpha: 1
 --- !u!1 &1710456829415184203
 GameObject:
   m_ObjectHideFlags: 0
@@ -8614,7 +8883,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -510, y: -270}
+  m_AnchoredPosition: {x: -440, y: -220}
   m_SizeDelta: {x: 62, y: 27}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &7340535777368598444
@@ -8839,7 +9108,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 470, y: 270}
+  m_AnchoredPosition: {x: 530, y: 280}
   m_SizeDelta: {x: 62, y: 27}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5738906537517680379
@@ -8989,7 +9258,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -660, y: 30}
+  m_AnchoredPosition: {x: -620, y: -30}
   m_SizeDelta: {x: 62, y: 27}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &926258141007645348
@@ -9108,7 +9377,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "6\uC2DC\uAC04 53\uBD84"
+  m_Text: "5\uC2DC\uAC04 18\uBD84"
 --- !u!1 &1949200343494495300
 GameObject:
   m_ObjectHideFlags: 0
@@ -9122,7 +9391,7 @@ GameObject:
   - component: {fileID: 2840194030632915441}
   - component: {fileID: 3690990556679536}
   m_Layer: 5
-  m_Name: Village_city.industry.ironworks
+  m_Name: Village_city.erna
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -9151,7 +9420,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -570, y: 60}
+  m_AnchoredPosition: {x: -540, y: -20}
   m_SizeDelta: {x: 190, y: 80}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &8337938319236465063
@@ -9204,7 +9473,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4cfc01cf097a44d18fef83e9279afdf5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cityId: city.industry.ironworks
+  cityId: city.erna
   marker: {fileID: 3495211471073805666}
   label: {fileID: 491061328344275559}
   stationRing: {fileID: 8653807942011627524}
@@ -9223,6 +9492,7 @@ GameObject:
   - component: {fileID: 7266643731323373969}
   - component: {fileID: 8549793840800796859}
   - component: {fileID: 3012946905436349013}
+  - component: {fileID: 1397854423316977676}
   m_Layer: 0
   m_Name: CurrentBadge
   m_TagString: Untagged
@@ -9291,6 +9561,21 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: "\u25BC \uD604\uC7AC \uC704\uCE58"
+--- !u!114 &1397854423316977676
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1952564900913731748}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
+  m_EffectColor: {r: 0.07, g: 0.09, b: 0.12, a: 1}
+  m_EffectDistance: {x: 2, y: -2}
+  m_UseGraphicAlpha: 1
 --- !u!1 &1956254926589578215
 GameObject:
   m_ObjectHideFlags: 0
@@ -9302,6 +9587,7 @@ GameObject:
   - component: {fileID: 5689644799258402567}
   - component: {fileID: 7990741641031981799}
   - component: {fileID: 7987799496862301609}
+  - component: {fileID: 8372708778570424908}
   m_Layer: 0
   m_Name: CurrentBadge
   m_TagString: Untagged
@@ -9370,6 +9656,21 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: "\u25BC \uD604\uC7AC \uC704\uCE58"
+--- !u!114 &8372708778570424908
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1956254926589578215}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
+  m_EffectColor: {r: 0.07, g: 0.09, b: 0.12, a: 1}
+  m_EffectDistance: {x: 2, y: -2}
+  m_UseGraphicAlpha: 1
 --- !u!1 &1993610771572352611
 GameObject:
   m_ObjectHideFlags: 0
@@ -9383,7 +9684,7 @@ GameObject:
   - component: {fileID: 1918716592122840280}
   - component: {fileID: 7591484773591987029}
   m_Layer: 5
-  m_Name: Village_city.mine.salt
+  m_Name: Village_city.daran
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -9412,7 +9713,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -120, y: 150}
+  m_AnchoredPosition: {x: -160, y: 190}
   m_SizeDelta: {x: 190, y: 80}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &3246188911727835425
@@ -9465,7 +9766,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4cfc01cf097a44d18fef83e9279afdf5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cityId: city.mine.salt
+  cityId: city.daran
   marker: {fileID: 3363172093071173224}
   label: {fileID: 336656229916745610}
   stationRing: {fileID: 70625530360376203}
@@ -9486,7 +9787,7 @@ GameObject:
   - component: {fileID: 3215411655303903797}
   - component: {fileID: 7360252209017684629}
   m_Layer: 5
-  m_Name: Village_city.capital.merchant
+  m_Name: Village_city.sergrad
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -9515,7 +9816,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 60, y: 30}
+  m_AnchoredPosition: {x: 90, y: 30}
   m_SizeDelta: {x: 190, y: 80}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1776097757847676335
@@ -9568,7 +9869,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4cfc01cf097a44d18fef83e9279afdf5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cityId: city.capital.merchant
+  cityId: city.sergrad
   marker: {fileID: 5541423773577109501}
   label: {fileID: 229262053166341520}
   stationRing: {fileID: 7710061379246147527}
@@ -9685,7 +9986,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 540, y: -30}
+  m_AnchoredPosition: {x: 540, y: -10}
   m_SizeDelta: {x: 62, y: 27}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &7755766438593601759
@@ -9737,6 +10038,7 @@ GameObject:
   - component: {fileID: 2677753322136166428}
   - component: {fileID: 5795436698715703945}
   - component: {fileID: 4477642598852744032}
+  - component: {fileID: 8269366384955959349}
   m_Layer: 0
   m_Name: CurrentBadge
   m_TagString: Untagged
@@ -9805,6 +10107,21 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: "\u25BC \uD604\uC7AC \uC704\uCE58"
+--- !u!114 &8269366384955959349
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2168628810998418672}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
+  m_EffectColor: {r: 0.07, g: 0.09, b: 0.12, a: 1}
+  m_EffectDistance: {x: 2, y: -2}
+  m_UseGraphicAlpha: 1
 --- !u!1 &2180210509622744279
 GameObject:
   m_ObjectHideFlags: 0
@@ -9830,7 +10147,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2180210509622744279}
-  m_LocalRotation: {x: 0, y: 0, z: 0.9995685, w: 0.029373668}
+  m_LocalRotation: {x: 0, y: 0, z: 0.99513334, w: 0.09853758}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -9839,8 +10156,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -225, y: -195}
-  m_SizeDelta: {x: 170.29387, y: 5}
+  m_AnchoredPosition: {x: -235, y: -205}
+  m_SizeDelta: {x: 152.97058, y: 5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &7110200670987236600
 CanvasRenderer:
@@ -9905,7 +10222,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2188750791285940201}
-  m_LocalRotation: {x: 0, y: 0, z: -0.18255737, w: 0.9831952}
+  m_LocalRotation: {x: 0, y: 0, z: -0.04745802, w: 0.99887323}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -9914,8 +10231,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -375, y: -165}
-  m_SizeDelta: {x: 139.28389, y: 5}
+  m_AnchoredPosition: {x: -325, y: -90}
+  m_SizeDelta: {x: 210.95023, y: 5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4757340088632259428
 CanvasRenderer:
@@ -10163,7 +10480,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.75, g: 0.8, b: 0.86, a: 1}
+  m_Color: {r: 0.26666668, g: 0.7137255, b: 0.4627451, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -10484,6 +10801,101 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!1 &2408231234984351032
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5331876827164711856}
+  - component: {fileID: 8237871194283937939}
+  - component: {fileID: 4357261593486164465}
+  - component: {fileID: 388807717934492088}
+  m_Layer: 0
+  m_Name: CurrentBadge
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!224 &5331876827164711856
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2408231234984351032}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1902290210369686509}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 58}
+  m_SizeDelta: {x: 190, y: 30}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!222 &8237871194283937939
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2408231234984351032}
+  m_CullTransparentMesh: 1
+--- !u!114 &4357261593486164465
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2408231234984351032}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f7201a12d95ffc409449d95f23cf332, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Text
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 0.78, b: 0.3, a: 1}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_FontData:
+    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
+    m_FontSize: 20
+    m_FontStyle: 1
+    m_BestFit: 0
+    m_MinSize: 10
+    m_MaxSize: 40
+    m_Alignment: 4
+    m_AlignByGeometry: 0
+    m_RichText: 1
+    m_HorizontalOverflow: 0
+    m_VerticalOverflow: 0
+    m_LineSpacing: 1
+  m_Text: "\u25BC \uD604\uC7AC \uC704\uCE58"
+--- !u!114 &388807717934492088
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2408231234984351032}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
+  m_EffectColor: {r: 0.07, g: 0.09, b: 0.12, a: 1}
+  m_EffectDistance: {x: 2, y: -2}
+  m_UseGraphicAlpha: 1
 --- !u!1 &2410731220805432922
 GameObject:
   m_ObjectHideFlags: 0
@@ -10572,7 +10984,7 @@ GameObject:
   - component: {fileID: 4239114150932466708}
   - component: {fileID: 1688589844774440143}
   m_Layer: 5
-  m_Name: Village_city.farm.field
+  m_Name: Village_city.dart
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -10601,7 +11013,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 145.6, y: -365}
+  m_AnchoredPosition: {x: 120, y: -320}
   m_SizeDelta: {x: 190, y: 80}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4855899964085781618
@@ -10654,7 +11066,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4cfc01cf097a44d18fef83e9279afdf5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cityId: city.farm.field
+  cityId: city.dart
   marker: {fileID: 2037667700682913711}
   label: {fileID: 5020291101899237853}
   stationRing: {fileID: 7605736423894677924}
@@ -10754,8 +11166,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
-  m_EffectColor: {r: 0.1, g: 0.13, b: 0.17, a: 1}
-  m_EffectDistance: {x: 1, y: -1}
+  m_EffectColor: {r: 0.07, g: 0.09, b: 0.12, a: 1}
+  m_EffectDistance: {x: 2, y: -2}
   m_UseGraphicAlpha: 1
 --- !u!1 &2453667411964044911
 GameObject:
@@ -11016,7 +11428,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -660, y: 30}
+  m_AnchoredPosition: {x: -620, y: -30}
   m_SizeDelta: {x: 62, y: 27}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &8007192222949283142
@@ -11060,7 +11472,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "6\uC2DC\uAC04 7\uBD84"
+  m_Text: "5\uC2DC\uAC04 28\uBD84"
 --- !u!1 &2500498816837197131
 GameObject:
   m_ObjectHideFlags: 0
@@ -11147,6 +11559,7 @@ GameObject:
   - component: {fileID: 620064860464847251}
   - component: {fileID: 5725019698044183632}
   - component: {fileID: 7278166560257432030}
+  - component: {fileID: 3464595498547260296}
   m_Layer: 0
   m_Name: CurrentBadge
   m_TagString: Untagged
@@ -11215,6 +11628,21 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: "\u25BC \uD604\uC7AC \uC704\uCE58"
+--- !u!114 &3464595498547260296
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2512877720094996930}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
+  m_EffectColor: {r: 0.07, g: 0.09, b: 0.12, a: 1}
+  m_EffectDistance: {x: 2, y: -2}
+  m_UseGraphicAlpha: 1
 --- !u!1 &2522117306817020127
 GameObject:
   m_ObjectHideFlags: 0
@@ -11249,7 +11677,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -20, y: 80}
+  m_AnchoredPosition: {x: 60, y: 180}
   m_SizeDelta: {x: 62, y: 27}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1710609311097197386
@@ -11293,7 +11721,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "7\uC2DC\uAC04 44\uBD84"
+  m_Text: "9\uC2DC\uAC04 3\uBD84"
 --- !u!1 &2545308844279342339
 GameObject:
   m_ObjectHideFlags: 0
@@ -11372,7 +11800,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "3\uC2DC\uAC04 41\uBD84"
+  m_Text: "4\uC2DC\uAC04 22\uBD84"
 --- !u!1 &2557502322797833766
 GameObject:
   m_ObjectHideFlags: 0
@@ -11461,7 +11889,7 @@ GameObject:
   - component: {fileID: 3497205766794845613}
   - component: {fileID: 3053983381413796231}
   m_Layer: 5
-  m_Name: Village_city.coast.port
+  m_Name: Village_city.pioa
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -11490,7 +11918,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 480, y: 60}
+  m_AnchoredPosition: {x: 480, y: 90}
   m_SizeDelta: {x: 190, y: 80}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4627681519390996543
@@ -11543,7 +11971,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4cfc01cf097a44d18fef83e9279afdf5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cityId: city.coast.port
+  cityId: city.pioa
   marker: {fileID: 7683498578893667781}
   label: {fileID: 7511395523341576155}
   stationRing: {fileID: 2006961836016785664}
@@ -11564,7 +11992,7 @@ GameObject:
   - component: {fileID: 2270969517510563149}
   - component: {fileID: 5355017502218024725}
   m_Layer: 5
-  m_Name: Station_city.industry.logistics
+  m_Name: Station_city.heilford
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -11593,7 +12021,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -730, y: 0}
+  m_AnchoredPosition: {x: -690, y: -50}
   m_SizeDelta: {x: 190, y: 80}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5327528900668141965
@@ -11646,7 +12074,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4cfc01cf097a44d18fef83e9279afdf5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cityId: city.industry.logistics
+  cityId: city.heilford
   marker: {fileID: 171658228516394697}
   label: {fileID: 4099446496732049049}
   stationRing: {fileID: 1651783108122943860}
@@ -11746,8 +12174,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
-  m_EffectColor: {r: 0.1, g: 0.13, b: 0.17, a: 1}
-  m_EffectDistance: {x: 1, y: -1}
+  m_EffectColor: {r: 0.07, g: 0.09, b: 0.12, a: 1}
+  m_EffectDistance: {x: 2, y: -2}
   m_UseGraphicAlpha: 1
 --- !u!1 &2602745095836273867
 GameObject:
@@ -11774,7 +12202,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2602745095836273867}
-  m_LocalRotation: {x: 0, y: 0, z: -0.98395354, w: 0.17842485}
+  m_LocalRotation: {x: 0, y: 0, z: -0.99513334, w: 0.09853758}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -11783,8 +12211,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -650, y: 30}
-  m_SizeDelta: {x: 170.88008, y: 5}
+  m_AnchoredPosition: {x: -615, y: -35}
+  m_SizeDelta: {x: 152.97058, y: 5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &3512875447137222428
 CanvasRenderer:
@@ -11995,8 +12423,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
-  m_EffectColor: {r: 0.1, g: 0.13, b: 0.17, a: 1}
-  m_EffectDistance: {x: 1, y: -1}
+  m_EffectColor: {r: 0.07, g: 0.09, b: 0.12, a: 1}
+  m_EffectDistance: {x: 2, y: -2}
   m_UseGraphicAlpha: 1
 --- !u!1 &2660355028276785012
 GameObject:
@@ -12226,7 +12654,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "6\uC2DC\uAC04 34\uBD84"
+  m_Text: "5\uC2DC\uAC04 57\uBD84"
 --- !u!1 &2759238923821829319
 GameObject:
   m_ObjectHideFlags: 0
@@ -12380,7 +12808,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "6\uC2DC\uAC04 5\uBD84"
+  m_Text: "5\uC2DC\uAC04 19\uBD84"
 --- !u!1 &2777559989860131198
 GameObject:
   m_ObjectHideFlags: 0
@@ -12415,7 +12843,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -114.88147, y: 269.74408}
+  m_AnchoredPosition: {x: -180, y: 340}
   m_SizeDelta: {x: 62, y: 27}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &668126131196514794
@@ -12710,7 +13138,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2889441194313723502}
-  m_LocalRotation: {x: 0, y: 0, z: 1, w: -0.00000004371139}
+  m_LocalRotation: {x: 0, y: 0, z: 0.94587326, w: 0.32453626}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -12719,8 +13147,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -390, y: 280}
-  m_SizeDelta: {x: 200, y: 5}
+  m_AnchoredPosition: {x: -365, y: 225}
+  m_SizeDelta: {x: 114.01754, y: 5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2975559789997720772
 CanvasRenderer:
@@ -12852,8 +13280,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
-  m_EffectColor: {r: 0.1, g: 0.13, b: 0.17, a: 1}
-  m_EffectDistance: {x: 1, y: -1}
+  m_EffectColor: {r: 0.07, g: 0.09, b: 0.12, a: 1}
+  m_EffectDistance: {x: 2, y: -2}
   m_UseGraphicAlpha: 1
 --- !u!1 &2917698537597277293
 GameObject:
@@ -13018,7 +13446,7 @@ GameObject:
   - component: {fileID: 6230406247078404619}
   - component: {fileID: 3792221814711901379}
   m_Layer: 5
-  m_Name: Village_city.coast.spring
+  m_Name: Village_city.teraka
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -13047,7 +13475,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 400, y: 320}
+  m_AnchoredPosition: {x: 610, y: 310}
   m_SizeDelta: {x: 190, y: 80}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1040371703738537869
@@ -13100,7 +13528,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4cfc01cf097a44d18fef83e9279afdf5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cityId: city.coast.spring
+  cityId: city.teraka
   marker: {fileID: 1609142976185619186}
   label: {fileID: 2349457916458488640}
   stationRing: {fileID: 6089352459632503654}
@@ -13142,7 +13570,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -20, y: 210}
+  m_AnchoredPosition: {x: -90, y: 210}
   m_SizeDelta: {x: 62, y: 27}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6017142854974999305
@@ -13292,7 +13720,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -350, y: -260}
+  m_AnchoredPosition: {x: -310, y: -230}
   m_SizeDelta: {x: 62, y: 27}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5297101847796940076
@@ -13336,7 +13764,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "6\uC2DC\uAC04 34\uBD84"
+  m_Text: "3\uC2DC\uAC04 39\uBD84"
 --- !u!1 &3001914203560667242
 GameObject:
   m_ObjectHideFlags: 0
@@ -13348,6 +13776,7 @@ GameObject:
   - component: {fileID: 7818990301904841198}
   - component: {fileID: 6452935230220333188}
   - component: {fileID: 7064952761307732204}
+  - component: {fileID: 6934907097234481763}
   m_Layer: 0
   m_Name: CurrentBadge
   m_TagString: Untagged
@@ -13416,6 +13845,21 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: "\u25BC \uD604\uC7AC \uC704\uCE58"
+--- !u!114 &6934907097234481763
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3001914203560667242}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
+  m_EffectColor: {r: 0.07, g: 0.09, b: 0.12, a: 1}
+  m_EffectDistance: {x: 2, y: -2}
+  m_UseGraphicAlpha: 1
 --- !u!1 &3006981967278915545
 GameObject:
   m_ObjectHideFlags: 0
@@ -13712,7 +14156,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3060234575613888748}
-  m_LocalRotation: {x: 0, y: 0, z: -0.28978416, w: 0.95709205}
+  m_LocalRotation: {x: 0, y: 0, z: -0.16018225, w: 0.9870875}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -13721,8 +14165,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -30, y: 90}
-  m_SizeDelta: {x: 216.33308, y: 5}
+  m_AnchoredPosition: {x: 70, y: 180}
+  m_SizeDelta: {x: 252.98221, y: 5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6825114641710046281
 CanvasRenderer:
@@ -13871,7 +14315,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 420, y: 30}
+  m_AnchoredPosition: {x: 420, y: 50}
   m_SizeDelta: {x: 62, y: 27}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6603511261649230252
@@ -13925,7 +14369,7 @@ GameObject:
   - component: {fileID: 4105049043583841994}
   - component: {fileID: 808966025244546128}
   m_Layer: 5
-  m_Name: Village_city.industry.meatlover
+  m_Name: Village_city.karport
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -14007,7 +14451,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4cfc01cf097a44d18fef83e9279afdf5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cityId: city.industry.meatlover
+  cityId: city.karport
   marker: {fileID: 2762569411640243649}
   label: {fileID: 3565631579945037629}
   stationRing: {fileID: 4203073992438723094}
@@ -14103,7 +14547,7 @@ GameObject:
   - component: {fileID: 4791151197157015894}
   - component: {fileID: 6048969001570123643}
   m_Layer: 5
-  m_Name: Village_city.mine.dig
+  m_Name: Village_city.rasenton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -14132,7 +14576,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -290, y: 280}
+  m_AnchoredPosition: {x: -320, y: 190}
   m_SizeDelta: {x: 190, y: 80}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5931886572848994798
@@ -14185,7 +14629,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4cfc01cf097a44d18fef83e9279afdf5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cityId: city.mine.dig
+  cityId: city.rasenton
   marker: {fileID: 2709411626520630262}
   label: {fileID: 6000632943765612358}
   stationRing: {fileID: 9137468986376037735}
@@ -14347,7 +14791,6 @@ RectTransform:
   - {fileID: 6951102566801990461}
   - {fileID: 9004375436737741998}
   - {fileID: 1722022271289789042}
-  - {fileID: 6885396090178959847}
   - {fileID: 2928142962671296226}
   - {fileID: 8618584571006116694}
   - {fileID: 4686922771068236113}
@@ -14362,25 +14805,23 @@ RectTransform:
   - {fileID: 8323447917125095499}
   - {fileID: 2502122750575354903}
   - {fileID: 4989416564199360867}
+  - {fileID: 3939586087628868036}
+  - {fileID: 9084614852448205052}
+  - {fileID: 1924892498733021369}
+  - {fileID: 8085988592374231756}
   - {fileID: 4228028177633221143}
-  - {fileID: 6007777845201173791}
   - {fileID: 1991033843211504838}
   - {fileID: 4747579420880175572}
   - {fileID: 6968395420607265249}
   - {fileID: 520467799657074577}
-  - {fileID: 3801679830522508728}
   - {fileID: 4147224159198571714}
   - {fileID: 798158191403821297}
-  - {fileID: 8883540492896629845}
   - {fileID: 826716901137778535}
-  - {fileID: 6120309295359528737}
   - {fileID: 8308531719065850927}
   - {fileID: 2106075031214565714}
   - {fileID: 4038055944885903247}
   - {fileID: 1354633217416536365}
   - {fileID: 5648237544145241544}
-  - {fileID: 8085988592374231756}
-  - {fileID: 4668505967108220027}
   - {fileID: 4379253068740584835}
   - {fileID: 2094860819349946092}
   - {fileID: 7858389824584341933}
@@ -14390,23 +14831,24 @@ RectTransform:
   - {fileID: 7761168465099267292}
   - {fileID: 3982702666013597990}
   - {fileID: 1721756299189466642}
-  - {fileID: 7397073566406231008}
   - {fileID: 130104276674407298}
+  - {fileID: 6007777845201173791}
   - {fileID: 6852494475136067925}
+  - {fileID: 3801679830522508728}
+  - {fileID: 8883540492896629845}
+  - {fileID: 6120309295359528737}
   - {fileID: 5490190481385902628}
   - {fileID: 2757165431813068515}
   - {fileID: 2291655895149121546}
   - {fileID: 1159456630053594590}
   - {fileID: 6369966465457475518}
-  - {fileID: 3939586087628868036}
   - {fileID: 6675392349128241815}
   - {fileID: 731770834998481879}
   - {fileID: 7083807004539121453}
   - {fileID: 1892129473805534266}
   - {fileID: 7210551327924775664}
-  - {fileID: 9084614852448205052}
-  - {fileID: 1924892498733021369}
   - {fileID: 8243275195987750874}
+  - {fileID: 6885396090178959847}
   - {fileID: 4128110146136004467}
   - {fileID: 5847878988169054700}
   - {fileID: 1734919679530699170}
@@ -14416,11 +14858,13 @@ RectTransform:
   - {fileID: 2068671958237067064}
   - {fileID: 582976449993314494}
   - {fileID: 4202265553014246775}
+  - {fileID: 4668505967108220027}
   - {fileID: 6513030726140602924}
   - {fileID: 1923269467873716750}
   - {fileID: 4751493385775282761}
   - {fileID: 5745956506781340463}
   - {fileID: 8655121696439031923}
+  - {fileID: 7397073566406231008}
   - {fileID: 2188540854773867887}
   m_Father: {fileID: 3234286994586377016}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -14529,7 +14973,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3310068511449775771}
-  m_LocalRotation: {x: 0, y: 0, z: 0.93648326, w: 0.3507122}
+  m_LocalRotation: {x: 0, y: 0, z: 0.7071068, w: 0.7071068}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -14538,8 +14982,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -533.04504, y: 317.5}
-  m_SizeDelta: {x: 114.17746, y: 5}
+  m_AnchoredPosition: {x: -410, y: 310}
+  m_SizeDelta: {x: 100, y: 5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6627484485480016964
 CanvasRenderer:
@@ -14754,7 +15198,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3333195116943811915}
-  m_LocalRotation: {x: 0, y: 0, z: -0.32065728, w: 0.9471953}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -14763,8 +15207,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -205, y: 215}
-  m_SizeDelta: {x: 214.00934, y: 5}
+  m_AnchoredPosition: {x: -240, y: 190}
+  m_SizeDelta: {x: 160, y: 5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4679547675402459257
 CanvasRenderer:
@@ -14821,7 +15265,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &3939586087628868036
 RectTransform:
   m_ObjectHideFlags: 0
@@ -15328,7 +15772,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3470412678999965703}
-  m_LocalRotation: {x: 0, y: 0, z: -0.15086421, w: 0.9885545}
+  m_LocalRotation: {x: 0, y: 0, z: -0.18255737, w: 0.9831952}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -15337,8 +15781,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 140, y: 5}
-  m_SizeDelta: {x: 167.63054, y: 5}
+  m_AnchoredPosition: {x: 155, y: 5}
+  m_SizeDelta: {x: 139.28389, y: 5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &530185519388061247
 CanvasRenderer:
@@ -15412,7 +15856,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -20, y: 210}
+  m_AnchoredPosition: {x: -90, y: 210}
   m_SizeDelta: {x: 62, y: 27}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &3339746588406406223
@@ -15456,7 +15900,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "8\uC2DC\uAC04 10\uBD84"
+  m_Text: "4\uC2DC\uAC04 5\uBD84"
 --- !u!1 &3492776560742738596
 GameObject:
   m_ObjectHideFlags: 0
@@ -15654,7 +16098,7 @@ GameObject:
   - component: {fileID: 9052875878930543756}
   - component: {fileID: 3848180619317221954}
   m_Layer: 5
-  m_Name: Village_city.farm.orchard
+  m_Name: Village_city.terapol
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -15736,7 +16180,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4cfc01cf097a44d18fef83e9279afdf5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cityId: city.farm.orchard
+  cityId: city.terapol
   marker: {fileID: 1774568126787603351}
   label: {fileID: 7872572082986253573}
   stationRing: {fileID: 4966209931595407320}
@@ -15769,7 +16213,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3549168496755416100}
-  m_LocalRotation: {x: 0, y: 0, z: -0.7071068, w: 0.7071068}
+  m_LocalRotation: {x: 0, y: 0, z: -0.6257274, w: 0.7800418}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -15778,8 +16222,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -120, y: 80}
-  m_SizeDelta: {x: 140, y: 5}
+  m_AnchoredPosition: {x: -140, y: 100}
+  m_SizeDelta: {x: 184.39088, y: 5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6167741091409165683
 CanvasRenderer:
@@ -15832,7 +16276,7 @@ GameObject:
   - component: {fileID: 3138336339200494825}
   - component: {fileID: 4577987437141449362}
   m_Layer: 5
-  m_Name: Village_city.ranch.pass
+  m_Name: Village_city.rasenpol
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -15914,7 +16358,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4cfc01cf097a44d18fef83e9279afdf5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cityId: city.ranch.pass
+  cityId: city.rasenpol
   marker: {fileID: 3543792383522946760}
   label: {fileID: 2818339910393312719}
   stationRing: {fileID: 8896889733445006687}
@@ -16314,8 +16758,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
-  m_EffectColor: {r: 0.1, g: 0.13, b: 0.17, a: 1}
-  m_EffectDistance: {x: 1, y: -1}
+  m_EffectColor: {r: 0.07, g: 0.09, b: 0.12, a: 1}
+  m_EffectDistance: {x: 2, y: -2}
   m_UseGraphicAlpha: 1
 --- !u!1 &3636174118322907225
 GameObject:
@@ -16409,8 +16853,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
-  m_EffectColor: {r: 0.1, g: 0.13, b: 0.17, a: 1}
-  m_EffectDistance: {x: 1, y: -1}
+  m_EffectColor: {r: 0.07, g: 0.09, b: 0.12, a: 1}
+  m_EffectDistance: {x: 2, y: -2}
   m_UseGraphicAlpha: 1
 --- !u!1 &3661344822709833598
 GameObject:
@@ -16690,7 +17134,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 540, y: -30}
+  m_AnchoredPosition: {x: 540, y: -10}
   m_SizeDelta: {x: 62, y: 27}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1697336450907569905
@@ -16734,7 +17178,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "8\uC2DC\uAC04 21\uBD84"
+  m_Text: "7\uC2DC\uAC04 53\uBD84"
 --- !u!1 &3758773161333976018
 GameObject:
   m_ObjectHideFlags: 0
@@ -16914,7 +17358,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3808659289368126188}
-  m_LocalRotation: {x: 0, y: 0, z: 0.092541374, w: 0.9957088}
+  m_LocalRotation: {x: 0, y: 0, z: -0.013884872, w: 0.9999036}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -16923,8 +17367,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 240, y: 290}
-  m_SizeDelta: {x: 325.57642, y: 5}
+  m_AnchoredPosition: {x: 250, y: 320}
+  m_SizeDelta: {x: 720.2777, y: 5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &3951458593738338963
 CanvasRenderer:
@@ -17050,6 +17494,7 @@ GameObject:
   - component: {fileID: 950357967940474757}
   - component: {fileID: 4139006466424348992}
   - component: {fileID: 2717739378029396828}
+  - component: {fileID: 160154810155157242}
   m_Layer: 0
   m_Name: CurrentBadge
   m_TagString: Untagged
@@ -17118,6 +17563,21 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: "\u25BC \uD604\uC7AC \uC704\uCE58"
+--- !u!114 &160154810155157242
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3818396267836011944}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
+  m_EffectColor: {r: 0.07, g: 0.09, b: 0.12, a: 1}
+  m_EffectDistance: {x: 2, y: -2}
+  m_UseGraphicAlpha: 1
 --- !u!1 &3860252871262145532
 GameObject:
   m_ObjectHideFlags: 0
@@ -17152,7 +17612,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -590, y: -50}
+  m_AnchoredPosition: {x: -550, y: -80}
   m_SizeDelta: {x: 62, y: 27}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &164839290921273128
@@ -17196,7 +17656,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "9\uC2DC\uAC04 3\uBD84"
+  m_Text: "4\uC2DC\uAC04 46\uBD84"
 --- !u!1 &3863595143004834055
 GameObject:
   m_ObjectHideFlags: 0
@@ -17210,7 +17670,7 @@ GameObject:
   - component: {fileID: 6685454329922274979}
   - component: {fileID: 1865904193279820597}
   m_Layer: 5
-  m_Name: Village_city.coast.sea
+  m_Name: Village_city.valenrie
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -17239,7 +17699,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 630, y: -110}
+  m_AnchoredPosition: {x: 610, y: -70}
   m_SizeDelta: {x: 190, y: 80}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1997472883935212288
@@ -17292,7 +17752,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4cfc01cf097a44d18fef83e9279afdf5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cityId: city.coast.sea
+  cityId: city.valenrie
   marker: {fileID: 5399671780896594848}
   label: {fileID: 4789143145355608762}
   stationRing: {fileID: 6901802609495627701}
@@ -17388,7 +17848,7 @@ GameObject:
   - component: {fileID: 6913352622402447921}
   - component: {fileID: 712907897883576940}
   m_Layer: 5
-  m_Name: Village_city.ranch.jerky
+  m_Name: Village_city.osgrad
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -17417,7 +17877,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -110, y: -300}
+  m_AnchoredPosition: {x: -200, y: -290}
   m_SizeDelta: {x: 190, y: 80}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6631140629056071186
@@ -17470,7 +17930,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4cfc01cf097a44d18fef83e9279afdf5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cityId: city.ranch.jerky
+  cityId: city.osgrad
   marker: {fileID: 2831882218491125320}
   label: {fileID: 6529443675572889563}
   stationRing: {fileID: 1639378757727383573}
@@ -17578,7 +18038,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4024920522534118040}
-  m_LocalRotation: {x: 0, y: 0, z: -0.49403682, w: 0.869441}
+  m_LocalRotation: {x: 0, y: 0, z: -0.4909361, w: 0.8711956}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -17587,8 +18047,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 94.955, y: -280}
-  m_SizeDelta: {x: 197.88802, y: 5}
+  m_AnchoredPosition: {x: 82.155, y: -257.5}
+  m_SizeDelta: {x: 146.13, y: 5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4566980001518800587
 CanvasRenderer:
@@ -17662,7 +18122,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -370, y: -170}
+  m_AnchoredPosition: {x: -320, y: -100}
   m_SizeDelta: {x: 62, y: 27}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5231173572442959854
@@ -17706,7 +18166,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "4\uC2DC\uAC04 59\uBD84"
+  m_Text: "7\uC2DC\uAC04 33\uBD84"
 --- !u!1 &4060878720401309761
 GameObject:
   m_ObjectHideFlags: 0
@@ -17882,7 +18342,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4086133839752336300}
-  m_LocalRotation: {x: 0, y: 0, z: -0.48270434, w: 0.8757834}
+  m_LocalRotation: {x: 0, y: 0, z: -0.34042528, w: 0.9402716}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -17891,8 +18351,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -670, y: -95}
-  m_SizeDelta: {x: 224.72205, y: 5}
+  m_AnchoredPosition: {x: -630, y: -100}
+  m_SizeDelta: {x: 156.20499, y: 5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &9222211084253209918
 CanvasRenderer:
@@ -17945,7 +18405,7 @@ GameObject:
   - component: {fileID: 3560118752907575251}
   - component: {fileID: 2126861243158908108}
   m_Layer: 5
-  m_Name: Village_city.capital.wholesale
+  m_Name: Village_city.trenford
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -18027,7 +18487,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4cfc01cf097a44d18fef83e9279afdf5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cityId: city.capital.wholesale
+  cityId: city.trenford
   marker: {fileID: 1567880587466048810}
   label: {fileID: 5621713541954530643}
   stationRing: {fileID: 3313575960776237695}
@@ -18048,7 +18508,7 @@ GameObject:
   - component: {fileID: 6541850956639782095}
   - component: {fileID: 7016998358326501911}
   m_Layer: 5
-  m_Name: Village_city.industry.engine
+  m_Name: Village_city.nornova
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -18077,7 +18537,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -610, y: -190}
+  m_AnchoredPosition: {x: -570, y: -150}
   m_SizeDelta: {x: 190, y: 80}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1784190569909348662
@@ -18130,7 +18590,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4cfc01cf097a44d18fef83e9279afdf5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cityId: city.industry.engine
+  cityId: city.nornova
   marker: {fileID: 3459153003899595738}
   label: {fileID: 473922688102969635}
   stationRing: {fileID: 6155719854293764689}
@@ -18366,7 +18826,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "4\uC2DC\uAC04 3\uBD84"
+  m_Text: "5\uC2DC\uAC04 4\uBD84"
 --- !u!1 &4166145453968810833
 GameObject:
   m_ObjectHideFlags: 0
@@ -18551,7 +19011,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -250, y: 320}
+  m_AnchoredPosition: {x: -330, y: 360}
   m_SizeDelta: {x: 62, y: 27}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4132026780134243810
@@ -18926,7 +19386,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -30, y: -250}
+  m_AnchoredPosition: {x: -160, y: -240}
   m_SizeDelta: {x: 62, y: 27}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2527996232392043559
@@ -19203,6 +19663,7 @@ GameObject:
   - component: {fileID: 6420622456061753723}
   - component: {fileID: 7114525039080262677}
   - component: {fileID: 2920084029380539326}
+  - component: {fileID: 9037864482677166661}
   m_Layer: 0
   m_Name: CurrentBadge
   m_TagString: Untagged
@@ -19271,6 +19732,21 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: "\u25BC \uD604\uC7AC \uC704\uCE58"
+--- !u!114 &9037864482677166661
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4334859720786893669}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
+  m_EffectColor: {r: 0.07, g: 0.09, b: 0.12, a: 1}
+  m_EffectDistance: {x: 2, y: -2}
+  m_UseGraphicAlpha: 1
 --- !u!1 &4379064940816377477
 GameObject:
   m_ObjectHideFlags: 0
@@ -19305,7 +19781,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -670, y: -95}
+  m_AnchoredPosition: {x: -640, y: -100}
   m_SizeDelta: {x: 62, y: 27}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &8963540647650683837
@@ -19349,7 +19825,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "8\uC2DC\uAC04 2\uBD84"
+  m_Text: "5\uC2DC\uAC04 35\uBD84"
 --- !u!1 &4398305145250753599
 GameObject:
   m_ObjectHideFlags: 0
@@ -19450,7 +19926,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4403760701884482081}
-  m_LocalRotation: {x: 0, y: 0, z: 0.08526396, w: 0.99635845}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -19459,8 +19935,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -255, y: -325}
-  m_SizeDelta: {x: 294.27878, y: 5}
+  m_AnchoredPosition: {x: -245, y: -290}
+  m_SizeDelta: {x: 90, y: 5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5922597509930396707
 CanvasRenderer:
@@ -19511,6 +19987,7 @@ GameObject:
   - component: {fileID: 1338515201052893270}
   - component: {fileID: 4131952082964491106}
   - component: {fileID: 1040436364748209044}
+  - component: {fileID: 4767925661223537610}
   m_Layer: 0
   m_Name: CurrentBadge
   m_TagString: Untagged
@@ -19579,6 +20056,21 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: "\u25BC \uD604\uC7AC \uC704\uCE58"
+--- !u!114 &4767925661223537610
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4420627997814771879}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
+  m_EffectColor: {r: 0.07, g: 0.09, b: 0.12, a: 1}
+  m_EffectDistance: {x: 2, y: -2}
+  m_UseGraphicAlpha: 1
 --- !u!1 &4422027370554657888
 GameObject:
   m_ObjectHideFlags: 0
@@ -19763,7 +20255,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -350, y: -260}
+  m_AnchoredPosition: {x: -310, y: -230}
   m_SizeDelta: {x: 62, y: 27}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &9091044572806458371
@@ -19971,8 +20463,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
-  m_EffectColor: {r: 0.1, g: 0.13, b: 0.17, a: 1}
-  m_EffectDistance: {x: 1, y: -1}
+  m_EffectColor: {r: 0.07, g: 0.09, b: 0.12, a: 1}
+  m_EffectDistance: {x: 2, y: -2}
   m_UseGraphicAlpha: 1
 --- !u!1 &4490373979550507057
 GameObject:
@@ -20212,7 +20704,7 @@ GameObject:
   - component: {fileID: 3736757937531161916}
   - component: {fileID: 5375332356172756559}
   m_Layer: 5
-  m_Name: Village_city.ranch.butcher
+  m_Name: Village_city.heilheim
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -20241,7 +20733,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -230, y: -80}
+  m_AnchoredPosition: {x: -220, y: -100}
   m_SizeDelta: {x: 190, y: 80}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5984147675683108904
@@ -20294,7 +20786,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4cfc01cf097a44d18fef83e9279afdf5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cityId: city.ranch.butcher
+  cityId: city.heilheim
   marker: {fileID: 4799507285208816131}
   label: {fileID: 1302391992562714722}
   stationRing: {fileID: 6848967444868979531}
@@ -20313,6 +20805,7 @@ GameObject:
   - component: {fileID: 1350975404348823293}
   - component: {fileID: 4474151838693295508}
   - component: {fileID: 517438982920849829}
+  - component: {fileID: 5050696133351900248}
   m_Layer: 0
   m_Name: CurrentBadge
   m_TagString: Untagged
@@ -20381,6 +20874,21 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: "\u25BC \uD604\uC7AC \uC704\uCE58"
+--- !u!114 &5050696133351900248
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4521223138400769001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
+  m_EffectColor: {r: 0.07, g: 0.09, b: 0.12, a: 1}
+  m_EffectDistance: {x: 2, y: -2}
+  m_UseGraphicAlpha: 1
 --- !u!1 &4547417699112589590
 GameObject:
   m_ObjectHideFlags: 0
@@ -20565,7 +21073,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -20, y: 80}
+  m_AnchoredPosition: {x: 60, y: 180}
   m_SizeDelta: {x: 62, y: 27}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2161353492180947164
@@ -20777,8 +21285,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
-  m_EffectColor: {r: 0.1, g: 0.13, b: 0.17, a: 1}
-  m_EffectDistance: {x: 1, y: -1}
+  m_EffectColor: {r: 0.07, g: 0.09, b: 0.12, a: 1}
+  m_EffectDistance: {x: 2, y: -2}
   m_UseGraphicAlpha: 1
 --- !u!1 &4595642329079501213
 GameObject:
@@ -21101,8 +21609,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
-  m_EffectColor: {r: 0.1, g: 0.13, b: 0.17, a: 1}
-  m_EffectDistance: {x: 1, y: -1}
+  m_EffectColor: {r: 0.07, g: 0.09, b: 0.12, a: 1}
+  m_EffectDistance: {x: 2, y: -2}
   m_UseGraphicAlpha: 1
 --- !u!1 &4708208410400436477
 GameObject:
@@ -21513,7 +22021,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -370, y: -170}
+  m_AnchoredPosition: {x: -320, y: -100}
   m_SizeDelta: {x: 62, y: 27}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6976460741481780026
@@ -21642,7 +22150,7 @@ GameObject:
   - component: {fileID: 5578578233575009605}
   - component: {fileID: 4420141143657028656}
   m_Layer: 5
-  m_Name: Village_city.ranch.highland
+  m_Name: Village_city.darpol
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -21671,7 +22179,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -400, y: -350}
+  m_AnchoredPosition: {x: -290, y: -290}
   m_SizeDelta: {x: 190, y: 80}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2989252800184545206
@@ -21724,7 +22232,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4cfc01cf097a44d18fef83e9279afdf5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cityId: city.ranch.highland
+  cityId: city.darpol
   marker: {fileID: 7658408331107267072}
   label: {fileID: 8729445007360238992}
   stationRing: {fileID: 5664606427244573828}
@@ -21810,7 +22318,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "5\uC2DC\uAC04 49\uBD84"
+  m_Text: "4\uC2DC\uAC04 19\uBD84"
 --- !u!1 &4795550445614563877
 GameObject:
   m_ObjectHideFlags: 0
@@ -21877,6 +22385,81 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_Sprite: {fileID: 0}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!1 &4799754161350770631
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7947430036065655195}
+  - component: {fileID: 1440820420018727670}
+  - component: {fileID: 8153578689923719520}
+  m_Layer: 0
+  m_Name: StationRing
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &7947430036065655195
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4799754161350770631}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1902290210369686509}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 32, y: 32}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!222 &1440820420018727670
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4799754161350770631}
+  m_CullTransparentMesh: 1
+--- !u!114 &8153578689923719520
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4799754161350770631}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 0.30588236, g: 0.5647059, b: 0.8392157, a: 1}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -21995,7 +22578,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 240, y: 290}
+  m_AnchoredPosition: {x: 150, y: 320}
   m_SizeDelta: {x: 62, y: 27}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1319762139408839139
@@ -22039,7 +22622,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "11\uC2DC\uAC04 38\uBD84"
+  m_Text: "25\uC2DC\uAC04 44\uBD84"
 --- !u!1 &4818763868531794535
 GameObject:
   m_ObjectHideFlags: 0
@@ -22357,8 +22940,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
-  m_EffectColor: {r: 0.1, g: 0.13, b: 0.17, a: 1}
-  m_EffectDistance: {x: 1, y: -1}
+  m_EffectColor: {r: 0.07, g: 0.09, b: 0.12, a: 1}
+  m_EffectDistance: {x: 2, y: -2}
   m_UseGraphicAlpha: 1
 --- !u!1 &4915888434740313231
 GameObject:
@@ -22558,7 +23141,7 @@ GameObject:
   - component: {fileID: 8116118251686543190}
   - component: {fileID: 912697369784485356}
   m_Layer: 5
-  m_Name: Station_city.common.rest
+  m_Name: Station_city.osber
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -22587,7 +23170,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 80, y: 260}
+  m_AnchoredPosition: {x: -110, y: 330}
   m_SizeDelta: {x: 190, y: 80}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6357632631440774747
@@ -22640,7 +23223,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4cfc01cf097a44d18fef83e9279afdf5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cityId: city.common.rest
+  cityId: city.osber
   marker: {fileID: 5923186571586054885}
   label: {fileID: 7866402509772525986}
   stationRing: {fileID: 6581673592760653980}
@@ -22673,7 +23256,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4951489143377776497}
-  m_LocalRotation: {x: 0, y: 0, z: 0.7071068, w: 0.7071068}
+  m_LocalRotation: {x: 0, y: 0, z: 0.61541224, w: 0.78820544}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -22682,8 +23265,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 350, y: -75}
-  m_SizeDelta: {x: 150, y: 5}
+  m_AnchoredPosition: {x: 330, y: -80}
+  m_SizeDelta: {x: 164.92422, y: 5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &9098742541228746076
 CanvasRenderer:
@@ -22815,8 +23398,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
-  m_EffectColor: {r: 0.1, g: 0.13, b: 0.17, a: 1}
-  m_EffectDistance: {x: 1, y: -1}
+  m_EffectColor: {r: 0.07, g: 0.09, b: 0.12, a: 1}
+  m_EffectDistance: {x: 2, y: -2}
   m_UseGraphicAlpha: 1
 --- !u!1 &4980301445146909711
 GameObject:
@@ -22852,7 +23435,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -114.88147, y: 269.74408}
+  m_AnchoredPosition: {x: -180, y: 340}
   m_SizeDelta: {x: 62, y: 27}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1143480487276324961
@@ -22896,7 +23479,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "13\uC2DC\uAC04 15\uBD84"
+  m_Text: "5\uC2DC\uAC04 49\uBD84"
 --- !u!1 &5027652162081022689
 GameObject:
   m_ObjectHideFlags: 0
@@ -23156,7 +23739,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -590, y: -50}
+  m_AnchoredPosition: {x: -550, y: -80}
   m_SizeDelta: {x: 62, y: 27}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5168994535938222174
@@ -23381,7 +23964,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 420, y: 30}
+  m_AnchoredPosition: {x: 420, y: 50}
   m_SizeDelta: {x: 62, y: 27}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4751403454560651770
@@ -23425,7 +24008,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "5\uC2DC\uAC04 7\uBD84"
+  m_Text: "5\uC2DC\uAC04 39\uBD84"
 --- !u!1 &5149241157379680299
 GameObject:
   m_ObjectHideFlags: 0
@@ -23460,7 +24043,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 20, y: -330}
+  m_AnchoredPosition: {x: -30, y: -310}
   m_SizeDelta: {x: 62, y: 27}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &9069438618007539583
@@ -23737,6 +24320,7 @@ GameObject:
   - component: {fileID: 8275511474820368596}
   - component: {fileID: 2145788490205886455}
   - component: {fileID: 7428465655437509369}
+  - component: {fileID: 3628048019924232479}
   m_Layer: 0
   m_Name: CurrentBadge
   m_TagString: Untagged
@@ -23805,6 +24389,21 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: "\u25BC \uD604\uC7AC \uC704\uCE58"
+--- !u!114 &3628048019924232479
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5200905359059005435}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
+  m_EffectColor: {r: 0.07, g: 0.09, b: 0.12, a: 1}
+  m_EffectDistance: {x: 2, y: -2}
+  m_UseGraphicAlpha: 1
 --- !u!1 &5212468673513761869
 GameObject:
   m_ObjectHideFlags: 0
@@ -23839,7 +24438,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -500, y: -40}
+  m_AnchoredPosition: {x: -480, y: -80}
   m_SizeDelta: {x: 62, y: 27}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2756461402227731019
@@ -23883,7 +24482,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "8\uC2DC\uAC04 32\uBD84"
+  m_Text: "4\uC2DC\uAC04 29\uBD84"
 --- !u!1 &5244035930176399683
 GameObject:
   m_ObjectHideFlags: 0
@@ -23895,6 +24494,7 @@ GameObject:
   - component: {fileID: 2503651821350761696}
   - component: {fileID: 8075563475566744513}
   - component: {fileID: 3908187498365444545}
+  - component: {fileID: 777685076057223097}
   m_Layer: 0
   m_Name: CurrentBadge
   m_TagString: Untagged
@@ -23963,6 +24563,21 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: "\u25BC \uD604\uC7AC \uC704\uCE58"
+--- !u!114 &777685076057223097
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5244035930176399683}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
+  m_EffectColor: {r: 0.07, g: 0.09, b: 0.12, a: 1}
+  m_EffectDistance: {x: 2, y: -2}
+  m_UseGraphicAlpha: 1
 --- !u!1 &5284861560845020442
 GameObject:
   m_ObjectHideFlags: 0
@@ -24191,7 +24806,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "5\uC2DC\uAC04 5\uBD84"
+  m_Text: "5\uC2DC\uAC04 19\uBD84"
 --- !u!1 &5364766865828623343
 GameObject:
   m_ObjectHideFlags: 0
@@ -24217,7 +24832,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5364766865828623343}
-  m_LocalRotation: {x: 0, y: 0, z: -0.10535081, w: 0.99443513}
+  m_LocalRotation: {x: 0, y: 0, z: 0.2116997, w: 0.97733474}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -24226,8 +24841,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -500, y: 45}
-  m_SizeDelta: {x: 143.1782, y: 5}
+  m_AnchoredPosition: {x: -485, y: 5}
+  m_SizeDelta: {x: 120.83046, y: 5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &196592751788700899
 CanvasRenderer:
@@ -24359,8 +24974,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
-  m_EffectColor: {r: 0.1, g: 0.13, b: 0.17, a: 1}
-  m_EffectDistance: {x: 1, y: -1}
+  m_EffectColor: {r: 0.07, g: 0.09, b: 0.12, a: 1}
+  m_EffectDistance: {x: 2, y: -2}
   m_UseGraphicAlpha: 1
 --- !u!1 &5450660588226417956
 GameObject:
@@ -24537,7 +25152,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5459940875531432741}
-  m_LocalRotation: {x: 0, y: 0, z: -0.9319748, w: 0.36252302}
+  m_LocalRotation: {x: 0, y: 0, z: -0.97733474, w: 0.21169972}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -24546,8 +25161,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -380, y: -85}
-  m_SizeDelta: {x: 162.78821, y: 5}
+  m_AnchoredPosition: {x: -375, y: -55}
+  m_SizeDelta: {x: 120.83046, y: 5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6826902765263499661
 CanvasRenderer:
@@ -24570,7 +25185,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.89411765, g: 0.9137255, b: 0.9372549, a: 1}
+  m_Color: {r: 0.26666668, g: 0.7137255, b: 0.4627451, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -24665,7 +25280,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "7\uC2DC\uAC04 39\uBD84"
+  m_Text: "5\uC2DC\uAC04 43\uBD84"
 --- !u!1 &5552977905478141235
 GameObject:
   m_ObjectHideFlags: 0
@@ -25213,8 +25828,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
-  m_EffectColor: {r: 0.1, g: 0.13, b: 0.17, a: 1}
-  m_EffectDistance: {x: 1, y: -1}
+  m_EffectColor: {r: 0.07, g: 0.09, b: 0.12, a: 1}
+  m_EffectDistance: {x: 2, y: -2}
   m_UseGraphicAlpha: 1
 --- !u!1 &5605253060278849275
 GameObject:
@@ -25519,7 +26134,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "5\uC2DC\uAC04 22\uBD84"
+  m_Text: "4\uC2DC\uAC04 48\uBD84"
 --- !u!1 &5683035124239981001
 GameObject:
   m_ObjectHideFlags: 0
@@ -25545,7 +26160,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5683035124239981001}
-  m_LocalRotation: {x: 0, y: 0, z: 0.26693362, w: 0.96371496}
+  m_LocalRotation: {x: 0, y: 0, z: 0.7071068, w: 0.7071068}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -25554,8 +26169,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 505, y: 125}
-  m_SizeDelta: {x: 58.30952, y: 5}
+  m_AnchoredPosition: {x: 530, y: 185}
+  m_SizeDelta: {x: 70, y: 5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &8673551122942922777
 CanvasRenderer:
@@ -25774,7 +26389,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5699322235832904969}
-  m_LocalRotation: {x: 0, y: 0, z: 0.026288502, w: 0.9996544}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -25783,8 +26398,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 255, y: -155}
-  m_SizeDelta: {x: 190.26297, y: 5}
+  m_AnchoredPosition: {x: 235, y: -160}
+  m_SizeDelta: {x: 150, y: 5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4129077159657810313
 CanvasRenderer:
@@ -25985,6 +26600,7 @@ GameObject:
   - component: {fileID: 2926448637608343821}
   - component: {fileID: 3768824501535219980}
   - component: {fileID: 5491414339419434725}
+  - component: {fileID: 6630564580207369109}
   m_Layer: 0
   m_Name: CurrentBadge
   m_TagString: Untagged
@@ -26053,6 +26669,21 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: "\u25BC \uD604\uC7AC \uC704\uCE58"
+--- !u!114 &6630564580207369109
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5765100160273588965}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
+  m_EffectColor: {r: 0.07, g: 0.09, b: 0.12, a: 1}
+  m_EffectDistance: {x: 2, y: -2}
+  m_UseGraphicAlpha: 1
 --- !u!1 &5780877106395805379
 GameObject:
   m_ObjectHideFlags: 0
@@ -26657,6 +27288,81 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!1 &5856329117404354715
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3301911492914911663}
+  - component: {fileID: 5881999670570940454}
+  - component: {fileID: 9028297923415813959}
+  m_Layer: 0
+  m_Name: CurrentHalo
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!224 &3301911492914911663
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5856329117404354715}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1902290210369686509}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 76, y: 76}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!222 &5881999670570940454
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5856329117404354715}
+  m_CullTransparentMesh: 1
+--- !u!114 &9028297923415813959
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5856329117404354715}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 0.78, b: 0.3, a: 0.25}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
 --- !u!1 &5861618588950273579
 GameObject:
   m_ObjectHideFlags: 0
@@ -26982,7 +27688,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5976677754642918575}
-  m_LocalRotation: {x: 0, y: 0, z: 0.5048459, w: 0.86320955}
+  m_LocalRotation: {x: 0, y: 0, z: 0.77334213, w: 0.6339889}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -26991,8 +27697,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -355, y: -270}
-  m_SizeDelta: {x: 183.57559, y: 5}
+  m_AnchoredPosition: {x: -300, y: -240}
+  m_SizeDelta: {x: 101.98039, y: 5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4872422945378943762
 CanvasRenderer:
@@ -27043,6 +27749,7 @@ GameObject:
   - component: {fileID: 8989785981566550375}
   - component: {fileID: 8359608492094930974}
   - component: {fileID: 401498014420358461}
+  - component: {fileID: 4451645316706760844}
   m_Layer: 0
   m_Name: CurrentBadge
   m_TagString: Untagged
@@ -27111,6 +27818,21 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: "\u25BC \uD604\uC7AC \uC704\uCE58"
+--- !u!114 &4451645316706760844
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5987571849539049997}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
+  m_EffectColor: {r: 0.07, g: 0.09, b: 0.12, a: 1}
+  m_EffectDistance: {x: 2, y: -2}
+  m_UseGraphicAlpha: 1
 --- !u!1 &6001417427512470243
 GameObject:
   m_ObjectHideFlags: 0
@@ -27124,7 +27846,7 @@ GameObject:
   - component: {fileID: 1810877674320621449}
   - component: {fileID: 5972460873667738359}
   m_Layer: 5
-  m_Name: Village_city.capital.central
+  m_Name: Village_city.aiport
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -27206,7 +27928,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4cfc01cf097a44d18fef83e9279afdf5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cityId: city.capital.central
+  cityId: city.aiport
   marker: {fileID: 2854687493055448968}
   label: {fileID: 4325619557253905423}
   stationRing: {fileID: 413157940904698922}
@@ -27398,7 +28120,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 130, y: 200}
+  m_AnchoredPosition: {x: -70, y: 280}
   m_SizeDelta: {x: 62, y: 27}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &3738092253111867204
@@ -27442,7 +28164,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "5\uC2DC\uAC04 49\uBD84"
+  m_Text: "4\uC2DC\uAC04 29\uBD84"
 --- !u!1 &6044285399837298688
 GameObject:
   m_ObjectHideFlags: 0
@@ -27521,7 +28243,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "4\uC2DC\uAC04 52\uBD84"
+  m_Text: "4\uC2DC\uAC04 33\uBD84"
 --- !u!1 &6050209758912328291
 GameObject:
   m_ObjectHideFlags: 0
@@ -27556,7 +28278,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 470, y: 270}
+  m_AnchoredPosition: {x: 530, y: 280}
   m_SizeDelta: {x: 62, y: 27}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &7224117520443707229
@@ -27600,7 +28322,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "6\uC2DC\uAC04 9\uBD84"
+  m_Text: "5\uC2DC\uAC04 12\uBD84"
 --- !u!1 &6060599198864381181
 GameObject:
   m_ObjectHideFlags: 0
@@ -27768,7 +28490,7 @@ GameObject:
   - component: {fileID: 3223075247935283595}
   - component: {fileID: 2372812281079392345}
   m_Layer: 5
-  m_Name: Station_city.common.wayfarer
+  m_Name: Station_city.sera
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -27797,7 +28519,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -140, y: -200}
+  m_AnchoredPosition: {x: -160, y: -220}
   m_SizeDelta: {x: 190, y: 80}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4189469517222111868
@@ -27850,7 +28572,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4cfc01cf097a44d18fef83e9279afdf5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cityId: city.common.wayfarer
+  cityId: city.sera
   marker: {fileID: 5751048415136485798}
   label: {fileID: 7822258590030037615}
   stationRing: {fileID: 1206209759091021155}
@@ -28108,7 +28830,7 @@ GameObject:
   - component: {fileID: 6525858315375319204}
   - component: {fileID: 1829280380977770361}
   m_Layer: 5
-  m_Name: Station_city.common.roadside
+  m_Name: Station_city.mert
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -28190,7 +28912,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4cfc01cf097a44d18fef83e9279afdf5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cityId: city.common.roadside
+  cityId: city.mert
   marker: {fileID: 6719843719410493852}
   label: {fileID: 5461011796336973798}
   stationRing: {fileID: 9040987294278395740}
@@ -28373,7 +29095,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6170747967859470128}
-  m_LocalRotation: {x: 0, y: 0, z: 0.2943178, w: 0.9557076}
+  m_LocalRotation: {x: 0, y: 0, z: 0.5019268, w: 0.8649101}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -28382,8 +29104,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -32.845, y: -247.5}
-  m_SizeDelta: {x: 186.64558, y: 5}
+  m_AnchoredPosition: {x: -180, y: -255}
+  m_SizeDelta: {x: 80.622574, y: 5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &3830472060263786545
 CanvasRenderer:
@@ -28434,6 +29156,7 @@ GameObject:
   - component: {fileID: 3188154802616657686}
   - component: {fileID: 5273962436874368878}
   - component: {fileID: 1193232029915918437}
+  - component: {fileID: 8377024005340525013}
   m_Layer: 0
   m_Name: CurrentBadge
   m_TagString: Untagged
@@ -28502,6 +29225,21 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: "\u25BC \uD604\uC7AC \uC704\uCE58"
+--- !u!114 &8377024005340525013
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6173255729023726005}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
+  m_EffectColor: {r: 0.07, g: 0.09, b: 0.12, a: 1}
+  m_EffectDistance: {x: 2, y: -2}
+  m_UseGraphicAlpha: 1
 --- !u!1 &6180665539092532138
 GameObject:
   m_ObjectHideFlags: 0
@@ -28655,7 +29393,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "5\uC2DC\uAC04"
+  m_Text: "6\uC2DC\uAC04 36\uBD84"
 --- !u!1 &6243880399982122689
 GameObject:
   m_ObjectHideFlags: 0
@@ -28906,7 +29644,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6312911026066587282}
-  m_LocalRotation: {x: 0, y: 0, z: -0.7609174, w: 0.6488488}
+  m_LocalRotation: {x: 0, y: 0, z: -0.7825789, w: 0.62255144}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -28915,8 +29653,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -590, y: -65}
-  m_SizeDelta: {x: 253.17978, y: 5}
+  m_AnchoredPosition: {x: -555, y: -85}
+  m_SizeDelta: {x: 133.41664, y: 5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &7941401325661440468
 CanvasRenderer:
@@ -29119,7 +29857,7 @@ GameObject:
   - component: {fileID: 788856146332133569}
   - component: {fileID: 980743954757144858}
   m_Layer: 5
-  m_Name: Station_city.common.crossing
+  m_Name: Station_city.teragrad
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -29148,7 +29886,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -440, y: -140}
+  m_AnchoredPosition: {x: -430, y: -80}
   m_SizeDelta: {x: 190, y: 80}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4472032914398952348
@@ -29201,7 +29939,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4cfc01cf097a44d18fef83e9279afdf5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cityId: city.common.crossing
+  cityId: city.teragrad
   marker: {fileID: 4412319565700852098}
   label: {fileID: 2730934315700094874}
   stationRing: {fileID: 6451346555840167310}
@@ -29543,7 +30281,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -255, y: -325}
+  m_AnchoredPosition: {x: -240, y: -290}
   m_SizeDelta: {x: 62, y: 27}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1941704175986721549
@@ -29587,7 +30325,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "10\uC2DC\uAC04 31\uBD84"
+  m_Text: "3\uC2DC\uAC04 13\uBD84"
 --- !u!1 &6499357398184178442
 GameObject:
   m_ObjectHideFlags: 0
@@ -30130,8 +30868,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
-  m_EffectColor: {r: 0.1, g: 0.13, b: 0.17, a: 1}
-  m_EffectDistance: {x: 1, y: -1}
+  m_EffectColor: {r: 0.07, g: 0.09, b: 0.12, a: 1}
+  m_EffectDistance: {x: 2, y: -2}
   m_UseGraphicAlpha: 1
 --- !u!1 &6573981435257120815
 GameObject:
@@ -30158,7 +30896,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6573981435257120815}
-  m_LocalRotation: {x: 0, y: 0, z: -0.31981897, w: 0.9474787}
+  m_LocalRotation: {x: 0, y: 0, z: -0.22975294, w: 0.973249}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -30167,8 +30905,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -505, y: -270}
-  m_SizeDelta: {x: 264.00757, y: 5}
+  m_AnchoredPosition: {x: -430, y: -220}
+  m_SizeDelta: {x: 313.04953, y: 5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6525531020532813453
 CanvasRenderer:
@@ -30233,7 +30971,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6586965538455476184}
-  m_LocalRotation: {x: 0, y: 0, z: -0.2508413, w: 0.96802825}
+  m_LocalRotation: {x: 0, y: 0, z: -0.30063936, w: 0.9537379}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -30242,8 +30980,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -275, y: -55}
-  m_SizeDelta: {x: 102.9563, y: 5}
+  m_AnchoredPosition: {x: -270, y: -65}
+  m_SizeDelta: {x: 122.06556, y: 5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6176746287672321405
 CanvasRenderer:
@@ -30508,6 +31246,109 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!1 &6644691973637051665
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1902290210369686509}
+  - component: {fileID: 8149236353064229479}
+  - component: {fileID: 8579176837657092174}
+  - component: {fileID: 8011031347865443825}
+  m_Layer: 5
+  m_Name: Station_city.rasburk
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1902290210369686509
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6644691973637051665}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 5896337200394884847}
+  - {fileID: 3301911492914911663}
+  - {fileID: 7947430036065655195}
+  - {fileID: 5789989364242318828}
+  - {fileID: 7458348204411410099}
+  - {fileID: 7783296329888264806}
+  - {fileID: 5331876827164711856}
+  m_Father: {fileID: 3234286994586377016}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: -50, y: 220}
+  m_SizeDelta: {x: 190, y: 80}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!222 &8149236353064229479
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6644691973637051665}
+  m_CullTransparentMesh: 1
+--- !u!114 &8579176837657092174
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6644691973637051665}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 0, g: 0, b: 0, a: 0}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 0}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!114 &8011031347865443825
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6644691973637051665}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4cfc01cf097a44d18fef83e9279afdf5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  cityId: city.rasburk
+  marker: {fileID: 7822570263623119321}
+  label: {fileID: 4215544948617109183}
+  stationRing: {fileID: 8153578689923719520}
+  interchange: 0
+  currentHalo: {fileID: 9028297923415813959}
+  currentBadge: {fileID: 4357261593486164465}
+  labelConnector: {fileID: 4290119257182731020}
 --- !u!1 &6733136187930069328
 GameObject:
   m_ObjectHideFlags: 0
@@ -30665,7 +31506,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "11\uC2DC\uAC04 14\uBD84"
+  m_Text: "7\uC2DC\uAC04 39\uBD84"
 --- !u!1 &6757162788345020732
 GameObject:
   m_ObjectHideFlags: 0
@@ -30758,8 +31599,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
-  m_EffectColor: {r: 0.1, g: 0.13, b: 0.17, a: 1}
-  m_EffectDistance: {x: 1, y: -1}
+  m_EffectColor: {r: 0.07, g: 0.09, b: 0.12, a: 1}
+  m_EffectDistance: {x: 2, y: -2}
   m_UseGraphicAlpha: 1
 --- !u!1 &6768347318564523754
 GameObject:
@@ -30786,7 +31627,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6768347318564523754}
-  m_LocalRotation: {x: 0, y: 0, z: -0.9389852, w: 0.34395748}
+  m_LocalRotation: {x: 0, y: 0, z: -0.9145143, w: 0.4045536}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -30795,8 +31636,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 125, y: 85}
-  m_SizeDelta: {x: 170.29387, y: 5}
+  m_AnchoredPosition: {x: 140, y: 85}
+  m_SizeDelta: {x: 148.66069, y: 5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &7486642730718249261
 CanvasRenderer:
@@ -30928,8 +31769,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
-  m_EffectColor: {r: 0.1, g: 0.13, b: 0.17, a: 1}
-  m_EffectDistance: {x: 1, y: -1}
+  m_EffectColor: {r: 0.07, g: 0.09, b: 0.12, a: 1}
+  m_EffectDistance: {x: 2, y: -2}
   m_UseGraphicAlpha: 1
 --- !u!1 &6811162920271811607
 GameObject:
@@ -31040,7 +31881,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -490, y: 40}
+  m_AnchoredPosition: {x: -490, y: 10}
   m_SizeDelta: {x: 62, y: 27}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &7157971730243537350
@@ -31094,7 +31935,7 @@ GameObject:
   - component: {fileID: 2187770248907798749}
   - component: {fileID: 1676225180979992734}
   m_Layer: 5
-  m_Name: Village_city.industry.assembly
+  m_Name: Village_city.porber
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -31176,7 +32017,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4cfc01cf097a44d18fef83e9279afdf5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cityId: city.industry.assembly
+  cityId: city.porber
   marker: {fileID: 134484434060135468}
   label: {fileID: 203786391855847167}
   stationRing: {fileID: 2013162220834555301}
@@ -31209,7 +32050,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6842902340402216364}
-  m_LocalRotation: {x: 0, y: 0, z: -0.38268346, w: 0.9238795}
+  m_LocalRotation: {x: 0, y: 0, z: -0.47918808, w: 0.8777123}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -31218,8 +32059,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 285, y: -85}
-  m_SizeDelta: {x: 183.84776, y: 5}
+  m_AnchoredPosition: {x: 265, y: -90}
+  m_SizeDelta: {x: 166.43317, y: 5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &3434649473578203835
 CanvasRenderer:
@@ -31651,8 +32492,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
-  m_EffectColor: {r: 0.1, g: 0.13, b: 0.17, a: 1}
-  m_EffectDistance: {x: 1, y: -1}
+  m_EffectColor: {r: 0.07, g: 0.09, b: 0.12, a: 1}
+  m_EffectDistance: {x: 2, y: -2}
   m_UseGraphicAlpha: 1
 --- !u!1 &6930855199069171959
 GameObject:
@@ -31913,7 +32754,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -440, y: 165}
+  m_AnchoredPosition: {x: -370, y: 120}
   m_SizeDelta: {x: 62, y: 27}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2429368107248212677
@@ -31957,7 +32798,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "12\uC2DC\uAC04 44\uBD84"
+  m_Text: "6\uC2DC\uAC04 57\uBD84"
 --- !u!1 &7077388438180016584
 GameObject:
   m_ObjectHideFlags: 0
@@ -32123,6 +32964,7 @@ GameObject:
   - component: {fileID: 3314874619729859013}
   - component: {fileID: 7547910273754013353}
   - component: {fileID: 8065530555378502543}
+  - component: {fileID: 8798994247342334262}
   m_Layer: 0
   m_Name: CurrentBadge
   m_TagString: Untagged
@@ -32191,6 +33033,21 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: "\u25BC \uD604\uC7AC \uC704\uCE58"
+--- !u!114 &8798994247342334262
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7118968231945501435}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
+  m_EffectColor: {r: 0.07, g: 0.09, b: 0.12, a: 1}
+  m_EffectDistance: {x: 2, y: -2}
+  m_UseGraphicAlpha: 1
 --- !u!1 &7121481712592807035
 GameObject:
   m_ObjectHideFlags: 0
@@ -32379,7 +33236,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -440, y: 165}
+  m_AnchoredPosition: {x: -370, y: 120}
   m_SizeDelta: {x: 62, y: 27}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &3567378081381871870
@@ -32433,7 +33290,7 @@ GameObject:
   - component: {fileID: 2385527563554961115}
   - component: {fileID: 3472157007501896651}
   m_Layer: 5
-  m_Name: Village_city.capital.outskirts
+  m_Name: Village_city.diaan
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -32515,7 +33372,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4cfc01cf097a44d18fef83e9279afdf5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cityId: city.capital.outskirts
+  cityId: city.diaan
   marker: {fileID: 479126693259074220}
   label: {fileID: 7774206260492304106}
   stationRing: {fileID: 5259835925838551920}
@@ -32534,6 +33391,7 @@ GameObject:
   - component: {fileID: 500067612063068535}
   - component: {fileID: 895096066200532631}
   - component: {fileID: 4255733799810859144}
+  - component: {fileID: 4556553411439609326}
   m_Layer: 0
   m_Name: CurrentBadge
   m_TagString: Untagged
@@ -32602,6 +33460,21 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: "\u25BC \uD604\uC7AC \uC704\uCE58"
+--- !u!114 &4556553411439609326
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7152399576411392171}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
+  m_EffectColor: {r: 0.07, g: 0.09, b: 0.12, a: 1}
+  m_EffectDistance: {x: 2, y: -2}
+  m_UseGraphicAlpha: 1
 --- !u!1 &7155307695493005864
 GameObject:
   m_ObjectHideFlags: 0
@@ -32711,7 +33584,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -30, y: -250}
+  m_AnchoredPosition: {x: -160, y: -240}
   m_SizeDelta: {x: 62, y: 27}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4715136168961630586
@@ -32755,7 +33628,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "6\uC2DC\uAC04 40\uBD84"
+  m_Text: "2\uC2DC\uAC04 53\uBD84"
 --- !u!1 &7211909872616344850
 GameObject:
   m_ObjectHideFlags: 0
@@ -32831,6 +33704,101 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!1 &7216521848711504200
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7783296329888264806}
+  - component: {fileID: 7568190024867901939}
+  - component: {fileID: 4215544948617109183}
+  - component: {fileID: 7544769526700407653}
+  m_Layer: 5
+  m_Name: Label
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &7783296329888264806
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7216521848711504200}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1902290210369686509}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 38}
+  m_SizeDelta: {x: 138, y: 42}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!222 &7568190024867901939
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7216521848711504200}
+  m_CullTransparentMesh: 1
+--- !u!114 &4215544948617109183
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7216521848711504200}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f7201a12d95ffc409449d95f23cf332, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 0.92, g: 0.94, b: 0.97, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_FontData:
+    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
+    m_FontSize: 20
+    m_FontStyle: 0
+    m_BestFit: 0
+    m_MinSize: 14
+    m_MaxSize: 23
+    m_Alignment: 4
+    m_AlignByGeometry: 0
+    m_RichText: 1
+    m_HorizontalOverflow: 0
+    m_VerticalOverflow: 0
+    m_LineSpacing: 1
+  m_Text: "\uB77C\uC2A4\uBD80\uB974\uD06C"
+--- !u!114 &7544769526700407653
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7216521848711504200}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
+  m_EffectColor: {r: 0.07, g: 0.09, b: 0.12, a: 1}
+  m_EffectDistance: {x: 2, y: -2}
+  m_UseGraphicAlpha: 1
 --- !u!1 &7232380993635426753
 GameObject:
   m_ObjectHideFlags: 0
@@ -33081,7 +34049,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7249277335300881182}
-  m_LocalRotation: {x: 0, y: 0, z: -0.44721362, w: 0.8944272}
+  m_LocalRotation: {x: 0, y: 0, z: -0.52573115, w: 0.8506508}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -33090,8 +34058,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -185, y: -140}
-  m_SizeDelta: {x: 150, y: 5}
+  m_AnchoredPosition: {x: -190, y: -160}
+  m_SizeDelta: {x: 134.16408, y: 5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4617523181527974153
 CanvasRenderer:
@@ -33209,7 +34177,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "6\uC2DC\uAC04 48\uBD84"
+  m_Text: "5\uC2DC\uAC04 22\uBD84"
 --- !u!1 &7255125379929034428
 GameObject:
   m_ObjectHideFlags: 0
@@ -33244,7 +34212,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -670, y: -95}
+  m_AnchoredPosition: {x: -640, y: -100}
   m_SizeDelta: {x: 62, y: 27}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2188543801033235236
@@ -33385,7 +34353,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7288108100201762719}
-  m_LocalRotation: {x: 0, y: 0, z: 0.97624195, w: 0.21668334}
+  m_LocalRotation: {x: 0, y: 0, z: 0.9980676, w: 0.06213744}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -33394,8 +34362,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -97.48, y: -102.5}
-  m_SizeDelta: {x: 82.728485, y: 5}
+  m_AnchoredPosition: {x: -140, y: -110}
+  m_SizeDelta: {x: 161.24515, y: 5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2906253691945940087
 CanvasRenderer:
@@ -33460,7 +34428,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7293479005218995488}
-  m_LocalRotation: {x: 0, y: 0, z: -0.96855974, w: 0.24878116}
+  m_LocalRotation: {x: 0, y: 0, z: -0.99115187, w: 0.13273312}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -33469,8 +34437,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -20, y: 205}
-  m_SizeDelta: {x: 228.25424, y: 5}
+  m_AnchoredPosition: {x: -105, y: 205}
+  m_SizeDelta: {x: 114.01754, y: 5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4192085128620117166
 CanvasRenderer:
@@ -33493,7 +34461,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.89411765, g: 0.9137255, b: 0.9372549, a: 1}
+  m_Color: {r: 0.30588236, g: 0.5647059, b: 0.8392157, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -33544,8 +34512,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -100, y: -160}
-  m_SizeDelta: {x: 113.137085, y: 5}
+  m_AnchoredPosition: {x: -110, y: -170}
+  m_SizeDelta: {x: 141.42136, y: 5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1655003464309234115
 CanvasRenderer:
@@ -33752,8 +34720,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
-  m_EffectColor: {r: 0.1, g: 0.13, b: 0.17, a: 1}
-  m_EffectDistance: {x: 1, y: -1}
+  m_EffectColor: {r: 0.07, g: 0.09, b: 0.12, a: 1}
+  m_EffectDistance: {x: 2, y: -2}
   m_UseGraphicAlpha: 1
 --- !u!1 &7338551229136296604
 GameObject:
@@ -33864,7 +34832,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -420, y: -230}
+  m_AnchoredPosition: {x: -490, y: -140}
   m_SizeDelta: {x: 62, y: 27}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6701853961256042919
@@ -34159,7 +35127,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7435579945083209060}
-  m_LocalRotation: {x: 0, y: 0, z: -0.58471024, w: 0.8112422}
+  m_LocalRotation: {x: 0, y: 0, z: -0.7071068, w: 0.7071068}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -34168,8 +35136,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 490, y: 30}
-  m_SizeDelta: {x: 63.245552, y: 5}
+  m_AnchoredPosition: {x: 480, y: 65}
+  m_SizeDelta: {x: 50, y: 5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &8817578726430400552
 CanvasRenderer:
@@ -34384,7 +35352,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7516445881277112917}
-  m_LocalRotation: {x: 0, y: 0, z: 0.7704259, w: 0.6375295}
+  m_LocalRotation: {x: 0, y: 0, z: 0.22975294, w: 0.973249}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -34393,8 +35361,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -420, y: -245}
-  m_SizeDelta: {x: 213.77559, y: 5}
+  m_AnchoredPosition: {x: -500, y: -115}
+  m_SizeDelta: {x: 156.52477, y: 5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1119436837004650673
 CanvasRenderer:
@@ -34417,7 +35385,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.89411765, g: 0.9137255, b: 0.9372549, a: 1}
+  m_Color: {r: 0.26666668, g: 0.7137255, b: 0.4627451, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -34543,7 +35511,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 130, y: 200}
+  m_AnchoredPosition: {x: -70, y: 280}
   m_SizeDelta: {x: 62, y: 27}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2185556374719388918
@@ -34751,8 +35719,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
-  m_EffectColor: {r: 0.1, g: 0.13, b: 0.17, a: 1}
-  m_EffectDistance: {x: 1, y: -1}
+  m_EffectColor: {r: 0.07, g: 0.09, b: 0.12, a: 1}
+  m_EffectDistance: {x: 2, y: -2}
   m_UseGraphicAlpha: 1
 --- !u!1 &7719245793107982537
 GameObject:
@@ -35144,6 +36112,7 @@ GameObject:
   - component: {fileID: 8723429703141285160}
   - component: {fileID: 3131856673557827837}
   - component: {fileID: 2673179566685268401}
+  - component: {fileID: 1958866781838586059}
   m_Layer: 0
   m_Name: CurrentBadge
   m_TagString: Untagged
@@ -35212,6 +36181,21 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: "\u25BC \uD604\uC7AC \uC704\uCE58"
+--- !u!114 &1958866781838586059
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7844213409641215098}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
+  m_EffectColor: {r: 0.07, g: 0.09, b: 0.12, a: 1}
+  m_EffectDistance: {x: 2, y: -2}
+  m_UseGraphicAlpha: 1
 --- !u!1 &7853439104652937927
 GameObject:
   m_ObjectHideFlags: 0
@@ -35302,6 +36286,7 @@ GameObject:
   - component: {fileID: 47850444287045223}
   - component: {fileID: 2729530764009355662}
   - component: {fileID: 7447914782999766098}
+  - component: {fileID: 8892759716361339364}
   m_Layer: 0
   m_Name: CurrentBadge
   m_TagString: Untagged
@@ -35370,6 +36355,21 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: "\u25BC \uD604\uC7AC \uC704\uCE58"
+--- !u!114 &8892759716361339364
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7876449183655642077}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
+  m_EffectColor: {r: 0.07, g: 0.09, b: 0.12, a: 1}
+  m_EffectDistance: {x: 2, y: -2}
+  m_UseGraphicAlpha: 1
 --- !u!1 &7877206770759929061
 GameObject:
   m_ObjectHideFlags: 0
@@ -35395,7 +36395,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7877206770759929061}
-  m_LocalRotation: {x: 0, y: 0, z: -0.02699747, w: 0.9996355}
+  m_LocalRotation: {x: 0, y: 0, z: -0.092541374, w: 0.9957088}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -35404,8 +36404,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -105, y: 270}
-  m_SizeDelta: {x: 370.54016, y: 5}
+  m_AnchoredPosition: {x: -190, y: 345}
+  m_SizeDelta: {x: 162.78821, y: 5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5094823786232203946
 CanvasRenderer:
@@ -35428,7 +36428,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.89411765, g: 0.9137255, b: 0.9372549, a: 1}
+  m_Color: {r: 0.30588236, g: 0.5647059, b: 0.8392157, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -35479,7 +36479,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -510, y: -270}
+  m_AnchoredPosition: {x: -440, y: -220}
   m_SizeDelta: {x: 62, y: 27}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4916859457482899070
@@ -35523,7 +36523,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "9\uC2DC\uAC04 26\uBD84"
+  m_Text: "11\uC2DC\uAC04 11\uBD84"
 --- !u!1 &7887721919217807014
 GameObject:
   m_ObjectHideFlags: 0
@@ -35616,8 +36616,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
-  m_EffectColor: {r: 0.1, g: 0.13, b: 0.17, a: 1}
-  m_EffectDistance: {x: 1, y: -1}
+  m_EffectColor: {r: 0.07, g: 0.09, b: 0.12, a: 1}
+  m_EffectDistance: {x: 2, y: -2}
   m_UseGraphicAlpha: 1
 --- !u!1 &7891958557107578292
 GameObject:
@@ -35630,6 +36630,7 @@ GameObject:
   - component: {fileID: 2089392922797495573}
   - component: {fileID: 5492716663925013826}
   - component: {fileID: 2385728515422618042}
+  - component: {fileID: 2493770015665373344}
   m_Layer: 0
   m_Name: CurrentBadge
   m_TagString: Untagged
@@ -35698,6 +36699,21 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: "\u25BC \uD604\uC7AC \uC704\uCE58"
+--- !u!114 &2493770015665373344
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7891958557107578292}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
+  m_EffectColor: {r: 0.07, g: 0.09, b: 0.12, a: 1}
+  m_EffectDistance: {x: 2, y: -2}
+  m_UseGraphicAlpha: 1
 --- !u!1 &7898470530121607361
 GameObject:
   m_ObjectHideFlags: 0
@@ -35723,7 +36739,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7898470530121607361}
-  m_LocalRotation: {x: 0, y: 0, z: 0.055300385, w: 0.99846977}
+  m_LocalRotation: {x: 0, y: 0, z: 0.04745802, w: 0.99887323}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -35732,8 +36748,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -30, y: 20}
-  m_SizeDelta: {x: 181.1077, y: 5}
+  m_AnchoredPosition: {x: -15, y: 20}
+  m_SizeDelta: {x: 210.95023, y: 5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &8246515178003510131
 CanvasRenderer:
@@ -35807,7 +36823,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 20, y: -330}
+  m_AnchoredPosition: {x: -30, y: -310}
   m_SizeDelta: {x: 62, y: 27}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1035918196655848098
@@ -35851,7 +36867,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "9\uC2DC\uAC04 26\uBD84"
+  m_Text: "11\uC2DC\uAC04 29\uBD84"
 --- !u!1 &7951903901833755020
 GameObject:
   m_ObjectHideFlags: 0
@@ -35961,7 +36977,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -420, y: -230}
+  m_AnchoredPosition: {x: -490, y: -140}
   m_SizeDelta: {x: 62, y: 27}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &7989263295629857400
@@ -36005,7 +37021,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "7\uC2DC\uAC04 39\uBD84"
+  m_Text: "5\uC2DC\uAC04 36\uBD84"
 --- !u!1 &7964428118850226722
 GameObject:
   m_ObjectHideFlags: 0
@@ -36159,7 +37175,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "5\uC2DC\uAC04 22\uBD84"
+  m_Text: "5\uC2DC\uAC04 54\uBD84"
 --- !u!1 &7977526071781008735
 GameObject:
   m_ObjectHideFlags: 0
@@ -36177,7 +37193,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &8085988592374231756
 RectTransform:
   m_ObjectHideFlags: 0
@@ -36423,7 +37439,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -500, y: -40}
+  m_AnchoredPosition: {x: -480, y: -80}
   m_SizeDelta: {x: 62, y: 27}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6392490145677088724
@@ -36477,7 +37493,7 @@ GameObject:
   - component: {fileID: 1758179503291306253}
   - component: {fileID: 4267985725141726305}
   m_Layer: 5
-  m_Name: Village_city.mine.cave
+  m_Name: Village_city.karka
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -36506,7 +37522,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -576.09, y: 355}
+  m_AnchoredPosition: {x: -410, y: 360}
   m_SizeDelta: {x: 190, y: 80}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &710293154147906498
@@ -36559,7 +37575,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4cfc01cf097a44d18fef83e9279afdf5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cityId: city.mine.cave
+  cityId: city.karka
   marker: {fileID: 1035020206251876447}
   label: {fileID: 6932292947605572272}
   stationRing: {fileID: 26111049002699064}
@@ -36667,7 +37683,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8052641981764263491}
-  m_LocalRotation: {x: 0, y: 0, z: 0.29805094, w: 0.95454997}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -36676,8 +37692,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -236.795, y: 316.815}
-  m_SizeDelta: {x: 129.4004, y: 5}
+  m_AnchoredPosition: {x: -340, y: 360}
+  m_SizeDelta: {x: 140, y: 5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6831207594923071553
 CanvasRenderer:
@@ -36775,7 +37791,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.75, g: 0.8, b: 0.86, a: 1}
+  m_Color: {r: 0.30588236, g: 0.5647059, b: 0.8392157, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -37042,7 +38058,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8153473378301273490}
-  m_LocalRotation: {x: 0, y: 0, z: -0.90130323, w: 0.43318874}
+  m_LocalRotation: {x: 0, y: 0, z: -0.8560802, w: 0.51684314}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -37051,8 +38067,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 570, y: -185}
-  m_SizeDelta: {x: 192.09373, y: 5}
+  m_AnchoredPosition: {x: 560, y: -165}
+  m_SizeDelta: {x: 214.7091, y: 5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &441845723368081915
 CanvasRenderer:
@@ -37103,6 +38119,7 @@ GameObject:
   - component: {fileID: 1295204777770941757}
   - component: {fileID: 1896942835587329800}
   - component: {fileID: 4047567057818701798}
+  - component: {fileID: 2521679400828345355}
   m_Layer: 0
   m_Name: CurrentBadge
   m_TagString: Untagged
@@ -37171,6 +38188,21 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: "\u25BC \uD604\uC7AC \uC704\uCE58"
+--- !u!114 &2521679400828345355
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8155793552565361420}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
+  m_EffectColor: {r: 0.07, g: 0.09, b: 0.12, a: 1}
+  m_EffectDistance: {x: 2, y: -2}
+  m_UseGraphicAlpha: 1
 --- !u!1 &8167914175763126080
 GameObject:
   m_ObjectHideFlags: 0
@@ -37182,6 +38214,7 @@ GameObject:
   - component: {fileID: 395700901839659027}
   - component: {fileID: 619289776313186689}
   - component: {fileID: 5892267612720143615}
+  - component: {fileID: 8243644556048495420}
   m_Layer: 0
   m_Name: CurrentBadge
   m_TagString: Untagged
@@ -37250,6 +38283,21 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: "\u25BC \uD604\uC7AC \uC704\uCE58"
+--- !u!114 &8243644556048495420
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8167914175763126080}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
+  m_EffectColor: {r: 0.07, g: 0.09, b: 0.12, a: 1}
+  m_EffectDistance: {x: 2, y: -2}
+  m_UseGraphicAlpha: 1
 --- !u!1 &8181184894724965074
 GameObject:
   m_ObjectHideFlags: 0
@@ -37263,7 +38311,7 @@ GameObject:
   - component: {fileID: 7315125706035564832}
   - component: {fileID: 6214303995514142243}
   m_Layer: 5
-  m_Name: Village_city.farm.lumber
+  m_Name: Village_city.berska
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -37345,7 +38393,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4cfc01cf097a44d18fef83e9279afdf5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cityId: city.farm.lumber
+  cityId: city.berska
   marker: {fileID: 3466750831318428788}
   label: {fileID: 6974025437832507727}
   stationRing: {fileID: 4351569080517507305}
@@ -37664,6 +38712,7 @@ GameObject:
   - component: {fileID: 8945302817324287246}
   - component: {fileID: 3952105293551650121}
   - component: {fileID: 1522953168148789321}
+  - component: {fileID: 6276248888597968929}
   m_Layer: 0
   m_Name: CurrentBadge
   m_TagString: Untagged
@@ -37732,6 +38781,21 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: "\u25BC \uD604\uC7AC \uC704\uCE58"
+--- !u!114 &6276248888597968929
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8308276294642391185}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
+  m_EffectColor: {r: 0.07, g: 0.09, b: 0.12, a: 1}
+  m_EffectDistance: {x: 2, y: -2}
+  m_UseGraphicAlpha: 1
 --- !u!1 &8329276961348519742
 GameObject:
   m_ObjectHideFlags: 0
@@ -37810,7 +38874,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "6\uC2DC\uAC04"
+  m_Text: "4\uC2DC\uAC04 59\uBD84"
 --- !u!1 &8341053727021144676
 GameObject:
   m_ObjectHideFlags: 0
@@ -37964,7 +39028,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "6\uC2DC\uAC04 5\uBD84"
+  m_Text: "5\uC2DC\uAC04 28\uBD84"
 --- !u!1 &8392065093542081666
 GameObject:
   m_ObjectHideFlags: 0
@@ -38065,7 +39129,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8395570228783424591}
-  m_LocalRotation: {x: 0, y: 0, z: -0.124191016, w: 0.9922583}
+  m_LocalRotation: {x: 0, y: 0, z: -0.046721376, w: 0.998908}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -38074,8 +39138,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 17.800003, y: -332.5}
-  m_SizeDelta: {x: 263.7354, y: 5}
+  m_AnchoredPosition: {x: -40, y: -305}
+  m_SizeDelta: {x: 321.40317, y: 5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1618265981086350216
 CanvasRenderer:
@@ -38126,6 +39190,7 @@ GameObject:
   - component: {fileID: 4145355975263235963}
   - component: {fileID: 6035050419493236360}
   - component: {fileID: 2659934366426333095}
+  - component: {fileID: 626916206909896066}
   m_Layer: 0
   m_Name: CurrentBadge
   m_TagString: Untagged
@@ -38194,6 +39259,21 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: "\u25BC \uD604\uC7AC \uC704\uCE58"
+--- !u!114 &626916206909896066
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8406066190396959096}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
+  m_EffectColor: {r: 0.07, g: 0.09, b: 0.12, a: 1}
+  m_EffectDistance: {x: 2, y: -2}
+  m_UseGraphicAlpha: 1
 --- !u!1 &8436071070717497470
 GameObject:
   m_ObjectHideFlags: 0
@@ -38286,8 +39366,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
-  m_EffectColor: {r: 0.1, g: 0.13, b: 0.17, a: 1}
-  m_EffectDistance: {x: 1, y: -1}
+  m_EffectColor: {r: 0.07, g: 0.09, b: 0.12, a: 1}
+  m_EffectDistance: {x: 2, y: -2}
   m_UseGraphicAlpha: 1
 --- !u!1 &8456485067990440503
 GameObject:
@@ -38306,7 +39386,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &9084614852448205052
 RectTransform:
   m_ObjectHideFlags: 0
@@ -38389,7 +39469,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8463986356424866568}
-  m_LocalRotation: {x: 0, y: 0, z: -0.4769757, w: 0.8789165}
+  m_LocalRotation: {x: 0, y: 0, z: -0.24708746, w: 0.9689932}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -38398,8 +39478,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -505, y: -40}
-  m_SizeDelta: {x: 238.53722, y: 5}
+  m_AnchoredPosition: {x: -485, y: -50}
+  m_SizeDelta: {x: 125.299644, y: 5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &3263365769991086074
 CanvasRenderer:
@@ -38422,7 +39502,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.89411765, g: 0.9137255, b: 0.9372549, a: 1}
+  m_Color: {r: 0.26666668, g: 0.7137255, b: 0.4627451, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -39175,6 +40255,7 @@ GameObject:
   - component: {fileID: 5469125368832402927}
   - component: {fileID: 3883266704578498617}
   - component: {fileID: 3780981922964082235}
+  - component: {fileID: 4228458886694009037}
   m_Layer: 0
   m_Name: CurrentBadge
   m_TagString: Untagged
@@ -39243,6 +40324,21 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: "\u25BC \uD604\uC7AC \uC704\uCE58"
+--- !u!114 &4228458886694009037
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8706181533666863888}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
+  m_EffectColor: {r: 0.07, g: 0.09, b: 0.12, a: 1}
+  m_EffectDistance: {x: 2, y: -2}
+  m_UseGraphicAlpha: 1
 --- !u!1 &8742781463414561765
 GameObject:
   m_ObjectHideFlags: 0
@@ -39410,8 +40506,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
-  m_EffectColor: {r: 0.1, g: 0.13, b: 0.17, a: 1}
-  m_EffectDistance: {x: 1, y: -1}
+  m_EffectColor: {r: 0.07, g: 0.09, b: 0.12, a: 1}
+  m_EffectDistance: {x: 2, y: -2}
   m_UseGraphicAlpha: 1
 --- !u!1 &8751974220540370741
 GameObject:
@@ -39522,7 +40618,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 240, y: 290}
+  m_AnchoredPosition: {x: 150, y: 320}
   m_SizeDelta: {x: 62, y: 27}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &8487009271825261932
@@ -39588,7 +40684,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8782015405334338179}
-  m_LocalRotation: {x: 0, y: 0, z: 0.7071068, w: 0.7071068}
+  m_LocalRotation: {x: 0, y: 0, z: 0.4241554, w: 0.90558946}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -39597,8 +40693,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 480, y: 85}
-  m_SizeDelta: {x: 50, y: 5}
+  m_AnchoredPosition: {x: 505, y: 120}
+  m_SizeDelta: {x: 78.10249, y: 5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5009080315947772979
 CanvasRenderer:
@@ -39663,7 +40759,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8831246333517198019}
-  m_LocalRotation: {x: 0, y: 0, z: 0.95229554, w: 0.3051774}
+  m_LocalRotation: {x: 0, y: 0, z: 0.7071068, w: 0.7071068}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -39672,8 +40768,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 470, y: 270}
-  m_SizeDelta: {x: 172.04651, y: 5}
+  m_AnchoredPosition: {x: 530, y: 250}
+  m_SizeDelta: {x: 60, y: 5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4557091614277346019
 CanvasRenderer:
@@ -39738,7 +40834,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8846898857068674754}
-  m_LocalRotation: {x: 0, y: 0, z: -0.4026633, w: 0.91534823}
+  m_LocalRotation: {x: 0, y: 0, z: -0.51046443, w: 0.85989887}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -39747,8 +40843,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 135, y: 200}
-  m_SizeDelta: {x: 162.78821, y: 5}
+  m_AnchoredPosition: {x: -80, y: 275}
+  m_SizeDelta: {x: 125.299644, y: 5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6224270208653503974
 CanvasRenderer:
@@ -39771,7 +40867,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.89411765, g: 0.9137255, b: 0.9372549, a: 1}
+  m_Color: {r: 0.30588236, g: 0.5647059, b: 0.8392157, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -39874,6 +40970,7 @@ GameObject:
   - component: {fileID: 7327069499032895222}
   - component: {fileID: 7686348321587508562}
   - component: {fileID: 202429263371137334}
+  - component: {fileID: 7082963179408362811}
   m_Layer: 0
   m_Name: CurrentBadge
   m_TagString: Untagged
@@ -39942,6 +41039,21 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: "\u25BC \uD604\uC7AC \uC704\uCE58"
+--- !u!114 &7082963179408362811
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8877686795965614140}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
+  m_EffectColor: {r: 0.07, g: 0.09, b: 0.12, a: 1}
+  m_EffectDistance: {x: 2, y: -2}
+  m_UseGraphicAlpha: 1
 --- !u!1 &8899926448857398173
 GameObject:
   m_ObjectHideFlags: 0
@@ -39955,7 +41067,7 @@ GameObject:
   - component: {fileID: 4200596042419572452}
   - component: {fileID: 6483477625720587397}
   m_Layer: 5
-  m_Name: Station_city.capital.finance
+  m_Name: Station_city.finance
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -39984,7 +41096,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 350, y: -150}
+  m_AnchoredPosition: {x: 310, y: -160}
   m_SizeDelta: {x: 190, y: 80}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &8677603088820643275
@@ -40037,7 +41149,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4cfc01cf097a44d18fef83e9279afdf5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cityId: city.capital.finance
+  cityId: city.finance
   marker: {fileID: 6645485854308096471}
   label: {fileID: 6306030111422348655}
   stationRing: {fileID: 2047607375604695240}
@@ -40137,8 +41249,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
-  m_EffectColor: {r: 0.1, g: 0.13, b: 0.17, a: 1}
-  m_EffectDistance: {x: 1, y: -1}
+  m_EffectColor: {r: 0.07, g: 0.09, b: 0.12, a: 1}
+  m_EffectDistance: {x: 2, y: -2}
   m_UseGraphicAlpha: 1
 --- !u!1 &8965502312180975737
 GameObject:
@@ -40249,7 +41361,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -250, y: 320}
+  m_AnchoredPosition: {x: -330, y: 360}
   m_SizeDelta: {x: 62, y: 27}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6083370902048387763
@@ -40293,7 +41405,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "4\uC2DC\uAC04 41\uBD84"
+  m_Text: "5\uC2DC\uAC04"
 --- !u!1 &8998176301328109231
 GameObject:
   m_ObjectHideFlags: 0
@@ -42630,6 +43742,7 @@ GameObject:
   - component: {fileID: 4406621120994937480}
   - component: {fileID: 4175577874159815506}
   - component: {fileID: 1680780525088603091}
+  - component: {fileID: 9213521120663570627}
   m_Layer: 0
   m_Name: CurrentBadge
   m_TagString: Untagged
@@ -42698,6 +43811,21 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: "\u25BC \uD604\uC7AC \uC704\uCE58"
+--- !u!114 &9213521120663570627
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9022545985533094393}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
+  m_EffectColor: {r: 0.07, g: 0.09, b: 0.12, a: 1}
+  m_EffectDistance: {x: 2, y: -2}
+  m_UseGraphicAlpha: 1
 --- !u!1 &9035676619197393685
 GameObject:
   m_ObjectHideFlags: 0
@@ -42711,7 +43839,7 @@ GameObject:
   - component: {fileID: 6253831645193248347}
   - component: {fileID: 850375411155049897}
   m_Layer: 5
-  m_Name: Village_city.coast.fish
+  m_Name: Village_city.teratia
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -42740,7 +43868,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 540, y: 220}
+  m_AnchoredPosition: {x: 530, y: 220}
   m_SizeDelta: {x: 190, y: 80}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6211515344861986075
@@ -42793,7 +43921,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4cfc01cf097a44d18fef83e9279afdf5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cityId: city.coast.fish
+  cityId: city.teratia
   marker: {fileID: 7113048560615974168}
   label: {fileID: 6243783682188346828}
   stationRing: {fileID: 2726433759316241269}
@@ -42812,6 +43940,7 @@ GameObject:
   - component: {fileID: 8569920899017911561}
   - component: {fileID: 2091553968383086633}
   - component: {fileID: 4012193278669655966}
+  - component: {fileID: 3127428659960514489}
   m_Layer: 0
   m_Name: CurrentBadge
   m_TagString: Untagged
@@ -42880,6 +44009,21 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: "\u25BC \uD604\uC7AC \uC704\uCE58"
+--- !u!114 &3127428659960514489
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9066717364925039386}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
+  m_EffectColor: {r: 0.07, g: 0.09, b: 0.12, a: 1}
+  m_EffectDistance: {x: 2, y: -2}
+  m_UseGraphicAlpha: 1
 --- !u!1 &9078664205096699747
 GameObject:
   m_ObjectHideFlags: 0

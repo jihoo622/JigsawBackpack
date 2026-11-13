@@ -5,7 +5,7 @@
     {
       "id": "action.butchery",
       "type": "Butchery",
-      "cityIds": ["city.ranch.highland"],
+      "cityIds": ["city.darpol"],
       "title": "도축하기",
       "description": "동물 태그 화물을 맡기면 시간이 지나 고기로 돌려줍니다.",
       "board": { "width": 3, "height": 3, "startingPlacements": [] },
@@ -20,7 +20,7 @@
     {
       "id": "action.modification",
       "type": "Modification",
-      "cityIds": ["city.industry.ironworks"],
+      "cityIds": ["city.erna"],
       "title": "개조하기",
       "description": "작업 보드의 기계 화물을 선택한 모드의 결과 화물로 즉시 바꿉니다. 누적되는 가치는 그대로 남습니다.",
       "board": { "width": 3, "height": 3, "startingPlacements": [] },
