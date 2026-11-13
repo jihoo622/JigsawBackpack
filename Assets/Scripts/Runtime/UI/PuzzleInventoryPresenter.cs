@@ -12,6 +12,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
     [SerializeField] float wagonDragHoverDelay = 0.5f;
 
     [SerializeField] PuzzleInventoryView trainView;
+    [SerializeField] TextMeshProUGUI wagonEffectsLabel;
     [SerializeField] Button wagonRefrigerationButton;
     [SerializeField] TextMeshProUGUI wagonRefrigerationLabel;
     [SerializeField] PuzzleInventoryView marketView;
@@ -1077,6 +1078,12 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
 
     void RefreshWagonRefrigeration()
     {
+        if (wagonEffectsLabel && session?.Train is { } wagon)
+        {
+            wagonEffectsLabel.text = string.Join(" · ", wagon.WagonModifications.Select(_effect => _effect.ActiveEffectLabel));
+            wagonEffectsLabel.gameObject.SetActive(wagon.WagonModifications.Count > 0);
+        }
+
         if (!wagonRefrigerationButton || !wagonRefrigerationLabel || session == null)
         {
             return;
@@ -1156,4 +1163,5 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         RefreshTrainBar();
         cityView.ShowTradeStatus(Presentation.PuzzleWagonPurchaseStatus(session.Train.WagonNumber, _product.price));
     }
+
 }

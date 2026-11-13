@@ -18,6 +18,7 @@ internal static class PuzzleWagonModificationRegistry
 internal abstract class PuzzleWagonModification
 {
     internal string Id { get; }
+    internal abstract string ActiveEffectLabel { get; }
 
     protected PuzzleWagonModification(string _id)
     {
@@ -38,6 +39,7 @@ internal sealed class PuzzleWagonRefrigeration : PuzzleWagonModification, IPuzzl
 {
     internal const string ModificationId = "refrigeration";
     readonly int reductionPercent;
+    internal override string ActiveEffectLabel => Presentation.PuzzleWagonRefrigerationInstalled;
 
     internal PuzzleWagonRefrigeration(int _reductionPercent) : base(ModificationId)
     {
