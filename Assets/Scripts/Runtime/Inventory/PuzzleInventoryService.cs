@@ -710,8 +710,7 @@ public sealed class PuzzleInventoryService : MonoBehaviour
     {
         return new PuzzleShelfLifePreservation(new IPuzzlePreservationEffect[]
         {
-            new PuzzleAdjacentPreservation(_freshness.refrigerationTag,
-                _freshness.refrigerationReductionPercent)
+            new PuzzleAdjacentPreservation(_freshness)
         });
     }
 

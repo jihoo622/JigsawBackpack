@@ -810,10 +810,10 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         var general = new List<PuzzleEffectDisplay>();
         var synergies = new List<string>();
         var tables = TableManager.Instance;
-        var freshness = tables.PuzzleSynergy.freshness;
-        if (item.Tags.Contains(freshness.refrigerationTag))
+        int preservation = PuzzleRefrigeration.SourceReductionPercent(item, tables.PuzzleSynergy.freshness);
+        if (preservation > 0)
         {
-            synergies.Add(Presentation.PuzzleRefrigerationEffect(freshness.refrigerationReductionPercent));
+            synergies.Add(Presentation.PuzzleRefrigerationEffect(preservation));
         }
 
         var animals = tables.PuzzleSynergy.animals;

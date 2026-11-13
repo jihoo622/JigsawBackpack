@@ -8,18 +8,16 @@ internal interface IPuzzlePreservationEffect
 
 internal sealed class PuzzleAdjacentPreservation : IPuzzlePreservationEffect
 {
-    readonly string sourceTag;
-    readonly int reductionPercent;
+    readonly PuzzleFreshnessData freshness;
 
-    internal PuzzleAdjacentPreservation(string _sourceTag, int _reductionPercent)
+    internal PuzzleAdjacentPreservation(PuzzleFreshnessData _freshness)
     {
-        sourceTag = _sourceTag;
-        reductionPercent = _reductionPercent;
+        freshness = _freshness;
     }
 
     public int ReductionPercentFor(PuzzleInventory _wagon, PuzzlePlacement _item)
     {
-        return PuzzleRefrigeration.AdjacentReductionPercent(_wagon.Placements, _item, sourceTag, reductionPercent);
+        return PuzzleRefrigeration.AdjacentReductionPercent(_wagon.Placements, _item, freshness);
     }
 }
 

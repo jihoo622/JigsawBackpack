@@ -29,8 +29,20 @@ internal static class PuzzleRefrigeration
         Vector2Int.right, Vector2Int.up, Vector2Int.left, Vector2Int.down
     };
 
+    internal static int SourceReductionPercent(PuzzleItemDefinition _source, PuzzleFreshnessData _freshness)
+    {
+        if (!_source.Tags.Contains(_freshness.refrigerationTag))
+        {
+            return 0;
+        }
+
+        return _source.Tags.Contains("Salt")
+            ? _freshness.saltPreservationReductionPercent
+            : _freshness.refrigerationReductionPercent;
+    }
+
     internal static int AdjacentReductionPercent(IEnumerable<PuzzlePlacement> _sources, PuzzlePlacement _item,
-        string _sourceTag, int _reductionPercent, ICollection<PuzzleRefrigerationContact> _contacts = null)
+        PuzzleFreshnessData _freshness, ICollection<PuzzleRefrigerationContact> _contacts = null)
     {
         if (_item.RemainingShelfLifeMinutes is not > 0)
         {
@@ -46,17 +58,18 @@ internal static class PuzzleRefrigeration
                 break;
             }
 
-            if (source == _item || !source.Definition.Tags.Contains(_sourceTag))
+            if (source == _item)
             {
                 continue;
             }
 
-            if (!TryGetContact(source, _item, out var cells))
+            int reduction = SourceReductionPercent(source.Definition, _freshness);
+            if (reduction <= 0 || !TryGetContact(source, _item, out var cells))
             {
                 continue;
             }
 
-            remainingPercent -= _reductionPercent;
+            remainingPercent -= reduction;
             _contacts?.Add(new PuzzleRefrigerationContact(source, _item, cells));
         }
 
@@ -71,7 +84,7 @@ internal static class PuzzleRefrigeration
         var contacts = new List<PuzzleRefrigerationContact>();
         foreach (var item in ordered)
         {
-            AdjacentReductionPercent(ordered, item, _freshness.refrigerationTag, _freshness.refrigerationReductionPercent, contacts);
+            AdjacentReductionPercent(ordered, item, _freshness, contacts);
         }
 
         return contacts;
