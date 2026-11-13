@@ -35,6 +35,7 @@
 
 - 기본 가치·현재 적용 효과 행과 일반 효과 슬롯 배치는 툴팁 프리팹(`Assets/Art/PuzzleItemTooltip.prefab`)에서 수정한다. 일반 효과와 가능 가치 시너지 제목은 `presentation.tooltip.*`에서 읽는다. 일반 효과 아래 붙는 진행도와 공간 부족 문구도 `presentation.tooltip.effectProgress`·`presentation.tooltip.effectSpaceBlocked`가 원본이며, 채워 넣는 값은 표가 아니라 세션의 대기·진행 상태다.
 
+- 술집 의뢰 문구·형식은 `presentation.quest.*`, 의뢰 태그 이름·색은 `presentation.tags.questLabel`·`questBackground`다. 의뢰 규칙 수치는 기초데이터가 아닌 `TrainventoryQuestTableData`에 둔다.
 - 소문 로그의 문구/날짜·기록 형식은 `presentation.rumorLog.*`이며, 배치는 프리팹(`Assets/Art/PuzzleTradeNotebook.prefab`)에서 수정한다. 지도 미확인 소문의 `?` 및 안내 서식은 `presentation.map.rumorStation`·`rumorInformation`을 사용한다.
 
 ## 소유권과 잔여 후보

@@ -1,0 +1,75 @@
+{
+  "status": "provisional",
+  "note": "술집 운송 의뢰 잠정값. 보상 = baseReward + rewardPerCellHour × 화물 칸 수 × 최단 이동 시간이며 도착 시 화물의 실제 가치와 보증금을 함께 지급한다. 기한 = 최단 이동 시간 × deadlinePercent(올림) + deadlineExtraHours. 평판은 성공 +1·실패 -1이고 0 미만으로 내려가지 않는다. 플레이 검증 전 수치다.",
+  "cargoTag": "Quest",
+  "offersPerTavern": 2,
+  "reputationPerSuccess": 1,
+  "reputationLossPerFailure": 1,
+  "reputationLevels": [
+    {
+      "reputation": 0,
+      "maxActiveQuests": 1
+    },
+    {
+      "reputation": 3,
+      "maxActiveQuests": 2
+    },
+    {
+      "reputation": 6,
+      "maxActiveQuests": 3
+    }
+  ],
+  "penalties": [
+    {
+      "id": "penalty.deposit",
+      "type": "Deposit",
+      "displayName": "보증금 몰수",
+      "description": "수락할 때 보증금을 맡긴다. 성공하면 돌려받고 실패하면 잃는다.",
+      "depositPercentOfReward": 50,
+      "buyPercentDelta": 0,
+      "sellPercentDelta": 0,
+      "durationHours": 0
+    },
+    {
+      "id": "penalty.regionTrade",
+      "type": "RegionTrade",
+      "displayName": "지역 거래 불이익",
+      "description": "실패하면 의뢰를 준 지역에서 72시간 동안 구매가가 20%p 오르고 판매가가 20%p 내린다.",
+      "depositPercentOfReward": 0,
+      "buyPercentDelta": 20,
+      "sellPercentDelta": -20,
+      "durationHours": 72
+    }
+  ],
+  "courierQuests": [
+    {
+      "id": "courier.fresh",
+      "penaltyId": "penalty.regionTrade",
+      "pieceIds": [
+        "piece.questFreshCrate"
+      ],
+      "weight": 1,
+      "minTravelHours": 6,
+      "maxTravelHours": 24,
+      "baseReward": 25,
+      "rewardPerCellHour": 2,
+      "deadlinePercent": 130,
+      "deadlineExtraHours": 6
+    },
+    {
+      "id": "courier.parcel",
+      "penaltyId": "penalty.deposit",
+      "pieceIds": [
+        "piece.questParcel",
+        "piece.questToolCrate"
+      ],
+      "weight": 2,
+      "minTravelHours": 6,
+      "maxTravelHours": 36,
+      "baseReward": 30,
+      "rewardPerCellHour": 1,
+      "deadlinePercent": 150,
+      "deadlineExtraHours": 12
+    }
+  ]
+}

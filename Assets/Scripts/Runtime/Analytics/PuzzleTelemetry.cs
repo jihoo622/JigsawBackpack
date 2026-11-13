@@ -16,7 +16,9 @@ public enum PuzzleActionKind
     Place,
     QuickTransfer,
     AddWagon,
-    Repay
+    Repay,
+    AcceptQuest,
+    CompleteQuest
 }
 
 [Serializable]
@@ -86,6 +88,14 @@ public sealed class PuzzleActionPayload
 public struct PuzzleRunEndPayload
 {
     public string reason;
+}
+
+[Serializable]
+public struct PuzzleQuestPayload
+{
+    public int questId, cargoInstanceId;
+    public string templateId, pieceId, sourceCityId, targetCityId, penaltyId, state, failure;
+    public long reward, deposit, payout, deadlineMinutes, elapsedMinutes;
 }
 
 [Serializable]
@@ -274,6 +284,8 @@ public static partial class TelemetryPayload
                 PuzzleActionKind.AdvanceTime => "advance_time",
                 PuzzleActionKind.AddWagon => "add_wagon",
                 PuzzleActionKind.Repay => "repay",
+                PuzzleActionKind.AcceptQuest => "accept_quest",
+                PuzzleActionKind.CompleteQuest => "complete_quest",
                 _ => throw new ArgumentOutOfRangeException(nameof(_info))
             };
         }

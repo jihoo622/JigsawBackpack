@@ -107,6 +107,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         GameEvents.ButcheryChanged += OnButcheryChanged;
         GameEvents.ModificationChanged += OnModificationChanged;
         GameEvents.FundsChanged += OnFundsChanged;
+        GameEvents.QuestChanged += OnQuestChanged;
         if (wagonRefrigerationButton)
         {
             wagonRefrigerationButton.onClick.AddListener(OnWagonRefrigerationClicked);
@@ -169,6 +170,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         GameEvents.ButcheryChanged -= OnButcheryChanged;
         GameEvents.ModificationChanged -= OnModificationChanged;
         GameEvents.FundsChanged -= OnFundsChanged;
+        GameEvents.QuestChanged -= OnQuestChanged;
         if (wagonRefrigerationButton)
         {
             wagonRefrigerationButton.onClick.RemoveListener(OnWagonRefrigerationClicked);
@@ -1108,6 +1110,24 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             cityView.ShowTradeStatus(Presentation.PuzzleWagonRefrigerationInstalled);
             RefreshHover();
         }
+    }
+
+    // 의뢰 화물을 싣거나 내리면 기차가 바뀐다. 수락 시 화물을 실은 화물칸으로 전환되므로 제목·크기도 다시 맞춘다.
+    void OnQuestChanged(GameEvents.QuestInfo _info)
+    {
+        if (_info.session != session)
+        {
+            return;
+        }
+        input.CancelCapture();
+        ClearDrag();
+        trainView.SetTitle(Presentation.PuzzleTrainTitle(session.CurrentWagonIndex + 1));
+        trainView.SetBoardSize(session.Train.Width, session.Train.Height);
+        RenderBoards();
+        RenderValues();
+        RefreshTrainBar();
+        RefreshHover();
+        cityView.ShowTradeStatus(Presentation.QuestChanged(_info));
     }
 
     void OnWagonSelected(int _index)

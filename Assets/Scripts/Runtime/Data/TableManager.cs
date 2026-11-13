@@ -30,6 +30,8 @@ public sealed class TableManager
     public PuzzleTradeTableData PuzzleTrade { get; }
     public PuzzleRouteTableData PuzzleRoute { get; }
     public PuzzleTimeTableData PuzzleTime { get; }
+    public TrainventoryQuestTableData Quest { get; }
+    public IReadOnlyList<TrainventoryCourierQuestData> CourierQuests { get; }
     public IReadOnlyList<PuzzleSynergyRuleData> SynergyRules { get; }
     public IReadOnlyList<PuzzleCityActionData> CityActions { get; }
     public IReadOnlyList<PuzzlePieceData> Pieces { get; }
@@ -56,6 +58,7 @@ public sealed class TableManager
     readonly Dictionary<string, PuzzleActionModeData> actionModes;
     readonly Dictionary<string, Dictionary<string, PuzzleRouteData>> routes;
     readonly Dictionary<string, IReadOnlyList<PuzzleRouteData>> routesFrom;
+    readonly Dictionary<string, TrainventoryQuestPenaltyData> questPenalties;
 
     TableManager() : this(null, null)
     {
@@ -74,6 +77,7 @@ public sealed class TableManager
         PuzzleTrade = Load<PuzzleTradeTableData>(ref loaded, _sources);
         PuzzleRoute = Load<PuzzleRouteTableData>(ref loaded, _sources);
         PuzzleTime = Load<PuzzleTimeTableData>(ref loaded, _sources);
+        Quest = Load<TrainventoryQuestTableData>(ref loaded, _sources);
 
         var rules = _errors == null ? new GameTableRules() : new GameTableRules(_errors);
         var basicGroups = rules.Index(Basic.groups, _group => _group.id, "BasicDataTableData.groups");
@@ -89,6 +93,9 @@ public sealed class TableManager
         cityTagPrices = IndexCityTagPrices(Puzzle.cities);
         routes = IndexRoutes(PuzzleRoute.routes);
         routesFrom = IndexRoutesFrom(routes);
+        questPenalties = rules.Index(Quest.penalties, _row => _row.id, "TrainventoryQuestTableData.penalties");
+        var courierQuests = rules.Index(Quest.courierQuests, _row => _row.id, "TrainventoryQuestTableData.courierQuests");
+        CourierQuests = Array.AsReadOnly(courierQuests.Values.OrderBy(_row => _row.id, StringComparer.Ordinal).ToArray());
         var synergyRules = rules.Index(PuzzleSynergy.rules, e => e.id, "PuzzleSynergyTableData.rules");
         animalBreeding = rules.Index(PuzzleSynergy.animals?.breeding, _row => _row.parentPieceId,
             "PuzzleSynergyTableData.animals.breeding");
@@ -393,6 +400,16 @@ public sealed class TableManager
     internal PuzzleMarketStockData StockProfile(string _id)
     {
         return Find(stockProfiles, _id, "시장 재고 프로필");
+    }
+
+    internal bool TryGetQuestPenalty(string _id, out TrainventoryQuestPenaltyData _penalty)
+    {
+        _penalty = null;
+        return !string.IsNullOrEmpty(_id) && questPenalties.TryGetValue(_id, out _penalty);
+    }
+    internal TrainventoryQuestPenaltyData QuestPenalty(string _id)
+    {
+        return Find(questPenalties, _id, "의뢰 패널티");
     }
 
     public bool HasCity(string _id)

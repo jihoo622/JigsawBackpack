@@ -58,6 +58,8 @@ puzzle_action은 모델에 전달된 명시적 조작 한 건의 결과다. 의�
 | advance_time | 그 외 명시적 시간 진행 시도 | 비어 있음 |
 | add_wagon | 증차 시도 | 비어 있음 |
 | repay | 채무 상환 시도 | 비어 있음 |
+| accept_quest | 술집 운송 의뢰 수락 시도. 성공하면 의뢰 화물이 introduced, 보증금이 moneyDelta로 나온다 | 비어 있음 |
+| complete_quest | 목적지 도착 직후의 운송 의뢰 완료. 의뢰 화물이 removed, 보상+화물 가치+보증금이 moneyDelta로 나온다. travel 바로 뒤에 기록한다 | 비어 있음 |
 
 failure가 null/빈 문자열이면 성공이고 그 외는 거부/오류다. buy/sell은 성공·실패 모두 같은 action을 사용한다. 무료 구매, 음수 판매가에 따른 처분 비용도 action으로 구분한다. 돈이 줄었다는 이유로 sell을 buy로 해석하지 않는다. placement는 정상 성공의 분류가 아니며 손상된 입력에 행동 의미를 지어내지 않기 위한 값이다.
 
@@ -115,6 +117,7 @@ introduced의 ID는 적용 중인 S에 없어야 한다. moved/values/durability
 
 ## 다른 이벤트와 시간
 
+- quest_updated는 의뢰 하나의 상태가 바뀔 때(Active=수락, Completed, Failed) questId/cargoInstanceId/templateId/pieceId/sourceCityId/targetCityId/penaltyId/state/failure(CargoLost·Overdue)/reward/deposit/payout/deadlineMinutes/elapsedMinutes를 기록한다. 실패 자체는 자금·화물을 바꾸지 않으며 지역 거래 불이익은 이후 거래 가격에만 반영된다.
 - rumor_learned는 targetCityId/tag/elapsedMinutes를 기록한다. 출처는 그 시점 S.cityId이며 의미상 소문 한 건을 목록에 추가한다. UI 문장·서식 전체 재생은 범위 밖이다.
 - run_end.reason은 won/deadline/restart/scene_unloaded/shutdown/recorder_disabled/replaced다. 승패와 중단을 구분하고 S를 닫는다. 결과 패널/씬 이벤트가 뒤에 있어도 새 run_start 전까지 이전 판 행동으로 추가하지 않는다.
 - session_start는 schemaVersion/reason/appVersion/unityVersion/platform/isEditor/scene, session_end는 reason이다. scene_change는 scene/loaded, panel_visibility는 panel/open, upgrade_granted는 id다. 원본 시각은 공통 봉투에서 읽는다.

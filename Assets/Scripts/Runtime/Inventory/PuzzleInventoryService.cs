@@ -4,7 +4,7 @@ using System;
 using UnityEngine;
 
 [DisallowMultipleComponent]
-public sealed class PuzzleInventoryService : MonoBehaviour
+public sealed partial class PuzzleInventoryService : MonoBehaviour
 {
     const int PERCENT_SCALE = 100;
     static string ExpiredFoodPieceId => BasicData.Text("rules.PuzzleInventoryService.expiredFoodPieceId");
@@ -291,6 +291,7 @@ public sealed class PuzzleInventoryService : MonoBehaviour
     internal void UseStockSeed(int _seed)
     {
         stockRandom = new System.Random(_seed);
+        questRandom = new System.Random(_seed);
     }
 
     internal void Initialize()
@@ -336,6 +337,7 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         visitedCities.Add(currentCityId);
         tavernRumors.Clear();
         lastRumorVisit = -1;
+        ResetQuests();
         Funds = tables.PuzzleTrade.startingFunds;
         CityMoveCount = 0;
         RunStatus = PuzzleRunStatus.InProgress;
@@ -1053,6 +1055,7 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         {
             RunStatus = PuzzleRunStatus.Lost;
         }
+        CheckQuestFailures();
         if (_minutes > 0)
         {
             CheckButcheryReady();
@@ -1114,9 +1117,12 @@ public sealed class PuzzleInventoryService : MonoBehaviour
         GameEvents.RaiseCityArrived(CurrentCityId, CityMoveCount);
         GameEvents.RaiseFundsChanged(this, previousFunds);
 
-        return new PuzzleTravelResult(PuzzleTravelFailure.None, evaluation.Cost, evaluation.FromCityId,
+        var arrival = new PuzzleTravelResult(PuzzleTravelFailure.None, evaluation.Cost, evaluation.FromCityId,
             evaluation.ToCityId, Funds, evaluation.BaseCost, evaluation.Cells, evaluation.Distance, evaluation.DistanceCost,
             evaluation.TravelMinutes, evaluation.ArrivalClockMinutes, evaluation.ArrivalIsNight);
+        // 운임 정산 결과를 확정한 뒤 목적지 의뢰를 완료한다. 의뢰 보상은 별도 행동으로 기록한다.
+        CompleteArrivedQuests();
+        return arrival;
     }
 
     internal PuzzleDropResult EvaluateDrop(PuzzlePlacement _original, PuzzleInventory _destination,
@@ -1235,7 +1241,7 @@ public sealed class PuzzleInventoryService : MonoBehaviour
                 rules.Add(rule);
             }
         }
-        return PuzzleTradeRate.Combine(_city, rules);
+        return ApplyRegionPenalty(_city, PuzzleTradeRate.Combine(_city, rules));
     }
 
     // 툴팁과 실제 거래가 공유한다. 배치·자금 검사 없이 현재 도시의 정확한 금액만 산출한다.
@@ -1424,6 +1430,11 @@ public sealed class PuzzleInventoryService : MonoBehaviour
                 _original.InstanceId, result.Direction, result.Price, Funds, move.Candidate.Origin,
                 move.Candidate.ClockwiseTurns));
             GameEvents.RaiseFundsChanged(this, previousFunds);
+            if (result.Direction == PuzzleTradeDirection.Sell)
+            {
+                // 판매한 의뢰 화물은 기차에서 사라지므로 그 의뢰는 실패한다.
+                CheckQuestFailures();
+            }
         }
         return result;
     }

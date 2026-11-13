@@ -173,6 +173,7 @@ public sealed class GameTableRules
         ValidatePuzzleTrade(_tables);
         ValidateTime(_tables.PuzzleTime);
         ValidateRoutes(_tables);
+        ValidateQuests(_tables);
     }
 
     void ValidateBasic(TableManager _tables)
@@ -319,6 +320,95 @@ public sealed class GameTableRules
             {
                 Reference(product.modificationId, path + ".modificationId",
                     PuzzleWagonModificationRegistry.Contains(product.modificationId), "화차 강화");
+            }
+        }
+    }
+
+    void ValidateQuests(TableManager _tables)
+    {
+        const string PATH = nameof(TrainventoryQuestTableData);
+        var quest = _tables.Quest;
+        Inspect(quest, PATH);
+        Check(!string.IsNullOrWhiteSpace(quest.cargoTag), PATH + ".cargoTag", "의뢰 전용 태그가 필요합니다.");
+        Check(quest.offersPerTavern > 0, PATH + ".offersPerTavern", "술집 의뢰 수는 양수여야 합니다.");
+        Check(quest.reputationPerSuccess >= 0, PATH + ".reputationPerSuccess", "성공 평판은 0 이상이어야 합니다.");
+        Check(quest.reputationLossPerFailure >= 0, PATH + ".reputationLossPerFailure", "실패 평판 감소는 0 이상이어야 합니다.");
+
+        var levels = quest.reputationLevels ?? Array.Empty<TrainventoryQuestReputationData>();
+        Check(levels.Any(_level => _level != null && _level.reputation == 0), PATH + ".reputationLevels",
+            "평판 0 단계가 필요합니다.");
+        var seenReputation = new HashSet<int>();
+        for (int i = 0; i < levels.Length; i++)
+        {
+            string path = $"{PATH}.reputationLevels[{i}]";
+            var level = levels[i];
+            if (level == null)
+            {
+                Check(false, path, "평판 단계가 필요합니다.");
+                continue;
+            }
+            Check(level.reputation >= 0, path + ".reputation", "평판 기준은 0 이상이어야 합니다.");
+            Check(seenReputation.Add(level.reputation), path + ".reputation", "평판 기준이 중복되었습니다.");
+            Check(level.maxActiveQuests > 0, path + ".maxActiveQuests", "동시 진행 수는 양수여야 합니다.");
+        }
+        var ordered = levels.Where(_level => _level != null).OrderBy(_level => _level.reputation).ToArray();
+        for (int i = 1; i < ordered.Length; i++)
+        {
+            Check(ordered[i].maxActiveQuests >= ordered[i - 1].maxActiveQuests, PATH + ".reputationLevels",
+                "평판이 높은 단계의 동시 진행 수가 낮은 단계보다 작을 수 없습니다.");
+        }
+
+        foreach (var penalty in quest.penalties ?? Array.Empty<TrainventoryQuestPenaltyData>())
+        {
+            if (penalty == null || string.IsNullOrEmpty(penalty.id))
+            {
+                continue;
+            }
+            string path = $"{PATH}.penalties.{penalty.id}";
+            bool known = Enum.TryParse(penalty.type, out TrainventoryQuestPenaltyType type) &&
+                Enum.IsDefined(typeof(TrainventoryQuestPenaltyType), type);
+            Check(known, path + ".type",
+                $"패널티 종류는 {string.Join(", ", Enum.GetNames(typeof(TrainventoryQuestPenaltyType)))} 중 하나여야 합니다.");
+            Check(!string.IsNullOrWhiteSpace(penalty.displayName), path + ".displayName", "패널티 이름이 필요합니다.");
+            Check(!string.IsNullOrWhiteSpace(penalty.description), path + ".description", "패널티 설명이 필요합니다.");
+            if (known && type == TrainventoryQuestPenaltyType.Deposit)
+            {
+                IntRange(penalty.depositPercentOfReward, 1, 1000, path + ".depositPercentOfReward");
+            }
+            if (known && type == TrainventoryQuestPenaltyType.RegionTrade)
+            {
+                Check(penalty.buyPercentDelta >= 0 && penalty.sellPercentDelta <= 0 &&
+                    (penalty.buyPercentDelta != 0 || penalty.sellPercentDelta != 0), path,
+                    "지역 거래 불이익은 구매 배율을 올리거나 판매 배율을 내려야 합니다.");
+                Check(penalty.durationHours > 0, path + ".durationHours", "지역 거래 불이익 시간은 양수여야 합니다.");
+            }
+        }
+
+        Check(_tables.CourierQuests.Count > 0, PATH + ".courierQuests", "운송 의뢰가 하나 이상 필요합니다.");
+        foreach (var courier in _tables.CourierQuests)
+        {
+            string path = $"{PATH}.courierQuests.{courier.id}";
+            Reference(courier.penaltyId, path + ".penaltyId", _tables.TryGetQuestPenalty(courier.penaltyId, out _), "의뢰 패널티");
+            Check(courier.weight > 0, path + ".weight", "출현 가중치는 양수여야 합니다.");
+            Check(courier.minTravelHours > 0 && courier.maxTravelHours >= courier.minTravelHours, path,
+                "최단 이동 시간 범위는 양수이고 최소가 최대 이하여야 합니다.");
+            Check(courier.baseReward >= 0 && courier.rewardPerCellHour >= 0 &&
+                courier.baseReward + courier.rewardPerCellHour > 0, path, "보상 계수는 0 이상이고 둘 다 0일 수 없습니다.");
+            Check(courier.deadlinePercent >= 100, path + ".deadlinePercent", "기한 배율은 100% 이상이어야 합니다.");
+            Check(courier.deadlineExtraHours >= 0, path + ".deadlineExtraHours", "기한 여유 시간은 0 이상이어야 합니다.");
+            var pieceIds = courier.pieceIds ?? Array.Empty<string>();
+            Check(pieceIds.Length > 0, path + ".pieceIds", "의뢰 화물이 하나 이상 필요합니다.");
+            foreach (string pieceId in pieceIds)
+            {
+                bool found = _tables.TryGetPiece(pieceId, out var piece);
+                Reference(pieceId, path + ".pieceIds", found, "퍼즐 조각");
+                if (found)
+                {
+                    Check(piece.excludeFromMarket, path + ".pieceIds",
+                        $"의뢰 화물 '{pieceId}'은 시장 재고에서 제외(excludeFromMarket)되어야 합니다.");
+                    Check((piece.tags ?? Array.Empty<string>()).Contains(quest.cargoTag),
+                        path + ".pieceIds", $"의뢰 화물 '{pieceId}'에 의뢰 전용 태그가 필요합니다.");
+                }
             }
         }
     }

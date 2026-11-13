@@ -28,6 +28,7 @@ public sealed class TelemetryRecorder : MonoBehaviour
         GameEvents.PuzzleRunEnded += OnPuzzleRunEnded;
         GameEvents.PuzzleActionCommitted += OnPuzzleAction;
         GameEvents.TavernRumorRecorded += OnRumorRecorded;
+        GameEvents.QuestChanged += OnQuestChanged;
         TelemetryLog.BeforeClose += OnSessionClosing;
     }
 
@@ -43,6 +44,7 @@ public sealed class TelemetryRecorder : MonoBehaviour
         GameEvents.PuzzleRunEnded -= OnPuzzleRunEnded;
         GameEvents.PuzzleActionCommitted -= OnPuzzleAction;
         GameEvents.TavernRumorRecorded -= OnRumorRecorded;
+        GameEvents.QuestChanged -= OnQuestChanged;
         TelemetryLog.BeforeClose -= OnSessionClosing;
     }
 
@@ -113,6 +115,30 @@ public sealed class TelemetryRecorder : MonoBehaviour
                 targetCityId = _info.targetCityId,
                 tag = _info.tag,
                 elapsedMinutes = _info.recordedMinutes
+            });
+        }
+    }
+
+    void OnQuestChanged(GameEvents.QuestInfo _info)
+    {
+        if (ReferenceEquals(activeRun, _info.session))
+        {
+            TelemetryLog.Write(TelemetryEvents.QUEST_UPDATED, new PuzzleQuestPayload
+            {
+                questId = _info.questId,
+                cargoInstanceId = _info.cargoInstanceId,
+                templateId = _info.templateId,
+                pieceId = _info.pieceId,
+                sourceCityId = _info.sourceCityId,
+                targetCityId = _info.targetCityId,
+                penaltyId = _info.penaltyId,
+                state = _info.state,
+                failure = _info.failure,
+                reward = _info.reward,
+                deposit = _info.deposit,
+                payout = _info.payout,
+                deadlineMinutes = _info.deadlineMinutes,
+                elapsedMinutes = _info.elapsedMinutes
             });
         }
     }

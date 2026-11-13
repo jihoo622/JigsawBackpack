@@ -101,6 +101,22 @@ public sealed class PuzzleRouteTableData
     public PuzzleRouteData[] routes = Array.Empty<PuzzleRouteData>();
 }
 
+// 술집 의뢰. 의뢰 생성 규칙·보상·패널티·평판 단계의 원본이다. 진행 상태는 세션이 가진다.
+[Serializable]
+public sealed class TrainventoryQuestTableData
+{
+    public string status, note;
+    // 의뢰 화물에만 붙는 전용 태그. 의뢰 화물의 판별과 표시에 쓴다.
+    public string cargoTag;
+    // 마을 방문 한 번에 술집이 내놓는 의뢰 수.
+    public int offersPerTavern = -1;
+    public int reputationPerSuccess = -1;
+    public int reputationLossPerFailure = -1;
+    public TrainventoryQuestReputationData[] reputationLevels = Array.Empty<TrainventoryQuestReputationData>();
+    public TrainventoryQuestPenaltyData[] penalties = Array.Empty<TrainventoryQuestPenaltyData>();
+    public TrainventoryCourierQuestData[] courierQuests = Array.Empty<TrainventoryCourierQuestData>();
+}
+
 [Serializable]
 public sealed class PuzzleTimeTableData
 {
