@@ -6,6 +6,8 @@ using UnityEngine;
 public sealed class PuzzleTradeNotebookPresenter : MonoBehaviour
 {
     [SerializeField] PuzzleTradeNotebookView view;
+    // 상성표 패널 이름(PanelVisibility 이벤트로 닫힘을 알아챈다). 프리팹 값이 원본.
+    [SerializeField] string synergyPanelName = "PuzzleSynergyChart";
     PuzzleInventoryService session;
     PuzzleNotebookTab tab = PuzzleNotebookTab.Rumors;
     int unseenCount;
@@ -19,6 +21,7 @@ public sealed class PuzzleTradeNotebookPresenter : MonoBehaviour
         GameEvents.ProficiencyChanged += OnProficiencyChanged;
         GameEvents.TimeAdvanced += OnTimeAdvanced;
         GameEvents.NotebookOpenRequested += OnNotebookOpenRequested;
+        GameEvents.PanelVisibility += OnPanelVisibility;
         view.TabSelected += OnTabSelected;
         view.Shown += OnShown;
         Refresh();
@@ -31,6 +34,7 @@ public sealed class PuzzleTradeNotebookPresenter : MonoBehaviour
         GameEvents.ProficiencyChanged -= OnProficiencyChanged;
         GameEvents.TimeAdvanced -= OnTimeAdvanced;
         GameEvents.NotebookOpenRequested -= OnNotebookOpenRequested;
+        GameEvents.PanelVisibility -= OnPanelVisibility;
         view.TabSelected -= OnTabSelected;
         view.Shown -= OnShown;
     }
@@ -45,12 +49,36 @@ public sealed class PuzzleTradeNotebookPresenter : MonoBehaviour
         tab = _tab;
         Refresh();
         view.SetOpen(true);
+        SyncSynergyChart();
     }
 
     void OnShown()
     {
         unseenCount = 0;
         Refresh();
+        SyncSynergyChart();
+    }
+
+    // 수첩이 접히면 상성표도 숨기고, 상성표가 따로 닫히면(Esc) 상성표 탭을 보던 수첩도 접는다.
+    void OnPanelVisibility(GameEvents.PanelInfo _info)
+    {
+        if (_info.open)
+        {
+            return;
+        }
+        if (_info.panel == view.PanelName)
+        {
+            GameEvents.RaiseSynergyChartShowRequested(gameObject.scene.handle, false);
+        }
+        else if (_info.panel == synergyPanelName && tab == PuzzleNotebookTab.Synergy && view.IsOpen)
+        {
+            view.Close();
+        }
+    }
+
+    void SyncSynergyChart()
+    {
+        GameEvents.RaiseSynergyChartShowRequested(gameObject.scene.handle, view.IsOpen && tab == PuzzleNotebookTab.Synergy);
     }
 
     void OnRumorRecorded(GameEvents.TavernRumorInfo _info)
@@ -97,6 +125,7 @@ public sealed class PuzzleTradeNotebookPresenter : MonoBehaviour
     {
         tab = _tab;
         Refresh();
+        SyncSynergyChart();
     }
 
     // 펼쳐 둔 수첩에서 바로 보이는 변화는 새 소식으로 세지 않는다.

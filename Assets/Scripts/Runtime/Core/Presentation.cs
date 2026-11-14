@@ -33,10 +33,10 @@ public static class Presentation
     internal static string TavernRumor(PuzzleRumorCandidate _candidate)
     {
         var tables = TableManager.Instance;
-        string city = tables.CityPrice(_candidate.CityId).displayName;
+        string city = CityLink(_candidate.CityId);
         return _candidate.Kind == PuzzleRumorKind.Specialty
-            ? BasicData.Format("presentation.station.specialtyRumor", city, tables.Piece(_candidate.ItemId).displayName)
-            : BasicData.Format("presentation.station.rareRumor", city, PuzzleTagLabel(_candidate.Tag));
+            ? BasicData.Format("presentation.station.specialtyRumor", city, ItemLink(_candidate.ItemId, tables.Piece(_candidate.ItemId).displayName))
+            : BasicData.Format("presentation.station.rareRumor", city, TagLink(_candidate.Tag));
     }
 
     public static string RumorLogTitle => BasicData.Text("presentation.rumorLog.title");
@@ -48,8 +48,11 @@ public static class Presentation
         return BasicData.Format("presentation.rumorLog.count", _count);
     }
 
-    // 접힌 탭은 세로로 쓴 짧은 이름만 보이고, 수첩을 마지막으로 연 뒤 생긴 변화 수는 작은 배지로 붙인다.
+    // 하단 '정보' 버튼은 가로 이름, 오른쪽 가장자리 손잡이는 세로로 쓴 이름을 쓴다.
+    // 수첩을 마지막으로 연 뒤 생긴 변화 수는 둘 다 작은 배지로 붙인다.
     public static string RumorLogCollapsed => BasicData.Text("presentation.rumorLog.collapsed");
+    public static string RumorLogHandle => BasicData.Text("presentation.rumorLog.handle");
+    public static string RumorLogSynergyTab => BasicData.Text("presentation.rumorLog.synergyTab");
 
     public static string RumorLogBadge(int _count)
     {
@@ -92,7 +95,7 @@ public static class Presentation
         {
             string timestamp = GameTimestamp(rumor.RecordedMinutes);
             entries.Add(BasicData.Format("presentation.rumorLog.entry", timestamp,
-                tables.CityPrice(rumor.SourceCityId).displayName, rumor.Message));
+                CityLink(rumor.SourceCityId), rumor.Message));
         }
         return string.Join(BasicData.Text("presentation.rumorLog.separator"), entries);
     }
@@ -158,6 +161,323 @@ public static class Presentation
     // 지도 노드 소문 배지. 의뢰 배지는 QuestMapBadge(QuestMapMarker 색), 소문 배지 강조색은 PuzzleMapCurrent를 재사용한다.
     public static string MapRumorBadge => BasicData.Text("presentation.map.rumorBadge");
 
+    #region 고유명사 하이퍼링크
+    // 링크 ID는 "<접두어>:<테이블 ID>". 만들기(EntityLink)와 읽기(TryParseEntityLink)는 여기 한 곳만 쓴다.
+    public static Color EntityLinkColor => BasicData.Color("presentation.link.color");
+    public static Color EntityLinkHover => BasicData.Color("presentation.link.hover");
+    public static Color EntityLinkHighlight => BasicData.Color("presentation.link.highlight");
+
+    static string EntityLinkPrefix(EntityLinkKind _kind)
+    {
+        switch (_kind)
+        {
+            case EntityLinkKind.City: return "city";
+            case EntityLinkKind.Item: return "item";
+            case EntityLinkKind.Tag: return "tag";
+            case EntityLinkKind.Quest: return "quest";
+            default: return "region";
+        }
+    }
+
+    // _text가 비었거나 ID가 없으면 링크 없이 글자만 돌려준다.
+    public static string EntityLink(EntityLinkKind _kind, string _id, string _text)
+    {
+        if (string.IsNullOrEmpty(_id) || string.IsNullOrEmpty(_text))
+        {
+            return _text ?? string.Empty;
+        }
+        return $"<link=\"{EntityLinkPrefix(_kind)}:{_id}\"><color=#{ColorUtility.ToHtmlStringRGB(EntityLinkColor)}>{_text}</color></link>";
+    }
+
+    public static bool TryParseEntityLink(string _linkId, out EntityLinkKind _kind, out string _id)
+    {
+        _kind = EntityLinkKind.City;
+        _id = null;
+        if (string.IsNullOrEmpty(_linkId))
+        {
+            return false;
+        }
+        int colon = _linkId.IndexOf(':');
+        if (colon <= 0 || colon == _linkId.Length - 1)
+        {
+            return false;
+        }
+        string prefix = _linkId.Substring(0, colon);
+        _id = _linkId.Substring(colon + 1);
+        foreach (EntityLinkKind kind in System.Enum.GetValues(typeof(EntityLinkKind)))
+        {
+            if (EntityLinkPrefix(kind) == prefix)
+            {
+                _kind = kind;
+                return true;
+            }
+        }
+        _id = null;
+        return false;
+    }
+
+    public static string CityLink(string _cityId)
+    {
+        var tables = TableManager.Instance;
+        string name = tables.HasCity(_cityId) ? tables.CityPrice(_cityId).displayName : _cityId;
+        return EntityLink(EntityLinkKind.City, _cityId, name);
+    }
+
+    public static string TagLink(string _tag)
+    {
+        return EntityLink(EntityLinkKind.Tag, _tag, PuzzleTagLabel(_tag));
+    }
+
+    public static string ItemLink(string _pieceId, string _displayName)
+    {
+        return EntityLink(EntityLinkKind.Item, _pieceId, _displayName);
+    }
+
+    public static string RegionLink(PuzzleRegionData _region)
+    {
+        return _region == null ? string.Empty : EntityLink(EntityLinkKind.Region, _region.id, _region.displayName);
+    }
+
+    // 링크 없이 이름만(우클릭 메뉴 '이전' 항목 등).
+    internal static string EntityName(EntityLinkKind _kind, string _id, PuzzleInventoryService _session)
+    {
+        var tables = TableManager.Instance;
+        switch (_kind)
+        {
+            case EntityLinkKind.City:
+                return tables.HasCity(_id) ? tables.CityPrice(_id).displayName : _id;
+            case EntityLinkKind.Region:
+                return tables.TryGetRegion(_id, out var region) ? region.displayName : _id;
+            case EntityLinkKind.Tag:
+                return PuzzleTagLabel(_id);
+            case EntityLinkKind.Item:
+                var piece = FindPiece(_id);
+                return piece != null ? piece.displayName : _id;
+            default:
+                var quest = FindQuest(_session, _id);
+                return quest != null ? BasicData.Format("presentation.link.previewQuestRoute", QuestCargoPlain(quest.PieceId), QuestCityPlain(quest.TargetCityId)) : _id;
+        }
+    }
+
+    static PuzzlePieceData FindPiece(string _id)
+    {
+        foreach (var piece in TableManager.Instance.Pieces)
+        {
+            if (piece.id == _id)
+            {
+                return piece;
+            }
+        }
+        return null;
+    }
+
+    static TrainventoryQuest FindQuest(PuzzleInventoryService _session, string _id)
+    {
+        if (_session == null || !int.TryParse(_id, out int questId))
+        {
+            return null;
+        }
+        foreach (var quest in _session.Quests)
+        {
+            if (quest.Id == questId)
+            {
+                return quest;
+            }
+        }
+        return null;
+    }
+
+    static string QuestCargoPlain(string _pieceId)
+    {
+        var piece = FindPiece(_pieceId);
+        return piece != null ? piece.displayName : _pieceId;
+    }
+
+    static string QuestCityPlain(string _cityId)
+    {
+        return TableManager.Instance.HasCity(_cityId) ? TableManager.Instance.CityPrice(_cityId).displayName : _cityId;
+    }
+
+    public static string EntityLinkActionLabel(EntityLinkAction _action)
+    {
+        switch (_action)
+        {
+            case EntityLinkAction.Map: return BasicData.Text("presentation.link.actionMap");
+            case EntityLinkAction.Rumors: return BasicData.Text("presentation.link.actionRumors");
+            case EntityLinkAction.Proficiency: return BasicData.Text("presentation.link.actionProficiency");
+            case EntityLinkAction.Quests: return BasicData.Text("presentation.link.actionQuests");
+            default: return BasicData.Text("presentation.link.actionSynergy");
+        }
+    }
+
+    public static string EntityLinkBackLabel(string _name)
+    {
+        return BasicData.Format("presentation.link.actionBack", _name);
+    }
+
+    // 마우스를 올렸을 때 보이는 미리보기 카드 내용(제목 + 최대 4줄). 링크 없이 글자만 쓴다(카드는 입력을 받지 않는다).
+    internal static void EntityPreview(EntityLinkKind _kind, string _id, PuzzleInventoryService _session, out string _title, List<string> _lines)
+    {
+        _lines.Clear();
+        _title = EntityName(_kind, _id, _session);
+        var tables = TableManager.Instance;
+        switch (_kind)
+        {
+            case EntityLinkKind.City:
+                PreviewCity(_id, _session, _lines);
+                break;
+            case EntityLinkKind.Region:
+                if (tables.TryGetRegion(_id, out var region))
+                {
+                    int cityCount = tables.Cities.Count(_city => _city.regionId == region.id);
+                    _lines.Add(BasicData.Format("presentation.link.previewRegionCities", cityCount));
+                    if (region.specialtyTags != null && region.specialtyTags.Length > 0)
+                    {
+                        _lines.Add(BasicData.Format("presentation.link.previewSpecialty", string.Join(" · ", region.specialtyTags.Select(PuzzleTagLabel))));
+                    }
+                }
+                break;
+            case EntityLinkKind.Item:
+                PreviewItem(_id, _session, _lines);
+                break;
+            case EntityLinkKind.Tag:
+                PreviewTag(_id, _lines);
+                break;
+            default:
+                PreviewQuest(_id, _session, _lines);
+                break;
+        }
+    }
+
+    static void PreviewCity(string _cityId, PuzzleInventoryService _session, List<string> _lines)
+    {
+        var tables = TableManager.Instance;
+        if (!tables.HasCity(_cityId))
+        {
+            return;
+        }
+        var city = tables.CityPrice(_cityId);
+        if (tables.TryGetRegion(city.regionId, out var region))
+        {
+            _lines.Add(BasicData.Format("presentation.link.previewRegion", region.displayName));
+        }
+        bool visited = _session != null && _session.HasVisitedCity(_cityId);
+        var sells = (city.tagPrices ?? Array.Empty<PuzzleCityTagPriceData>())
+            .Where(_price => _price != null && _price.sellPercent > 100)
+            .OrderByDescending(_price => _price.sellPercent)
+            .Take(2)
+            .Select(_price => visited ? PuzzleTagLabel(_price.tag) + " " + _price.sellPercent + "%" : PuzzleTagLabel(_price.tag))
+            .ToList();
+        if (sells.Count > 0)
+        {
+            _lines.Add(BasicData.Format("presentation.link.previewSell", string.Join(" · ", sells)));
+        }
+        if (_session != null)
+        {
+            if (_cityId == _session.CurrentCityId)
+            {
+                _lines.Add(BasicData.Text("presentation.link.previewCurrent"));
+            }
+            else
+            {
+                var travel = _session.EvaluateTravel(_cityId);
+                if (travel.Failure == PuzzleTravelFailure.None || travel.Failure == PuzzleTravelFailure.InsufficientFunds)
+                {
+                    _lines.Add(BasicData.Format("presentation.link.previewTravel", PuzzleMapTime(travel.TravelMinutes), travel.Cost));
+                }
+                _lines.Add(BasicData.Text(visited ? "presentation.link.previewVisited" : "presentation.link.previewUnvisited"));
+            }
+        }
+    }
+
+    static void PreviewItem(string _pieceId, PuzzleInventoryService _session, List<string> _lines)
+    {
+        var piece = FindPiece(_pieceId);
+        if (piece == null)
+        {
+            return;
+        }
+        var tags = piece.tags ?? Array.Empty<string>();
+        if (tags.Length > 0)
+        {
+            _lines.Add(BasicData.Format("presentation.link.previewTags", string.Join(" · ", tags.Select(PuzzleTagLabel))));
+        }
+        _lines.Add(BasicData.Format("presentation.link.previewValue", piece.baseValue));
+        // 들른 도시 중 이 품목의 태그를 가장 비싸게 사는 곳(미방문 도시 배율은 보이지 않는다).
+        if (_session != null && tags.Length > 0)
+        {
+            var best = TableManager.Instance.Cities
+                .Where(_city => _session.HasVisitedCity(_city.id))
+                .Select(_city => (_city, percent: (_city.tagPrices ?? Array.Empty<PuzzleCityTagPriceData>())
+                    .Where(_price => _price != null && tags.Contains(_price.tag))
+                    .Select(_price => _price.sellPercent)
+                    .DefaultIfEmpty(0)
+                    .Max()))
+                .Where(_pair => _pair.percent > 100)
+                .OrderByDescending(_pair => _pair.percent)
+                .Take(2)
+                .Select(_pair => _pair._city.displayName + " " + _pair.percent + "%")
+                .ToList();
+            if (best.Count > 0)
+            {
+                _lines.Add(BasicData.Format("presentation.link.previewBestCity", string.Join(" · ", best)));
+            }
+        }
+    }
+
+    static void PreviewTag(string _tag, List<string> _lines)
+    {
+        var chart = PuzzleSynergyChart.ForTrain(TableManager.Instance);
+        int row = -1;
+        for (int i = 0; i < chart.Rows.Count; i++)
+        {
+            if (chart.Rows[i] == _tag)
+            {
+                row = i;
+                break;
+            }
+        }
+        int added = 0;
+        if (row >= 0)
+        {
+            for (int column = 0; column < chart.Columns.Count && added < 4; column++)
+            {
+                int percent = chart.PercentAt(row, column);
+                if (percent == 0)
+                {
+                    continue;
+                }
+                _lines.Add(BasicData.Format("presentation.link.previewSynergy", PuzzleTagLabel(chart.Columns[column]),
+                    percent > 0 ? "+" + percent : percent.ToString()));
+                added++;
+            }
+        }
+        if (added == 0)
+        {
+            _lines.Add(BasicData.Text("presentation.link.previewNoSynergy"));
+        }
+    }
+
+    static void PreviewQuest(string _id, PuzzleInventoryService _session, List<string> _lines)
+    {
+        var quest = FindQuest(_session, _id);
+        if (quest == null)
+        {
+            return;
+        }
+        long remaining = Math.Max(0, quest.DeadlineMinutes - _session.ElapsedTime);
+        _lines.Add(BasicData.Format("presentation.link.previewQuestDeadline", PuzzleMapTime(remaining)));
+        _lines.Add(BasicData.Format("presentation.link.previewQuestReward", quest.Reward));
+    }
+    #endregion
+
+    // 지도 도시 이름 아래 칩: 그 도시에서 비싸게 팔리는(판매 배율 100% 초과) 태그. 들른 도시는 배율까지 보인다.
+    public static string MapSellChip(string _tag, int _sellPercent, bool _visited)
+    {
+        return _visited ? BasicData.Format("presentation.map.sellChip", _tag, _sellPercent)
+            : BasicData.Format("presentation.map.sellChipUnvisited", _tag);
+    }
+
     // 술집 의뢰 상세 패널 줄. 기한 표기는 rumorLog와 같은 GameTimestamp를 쓴다.
     public static string QuestDetailDestination(string _cityName, long _travelMinutes)
     {
@@ -207,12 +527,12 @@ public static class Presentation
 
     static string QuestCargoName(string _pieceId)
     {
-        return TableManager.Instance.Piece(_pieceId).displayName;
+        return ItemLink(_pieceId, TableManager.Instance.Piece(_pieceId).displayName);
     }
 
     static string QuestCityName(string _cityId)
     {
-        return TableManager.Instance.CityPrice(_cityId).displayName;
+        return CityLink(_cityId);
     }
 
     // 실패 시 받는 불이익. 보증금은 금액을, 지역 거래 불이익은 의뢰를 준 지역 이름을 함께 표시한다.
@@ -223,7 +543,7 @@ public static class Presentation
         return penalty.type == nameof(TrainventoryQuestPenaltyType.Deposit)
             ? BasicData.Format("presentation.quest.depositPenalty", penalty.displayName, _deposit)
             : BasicData.Format("presentation.quest.regionPenalty", penalty.displayName,
-                tables.Region(tables.CityPrice(_sourceCityId).regionId).displayName);
+                RegionLink(tables.Region(tables.CityPrice(_sourceCityId).regionId)));
     }
 
     internal static string QuestOffer(TrainventoryQuestOffer _offer)
@@ -311,7 +631,7 @@ public static class Presentation
     // 숙련 레벨이 오를 때 하단 상태 줄 끝에 붙이는 알림.
     internal static string ProficiencyLevelUp(PuzzleInventoryService _session, GameEvents.ProficiencyInfo _info)
     {
-        return BasicData.Format("presentation.proficiency.levelUp", PuzzleTagLabel(_info.tag), _info.level,
+        return BasicData.Format("presentation.proficiency.levelUp", TagLink(_info.tag), _info.level,
             ProficiencyPercent(_session.ProficiencyBonusPercent(_info.level)));
     }
 
@@ -383,7 +703,7 @@ public static class Presentation
         {
             if (_session.TryGetRegionPenalty(region.id, out var penalty))
             {
-                entries.Add(BasicData.Format("presentation.quest.logRegionPenalty", region.displayName,
+                entries.Add(BasicData.Format("presentation.quest.logRegionPenalty", RegionLink(region),
                     GameTimestamp(penalty.UntilMinutes), penalty.BuyPercentDelta, penalty.SellPercentDelta));
             }
         }
@@ -424,6 +744,8 @@ public static class Presentation
     }
 
     public static Color PuzzleTimeAccent => BasicData.Color("presentation.time.accent");
+    public static Color TimeDayBar => BasicData.Color("presentation.time.dayBar");
+    public static Color TimeNightBar => BasicData.Color("presentation.time.nightBar");
 
     public static string PuzzleMapTitle => BasicData.Text("presentation.map.title");
     public const string PUZZLE_MAP_PANEL_NAME = "PuzzleWorldMap";
@@ -573,7 +895,8 @@ public static class Presentation
     public static string PuzzleMapZoomIn => BasicData.Text("presentation.map.zoomIn");
     public static string PuzzleMapZoomOut => BasicData.Text("presentation.map.zoomOut");
     public static Color PuzzleMapCurrentHalo => BasicData.Color("presentation.map.currentHalo");
-    public static Color PuzzleMapTargetHalo => PuzzleMapCurrentHalo;
+    // 상환 목표는 현재 위치(금색)와 다른 산호색으로 구분한다.
+    public static Color PuzzleMapTargetHalo => BasicData.Color("presentation.map.targetMarkerHalo");
     public static Color PuzzleMapOcean => BasicData.Color("presentation.map.ocean");
     public static Color PuzzleMapRiver => BasicData.Color("presentation.map.river");
     public static Color PuzzleMapTerrainShallow => BasicData.Color("presentation.map.terrainShallow");
@@ -591,7 +914,7 @@ public static class Presentation
     public static string PuzzleMapGuideText => BasicData.Text("presentation.map.guide");
     public static string PuzzleMapHint => BasicData.Text("presentation.map.hint");
     public static Color PuzzleMapCurrent => BasicData.Color("presentation.map.current");
-    public static Color PuzzleMapTarget => PuzzleMapCurrent;
+    public static Color PuzzleMapTarget => BasicData.Color("presentation.map.targetMarker");
     public static Color PuzzleMapVisited => BasicData.Color("presentation.map.visited");
     public static Color PuzzleMapRare => BasicData.Color("presentation.map.rare");
     public static Color PuzzleMapUnknown => BasicData.Color("presentation.map.unknown");
@@ -635,8 +958,8 @@ public static class Presentation
     {
         string heading = BasicData.Format("presentation.map.information", _city.displayName);
         heading += _visited
-            ? BasicData.Format("presentation.map.informationText2", _region.displayName, _city.buyPercentOfBaseValue, _city.sellPercentOfFinalValue)
-            : BasicData.Format("presentation.map.regionOnly", _region.displayName);
+            ? BasicData.Format("presentation.map.informationText2", RegionLink(_region), _city.buyPercentOfBaseValue, _city.sellPercentOfFinalValue)
+            : BasicData.Format("presentation.map.regionOnly", RegionLink(_region));
         string status;
         if (_current)
         {
@@ -757,7 +1080,7 @@ public static class Presentation
 
     internal static string PuzzleCityTitle(PuzzleCityData _city, PuzzleRegionData _region)
     {
-        return BasicData.Format("presentation.trade.cityTitle", _city.displayName, _region.displayName);
+        return BasicData.Format("presentation.trade.cityTitle", CityLink(_city.id), RegionLink(_region));
     }
 
     public static Color PuzzleItemIcon(float _alpha)
@@ -1531,7 +1854,7 @@ public static class Presentation
         string direction = _result.Direction == PuzzleTradeDirection.Buy ? BasicData.Text("presentation.trade.tradeStatusText6")
             : _result.PurchaseCancel ? BasicData.Text("presentation.trade.purchaseCancel")
             : BasicData.Text("presentation.trade.tradeStatusText7");
-        string quote = BasicData.Format("presentation.trade.tradeStatus", _item.DisplayName, direction);
+        string quote = BasicData.Format("presentation.trade.tradeStatus", ItemLink(_item.Id, _item.DisplayName), direction);
         if (_result.Placement.Failure != PuzzlePlacementFailure.StaleSource &&
             _result.TradeFailure != PuzzleTradeFailure.PriceOverflow)
         {
@@ -1540,8 +1863,8 @@ public static class Presentation
         if (_result.CanDrop)
         {
             return _committed
-                ? BasicData.Format("presentation.trade.tradeStatusText3", _item.DisplayName, direction, _result.Price)
-                : BasicData.Format("presentation.trade.tradeStatusText4", _item.DisplayName, direction, _result.Price);
+                ? BasicData.Format("presentation.trade.tradeStatusText3", ItemLink(_item.Id, _item.DisplayName), direction, _result.Price)
+                : BasicData.Format("presentation.trade.tradeStatusText4", ItemLink(_item.Id, _item.DisplayName), direction, _result.Price);
         }
 
         string reason = _result.TradeFailure switch

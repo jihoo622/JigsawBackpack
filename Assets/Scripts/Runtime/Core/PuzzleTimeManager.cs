@@ -20,6 +20,9 @@ public sealed class PuzzleTimeManager
     public int Minute => MinuteOfDay % MINUTES_PER_HOUR;
     public bool IsNight => IsNightAt(ElapsedMinutes);
     public long MinutesUntilDaylight => IsNight ? MINUTES_PER_DAY - DaylightOffset(ElapsedMinutes) : 0;
+    // 하루(0~24시) 안에서 밤이 시작하는 분과 길이. 낮·밤 게이지 표시에 쓴다.
+    public int NightStartMinuteOfDay => (rules.daylightStartHour + rules.daylightHours) * MINUTES_PER_HOUR % MINUTES_PER_DAY;
+    public int NightLengthMinutes => MINUTES_PER_DAY - rules.daylightHours * MINUTES_PER_HOUR;
 
     public PuzzleTimeManager(long _deadlineHours, PuzzleTimeTableData _rules)
     {

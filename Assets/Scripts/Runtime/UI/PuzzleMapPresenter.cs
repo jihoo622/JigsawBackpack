@@ -38,6 +38,7 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
         GameEvents.TimeAdvanced += OnTimeAdvanced;
         GameEvents.PanelVisibility += OnPanelVisibility;
         GameEvents.MapRequested += OnMapRequested;
+        GameEvents.MapFocusRequested += OnMapFocusRequested;
         travelView.Confirmed += ConfirmTravel;
         travelView.Canceled += AbortTravel;
         Refresh();
@@ -59,6 +60,7 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
         GameEvents.TimeAdvanced -= OnTimeAdvanced;
         GameEvents.PanelVisibility -= OnPanelVisibility;
         GameEvents.MapRequested -= OnMapRequested;
+        GameEvents.MapFocusRequested -= OnMapFocusRequested;
         travelView.Confirmed -= ConfirmTravel;
         travelView.Canceled -= AbortTravel;
         AbortTravel();
@@ -93,6 +95,61 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
         if (_info.sceneHandle == gameObject.scene.handle && phase == TravelPhase.None)
         {
             OpenMap();
+        }
+    }
+
+    void OnMapFocusRequested(GameEvents.MapFocusInfo _info)
+    {
+        if (_info.sceneHandle != gameObject.scene.handle)
+        {
+            return;
+        }
+        if (phase != TravelPhase.None)
+        {
+            return;
+        }
+
+        bool hasCity = !string.IsNullOrEmpty(_info.cityId);
+        bool hasRegion = !string.IsNullOrEmpty(_info.regionId);
+        if (!hasCity && !hasRegion)
+        {
+            return;
+        }
+
+        if (hasCity)
+        {
+            if (!TableManager.Instance.HasCity(_info.cityId))
+            {
+                return;
+            }
+            var node = System.Array.Find(view.Nodes, _node => _node && string.Equals(_node.CityId, _info.cityId, System.StringComparison.Ordinal));
+            if (!node)
+            {
+                return;
+            }
+
+            if (!view.IsOpen)
+            {
+                OpenMap();
+            }
+
+            view.FocusCity(_info.cityId);
+            ShowCity(_info.cityId);
+        }
+        else if (hasRegion)
+        {
+            if (!TableManager.Instance.TryGetRegion(_info.regionId, out _))
+            {
+                return;
+            }
+
+            if (!view.IsOpen)
+            {
+                OpenMap();
+            }
+
+            ClearInformation();
+            view.FocusRegion(_info.regionId);
         }
     }
 

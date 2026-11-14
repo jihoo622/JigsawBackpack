@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 6156280712355625871}
   - component: {fileID: 1676554438727226063}
   - component: {fileID: 4554188849525045515}
+  - component: {fileID: 776438730188305853}
   m_Layer: 5
   m_Name: Trade Status
   m_TagString: Untagged
@@ -60,7 +61,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 0.87, b: 0.35, a: 1}
-  m_RaycastTarget: 0
+  m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -119,7 +120,7 @@ MonoBehaviour:
   m_ActiveFontFeatures: 6e72656b
   m_enableExtraPadding: 0
   checkPaddingRequired: 0
-  m_isRichText: 0
+  m_isRichText: 1
   m_EmojiFallbackSupport: 1
   m_parseCtrlCharacters: 1
   m_isOrthographic: 1
@@ -158,6 +159,18 @@ MonoBehaviour:
   m_FlexibleWidth: 1
   m_FlexibleHeight: 1
   m_LayoutPriority: 1
+--- !u!114 &776438730188305853
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1895869186192633159}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 66f280afe3557ee44ad83dc2aec0f900, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TextLinkHandler
 --- !u!1 &4804325312896122467
 GameObject:
   m_ObjectHideFlags: 0
@@ -171,6 +184,7 @@ GameObject:
   - component: {fileID: 3814352155753502796}
   - component: {fileID: 6988115828726440620}
   - component: {fileID: 7819977732705832832}
+  - component: {fileID: 5998387765727369274}
   m_Layer: 0
   m_Name: JourneyFooter
   m_TagString: Untagged
@@ -195,8 +209,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 290, y: -852}
-  m_SizeDelta: {x: 1340, y: 32}
+  m_AnchoredPosition: {x: 40, y: -92}
+  m_SizeDelta: {x: 1840, y: 32}
   m_Pivot: {x: 0, y: 1}
 --- !u!222 &1459139975832320209
 CanvasRenderer:
@@ -285,3 +299,20 @@ Canvas:
   m_SortingLayerID: 0
   m_SortingOrder: 250
   m_TargetDisplay: 0
+--- !u!114 &5998387765727369274
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4804325312896122467}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dc42784cf147c0c48a680349fa168899, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.GraphicRaycaster
+  m_IgnoreReversedGraphics: 1
+  m_BlockingObjects: 0
+  m_BlockingMask:
+    serializedVersion: 2
+    m_Bits: 4294967295

@@ -9,13 +9,18 @@ public enum PuzzleNotebookTab
 {
     Rumors,
     Quests,
-    Proficiency
+    Proficiency,
+    Synergy
 }
 
 // 사전 배치한 스크롤 본문·숙련 패널·탭·접기 버튼만 제어한다. 기록 데이터는 Presenter가 전달한다.
 // 머리 줄(제목·개수·오른쪽 위 접기 버튼) 아래에 소문/의뢰/숙련 탭이 3등분 폭으로 있고, 선택한 탭은 배경·글자색·밑줄로 구분한다.
 // 숙련 탭에서는 스크롤 본문 대신 사전 배치한 숙련 패널을 켜고, 머리 줄 개수 표시는 숨긴다(평판은 패널 요약에 있다).
-// 접혔을 때는 화면 오른쪽 여백의 세로 '정보' 탭만 남고, 새 소식이 있으면 탭 위쪽에 작은 배지를 켠다.
+// 여는 곳은 두 개다: 하단 고정 UI 지도 버튼 아래의 '정보' 버튼(FixedBottomBar 프리팹, GameCanvas에서 연결)과
+// 화면 오른쪽 가장자리의 세로 손잡이(이 프리팹, 위아래로 끌어 옮길 수 있음). 둘 다 펼친 동안에도 보이며 누르면 접고,
+// 새 소식이 있으면 둘 다 작은 배지를 켠다.
+// 상성표 탭을 고르면 패널이 넓은 폭(widePanelLeft·widePanelWidth, 프리팹 값)으로 펼쳐지고 본문은 비운다.
+// 표 자체는 상성표 패널(별도 Canvas, 수첩 위)이 그 자리에 그린다.
 public sealed class PuzzleTradeNotebookView : PanelBase
 {
     [SerializeField] Button toggleButton;
@@ -35,10 +40,23 @@ public sealed class PuzzleTradeNotebookView : PanelBase
     [SerializeField] Button proficiencyTabButton;
     [SerializeField] TextMeshProUGUI proficiencyTabLabel;
     [SerializeField] Image proficiencyTabMark;
+    [SerializeField] Button synergyTabButton;
+    [SerializeField] TextMeshProUGUI synergyTabLabel;
+    [SerializeField] Image synergyTabMark;
+    [SerializeField] RectTransform panel;
+    [SerializeField] float widePanelLeft = 40f;
+    [SerializeField] float widePanelWidth = 1840f;
     [SerializeField] TrainventoryProficiencyPanelView proficiencyPanel;
     [SerializeField] Image newBadge;
     [SerializeField] TextMeshProUGUI newBadgeLabel;
+    [SerializeField] Button handleButton;
+    [SerializeField] TextMeshProUGUI handleLabel;
+    [SerializeField] Image handleBadge;
+    [SerializeField] TextMeshProUGUI handleBadgeLabel;
     bool scrollPending;
+    bool normalCaptured;
+    float normalPanelLeft;
+    float normalPanelWidth;
 
     internal event Action<PuzzleNotebookTab> TabSelected;
     internal event Action Shown;
@@ -53,19 +71,23 @@ public sealed class PuzzleTradeNotebookView : PanelBase
     {
         base.OnEnable();
         toggleButton.onClick.AddListener(ToggleLog);
+        handleButton.onClick.AddListener(ToggleLog);
         collapseButton.onClick.AddListener(Close);
         rumorTabButton.onClick.AddListener(SelectRumors);
         questTabButton.onClick.AddListener(SelectQuests);
         proficiencyTabButton.onClick.AddListener(SelectProficiency);
+        synergyTabButton.onClick.AddListener(SelectSynergy);
     }
 
     protected override void OnDisable()
     {
         toggleButton.onClick.RemoveListener(ToggleLog);
+        handleButton.onClick.RemoveListener(ToggleLog);
         collapseButton.onClick.RemoveListener(Close);
         rumorTabButton.onClick.RemoveListener(SelectRumors);
         questTabButton.onClick.RemoveListener(SelectQuests);
         proficiencyTabButton.onClick.RemoveListener(SelectProficiency);
+        synergyTabButton.onClick.RemoveListener(SelectSynergy);
         base.OnDisable();
     }
 
@@ -99,6 +121,26 @@ public sealed class PuzzleTradeNotebookView : PanelBase
         TabSelected?.Invoke(PuzzleNotebookTab.Proficiency);
     }
 
+    void SelectSynergy()
+    {
+        TabSelected?.Invoke(PuzzleNotebookTab.Synergy);
+    }
+
+    // 상성표 탭만 넓은 폭. 좁은 폭은 처음 배치(프리팹)를 기억해 되돌린다.
+    void ApplyPanelWidth(bool _wide)
+    {
+        if (!normalCaptured)
+        {
+            normalPanelLeft = panel.anchoredPosition.x - panel.pivot.x * panel.sizeDelta.x;
+            normalPanelWidth = panel.sizeDelta.x;
+            normalCaptured = true;
+        }
+        float width = _wide ? widePanelWidth : normalPanelWidth;
+        float left = _wide ? widePanelLeft : normalPanelLeft;
+        panel.sizeDelta = new Vector2(width, panel.sizeDelta.y);
+        panel.anchoredPosition = new Vector2(left + panel.pivot.x * width, panel.anchoredPosition.y);
+    }
+
     // 숙련 탭 패널 내용. 숙련 탭일 때 Render 직후 같은 갱신에서 호출한다.
     internal void RenderProficiency(int _reputation, int _maxActiveQuests, bool _hasNextStage, int _nextReputation,
         IReadOnlyList<TrainventoryProficiencyStanding> _standings)
@@ -112,30 +154,49 @@ public sealed class PuzzleTradeNotebookView : PanelBase
         if (!logText || !scroll || !toggleButton || !collapseButton || !toggleLabel ||
             !titleLabel || !countLabel || !collapseLabel || !rumorTabButton || !rumorTabLabel ||
             !questTabButton || !questTabLabel || !rumorTabMark || !questTabMark || !proficiencyTabButton ||
-            !proficiencyTabLabel || !proficiencyTabMark || !proficiencyPanel || !newBadge || !newBadgeLabel)
+            !proficiencyTabLabel || !proficiencyTabMark || !proficiencyPanel || !newBadge || !newBadgeLabel ||
+            !handleButton || !handleLabel || !handleBadge || !handleBadgeLabel ||
+            !synergyTabButton || !synergyTabLabel || !synergyTabMark || !panel)
         {
-            throw new InvalidOperationException("수첩 패널의 본문·스크롤·숙련 패널·탭·탭 밑줄·접기 버튼·새 소식 배지를 연결하세요.");
+            throw new InvalidOperationException("수첩 패널의 본문·스크롤·숙련 패널·탭·탭 밑줄·접기 버튼·정보 버튼·가장자리 손잡이·새 소식 배지를 연결하세요.");
         }
         bool proficiency = _tab == PuzzleNotebookTab.Proficiency;
-        scroll.gameObject.SetActive(!proficiency);
+        bool synergy = _tab == PuzzleNotebookTab.Synergy;
+        ApplyPanelWidth(synergy);
+        scroll.gameObject.SetActive(!proficiency && !synergy);
         proficiencyPanel.gameObject.SetActive(proficiency);
-        logText.text = proficiency ? string.Empty : _text;
+        logText.text = proficiency || synergy ? string.Empty : _text;
         titleLabel.text = Presentation.RumorLogTitle;
-        countLabel.gameObject.SetActive(!proficiency);
+        countLabel.gameObject.SetActive(!proficiency && !synergy);
         countLabel.text = Presentation.RumorLogCount(_tab == PuzzleNotebookTab.Rumors ? _rumorCount : _questCount);
         toggleLabel.text = Presentation.RumorLogCollapsed;
-        newBadge.color = Presentation.RumorLogBadgeColor;
-        newBadgeLabel.color = Presentation.RumorLogBadgeText;
-        newBadgeLabel.text = Presentation.RumorLogBadge(_unseenCount);
-        newBadge.gameObject.SetActive(_unseenCount > 0);
+        // 하단 상성표 버튼과 같은 색(Presentation 단일 출처)
+        toggleLabel.color = Presentation.PuzzleHeading;
+        if (toggleButton.targetGraphic)
+        {
+            toggleButton.targetGraphic.color = Presentation.PuzzleBackground;
+        }
+        handleLabel.text = Presentation.RumorLogHandle;
+        RenderBadge(newBadge, newBadgeLabel, _unseenCount);
+        RenderBadge(handleBadge, handleBadgeLabel, _unseenCount);
         collapseLabel.text = Presentation.RumorLogCollapse;
         rumorTabLabel.text = Presentation.RumorLogRumorTab;
         questTabLabel.text = Presentation.RumorLogQuestTab;
         proficiencyTabLabel.text = Presentation.RumorLogProficiencyTab;
+        synergyTabLabel.text = Presentation.RumorLogSynergyTab;
         ApplyTabState(rumorTabButton, rumorTabLabel, rumorTabMark, _tab == PuzzleNotebookTab.Rumors);
         ApplyTabState(questTabButton, questTabLabel, questTabMark, _tab == PuzzleNotebookTab.Quests);
         ApplyTabState(proficiencyTabButton, proficiencyTabLabel, proficiencyTabMark, proficiency);
-        scrollPending = IsOpen && !proficiency;
+        ApplyTabState(synergyTabButton, synergyTabLabel, synergyTabMark, synergy);
+        scrollPending = IsOpen && !proficiency && !synergy;
+    }
+
+    static void RenderBadge(Image _badge, TextMeshProUGUI _label, int _count)
+    {
+        _badge.color = Presentation.RumorLogBadgeColor;
+        _label.color = Presentation.RumorLogBadgeText;
+        _label.text = Presentation.RumorLogBadge(_count);
+        _badge.gameObject.SetActive(_count > 0);
     }
 
     // 선택한 탭은 눌러도 바뀌지 않으므로 입력을 막고, 색 틴트 대신 배경·글자색·밑줄로 선택 상태를 보인다.
@@ -153,7 +214,6 @@ public sealed class PuzzleTradeNotebookView : PanelBase
 
     protected override void OnShow()
     {
-        toggleButton.gameObject.SetActive(false);
         scrollPending = true;
         Shown?.Invoke();
         if (EventSystem.current)
@@ -165,7 +225,6 @@ public sealed class PuzzleTradeNotebookView : PanelBase
     protected override void OnHide()
     {
         scrollPending = false;
-        toggleButton.gameObject.SetActive(true);
         if (Active && gameObject.activeInHierarchy && EventSystem.current)
         {
             EventSystem.current.SetSelectedGameObject(toggleButton.gameObject);

@@ -30,6 +30,8 @@ public sealed class TelemetryRecorder : MonoBehaviour
         GameEvents.TavernRumorRecorded += OnRumorRecorded;
         GameEvents.QuestChanged += OnQuestChanged;
         GameEvents.ProficiencyChanged += OnProficiencyChanged;
+        GameEvents.EntityLinkClicked += OnEntityLinkClicked;
+        GameEvents.EntityLinkContextRequested += OnEntityLinkContextRequested;
         TelemetryLog.BeforeClose += OnSessionClosing;
     }
 
@@ -47,6 +49,8 @@ public sealed class TelemetryRecorder : MonoBehaviour
         GameEvents.TavernRumorRecorded -= OnRumorRecorded;
         GameEvents.QuestChanged -= OnQuestChanged;
         GameEvents.ProficiencyChanged -= OnProficiencyChanged;
+        GameEvents.EntityLinkClicked -= OnEntityLinkClicked;
+        GameEvents.EntityLinkContextRequested -= OnEntityLinkContextRequested;
         TelemetryLog.BeforeClose -= OnSessionClosing;
     }
 
@@ -189,5 +193,15 @@ public sealed class TelemetryRecorder : MonoBehaviour
     void OnButcheryReady(GameEvents.ButcheryReadyInfo _info)
     {
         TelemetryLog.Write(TelemetryEvents.BUTCHERY_READY, TelemetryPayload.ButcheryReady(_info));
+    }
+
+    void OnEntityLinkClicked(GameEvents.EntityLinkInfo _info)
+    {
+        TelemetryLog.Write(TelemetryEvents.ENTITY_LINK_CLICKED, TelemetryPayload.EntityLink(_info, "click"));
+    }
+
+    void OnEntityLinkContextRequested(GameEvents.EntityLinkInfo _info)
+    {
+        TelemetryLog.Write(TelemetryEvents.ENTITY_LINK_CLICKED, TelemetryPayload.EntityLink(_info, "context"));
     }
 }

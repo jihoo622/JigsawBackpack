@@ -32,6 +32,8 @@ public sealed class PuzzleMapView : PanelBase
         public int labelPriorityConnected;
         public int labelPriorityInterchange;
         public int labelPriorityOther;
+        public float tagChipPadding;
+        public float tagChipGap;
 
         public int CalculateStationFontSize(float _zoom, bool _emphasized, bool _major)
         {
@@ -45,7 +47,7 @@ public sealed class PuzzleMapView : PanelBase
     sealed class RegionVisual
     {
         public string regionId;
-        public Text label;
+        public TMPro.TextMeshProUGUI label;
         public Image area;
     }
 
@@ -53,7 +55,7 @@ public sealed class PuzzleMapView : PanelBase
     sealed class RouteTimeVisual
     {
         public string fromCityId, toCityId;
-        public Text label;
+        public TMPro.TextMeshProUGUI label;
         public Image plate;
         public bool manualPosition;
         [NonSerialized] public Vector2 position;
@@ -66,10 +68,11 @@ public sealed class PuzzleMapView : PanelBase
         public Image[] segments;
     }
 
-    [SerializeField] Text title;
-    [SerializeField] Text guide;
-    [SerializeField] Text information;
-    [SerializeField] Text closeLabel;
+    [SerializeField] TMPro.TextMeshProUGUI title;
+    [SerializeField] TMPro.TextMeshProUGUI guide;
+    [SerializeField] TMPro.TextMeshProUGUI information;
+    // 닫기 버튼은 다른 화면과 같은 공용 헤더 버튼(HeaderButton, TMP 라벨)이다.
+    [SerializeField] TMPro.TextMeshProUGUI closeLabel;
     [SerializeField] Image background;
     [SerializeField] Image[] routeLines;
     [SerializeField] PuzzleMapNodeView[] nodes;
@@ -80,10 +83,10 @@ public sealed class PuzzleMapView : PanelBase
 
     [Header("E3 Travel Preview Card")]
     [SerializeField] GameObject travelPreviewCard;
-    [SerializeField] Text previewTitle;
-    [SerializeField] Text previewTimeFare;
-    [SerializeField] Text previewArrival;
-    [SerializeField] Text previewDeadline;
+    [SerializeField] TMPro.TextMeshProUGUI previewTitle;
+    [SerializeField] TMPro.TextMeshProUGUI previewTimeFare;
+    [SerializeField] TMPro.TextMeshProUGUI previewArrival;
+    [SerializeField] TMPro.TextMeshProUGUI previewDeadline;
 
     readonly Dictionary<int, List<Image>> routeTrackImages = new Dictionary<int, List<Image>>();
     readonly Dictionary<Image, Color> originalTrackColors = new Dictionary<Image, Color>();
@@ -124,6 +127,9 @@ public sealed class PuzzleMapView : PanelBase
     [SerializeField] float stationBadgeExtraWidth = 12f;
     [SerializeField] float stationBadgeMinWidth = 160f;
     [SerializeField] float stationBadgeHeight = 24f;
+    // 도시 이름 아래 판매 칩: 글자 폭 + 좌우 여백 합, 칩 사이 간격
+    [SerializeField] float tagChipPadding = 12f;
+    [SerializeField] float tagChipGap = 4f;
 
     [Header("Station Font Sizes")]
     [SerializeField] int stationFontSizeEmphasized = 24;
@@ -211,7 +217,9 @@ public sealed class PuzzleMapView : PanelBase
             labelPriorityTarget = labelPriorityTarget,
             labelPriorityConnected = labelPriorityConnected,
             labelPriorityInterchange = labelPriorityInterchange,
-            labelPriorityOther = labelPriorityOther
+            labelPriorityOther = labelPriorityOther,
+            tagChipPadding = tagChipPadding,
+            tagChipGap = tagChipGap
         };
     }
 
@@ -238,6 +246,24 @@ public sealed class PuzzleMapView : PanelBase
     {
         selectedCityId = _cityId;
         RefreshLayout();
+    }
+
+    internal PuzzleMapNavigation Navigation => navigation;
+
+    internal void FocusCity(string _cityId)
+    {
+        if (navigation)
+        {
+            navigation.FocusCity(_cityId);
+        }
+    }
+
+    internal void FocusRegion(string _regionId)
+    {
+        if (navigation)
+        {
+            navigation.FocusRegion(_regionId);
+        }
     }
 
     void PrepareLayout()
@@ -401,8 +427,8 @@ public sealed class PuzzleMapView : PanelBase
         label.rectTransform.localScale = Vector3.one / _zoom;
         label.rectTransform.anchoredPosition = _route.position;
         label.fontSize = timeFontSize;
-        label.resizeTextForBestFit = false;
-        label.horizontalOverflow = HorizontalWrapMode.Overflow;
+        label.enableAutoSizing = false;
+        label.textWrappingMode = TMPro.TextWrappingModes.NoWrap;
         Vector2 size = new Vector2(Mathf.Ceil(label.preferredWidth) + timeLabelPaddingX, timeLabelHeight);
         label.rectTransform.sizeDelta = size;
         return size;
@@ -707,7 +733,7 @@ public sealed class PuzzleMapView : PanelBase
         }
         if (previewArrival)
         {
-            previewArrival.supportRichText = true;
+            previewArrival.richText = true;
             previewArrival.text = $"도착 {arrivalStr}";
         }
 
@@ -817,7 +843,7 @@ public sealed class PuzzleMapView : PanelBase
 
     internal void ShowInformation(string _text)
     {
-        information.supportRichText = true;
+        information.richText = true;
         information.text = _text;
     }
 

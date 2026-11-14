@@ -21,7 +21,7 @@ public sealed class PuzzleMapNavigation : MonoBehaviour, IBeginDragHandler, IDra
     [SerializeField] Button zoomOut;
     [SerializeField] Button fit;
     [SerializeField] Button locate;
-    [SerializeField] Text zoomLabel;
+    [SerializeField] TMPro.TextMeshProUGUI zoomLabel;
     [SerializeField] PuzzleMapView view;
 
     public float MinZoom => minZoom;
@@ -183,6 +183,84 @@ public sealed class PuzzleMapNavigation : MonoBehaviour, IBeginDragHandler, IDra
         {
             SetZoom(Mathf.Max(scale, focusCurrent), Vector2.zero);
             content.anchoredPosition = -(Vector2)current.localPosition * scale;
+            Clamp();
+        }
+    }
+
+    internal void FocusCity(string _cityId)
+    {
+        if (string.IsNullOrEmpty(_cityId) || !view || view.Nodes == null)
+        {
+            return;
+        }
+        var node = System.Array.Find(view.Nodes, _node => _node && string.Equals(_node.CityId, _cityId, System.StringComparison.Ordinal));
+        if (!node)
+        {
+            return;
+        }
+        var target = node.transform as RectTransform;
+        if (!target)
+        {
+            return;
+        }
+        SetZoom(Mathf.Max(scale, focusCurrent), Vector2.zero);
+        content.anchoredPosition = -(Vector2)target.localPosition * scale;
+        Clamp();
+    }
+
+    internal void FocusRegion(string _regionId)
+    {
+        if (string.IsNullOrEmpty(_regionId))
+        {
+            return;
+        }
+        if (!TableManager.Instance.TryGetRegion(_regionId, out _))
+        {
+            return;
+        }
+
+        Fit();
+
+        if (!view || view.Nodes == null)
+        {
+            return;
+        }
+
+        Vector2 min = new Vector2(float.MaxValue, float.MaxValue);
+        Vector2 max = new Vector2(float.MinValue, float.MinValue);
+        int count = 0;
+
+        foreach (var node in view.Nodes)
+        {
+            if (!node || string.IsNullOrEmpty(node.CityId))
+            {
+                continue;
+            }
+            if (!TableManager.Instance.HasCity(node.CityId))
+            {
+                continue;
+            }
+            if (!string.Equals(TableManager.Instance.CityPrice(node.CityId).regionId, _regionId, System.StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            var rt = node.transform as RectTransform;
+            if (!rt)
+            {
+                continue;
+            }
+
+            Vector2 pos = (Vector2)rt.localPosition;
+            min = Vector2.Min(min, pos);
+            max = Vector2.Max(max, pos);
+            count++;
+        }
+
+        if (count > 0)
+        {
+            Vector2 center = (min + max) * 0.5f;
+            content.anchoredPosition = -center * scale;
             Clamp();
         }
     }

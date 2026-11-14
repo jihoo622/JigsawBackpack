@@ -234,19 +234,93 @@ public static class GameEvents
         Emit(MapToggleRequested, new MapToggleInfo(_sceneHandle));
     }
 
-    // 고정 UI의 상성표 보기 버튼. 같은 씬의 상성표 패널이 토글 응답한다.
-    public readonly struct SynergyChartToggleInfo
+    // 수첩의 상성표 탭. 같은 씬의 상성표 패널이 보이기/숨기기로 응답한다.
+    public readonly struct SynergyChartShowInfo
     {
         public readonly int sceneHandle;
-        public SynergyChartToggleInfo(int _sceneHandle)
+        public readonly bool show;
+        public SynergyChartShowInfo(int _sceneHandle, bool _show)
         {
             sceneHandle = _sceneHandle;
+            show = _show;
         }
     }
-    public static event Action<SynergyChartToggleInfo> SynergyChartToggleRequested;
-    public static void RaiseSynergyChartToggleRequested(int _sceneHandle)
+    public static event Action<SynergyChartShowInfo> SynergyChartShowRequested;
+    public static void RaiseSynergyChartShowRequested(int _sceneHandle, bool _show)
     {
-        Emit(SynergyChartToggleRequested, new SynergyChartToggleInfo(_sceneHandle));
+        Emit(SynergyChartShowRequested, new SynergyChartShowInfo(_sceneHandle, _show));
+    }
+    // 고유명사 하이퍼링크(FM식). 링크가 있는 TMP 글자의 TextLinkHandler가 발행하고, 씬 로컬 라우터·미리보기 카드가 구독한다.
+    // 링크 ID 형식은 "<종류>:<테이블 ID>"이며 만들고 읽는 곳은 Presentation.EntityLink / Presentation.TryParseEntityLink 한 곳이다.
+    public readonly struct EntityLinkInfo
+    {
+        public readonly int sceneHandle;
+        public readonly EntityLinkKind kind;
+        public readonly string id;
+        public readonly Vector2 screenPosition;
+        public EntityLinkInfo(int _sceneHandle, EntityLinkKind _kind, string _id, Vector2 _screenPosition)
+        {
+            sceneHandle = _sceneHandle;
+            kind = _kind;
+            id = _id;
+            screenPosition = _screenPosition;
+        }
+    }
+    public static event Action<EntityLinkInfo> EntityLinkClicked;
+    public static event Action<EntityLinkInfo> EntityLinkContextRequested;
+    public static event Action<EntityLinkInfo> EntityLinkHovered;
+    public static event Action<int> EntityLinkHoverEnded;
+    public static void RaiseEntityLinkClicked(EntityLinkInfo _info)
+    {
+        Emit(EntityLinkClicked, _info);
+    }
+    public static void RaiseEntityLinkContextRequested(EntityLinkInfo _info)
+    {
+        Emit(EntityLinkContextRequested, _info);
+    }
+    public static void RaiseEntityLinkHovered(EntityLinkInfo _info)
+    {
+        Emit(EntityLinkHovered, _info);
+    }
+    public static void RaiseEntityLinkHoverEnded(int _sceneHandle)
+    {
+        Emit(EntityLinkHoverEnded, _sceneHandle);
+    }
+
+    // 링크 이동 요청: 지도에서 도시(또는 지역)를 보이기, 상성표에서 태그·품목을 강조하기.
+    public readonly struct MapFocusInfo
+    {
+        public readonly int sceneHandle;
+        public readonly string cityId;
+        public readonly string regionId;
+        public MapFocusInfo(int _sceneHandle, string _cityId, string _regionId)
+        {
+            sceneHandle = _sceneHandle;
+            cityId = _cityId;
+            regionId = _regionId;
+        }
+    }
+    public static event Action<MapFocusInfo> MapFocusRequested;
+    public static void RaiseMapFocusRequested(MapFocusInfo _info)
+    {
+        Emit(MapFocusRequested, _info);
+    }
+    public readonly struct SynergyHighlightInfo
+    {
+        public readonly int sceneHandle;
+        public readonly string[] tags;
+        public readonly string itemId;
+        public SynergyHighlightInfo(int _sceneHandle, string[] _tags, string _itemId)
+        {
+            sceneHandle = _sceneHandle;
+            tags = _tags;
+            itemId = _itemId;
+        }
+    }
+    public static event Action<SynergyHighlightInfo> SynergyHighlightRequested;
+    public static void RaiseSynergyHighlightRequested(SynergyHighlightInfo _info)
+    {
+        Emit(SynergyHighlightRequested, _info);
     }
     public static event Action<PuzzleNotebookTab> NotebookOpenRequested;
     public static void RaiseNotebookOpenRequested(PuzzleNotebookTab _tab)
@@ -556,8 +630,14 @@ public static class GameEvents
         TravelPreviewChanged = null;
         MapRequested = null;
         MapToggleRequested = null;
-        SynergyChartToggleRequested = null;
+        SynergyChartShowRequested = null;
         NotebookOpenRequested = null;
+        EntityLinkClicked = null;
+        EntityLinkContextRequested = null;
+        EntityLinkHovered = null;
+        EntityLinkHoverEnded = null;
+        MapFocusRequested = null;
+        SynergyHighlightRequested = null;
         ButcheryChanged = null;
         ModificationChanged = null;
         RefiningChanged = null;

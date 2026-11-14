@@ -637,7 +637,7 @@
         },
         {
           "id": "valueText",
-          "value": "화물 가치  {0:#,0.##}$  <size=18>기본 {1:N0}$</size>",
+          "value": "화물 가치  {0:#,0.##}$  <size=16>기본 {1:N0}$</size>",
           "arguments": 2
         },
         {
@@ -693,6 +693,20 @@
           "r": 1,
           "g": 0.78,
           "b": 0.3,
+          "a": 0.25
+        },
+        {
+          "id": "targetMarker",
+          "r": 1,
+          "g": 0.42,
+          "b": 0.36,
+          "a": 1
+        },
+        {
+          "id": "targetMarkerHalo",
+          "r": 1,
+          "g": 0.42,
+          "b": 0.36,
           "a": 0.25
         },
         {
@@ -900,7 +914,7 @@
         },
         {
           "id": "information",
-          "value": "<size=28><b>{0}</b></size>",
+          "value": "<size=24><b>{0}</b></size>",
           "arguments": 1
         },
         {
@@ -936,7 +950,7 @@
         },
         {
           "id": "informationText2",
-          "value": " <size=18>{0} · 전 품목 구매 {1}% · 판매 {2}%</size>",
+          "value": " <size=16>{0} · 전 품목 구매 {1}% · 판매 {2}%</size>",
           "arguments": 3
         },
         {
@@ -1021,6 +1035,16 @@
           "value": "▼ 상환 목표"
         },
         {
+          "id": "sellChip",
+          "value": "{0} 판매 {1}%",
+          "arguments": 2
+        },
+        {
+          "id": "sellChipUnvisited",
+          "value": "{0} 판매 우대",
+          "arguments": 1
+        },
+        {
           "id": "time",
           "value": "{0}시간",
           "arguments": 1
@@ -1054,7 +1078,7 @@
         },
         {
           "id": "regionOnly",
-          "value": " <size=18>{0}</size>",
+          "value": " <size=16>{0}</size>",
           "arguments": 1
         },
         {
@@ -1139,7 +1163,15 @@
         },
         {
           "id": "collapsed",
-          "value": "정\n보"
+          "value": "수첩"
+        },
+        {
+          "id": "handle",
+          "value": "수\n첩"
+        },
+        {
+          "id": "synergyTab",
+          "value": "상성표"
         },
         {
           "id": "badge",
@@ -1853,6 +1885,135 @@
       ]
     },
     {
+      "id": "presentation.link",
+      "colors": [
+        {
+          "id": "color",
+          "r": 0.55,
+          "g": 0.8,
+          "b": 1,
+          "a": 1
+        },
+        {
+          "id": "hover",
+          "r": 1,
+          "g": 0.88,
+          "b": 0.55,
+          "a": 1
+        },
+        {
+          "id": "highlight",
+          "r": 1,
+          "g": 0.82,
+          "b": 0.42,
+          "a": 0.35
+        }
+      ],
+      "texts": [
+        {
+          "id": "previewCurrent",
+          "value": "현재 위치"
+        },
+        {
+          "id": "previewVisited",
+          "value": "방문함"
+        },
+        {
+          "id": "previewUnvisited",
+          "value": "아직 가 보지 않음"
+        },
+        {
+          "id": "previewRegion",
+          "value": "지역 · {0}",
+          "arguments": 1
+        },
+        {
+          "id": "previewSell",
+          "value": "판매 우대 · {0}",
+          "arguments": 1
+        },
+        {
+          "id": "previewTravel",
+          "value": "이동 {0} · 운임 {1}$",
+          "arguments": 2
+        },
+        {
+          "id": "previewTags",
+          "value": "태그 · {0}",
+          "arguments": 1
+        },
+        {
+          "id": "previewValue",
+          "value": "기본 가치 {0}$",
+          "arguments": 1
+        },
+        {
+          "id": "previewBestCity",
+          "value": "비싸게 팔리는 곳 · {0}",
+          "arguments": 1
+        },
+        {
+          "id": "previewSynergy",
+          "value": "{0} 옆 {1}%",
+          "arguments": 2
+        },
+        {
+          "id": "previewNoSynergy",
+          "value": "받는 시너지 없음"
+        },
+        {
+          "id": "previewQuestRoute",
+          "value": "{0} → {1}",
+          "arguments": 2
+        },
+        {
+          "id": "previewQuestDeadline",
+          "value": "남은 기한 {0}",
+          "arguments": 1
+        },
+        {
+          "id": "previewQuestReward",
+          "value": "보수 {0}$",
+          "arguments": 1
+        },
+        {
+          "id": "previewRegionCities",
+          "value": "역 {0}곳",
+          "arguments": 1
+        },
+        {
+          "id": "previewSpecialty",
+          "value": "특산 · {0}",
+          "arguments": 1
+        },
+        {
+          "id": "actionMap",
+          "value": "지도에서 보기"
+        },
+        {
+          "id": "actionSynergy",
+          "value": "상성표에서 보기"
+        },
+        {
+          "id": "actionRumors",
+          "value": "소문 기록 보기"
+        },
+        {
+          "id": "actionProficiency",
+          "value": "숙련 보기"
+        },
+        {
+          "id": "actionQuests",
+          "value": "의뢰 기록 보기"
+        },
+        {
+          "id": "actionBack",
+          "value": "◀ 이전: {0}",
+          "arguments": 1
+        }
+      ]
+    },
+    {
       "id": "presentation.time",
       "colors": [
         {
@@ -1860,6 +2021,20 @@
           "r": 1,
           "g": 0.82,
           "b": 0.42,
+          "a": 1
+        },
+        {
+          "id": "dayBar",
+          "r": 0.42,
+          "g": 0.6,
+          "b": 0.68,
+          "a": 1
+        },
+        {
+          "id": "nightBar",
+          "r": 0.11,
+          "g": 0.13,
+          "b": 0.27,
           "a": 1
         }
       ],
@@ -1871,11 +2046,11 @@
         },
         {
           "id": "clockText2",
-          "value": "야간 · 시장 휴업"
+          "value": "밤 · 휴업"
         },
         {
           "id": "clockText3",
-          "value": "일출"
+          "value": "낮"
         },
         {
           "id": "deadlineTitle",

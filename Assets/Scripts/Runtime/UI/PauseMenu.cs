@@ -29,6 +29,7 @@ public sealed class PauseMenu : PanelBase
     PuzzleSynergyChartView synergyChartView;
     PuzzleTradeNotebookView notebookView;
     PuzzleStationActionsPresenter stationPresenter;
+    EntityContextMenuPresenter linkMenu;
 
     internal bool CanShowCompletion => isActiveAndEnabled && !IsOpen && restartButton && panelTitle && panelHint;
 
@@ -159,6 +160,13 @@ public sealed class PauseMenu : PanelBase
 
     bool TryConsumeScreenStep()
     {
+        // 0. 고유명사 우클릭 메뉴 -> 닫기
+        var menu = Resolve(ref linkMenu);
+        if (menu && menu.TryConsumeCancel())
+        {
+            return true;
+        }
+
         // 1. 이동 확인 창 -> 취소
         if (TryConsumeTravelConfirmation())
         {
@@ -171,7 +179,7 @@ public sealed class PauseMenu : PanelBase
             return true;
         }
 
-        // 3. 상성표 크게 보기 -> 닫기
+        // 3. 수첩 상성표 탭(상성표) -> 상성표와 수첩을 함께 접기
         if (TryConsumeSynergyChart())
         {
             return true;
