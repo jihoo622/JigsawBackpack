@@ -322,33 +322,62 @@ public static class Presentation
         return _percent.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);
     }
 
-    // 수첩 의뢰 탭의 숙련 묶음. 경험치가 있는 태그만 높은 순으로 보인다.
-    static string ProficiencyLog(PuzzleInventoryService _session)
+    // 수첩 숙련 탭·정보 바 평판. 숫자는 세션(테이블 원본 계산)이 넘기고 여기서는 문구·색만 정한다.
+    public static string RumorLogProficiencyTab => BasicData.Text("presentation.rumorLog.proficiencyTab");
+
+    public static string InfoBarReputation(int _reputation)
     {
-        var lines = new List<string> { BasicData.Text("presentation.proficiency.logHeader") };
-        var tags = _session.KnownProficiencyTags;
-        if (tags.Count == 0)
-        {
-            lines.Add(BasicData.Text("presentation.proficiency.logEmpty"));
-        }
-        foreach (string tag in tags)
-        {
-            int level = _session.ProficiencyLevel(tag);
-            lines.Add(BasicData.Format("presentation.proficiency.logEntry", PuzzleTagLabel(tag), level,
-                ProficiencyPercent(_session.ProficiencyBonusPercent(level)), _session.ProficiencyXp(tag),
-                _session.NextProficiencyXp(level)));
-        }
-        return string.Join(BasicData.Text("presentation.proficiency.lineSeparator"), lines);
+        return BasicData.Format("presentation.proficiency.infoBar", _reputation);
     }
 
-    // 수첩 의뢰 탭 본문. 평판·진행 수, 숙련, 지역 불이익, 진행 중 의뢰, 끝난 의뢰(최근 순) 순서다.
+    public static string ProficiencyPanelReputation(int _reputation, int _maxActiveQuests)
+    {
+        return BasicData.Format("presentation.proficiency.panelReputation", _reputation, _maxActiveQuests);
+    }
+
+    public static string ProficiencyPanelNextStage(int _nextReputation, int _remaining)
+    {
+        return BasicData.Format("presentation.proficiency.panelNextStage", _nextReputation, _remaining);
+    }
+
+    public static string ProficiencyPanelMaxStage => BasicData.Text("presentation.proficiency.panelMaxStage");
+    public static string ProficiencyPanelHint => BasicData.Text("presentation.proficiency.panelHint");
+
+    public static string ProficiencyRowLevel(int _level)
+    {
+        return BasicData.Format("presentation.proficiency.rowLevel", _level);
+    }
+
+    public static string ProficiencyChipLevel(int _level)
+    {
+        return BasicData.Format("presentation.proficiency.chipLevel", _level);
+    }
+
+    public static string ProficiencyRowXp(long _xp, long _nextXp)
+    {
+        return BasicData.Format("presentation.proficiency.rowXp", _xp, _nextXp);
+    }
+
+    // 거래 이득은 소수 첫째 자리까지 표기한다(+x.x%).
+    public static string ProficiencyRowBonus(decimal _percent)
+    {
+        return BasicData.Format("presentation.proficiency.rowBonus",
+            _percent.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture));
+    }
+
+    public static Color ProficiencyRowBackground => BasicData.Color("presentation.proficiency.rowBackground");
+    public static Color ProficiencyBarTrack => BasicData.Color("presentation.proficiency.barTrack");
+    public static Color ProficiencyBarFill => BasicData.Color("presentation.proficiency.barFill");
+    // 경험치가 0인 태그 행의 흐린 글자색.
+    public static Color ProficiencyDimText => BasicData.Color("presentation.proficiency.dimText");
+
+    // 수첩 의뢰 탭 본문. 평판·진행 수, 지역 불이익, 진행 중 의뢰, 끝난 의뢰(최근 순) 순서다. 숙련 목록은 숙련 탭에 있다.
     internal static string QuestLogEntries(PuzzleInventoryService _session)
     {
         var tables = TableManager.Instance;
         var entries = new List<string>
         {
-            BasicData.Format("presentation.quest.logHeader", _session.Reputation, _session.ActiveQuestCount, _session.MaxActiveQuests),
-            ProficiencyLog(_session)
+            BasicData.Format("presentation.quest.logHeader", _session.Reputation, _session.ActiveQuestCount, _session.MaxActiveQuests)
         };
         foreach (var region in tables.Puzzle.regions.OrderBy(_region => _region.id, StringComparer.Ordinal))
         {

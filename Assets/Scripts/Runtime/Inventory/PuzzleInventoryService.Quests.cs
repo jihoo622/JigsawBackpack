@@ -24,6 +24,20 @@ public sealed partial class PuzzleInventoryService
         .DefaultIfEmpty(0)
         .Max();
 
+    // 동시 진행 수가 지금보다 늘어나는 가장 가까운 평판 단계. 없으면(최대 단계) false다.
+    internal bool TryGetNextQuestReputationLevel(out int _reputation, out int _maxActiveQuests)
+    {
+        int reputation = Reputation;
+        int current = MaxActiveQuests;
+        var next = tables.Quest.reputationLevels
+            .Where(_level => _level.reputation > reputation && _level.maxActiveQuests > current)
+            .OrderBy(_level => _level.reputation)
+            .FirstOrDefault();
+        _reputation = next?.reputation ?? 0;
+        _maxActiveQuests = next?.maxActiveQuests ?? current;
+        return next != null;
+    }
+
     // 이번 방문의 의뢰 목록. 같은 방문에서는 처음 만든 목록을 유지하고 수락한 의뢰만 빠진다.
     internal IReadOnlyList<TrainventoryQuestOffer> QuestOffers
     {
