@@ -364,6 +364,15 @@ public sealed class GameTableRules
         Check(rumor.rarePercent >= 0, PATH + ".rarePercent", "희귀 소문 확률은 0 이상이어야 합니다.");
         Check(rumor.specialtyPercent + rumor.rarePercent == 100, PATH,
             "특산·희귀 소문 확률의 합은 100이어야 합니다.");
+        var excludedIds = new HashSet<string>(StringComparer.Ordinal);
+        var excludedItemIds = rumor.excludedItemIds ?? Array.Empty<string>();
+        for (int i = 0; i < excludedItemIds.Length; i++)
+        {
+            string id = excludedItemIds[i];
+            string path = PATH + ".excludedItemIds[" + i + "]";
+            Check(!string.IsNullOrWhiteSpace(id) && excludedIds.Add(id), path, "품목 ID는 비어 있지 않고 중복되지 않아야 합니다.");
+            Reference(id, path, _tables.TryGetPiece(id, out _), "품목");
+        }
     }
 
     void ValidateProficiency(TableManager _tables)

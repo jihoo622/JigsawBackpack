@@ -63,6 +63,8 @@ public sealed class PuzzleRumorTableData
     public string status, note;
     public int specialtyPercent = -1;
     public int rarePercent = -1;
+    // 소문에서 빼는 품목 ID. 특산 후보만 막고 품목의 시장 유통은 그대로 둔다.
+    public string[] excludedItemIds = Array.Empty<string>();
 }
 
 // 마을별 추가 행동(도축 등)의 원본. 도시 id·작업 시간·변환 관계를 이 표만 안다.
