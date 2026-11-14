@@ -2166,7 +2166,7 @@
         },
         {
           "id": "wastePurchase",
-          "value": "   ·   <color=#{0}><b><link=\"waste\">특수 매입</link></b></color> {1} (+10$)",
+          "value": "<color=#{0}><b><link=\"waste\">특수 매입</link></b></color>   {1} (+10$)\n",
           "arguments": 2
         },
         {

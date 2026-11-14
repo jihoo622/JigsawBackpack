@@ -14,11 +14,13 @@ public sealed partial class PuzzleInventoryService
         return PuzzleRumorCandidate.SortDistinct(candidates);
     }
 
-    // 특산 후보는 마을 고정 재고의 품목 중 그 마을에서만 실리는 품목이다.
+    // 특산 후보는 마을 고정 재고의 품목 중 그 마을의 지역 로테이션에는 없는 품목이다.
+    // 다른 지역 마을이 같은 품목을 쓰거나 공통 일반 재고에 있어도 상관없다.
     // 구매 배율이 도시 기본 배율보다 낮을 때만 '저렴하게 산다'고 말할 수 있다.
     void CollectSpecialtyCandidates(List<PuzzleRumorCandidate> _candidates)
     {
-        var stockCityCount = CountStockCities();
+        var excluded = new HashSet<string>(
+            tables.PuzzleRumor.excludedItemIds ?? Array.Empty<string>(), StringComparer.Ordinal);
         foreach (var city in tables.Cities)
         {
             if (!IsRumorTarget(city) || !city.buyEnabled || string.IsNullOrEmpty(city.specialtyTag))
@@ -28,8 +30,8 @@ public sealed partial class PuzzleInventoryService
 
             foreach (string itemId in FixedStockItemIds(city.id))
             {
-                if (!definitions.TryGetValue(itemId, out var item) || item.ExcludeFromMarket ||
-                    !item.Tags.Contains(city.specialtyTag) || stockCityCount[itemId] > 1 ||
+                if (!definitions.TryGetValue(itemId, out var item) || item.ExcludeFromMarket || excluded.Contains(itemId) ||
+                    !item.Tags.Contains(city.specialtyTag) || InRegionalStock(city, itemId) ||
                     CityTradeRate(city, item).BuyPercent >= city.buyPercentOfBaseValue)
                 {
                     continue;
@@ -63,42 +65,11 @@ public sealed partial class PuzzleInventoryService
         }
     }
 
-    // 품목이 몇 마을에서 실릴 수 있는지 센다. 고정 재고와 그 마을이 쓰는 일반·지역 재고 후보를 함께 본다.
-    Dictionary<string, int> CountStockCities()
+    // 품목이 그 마을의 지역 재고 로테이션에 들어 있으면 지역 공통 물건이라 특산이라 말하지 않는다.
+    bool InRegionalStock(PuzzleCityData _city, string _itemId)
     {
-        var counts = new Dictionary<string, int>(StringComparer.Ordinal);
-        foreach (var city in tables.Cities)
-        {
-            foreach (string itemId in StockItemIds(city))
-            {
-                counts.TryGetValue(itemId, out int current);
-                counts[itemId] = current + 1;
-            }
-        }
-
-        return counts;
-    }
-
-    IEnumerable<string> StockItemIds(PuzzleCityData _city)
-    {
-        var ids = new HashSet<string>(StringComparer.Ordinal);
-        foreach (var placement in tables.MarketStartingPlacements(_city.id))
-        {
-            ids.Add(placement.pieceId);
-        }
-
-        foreach (string stockId in new[] { _city.generalStockId, _city.regionalStockId })
-        {
-            if (tables.TryGetStockProfile(stockId, out var profile))
-            {
-                foreach (string itemId in profile.pieceIds ?? Array.Empty<string>())
-                {
-                    ids.Add(itemId);
-                }
-            }
-        }
-
-        return ids;
+        return tables.TryGetStockProfile(_city.regionalStockId, out var profile) &&
+            (profile.pieceIds ?? Array.Empty<string>()).Contains(_itemId);
     }
 
     // 같은 품목이 여러 고정 슬롯에 있어도 후보는 하나다.
