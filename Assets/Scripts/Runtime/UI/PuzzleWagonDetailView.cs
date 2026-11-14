@@ -11,25 +11,36 @@ public sealed class PuzzleWagonDetailView : MonoBehaviour
     [SerializeField] TextMeshProUGUI formationDeltaLabel;
     [SerializeField] TextMeshProUGUI effectLabel;
     [SerializeField] Image artworkImage;
+    [SerializeField] TextMeshProUGUI emptyLabel;
 
     void Awake()
     {
         if (titleLabel)
         {
-            titleLabel.text = "선택한 화차 상세";
+            titleLabel.text = Presentation.WagonDetailTitle;
+        }
+        if (emptyLabel)
+        {
+            emptyLabel.text = Presentation.WagonDetailEmpty;
         }
     }
 
+    // 화차가 없으면(선택 전) 상세 줄을 모두 숨기고 고르기 안내만 보인다.
     internal void Bind(PuzzleWagonProductData _product, Sprite _artworkSprite = null)
     {
-        if (_product == null)
+        bool hasProduct = _product != null;
+        SetLineVisible(nameLabel, hasProduct);
+        SetLineVisible(priceLabel, hasProduct);
+        SetLineVisible(sizeLabel, hasProduct);
+        SetLineVisible(formationDeltaLabel, hasProduct);
+        SetLineVisible(effectLabel, hasProduct);
+        SetLineVisible(emptyLabel, !hasProduct);
+        if (!hasProduct)
         {
-            if (nameLabel) nameLabel.text = string.Empty;
-            if (priceLabel) priceLabel.text = string.Empty;
-            if (sizeLabel) sizeLabel.text = string.Empty;
-            if (formationDeltaLabel) formationDeltaLabel.text = string.Empty;
-            if (effectLabel) effectLabel.text = string.Empty;
-            if (artworkImage) artworkImage.gameObject.SetActive(false);
+            if (artworkImage)
+            {
+                artworkImage.gameObject.SetActive(false);
+            }
             return;
         }
 
@@ -75,6 +86,14 @@ public sealed class PuzzleWagonDetailView : MonoBehaviour
             {
                 artworkImage.gameObject.SetActive(false);
             }
+        }
+    }
+
+    static void SetLineVisible(TextMeshProUGUI _label, bool _visible)
+    {
+        if (_label)
+        {
+            _label.gameObject.SetActive(_visible);
         }
     }
 }

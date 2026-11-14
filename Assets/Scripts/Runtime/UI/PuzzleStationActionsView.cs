@@ -84,6 +84,8 @@ public sealed class PuzzleStationActionsView : PanelBase
     public bool ShowingSubscreen => isActiveAndEnabled && actionsList && !actionsList.activeSelf;
     PuzzleWagonProductData[] wagonProducts;
     int wagonShopPage;
+    // 화차 상점은 선택 없음으로 시작하고, 카드를 누르거나 끌기 시작하면 선택된다. 같은 카드를 다시 누르거나 상점을 나가면 해제한다.
+    PuzzleWagonProductRow selectedWagonRow;
 
     protected override void Awake()
     {
@@ -148,7 +150,8 @@ public sealed class PuzzleStationActionsView : PanelBase
             {
                 if (wagonProductRows[i] != null)
                 {
-                    wagonProductRows[i].Selected += OnWagonRowSelected;
+                    wagonProductRows[i].Clicked += OnWagonRowClicked;
+                    wagonProductRows[i].DragStarted += OnWagonRowDragStarted;
                 }
             }
         }
@@ -174,6 +177,8 @@ public sealed class PuzzleStationActionsView : PanelBase
     {
         if (wagonShopContent && wagonShopContent.activeSelf)
         {
+            // 비활성화 중에는 하위 오브젝트를 켜고 끄지 않는다. 다시 열면 RefreshWagonShopPage가 선택 없음으로 그린다.
+            selectedWagonRow = null;
             wagonShopContent.SetActive(false);
             GameEvents.RaisePanelVisibility(Presentation.PUZZLE_WAGON_SHOP_PANEL_NAME, false);
         }
@@ -191,7 +196,8 @@ public sealed class PuzzleStationActionsView : PanelBase
             {
                 if (wagonProductRows[i] != null)
                 {
-                    wagonProductRows[i].Selected -= OnWagonRowSelected;
+                    wagonProductRows[i].Clicked -= OnWagonRowClicked;
+                    wagonProductRows[i].DragStarted -= OnWagonRowDragStarted;
                 }
             }
         }
@@ -319,11 +325,23 @@ public sealed class PuzzleStationActionsView : PanelBase
         RefreshWagonShopPage();
     }
 
-    void OnWagonRowSelected(PuzzleWagonProductRow _row, PuzzleWagonProductData _product)
+    void OnWagonRowClicked(PuzzleWagonProductRow _row)
     {
+        SelectWagonRow(selectedWagonRow == _row ? null : _row);
+    }
+
+    void OnWagonRowDragStarted(PuzzleWagonProductRow _row)
+    {
+        SelectWagonRow(_row);
+    }
+
+    void SelectWagonRow(PuzzleWagonProductRow _row)
+    {
+        selectedWagonRow = _row != null && _row.Product != null ? _row : null;
         if (wagonDetailView != null)
         {
-            wagonDetailView.Bind(_product, _row != null ? _row.ArtworkSprite : null);
+            wagonDetailView.Bind(selectedWagonRow != null ? selectedWagonRow.Product : null,
+                selectedWagonRow != null ? selectedWagonRow.ArtworkSprite : null);
         }
         if (wagonProductRows != null)
         {
@@ -331,38 +349,26 @@ public sealed class PuzzleStationActionsView : PanelBase
             {
                 if (wagonProductRows[i] != null)
                 {
-                    wagonProductRows[i].SetSelected(wagonProductRows[i] == _row);
+                    wagonProductRows[i].SetSelected(wagonProductRows[i] == selectedWagonRow);
                 }
             }
         }
     }
 
+    // 쪽을 넘기면 카드 내용이 바뀌므로 선택을 해제한다.
     void RefreshWagonShopPage()
     {
         int pageCount = (wagonProducts.Length + wagonProductRows.Length - 1) / wagonProductRows.Length;
         int firstIndex = wagonShopPage * wagonProductRows.Length;
-        PuzzleWagonProductRow firstValidRow = null;
         for (int i = 0; i < wagonProductRows.Length; i++)
         {
             int index = firstIndex + i;
             var prod = index < wagonProducts.Length ? wagonProducts[index] : null;
             wagonProductRows[i].Bind(prod);
-            if (prod != null && firstValidRow == null)
-            {
-                firstValidRow = wagonProductRows[i];
-            }
         }
         wagonShopPageLabel.text = Presentation.StationWagonShopPage(wagonShopPage + 1, pageCount);
         wagonShopNextPage.gameObject.SetActive(pageCount > 1);
-
-        if (firstValidRow != null)
-        {
-            OnWagonRowSelected(firstValidRow, firstValidRow.Product);
-        }
-        else if (wagonDetailView != null)
-        {
-            wagonDetailView.Bind(null);
-        }
+        SelectWagonRow(null);
     }
 
     internal void ShowRest()
@@ -432,6 +438,10 @@ public sealed class PuzzleStationActionsView : PanelBase
         // 화차 상점 열림 변화는 PanelVisibility로 흘린다. 화물칸 바가 다음 잠긴 칸 강조에 쓴다.
         if (wagonShopChanged)
         {
+            if (!wagonShopOpen)
+            {
+                SelectWagonRow(null);
+            }
             GameEvents.RaisePanelVisibility(Presentation.PUZZLE_WAGON_SHOP_PANEL_NAME, wagonShopOpen);
         }
         restContent.SetActive(_content == restContent);

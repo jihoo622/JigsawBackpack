@@ -11,6 +11,7 @@ public enum PuzzleNotebookTab
 }
 
 // 사전 배치한 스크롤 본문·탭·접기 버튼만 제어한다. 기록 데이터는 Presenter가 전달한다.
+// 머리 줄(제목·개수·오른쪽 위 접기 버튼) 아래에 소문/의뢰 탭이 반반 폭으로 있고, 선택한 탭은 배경·글자색·밑줄로 구분한다.
 public sealed class PuzzleTradeNotebookView : PanelBase
 {
     [SerializeField] Button toggleButton;
@@ -25,6 +26,8 @@ public sealed class PuzzleTradeNotebookView : PanelBase
     [SerializeField] TextMeshProUGUI rumorTabLabel;
     [SerializeField] Button questTabButton;
     [SerializeField] TextMeshProUGUI questTabLabel;
+    [SerializeField] Image rumorTabMark;
+    [SerializeField] Image questTabMark;
     bool scrollPending;
 
     internal event Action<PuzzleNotebookTab> TabSelected;
@@ -82,9 +85,9 @@ public sealed class PuzzleTradeNotebookView : PanelBase
     {
         if (!logText || !scroll || !toggleButton || !collapseButton || !toggleLabel ||
             !titleLabel || !countLabel || !collapseLabel || !rumorTabButton || !rumorTabLabel ||
-            !questTabButton || !questTabLabel)
+            !questTabButton || !questTabLabel || !rumorTabMark || !questTabMark)
         {
-            throw new InvalidOperationException("수첩 패널의 본문·스크롤·탭·접기 버튼을 연결하세요.");
+            throw new InvalidOperationException("수첩 패널의 본문·스크롤·탭·탭 밑줄·접기 버튼을 연결하세요.");
         }
         logText.text = _text;
         titleLabel.text = Presentation.RumorLogTitle;
@@ -93,10 +96,22 @@ public sealed class PuzzleTradeNotebookView : PanelBase
         collapseLabel.text = Presentation.RumorLogCollapse;
         rumorTabLabel.text = Presentation.RumorLogRumorTab;
         questTabLabel.text = Presentation.RumorLogQuestTab;
-        // 선택한 탭은 눌러도 바뀌지 않으므로 비활성으로 표시한다.
-        rumorTabButton.interactable = _tab != PuzzleNotebookTab.Rumors;
-        questTabButton.interactable = _tab != PuzzleNotebookTab.Quests;
+        ApplyTabState(rumorTabButton, rumorTabLabel, rumorTabMark, _tab == PuzzleNotebookTab.Rumors);
+        ApplyTabState(questTabButton, questTabLabel, questTabMark, _tab == PuzzleNotebookTab.Quests);
         scrollPending = IsOpen;
+    }
+
+    // 선택한 탭은 눌러도 바뀌지 않으므로 입력을 막고, 색 틴트 대신 배경·글자색·밑줄로 선택 상태를 보인다.
+    static void ApplyTabState(Button _button, TextMeshProUGUI _label, Image _mark, bool _selected)
+    {
+        _button.interactable = !_selected;
+        if (_button.targetGraphic)
+        {
+            _button.targetGraphic.color = _selected ? Presentation.RumorLogTabSelected : Presentation.RumorLogTabNormal;
+        }
+        _label.color = _selected ? Presentation.RumorLogTabSelectedText : Presentation.RumorLogTabNormalText;
+        _mark.color = Presentation.PuzzleWagonSelectedBorder;
+        _mark.gameObject.SetActive(_selected);
     }
 
     protected override void OnShow()

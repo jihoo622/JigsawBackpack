@@ -51,6 +51,12 @@ public static class Presentation
     public static string RumorLogRumorTab => BasicData.Text("presentation.rumorLog.rumorTab");
     public static string RumorLogQuestTab => BasicData.Text("presentation.rumorLog.questTab");
 
+    // 수첩 탭 배경·글자색. 선택한 탭은 밝은 배경과 화물칸 선택색 밑줄로 구분한다.
+    public static Color RumorLogTabNormal => BasicData.Color("presentation.rumorLog.tabNormal");
+    public static Color RumorLogTabNormalText => BasicData.Color("presentation.rumorLog.tabNormalText");
+    public static Color RumorLogTabSelected => BasicData.Color("presentation.rumorLog.tabSelected");
+    public static Color RumorLogTabSelectedText => BasicData.Color("presentation.rumorLog.tabSelectedText");
+
     // 누적 경과 분을 게임 날짜·시각으로 표기한다. 소문·의뢰 기록이 같은 표기를 쓴다.
     internal static string GameTimestamp(long _elapsedMinutes)
     {
@@ -129,6 +135,10 @@ public static class Presentation
     {
         return BasicData.Format("presentation.train.wagonFormationDelta", _ownedDelta, _cellDelta);
     }
+
+    // 화차 상세 패널 제목과 화차를 고르기 전 안내. 화차 상점은 선택 없음으로 시작한다.
+    public static string WagonDetailTitle => BasicData.Text("presentation.train.wagonDetailTitle");
+    public static string WagonDetailEmpty => BasicData.Text("presentation.train.wagonDetailEmpty");
 
     // 화물칸 바 오른쪽 고정 지도 버튼. 닫힘 라벨은 presentation.map.open("지도")을 재사용한다.
     public static string MapToggleClose => BasicData.Text("presentation.map.closeMap");
