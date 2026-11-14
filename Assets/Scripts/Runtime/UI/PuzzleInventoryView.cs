@@ -341,19 +341,45 @@ public sealed class PuzzleInventoryView : MonoBehaviour
         }
     }
 
-    public void ShowGhost(PuzzlePose _pose, PuzzleItemDefinition _item, Vector2Int _grabbedBoardCell, Vector2 _screenPosition,
-        int? _freshness = null)
+    // 고스트 슬롯은 보드와 피벗이 다른 레이어 아래에 있으므로 보드 칸 좌표를 그 레이어 좌표로 옮겨 그린다.
+    RectTransform GhostParent => ghostLayer ? ghostLayer : (RectTransform)transform;
+
+    // 놓을 자리 후보는 외곽선과 같은 보드 칸에 겹쳐 그린다.
+    public void ShowGhostOnBoard(PuzzlePose _pose, PuzzleItemDefinition _item, int? _freshness = null)
     {
-        if (_pose == null || !RectTransformUtility.ScreenPointToLocalPointInRectangle(
-                (RectTransform)transform, _screenPosition, EventCamera, out var local))
+        if (_pose == null)
         {
-            HideSlots(ghostSlots);
+            HideGhost();
             return;
         }
 
-        var offset = local - GetCellCenter(_grabbedBoardCell);
+        Vector2 boardOrigin = GhostParent.InverseTransformPoint(board.rectTransform.position);
+        RenderGhost(_pose, _item, boardOrigin, _freshness);
+    }
+
+    // 놓을 자리가 없으면 잡은 칸의 중심이 커서 아래 오도록 커서를 따라간다.
+    public void ShowGhostAtPointer(PuzzlePose _pose, PuzzleItemDefinition _item, Vector2Int _grabbedCell, Vector2 _screenPosition,
+        int? _freshness = null)
+    {
+        if (_pose == null || !RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                GhostParent, _screenPosition, EventCamera, out var local))
+        {
+            HideGhost();
+            return;
+        }
+
+        RenderGhost(_pose, _item, local - GetCellCenter(_grabbedCell), _freshness);
+    }
+
+    public void HideGhost()
+    {
+        HideSlots(ghostSlots);
+    }
+
+    void RenderGhost(PuzzlePose _pose, PuzzleItemDefinition _item, Vector2 _offset, int? _freshness)
+    {
         var ghost = Presentation.PuzzleGhost;
-        int used = RenderPose(ghostSlots, 0, _pose, offset, ghost,
+        int used = RenderPose(ghostSlots, 0, _pose, _offset, ghost,
             iconIndex[_item.VisualKey].sprite, _item.IconSize, _item.IconOffset, _freshness,
             _outlineColor: Presentation.PuzzlePieceAccentOutline(_item, ghost.a));
         HideSlots(ghostSlots, used);
@@ -592,7 +618,7 @@ public sealed class PuzzleInventoryView : MonoBehaviour
     {
         originalSlotPose = null;
         previewSlotPose = null;
-        HideSlots(ghostSlots);
+        HideGhost();
         HideSlots(outlineSlots);
         HideDragBeam();
         HideAdjacentSynergyPreview();

@@ -818,11 +818,19 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             var preview = drag.Evaluate(session, destination, targetCell);
             SetDragView(targetView);
             var candidate = preview.Placement.Candidate;
-            var grabbedBoardCell = candidate != null ? targetCell : Vector2Int.zero;
-            targetView.ShowGhost(candidate ?? drag.GetGhostPose(), drag.Definition, grabbedBoardCell, pointerPosition, drag.FreshnessPercent);
+            if (candidate != null)
+            {
+                targetView.ShowGhostOnBoard(candidate, drag.Definition, drag.FreshnessPercent);
+            }
+            else
+            {
+                targetView.ShowGhostAtPointer(drag.GetGhostPose(), drag.Definition, Vector2Int.zero, pointerPosition, drag.FreshnessPercent);
+            }
             targetView.ShowPreview(candidate, preview.CanDrop);
+            // 고스트는 놓을 후보 보드에만 둔다. 출발 보드에는 원래 자리 외곽선과 광선만 남긴다.
             if (targetView != sourceView && sourceView)
             {
+                sourceView.HideGhost();
                 sourceView.ShowPreview(null, false);
             }
 
@@ -864,7 +872,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         SetDragView(sourceView);
         if (sourceView)
         {
-            sourceView.ShowGhost(drag.GetGhostPose(), drag.Definition, Vector2Int.zero, pointerPosition, drag.FreshnessPercent);
+            sourceView.ShowGhostAtPointer(drag.GetGhostPose(), drag.Definition, Vector2Int.zero, pointerPosition, drag.FreshnessPercent);
             sourceView.ShowPreview(null, false);
             sourceView.HideAdjacentSynergyPreview();
             Vector2 sourceCenterScreen = sourceView.GetShapeCenterScreen(drag.OriginalPose.Cells);
