@@ -1,0 +1,1417 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>E안 3차 — 세 축 (백팩 · 기차 · 도착지)</title>
+<style>
+:root {
+  --page: #f4f5f7; --stage: #e6e8ec; --panel: #ffffff; --panel-alt: #f0f2f5;
+  --line: #9aa3af; --line-strong: #4b5563; --text: #111827; --muted: #6b7280;
+  --board: #dbeafe; --board-line: #3b82f6;      /* 보드(기차·시장·도축·개조) */
+  --changed: #fde68a; --changed-line: #d97706;   /* 현행에서 위치·크기가 바뀌는 영역 */
+  --overlay: #fecaca; --overlay-line: #dc2626;   /* 다른 UI를 가리는 오버레이·겹침 */
+  --dock: #d1fae5; --dock-line: #059669;         /* 새로 생기는 영역(수첩·고정) */
+  --bench: #ede9fe; --bench-line: #7c3aed;       /* 벤치마크 반영 */
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --page: #111318; --stage: #1b1e25; --panel: #262a33; --panel-alt: #20242c;
+    --line: #5b6472; --line-strong: #aab2bf; --text: #f3f4f6; --muted: #9ca3af;
+    --board: #1e3a5f; --board-line: #60a5fa;
+    --changed: #5b4a14; --changed-line: #fbbf24;
+    --overlay: #5a2020; --overlay-line: #f87171;
+    --dock: #154a3a; --dock-line: #34d399;
+    --bench: #3b2a63; --bench-line: #a78bfa;
+  }
+}
+* { box-sizing: border-box; }
+body { background: var(--page); color: var(--text); font-family: "Malgun Gothic", "Apple SD Gothic Neo", system-ui, sans-serif; margin: 16px; }
+h1 { font-size: 26px; margin: 0 0 8px; }
+.summary { margin: 0 0 12px; font-size: 15px; line-height: 1.6; max-width: 1100px; }
+table.metrics { border-collapse: collapse; margin: 0 0 14px; }
+table.metrics th, table.metrics td { border: 1px solid var(--line); padding: 4px 10px; font-size: 14px; text-align: left; vertical-align: top; }
+table.metrics th { background: var(--panel-alt); white-space: nowrap; }
+table.cmp { border-collapse: collapse; margin: 0 0 10px; width: 100%; max-width: 1200px; }
+table.cmp th, table.cmp td { border: 1px solid var(--line); padding: 4px 10px; font-size: 14px; text-align: left; vertical-align: top; }
+table.cmp th { background: var(--panel-alt); white-space: nowrap; }
+code { font-family: Consolas, monospace; font-size: 13px; }
+.legend { display: flex; flex-wrap: wrap; gap: 10px 20px; align-items: center; margin: 0 0 14px; }
+.key { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; }
+.sw { display: inline-block; width: 26px; height: 16px; border: 2px solid var(--line); flex: none; }
+.sw.board-sw { background: var(--board); border-color: var(--board-line); }
+.sw.changed-sw { background: var(--changed); border-color: var(--changed-line); }
+.sw.dock-sw { background: var(--dock); border-color: var(--dock-line); }
+.sw.bench-sw { background: var(--bench); border-color: var(--bench-line); }
+.sw.overlay-sw { background: var(--overlay); border-color: var(--overlay-line); }
+.sw.ghost-sw { background: transparent; border: 2px dashed var(--overlay-line); }
+.toggles { display: flex; flex-wrap: wrap; gap: 10px 22px; align-items: center; margin: 0 0 14px; font-size: 15px; }
+.toggles label { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; white-space: nowrap; }
+.tgroup { display: inline-flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+#stageWrap { position: relative; width: 100%; height: 1080px; }
+#stage { position: absolute; top: 0; left: 0; width: 1920px; height: 1080px; background: var(--stage); transform-origin: top left; }
+
+.region { position: absolute; background: var(--panel); border: 2px solid var(--line); }
+.region.sub { background: var(--panel-alt); }
+.region.locked { background: var(--panel-alt); border: 2px dashed var(--line); }
+.changed { background: var(--changed); border-color: var(--changed-line); }
+.dock { background: var(--dock); border-color: var(--dock-line); }
+.bench { background: var(--bench); border-color: var(--bench-line); }
+
+/* 영역 안 이름: 높이에 따라 한 줄/여러 줄 */
+.lbl { position: absolute; left: 0; top: 0; right: 0; bottom: 0; padding: 8px; overflow: hidden; }
+.lbl.inl { display: flex; align-items: center; padding: 4px 8px; }
+.lbl.tiny { padding: 2px 8px; }
+.lbl.center { justify-content: center; }
+.inlrow { min-width: 0; }
+.lbl.inl .inlrow { white-space: nowrap; overflow: hidden; }
+.inlrow .obj, .inlrow .meta { margin-left: 10px; }
+.name { font-size: 22px; line-height: 1.3; }
+.obj { font-size: 16px; color: var(--muted); }
+.meta { font-size: 16px; color: var(--muted); line-height: 1.35; }
+.note { font-size: 14px; color: var(--muted); line-height: 1.5; margin-top: 8px; }
+
+/* 고정 배지 */
+.fixbadge { display: inline-block; background: var(--dock); border: 1px solid var(--dock-line); color: var(--text); font-size: 13px; font-weight: 600; line-height: 1.2; padding: 1px 6px; margin-left: 8px; border-radius: 2px; vertical-align: middle; }
+
+/* 컨테이너 영역: 상단 테두리에 탭으로 표시 */
+.tab { position: absolute; top: -16px; left: 8px; max-width: calc(100% - 16px); background: var(--panel); border: 1px solid var(--line); padding: 1px 8px; font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; z-index: 3; }
+.tab b { font-weight: 600; }
+.tab .obj, .tab .meta { display: inline; margin-left: 10px; }
+.tab.out { top: 0; transform: translateY(-100%); }
+
+.board { background: var(--board-line); border: 3px solid var(--board-line); }
+.board .grid { position: absolute; left: 0; top: 0; right: 0; bottom: 0; display: grid; gap: 1px; }
+.board .cell { background: var(--board); }
+.board-label { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); background: var(--board); border: 1px solid var(--board-line); padding: 6px 12px; text-align: center; z-index: 2; }
+.board-label.sm { padding: 3px 6px; max-width: calc(100% - 10px); }
+.bname { display: block; font-size: 22px; line-height: 1.3; white-space: nowrap; }
+.bmeta { display: block; font-size: 16px; color: var(--muted); line-height: 1.35; white-space: nowrap; }
+.board-label.sm .bname { font-size: 15px; }
+.board-label.sm .bmeta { font-size: 12px; }
+.badge { position: absolute; top: 0; left: 0; background: var(--changed); border: 2px solid var(--changed-line); color: var(--text); font-size: 16px; line-height: 1.4; padding: 1px 8px; z-index: 3; }
+.badge.bbench { background: var(--bench); border-color: var(--bench-line); }
+
+/* 도크 탭 줄 */
+.tabrow { position: absolute; left: 6px; top: 6px; right: 6px; bottom: 6px; display: flex; gap: 6px; align-items: center; }
+.tlab { font-size: 14px; color: var(--muted); white-space: nowrap; }
+.tb { flex: 1; height: 100%; min-width: 0; border: 1px solid var(--line); background: var(--panel); font-size: 14px; display: flex; align-items: center; justify-content: center; cursor: pointer; overflow: hidden; }
+.tb.on { background: var(--dock); border-color: var(--dock-line); }
+
+/* 도크 소문 탭 자리 표시 */
+.ph-note { position: absolute; background: var(--panel-alt); border: 1px solid var(--line); font-size: 14px; padding: 6px 8px; line-height: 1.45; overflow: hidden; }
+.ph-line { position: absolute; border-bottom: 2px solid var(--line); }
+
+/* 드래그 거리 점선 */
+#overlaySvg { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; pointer-events: none; z-index: 5; }
+#overlaySvg line { stroke: var(--line-strong); stroke-width: 2; stroke-dasharray: 10 8; }
+.float-label { position: absolute; transform: translate(-50%, -50%); background: var(--panel); border: 1px solid var(--line-strong); color: var(--text); font-size: 16px; padding: 2px 10px; white-space: nowrap; z-index: 6; }
+.stage-note { position: absolute; background: var(--panel); border: 1px solid var(--line); color: var(--muted); font-size: 14px; padding: 1px 8px; white-space: nowrap; overflow: hidden; z-index: 6; }
+
+/* 드래그 예시(보드 위 보조 표시) */
+.dragcell { position: absolute; z-index: 4; pointer-events: none; }
+.dragcell.orig { border: 2px dashed var(--line-strong); }
+.dragcell.dest { border: 2px solid var(--board-line); }
+.dragcell.dest .fill { position: absolute; left: 0; top: 0; right: 0; bottom: 0; background: var(--board); opacity: 0.5; }
+.chip { position: absolute; transform: translate(-50%, -50%); background: var(--bench); border: 1px solid var(--bench-line); color: var(--text); font-size: 13px; padding: 1px 8px; white-space: nowrap; z-index: 5; pointer-events: none; }
+
+/* 지도 예시(역 노드·선로·이동 미리보기) */
+.mapex { position: absolute; overflow: hidden; z-index: 8; pointer-events: none; }
+.mapex svg { position: absolute; left: 0; top: 0; }
+.mnode { position: absolute; border-radius: 50%; background: var(--panel); border: 2px solid var(--line-strong); z-index: 1; }
+.mnode.cur { border-width: 4px; }
+.mlabel { position: absolute; background: var(--panel); border: 1px solid var(--line); font-size: 13px; display: flex; align-items: center; justify-content: center; z-index: 1; }
+.mchip { position: absolute; background: var(--bench); border: 1px solid var(--bench-line); font-size: 11px; display: flex; align-items: center; justify-content: center; z-index: 1; }
+.rlabel { position: absolute; transform: translate(-50%, -50%); background: var(--panel); border: 1px solid var(--line); font-size: 12px; padding: 0 6px; white-space: nowrap; z-index: 1; }
+.rlabel.sel { background: var(--bench); border-color: var(--bench-line); }
+.mcard { position: absolute; background: var(--panel); border: 2px solid var(--bench-line); padding: 6px 8px; z-index: 3; }
+.mrow { font-size: 13px; line-height: 1.5; white-space: nowrap; overflow: hidden; }
+.mrow.hd { font-size: 14px; font-weight: 600; }
+.mrow.dim { font-size: 11px; color: var(--muted); }
+
+/* 겹쳐 뜨는 화면 */
+.dim { position: absolute; background: var(--overlay); }
+
+/* 현행 위치 비교(점선) */
+.ghostrect { position: absolute; border: 2px dashed var(--overlay-line); pointer-events: none; z-index: 15; }
+.ghost-tag { position: absolute; background: var(--panel); border: 1px dashed var(--overlay-line); color: var(--overlay-line); font-size: 14px; line-height: 1.5; padding: 1px 6px; white-space: nowrap; z-index: 15; }
+.ghost-tag .meta { font-size: 12px; color: var(--overlay-line); margin-left: 6px; }
+
+/* 툴팁 예시 (내부 구성: 이름/태그/모양 격자/가치/예상/신선도/효과/시너지) */
+.tipbox { position: absolute; border: 2px dashed var(--overlay-line); padding: 0; overflow: hidden; z-index: 6; }
+.tsec { position: absolute; left: 6px; width: 284px; border: 1px solid var(--line); background: var(--panel-alt); font-size: 13px; padding: 3px 6px; overflow: hidden; }
+.tsec .tlab { font-size: 13px; line-height: 1.4; white-space: nowrap; overflow: hidden; }
+.tchip { display: inline-block; background: var(--bench); border: 1px solid var(--bench-line); border-radius: 8px; font-size: 11px; line-height: 1.4; padding: 0 6px; margin-right: 4px; }
+.mini { position: absolute; right: 4px; top: 16px; display: grid; grid-template-columns: repeat(5, 14px); grid-auto-rows: 14px; gap: 1px; }
+.mini div { background: var(--panel); border: 1px solid var(--line); }
+.mini div.f { background: var(--bench); border-color: var(--bench-line); }
+.tnote { font-size: 11px; color: var(--muted); line-height: 1.4; margin-top: 3px; overflow: hidden; }
+
+/* 접힌 수첩 탭 */
+.tab-fold { position: absolute; background: var(--dock); border: 2px solid var(--dock-line); cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; z-index: 11; font-weight: 600; }
+.tab-fold .t-title { font-size: 18px; color: var(--text); }
+.tab-fold .t-sub { font-size: 13px; color: var(--dock-line); }
+
+h2 { font-size: 20px; margin: 24px 0 8px; }
+ul, ol { margin: 0 0 10px; padding-left: 24px; }
+li { margin: 3px 0; font-size: 15px; line-height: 1.5; }
+.footnote { font-size: 13px; color: var(--muted); margin-top: 20px; }
+</style>
+</head>
+<body>
+
+<h1>E안 3차 — 세 축 (백팩 · 기차 · 도착지)</h1>
+<p class="summary">화면은 세 축이다: <b>왼쪽 = 백팩(선택한 화물칸의 짐)</b>, <b>아래 = 기차(화물칸 바)</b>, <b>오른쪽 = 도착지(지금 역에서 할 일과 다음에 갈 곳)</b>. 상태 안내·화물칸 바·정보 바는 상시 고정되어 지도·수첩·상성표 등에서도 가려지지 않는다(일시정지만 덮음).</p>
+
+<table class="metrics">
+  <tr><th>시장↔기차 드래그 거리</th><td>약 658px (현행 약 933px)</td></tr>
+  <tr><th>도축·개조↔기차 드래그 거리</th><td>약 462px (현행 약 933px)</td></tr>
+  <tr><th>화차 카드→다음 빈 칸</th><td>약 236px (현행 약 1,000px)</td></tr>
+  <tr><th>지도 뷰포트</th><td>1232×580 (현행 1824×624)</td></tr>
+  <tr><th>고정 UI</th><td>상태 안내·화물칸 바·정보 바 (일시정지만 덮음)</td></tr>
+</table>
+
+<div class="legend">
+  <span class="key"><i class="sw board-sw"></i> 보드 (기차·시장·도축·개조)</span>
+  <span class="key"><i class="sw changed-sw"></i> 변경 영역</span>
+  <span class="key"><i class="sw dock-sw"></i> 신규 영역 (접이식 수첩·고정)</span>
+  <span class="key"><i class="sw bench-sw"></i> 벤치마크 반영</span>
+  <span class="key"><i class="sw overlay-sw"></i> 가림·겹침 (오버레이)</span>
+  <span class="key"><i class="sw ghost-sw"></i> 현행 위치 (비교 토글, 점선)</span>
+</div>
+
+<div class="toggles">
+  <span class="tgroup">역 화면 상태:
+    <label><input type="radio" name="state" value="actions" checked> 행동 목록</label>
+    <label><input type="radio" name="state" value="market"> 시장</label>
+    <label><input type="radio" name="state" value="shop"> 화차 상점</label>
+    <label><input type="radio" name="state" value="tavern"> 술집</label>
+    <label><input type="radio" name="state" value="rest"> 휴식</label>
+    <label><input type="radio" name="state" value="butchery"> 도축</label>
+    <label><input type="radio" name="state" value="modify"> 개조</label>
+  </span>
+  <span class="tgroup">겹쳐 뜨는 화면:
+    <label><input type="radio" name="ovr" value="none" checked> 없음</label>
+    <label><input type="radio" name="ovr" value="map"> 지도</label>
+    <label><input type="radio" name="ovr" value="confirm"> 이동 확인</label>
+    <label><input type="radio" name="ovr" value="journey"> 이동 연출</label>
+    <label><input type="radio" name="ovr" value="chart"> 상성표 크게 보기</label>
+    <label><input type="radio" name="ovr" value="pause"> 일시정지</label>
+  </span>
+  <span class="tgroup" id="dockGroup" style="display:none">도크 탭:
+    <label><input type="radio" name="dock" value="rumor" checked> 소문</label>
+    <label><input type="radio" name="dock" value="quest"> 의뢰</label>
+  </span>
+</div>
+<div class="toggles">
+  <label><input type="checkbox" id="tNotebook"> 수첩 펼침</label>
+  <label><input type="checkbox" id="tDims" checked> 치수 표시</label>
+  <label><input type="checkbox" id="tDist" checked> 드래그 거리 표시</label>
+  <label><input type="checkbox" id="tDragEx"> 드래그 예시</label>
+  <label><input type="checkbox" id="tTip"> 툴팁 예시</label>
+  <label><input type="checkbox" id="tCmp"> 현행 위치 비교</label>
+</div>
+
+<div id="stageWrap">
+<div id="stage"></div>
+</div>
+
+<h2>세 축과 고정 UI</h2>
+<ul>
+  <li>화면은 세 축이다: <b>왼쪽 = 백팩(선택한 화물칸의 짐)</b>, <b>아래 = 기차(화물칸 바)</b>, <b>오른쪽 = 도착지(지금 역에서 할 일과 다음에 갈 곳)</b>.</li>
+  <li><b>고정 UI</b>: 상태 안내, 화물칸 바, 정보 바는 어떤 화면(지도·이동 확인·이동 연출·수첩·상성표)에서도 가려지지 않는다. 예외는 일시정지(전체 화면 모달)뿐이다.</li>
+  <li><b>지도는 도착지 축을 통째로 바꾼다.</b> 다음 목적지를 고르는 도구라 도착지 축에 속한다. 지도를 보는 동안에도 백팩과 기차가 보인다.</li>
+  <li>소문·의뢰는 "다음에 갈 곳" 정보라 도착지 축 위쪽 요약 띠에 상시 보이고, 전체 기록은 접이식 수첩에 둔다. 상성·정산은 화물끼리의 규칙이라 화물칸 바 왼쪽 고정 UI에 둔다.</li>
+  <li>제목: E안 3차 — 세 축 (백팩 · 기차 · 도착지)</li>
+</ul>
+
+<h2>E2 대비 바뀐 점</h2>
+<table class="cmp">
+  <tr><th>바뀐 점</th><th>이유</th></tr>
+  <tr><td>도착지 축을 하나로 (보드 열/정보 열 구분 제거, 행동 목록 2열 카드)</td><td>오른쪽 = 도착지 한 축</td></tr>
+  <tr><td>도착지 축 위쪽에 소문·의뢰 요약 띠 상시</td><td>구매·의뢰 판단에 함께 필요. 전체 기록은 수첩</td></tr>
+  <tr><td>상성표 → 고정 UI(화물칸 바 왼쪽) 버튼, 수첩에서 상성 탭 제거</td><td>상성은 화물끼리의 규칙</td></tr>
+  <tr><td>상성표 보기·다음 정산 게이지 → 화물칸 바 왼쪽</td><td>사용자 결정. 화물을 배치하는 기차 바 옆에서 상성·정산을 함께 확인</td></tr>
+  <tr><td>지도 버튼 → 화물칸 바 오른쪽 큰 버튼</td><td>사용자 결정. 도착지 축(오른쪽) 아래라 지도가 열리는 자리와 같은 쪽</td></tr>
+  <tr><td>지도 → 도착지 축 통째 교체, 범위 선택 제거</td><td>목적지 고르는 도구. 백팩·기차를 보면서 경로 선택</td></tr>
+  <tr><td>지도 노드에 소문·의뢰 목적지 배지</td><td>지도에서는 요약 띠 대신 노드로</td></tr>
+  <tr><td>상태 안내·화물칸 바·정보 바 고정 (일시정지만 덮음)</td><td>사용자 결정</td></tr>
+  <tr><td>화물칸 바↔정보 바 간격 24px</td><td>칸 슬롯으로 드래그하다 정보 바 버튼에 닿는 것 방지</td></tr>
+</table>
+
+<h2>단점·주의</h2>
+<ul>
+  <li>지도 뷰포트 축소 (현행 1824×624에서 1232×580으로 줄어 한 화면에 보이는 역 수가 줄어든다 — 전체 보기·현재 위치 버튼과 줌으로 보완).</li>
+  <li>수첩을 펼치면 도착지 오른쪽 정보와 의뢰 요약이 가려진다.</li>
+  <li>요약 띠의 "관련 소문" 고르기는 새 코드(시장 상품 태그와 소문 대상 매칭)가 필요하다.</li>
+  <li>정보 바가 화면 맨 아래라 창 모드 작업 표시줄·스팀 오버레이 알림(기본 오른쪽 아래)과 겹칠 수 있다.</li>
+  <li>지도를 보면서 기차 보드를 쓰려면 코드 수정이 필요하다(지금은 지도가 열리면 인벤토리 입력과 툴팁을 막는다).</li>
+  <li>지도 역 라벨 태그 칩과 이동 미리보기는 지도 코드(<code>PuzzleMapView</code>, <code>PuzzleMapPresenter</code>) 수정이 필요하다.</li>
+  <li>인접 효과 미리보기는 드래그 중 시너지 계산을 추가로 돌려야 한다(성능 확인 필요).</li>
+  <li>잠긴 칸 표시는 화물칸 바 슬롯 8개를 항상 켜 두는 방식으로 바뀐다.</li>
+</ul>
+
+<h2>E안 대비 바뀐 점</h2>
+<table class="cmp">
+  <tr><th>바뀐 점</th><th>이유</th></tr>
+  <tr><td>참조 도크 → 오른쪽 가장자리 접이식 수첩</td><td>평소 화면을 넓게 쓰고 필요할 때만 펼침 (현행 구조 유지)</td></tr>
+  <tr><td>상단 바 → 맨 아래 정보 바</td><td>사용자 결정</td></tr>
+  <tr><td>화물칸 바 → 정보 바 바로 위 가운데</td><td>사용자 결정. 기차 보드와 역 작업 영역 양쪽에서 가깝다</td></tr>
+  <tr><td>상태 안내 → 화물칸 바 바로 위 한 줄</td><td>거래 미리보기 문구를 보드·화물칸 바 가까이</td></tr>
+  <tr><td>역 본문 → 보드 열 + 정보 열</td><td>수첩을 펼쳐도 보드와 뒤로 가기가 가려지지 않게</td></tr>
+  <tr><td>뒤로 가기 → 역 제목 바로 오른쪽</td><td>수첩 패널에 가려지지 않게</td></tr>
+  <tr><td>술집 정보 열에 의뢰 상세(화물 모양 미리보기)</td><td>플로우 조사의 "의뢰 화물 모양을 볼 수 없음" 해소</td></tr>
+</table>
+
+<h2>D안 대비 바뀐 점과 근거</h2>
+<table class="cmp">
+  <tr><th>바뀐 점</th><th>근거 게임 (조사 보고서)</th></tr>
+  <tr><td>상단 바 남은 기한 카드</td><td>Last Train Home, Vagrus / 상단 자원 바 무역 9/10·기차 9/10</td></tr>
+  <tr><td>화물칸 바 잠긴 칸, 다음 칸에 놓아 증차</td><td>Backpack Raiders</td></tr>
+  <tr><td>화차 상점 = 상세 + 카드 줄 + 증감치</td><td>Train Life, Railway Empire 2, Mini Metro (기차 3/10)</td></tr>
+  <tr><td>다음 정산 예상, 인접 효과 미리보기</td><td>백팩 7/10 (선·하이라이트·떠오르는 수치)</td></tr>
+  <tr><td>회전 전 원래 자리 점선, 드래그 광선</td><td>Pocket Legend, Backpack Survivors</td></tr>
+  <tr><td>툴팁 모양 미니 격자·태그 칩</td><td>Backpack Survivors</td></tr>
+  <tr><td>지도 역 라벨 선호 태그, 이동 미리보기, 경로 색칠</td><td>Port Royale 4·Patrician III·Star Traders (무역 4/10), Vagrus, Sweet Transit</td></tr>
+  <tr><td>지도 범위 두 가지 비교</td><td>지도 전체 화면 기차 8/10, 상단 바 유지 기차 4/10, Backpack Hero 지도 일부 표시</td></tr>
+</table>
+
+<p class="footnote">1920×1080 기준 와이어프레임이며 실제 화면이 아니다. 좌표는 편집 모드 실측과 제안값이다.</p>
+
+<script>
+(function () {
+  var stage = document.getElementById('stage');
+  var wrap = document.getElementById('stageWrap');
+  var SVGNS = 'http://www.w3.org/2000/svg';
+
+  var S = { state: 'actions', ovr: 'none', dock: 'rumor', notebook: false, dims: true, dist: true, dragex: false, tip: false, cmp: false };
+
+  var MAP_NOTE = '지도는 도착지 축만 바꾼다. 백팩(왼쪽)과 고정 UI(아래)는 그대로 보인다. 뷰포트가 현행 1824×624에서 1232×580으로 줄어 한 번에 보이는 역이 적다 — 전체 보기·현재 위치 버튼과 줌으로 보완';
+  var TIP_NOTE = '커서를 따라다니며 화면 오른쪽 끝에서 좌우 반전. 기차 보드에서 뜨면 시장 보드 왼쪽 일부를 가린다(플레이 확인 대상). 드래그 중에는 뜨지 않는다';
+  var DRAG_NOTE = '놓기 전에 붙을 화물의 상성 변화를 보여 준다';
+
+  var FIXED_Z = 20;
+
+  function backVisible() { return !mapOverlayOn() && S.state !== 'actions'; }
+  function mapOverlayOn() { return S.ovr === 'map' || S.ovr === 'confirm' || S.ovr === 'journey'; }
+  function stationTabVisible() { return !mapOverlayOn(); }
+
+  /* ---- 상태 지정 URL 파라미터 ---- */
+  function qp(name) {
+    var q = '';
+    try { q = String(window.location.search || ''); } catch (e) { q = ''; }
+    var m = new RegExp('[?&]' + name + '=([^&#]*)').exec(q);
+    return m ? m[1] : null;
+  }
+  function pick(v, allowed, def) { return v !== null && allowed.indexOf(v) >= 0 ? v : def; }
+  function qb(name, def) { var v = qp(name); return v === '1' ? true : (v === '0' ? false : def); }
+  (function applyParams() {
+    var st = pick(qp('state'), ['actions', 'market', 'shop', 'tavern', 'rest', 'butchery', 'modify', 'modification'], 'actions');
+    if (st === 'modification') { st = 'modify'; }
+    S.state = st;
+    S.ovr = pick(qp('overlay'), ['none', 'map', 'confirm', 'journey', 'chart', 'pause'], 'none');
+    var dk = qp('dock');
+    if (dk === 'synergy') { dk = 'rumor'; }
+    S.dock = pick(dk, ['rumor', 'quest'], 'rumor');
+    S.notebook = qb('notebook', false);
+    S.dims = qb('dims', true);
+    S.dist = qb('drag', true);
+    S.tip = qb('tooltip', false);
+    S.cmp = qb('compare', false);
+    S.dragex = qb('dragex', false);
+  })();
+
+  /* ---- 항상 보이는 기본 영역 ---- */
+  var BASE = [
+    /* 1. 왼쪽 축: 백팩 (기차 카드 40, 16, 536×832) */
+    { k: 'tab', n: '기차 카드', o: 'Train Inventory', x: 40, y: 16, w: 536, h: 832, cls: 'changed' },
+    { k: 'region', n: '보드 제목', o: 'BoardTitle', x: 64, y: 28, w: 488, h: 40, cls: 'changed' },
+    { k: 'region', n: '화물 가치', o: 'BoardValue', x: 64, y: 76, w: 488, h: 32, cls: 'changed' },
+    { k: 'region', n: '화차 효과', o: 'WagonActiveEffects', x: 64, y: 112, w: 488, h: 32, cls: 'changed' },
+    { k: 'board', n: '기차 보드 5×5', o: 'Train Inventory/Board', x: 64, y: 270, w: 488, h: 488, cols: 5, rows: 5, badge: 1, cell: '셀 97.6px' },
+    { k: 'region', n: '조작 안내 (공용)', o: 'MoveGuide', x: 64, y: 772, w: 488, h: 56, cls: 'changed' },
+
+    /* 2. 오른쪽 축: 도착지 공통 (역 작업 카드 600, 16, 1280×832) */
+    { k: 'tab', n: '역 작업 카드', o: 'StationColumn', x: 600, y: 16, w: 1280, h: 832, cls: 'changed', cond: stationTabVisible },
+    { k: 'region', n: '역 제목', o: 'StationTitle', x: 624, y: 28, w: 480, h: 44, cls: 'changed', cond: stationTabVisible },
+    { k: 'backBtn', n: '뒤로 가기', o: 'StationBack', x: 1128, y: 28, w: 180, h: 44, cls: 'changed', cond: backVisible },
+    { k: 'rumorsummary', cond: stationTabVisible },
+    { k: 'questsummary', cond: stationTabVisible },
+
+    /* 3. 고정 UI (다음 정산 게이지 · 상성표 보기 버튼 · 상태 안내 · 화물칸 바 · 지도 버튼 · 정보 바) */
+    { k: 'settle', n: '다음 정산 게이지', o: 'SettlementGauge (신규)', x: 40, y: 852, w: 234, h: 60, cls: 'bench', fixed: true, z: FIXED_Z },
+    { k: 'synergyBtn', n: '상성표 보기 버튼', o: 'OpenSynergyChart', x: 40, y: 920, w: 234, h: 60, cls: 'bench', fixed: true, z: FIXED_Z },
+    { k: 'region', n: '상태 안내', o: 'Trade Status', x: 290, y: 852, w: 1340, h: 32, cls: 'changed', fixed: true, z: FIXED_Z },
+    { k: 'tab', n: '화물칸 바', o: 'TrainBar', x: 290, y: 892, w: 1340, h: 88, cls: 'changed', extra: '예시: 3칸 보유, 4~8 잠김', fixed: true, z: FIXED_Z },
+    { k: 'slots' },
+    { k: 'mapNavBtn', n: '지도 버튼', o: 'PuzzleWorldMap/OpenMap', x: 1646, y: 852, w: 234, h: 128, cls: 'changed', fixed: true, z: FIXED_Z },
+    { k: 'tab', n: '정보 바', o: 'City Navigation', x: 40, y: 1004, w: 1840, h: 60, cls: 'changed', fixed: true, z: FIXED_Z },
+    { k: 'region', n: '현재 마을', o: 'City Navigation/Current City', x: 64, y: 1010, w: 520, h: 48, z: FIXED_Z },
+    { k: 'deadline' },
+    { k: 'region', n: '게임 시간', o: 'City Navigation/Game Time', x: 832, y: 1010, w: 360, h: 48, z: FIXED_Z },
+    { k: 'region', n: '자금', o: 'City Navigation/Funds', x: 1216, y: 1010, w: 280, h: 48, z: FIXED_Z },
+    { k: 'region', n: '상환 버튼', o: 'City Navigation/Game Clear Button', x: 1520, y: 1010, w: 336, h: 48, z: FIXED_Z }
+  ];
+
+  /* ---- 역 화면 상태별 본문 배치 (624, 192, 1232×644 안) ---- */
+  var STATES = {
+    actions: [
+      { k: 'actioncards' }
+    ],
+    market: [
+      { k: 'board', n: '시장 보드 7×6', o: 'Market Inventory/Board', x: 624, y: 221, w: 683, h: 586, cols: 7, rows: 6, badge: 1, cell: '셀 약 97.6px', cond: stationTabVisible },
+      { k: 'tab', n: '시장 정보', o: '재고·선호 태그·구매/판매 배율', x: 1331, y: 192, w: 525, h: 644, cls: 'changed', cond: stationTabVisible }
+    ],
+    shop: [
+      { k: 'region', n: '상점 안내', o: 'WagonShopInfo', x: 624, y: 192, w: 683, h: 336, cls: 'sub', note: '카드를 화물칸 바의 잠긴 칸에 끌어다 놓아 증차', cond: stationTabVisible },
+      { k: 'region', n: '페이지 이동 (이전 · n/m · 다음)', o: 'NextWagonShopPage', x: 624, y: 540, w: 683, h: 44, cls: 'changed', cond: stationTabVisible },
+      { k: 'shopcards3', cond: stationTabVisible },
+      { k: 'shopdetail3', cond: stationTabVisible }
+    ],
+    tavern: [
+      { k: 'region', n: '술집 제목', o: 'Tavern Title', x: 624, y: 192, w: 683, h: 48, cls: 'changed', cond: stationTabVisible },
+      { k: 'region', n: '소식', o: 'Rumor', x: 624, y: 248, w: 683, h: 120, cls: 'changed', cond: stationTabVisible },
+      { k: 'region', n: '말 걸기 버튼', o: 'Talk to Guest', x: 725, y: 376, w: 480, h: 64, cls: 'changed', cond: stationTabVisible },
+      { k: 'tab', n: '의뢰 게시판', o: 'Quest Board', x: 624, y: 448, w: 683, h: 388, cls: 'changed', cond: stationTabVisible },
+      { k: 'region', n: '의뢰 제목·상태 줄', o: 'Quest Header', x: 624, y: 448, w: 683, h: 40, cond: stationTabVisible },
+      { k: 'tab', n: '의뢰 슬롯 1', o: 'Quest Offer 1', x: 624, y: 496, w: 683, h: 136, cls: 'changed', cond: stationTabVisible },
+      { k: 'region', n: '설명 영역', x: 632, y: 504, w: 500, h: 120, cls: 'sub', cond: stationTabVisible },
+      { k: 'region', n: '수락', x: 1142, y: 504, w: 150, h: 120, cls: 'sub', cond: stationTabVisible },
+      { k: 'tab', n: '의뢰 슬롯 2', o: 'Quest Offer 2', x: 624, y: 640, w: 683, h: 136, cls: 'changed', cond: stationTabVisible },
+      { k: 'region', n: '설명 영역', x: 632, y: 648, w: 500, h: 120, cls: 'sub', cond: stationTabVisible },
+      { k: 'region', n: '수락', x: 1142, y: 648, w: 150, h: 120, cls: 'sub', cond: stationTabVisible },
+      { k: 'region', n: '의뢰 안내 줄', o: 'Quest Message', x: 624, y: 784, w: 683, h: 32, cond: stationTabVisible },
+      { k: 'questdetail3', cond: stationTabVisible }
+    ],
+    rest: [
+      { k: 'region', n: '1시간 휴식', x: 715, y: 192, w: 500, h: 84, cls: 'sub', cond: stationTabVisible },
+      { k: 'region', n: '아침까지 대기', x: 715, y: 300, w: 500, h: 84, cls: 'sub', cond: stationTabVisible },
+      { k: 'region', n: '안내', o: '(정보 텍스트)', x: 685, y: 408, w: 560, h: 160, cls: 'sub', cond: stationTabVisible },
+      { k: 'tab', n: '다음 정산·야간 안내', o: 'RestNotice', x: 1331, y: 192, w: 525, h: 644, cls: 'sub', cond: stationTabVisible }
+    ],
+    butchery: [
+      { k: 'board', n: '도축 보드 3×3', o: 'Butchery/Board', x: 624, y: 368, w: 293, h: 293, cols: 3, rows: 3, badge: 1, cell: '셀 97.6px', sm: 1, cond: stationTabVisible },
+      { k: 'region', n: '도축 확정 버튼', o: 'ButcheryConfirm', x: 624, y: 752, w: 683, h: 84, cls: 'changed', cond: stationTabVisible },
+      { k: 'tab', n: '도축 안내', o: '비용·소요 시간·힌트', x: 1331, y: 192, w: 525, h: 644, cls: 'changed', cond: stationTabVisible }
+    ],
+    modify: [
+      { k: 'region', n: '개조 모드 버튼', o: 'ModificationMode', x: 624, y: 192, w: 683, h: 48, cls: 'changed', cond: stationTabVisible },
+      { k: 'board', n: '개조 보드 3×3', o: 'Modification/Board', x: 624, y: 368, w: 293, h: 293, cols: 3, rows: 3, badge: 1, cell: '셀 97.6px', sm: 1, cond: stationTabVisible },
+      { k: 'region', n: '개조 확정 버튼', o: 'ModificationConfirm', x: 624, y: 752, w: 683, h: 84, cls: 'changed', cond: stationTabVisible },
+      { k: 'tab', n: '개조 안내', o: '비용·조건·힌트', x: 1331, y: 192, w: 525, h: 644, cls: 'changed', cond: stationTabVisible }
+    ]
+  };
+
+  /* ---- 도크 탭 내용 (펼친 수첩 본문 1424, 84, 436×740 안) ---- */
+  var DOCK = {
+    rumor: [
+      { k: 'phnote', x: 1424, y: 92, w: 436, h: 56, text: '게임 날짜·시각 - 들은 마을 - 내용 (한 텍스트에 줄바꿈으로 누적, 세로 스크롤)' },
+      { k: 'phlines', x: 1424, y0: 160, step: 64, w: 436, h: 30, count: 10 }
+    ],
+    quest: [
+      { k: 'region', n: '평판·진행 수', x: 1432, y: 92, w: 420, h: 64, cls: 'sub' },
+      { k: 'region', n: '지역 불이익', x: 1432, y: 164, w: 420, h: 96, cls: 'sub' },
+      { k: 'region', n: '진행 중 의뢰 (평판에 따라 최대 1~3건)', x: 1432, y: 268, w: 420, h: 300, cls: 'sub' },
+      { k: 'region', n: '끝난 의뢰', x: 1432, y: 576, w: 420, h: 240, cls: 'sub' }
+    ]
+  };
+
+  /* ---- 현행 위치 비교 ---- */
+  var GHOSTS = [
+    { n: '현행 상단 바', x: 40, y: 24, w: 1840, h: 112 },
+    { n: '현행 기차 보드', x: 250, y: 350, w: 488, h: 488 },
+    { n: '현행 시장 보드', x: 1084, y: 341, w: 683, h: 586 },
+    { n: '현행 도축·개조 보드', x: 1228, y: 360, w: 396, h: 396 },
+    { n: '현행 화물칸 바', x: 40, y: 856, w: 908, h: 112 },
+    { n: '현행 하단 바', x: 40, y: 992, w: 1840, h: 64 },
+    { n: '현행 소문 로그 펼침', x: 1420, y: 188, w: 480, h: 744 },
+    { n: '현행 지도', x: 0, y: 0, w: 1920, h: 1080 }
+  ];
+
+  /* ---- DOM 도우미 ---- */
+  function div(parent, cls, css) {
+    var d = document.createElement('div');
+    if (cls) { d.className = cls; }
+    if (css) { d.style.cssText = css; }
+    parent.appendChild(d);
+    return d;
+  }
+  function span(parent, cls, text) {
+    var s = document.createElement('span');
+    if (cls) { s.className = cls; }
+    s.textContent = text;
+    parent.appendChild(s);
+    return s;
+  }
+  function posCss(d) {
+    return 'left:' + d.x + 'px;top:' + d.y + 'px;width:' + d.w + 'px;height:' + d.h + 'px;';
+  }
+  function dimTxt(x, y, w, h) { return x + ', ' + y + ' · ' + w + '×' + h; }
+
+  function estW(text, fs) {
+    var w = 0;
+    for (var i = 0; i < text.length; i++) {
+      var c = text.charCodeAt(i);
+      w += (c >= 0xAC00 && c <= 0xD7AF) || (c >= 0x1100 && c <= 0x11FF) ? fs : fs * 0.58;
+    }
+    return w;
+  }
+
+  /* ---- 영역 그리기 ---- */
+  function regionEl(d) {
+    var r = div(stage, 'region' + (d.cls ? ' ' + d.cls : ''), posCss(d) + (d.z ? 'z-index:' + d.z + ';' : ''));
+    if (d.css) { r.style.cssText += d.css; }
+    var lbl = div(r, 'lbl' + (d.h <= 64 ? ' inl' : '') + (d.h <= 32 ? ' tiny' : '') + (d.center ? ' center' : ''));
+    var row = div(lbl, 'inlrow');
+    if (d.h <= 64) {
+      var fs = d.h <= 32 ? 13 : (d.w <= 200 ? 12 : 14);
+      row.style.fontSize = fs + 'px';
+      span(row, 'nm', d.n);
+      if (d.fixed) {
+        span(row, 'fixbadge', '고정');
+      }
+      var used = estW(d.n, fs) + (d.fixed ? 45 : 0) + 10;
+      var avail = d.w - 16;
+      var meta = S.dims ? dimTxt(d.x, d.y, d.w, d.h) : null;
+      var oW = d.o ? estW(d.o, fs) : 0;
+      var mW = meta ? estW(meta, fs) : 0;
+      if (d.o && meta && used + oW + 10 + mW + 10 <= avail) {
+        span(row, 'obj', d.o);
+        span(row, 'meta', meta);
+      } else if (meta && used + mW + 10 <= avail) {
+        span(row, 'meta', meta);
+      } else if (d.o && used + oW + 10 <= avail) {
+        span(row, 'obj', d.o);
+      }
+    } else {
+      var nm = div(row, 'name');
+      nm.textContent = d.n;
+      if (d.fixed) {
+        span(nm, 'fixbadge', '고정');
+      }
+      if (d.h <= 120 && d.note && S.dims) {
+        span(nm, 'meta', dimTxt(d.x, d.y, d.w, d.h)).style.fontSize = '13px';
+      } else if (d.o) {
+        span(nm, 'obj', d.o);
+      }
+      if (S.dims && !(d.h <= 120 && d.note)) {
+        div(row, 'meta').textContent = dimTxt(d.x, d.y, d.w, d.h);
+      }
+      if (d.note) {
+        div(row, 'note').textContent = d.note;
+      }
+    }
+    return r;
+  }
+
+  function tabbedEl(d) {
+    var r = div(stage, 'region' + (d.cls ? ' ' + d.cls : ''), posCss(d) + (d.z ? 'z-index:' + d.z + ';' : '') + (d.css || ''));
+    var t = div(r, 'tab' + (d.tabOut ? ' out' : ''));
+    var b = document.createElement('b');
+    b.textContent = d.n;
+    t.appendChild(b);
+    if (d.fixed) {
+      span(t, 'fixbadge', '고정');
+    }
+    if (d.o) { span(t, 'obj', d.o); }
+    if (S.dims) { span(t, 'meta', dimTxt(d.x, d.y, d.w, d.h)); }
+    if (d.extra) { span(t, 'meta', d.extra); }
+    if (d.badge) { div(r, 'badge bbench').textContent = d.badge; }
+    return r;
+  }
+
+  function boardEl(d) {
+    var r = div(stage, 'region board', posCss(d));
+    var g = div(r, 'grid');
+    g.style.gridTemplateColumns = 'repeat(' + d.cols + ', 1fr)';
+    g.style.gridTemplateRows = 'repeat(' + d.rows + ', 1fr)';
+    for (var i = 0; i < d.cols * d.rows; i++) { div(g, 'cell'); }
+    if (d.badge) {
+      var badge = div(r, 'badge');
+      badge.textContent = '변경';
+    }
+    var lbl = div(r, 'board-label' + (d.sm ? ' sm' : ''));
+    span(lbl, 'bname', d.n);
+    if (S.dims) { span(lbl, 'bmeta meta', dimTxt(d.x, d.y, d.w, d.h) + (d.cell ? ' (' + d.cell + ')' : '')); }
+    if (d.o) { span(lbl, 'bmeta obj', d.o); }
+    return r;
+  }
+
+  /* ---- 상성표 보기 버튼 (화물칸 바 왼쪽, 40, 920, 234×60) ---- */
+  function synergyBtnEl(d) {
+    var r = div(stage, 'region bench', posCss(d) + 'z-index:' + FIXED_Z + ';cursor:pointer;');
+    r.title = '클릭 시 상성표 크게 보기 열림 — ' + dimTxt(d.x, d.y, d.w, d.h);
+    r.addEventListener('click', function () {
+      S.ovr = 'chart';
+      var radio = document.querySelector('input[name="ovr"][value="chart"]');
+      if (radio) { radio.checked = true; }
+      render();
+    });
+    var lbl = div(r, 'lbl');
+    lbl.style.padding = '6px 8px';
+    var topRow = div(lbl, '');
+    topRow.style.cssText = 'font-size:14px;font-weight:600;line-height:1.25;white-space:nowrap;overflow:hidden;';
+    span(topRow, 'nm', d.n);
+    span(topRow, 'fixbadge', '고정');
+    var subRow = div(lbl, 'meta');
+    subRow.style.cssText = 'font-size:11px;line-height:1.3;margin-top:4px;white-space:nowrap;overflow:hidden;';
+    subRow.textContent = d.o + (S.dims ? ' · ' + dimTxt(d.x, d.y, d.w, d.h) : '');
+    return r;
+  }
+
+  /* ---- 남은 기한 카드 (벤치마크) ---- */
+  function deadlineEl() {
+    var r = div(stage, 'region bench', 'left:608px;top:1010px;width:200px;height:48px;z-index:' + FIXED_Z + ';');
+    r.title = dimTxt(608, 1010, 200, 48);
+    var lbl = div(r, 'lbl');
+    lbl.style.padding = '2px 8px';
+    var nm = div(lbl, 'name');
+    nm.style.fontSize = '14px';
+    nm.style.lineHeight = '1.2';
+    nm.textContent = '남은 기한';
+    var objSpan = span(nm, 'obj', 'DeadlineCard');
+    objSpan.style.cssText = 'font-size:11px;margin-left:6px;';
+    var ph = div(lbl, 'meta');
+    ph.style.fontSize = '12px';
+    ph.style.marginTop = '1px';
+    ph.textContent = 'D-n · n시간';
+    if (S.dims) {
+      var note = div(lbl, '');
+      note.style.fontSize = '10px';
+      note.style.lineHeight = '1.1';
+      note.style.textAlign = 'right';
+      note.style.color = 'var(--muted)';
+      note.style.whiteSpace = 'nowrap';
+      note.style.overflow = 'hidden';
+      note.textContent = '상환 기한 14일. 3일 이하 경고색';
+    }
+    return r;
+  }
+
+  /* ---- 다음 정산 게이지 (화물칸 바 왼쪽 위, 40, 852, 234×60) ---- */
+  function settleEl(d) {
+    var r = div(stage, 'region bench', posCss(d) + 'z-index:' + FIXED_Z + ';');
+    r.title = d.o + ' — ' + dimTxt(d.x, d.y, d.w, d.h);
+    if (S.dims) {
+      var outNote = div(r, '', 'position:absolute;left:0;top:-16px;font-size:10px;line-height:1.2;background:var(--panel);border:1px solid var(--line);padding:0 5px;color:var(--muted);white-space:nowrap;z-index:3;');
+      outNote.textContent = '6시간마다 시너지 정산';
+    }
+    var lbl = div(r, 'lbl');
+    lbl.style.padding = '3px 7px';
+    var topRow = div(lbl, '');
+    topRow.style.cssText = 'display:flex;align-items:center;justify-content:space-between;font-size:11px;line-height:1.2;white-space:nowrap;overflow:hidden;';
+    var leftTop = div(topRow, '');
+    var nmSpan = span(leftTop, 'nm', d.n);
+    nmSpan.style.fontWeight = '600';
+    var fb = span(leftTop, 'fixbadge', '고정');
+    fb.style.cssText = 'font-size:10px;padding:0 4px;margin-left:4px;';
+    if (S.dims) {
+      var dimSpan = span(topRow, 'meta', dimTxt(d.x, d.y, d.w, d.h));
+      dimSpan.style.cssText = 'font-size:10px;margin-left:4px;';
+    }
+    var midRow = div(lbl, '');
+    midRow.style.cssText = 'display:flex;align-items:center;justify-content:space-between;font-size:11px;line-height:1.2;margin-top:2px;white-space:nowrap;overflow:hidden;';
+    span(midRow, '', '다음 정산까지 n시간');
+    var objSpan = span(midRow, 'obj', d.o);
+    objSpan.style.cssText = 'font-size:9.5px;margin-left:4px;';
+    var barRow = div(r, '', 'position:absolute;left:7px;right:7px;bottom:4px;height:12px;display:flex;align-items:center;gap:3px;');
+    for (var i = 0; i < 6; i++) {
+      var filled = i < 4;
+      div(barRow, '', 'flex:1;height:10px;' + (filled
+        ? 'background:var(--bench-line);border:1px solid var(--bench-line);'
+        : 'background:var(--panel);border:1px solid var(--line);'));
+    }
+    var expSpan = span(barRow, '', '예상 ±n');
+    expSpan.style.cssText = 'font-size:11px;font-weight:600;margin-left:4px;white-space:nowrap;';
+    return r;
+  }
+
+  /* ---- 화물칸 바 슬롯 8개: 각 124×56, 간격 50, top 908, 슬롯 i left = 290 + i×174 ---- */
+  function slotsEl() {
+    for (var i = 0; i < 8; i++) {
+      var x = 290 + i * 174;
+      var owned = i < 3;
+      var target = (i === 3 && S.state === 'shop');
+      var r = div(stage, 'region' + (owned ? ' sub' : (target ? ' bench' : ' locked')),
+        'left:' + x + 'px;top:908px;width:124px;height:56px;z-index:' + FIXED_Z + ';');
+      var lbl = div(r, 'lbl inl center');
+      var row = div(lbl, 'inlrow');
+      if (owned || target) {
+        row.style.fontSize = '16px';
+        span(row, 'nm', String(i + 1));
+      } else {
+        row.style.fontSize = '13px';
+        row.style.color = 'var(--muted)';
+        span(row, 'nm', (i + 1) + ' · 잠김');
+      }
+    }
+    if (S.state === 'shop') {
+      var chip = div(stage, '', 'position:absolute;left:824px;top:968px;background:var(--bench);border:1px solid var(--bench-line);font-size:12px;padding:1px 6px;white-space:nowrap;z-index:' + (FIXED_Z + 1) + ';');
+      chip.textContent = '여기에 놓아 증차';
+    }
+  }
+
+  /* ---- 소문 요약 띠 (624, 84, 604×96) ---- */
+  function rumorSummaryEl() {
+    var r = div(stage, 'region bench', 'left:624px;top:84px;width:604px;height:96px;');
+    r.title = dimTxt(624, 84, 604, 96);
+    var t = div(r, 'tab');
+    var b = document.createElement('b');
+    b.textContent = '소문 요약';
+    t.appendChild(b);
+    span(t, 'obj', 'RumorSummary');
+    if (S.dims) { span(t, 'meta', dimTxt(624, 84, 604, 96)); }
+
+    var btn = div(r, '', 'position:absolute;right:8px;top:8px;background:var(--panel);border:1px solid var(--line);font-size:12px;padding:2px 8px;cursor:pointer;border-radius:2px;z-index:2;');
+    btn.textContent = '전체 보기';
+    btn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      S.notebook = true;
+      S.dock = 'rumor';
+      document.getElementById('tNotebook').checked = true;
+      var input = document.querySelector('input[name="dock"][value="rumor"]');
+      if (input) { input.checked = true; }
+      render();
+    });
+
+    var body = div(r, 'lbl');
+    body.style.padding = '30px 10px 6px';
+    var txt = div(body, 'name');
+    txt.style.fontSize = '15px';
+    txt.style.fontWeight = '500';
+    txt.textContent = '이 시장 상품과 관련된 소문 (최대 2줄)';
+    var sub = div(body, 'meta');
+    sub.style.fontSize = '13px';
+    sub.style.marginTop = '4px';
+    sub.textContent = '목적지 시세 변동 · 선호 태그 힌트';
+    return r;
+  }
+
+  /* ---- 진행 중 의뢰 요약 띠 (1252, 84, 604×96) ---- */
+  function questSummaryEl() {
+    var r = div(stage, 'region bench', 'left:1252px;top:84px;width:604px;height:96px;');
+    r.title = dimTxt(1252, 84, 604, 96);
+    var t = div(r, 'tab');
+    var b = document.createElement('b');
+    b.textContent = '진행 중 의뢰 요약';
+    t.appendChild(b);
+    span(t, 'obj', 'ActiveQuestSummary');
+    if (S.dims) { span(t, 'meta', dimTxt(1252, 84, 604, 96)); }
+
+    var btn = div(r, '', 'position:absolute;right:8px;top:8px;background:var(--panel);border:1px solid var(--line);font-size:12px;padding:2px 8px;cursor:pointer;border-radius:2px;z-index:2;');
+    btn.textContent = '전체 보기';
+    btn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      S.notebook = true;
+      S.dock = 'quest';
+      document.getElementById('tNotebook').checked = true;
+      var input = document.querySelector('input[name="dock"][value="quest"]');
+      if (input) { input.checked = true; }
+      render();
+    });
+
+    var body = div(r, 'lbl');
+    body.style.padding = '30px 10px 6px';
+    var txt = div(body, 'name');
+    txt.style.fontSize = '15px';
+    txt.style.fontWeight = '500';
+    txt.textContent = '목적지 · 남은 기한 (최대 3건)';
+    var sub = div(body, 'meta');
+    sub.style.fontSize = '13px';
+    sub.style.marginTop = '4px';
+    sub.textContent = '목적지 역 · D-n (hh:00) · 보상 n';
+    return r;
+  }
+
+  /* ---- 행동 목록 카드 (2열×3행 카드, 각 604×200) ---- */
+  function actionCardsEl() {
+    if (!stationTabVisible()) { return; }
+    var cards = [
+      { n: '시장', x: 624, y: 192, st: 'market', desc: '화물 구매 및 판매' },
+      { n: '화차 구매', x: 1252, y: 192, st: 'shop', desc: '새 화차를 구매하여 기차 증차' },
+      { n: '술집', x: 624, y: 414, st: 'tavern', desc: '소식 청취 및 의뢰 수락' },
+      { n: '휴식', x: 1252, y: 414, st: 'rest', desc: '시간 경과 및 정산 대기' },
+      { n: '이동 (지도)', x: 624, y: 636, ovr: 'map', desc: '다음 목적지 역 선택 및 이동' },
+      { n: '도축 또는 개조 (역 한정, 점선)', x: 1252, y: 636, st: 'butchery', desc: '가축 도축 및 장비 개조 (역 시설)', dashed: true }
+    ];
+    cards.forEach(function (c) {
+      var r = div(stage, 'region sub', posCss({ x: c.x, y: c.y, w: 604, h: 200 }));
+      if (c.dashed) { r.style.borderStyle = 'dashed'; }
+      r.style.cursor = 'pointer';
+      r.addEventListener('click', function () {
+        if (c.st) {
+          S.state = c.st;
+          var radio = document.querySelector('input[name="state"][value="' + c.st + '"]');
+          if (radio) { radio.checked = true; }
+        } else if (c.ovr) {
+          S.ovr = c.ovr;
+          var rOvr = document.querySelector('input[name="ovr"][value="' + c.ovr + '"]');
+          if (rOvr) { rOvr.checked = true; }
+        }
+        render();
+      });
+
+      /* 아이콘 자리 96×96 */
+      var ic = div(r, 'region sub', 'left:18px;top:52px;width:96px;height:96px;display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--muted);');
+      ic.textContent = '아이콘';
+
+      /* 제목 + 설명 한 줄 */
+      var content = div(r, '', 'position:absolute;left:130px;top:48px;right:16px;bottom:16px;');
+      var title = div(content, 'name');
+      title.textContent = c.n;
+      title.style.fontSize = '22px';
+      var desc = div(content, 'note');
+      desc.textContent = c.desc;
+      desc.style.marginTop = '8px';
+      desc.style.fontSize = '15px';
+
+      if (S.dims) {
+        var meta = div(r, 'meta', 'position:absolute;right:10px;top:8px;font-size:13px;');
+        meta.textContent = dimTxt(c.x, c.y, 604, 200);
+      }
+    });
+  }
+
+  /* ---- 화차 상점: 카드 줄 (624, 596) ---- */
+  function shopCards3() {
+    var cards = [
+      { n: '화차 카드 1', o: 'WagonProduct1', x: 624, sel: true },
+      { n: '화차 카드 2', o: 'WagonProduct2', x: 977, sel: false }
+    ];
+    cards.forEach(function (c) {
+      tabbedEl({
+        n: c.n, o: c.o, x: c.x, y: 596, w: 330, h: 240,
+        css: c.sel ? 'border-color:var(--bench-line);border-width:3px;' : ''
+      });
+      regionEl({ n: '그림 자리', x: c.x + 8, y: 604, w: 314, h: 80, cls: 'sub' });
+      regionEl({ n: '이름', x: c.x + 8, y: 692, w: 180, h: 28, cls: 'sub' });
+      regionEl({ n: '가격', x: c.x + 8, y: 724, w: 130, h: 28, cls: 'sub' });
+      var chip = div(stage, '', 'position:absolute;left:' + (c.x + 8) + 'px;top:756px;background:var(--bench);border:1px solid var(--bench-line);font-size:13px;padding:1px 8px;white-space:nowrap;z-index:4;');
+      chip.textContent = '+1칸';
+    });
+  }
+
+  function shopDetail3() {
+    var tEl = tabbedEl({ n: '선택한 화차 상세', o: 'WagonDetail', x: 1331, y: 192, w: 525, h: 644, cls: 'bench' });
+    var tab = tEl.querySelector('.tab');
+    if (tab) { tab.style.maxWidth = 'calc(100% - 90px)'; }
+    var badge = div(stage, 'badge bbench', 'left:auto;right:68px;top:192px;');
+    badge.textContent = '벤치마크';
+    var lines = ['화차 이름', '가격', '칸 규격 5×5', '현재 편성 대비: 보유 칸 +1 · 적재 칸 +25', '특수 효과(냉장 등)'];
+    for (var i = 0; i < lines.length; i++) {
+      phnoteEl({ x: 1347, y: 248 + i * 68, w: 493, h: 56, text: lines[i] });
+    }
+  }
+
+  /* ---- 술집: 선택한 의뢰 상세 (1331, 192, 525×644) ---- */
+  function questDetail3() {
+    var tEl = tabbedEl({ n: '선택한 의뢰 상세', o: 'QuestDetail', x: 1331, y: 192, w: 525, h: 644, cls: 'bench' });
+    var tab = tEl.querySelector('.tab');
+    if (tab) { tab.style.maxWidth = 'calc(100% - 90px)'; }
+    var badge = div(stage, 'badge bbench', 'left:auto;right:68px;top:192px;');
+    badge.textContent = '벤치마크';
+    var lines = ['목적지: 목적지 역 (소요 n시간)', '운송 기한: D-n hh:00까지', '보상: nG · 평판 +n', '의뢰 화물: 의뢰 화물 (규격 n칸)'];
+    for (var i = 0; i < lines.length; i++) {
+      phnoteEl({ x: 1347, y: 248 + i * 50, w: 493, h: 42, text: lines[i] });
+    }
+    var box = regionEl({ n: '화물 모양 미리보기', x: 1347, y: 460, w: 493, h: 220, cls: 'sub', note: '의뢰 화물 모양을 보고 기차 빈칸과 비교' });
+    var g = div(box, 'mini', 'position:relative;margin:16px auto;width:75px;');
+    var filled = { '0-0': 1, '1-0': 1, '0-1': 1 };
+    for (var i2 = 0; i2 < 25; i2++) {
+      var col = i2 % 5;
+      var rowI = Math.floor(i2 / 5);
+      div(g, filled[col + '-' + rowI] ? 'f' : '');
+    }
+  }
+
+  /* ---- 뒤로 가기 버튼 클릭 핸들러 ---- */
+  function backBtnEl(d) {
+    var r = regionEl(d);
+    r.style.cursor = 'pointer';
+    r.title = '행동 목록으로 돌아가기';
+    r.addEventListener('click', function () {
+      S.state = 'actions';
+      var radio = document.querySelector('input[name="state"][value="actions"]');
+      if (radio) { radio.checked = true; }
+      render();
+    });
+    return r;
+  }
+
+  /* ---- 화물칸 바 오른쪽 지도 버튼 (1646, 852, 234×128) ---- */
+  function mapNavBtnEl(d) {
+    var active = mapOverlayOn();
+    var extraCss = 'z-index:' + FIXED_Z + ';cursor:pointer;' + (active ? 'border:3px solid var(--dock-line);' : '');
+    var r = div(stage, 'region changed', posCss(d) + extraCss);
+    r.title = (active ? '지도 닫기' : '지도 열기') + ' — ' + dimTxt(d.x, d.y, d.w, d.h);
+    r.addEventListener('click', function () {
+      S.ovr = active ? 'none' : 'map';
+      var radio = document.querySelector('input[name="ovr"][value="' + S.ovr + '"]');
+      if (radio) { radio.checked = true; }
+      render();
+    });
+    var lbl = div(r, 'lbl');
+    lbl.style.cssText = 'display:flex;flex-direction:column;justify-content:center;padding:8px 12px;';
+    var topRow = div(lbl, '');
+    topRow.style.cssText = 'display:flex;align-items:center;justify-content:space-between;white-space:nowrap;';
+    var titleSpan = span(topRow, 'nm', active ? '지도 닫기' : '지도');
+    titleSpan.style.cssText = 'font-size:24px;font-weight:700;line-height:1.2;';
+    span(topRow, 'fixbadge', '고정');
+    var subRow = div(lbl, '');
+    subRow.style.cssText = 'font-size:14px;color:var(--text);margin-top:6px;white-space:nowrap;overflow:hidden;';
+    subRow.textContent = '다음 목적지 고르기';
+    var objRow = div(lbl, 'obj');
+    objRow.style.cssText = 'font-size:12px;margin-top:6px;white-space:nowrap;overflow:hidden;';
+    objRow.textContent = d.o;
+    if (S.dims) {
+      var metaRow = div(lbl, 'meta');
+      metaRow.style.cssText = 'font-size:12px;margin-top:2px;white-space:nowrap;overflow:hidden;';
+      metaRow.textContent = dimTxt(d.x, d.y, d.w, d.h);
+    }
+    return r;
+  }
+
+  /* ---- 접이식 수첩 (우측 가장자리 접힌 탭 + 펼침 패널 1404, 16, 476×832) ---- */
+  function drawNotebook() {
+    if (!S.notebook) {
+      /* 접힌 탭(항상 보임, 1824, 366, 96×132). 지도·이동 확인·연출 위에서도 보인다 */
+      if (S.ovr !== 'chart' && S.ovr !== 'pause') {
+        var r = div(stage, 'tab-fold', 'left:1824px;top:366px;width:96px;height:132px;');
+        r.title = '수첩 클릭 시 펼침';
+        r.addEventListener('click', function () {
+          S.notebook = true;
+          document.getElementById('tNotebook').checked = true;
+          render();
+        });
+        span(r, 't-title', '수첩');
+        span(r, 't-sub', '소문 n');
+        span(r, 't-sub', '의뢰 n');
+      }
+    } else {
+      /* 수첩 펼침: 패널 1404, 16, 476×832 */
+      var p = div(stage, 'region dock', 'left:1404px;top:16px;width:476px;height:832px;z-index:7;border:2px solid var(--dock-line);border-left:3px solid var(--dock-line);background:var(--panel);');
+      /* 탭 줄 1424, 28, 436×44 */
+      var tabR = div(stage, 'region dock', 'left:1424px;top:28px;width:436px;height:44px;z-index:8;');
+      var row = div(tabR, 'tabrow');
+      span(row, 'tlab', '수첩 탭');
+      var items = [['소문', 'rumor'], ['의뢰', 'quest'], ['접기', null]];
+      for (var i = 0; i < items.length; i++) {
+        var b = span(row, 'tb' + (items[i][1] && S.dock === items[i][1] ? ' on' : ''), items[i][0]);
+        (function (val, isFold) {
+          b.addEventListener('click', function () {
+            if (isFold) {
+              S.notebook = false;
+              document.getElementById('tNotebook').checked = false;
+              render();
+            } else if (val) {
+              S.dock = val;
+              var input = document.querySelector('input[name="dock"][value="' + val + '"]');
+              if (input) { input.checked = true; }
+              render();
+            }
+          });
+        })(items[i][1], items[i][0] === '접기');
+      }
+      /* 본문 영역 1424, 84, 436×740 */
+      tabbedEl({ n: '수첩 본문', o: 'LogScroll', x: 1424, y: 84, w: 436, h: 740, cls: 'dock', z: 8 });
+      (DOCK[S.dock] || []).forEach(function (d) {
+        var d2 = Object.assign({}, d, { z: 8 });
+        drawDesc(d2);
+      });
+      /* 수첩이 가리는 영역 점선 표시 */
+      div(stage, '', 'position:absolute;left:1404px;top:84px;width:452px;height:752px;border:2px dashed var(--overlay-line);background:var(--overlay);opacity:0.18;pointer-events:none;z-index:6;');
+      stageNote(1408, 90, 440, '도착지 오른쪽 정보 영역과 의뢰 요약을 덮는다. 보드·뒤로 가기·백팩·고정 UI는 덮지 않는다', 12);
+    }
+  }
+
+  /* ---- 도크 소문 탭 자리 표시 ---- */
+  function phnoteEl(d) {
+    var r = div(stage, 'ph-note', posCss(d) + (d.z ? 'z-index:' + d.z + ';' : ''));
+    r.textContent = d.text;
+    return r;
+  }
+  function phlinesEl(d) {
+    for (var i = 0; i < d.count; i++) {
+      div(stage, 'ph-line', 'left:' + d.x + 'px;top:' + (d.y0 + i * d.step) + 'px;width:' + d.w + 'px;height:' + d.h + 'px;' + (d.z ? 'z-index:' + d.z + ';' : ''));
+    }
+  }
+
+  function drawDesc(d) {
+    if (d.cond && !d.cond()) { return; }
+    if (d.k === 'tab') { return tabbedEl(d); }
+    if (d.k === 'board') { return boardEl(d); }
+    if (d.k === 'slots') { return slotsEl(); }
+    if (d.k === 'phnote') { return phnoteEl(d); }
+    if (d.k === 'phlines') { return phlinesEl(d); }
+    if (d.k === 'deadline') { return deadlineEl(); }
+    if (d.k === 'settle') { return settleEl(d); }
+    if (d.k === 'synergyBtn') { return synergyBtnEl(d); }
+    if (d.k === 'backBtn') { return backBtnEl(d); }
+    if (d.k === 'mapNavBtn') { return mapNavBtnEl(d); }
+    if (d.k === 'rumorsummary') { return rumorSummaryEl(); }
+    if (d.k === 'questsummary') { return questSummaryEl(); }
+    if (d.k === 'actioncards') { return actionCardsEl(); }
+    if (d.k === 'shopcards3') { return shopCards3(); }
+    if (d.k === 'shopdetail3') { return shopDetail3(); }
+    if (d.k === 'questdetail3') { return questDetail3(); }
+    return regionEl(d);
+  }
+
+  /* ---- 드래그 예시 (새 보드 좌표: 기차 64, 270 / 시장 624, 221 / 도축 624, 368) ---- */
+  var CELL = 97.6;
+  var TRAIN_BOARD = { x: 64, y: 270 };
+  var MARKET_BOARD = { x: 624, y: 221 };
+  var BUTCHERY_BOARD = { x: 624, y: 368 };
+  var ORIG_CELLS = [[0, 0], [1, 0], [0, 1]];
+  var DEST_CELLS = [[2, 2], [3, 2], [2, 3]];
+
+  function shapeCenter(bx, by, cells) {
+    var minX = 1e9, minY = 1e9, maxX = -1e9, maxY = -1e9;
+    cells.forEach(function (p) {
+      minX = Math.min(minX, bx + p[0] * CELL);
+      minY = Math.min(minY, by + p[1] * CELL);
+      maxX = Math.max(maxX, bx + p[0] * CELL + CELL);
+      maxY = Math.max(maxY, by + p[1] * CELL + CELL);
+    });
+    return [(minX + maxX) / 2, (minY + maxY) / 2];
+  }
+
+  function arrowSvg(beams) {
+    var svg = document.createElementNS(SVGNS, 'svg');
+    svg.setAttribute('width', '1920');
+    svg.setAttribute('height', '1080');
+    svg.setAttribute('style', 'position:absolute;left:0;top:0;width:1920px;height:1080px;pointer-events:none;z-index:5;');
+    var defs = document.createElementNS(SVGNS, 'defs');
+    var mk = document.createElementNS(SVGNS, 'marker');
+    mk.setAttribute('id', 'arrEx');
+    mk.setAttribute('markerUnits', 'userSpaceOnUse');
+    mk.setAttribute('markerWidth', '16');
+    mk.setAttribute('markerHeight', '14');
+    mk.setAttribute('refX', '14');
+    mk.setAttribute('refY', '7');
+    mk.setAttribute('orient', 'auto');
+    var mp = document.createElementNS(SVGNS, 'path');
+    mp.setAttribute('d', 'M0,0 L16,7 L0,14 z');
+    mp.setAttribute('style', 'fill:var(--bench-line);');
+    mk.appendChild(mp);
+    defs.appendChild(mk);
+    svg.appendChild(defs);
+    beams.forEach(function (b) {
+      var l = document.createElementNS(SVGNS, 'line');
+      l.setAttribute('x1', b[0]);
+      l.setAttribute('y1', b[1]);
+      l.setAttribute('x2', b[2]);
+      l.setAttribute('y2', b[3]);
+      l.setAttribute('style', 'stroke:var(--bench-line);stroke-width:3;marker-end:url(#arrEx);');
+      svg.appendChild(l);
+    });
+    stage.appendChild(svg);
+  }
+
+  function drawDragEx() {
+    if (!S.dragex) { return; }
+    function cellDiv(b, c, r, cls) {
+      var d = div(stage, 'dragcell ' + cls, 'left:' + (b.x + c * CELL) + 'px;top:' + (b.y + r * CELL) + 'px;width:' + CELL + 'px;height:' + CELL + 'px;');
+      if (cls === 'dest') { div(d, 'fill'); }
+      return d;
+    }
+    var beams = [];
+    if (S.state === 'market') {
+      ORIG_CELLS.forEach(function (p) { cellDiv(MARKET_BOARD, p[0], p[1], 'orig'); });
+      DEST_CELLS.forEach(function (p) { cellDiv(TRAIN_BOARD, p[0], p[1], 'dest'); });
+      var mO = shapeCenter(MARKET_BOARD.x, MARKET_BOARD.y, ORIG_CELLS);
+      var tD = shapeCenter(TRAIN_BOARD.x, TRAIN_BOARD.y, DEST_CELLS);
+      beams.push([mO[0], mO[1], tD[0], tD[1]]);
+      distLabel(mO[0], mO[1], '원래 자리');
+      distLabel(tD[0], tD[1], '놓을 자리 (R로 회전)');
+    } else if (S.state === 'butchery' || S.state === 'modify') {
+      ORIG_CELLS.forEach(function (p) { cellDiv(TRAIN_BOARD, p[0], p[1], 'orig'); });
+      DEST_CELLS.forEach(function (p) { cellDiv(BUTCHERY_BOARD, p[0], p[1], 'dest'); });
+      var tO2 = shapeCenter(TRAIN_BOARD.x, TRAIN_BOARD.y, ORIG_CELLS);
+      var bD = shapeCenter(BUTCHERY_BOARD.x, BUTCHERY_BOARD.y, DEST_CELLS);
+      beams.push([tO2[0], tO2[1], bD[0], bD[1]]);
+      distLabel(tO2[0], tO2[1], '원래 자리');
+      distLabel(bD[0], bD[1], '놓을 자리 (R로 회전)');
+    } else {
+      ORIG_CELLS.forEach(function (p) { cellDiv(TRAIN_BOARD, p[0], p[1], 'orig'); });
+      DEST_CELLS.forEach(function (p) { cellDiv(TRAIN_BOARD, p[0], p[1], 'dest'); });
+      var tO = shapeCenter(TRAIN_BOARD.x, TRAIN_BOARD.y, ORIG_CELLS);
+      var tD2 = shapeCenter(TRAIN_BOARD.x, TRAIN_BOARD.y, DEST_CELLS);
+      beams.push([tO[0], tO[1], tD2[0], tD2[1]]);
+      distLabel(tO[0], tO[1], '원래 자리');
+      distLabel(tD2[0], tD2[1], '놓을 자리 (R로 회전)');
+    }
+    arrowSvg(beams);
+    var chip = div(stage, 'chip', 'left:' + (TRAIN_BOARD.x + 4 * CELL + CELL / 2) + 'px;top:' + (TRAIN_BOARD.y + 2 * CELL + CELL / 2) + 'px;');
+    chip.textContent = '+n%';
+    var chip2 = div(stage, 'chip', 'left:' + (TRAIN_BOARD.x + 2 * CELL + CELL / 2) + 'px;top:' + (TRAIN_BOARD.y + 4 * CELL + CELL / 2) + 'px;');
+    chip2.textContent = '−n%';
+    stageNote(64, 830, 488, DRAG_NOTE, 13);
+  }
+
+  /* ---- 겹쳐 뜨는 화면 ---- */
+  function dimRect(x, y, w, h, op, z) {
+    div(stage, 'dim', posCss({ x: x, y: y, w: w, h: h }) + 'opacity:' + op + ';z-index:' + z + ';');
+  }
+
+  /* ---- 지도 예시 (도착지 축 624, 132, 1232×580) ---- */
+  function drawMapExample() {
+    var vx = 624;
+    var vy = 132;
+    var vw = 1232;
+    var vh = 580;
+    var box = div(stage, 'mapex', 'left:' + vx + 'px;top:' + vy + 'px;width:' + vw + 'px;height:' + vh + 'px;');
+    function cdiv(cls, x, y, w, h, text) {
+      var d = div(box, cls, 'left:' + x + 'px;top:' + y + 'px;' + (w != null ? 'width:' + w + 'px;height:' + h + 'px;' : ''));
+      if (text != null) { d.textContent = text; }
+      return d;
+    }
+    var nodes = { A: [160, 310], B: [420, 160], C: [520, 390], D: [880, 220], E: [1060, 390] };
+    var rails = [
+      { a: 'A', b: 'B' },
+      { a: 'A', b: 'C', sel: true },
+      { a: 'C', b: 'D' },
+      { a: 'B', b: 'D' },
+      { a: 'D', b: 'E' }
+    ];
+    var svg = document.createElementNS(SVGNS, 'svg');
+    svg.setAttribute('width', String(vw));
+    svg.setAttribute('height', String(vh));
+    svg.setAttribute('style', 'position:absolute;left:0;top:0;');
+    rails.forEach(function (rl) {
+      var p1 = nodes[rl.a];
+      var p2 = nodes[rl.b];
+      var l = document.createElementNS(SVGNS, 'line');
+      l.setAttribute('x1', String(p1[0]));
+      l.setAttribute('y1', String(p1[1]));
+      l.setAttribute('x2', String(p2[0]));
+      l.setAttribute('y2', String(p2[1]));
+      l.setAttribute('style', 'stroke:' + (rl.sel ? 'var(--bench-line);stroke-width:6;' : 'var(--line);stroke-width:3;'));
+      svg.appendChild(l);
+    });
+    box.appendChild(svg);
+    rails.forEach(function (rl) {
+      var p1 = nodes[rl.a];
+      var p2 = nodes[rl.b];
+      var mid = cdiv('rlabel' + (rl.sel ? ' sel' : ''), (p1[0] + p2[0]) / 2, (p1[1] + p2[1]) / 2, null, null, 'n시간');
+      mid.style.left = ((p1[0] + p2[0]) / 2) + 'px';
+      mid.style.top = ((p1[1] + p2[1]) / 2) + 'px';
+    });
+    Object.keys(nodes).forEach(function (k) {
+      var p = nodes[k];
+      cdiv('mnode' + (k === 'A' ? ' cur' : ''), p[0] - 14, p[1] - 14, 28, 28);
+      cdiv('mlabel', p[0] - 60, p[1] + 18, 120, 32, '역 이름');
+      cdiv('mchip', p[0] - 46, p[1] + 54, 44, 20, '태그');
+      cdiv('mchip', p[0] + 2, p[1] + 54, 44, 20, '태그');
+      if (k === 'A') { cdiv('mchip', p[0] - 22, p[1] - 42, 44, 20, '현재'); }
+      if (k === 'B') { cdiv('mchip bbench', p[0] - 26, p[1] - 42, 52, 20, '소문 ?'); }
+      if (k === 'D') { cdiv('mchip bbench', p[0] - 42, p[1] - 42, 84, 20, '의뢰 목적지'); }
+    });
+    /* 이동 미리보기 카드(호버 예시): C 노드 오른쪽 아래 빈 곳 (600, 370), 280×150 */
+    var card = cdiv('mcard', 600, 370, 280, 150);
+    var t = div(card, 'tab out');
+    var tb = document.createElement('b');
+    tb.textContent = '이동 미리보기';
+    t.appendChild(tb);
+    span(t, 'obj', '호버 예시');
+    if (S.dims) { span(t, 'meta', dimTxt(vx + 600, vy + 370, 280, 150)); }
+    var r1 = div(card, 'mrow hd');
+    r1.textContent = 'C역까지';
+    var r2 = div(card, 'mrow');
+    r2.textContent = '소요 n시간 · 운임 n';
+    var r3 = div(card, 'mrow');
+    r3.textContent = '도착 Dn hh:00 (야간 도착이면 경고)';
+    var r4 = div(card, 'mrow');
+    r4.textContent = '도착 시 남은 기한 D-n';
+
+    /* 뷰포트 안 배지 설명 주석 */
+    var badgeNote = cdiv('stage-note', 16, 546, null, null, '요약 띠의 소문·의뢰를 지도에서는 노드 배지로 보여 준다');
+    badgeNote.style.fontSize = '12px';
+  }
+
+  /* ---- 지도 패널 (도착지 축 600, 16, 1280×832 전체 교체) ---- */
+  function drawMapPanel() {
+    tabbedEl({ n: '지도', o: 'MapPanel', x: 600, y: 16, w: 1280, h: 832, z: 8, css: 'border-color:var(--dock-line);border-width:3px;' });
+    var closeBtn = { n: '닫기', x: 1664, y: 28, w: 192, h: 48, cls: 'sub', z: 8 };
+    [
+      { n: '제목', x: 624, y: 28, w: 1040, h: 48, cls: 'sub', z: 8 },
+      closeBtn,
+      { n: '조작 안내·지역 범례', x: 624, y: 84, w: 1232, h: 40, cls: 'sub', z: 8 },
+      { n: '지도 뷰포트', x: 624, y: 132, w: 1232, h: 580, cls: 'sub', z: 8 },
+      { n: '줌·위치 버튼 줄', x: 624, y: 720, w: 1232, h: 44, cls: 'sub', z: 8 },
+      { n: '마을 정보', x: 624, y: 772, w: 1232, h: 64, cls: 'sub', z: 8 }
+    ].forEach(function (d) {
+      var el = drawDesc(d);
+      if (d === closeBtn) {
+        el.style.cursor = 'pointer';
+        el.title = '지도 닫기';
+        el.addEventListener('click', function () {
+          S.ovr = 'none';
+          var radio = document.querySelector('input[name="ovr"][value="none"]');
+          if (radio) { radio.checked = true; }
+          render();
+        });
+      }
+    });
+    drawMapExample();
+    stageNote(630, 810, 1220, MAP_NOTE, 11);
+  }
+
+  function drawOverlay() {
+    var o = S.ovr;
+    if (o === 'none') { return; }
+    if (o === 'map' || o === 'confirm' || o === 'journey') {
+      drawMapPanel();
+      if (o === 'confirm') {
+        dimRect(600, 16, 1280, 832, 0.35, 9);
+        var cx = 860;
+        tabbedEl({ n: '이동 확인', x: cx, y: 172, w: 760, h: 520, z: 10 });
+        [
+          { n: '질문', x: cx + 24, y: 196, w: 712, h: 120, cls: 'sub', z: 10 },
+          { n: '요금·시간 견적', x: cx + 24, y: 324, w: 712, h: 160, cls: 'sub', z: 10 },
+          { n: '이동', x: cx + 24, y: 508, w: 340, h: 80, cls: 'sub', z: 10 },
+          { n: '취소', x: cx + 396, y: 508, w: 340, h: 80, cls: 'sub', z: 10 }
+        ].forEach(function (d) {
+          var el = drawDesc(d);
+          if (d.n === '취소') {
+            el.style.cursor = 'pointer';
+            el.addEventListener('click', function () {
+              S.ovr = 'map';
+              var radio = document.querySelector('input[name="ovr"][value="map"]');
+              if (radio) { radio.checked = true; }
+              render();
+            });
+          } else if (d.n === '이동') {
+            el.style.cursor = 'pointer';
+            el.addEventListener('click', function () {
+              S.ovr = 'journey';
+              var radio = document.querySelector('input[name="ovr"][value="journey"]');
+              if (radio) { radio.checked = true; }
+              render();
+            });
+          }
+        });
+      } else if (o === 'journey') {
+        dimRect(600, 16, 1280, 832, 0.35, 9);
+        var jx = 880;
+        tabbedEl({ n: '이동 연출', x: jx, y: 262, w: 720, h: 340, z: 10 });
+        [
+          { n: '제목', x: jx + 24, y: 286, w: 672, h: 56, cls: 'sub', z: 10 },
+          { n: '경로', x: jx + 24, y: 350, w: 672, h: 72, cls: 'sub', z: 10 },
+          { n: '선로와 기차', x: jx + 24, y: 430, w: 672, h: 56, cls: 'sub', z: 10 },
+          { n: '진행 막대', x: jx + 24, y: 494, w: 672, h: 32, cls: 'sub', z: 10 },
+          { n: '진행률', x: jx + 24, y: 534, w: 672, h: 44, cls: 'sub', z: 10 }
+        ].forEach(drawDesc);
+      }
+    } else if (o === 'chart') {
+      dimRect(40, 16, 1840, 832, 0.45, 12);
+      tabbedEl({ n: '상성표 크게 보기', x: 90, y: 60, w: 1740, h: 758, z: 13 });
+      var chartClose = { n: '닫기', x: 1686, y: 84, w: 120, h: 56, cls: 'sub', z: 13 };
+      [
+        { n: '표', x: 114, y: 140, w: 1308, h: 476, cls: 'sub', z: 13 },
+        { n: '각주', x: 114, y: 624, w: 1308, h: 170, cls: 'sub', note: '화물칸 바 왼쪽 상성표 보기 버튼으로 연다. 정렬 순서를 지도 위로 올려 지도에서도 열 수 있게 한다', z: 13 },
+        { n: '화물별 태그', x: 1446, y: 140, w: 360, h: 654, cls: 'sub', z: 13 },
+        chartClose
+      ].forEach(function (d) {
+        var el = drawDesc(d);
+        if (d === chartClose) {
+          el.style.cursor = 'pointer';
+          el.title = '상성표 닫기';
+          el.addEventListener('click', function () {
+            S.ovr = 'none';
+            var radio = document.querySelector('input[name="ovr"][value="none"]');
+            if (radio) { radio.checked = true; }
+            render();
+          });
+        }
+      });
+    } else if (o === 'pause') {
+      dimRect(0, 0, 1920, 1080, 0.45, 30);
+      tabbedEl({ n: '일시정지', x: 740, y: 360, w: 440, h: 360, z: 31 });
+      [
+        { n: '제목', x: 764, y: 384, w: 392, h: 56, cls: 'sub', z: 31 },
+        { n: '재시작', x: 764, y: 448, w: 392, h: 64, cls: 'sub', z: 31 },
+        { n: '게임 종료', x: 764, y: 520, w: 392, h: 64, cls: 'sub', z: 31 },
+        { n: '안내', x: 764, y: 592, w: 392, h: 104, cls: 'sub', note: '승리·패배 결과도 이 패널을 쓴다(현행과 같음)', z: 31 }
+      ].forEach(drawDesc);
+    }
+  }
+
+  /* ---- 툴팁 예시 (호버 좌표: 기차 380, 120 / 시장 1010, 100) ---- */
+  function tipBox(x, y, withNote) {
+    var r = div(stage, 'tipbox', 'left:' + x + 'px;top:' + y + 'px;width:300px;height:629px;');
+    var t = div(r, 'tab');
+    var b = document.createElement('b');
+    b.textContent = '화물 툴팁';
+    t.appendChild(b);
+    span(t, 'obj', 'PuzzleItemTooltip');
+    if (S.dims) { span(t, 'meta', dimTxt(x, y, 300, 629)); }
+    var secs = [
+      { n: '이름', y: 0, h: 44 },
+      { n: '태그 칩 3개', y: 44, h: 40, chips: true },
+      { n: '모양 미니 격자', y: 84, h: 90, grid: true },
+      { n: '기본·실제 가치', y: 174, h: 56 },
+      { n: '구매·판매 예상', y: 230, h: 56 },
+      { n: '신선도', y: 286, h: 32 },
+      { n: '현재 적용 효과', y: 318, h: 100 },
+      { n: '일반 효과', y: 418, h: 90 },
+      { n: '가능 시너지', y: 508, h: 117, note: withNote ? TIP_NOTE : null }
+    ];
+    secs.forEach(function (s) {
+      var box = div(r, 'tsec', 'top:' + s.y + 'px;height:' + s.h + 'px;');
+      var lab = div(box, 'tlab');
+      lab.textContent = s.n;
+      if (s.chips) {
+        for (var i = 0; i < 3; i++) {
+          var c = document.createElement('span');
+          c.className = 'tchip';
+          c.textContent = '태그';
+          box.appendChild(c);
+        }
+      }
+      if (s.grid) {
+        var g = div(box, 'mini');
+        var filled = { '0-0': 1, '1-0': 1, '0-1': 1 };
+        for (var i2 = 0; i2 < 25; i2++) {
+          var col = i2 % 5;
+          var rowI = Math.floor(i2 / 5);
+          div(g, filled[col + '-' + rowI] ? 'f' : '');
+        }
+      }
+      if (s.note) {
+        var n = div(box, 'tnote');
+        n.textContent = s.note;
+      }
+    });
+    return r;
+  }
+  function drawTips() {
+    if (!S.tip) { return; }
+    tipBox(380, 120, true);
+    if (S.state === 'market') { tipBox(1010, 100, false); }
+  }
+
+  /* ---- 드래그 거리 점선 ---- */
+  function distLabel(x, y, text) {
+    var d = div(stage, 'float-label', 'left:' + x + 'px;top:' + y + 'px;');
+    d.textContent = text;
+  }
+  function stageNote(x, y, maxW, text, fs) {
+    var d = div(stage, 'stage-note', 'left:' + x + 'px;top:' + y + 'px;max-width:' + maxW + 'px;font-size:' + fs + 'px;');
+    d.textContent = text;
+  }
+  function drawDist() {
+    if (!S.dist || S.ovr !== 'none') { return; }
+    var svg = document.createElementNS(SVGNS, 'svg');
+    svg.setAttribute('id', 'overlaySvg');
+    svg.setAttribute('xmlns', SVGNS);
+    function line(x1, y1, x2, y2) {
+      var l = document.createElementNS(SVGNS, 'line');
+      l.setAttribute('x1', x1);
+      l.setAttribute('y1', y1);
+      l.setAttribute('x2', x2);
+      l.setAttribute('y2', y2);
+      svg.appendChild(l);
+    }
+    if (S.state === 'market') {
+      line(308, 514, 965.5, 514);
+      distLabel(637, 514, '약 658px (현행 약 933px)');
+    } else if (S.state === 'shop') {
+      line(789, 716, 874, 936);
+      distLabel(831.5, 826, '약 236px (현행 약 1,000px)');
+    } else if (S.state === 'butchery' || S.state === 'modify') {
+      line(308, 514, 770.5, 514);
+      distLabel(539, 514, '약 462px (현행 약 933px)');
+    }
+    stage.appendChild(svg);
+  }
+
+  /* ---- 현행 위치 비교 ---- */
+  function drawGhosts() {
+    if (!S.cmp) { return; }
+    GHOSTS.forEach(function (g) {
+      div(stage, 'ghostrect', posCss(g));
+      var t = div(stage, 'ghost-tag', 'left:' + (g.x + 6) + 'px;top:' + (g.y + 6) + 'px;');
+      t.textContent = g.n;
+      span(t, 'meta', dimTxt(g.x, g.y, g.w, g.h));
+    });
+  }
+
+  /* ---- 스테이지 다시 그리기 ---- */
+  function render() {
+    stage.innerHTML = '';
+    var dg = document.getElementById('dockGroup');
+    if (dg) { dg.style.display = S.notebook ? '' : 'none'; }
+
+    BASE.forEach(drawDesc);
+    (STATES[S.state] || []).forEach(drawDesc);
+
+    drawNotebook();
+    drawDragEx();
+    drawTips();
+    drawDist();
+    drawOverlay();
+    drawGhosts();
+  }
+
+  /* ---- 창 폭에 맞춰 스테이지 축소 (1920×1080 논리 좌표 유지) ---- */
+  function fit() {
+    var s = Math.min(1, (window.innerWidth - 32) / 1920);
+    stage.style.transform = 'scale(' + s + ')';
+    wrap.style.height = (1080 * s) + 'px';
+  }
+  window.addEventListener('resize', fit);
+  fit();
+
+  /* ---- 토글 연결 ---- */
+  function bindGroup(name, key) {
+    var radios = document.querySelectorAll('input[name="' + name + '"]');
+    for (var i = 0; i < radios.length; i++) {
+      radios[i].addEventListener('change', function () {
+        S[key] = this.value;
+        render();
+      });
+    }
+  }
+  bindGroup('state', 'state');
+  bindGroup('ovr', 'ovr');
+  bindGroup('dock', 'dock');
+
+  function bindCheckbox(id, key) {
+    var box = document.getElementById(id);
+    box.addEventListener('change', function () {
+      S[key] = box.checked;
+      render();
+    });
+  }
+  bindCheckbox('tNotebook', 'notebook');
+  bindCheckbox('tDims', 'dims');
+  bindCheckbox('tDist', 'dist');
+  bindCheckbox('tDragEx', 'dragex');
+  bindCheckbox('tTip', 'tip');
+  bindCheckbox('tCmp', 'cmp');
+
+  /* URL 파라미터로 선택 줄 UI 맞추기 */
+  function setRadios(name, val) {
+    var radios = document.querySelectorAll('input[name="' + name + '"]');
+    for (var i = 0; i < radios.length; i++) {
+      radios[i].checked = (radios[i].value === val);
+    }
+  }
+  setRadios('state', S.state);
+  setRadios('ovr', S.ovr);
+  setRadios('dock', S.dock);
+  document.getElementById('tNotebook').checked = S.notebook;
+  document.getElementById('tDims').checked = S.dims;
+  document.getElementById('tDist').checked = S.dist;
+  document.getElementById('tDragEx').checked = S.dragex;
+  document.getElementById('tTip').checked = S.tip;
+  document.getElementById('tCmp').checked = S.cmp;
+
+  render();
+})();
+</script>
+
+</body>
+</html>
