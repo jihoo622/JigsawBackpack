@@ -21,6 +21,25 @@ public sealed class PuzzleWagonProductRow : MonoBehaviour, IBeginDragHandler, ID
     int dragPointerId;
     PuzzleWagonProductData draggedProduct;
 
+    static PuzzleWagonProductRow activeDraggingRow;
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    static void ResetStaticState()
+    {
+        activeDraggingRow = null;
+    }
+
+    public static bool TryConsumeCancel()
+    {
+        if (activeDraggingRow != null && activeDraggingRow.draggedProduct != null)
+        {
+            activeDraggingRow.CancelDrag();
+            activeDraggingRow = null;
+            return true;
+        }
+        return false;
+    }
+
     internal void Bind(PuzzleWagonProductData _product)
     {
         CancelDrag();
@@ -68,6 +87,7 @@ public sealed class PuzzleWagonProductRow : MonoBehaviour, IBeginDragHandler, ID
 
         draggedProduct = product;
         dragPointerId = _eventData.pointerId;
+        activeDraggingRow = this;
         dragPreview.sprite = artwork.sprite;
         dragPreview.color = artwork.color;
         dragPreview.rectTransform.sizeDelta = artwork.rectTransform.rect.size;
@@ -118,6 +138,10 @@ public sealed class PuzzleWagonProductRow : MonoBehaviour, IBeginDragHandler, ID
 
     void CancelDrag()
     {
+        if (activeDraggingRow == this)
+        {
+            activeDraggingRow = null;
+        }
         if (draggedProduct != null)
         {
             draggedProduct = null;

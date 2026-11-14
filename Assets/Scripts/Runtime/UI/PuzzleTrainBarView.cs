@@ -170,6 +170,16 @@ public sealed class PuzzleTrainBarView : MonoBehaviour, IBeginDragHandler, IDrag
         }
     }
 
+    public bool TryConsumeCancel()
+    {
+        if (draggedWagonIndex.HasValue)
+        {
+            CancelWagonDrag();
+            return true;
+        }
+        return false;
+    }
+
     internal void CancelWagonDrag()
     {
         if (draggedWagonIndex.HasValue)

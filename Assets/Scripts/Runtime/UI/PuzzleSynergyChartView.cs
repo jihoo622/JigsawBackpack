@@ -47,6 +47,16 @@ public sealed class PuzzleSynergyChartView : PanelBase
         base.OnDisable();
     }
 
+    public bool TryConsumeCancel()
+    {
+        if (IsOpen)
+        {
+            Close();
+            return true;
+        }
+        return false;
+    }
+
     void ToggleChart()
     {
         Toggle();

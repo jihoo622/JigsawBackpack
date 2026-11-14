@@ -19,7 +19,6 @@ public sealed class PuzzleInventoryInput : MonoBehaviour, IPointerDownHandler, I
     int? hoveredPointerId;
     bool navigationSuppressed;
     bool previousNavigation;
-    int cancelConsumedFrame = -1;
     internal InputActionAsset ActionsAsset => uiInputModule.actionsAsset;
 
     internal event Action<PointerEventData> Pressed;
@@ -52,7 +51,6 @@ public sealed class PuzzleInventoryInput : MonoBehaviour, IPointerDownHandler, I
         }
 
         rotate.performed += OnRotate;
-        cancel.performed += OnCancel;
         quickTransferModifier.Enable();
     }
 
@@ -64,10 +62,6 @@ public sealed class PuzzleInventoryInput : MonoBehaviour, IPointerDownHandler, I
         if (rotate != null)
         {
             rotate.performed -= OnRotate;
-        }
-        if (cancel != null)
-        {
-            cancel.performed -= OnCancel;
         }
         if (inputActions)
         {
@@ -172,17 +166,23 @@ public sealed class PuzzleInventoryInput : MonoBehaviour, IPointerDownHandler, I
         }
     }
 
-    internal void CapturePointer(int _pointerId)
+    public void CapturePointer(int _pointerId)
     {
         pointerId = _pointerId;
-        if (!navigationSuppressed)
+        if (!navigationSuppressed && eventSystem)
         {
             previousNavigation = eventSystem.sendNavigationEvents;
             eventSystem.sendNavigationEvents = false;
             navigationSuppressed = true;
         }
-        rotate.Enable();
-        cancel.Enable();
+        if (rotate != null)
+        {
+            rotate.Enable();
+        }
+        if (cancel != null)
+        {
+            cancel.Enable();
+        }
     }
 
     internal void CancelCapture()
@@ -199,24 +199,12 @@ public sealed class PuzzleInventoryInput : MonoBehaviour, IPointerDownHandler, I
         Rotated?.Invoke();
     }
 
-    void OnCancel(InputAction.CallbackContext _context)
+    public bool TryConsumeCancel()
     {
-        TryConsumeCancel();
-    }
-
-    internal bool TryConsumeCancel()
-    {
-        // Input callbacks can release the item before PauseMenu.Update reads Escape.
-        // Keep the consumed state for the entire frame, regardless of update order.
-        if (cancelConsumedFrame == Time.frameCount)
-        {
-            return true;
-        }
         if (!pointerId.HasValue)
         {
             return false;
         }
-        cancelConsumedFrame = Time.frameCount;
         CancelCapture();
         return true;
     }
@@ -233,8 +221,14 @@ public sealed class PuzzleInventoryInput : MonoBehaviour, IPointerDownHandler, I
     void ReleaseCapture()
     {
         pointerId = null;
-        rotate.Disable();
-        cancel.Disable();
+        if (rotate != null)
+        {
+            rotate.Disable();
+        }
+        if (cancel != null)
+        {
+            cancel.Disable();
+        }
     }
 
     void RestoreNavigation()

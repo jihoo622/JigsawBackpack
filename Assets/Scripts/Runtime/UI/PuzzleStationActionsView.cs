@@ -81,6 +81,7 @@ public sealed class PuzzleStationActionsView : PanelBase
     internal bool ShowingButchery => butcheryContent && butcheryContent.activeSelf;
     internal bool ShowingModification => modificationContent && modificationContent.activeSelf;
     internal bool ShowingRefining => refiningContent && refiningContent.activeSelf;
+    public bool ShowingSubscreen => isActiveAndEnabled && actionsList && !actionsList.activeSelf;
     PuzzleWagonProductData[] wagonProducts;
     int wagonShopPage;
 
@@ -293,12 +294,12 @@ public sealed class PuzzleStationActionsView : PanelBase
         }
     }
 
-    internal void ShowHome()
+    public void ShowHome()
     {
         ShowMode(actionsList, Presentation.StationActionsTitle);
     }
 
-    internal void ShowMarket()
+    public void ShowMarket()
     {
         ShowMode(marketContent, Presentation.StationMarket);
     }

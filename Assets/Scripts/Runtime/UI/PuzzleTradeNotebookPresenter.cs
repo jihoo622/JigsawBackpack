@@ -29,6 +29,11 @@ public sealed class PuzzleTradeNotebookPresenter : MonoBehaviour
         view.TabSelected -= OnTabSelected;
     }
 
+    public bool TryConsumeCancel()
+    {
+        return view && view.TryConsumeCancel();
+    }
+
     void OnNotebookOpenRequested(PuzzleNotebookTab _tab)
     {
         tab = _tab;

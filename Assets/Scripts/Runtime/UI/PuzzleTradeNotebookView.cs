@@ -53,6 +53,16 @@ public sealed class PuzzleTradeNotebookView : PanelBase
         base.OnDisable();
     }
 
+    public bool TryConsumeCancel()
+    {
+        if (IsOpen)
+        {
+            Close();
+            return true;
+        }
+        return false;
+    }
+
     void ToggleLog()
     {
         Toggle();

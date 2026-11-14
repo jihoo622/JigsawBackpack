@@ -96,6 +96,36 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
         }
     }
 
+    public bool TryConsumeTravelCancel()
+    {
+        if (travelView && travelView.TryConsumeCancel())
+        {
+            AbortTravel();
+            return true;
+        }
+        if (phase == TravelPhase.Confirming)
+        {
+            AbortTravel();
+            return true;
+        }
+        return false;
+    }
+
+    public bool TryConsumeMapCancel()
+    {
+        if (!view || !view.IsOpen)
+        {
+            return false;
+        }
+        if (phase != TravelPhase.None)
+        {
+            // 이동 연출 중에는 닫지 않고 소비만 한다.
+            return true;
+        }
+        CloseMap();
+        return true;
+    }
+
     void CloseMap()
     {
         if (phase == TravelPhase.None)

@@ -47,16 +47,12 @@ public sealed class PuzzleMapTravelView : PanelBase
         base.OnEnable();
         confirmButton.onClick.AddListener(OnConfirm);
         cancelButton.onClick.AddListener(OnCancel);
-        cancel.performed += OnCancelInput;
-        cancel.Enable();
     }
 
     protected override void OnDisable()
     {
         confirmButton.onClick.RemoveListener(OnConfirm);
         cancelButton.onClick.RemoveListener(OnCancel);
-        cancel.performed -= OnCancelInput;
-        cancel.Disable();
         base.OnDisable();
     }
 
@@ -68,7 +64,7 @@ public sealed class PuzzleMapTravelView : PanelBase
         }
     }
 
-    internal void ShowConfirmation(string _quote)
+    public void ShowConfirmation(string _quote)
     {
         quote.text = _quote;
         confirming = true;
@@ -150,16 +146,21 @@ public sealed class PuzzleMapTravelView : PanelBase
         }
     }
 
+    public bool TryConsumeCancel()
+    {
+        if (IsOpen && confirming)
+        {
+            OnCancel();
+            return true;
+        }
+        return false;
+    }
+
     void OnCancel()
     {
         if (IsOpen && confirming)
         {
             Canceled?.Invoke();
         }
-    }
-
-    void OnCancelInput(InputAction.CallbackContext _context)
-    {
-        OnCancel();
     }
 }
