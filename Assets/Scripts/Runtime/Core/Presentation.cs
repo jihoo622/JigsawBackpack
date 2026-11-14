@@ -210,9 +210,11 @@ public static class Presentation
         return TableManager.Instance.Piece(_pieceId).displayName;
     }
 
-    static string QuestCityName(string _cityId)
+    internal static string QuestCityName(string _cityId)
     {
-        return TableManager.Instance.CityPrice(_cityId).displayName;
+        var city = TableManager.Instance.CityPrice(_cityId);
+        string color = ColorUtility.ToHtmlStringRGB(PuzzleMapLineColor(city.regionId));
+        return $"<color=#{color}>{city.displayName}</color>";
     }
 
     // 실패 시 받는 불이익. 보증금은 금액을, 지역 거래 불이익은 의뢰를 준 지역 이름을 함께 표시한다.

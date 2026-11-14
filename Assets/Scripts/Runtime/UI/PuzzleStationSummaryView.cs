@@ -166,6 +166,7 @@ public sealed class PuzzleStationSummaryView : MonoBehaviour
 
         for (int i = 0; i < questLines.Length; i++)
         {
+            questLines[i].richText = true;
             if (i < _lines.Count)
             {
                 questLines[i].gameObject.SetActive(true);

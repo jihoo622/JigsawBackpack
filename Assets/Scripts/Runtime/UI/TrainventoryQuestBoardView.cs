@@ -120,6 +120,7 @@ public sealed class TrainventoryQuestBoardView : MonoBehaviour
             {
                 continue;
             }
+            slot.description.richText = true;
             slot.description.text = _offers[i].description;
             slot.acceptLabel.text = _offers[i].acceptLabel;
             slot.acceptButton.interactable = _offers[i].canAccept;

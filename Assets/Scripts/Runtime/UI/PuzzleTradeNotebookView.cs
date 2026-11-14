@@ -119,6 +119,7 @@ public sealed class PuzzleTradeNotebookView : PanelBase
         bool proficiency = _tab == PuzzleNotebookTab.Proficiency;
         scroll.gameObject.SetActive(!proficiency);
         proficiencyPanel.gameObject.SetActive(proficiency);
+        logText.richText = true;
         logText.text = proficiency ? string.Empty : _text;
         titleLabel.text = Presentation.RumorLogTitle;
         countLabel.gameObject.SetActive(!proficiency);

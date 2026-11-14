@@ -226,6 +226,7 @@ public sealed class PuzzleCityView : MonoBehaviour
 
     internal void ShowTradeStatus(string _status)
     {
+        tradeStatus.richText = true;
         tradeStatus.text = _status;
     }
 }

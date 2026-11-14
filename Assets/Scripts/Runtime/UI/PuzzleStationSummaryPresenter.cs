@@ -199,7 +199,7 @@ public sealed class PuzzleStationSummaryPresenter : MonoBehaviour
         for (int i = 0; i < Math.Min(3, activeQuests.Count); i++)
         {
             var q = activeQuests[i];
-            string cityName = TableManager.Instance.CityPrice(q.TargetCityId)?.displayName ?? q.TargetCityId;
+            string cityName = Presentation.QuestCityName(q.TargetCityId);
             long remainingMinutes = Math.Max(0, q.DeadlineMinutes - session.ElapsedTime);
             string timeStr = Presentation.PuzzleMapTime(remainingMinutes);
             string timestamp = Presentation.GameTimestamp(q.DeadlineMinutes);
