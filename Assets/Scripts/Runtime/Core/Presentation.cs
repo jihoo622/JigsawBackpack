@@ -889,19 +889,18 @@ public static class Presentation
 
     internal static string PuzzleTooltipEffectDescription(string _description)
     {
-        string highlighted = HighlightEffectPercentages(_description);
-        highlighted = Regex.Replace(highlighted, @"\([^)]*\)", match => $"<size=70%>{match.Value}</size>");
+        string highlighted = ShrinkParentheticalNotes(HighlightEffectPercentages(_description));
         return BasicData.Format("presentation.tooltip.effectDescription", TooltipLabelHtml(), highlighted);
+    }
+
+    static string ShrinkParentheticalNotes(string _text)
+    {
+        return Regex.Replace(_text, @"\([^)]*\)", match => $"<size=70%>{match.Value}</size>");
     }
 
     static string HighlightEffectPercentages(string _description)
     {
-        return HighlightSignedValues(_description, "%");
-    }
-
-    static string HighlightSignedValues(string _description, string _unitPattern)
-    {
-        return Regex.Replace(_description, $@"[+−-]\d+(?:[.,]\d+)?{_unitPattern}", match =>
+        return Regex.Replace(_description, @"[+−-]\d+(?:[.,]\d+)?%", match =>
         {
             Color color = match.Value[0] == '+' ? PuzzleTooltipGreen : PuzzleTooltipRed;
             return $"<color=#{ColorUtility.ToHtmlStringRGB(color)}>{match.Value}</color>";
@@ -1110,7 +1109,12 @@ public static class Presentation
             return string.Empty;
         }
 
-        string highlighted = HighlightSignedValues(_description, "[%$]");
+        string highlighted = Regex.Replace(_description, @"[+−-]\d+(?:[.,]\d+)?([%$])", match =>
+        {
+            Color color = match.Groups[1].Value == "$" ? PuzzleTooltipGreen : PuzzleTooltipGold;
+            return $"<color=#{ColorUtility.ToHtmlStringRGB(color)}>{match.Value}</color>";
+        });
+        highlighted = ShrinkParentheticalNotes(highlighted);
         return $"<color=#{TooltipLabelHtml()}>{highlighted}</color>";
     }
 
