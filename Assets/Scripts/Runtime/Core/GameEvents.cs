@@ -243,6 +243,11 @@ public static class GameEvents
     {
         Emit(SynergyChartToggleRequested, new SynergyChartToggleInfo(_sceneHandle));
     }
+    public static event Action<PuzzleNotebookTab> NotebookOpenRequested;
+    public static void RaiseNotebookOpenRequested(PuzzleNotebookTab _tab)
+    {
+        Emit(NotebookOpenRequested, _tab);
+    }
     public static void RaiseTravelPreviewChanged(PuzzleInventoryService _session)
     {
         Emit(TravelPreviewChanged, new TravelPreviewInfo(_session));
@@ -547,6 +552,7 @@ public static class GameEvents
         MapRequested = null;
         MapToggleRequested = null;
         SynergyChartToggleRequested = null;
+        NotebookOpenRequested = null;
         ButcheryChanged = null;
         ModificationChanged = null;
         RefiningChanged = null;

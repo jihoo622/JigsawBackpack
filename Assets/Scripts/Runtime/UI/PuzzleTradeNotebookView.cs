@@ -4,7 +4,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using UnityEngine;
 
-internal enum PuzzleNotebookTab
+public enum PuzzleNotebookTab
 {
     Rumors,
     Quests
@@ -28,6 +28,12 @@ public sealed class PuzzleTradeNotebookView : PanelBase
     bool scrollPending;
 
     internal event Action<PuzzleNotebookTab> TabSelected;
+
+    public void OpenTab(PuzzleNotebookTab _tab)
+    {
+        TabSelected?.Invoke(_tab);
+        SetOpen(true);
+    }
 
     protected override void OnEnable()
     {

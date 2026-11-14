@@ -29,13 +29,15 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         public readonly string SourceCityId;
         public readonly string Message;
         public readonly long RecordedMinutes;
+        public readonly string Tag;
 
-        public TavernRumor(string _targetCityId, string _sourceCityId, string _message, long _recordedMinutes)
+        public TavernRumor(string _targetCityId, string _sourceCityId, string _message, long _recordedMinutes, string _tag = null)
         {
             TargetCityId = _targetCityId;
             SourceCityId = _sourceCityId;
             Message = _message;
             RecordedMinutes = _recordedMinutes;
+            Tag = _tag;
         }
     }
 
@@ -50,7 +52,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
     {
         if (lastRumorVisit != CityMoveCount)
         {
-            tavernRumors.Add(new TavernRumor(_targetCityId, CurrentCityId, _message, Time.ElapsedMinutes));
+            tavernRumors.Add(new TavernRumor(_targetCityId, CurrentCityId, _message, Time.ElapsedMinutes, _tag));
             lastRumorVisit = CityMoveCount;
             GameEvents.RaiseTavernRumorRecorded(this, CurrentCityId, _targetCityId, _message, Time.ElapsedMinutes, _tag);
         }
