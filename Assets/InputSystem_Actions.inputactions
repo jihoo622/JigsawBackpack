@@ -1037,6 +1037,17 @@
                 },
                 {
                     "name": "",
+                    "id": "3f6c1b2a-9d4e-4c7b-8a51-2e7b0c4d5a19",
+                    "path": "<Mouse>/rightButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard&Mouse",
+                    "action": "Rotate",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
                     "id": "e9c4b8c2-72a4-4903-a039-e1ec9ce0f87c",
                     "path": "<Keyboard>/escape",
                     "interactions": "",

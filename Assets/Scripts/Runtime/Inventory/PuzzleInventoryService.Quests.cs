@@ -305,6 +305,11 @@ public sealed partial class PuzzleInventoryService
 
     void FailQuest(TrainventoryQuest _quest, TrainventoryQuestFailure _failure)
     {
+        if (TryFindQuestCargo(_quest, out var cargo))
+        {
+            cargo.Owner.Remove(cargo);
+            PruneAnimalStates();
+        }
         _quest.Finish(TrainventoryQuestState.Failed, _failure, 0, Time.ElapsedMinutes);
         var penalty = tables.QuestPenalty(_quest.PenaltyId);
         if (PenaltyType(penalty) == TrainventoryQuestPenaltyType.RegionTrade)

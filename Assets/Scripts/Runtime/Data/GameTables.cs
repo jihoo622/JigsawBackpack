@@ -42,6 +42,8 @@ public sealed class PuzzleTableData
     public PuzzleCityData[] cities = Array.Empty<PuzzleCityData>();
     public PuzzleRegionData[] regions = Array.Empty<PuzzleRegionData>();
     public PuzzleMarketStockData[] stockProfiles = Array.Empty<PuzzleMarketStockData>();
+    // 판매 등급별 배율의 단일 원본. 도시 태그 행의 sellGradeId가 이 목록의 id를 참조한다.
+    public PuzzleSellGradeData[] sellGrades = Array.Empty<PuzzleSellGradeData>();
 }
 
 [Serializable]

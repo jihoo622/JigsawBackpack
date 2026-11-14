@@ -1,4 +1,4 @@
-﻿{
+{
   "displayName": "기초데이터",
   "status": "active",
   "note": "공통 표시·UI 배치·제작·규칙 참조 값을 그룹과 항목 ID로 관리한다. 전체 키는 그룹 ID와 항목 ID를 점으로 연결한다.",
@@ -498,7 +498,7 @@
         },
         {
           "id": "moveGuide",
-          "value": "드래그로 이동    R로 회전    Esc로 취소"
+          "value": "드래그로 이동    R·우클릭으로 회전    Esc로 취소"
         },
         {
           "id": "name",
@@ -850,6 +850,13 @@
           "a": 1
         },
         {
+          "id": "rare",
+          "r": 0.72,
+          "g": 0.5,
+          "b": 0.95,
+          "a": 1
+        },
+        {
           "id": "neutralLine",
           "r": 0.75,
           "g": 0.8,
@@ -921,6 +928,11 @@
         {
           "id": "informationText15",
           "value": "없음"
+        },
+        {
+          "id": "informationText16",
+          "value": "<color=#{0}><b>희귀 자원</b></color>   {1}\n",
+          "arguments": 2
         },
         {
           "id": "informationText2",
@@ -2025,6 +2037,11 @@
         {
           "id": "cityTagPreferencesText4",
           "value": "없음"
+        },
+        {
+          "id": "cityTagPreferencesText5",
+          "value": "<color=#{0}><b>희귀 자원</b></color>   {1}\n",
+          "arguments": 2
         },
         {
           "id": "wastePurchase",

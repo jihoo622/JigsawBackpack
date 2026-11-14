@@ -21,6 +21,12 @@ public sealed class TableManager
     }
     const string RESOURCE_FOLDER = "Tables/";
 
+    // 판매 등급 id 계약. PuzzleTableData.sellGrades의 id와 일치하며 표시·분석의 흔함/귀함/희귀 판정 기준이다.
+    internal const string SELL_GRADE_COMMON = "Common";
+    internal const string SELL_GRADE_NORMAL = "Normal";
+    internal const string SELL_GRADE_EXPENSIVE = "Expensive";
+    internal const string SELL_GRADE_RARE = "Rare";
+
     public GameplayTableData Gameplay { get; }
     public BasicDataTableData Basic { get; }
     public FlowTableData Flow { get; }
@@ -55,6 +61,7 @@ public sealed class TableManager
     readonly Dictionary<string, PuzzleCityData> cities;
     readonly Dictionary<string, PuzzleRegionData> regions;
     readonly Dictionary<string, PuzzleMarketStockData> stockProfiles;
+    readonly Dictionary<string, PuzzleSellGradeData> sellGrades;
     readonly Dictionary<string, Dictionary<string, PuzzleCityTagPriceData>> cityTagPrices;
     readonly Dictionary<string, PuzzleCityActionData> cityActions;
     readonly Dictionary<string, List<PuzzleCityActionData>> actionsByCity;
@@ -94,6 +101,7 @@ public sealed class TableManager
         cities = rules.Index(Puzzle.cities, e => e.id, "PuzzleTableData.cities");
         regions = rules.Index(Puzzle.regions, entry => entry.id, "PuzzleTableData.regions");
         stockProfiles = rules.Index(Puzzle.stockProfiles, _entry => _entry.id, "PuzzleTableData.stockProfiles");
+        sellGrades = rules.Index(Puzzle.sellGrades, _entry => _entry.id, "PuzzleTableData.sellGrades");
         cityTagPrices = IndexCityTagPrices(Puzzle.cities);
         routes = IndexRoutes(PuzzleRoute.routes);
         routesFrom = IndexRoutesFrom(routes);
@@ -128,7 +136,44 @@ public sealed class TableManager
             .ToArray();
 
         rules.Validate(this);
+        ResolveCityTagSellPercents();
         IsValid = loaded && rules.IsValid;
+    }
+
+    // 판매 등급을 참조하는 태그 행의 실효 판매 배율을 등급 테이블의 단일 원본으로 채운다.
+    // 거래 계산·표시·분석이 같은 수치를 읽도록 로드 시 한 번 해결한다. 사용자 지정 배율은 그대로 둔다.
+    void ResolveCityTagSellPercents()
+    {
+        foreach (var city in Puzzle.cities ?? Array.Empty<PuzzleCityData>())
+        {
+            foreach (var tagPrice in city?.tagPrices ?? Array.Empty<PuzzleCityTagPriceData>())
+            {
+                if (tagPrice != null && !string.IsNullOrEmpty(tagPrice.sellGradeId) &&
+                    sellGrades.TryGetValue(tagPrice.sellGradeId, out var grade))
+                {
+                    tagPrice.sellPercent = grade.sellPercent;
+                }
+            }
+        }
+    }
+
+    internal bool TryGetSellGrade(string _id, out PuzzleSellGradeData _grade)
+    {
+        _grade = null;
+        return !string.IsNullOrEmpty(_id) && sellGrades.TryGetValue(_id, out _grade);
+    }
+
+    // 태그 행의 판매 등급 분류. 등급 id로 해석하고 판매 등급이 없는 행은 Custom으로 본다.
+    internal static PuzzleSellGradeKind SellGradeKindOf(PuzzleCityTagPriceData _rule)
+    {
+        return _rule?.sellGradeId switch
+        {
+            SELL_GRADE_COMMON => PuzzleSellGradeKind.Common,
+            SELL_GRADE_NORMAL => PuzzleSellGradeKind.Normal,
+            SELL_GRADE_EXPENSIVE => PuzzleSellGradeKind.Expensive,
+            SELL_GRADE_RARE => PuzzleSellGradeKind.Rare,
+            _ => PuzzleSellGradeKind.Custom
+        };
     }
 
     internal bool TryGetRegion(string _id, out PuzzleRegionData _region)

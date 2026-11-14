@@ -189,6 +189,17 @@ internal enum PuzzleSynergyRange
     Board
 }
 
+// 태그 행의 판매 등급 분류. 등급 ID로 해석하며, 판매 등급이 없는 임의 배율은 Custom이다.
+// 표시·분석의 흔함/귀함/희귀 판정은 이 분류가 단일 기준이다.
+internal enum PuzzleSellGradeKind
+{
+    Common,
+    Normal,
+    Expensive,
+    Rare,
+    Custom
+}
+
 [Serializable]
 public sealed class PuzzleSynergyRuleData
 {
@@ -236,7 +247,21 @@ public sealed class PuzzleCityTagPriceData
     public string tag;
     // 도시 안에서 고유해야 하며, 여러 태그가 맞으면 가장 큰 값의 규칙 하나를 쓴다.
     public int priority = -1;
-    public int buyPercent = -1, sellPercent = -1;
+    public int buyPercent = -1;
+    // 판매 등급 참조. 지정하면 판매 배율은 PuzzleTableData.sellGrades의 단일 원본에서 해결하고 sellPercent는 비워 둔다.
+    // 판매 등급이 없는 임의 배율만 sellPercent에 직접 쓴다. 등급과 수치를 함께 저장하면 테이블 오류다.
+    public string sellGradeId;
+    // 사용자 지정 판매 배율. sellGradeId가 비어 있을 때만 유효하다.
+    public int sellPercent = -1;
+}
+
+// 판매 등급과 그 배율의 단일 원본. 도시 행은 id로 참조하고 수치는 여기에만 둔다.
+[Serializable]
+public sealed class PuzzleSellGradeData
+{
+    public string id;
+    // 도시 기본 배율에 더하는 기준이 되는 절대 판매 배율(%). 흔함 70·일반 100·귀함 130·희귀 150.
+    public int sellPercent = -1;
 }
 
 // 마을 역에서 추가 동작으로 진입하는 행동의 종류. 테이블의 type 문자열과 이름이 같아야 한다.

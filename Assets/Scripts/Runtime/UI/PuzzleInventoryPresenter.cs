@@ -294,10 +294,11 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
                 continue;
             }
 
-            // 3. 구매·판매 배율이 모두 100%를 넘는 품목을 후보에 넣는다.
+            // 3. 판매 등급이 귀함 또는 희귀인 품목을 고가 수요 후보에 넣는다. 판매 등급으로 판정해 구매가가 100%인 희귀도 빠지지 않는다.
             foreach (var rule in city.tagPrices)
             {
-                if (rule.buyPercent > PuzzleInventoryValuation.BASE_PERCENT && rule.sellPercent > PuzzleInventoryValuation.BASE_PERCENT)
+                PuzzleSellGradeKind grade = TableManager.SellGradeKindOf(rule);
+                if (grade == PuzzleSellGradeKind.Expensive || grade == PuzzleSellGradeKind.Rare)
                 {
                     candidates.Add((city, rule.tag));
                 }

@@ -162,7 +162,7 @@ public static class EconomyProbe
                         ItemTags = string.Join("·", item.Tags),
                         AppliedTag = rate.Tag,
                         Category = matches.Count == 0 ? "일반" : matches.Count > 1 ? "복합"
-                            : matches[0].buyPercent < 100 ? "흔함" : matches[0].buyPercent > 100 ? "귀함" : "기타",
+                            : SellGradeCategory(matches[0]),
                         BuyPercent = rate.BuyPercent,
                         SellPercent = rate.SellPercent,
                         RegionPercent = region.pricePercent,
@@ -175,6 +175,20 @@ public static class EconomyProbe
             }
         }
         return rows;
+    }
+
+    // 단일 태그 규칙의 카테고리는 판매 등급의 단일 원본으로 분류한다. 등급이 없는 임의 배율은 구매가 기준의
+    // 기존 표기를 유지하고, 구매·판매가 반대 방향이어도 희귀로 오인하지 않는다.
+    static string SellGradeCategory(PuzzleCityTagPriceData _rule)
+    {
+        return TableManager.SellGradeKindOf(_rule) switch
+        {
+            PuzzleSellGradeKind.Common => "흔함",
+            PuzzleSellGradeKind.Normal => "일반",
+            PuzzleSellGradeKind.Expensive => "귀함",
+            PuzzleSellGradeKind.Rare => "희귀",
+            _ => _rule.buyPercent < 100 ? "흔함" : _rule.buyPercent > 100 ? "귀함" : "기타"
+        };
     }
 
     // 노선별로 출발 시장 후보 중 칸당 차익이 가장 큰 품목과, 객차 1량을 그 품목으로 채웠을 때의 시간당 이익.
