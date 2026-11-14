@@ -48,6 +48,8 @@ public sealed class PuzzleStationActionsView : PanelBase
     [SerializeField] Button modificationConfirmButton;
     [SerializeField] Button refiningButton;
     [SerializeField] Button refiningConfirmButton;
+    [SerializeField] GameObject noFacilityCard;
+    [SerializeField] TextMeshProUGUI noFacilityLabel;
     [SerializeField] CanvasGroup interaction;
 
     internal event Action MarketRequested;
@@ -119,6 +121,10 @@ public sealed class PuzzleStationActionsView : PanelBase
             refiningLabel.text = Presentation.StationRefining;
             refiningConfirmLabel.text = Presentation.StationRefiningConfirm;
             refiningContent.SetActive(false);
+        }
+        if (noFacilityLabel)
+        {
+            noFacilityLabel.text = Presentation.StationNoFacility;
         }
         base.Awake();
     }
@@ -247,6 +253,14 @@ public sealed class PuzzleStationActionsView : PanelBase
             ? Presentation.StationRefiningConfirmCost(_refiningCost)
             : Presentation.StationRefiningConfirm;
         refiningConfirmButton.interactable = _confirmEnabled;
+    }
+
+    internal void UpdateFacilityCard(bool _hasFacility)
+    {
+        if (noFacilityCard)
+        {
+            noFacilityCard.SetActive(!_hasFacility);
+        }
     }
 
     // 닫기를 막거나 확인이 실패한 사유를 임시로 보여 준다. 다음 Refresh가 상태 문구로 되돌린다.

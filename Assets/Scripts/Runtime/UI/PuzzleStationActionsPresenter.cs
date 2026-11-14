@@ -116,6 +116,10 @@ public sealed class PuzzleStationActionsPresenter : MonoBehaviour
         view.RefreshRefining(inProgress, refiningAvailable,
             refiningAvailable && refiningPhase != PuzzleRefiningPhase.Working,
             refiningAvailable && session.RefiningConfirmable(), refiningHint, refiningCost);
+        bool hasAnyFacility = (available && view.HasButcheryButton) ||
+                              (modificationAvailable && view.HasModificationButton) ||
+                              (refiningAvailable && view.HasRefiningButton);
+        view.UpdateFacilityCard(hasAnyFacility && inProgress);
     }
 
     string FirstModificationModeName()
