@@ -80,6 +80,80 @@ public static class Presentation
         return string.Join(BasicData.Text("presentation.rumorLog.separator"), entries);
     }
 
+    #region E3 고정 UI·요약·상세 표시
+
+    // 다음 정산 게이지. 남은 시간은 PuzzleMapTime, 예상치는 열차 전체 시너지 합(정산 계산 재사용 값)을 넣는다.
+    public static string GaugeUntilSettlement(long _remainingMinutes)
+    {
+        return BasicData.Format("presentation.gauge.untilSettlement", PuzzleMapTime(_remainingMinutes));
+    }
+
+    public static string GaugeEstimate(decimal _amount)
+    {
+        return BasicData.Format("presentation.gauge.estimate", _amount);
+    }
+
+    // 소문·의뢰 요약 띠 제목과 의뢰 빈 상태. 소문 빈 상태는 presentation.station.unreadRumor,
+    // 넘치는 항목은 presentation.quest.moreOffers("외 {0}건"), "전체 보기" 버튼은 presentation.map.fit을 재사용한다.
+    public static string SummaryRumorTitle => BasicData.Text("presentation.summary.rumorTitle");
+    public static string SummaryQuestTitle => BasicData.Text("presentation.summary.questTitle");
+    public static string SummaryNoQuest => BasicData.Text("presentation.summary.noQuest");
+
+    // 행동 목록 6번째 카드. 시설이 없는 역의 비활성 카드 문구.
+    public static string StationNoFacility => BasicData.Text("presentation.station.noFacility");
+
+    // 화물칸 바의 미보유 슬롯 라벨. 색은 inventory.background(배경)·train.addWagonTextDisabled(글자)를 재사용한다.
+    public static string TrainLockedSlot(int _slotNumber)
+    {
+        return BasicData.Format("presentation.train.lockedSlot", _slotNumber);
+    }
+
+    // 화차 상세 줄. 칸 규격은 보드 Width×Height, 증감은 현재 편성과의 차이(보유 칸 수·적재 칸 수)를 넣는다.
+    public static string WagonSizeLabel(int _width, int _height)
+    {
+        return BasicData.Format("presentation.train.wagonSizeLabel", _width, _height);
+    }
+
+    public static string WagonFormationDelta(int _ownedDelta, int _cellDelta)
+    {
+        return BasicData.Format("presentation.train.wagonFormationDelta", _ownedDelta, _cellDelta);
+    }
+
+    // 화물칸 바 오른쪽 고정 지도 버튼. 닫힘 라벨은 presentation.map.open("지도")을 재사용한다.
+    public static string MapToggleClose => BasicData.Text("presentation.map.closeMap");
+    public static string MapToggleHint => BasicData.Text("presentation.map.openHint");
+
+    // 지도 노드 소문 배지. 의뢰 배지는 QuestMapBadge(QuestMapMarker 색), 소문 배지 강조색은 PuzzleMapCurrent를 재사용한다.
+    public static string MapRumorBadge => BasicData.Text("presentation.map.rumorBadge");
+
+    // 술집 의뢰 상세 패널 줄. 기한 표기는 rumorLog와 같은 GameTimestamp를 쓴다.
+    public static string QuestDetailDestination(string _cityName, long _travelMinutes)
+    {
+        return BasicData.Format("presentation.quest.detailDestination", _cityName, PuzzleMapTime(_travelMinutes));
+    }
+
+    public static string QuestDetailDeadline(long _deadlineMinutes)
+    {
+        return BasicData.Format("presentation.quest.detailDeadline", GameTimestamp(_deadlineMinutes));
+    }
+
+    public static string QuestDetailReward(long _reward)
+    {
+        return BasicData.Format("presentation.quest.detailReward", _reward);
+    }
+
+    public static string QuestDetailDeposit(long _deposit)
+    {
+        return BasicData.Format("presentation.quest.detailDeposit", _deposit);
+    }
+
+    public static string QuestDetailCargo(string _cargoName, int _cellCount)
+    {
+        return BasicData.Format("presentation.quest.detailCargo", _cargoName, _cellCount);
+    }
+
+    #endregion
+
     #region 술집 의뢰
 
     public static string QuestBoardTitle => BasicData.Text("presentation.quest.boardTitle");

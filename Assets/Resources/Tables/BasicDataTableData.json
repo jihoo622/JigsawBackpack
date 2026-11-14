@@ -173,6 +173,21 @@
       ]
     },
     {
+      "id": "presentation.gauge",
+      "texts": [
+        {
+          "id": "untilSettlement",
+          "value": "다음 정산까지 {0}",
+          "arguments": 1
+        },
+        {
+          "id": "estimate",
+          "value": "예상 {0:+#,0.##;-#,0.##;0}$",
+          "arguments": 1
+        }
+      ]
+    },
+    {
       "id": "presentation.inventory",
       "colors": [
         {
@@ -823,6 +838,10 @@
           "value": "닫기"
         },
         {
+          "id": "closeMap",
+          "value": "지도 닫기"
+        },
+        {
           "id": "current",
           "value": "▼ 현재 위치"
         },
@@ -952,6 +971,10 @@
           "value": "지도"
         },
         {
+          "id": "openHint",
+          "value": "다음 목적지 고르기"
+        },
+        {
           "id": "regionLabel",
           "value": "{0} · {1}",
           "arguments": 2
@@ -1006,6 +1029,10 @@
           "id": "rumorInformation",
           "value": "<b>? 소문 · 미확인</b>\n{0}",
           "arguments": 1
+        },
+        {
+          "id": "rumorBadge",
+          "value": "소문 ?"
         }
       ]
     },
@@ -1089,6 +1116,31 @@
           "id": "mapInformation",
           "value": "<b>[의뢰]</b> {0} 전달 · 남은 시간 {1} · 보수 {2}$ + 화물 가치",
           "arguments": 3
+        },
+        {
+          "id": "detailDestination",
+          "value": "목적지: {0} (소요 {1})",
+          "arguments": 2
+        },
+        {
+          "id": "detailDeadline",
+          "value": "운송 기한: {0}까지",
+          "arguments": 1
+        },
+        {
+          "id": "detailReward",
+          "value": "보수: {0:N0}$ + 화물 가치",
+          "arguments": 1
+        },
+        {
+          "id": "detailDeposit",
+          "value": "보증금: {0:N0}$",
+          "arguments": 1
+        },
+        {
+          "id": "detailCargo",
+          "value": "의뢰 화물: {0} ({1}칸)",
+          "arguments": 2
         },
         {
           "id": "boardTitle",
@@ -1282,6 +1334,10 @@
           "value": "시장 · 야간 휴업"
         },
         {
+          "id": "noFacility",
+          "value": "이용 가능한 역 시설 없음"
+        },
+        {
           "id": "noRumor",
           "value": "아직 가보지 않은 마을 소식은 못 들었어요."
         },
@@ -1324,6 +1380,23 @@
         {
           "id": "unreadRumor",
           "value": "아직 들은 소식이 없어요."
+        }
+      ]
+    },
+    {
+      "id": "presentation.summary",
+      "texts": [
+        {
+          "id": "noQuest",
+          "value": "진행 중인 의뢰가 없습니다."
+        },
+        {
+          "id": "questTitle",
+          "value": "진행 중 의뢰 요약"
+        },
+        {
+          "id": "rumorTitle",
+          "value": "소문 요약"
         }
       ]
     },
@@ -2091,6 +2164,21 @@
         {
           "id": "wagonPurchaseStatus",
           "value": "화물칸 구매 완료 · {0:N0}$ · {1}번 칸 추가",
+          "arguments": 2
+        },
+        {
+          "id": "lockedSlot",
+          "value": "{0} · 잠김",
+          "arguments": 1
+        },
+        {
+          "id": "wagonSizeLabel",
+          "value": "칸 규격 {0}×{1}",
+          "arguments": 2
+        },
+        {
+          "id": "wagonFormationDelta",
+          "value": "현재 편성 대비: 보유 칸 {0:+0;-0;0} · 적재 칸 {1:+0;-0;0}",
           "arguments": 2
         }
       ]
