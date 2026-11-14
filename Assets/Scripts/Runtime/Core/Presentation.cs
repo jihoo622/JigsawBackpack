@@ -896,7 +896,12 @@ public static class Presentation
 
     static string HighlightEffectPercentages(string _description)
     {
-        return Regex.Replace(_description, @"[+−-]\d+(?:[.,]\d+)?%", match =>
+        return HighlightSignedValues(_description, "%");
+    }
+
+    static string HighlightSignedValues(string _description, string _unitPattern)
+    {
+        return Regex.Replace(_description, $@"[+−-]\d+(?:[.,]\d+)?{_unitPattern}", match =>
         {
             Color color = match.Value[0] == '+' ? PuzzleTooltipGreen : PuzzleTooltipRed;
             return $"<color=#{ColorUtility.ToHtmlStringRGB(color)}>{match.Value}</color>";
@@ -1069,6 +1074,44 @@ public static class Presentation
             return string.Empty;
         }
         return BasicData.Format(_textKey, ColorUtility.ToHtmlStringRGB(PuzzleTooltipGreen), PuzzleTagLabel("Waste"));
+    }
+
+    internal static bool TryGetTradeKeywordTooltip(string _linkId, out string _title, out string _description)
+    {
+        switch (_linkId)
+        {
+            case "common":
+                _title = BasicData.Text("presentation.trade.commonResourceTitle");
+                _description = FormatKeywordTooltipDescription(BasicData.Text("presentation.trade.commonResourceTooltip"));
+                return true;
+            case "expensive":
+                _title = BasicData.Text("presentation.trade.expensiveResourceTitle");
+                _description = FormatKeywordTooltipDescription(BasicData.Text("presentation.trade.expensiveResourceTooltip"));
+                return true;
+            case "rare":
+                _title = BasicData.Text("presentation.trade.rareResourceTitle");
+                _description = FormatKeywordTooltipDescription(BasicData.Text("presentation.trade.rareResourceTooltip"));
+                return true;
+            case "waste":
+                _title = BasicData.Text("presentation.trade.wastePurchaseTitle");
+                _description = FormatKeywordTooltipDescription(BasicData.Text("presentation.trade.wastePurchaseTooltip"));
+                return true;
+            default:
+                _title = null;
+                _description = null;
+                return false;
+        }
+    }
+
+    static string FormatKeywordTooltipDescription(string _description)
+    {
+        if (string.IsNullOrEmpty(_description))
+        {
+            return string.Empty;
+        }
+
+        string highlighted = HighlightSignedValues(_description, "[%$]");
+        return $"<color=#{TooltipLabelHtml()}>{highlighted}</color>";
     }
 
     public static string PuzzleTagLabel(string _tag)
