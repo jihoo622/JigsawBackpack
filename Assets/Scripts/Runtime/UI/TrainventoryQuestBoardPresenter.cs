@@ -6,6 +6,7 @@ using UnityEngine;
 public sealed class TrainventoryQuestBoardPresenter : MonoBehaviour
 {
     [SerializeField] TrainventoryQuestBoardView view;
+    [SerializeField] TrainventoryQuestDetailView detailView;
     PuzzleInventoryService session;
     // 마지막 수락 시도의 실패 사유. 다른 마을에 도착하면 지운다.
     string acceptMessage;
@@ -16,6 +17,7 @@ public sealed class TrainventoryQuestBoardPresenter : MonoBehaviour
         session = SceneServices.For<PuzzleInventoryService>(gameObject.scene);
         session.Initialize();
         view.OfferAccepted += OnOfferAccepted;
+        view.OfferSelected += OnOfferSelected;
         GameEvents.QuestChanged += OnQuestChanged;
         GameEvents.ProficiencyChanged += OnProficiencyChanged;
         GameEvents.FundsChanged += OnFundsChanged;
@@ -26,6 +28,7 @@ public sealed class TrainventoryQuestBoardPresenter : MonoBehaviour
     void OnDisable()
     {
         view.OfferAccepted -= OnOfferAccepted;
+        view.OfferSelected -= OnOfferSelected;
         GameEvents.QuestChanged -= OnQuestChanged;
         GameEvents.ProficiencyChanged -= OnProficiencyChanged;
         GameEvents.FundsChanged -= OnFundsChanged;
@@ -78,7 +81,25 @@ public sealed class TrainventoryQuestBoardPresenter : MonoBehaviour
             ? null
             : Presentation.QuestAcceptFailure(failure, offer, session.MaxActiveQuests);
         messageVisit = session.CityMoveCount;
+        // 수락하면 게시판 목록이 당겨지므로 선택을 해제해 다른 의뢰의 상세가 남지 않게 한다.
+        if (failure == TrainventoryQuestAcceptFailure.None)
+        {
+            view.SetSelectedIndex(-1);
+        }
         Refresh();
+    }
+
+    void OnOfferSelected(int _index)
+    {
+        var offers = session.QuestOffers;
+        if (_index >= 0 && _index < offers.Count)
+        {
+            detailView?.Bind(offers[_index], session);
+        }
+        else
+        {
+            detailView?.Bind(null, session);
+        }
     }
 
     void Refresh()
@@ -113,8 +134,20 @@ public sealed class TrainventoryQuestBoardPresenter : MonoBehaviour
         {
             message = Presentation.QuestMoreOffers(offers.Count - shown.Length);
         }
+
+        // 선택은 사용자가 슬롯을 눌렀을 때만 생긴다. 범위를 벗어나면 Render가 선택 없음으로 되돌린다.
         view.Render(Presentation.QuestBoardTitle,
             Presentation.QuestStatus(session.ActiveQuestCount, session.MaxActiveQuests, session.Reputation),
             contents.ToArray(), message);
+
+        int selectedIndex = view.SelectedIndex;
+        if (selectedIndex >= 0 && selectedIndex < shown.Length)
+        {
+            detailView?.Bind(shown[selectedIndex], session);
+        }
+        else
+        {
+            detailView?.Bind(null, session);
+        }
     }
 }

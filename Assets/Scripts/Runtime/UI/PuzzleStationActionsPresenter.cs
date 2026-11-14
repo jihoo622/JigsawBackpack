@@ -116,6 +116,10 @@ public sealed class PuzzleStationActionsPresenter : MonoBehaviour
         view.RefreshRefining(inProgress, refiningAvailable,
             refiningAvailable && refiningPhase != PuzzleRefiningPhase.Working,
             refiningAvailable && session.RefiningConfirmable(), refiningHint, refiningCost);
+        bool hasAnyFacility = (available && view.HasButcheryButton) ||
+                              (modificationAvailable && view.HasModificationButton) ||
+                              (refiningAvailable && view.HasRefiningButton);
+        view.UpdateFacilityCard(hasAnyFacility && inProgress);
     }
 
     string FirstModificationModeName()
@@ -224,27 +228,44 @@ public sealed class PuzzleStationActionsPresenter : MonoBehaviour
         Refresh();
     }
 
+    public bool TryConsumeCancel()
+    {
+        if (view && view.ShowingSubscreen)
+        {
+            OnBack();
+            return true;
+        }
+        return false;
+    }
+
     void OnBack()
     {
-        if (view.ShowingButchery && !session.TryLeaveButchery(out string reason))
+        if (session == null)
+        {
+            session = SceneServices.For<PuzzleInventoryService>(gameObject.scene);
+        }
+        if (view.ShowingButchery && (session != null && !session.TryLeaveButchery(out string reason)))
         {
             view.ShowButcheryNotice(reason);
             return;
         }
-        if (view.ShowingModification && !session.CanLeaveModification())
+        if (view.ShowingModification && (session != null && !session.CanLeaveModification()))
         {
             view.ShowModificationNotice(Presentation.PuzzleModificationReturnItems());
             return;
         }
-        if (view.ShowingRefining && !session.TryLeaveRefining(out string refiningReason))
+        if (view.ShowingRefining && (session != null && !session.TryLeaveRefining(out string refiningReason)))
         {
             view.ShowRefiningNotice(refiningReason);
             return;
         }
 
-        session.CloseButchery();
-        session.CloseModification();
-        session.CloseRefining();
+        if (session != null)
+        {
+            session.CloseButchery();
+            session.CloseModification();
+            session.CloseRefining();
+        }
         view.ShowHome();
     }
 

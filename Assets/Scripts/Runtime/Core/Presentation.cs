@@ -48,13 +48,25 @@ public static class Presentation
         return BasicData.Format("presentation.rumorLog.count", _count);
     }
 
-    public static string RumorLogCollapsed(int _rumorCount, int _questCount)
+    // 접힌 탭은 세로로 쓴 짧은 이름만 보이고, 수첩을 마지막으로 연 뒤 생긴 변화 수는 작은 배지로 붙인다.
+    public static string RumorLogCollapsed => BasicData.Text("presentation.rumorLog.collapsed");
+
+    public static string RumorLogBadge(int _count)
     {
-        return BasicData.Format("presentation.rumorLog.collapsed", _rumorCount, _questCount);
+        return BasicData.Format("presentation.rumorLog.badge", _count);
     }
+
+    public static Color RumorLogBadgeColor => BasicData.Color("presentation.rumorLog.badge");
+    public static Color RumorLogBadgeText => BasicData.Color("presentation.rumorLog.badgeText");
 
     public static string RumorLogRumorTab => BasicData.Text("presentation.rumorLog.rumorTab");
     public static string RumorLogQuestTab => BasicData.Text("presentation.rumorLog.questTab");
+
+    // 수첩 탭 배경·글자색. 선택한 탭은 밝은 배경과 화물칸 선택색 밑줄로 구분한다.
+    public static Color RumorLogTabNormal => BasicData.Color("presentation.rumorLog.tabNormal");
+    public static Color RumorLogTabNormalText => BasicData.Color("presentation.rumorLog.tabNormalText");
+    public static Color RumorLogTabSelected => BasicData.Color("presentation.rumorLog.tabSelected");
+    public static Color RumorLogTabSelectedText => BasicData.Color("presentation.rumorLog.tabSelectedText");
 
     // 누적 경과 분을 게임 날짜·시각으로 표기한다. 소문·의뢰 기록이 같은 표기를 쓴다.
     internal static string GameTimestamp(long _elapsedMinutes)
@@ -84,6 +96,99 @@ public static class Presentation
         }
         return string.Join(BasicData.Text("presentation.rumorLog.separator"), entries);
     }
+
+    #region E3 고정 UI·요약·상세 표시
+
+    // 다음 정산 게이지. 남은 시간은 PuzzleMapTime, 예상치는 열차 전체 시너지 합(정산 계산 재사용 값)을 넣는다.
+    public static string GaugeTitle => BasicData.Text("presentation.gauge.title");
+
+    public static string GaugeUntilSettlement(long _remainingMinutes)
+    {
+        return BasicData.Format("presentation.gauge.untilSettlement", PuzzleMapTime(_remainingMinutes));
+    }
+
+    public static string GaugeEstimate(decimal _amount)
+    {
+        return BasicData.Format("presentation.gauge.estimate", _amount);
+    }
+
+    // 소문·의뢰 요약 띠 머리표와 의뢰 빈 상태. 소문 빈 상태는 presentation.station.unreadRumor,
+    // 넘치는 항목은 presentation.quest.moreOffers("외 {0}건")를 재사용한다. 띠 전체를 누르면 수첩의 해당 탭이 열린다.
+    public static string SummaryRumorTitle => BasicData.Text("presentation.summary.rumorTitle");
+    public static string SummaryQuestTitle => BasicData.Text("presentation.summary.questTitle");
+    public static string SummaryNoQuest => BasicData.Text("presentation.summary.noQuest");
+
+    // 행동 목록 6번째 카드. 시설이 없는 역의 비활성 카드 문구.
+    public static string StationNoFacility => BasicData.Text("presentation.station.noFacility");
+
+    // 정보 바 남은 기한 카드. D-n은 남은 시간을 일 단위로 올림한 값이다.
+    public static string TimeDeadlineTitle => BasicData.Text("presentation.time.deadlineTitle");
+
+    public static string TimeDeadlineValue(long _remainingMinutes)
+    {
+        long days = (_remainingMinutes + PuzzleTimeManager.MINUTES_PER_DAY - 1) / PuzzleTimeManager.MINUTES_PER_DAY;
+        return BasicData.Format("presentation.time.deadlineValue", days, PuzzleMapTime(_remainingMinutes));
+    }
+
+    // 남은 기한이 3일 이하면 경고색으로 표시한다(UI_LAYOUT 2절 남은 기한 카드 규칙).
+    public static bool TimeDeadlineWarning(long _remainingMinutes)
+    {
+        return _remainingMinutes <= 3 * PuzzleTimeManager.MINUTES_PER_DAY;
+    }
+
+    // 화차 상세 줄. 칸 규격은 보드 Width×Height, 증감은 현재 편성과의 차이(보유 칸 수·적재 칸 수)를 넣는다.
+    public static string WagonSizeLabel(int _width, int _height)
+    {
+        return BasicData.Format("presentation.train.wagonSizeLabel", _width, _height);
+    }
+
+    public static string WagonFormationDelta(int _ownedDelta, int _cellDelta)
+    {
+        return BasicData.Format("presentation.train.wagonFormationDelta", _ownedDelta, _cellDelta);
+    }
+
+    // 화차 상세 패널 제목과 화차를 고르기 전 안내. 화차 상점은 선택 없음으로 시작한다.
+    public static string WagonDetailTitle => BasicData.Text("presentation.train.wagonDetailTitle");
+    public static string WagonDetailEmpty => BasicData.Text("presentation.train.wagonDetailEmpty");
+
+    // 화물칸 바 오른쪽 고정 지도 버튼. 닫힘 라벨은 presentation.map.open("지도")을 재사용한다.
+    public static string MapToggleClose => BasicData.Text("presentation.map.closeMap");
+    public static string MapToggleHint => BasicData.Text("presentation.map.openHint");
+
+    // 지도 노드 소문 배지. 의뢰 배지는 QuestMapBadge(QuestMapMarker 색), 소문 배지 강조색은 PuzzleMapCurrent를 재사용한다.
+    public static string MapRumorBadge => BasicData.Text("presentation.map.rumorBadge");
+
+    // 술집 의뢰 상세 패널 줄. 기한 표기는 rumorLog와 같은 GameTimestamp를 쓴다.
+    public static string QuestDetailDestination(string _cityName, long _travelMinutes)
+    {
+        return BasicData.Format("presentation.quest.detailDestination", _cityName, PuzzleMapTime(_travelMinutes));
+    }
+
+    public static string QuestDetailDeadline(long _deadlineMinutes)
+    {
+        return BasicData.Format("presentation.quest.detailDeadline", GameTimestamp(_deadlineMinutes));
+    }
+
+    public static string QuestDetailReward(long _reward)
+    {
+        return BasicData.Format("presentation.quest.detailReward", _reward);
+    }
+
+    public static string QuestDetailDeposit(long _deposit)
+    {
+        return BasicData.Format("presentation.quest.detailDeposit", _deposit);
+    }
+
+    public static string QuestDetailCargo(string _cargoName, int _cellCount)
+    {
+        return BasicData.Format("presentation.quest.detailCargo", _cargoName, _cellCount);
+    }
+
+    // 상세 패널 제목과 의뢰를 고르기 전 안내. 게시판은 선택 없음으로 시작한다.
+    public static string QuestDetailTitle => BasicData.Text("presentation.quest.detailTitle");
+    public static string QuestDetailEmpty => BasicData.Text("presentation.quest.detailEmpty");
+
+    #endregion
 
     #region 술집 의뢰
 
@@ -308,6 +413,8 @@ public static class Presentation
         return _current ? PuzzleMapCurrentText : PuzzleMapTargetText;
     }
     public const string PUZZLE_TRAVEL_PANEL_NAME = "MapTravelPanel";
+    // 화차 상점 하위 화면 열림 여부는 StationActionsView가 이 이름으로 PanelVisibility를 올린다.
+    public const string PUZZLE_WAGON_SHOP_PANEL_NAME = "WagonShopContent";
     public static string PuzzleTravelQuestion => BasicData.Text("presentation.inventory.travelQuestion");
     public static string PuzzleTravelConfirm => BasicData.Text("presentation.inventory.travelConfirm");
     public static string PuzzleTravelCancel => BasicData.Text("presentation.inventory.travelCancel");
@@ -693,6 +800,9 @@ public static class Presentation
     public static Color PuzzlePiece => BasicData.Color("presentation.inventory.piece");
     public static Color PuzzleGhost => BasicData.Color("presentation.inventory.ghost");
     public static Color PuzzleMoveTarget => BasicData.Color("presentation.inventory.moveTarget");
+    public static Color PuzzleOriginalSlotOutline => BasicData.Color("presentation.inventory.originalSlotOutline");
+    public static Color PuzzleDragBeam => BasicData.Color("presentation.inventory.dragBeam");
+    public static Color PuzzleSynergyChipBackground => BasicData.Color("presentation.inventory.synergyChipBackground");
 
     public static Color PuzzleTooltipHeaderBackground => BasicData.Color("presentation.tooltip.headerBackground");
     public static Color PuzzleTooltipBodyBackground => BasicData.Color("presentation.tooltip.bodyBackground");
@@ -711,10 +821,10 @@ public static class Presentation
     internal static string PuzzleTooltipPriceUnavailable => BasicData.Text("presentation.tooltip.priceUnavailable");
     internal static string PuzzleMarketNoSettlement => BasicData.Text("presentation.tooltip.marketNoSettlement");
 
+    // \uAE30\uBCF8 \uAC00\uCE58\uB294 \uBB38\uAD6C\uC758 \uACE0\uC815 \uC704\uCE58(<pos>)\uC5D0 \uB193\uC774\uBBC0\uB85C \uD604\uC7AC \uAC00\uCE58 \uC790\uB9BF\uC218\uAC00 \uBC14\uB00C\uC5B4\uB3C4 \uC6C0\uC9C1\uC774\uC9C0 \uC54A\uB294\uB2E4.
     internal static string PuzzleBoardActualValue(decimal _actualValue, long _baseValue)
     {
-        string amount = $"{_actualValue:#,0.##}$".PadRight(7, '\u00A0');
-        return BasicData.Format("presentation.inventory.boardActualValue", amount, _baseValue);
+        return BasicData.Format("presentation.inventory.boardActualValue", $"{_actualValue:#,0.##}$", _baseValue);
     }
 
     public static string PuzzleNoActiveEffects => BasicData.Text("presentation.tooltip.activeEffectsNone");

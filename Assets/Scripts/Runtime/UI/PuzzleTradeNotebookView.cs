@@ -4,13 +4,15 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using UnityEngine;
 
-internal enum PuzzleNotebookTab
+public enum PuzzleNotebookTab
 {
     Rumors,
     Quests
 }
 
 // 사전 배치한 스크롤 본문·탭·접기 버튼만 제어한다. 기록 데이터는 Presenter가 전달한다.
+// 머리 줄(제목·개수·오른쪽 위 접기 버튼) 아래에 소문/의뢰 탭이 반반 폭으로 있고, 선택한 탭은 배경·글자색·밑줄로 구분한다.
+// 접혔을 때는 화면 오른쪽 여백의 세로 '정보' 탭만 남고, 새 소식이 있으면 탭 위쪽에 작은 배지를 켠다.
 public sealed class PuzzleTradeNotebookView : PanelBase
 {
     [SerializeField] Button toggleButton;
@@ -25,9 +27,20 @@ public sealed class PuzzleTradeNotebookView : PanelBase
     [SerializeField] TextMeshProUGUI rumorTabLabel;
     [SerializeField] Button questTabButton;
     [SerializeField] TextMeshProUGUI questTabLabel;
+    [SerializeField] Image rumorTabMark;
+    [SerializeField] Image questTabMark;
+    [SerializeField] Image newBadge;
+    [SerializeField] TextMeshProUGUI newBadgeLabel;
     bool scrollPending;
 
     internal event Action<PuzzleNotebookTab> TabSelected;
+    internal event Action Shown;
+
+    public void OpenTab(PuzzleNotebookTab _tab)
+    {
+        TabSelected?.Invoke(_tab);
+        SetOpen(true);
+    }
 
     protected override void OnEnable()
     {
@@ -47,6 +60,16 @@ public sealed class PuzzleTradeNotebookView : PanelBase
         base.OnDisable();
     }
 
+    public bool TryConsumeCancel()
+    {
+        if (IsOpen)
+        {
+            Close();
+            return true;
+        }
+        return false;
+    }
+
     void ToggleLog()
     {
         Toggle();
@@ -62,31 +85,49 @@ public sealed class PuzzleTradeNotebookView : PanelBase
         TabSelected?.Invoke(PuzzleNotebookTab.Quests);
     }
 
-    internal void Render(PuzzleNotebookTab _tab, string _text, int _rumorCount, int _questCount)
+    // _unseenCount: 수첩을 마지막으로 연 뒤 생긴 소문·의뢰 변화 수. 0이면 접힌 탭의 배지를 숨긴다.
+    internal void Render(PuzzleNotebookTab _tab, string _text, int _rumorCount, int _questCount, int _unseenCount)
     {
         if (!logText || !scroll || !toggleButton || !collapseButton || !toggleLabel ||
             !titleLabel || !countLabel || !collapseLabel || !rumorTabButton || !rumorTabLabel ||
-            !questTabButton || !questTabLabel)
+            !questTabButton || !questTabLabel || !rumorTabMark || !questTabMark || !newBadge || !newBadgeLabel)
         {
-            throw new InvalidOperationException("수첩 패널의 본문·스크롤·탭·접기 버튼을 연결하세요.");
+            throw new InvalidOperationException("수첩 패널의 본문·스크롤·탭·탭 밑줄·접기 버튼·새 소식 배지를 연결하세요.");
         }
         logText.text = _text;
         titleLabel.text = Presentation.RumorLogTitle;
         countLabel.text = Presentation.RumorLogCount(_tab == PuzzleNotebookTab.Rumors ? _rumorCount : _questCount);
-        toggleLabel.text = Presentation.RumorLogCollapsed(_rumorCount, _questCount);
+        toggleLabel.text = Presentation.RumorLogCollapsed;
+        newBadge.color = Presentation.RumorLogBadgeColor;
+        newBadgeLabel.color = Presentation.RumorLogBadgeText;
+        newBadgeLabel.text = Presentation.RumorLogBadge(_unseenCount);
+        newBadge.gameObject.SetActive(_unseenCount > 0);
         collapseLabel.text = Presentation.RumorLogCollapse;
         rumorTabLabel.text = Presentation.RumorLogRumorTab;
         questTabLabel.text = Presentation.RumorLogQuestTab;
-        // 선택한 탭은 눌러도 바뀌지 않으므로 비활성으로 표시한다.
-        rumorTabButton.interactable = _tab != PuzzleNotebookTab.Rumors;
-        questTabButton.interactable = _tab != PuzzleNotebookTab.Quests;
+        ApplyTabState(rumorTabButton, rumorTabLabel, rumorTabMark, _tab == PuzzleNotebookTab.Rumors);
+        ApplyTabState(questTabButton, questTabLabel, questTabMark, _tab == PuzzleNotebookTab.Quests);
         scrollPending = IsOpen;
+    }
+
+    // 선택한 탭은 눌러도 바뀌지 않으므로 입력을 막고, 색 틴트 대신 배경·글자색·밑줄로 선택 상태를 보인다.
+    static void ApplyTabState(Button _button, TextMeshProUGUI _label, Image _mark, bool _selected)
+    {
+        _button.interactable = !_selected;
+        if (_button.targetGraphic)
+        {
+            _button.targetGraphic.color = _selected ? Presentation.RumorLogTabSelected : Presentation.RumorLogTabNormal;
+        }
+        _label.color = _selected ? Presentation.RumorLogTabSelectedText : Presentation.RumorLogTabNormalText;
+        _mark.color = Presentation.PuzzleWagonSelectedBorder;
+        _mark.gameObject.SetActive(_selected);
     }
 
     protected override void OnShow()
     {
         toggleButton.gameObject.SetActive(false);
         scrollPending = true;
+        Shown?.Invoke();
         if (EventSystem.current)
         {
             EventSystem.current.SetSelectedGameObject(collapseButton.gameObject);

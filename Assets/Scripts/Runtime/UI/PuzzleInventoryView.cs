@@ -45,6 +45,13 @@ public sealed class PuzzleInventoryView : MonoBehaviour
     [SerializeField] Sprite increaseArrow;
     [SerializeField] Sprite decreaseArrow;
 
+    [Header("Drag Assist Visuals")]
+    [SerializeField] Image dragBeam;
+    [SerializeField] float beamThickness = 3f;
+    [SerializeField] RectTransform[] synergyChips;
+    [SerializeField] TextMeshProUGUI[] synergyChipLabels;
+    [SerializeField] Image[] synergyChipBackgrounds;
+
     [Header("Layout & Visual Settings")]
     [SerializeField] float cellGap = 2f;
     [SerializeField, Range(0f, 1f)] float freshnessOutlineWidth = 0.35f;
@@ -334,33 +341,218 @@ public sealed class PuzzleInventoryView : MonoBehaviour
         }
     }
 
-    public void ShowGhost(PuzzlePose _pose, PuzzleItemDefinition _item, Vector2Int _grabbedBoardCell, Vector2 _screenPosition,
-        int? _freshness = null)
+    // 고스트 슬롯은 보드와 피벗이 다른 레이어 아래에 있으므로 보드 칸 좌표를 그 레이어 좌표로 옮겨 그린다.
+    RectTransform GhostParent => ghostLayer ? ghostLayer : (RectTransform)transform;
+
+    // 놓을 자리 후보는 외곽선과 같은 보드 칸에 겹쳐 그린다.
+    public void ShowGhostOnBoard(PuzzlePose _pose, PuzzleItemDefinition _item, int? _freshness = null)
     {
-        if (_pose == null || !RectTransformUtility.ScreenPointToLocalPointInRectangle(
-                (RectTransform)transform, _screenPosition, EventCamera, out var local))
+        if (_pose == null)
         {
-            HideSlots(ghostSlots);
+            HideGhost();
             return;
         }
 
-        var offset = local - GetCellCenter(_grabbedBoardCell);
+        Vector2 boardOrigin = GhostParent.InverseTransformPoint(board.rectTransform.position);
+        RenderGhost(_pose, _item, boardOrigin, _freshness);
+    }
+
+    // 놓을 자리가 없으면 잡은 칸의 중심이 커서 아래 오도록 커서를 따라간다.
+    public void ShowGhostAtPointer(PuzzlePose _pose, PuzzleItemDefinition _item, Vector2Int _grabbedCell, Vector2 _screenPosition,
+        int? _freshness = null)
+    {
+        if (_pose == null || !RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                GhostParent, _screenPosition, EventCamera, out var local))
+        {
+            HideGhost();
+            return;
+        }
+
+        RenderGhost(_pose, _item, local - GetCellCenter(_grabbedCell), _freshness);
+    }
+
+    public void HideGhost()
+    {
+        HideSlots(ghostSlots);
+    }
+
+    void RenderGhost(PuzzlePose _pose, PuzzleItemDefinition _item, Vector2 _offset, int? _freshness)
+    {
         var ghost = Presentation.PuzzleGhost;
-        int used = RenderPose(ghostSlots, 0, _pose, offset, ghost,
+        int used = RenderPose(ghostSlots, 0, _pose, _offset, ghost,
             iconIndex[_item.VisualKey].sprite, _item.IconSize, _item.IconOffset, _freshness,
             _outlineColor: Presentation.PuzzlePieceAccentOutline(_item, ghost.a));
         HideSlots(ghostSlots, used);
     }
 
+    PuzzlePose originalSlotPose;
+    PuzzlePose previewSlotPose;
+    bool previewCanPlace;
+
+    public void ShowOriginalOutline(PuzzlePose _pose)
+    {
+        originalSlotPose = _pose;
+        RenderAllOutlines();
+    }
+
     public void ShowPreview(PuzzlePose _pose, bool _canPlace)
     {
-        int used = _pose == null ? 0 : RenderPose(outlineSlots, 0, _pose, Vector2.zero, Presentation.PuzzleOutline(_canPlace));
-        HideSlots(outlineSlots, used);
+        previewSlotPose = _pose;
+        previewCanPlace = _canPlace;
+        RenderAllOutlines();
+    }
+
+    void RenderAllOutlines()
+    {
+        int index = 0;
+        if (originalSlotPose != null)
+        {
+            index = RenderPose(outlineSlots, index, originalSlotPose, Vector2.zero,
+                Presentation.PuzzleOriginalSlotOutline, _useDashedOutline: true);
+        }
+        if (previewSlotPose != null)
+        {
+            index = RenderPose(outlineSlots, index, previewSlotPose, Vector2.zero,
+                Presentation.PuzzleOutline(previewCanPlace));
+        }
+        HideSlots(outlineSlots, index);
+    }
+
+    public void ShowDragBeam(Vector2 _fromScreen, Vector2 _toScreen)
+    {
+        if (!dragBeam)
+        {
+            return;
+        }
+
+        var parent = (RectTransform)dragBeam.rectTransform.parent;
+        if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(parent, _fromScreen, EventCamera, out var localFrom) ||
+            !RectTransformUtility.ScreenPointToLocalPointInRectangle(parent, _toScreen, EventCamera, out var localTo))
+        {
+            dragBeam.gameObject.SetActive(false);
+            return;
+        }
+
+        Vector2 diff = localTo - localFrom;
+        float distance = diff.magnitude;
+        if (distance < 4f)
+        {
+            dragBeam.gameObject.SetActive(false);
+            return;
+        }
+
+        dragBeam.rectTransform.pivot = new Vector2(0f, 0.5f);
+        dragBeam.rectTransform.localPosition = localFrom;
+        dragBeam.rectTransform.sizeDelta = new Vector2(distance, beamThickness);
+        float angle = Mathf.Atan2(diff.y, diff.x) * Mathf.Rad2Deg;
+        dragBeam.rectTransform.localRotation = Quaternion.Euler(0f, 0f, angle);
+        dragBeam.color = Presentation.PuzzleDragBeam;
+        dragBeam.raycastTarget = false;
+        dragBeam.gameObject.SetActive(true);
+    }
+
+    public void HideDragBeam()
+    {
+        if (dragBeam)
+        {
+            dragBeam.gameObject.SetActive(false);
+        }
+    }
+
+    internal void ShowAdjacentSynergyPreview(IReadOnlyList<(PuzzlePlacement neighbor, decimal deltaPercent)> _deltas)
+    {
+        if (synergyChips == null || synergyChips.Length == 0)
+        {
+            return;
+        }
+
+        int count = _deltas != null ? _deltas.Count : 0;
+        int activeCount = 0;
+        for (int i = 0; i < count && activeCount < synergyChips.Length; i++)
+        {
+            var (neighbor, delta) = _deltas[i];
+            if (delta == 0)
+            {
+                continue;
+            }
+
+            var chip = synergyChips[activeCount];
+            var label = synergyChipLabels != null && activeCount < synergyChipLabels.Length ? synergyChipLabels[activeCount] : null;
+            var bg = synergyChipBackgrounds != null && activeCount < synergyChipBackgrounds.Length ? synergyChipBackgrounds[activeCount] : null;
+
+            Vector2 center = GetShapeCenter(neighbor.Pose.Cells);
+            chip.localPosition = center;
+            chip.SetAsLastSibling();
+
+            if (label)
+            {
+                label.text = delta > 0 ? $"+{delta:#,0.##}%" : $"−{-delta:#,0.##}%";
+                label.color = delta > 0 ? Presentation.PuzzleTooltipGreen : Presentation.PuzzleTooltipRed;
+            }
+            if (bg)
+            {
+                bg.color = Presentation.PuzzleSynergyChipBackground;
+            }
+
+            chip.gameObject.SetActive(true);
+            activeCount++;
+        }
+
+        for (int i = activeCount; i < synergyChips.Length; i++)
+        {
+            if (synergyChips[i])
+            {
+                synergyChips[i].gameObject.SetActive(false);
+            }
+        }
+    }
+
+    internal void HideAdjacentSynergyPreview()
+    {
+        if (synergyChips == null)
+        {
+            return;
+        }
+        for (int i = 0; i < synergyChips.Length; i++)
+        {
+            if (synergyChips[i])
+            {
+                synergyChips[i].gameObject.SetActive(false);
+            }
+        }
+    }
+
+    internal Vector2 GetShapeCenter(IReadOnlyList<PuzzleCell> _cells)
+    {
+        if (_cells == null || _cells.Count == 0)
+        {
+            return Vector2.zero;
+        }
+
+        float minX = float.MaxValue, minY = float.MaxValue;
+        float maxX = float.MinValue, maxY = float.MinValue;
+        foreach (var cell in _cells)
+        {
+            Vector2 cellCenter = GetCellCenter(cell.Position);
+            float half = cellSize * 0.5f;
+            minX = Mathf.Min(minX, cellCenter.x - half);
+            minY = Mathf.Min(minY, cellCenter.y - half);
+            maxX = Mathf.Max(maxX, cellCenter.x + half);
+            maxY = Mathf.Max(maxY, cellCenter.y + half);
+        }
+        return new Vector2((minX + maxX) * 0.5f, (minY + maxY) * 0.5f);
+    }
+
+    internal Vector2 GetShapeCenterScreen(IReadOnlyList<PuzzleCell> _cells)
+    {
+        Vector2 local = GetShapeCenter(_cells);
+        Vector3 world = board.rectTransform.TransformPoint(local);
+        return RectTransformUtility.WorldToScreenPoint(EventCamera, world);
     }
 
     int RenderPose(PuzzleSlotVisual[] _slots, int _start, PuzzlePose _pose, Vector2 _offset, Color _color, Sprite _icon = null,
         Vector2 _iconSize = default, Vector2 _iconOffset = default, int? _freshness = null, bool _showSynergyNotice = false,
-        Color? _outlineColor = null)
+        Color? _outlineColor = null, bool _useDashedOutline = false)
     {
         piecePositions.Clear();
         foreach (var cell in _pose.Cells)
@@ -399,7 +591,7 @@ public sealed class PuzzleInventoryView : MonoBehaviour
         {
             int hiddenEdges = GetHiddenEdges(cell.Position);
             _slots[index].Show(GetCellCenter(cell.Position) + _offset, cellSize, _color, hiddenEdges,
-                index == _start ? _icon : null, iconOffset, iconLayout.Size, _pose.ClockwiseTurns, _outlineColor);
+                index == _start ? _icon : null, iconOffset, iconLayout.Size, _pose.ClockwiseTurns, _outlineColor, _useDashedOutline);
             _slots[index].ShowFreshness(index == _start ? _freshness : null,
                 bottomLeft - cell.Position, boardTitle.font, freshnessMaterial);
             _slots[index].ShowSynergyNotice(index == _start && _showSynergyNotice,
@@ -424,8 +616,12 @@ public sealed class PuzzleInventoryView : MonoBehaviour
 
     public void ClearDrag()
     {
-        HideSlots(ghostSlots);
+        originalSlotPose = null;
+        previewSlotPose = null;
+        HideGhost();
         HideSlots(outlineSlots);
+        HideDragBeam();
+        HideAdjacentSynergyPreview();
     }
 
     internal void ShowBoardValue(decimal _actualValue, long _baseValue)

@@ -10,6 +10,9 @@ internal sealed class PuzzleInventoryDrag
     public PuzzleItemDefinition Definition => original.Definition;
     public int? FreshnessPercent => original.FreshnessPercent;
     public int InstanceId => original.InstanceId;
+    public PuzzlePose OriginalPose => original?.Pose;
+    public PuzzlePlacement OriginalPlacement => original;
+    public int ClockwiseTurns => clockwiseTurns;
 
     public PuzzleInventoryDrag(PuzzlePlacement _placement, PuzzleCell _cell)
     {

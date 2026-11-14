@@ -5,7 +5,6 @@ using UnityEngine;
 public sealed class PuzzleMapPresenter : MonoBehaviour
 {
     [SerializeField] PuzzleMapView view;
-    [SerializeField] Button openButton;
     [SerializeField] Button closeButton;
     [SerializeField] PuzzleMapTravelView travelView;
 
@@ -24,8 +23,9 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
     {
         session = SceneServices.For<PuzzleInventoryService>(gameObject.scene);
         session.Initialize();
-        openButton.onClick.AddListener(OpenMap);
         closeButton.onClick.AddListener(CloseMap);
+        // 지도 열기/닫기 토글은 고정 UI의 지도 버튼(GameEvents.MapToggleRequested)이 요청한다.
+        GameEvents.MapToggleRequested += OnMapToggleRequested;
         foreach (var node in view.Nodes)
         {
             node.Hovered += ShowCity;
@@ -45,8 +45,8 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
 
     void OnDisable()
     {
-        openButton.onClick.RemoveListener(OpenMap);
         closeButton.onClick.RemoveListener(CloseMap);
+        GameEvents.MapToggleRequested -= OnMapToggleRequested;
         foreach (var node in view.Nodes)
         {
             node.Hovered -= ShowCity;
@@ -72,12 +72,58 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
         view.Open();
     }
 
+    void OnMapToggleRequested(GameEvents.MapToggleInfo _info)
+    {
+        if (_info.sceneHandle != gameObject.scene.handle)
+        {
+            return;
+        }
+        if (view.IsOpen)
+        {
+            CloseMap();
+        }
+        else if (phase == TravelPhase.None)
+        {
+            OpenMap();
+        }
+    }
+
     void OnMapRequested(GameEvents.MapRequestInfo _info)
     {
         if (_info.sceneHandle == gameObject.scene.handle && phase == TravelPhase.None)
         {
             OpenMap();
         }
+    }
+
+    public bool TryConsumeTravelCancel()
+    {
+        if (travelView && travelView.TryConsumeCancel())
+        {
+            AbortTravel();
+            return true;
+        }
+        if (phase == TravelPhase.Confirming)
+        {
+            AbortTravel();
+            return true;
+        }
+        return false;
+    }
+
+    public bool TryConsumeMapCancel()
+    {
+        if (!view || !view.IsOpen)
+        {
+            return false;
+        }
+        if (phase != TravelPhase.None)
+        {
+            // 이동 연출 중에는 닫지 않고 소비만 한다.
+            return true;
+        }
+        CloseMap();
+        return true;
     }
 
     void CloseMap()
@@ -208,6 +254,22 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
         string quests = Presentation.QuestMapInformation(session, _cityId);
         view.ShowInformation(string.IsNullOrEmpty(quests) ? information
             : information + BasicData.Text("presentation.quest.separator") + quests);
+
+        if (isConnected && !isCurrent)
+        {
+            var node = System.Array.Find(view.Nodes, n => n && string.Equals(n.CityId, _cityId, System.StringComparison.Ordinal));
+            if (node)
+            {
+                long deadline = session.Time != null && session.Time.HasDeadline ? session.Time.DeadlineMinutes : 0;
+                view.ShowTravelPreview(currentCityId, _cityId, eval, (RectTransform)node.transform, session.ElapsedTime, deadline);
+                view.HighlightRoute(currentCityId, _cityId);
+            }
+        }
+        else
+        {
+            view.HideTravelPreview();
+            view.ClearRouteHighlight();
+        }
     }
 
     void ClearInformation()
@@ -219,6 +281,8 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
         hoveredCityId = null;
         view.HighlightCity(null);
         view.ShowInformation(Presentation.PuzzleMapHint);
+        view.HideTravelPreview();
+        view.ClearRouteHighlight();
     }
 
     void OnNodeExited(string _cityId)
@@ -249,6 +313,8 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
         session.SetPreviewDestination(_cityId);
         phase = TravelPhase.Confirming;
         view.SetInteraction(false);
+        view.HideTravelPreview();
+        view.ClearRouteHighlight();
         travelView.ShowConfirmation(Presentation.PuzzleTravelConfirmation(
             TableManager.Instance.CityPrice(session.CurrentCityId).displayName,
             TableManager.Instance.CityPrice(_cityId).displayName, eval));

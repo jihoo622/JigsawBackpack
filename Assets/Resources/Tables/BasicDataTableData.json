@@ -173,6 +173,25 @@
       ]
     },
     {
+      "id": "presentation.gauge",
+      "texts": [
+        {
+          "id": "untilSettlement",
+          "value": "다음 정산까지 {0}",
+          "arguments": 1
+        },
+        {
+          "id": "estimate",
+          "value": "예상 {0:+#,0.##;-#,0.##;0}$",
+          "arguments": 1
+        },
+        {
+          "id": "title",
+          "value": "다음 정산 게이지"
+        }
+      ]
+    },
+    {
       "id": "presentation.inventory",
       "colors": [
         {
@@ -265,6 +284,27 @@
           "g": 0.43,
           "b": 0.39,
           "a": 1
+        },
+        {
+          "id": "originalSlotOutline",
+          "r": 0.67,
+          "g": 0.7,
+          "b": 0.75,
+          "a": 0.8
+        },
+        {
+          "id": "dragBeam",
+          "r": 0.67,
+          "g": 0.7,
+          "b": 0.75,
+          "a": 0.6
+        },
+        {
+          "id": "synergyChipBackground",
+          "r": 0.1,
+          "g": 0.13,
+          "b": 0.17,
+          "a": 0.95
         },
         {
           "id": "piece",
@@ -614,7 +654,7 @@
         },
         {
           "id": "boardActualValue",
-          "value": "화물 현재 가치  <nobr><mspace=0.6em>{0}</mspace></nobr> <size=18>기본 {1:N0}$</size>",
+          "value": "화물 현재 가치  <size=125%><b><nobr><mspace=0.6em>{0}</mspace></nobr></b></size><pos=74%><size=75%><alpha=#B3>기본 {1:N0}$</size>",
           "arguments": 2
         },
         {
@@ -830,6 +870,10 @@
           "value": "닫기"
         },
         {
+          "id": "closeMap",
+          "value": "지도 닫기"
+        },
+        {
           "id": "current",
           "value": "▼ 현재 위치"
         },
@@ -861,7 +905,7 @@
         },
         {
           "id": "informationText10",
-          "value": "<color=#{0}><b>귀한 자원</b></color>   {1}",
+          "value": "<color=#{0}><b>귀한 자원</b></color>   {1}\n",
           "arguments": 2
         },
         {
@@ -964,6 +1008,10 @@
           "value": "지도"
         },
         {
+          "id": "openHint",
+          "value": "다음 목적지 고르기"
+        },
+        {
           "id": "regionLabel",
           "value": "{0} · {1}",
           "arguments": 2
@@ -1018,11 +1066,59 @@
           "id": "rumorInformation",
           "value": "<b>? 소문 · 미확인</b>\n{0}",
           "arguments": 1
+        },
+        {
+          "id": "rumorBadge",
+          "value": "소문 ?"
         }
       ]
     },
     {
       "id": "presentation.rumorLog",
+      "colors": [
+        {
+          "id": "tabNormal",
+          "r": 0.09411764705882353,
+          "g": 0.13725490196078433,
+          "b": 0.1803921568627451,
+          "a": 1
+        },
+        {
+          "id": "tabNormalText",
+          "r": 0.5607843137254902,
+          "g": 0.6392156862745098,
+          "b": 0.6901960784313725,
+          "a": 1
+        },
+        {
+          "id": "tabSelected",
+          "r": 0.16470588235294117,
+          "g": 0.27058823529411763,
+          "b": 0.34509803921568627,
+          "a": 1
+        },
+        {
+          "id": "tabSelectedText",
+          "r": 1,
+          "g": 1,
+          "b": 1,
+          "a": 1
+        },
+        {
+          "id": "badge",
+          "r": 1,
+          "g": 0.82,
+          "b": 0.42,
+          "a": 1
+        },
+        {
+          "id": "badgeText",
+          "r": 0.09411764705882353,
+          "g": 0.13725490196078433,
+          "b": 0.1803921568627451,
+          "a": 1
+        }
+      ],
       "texts": [
         {
           "id": "title",
@@ -1030,7 +1126,7 @@
         },
         {
           "id": "collapse",
-          "value": "접기"
+          "value": "접기 ▶"
         },
         {
           "id": "empty",
@@ -1043,8 +1139,12 @@
         },
         {
           "id": "collapsed",
-          "value": "소문 {0}\n의뢰 {1}\n◀",
-          "arguments": 2
+          "value": "정\n보"
+        },
+        {
+          "id": "badge",
+          "value": "{0}",
+          "arguments": 1
         },
         {
           "id": "time",
@@ -1101,6 +1201,39 @@
           "id": "mapInformation",
           "value": "<b>[의뢰]</b> {0} 전달 · 남은 시간 {1} · 보수 {2}$ + 화물 가치",
           "arguments": 3
+        },
+        {
+          "id": "detailDestination",
+          "value": "목적지: {0} (소요 {1})",
+          "arguments": 2
+        },
+        {
+          "id": "detailDeadline",
+          "value": "운송 기한: {0}까지",
+          "arguments": 1
+        },
+        {
+          "id": "detailReward",
+          "value": "보수: {0:N0}$ + 화물 가치",
+          "arguments": 1
+        },
+        {
+          "id": "detailDeposit",
+          "value": "보증금: {0:N0}$",
+          "arguments": 1
+        },
+        {
+          "id": "detailCargo",
+          "value": "의뢰 화물: {0} ({1}칸)",
+          "arguments": 2
+        },
+        {
+          "id": "detailTitle",
+          "value": "선택한 의뢰 상세"
+        },
+        {
+          "id": "detailEmpty",
+          "value": "왼쪽 게시판에서 의뢰를 고르면 상세가 표시됩니다."
         },
         {
           "id": "boardTitle",
@@ -1294,6 +1427,10 @@
           "value": "시장 · 야간 휴업"
         },
         {
+          "id": "noFacility",
+          "value": "이용 가능한 역 시설 없음"
+        },
+        {
           "id": "noRumor",
           "value": "아직 가보지 않은 마을 소식은 못 들었어요."
         },
@@ -1341,6 +1478,23 @@
         {
           "id": "unreadRumor",
           "value": "아직 들은 소식이 없어요."
+        }
+      ]
+    },
+    {
+      "id": "presentation.summary",
+      "texts": [
+        {
+          "id": "noQuest",
+          "value": "진행 중인 의뢰가 없습니다."
+        },
+        {
+          "id": "questTitle",
+          "value": "진행 중 의뢰 요약"
+        },
+        {
+          "id": "rumorTitle",
+          "value": "소문 요약"
         }
       ]
     },
@@ -1662,6 +1816,15 @@
         {
           "id": "clockText3",
           "value": "일출"
+        },
+        {
+          "id": "deadlineTitle",
+          "value": "남은 기한"
+        },
+        {
+          "id": "deadlineValue",
+          "value": "D-{0} · {1}",
+          "arguments": 2
         }
       ]
     },
@@ -1925,7 +2088,7 @@
         },
         {
           "id": "cityTagPreferencesText2",
-          "value": "<color=#{0}><b>귀한 자원</b></color>   {1}",
+          "value": "<color=#{0}><b>귀한 자원</b></color>   {1}\n",
           "arguments": 2
         },
         {
@@ -2114,6 +2277,24 @@
           "id": "wagonPurchaseStatus",
           "value": "화물칸 구매 완료 · {0:N0}$ · {1}번 칸 추가",
           "arguments": 2
+        },
+        {
+          "id": "wagonSizeLabel",
+          "value": "칸 규격 {0}×{1}",
+          "arguments": 2
+        },
+        {
+          "id": "wagonFormationDelta",
+          "value": "현재 편성 대비: 보유 칸 {0:+0;-0;0} · 적재 칸 {1:+0;-0;0}",
+          "arguments": 2
+        },
+        {
+          "id": "wagonDetailTitle",
+          "value": "선택한 화차 상세"
+        },
+        {
+          "id": "wagonDetailEmpty",
+          "value": "왼쪽 아래 화차 카드를 누르거나 끌기 시작하면 상세가 표시됩니다."
         }
       ]
     },

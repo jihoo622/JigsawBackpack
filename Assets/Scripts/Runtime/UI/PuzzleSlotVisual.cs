@@ -16,6 +16,8 @@ public sealed class PuzzleSlotVisual : MonoBehaviour
 
     Sprite[] fillSprites;
     Sprite outlineSprite;
+    Sprite dashedOutlineSprite;
+    [SerializeField] TextMeshProUGUI deltaLabel;
     [SerializeField] TextMeshProUGUI freshnessLabel;
     [SerializeField] TextMeshProUGUI synergyNotice;
     [SerializeField] float freshnessFontScale = 0.3f;
@@ -42,14 +44,16 @@ public sealed class PuzzleSlotVisual : MonoBehaviour
                 image.rectTransform.rect.size == _reference.rect.size);
     }
 
-    internal void ConfigureSprites(Sprite _outlineSprite, Sprite[] _fillSprites = null)
+    internal void ConfigureSprites(Sprite _outlineSprite, Sprite[] _fillSprites = null, Sprite _dashedOutlineSprite = null)
     {
         outlineSprite = _outlineSprite;
         fillSprites = _fillSprites;
+        dashedOutlineSprite = _dashedOutlineSprite;
     }
 
     internal void Show(Vector2 _center, float _cellSize, Color _color, int _hiddenEdges, Sprite _icon,
-        Vector2 _iconOffset, Vector2 _iconSize, int _clockwiseTurns, Color? _outlineColor = null)
+        Vector2 _iconOffset, Vector2 _iconSize, int _clockwiseTurns, Color? _outlineColor = null,
+        bool _useDashedOutline = false)
     {
         Rect.localPosition = _center;
         Rect.localScale = Vector3.one * (_cellSize / Rect.rect.width);
@@ -57,6 +61,7 @@ public sealed class PuzzleSlotVisual : MonoBehaviour
         bool hasFill = fillSprites != null;
         // 채운 화물은 기본 테두리, 효과 품목은 전용 테두리 색이다. 미리보기 외곽선은 지정 색 그대로다.
         var outlineColor = !hasFill ? _color : _outlineColor ?? Presentation.PuzzlePieceOutline(_color.a);
+        var activeOutlineSprite = (_useDashedOutline && dashedOutlineSprite) ? dashedOutlineSprite : outlineSprite;
         for (int direction = 0; direction < DIRECTION_COUNT; direction++)
         {
             var fill = fillDirections[direction];
@@ -71,7 +76,7 @@ public sealed class PuzzleSlotVisual : MonoBehaviour
             outline.enabled = (_hiddenEdges & (1 << direction)) == 0;
             if (outline.enabled)
             {
-                outline.sprite = outlineSprite;
+                outline.sprite = activeOutlineSprite;
                 outline.color = outlineColor;
             }
         }
@@ -140,8 +145,27 @@ public sealed class PuzzleSlotVisual : MonoBehaviour
         synergyNotice.enabled = true;
     }
 
+    internal void ShowDelta(string _text, Color _color)
+    {
+        if (deltaLabel)
+        {
+            deltaLabel.text = _text;
+            deltaLabel.color = _color;
+            deltaLabel.enabled = true;
+        }
+    }
+
+    internal void HideDelta()
+    {
+        if (deltaLabel)
+        {
+            deltaLabel.enabled = false;
+        }
+    }
+
     internal void Hide()
     {
+        HideDelta();
         gameObject.SetActive(false);
     }
 }

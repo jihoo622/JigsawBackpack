@@ -14,10 +14,21 @@ public sealed class PuzzleMapNodeView : MonoBehaviour, IPointerEnterHandler, IPo
     [SerializeField] Text currentBadge;
     [SerializeField] Image labelConnector;
 
+    [Header("E3 Tags and Badges")]
+    [SerializeField] GameObject tagChipsContainer;
+    [SerializeField] Image tagPlate0;
+    [SerializeField] Text tagLabel0;
+    [SerializeField] Image tagPlate1;
+    [SerializeField] Text tagLabel1;
+    [SerializeField] Text rumorBadge;
+    [SerializeField] Text questBadge;
+
     bool isCurrent;
     bool isTarget;
     // 진행 중 의뢰의 목적지. 줌과 관계없이 이름·의뢰 표식을 보인다.
     bool isQuestTarget;
+    bool hasRumor;
+    bool hasAnyTag;
     bool isConnected;
     bool layoutPrepared;
     Vector2 preferredLabelDirection;
@@ -183,6 +194,9 @@ public sealed class PuzzleMapNodeView : MonoBehaviour, IPointerEnterHandler, IPo
         label.gameObject.SetActive(false);
         currentBadge.gameObject.SetActive(false);
         labelConnector.gameObject.SetActive(false);
+        if (tagChipsContainer) tagChipsContainer.SetActive(false);
+        if (rumorBadge) rumorBadge.gameObject.SetActive(false);
+        if (questBadge) questBadge.gameObject.SetActive(false);
     }
 
     internal void PlaceLabel(Rect _footprint, Vector2 _start, Vector2 _end, RectTransform _viewport, Vector2 _direction, float _connectorThickness)
@@ -200,7 +214,44 @@ public sealed class PuzzleMapNodeView : MonoBehaviour, IPointerEnterHandler, IPo
         connector.localRotation = Quaternion.Euler(0f, 0f, Mathf.Atan2(delta.y, delta.x) * Mathf.Rad2Deg);
         labelConnector.gameObject.SetActive(true);
         label.gameObject.SetActive(true);
-        currentBadge.gameObject.SetActive(IsEmphasized);
+
+        if (tagChipsContainer)
+        {
+            var tcRt = tagChipsContainer.GetComponent<RectTransform>();
+            if (tcRt)
+            {
+                tcRt.anchoredPosition = center + Vector2.up * (nameOffsetY - label.rectTransform.sizeDelta.y * 0.5f - 14f);
+            }
+            tagChipsContainer.SetActive(hasAnyTag);
+        }
+        LayoutBadges(center);
+    }
+
+    void LayoutBadges(Vector2 center)
+    {
+        var activeBadges = new System.Collections.Generic.List<Text>();
+        if (IsEmphasized && currentBadge) activeBadges.Add(currentBadge);
+        if (hasRumor && rumorBadge) activeBadges.Add(rumorBadge);
+        if (isQuestTarget && questBadge) activeBadges.Add(questBadge);
+
+        float totalW = 0f;
+        for (int i = 0; i < activeBadges.Count; i++)
+        {
+            totalW += activeBadges[i].rectTransform.sizeDelta.x + (i > 0 ? 4f : 0f);
+        }
+
+        float curX = center.x - totalW * 0.5f;
+        foreach (var b in activeBadges)
+        {
+            b.gameObject.SetActive(true);
+            float bw = b.rectTransform.sizeDelta.x;
+            b.rectTransform.anchoredPosition = new Vector2(curX + bw * 0.5f, center.y + badgeOffsetY);
+            curX += bw + 4f;
+        }
+
+        if (!IsEmphasized && currentBadge) currentBadge.gameObject.SetActive(false);
+        if (!hasRumor && rumorBadge) rumorBadge.gameObject.SetActive(false);
+        if (!isQuestTarget && questBadge) questBadge.gameObject.SetActive(false);
     }
 
     internal void Show(PuzzleCityData _city, bool _visited, bool _current, bool _connected, bool _canAfford, bool _planningTarget, bool _hasRumor,
@@ -224,6 +275,7 @@ public sealed class PuzzleMapNodeView : MonoBehaviour, IPointerEnterHandler, IPo
         regionPriority = TableManager.Instance.Region(regionId).mapLabelPriority;
         isTarget = _planningTarget;
         isConnected = _connected;
+        hasRumor = _hasRumor;
         isQuestTarget = !string.IsNullOrEmpty(_questBadge);
         bool emphasized = IsEmphasized;
         Color highlight = _current ? Presentation.PuzzleMapCurrent : Presentation.PuzzleMapTarget;
@@ -238,6 +290,65 @@ public sealed class PuzzleMapNodeView : MonoBehaviour, IPointerEnterHandler, IPo
         currentBadge.gameObject.SetActive(emphasized);
         currentBadge.text = Presentation.PuzzleMapBadgeText(_current, _planningTarget);
         currentBadge.color = highlight;
+
+        if (rumorBadge)
+        {
+            rumorBadge.text = Presentation.MapRumorBadge;
+            rumorBadge.color = Presentation.PuzzleMapCurrent;
+            rumorBadge.gameObject.SetActive(_hasRumor);
+        }
+
+        if (questBadge)
+        {
+            questBadge.text = "의뢰 목적지";
+            questBadge.color = Presentation.QuestMapMarker;
+            questBadge.gameObject.SetActive(isQuestTarget);
+        }
+
+        // 선호 태그 칩 설정 (상위 2개)
+        var tagPrices = _city.tagPrices ?? System.Array.Empty<PuzzleCityTagPriceData>();
+        var preferredTags = new System.Collections.Generic.List<PuzzleCityTagPriceData>();
+        foreach (var tp in tagPrices)
+        {
+            if (tp != null && (tp.sellPercent > 100 || tp.buyPercent > 100))
+            {
+                preferredTags.Add(tp);
+            }
+        }
+        preferredTags.Sort((a, b) => b.sellPercent.CompareTo(a.sellPercent));
+
+        hasAnyTag = preferredTags.Count > 0;
+        if (tagChipsContainer)
+        {
+            if (preferredTags.Count >= 1)
+            {
+                if (tagPlate0) tagPlate0.gameObject.SetActive(true);
+                if (tagLabel0)
+                {
+                    string tagName = Presentation.PuzzleTagLabel(preferredTags[0].tag);
+                    tagLabel0.text = _visited ? $"{tagName} {preferredTags[0].sellPercent}%" : tagName;
+                }
+            }
+            else
+            {
+                if (tagPlate0) tagPlate0.gameObject.SetActive(false);
+            }
+
+            if (preferredTags.Count >= 2)
+            {
+                if (tagPlate1) tagPlate1.gameObject.SetActive(true);
+                if (tagLabel1)
+                {
+                    string tagName = Presentation.PuzzleTagLabel(preferredTags[1].tag);
+                    tagLabel1.text = _visited ? $"{tagName} {preferredTags[1].sellPercent}%" : tagName;
+                }
+            }
+            else
+            {
+                if (tagPlate1) tagPlate1.gameObject.SetActive(false);
+            }
+            tagChipsContainer.SetActive(hasAnyTag);
+        }
         if (emphasized)
         {
             transform.SetAsLastSibling();

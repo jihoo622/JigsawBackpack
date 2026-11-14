@@ -50,7 +50,9 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
     decimal? pendingSettlementValue;
     decimal? pendingFreshnessLossValue;
     bool pendingFundsRefresh;
-    bool InventoryBlocked => isMapOpen;
+    bool isTravelOpen;
+    bool TrainOperationsBlocked => isTravelOpen;
+    bool MarketOperationsBlocked => isMapOpen || isTravelOpen;
 
     void OnEnable()
     {
@@ -212,7 +214,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
 
     void Update()
     {
-        if (!initialized || InventoryBlocked || drag == null || !trainBarView || session == null ||
+        if (!initialized || TrainOperationsBlocked || drag == null || !trainBarView || session == null ||
             session.RunStatus != PuzzleRunStatus.InProgress)
         {
             if (hoveredWagonIndex.HasValue)
@@ -360,7 +362,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
 
     void WaitForDaylight()
     {
-        if (!InventoryBlocked && session.CanWaitForDaylight)
+        if (!MarketOperationsBlocked && session.CanWaitForDaylight)
         {
             input.CancelCapture();
             ClearDrag();
@@ -373,7 +375,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
 
     public void ClearGame()
     {
-        if (!initialized || !isActiveAndEnabled || InventoryBlocked || !pauseMenu || !pauseMenu.CanShowCompletion ||
+        if (!initialized || !isActiveAndEnabled || MarketOperationsBlocked || !pauseMenu || !pauseMenu.CanShowCompletion ||
             !session.TryClearGame())
         {
             return;
@@ -388,7 +390,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
 
     void RefreshFunds()
     {
-        if (InventoryBlocked)
+        if (TrainOperationsBlocked)
         {
             pendingFundsRefresh = true;
             return;
@@ -399,6 +401,32 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
 
     void OnPanelVisibility(GameEvents.PanelInfo _info)
     {
+        if (_info.panel == Presentation.PUZZLE_TRAVEL_PANEL_NAME)
+        {
+            isTravelOpen = _info.open;
+            if (_info.open)
+            {
+                if (trainBarView)
+                {
+                    trainBarView.CancelWagonDrag();
+                }
+                hoverPosition = null;
+                currentHoveredInstanceId = null;
+                if (input)
+                {
+                    input.CancelCapture();
+                }
+                ClearDrag();
+                if (tooltipView)
+                {
+                    tooltipView.Close();
+                }
+                RenderBoards();
+                ShowItemDetails(null, null);
+            }
+            return;
+        }
+
         if (_info.panel != Presentation.PUZZLE_MAP_PANEL_NAME)
         {
             return;
@@ -407,23 +435,28 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         RefreshWagonRefrigeration();
         if (_info.open)
         {
-            if (trainBarView)
+            // 지도가 열려 있어도 기차 보드 드래그·툴팁은 허용하므로,
+            // 시장·작업대 보드에서 시작된 드래그만 취소한다.
+            if (drag != null && drag.Source != session.Train)
             {
-                trainBarView.CancelWagonDrag();
+                if (input)
+                {
+                    input.CancelCapture();
+                }
+                ClearDrag();
             }
-            hoverPosition = null;
-            currentHoveredInstanceId = null;
-            if (input)
+            // 툴팁이 기차 보드가 아닌 시장/작업대 아이템을 표시하고 있었다면 닫는다.
+            if (currentHoveredInstanceId.HasValue && !session.Train.Placements.Any(p => p.InstanceId == currentHoveredInstanceId.Value))
             {
-                input.CancelCapture();
-            }
-            ClearDrag();
-            if (tooltipView)
-            {
-                tooltipView.Close();
+                hoverPosition = null;
+                currentHoveredInstanceId = null;
+                if (tooltipView)
+                {
+                    tooltipView.Close();
+                }
+                ShowItemDetails(null, null);
             }
             RenderBoards();
-            ShowItemDetails(null, null);
         }
         else
         {
@@ -437,7 +470,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
 
     void PlayPendingSettlement()
     {
-        if (InventoryBlocked || (!pendingSettlementValue.HasValue && !pendingFreshnessLossValue.HasValue))
+        if (TrainOperationsBlocked || (!pendingSettlementValue.HasValue && !pendingFreshnessLossValue.HasValue))
         {
             return;
         }
@@ -469,7 +502,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
 
     void OnPressed(PointerEventData _eventData)
     {
-        if (InventoryBlocked || session.RunStatus != PuzzleRunStatus.InProgress)
+        if (TrainOperationsBlocked || session.RunStatus != PuzzleRunStatus.InProgress)
         {
             return;
         }
@@ -483,6 +516,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         }
 
         drag = new PuzzleInventoryDrag(placement, cell);
+        sourceView.ShowOriginalOutline(drag.OriginalPose);
         cityView.ShowTradeStatus(string.Empty);
         pointerPosition = position;
         input.CapturePointer(_eventData.pointerId);
@@ -498,7 +532,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
 
     void OnQuickTransferRequested(PointerEventData _eventData)
     {
-        if (InventoryBlocked || drag != null || session.RunStatus != PuzzleRunStatus.InProgress ||
+        if (MarketOperationsBlocked || drag != null || session.RunStatus != PuzzleRunStatus.InProgress ||
             !trainView.isActiveAndEnabled ||
             !TryGetBoard(_eventData.position, out _, out var source, out var boardCell) ||
             !source.TryGetCell(boardCell, out var placement, out _))
@@ -545,7 +579,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
 
     void OnDragged(PointerEventData _eventData)
     {
-        if (InventoryBlocked)
+        if (TrainOperationsBlocked)
         {
             return;
         }
@@ -557,7 +591,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
 
     void OnRotated()
     {
-        if (InventoryBlocked || drag == null || session.RunStatus != PuzzleRunStatus.InProgress)
+        if (TrainOperationsBlocked || drag == null || session.RunStatus != PuzzleRunStatus.InProgress)
         {
             return;
         }
@@ -568,7 +602,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
 
     void OnReleased(PointerEventData _eventData)
     {
-        if (InventoryBlocked)
+        if (TrainOperationsBlocked)
         {
             ClearDrag();
             return;
@@ -619,13 +653,163 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         }
     }
 
+    static readonly Vector2Int[] ADJACENT_OFFSETS =
+    {
+        Vector2Int.up, Vector2Int.right, Vector2Int.down, Vector2Int.left
+    };
+
+    PuzzleInventory lastSynergyPreviewDestination;
+    Vector2Int lastSynergyPreviewCell = new Vector2Int(int.MinValue, int.MinValue);
+    int lastSynergyPreviewRotation = -1;
+    readonly List<(PuzzlePlacement neighbor, decimal deltaPercent)> cachedSynergyDeltas = new();
+
+    void CalculateAdjacentSynergyDeltas(
+        PuzzleInventory _destination,
+        PuzzlePose _candidatePose,
+        PuzzleInventoryDrag _drag,
+        List<(PuzzlePlacement neighbor, decimal deltaPercent)> _results)
+    {
+        _results.Clear();
+        if (_destination == null || _candidatePose == null || _drag == null)
+        {
+            return;
+        }
+
+        string wasteTag = TableManager.Instance.PuzzleSynergy?.animals?.wasteTag;
+        var scope = session.IsTrainWagon(_destination) ? PuzzleSynergyScope.Train : PuzzleSynergyScope.Market;
+        var rules = TableManager.Instance.SynergiesFor(scope);
+        var adjacentRules = rules.Where(r => r.spatialRange == nameof(PuzzleSynergyRange.Adjacent)).ToArray();
+        if (adjacentRules.Length == 0)
+        {
+            return;
+        }
+
+        bool sameBoard = ReferenceEquals(_drag.Source, _destination);
+        int draggedInstanceId = _drag.InstanceId;
+
+        var neighborPlacements = new HashSet<PuzzlePlacement>();
+        var candidateCellSet = new HashSet<Vector2Int>();
+        foreach (var cell in _candidatePose.Cells)
+        {
+            candidateCellSet.Add(cell.Position);
+        }
+
+        foreach (var cellPos in candidateCellSet)
+        {
+            foreach (var offset in ADJACENT_OFFSETS)
+            {
+                var neighborPos = cellPos + offset;
+                if (candidateCellSet.Contains(neighborPos))
+                {
+                    continue;
+                }
+                if (_destination.TryGetCell(neighborPos, out var neighbor, out _) &&
+                    neighbor.InstanceId != draggedInstanceId)
+                {
+                    neighborPlacements.Add(neighbor);
+                }
+            }
+        }
+
+        if (sameBoard && _drag.OriginalPose != null)
+        {
+            var origCellSet = new HashSet<Vector2Int>();
+            foreach (var cell in _drag.OriginalPose.Cells)
+            {
+                origCellSet.Add(cell.Position);
+            }
+            foreach (var cellPos in origCellSet)
+            {
+                foreach (var offset in ADJACENT_OFFSETS)
+                {
+                    var neighborPos = cellPos + offset;
+                    if (origCellSet.Contains(neighborPos))
+                    {
+                        continue;
+                    }
+                    if (_destination.TryGetCell(neighborPos, out var neighbor, out _) &&
+                        neighbor.InstanceId != draggedInstanceId)
+                    {
+                        neighborPlacements.Add(neighbor);
+                    }
+                }
+            }
+        }
+
+        foreach (var neighbor in neighborPlacements)
+        {
+            decimal newPercent = 0;
+            foreach (var nCell in neighbor.Pose.Cells)
+            {
+                foreach (var offset in ADJACENT_OFFSETS)
+                {
+                    if (candidateCellSet.Contains(nCell.Position + offset))
+                    {
+                        foreach (var rule in adjacentRules)
+                        {
+                            if (PuzzlePieceEffects.IsTarget(neighbor.Definition, rule, wasteTag) &&
+                                PuzzlePieceEffects.IsSource(_drag.Definition, rule))
+                            {
+                                newPercent += (rule.multiplierPercent - PuzzleInventoryValuation.BASE_PERCENT);
+                            }
+                        }
+                    }
+                }
+            }
+
+            decimal oldPercent = 0;
+            if (sameBoard && _drag.OriginalPose != null)
+            {
+                var origCellSet = new HashSet<Vector2Int>(_drag.OriginalPose.Cells.Select(c => c.Position));
+                foreach (var nCell in neighbor.Pose.Cells)
+                {
+                    foreach (var offset in ADJACENT_OFFSETS)
+                    {
+                        if (origCellSet.Contains(nCell.Position + offset))
+                        {
+                            foreach (var rule in adjacentRules)
+                            {
+                                if (PuzzlePieceEffects.IsTarget(neighbor.Definition, rule, wasteTag) &&
+                                    PuzzlePieceEffects.IsSource(_drag.Definition, rule))
+                                {
+                                    oldPercent += (rule.multiplierPercent - PuzzleInventoryValuation.BASE_PERCENT);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            decimal delta = newPercent - oldPercent;
+            if (delta != 0)
+            {
+                _results.Add((neighbor, delta));
+            }
+        }
+    }
+
     void RefreshDrag()
     {
+        if (drag == null)
+        {
+            return;
+        }
+
+        var sourceView = ViewFor(drag.Source);
         if (!IsOnScreen(pointerPosition))
         {
             SetDragView(null);
+            if (sourceView)
+            {
+                sourceView.ClearDrag();
+            }
             cityView.ShowTradeStatus(string.Empty);
             return;
+        }
+
+        if (sourceView)
+        {
+            sourceView.ShowOriginalOutline(drag.OriginalPose);
         }
 
         if (TryGetBoard(pointerPosition, out var targetView, out var destination, out var targetCell))
@@ -633,17 +817,66 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             var preview = drag.Evaluate(session, destination, targetCell);
             SetDragView(targetView);
             var candidate = preview.Placement.Candidate;
-            var grabbedBoardCell = candidate != null ? targetCell : Vector2Int.zero;
-            targetView.ShowGhost(candidate ?? drag.GetGhostPose(), drag.Definition, grabbedBoardCell, pointerPosition, drag.FreshnessPercent);
+            if (candidate != null)
+            {
+                targetView.ShowGhostOnBoard(candidate, drag.Definition, drag.FreshnessPercent);
+            }
+            else
+            {
+                targetView.ShowGhostAtPointer(drag.GetGhostPose(), drag.Definition, Vector2Int.zero, pointerPosition, drag.FreshnessPercent);
+            }
             targetView.ShowPreview(candidate, preview.CanDrop);
+            // 고스트는 놓을 후보 보드에만 둔다. 출발 보드에는 원래 자리 외곽선과 광선만 남긴다.
+            if (targetView != sourceView && sourceView)
+            {
+                sourceView.HideGhost();
+                sourceView.ShowPreview(null, false);
+            }
+
+            Vector2 sourceCenterScreen = sourceView ? sourceView.GetShapeCenterScreen(drag.OriginalPose.Cells) : pointerPosition;
+            Vector2 ghostCenterScreen = candidate != null ? targetView.GetShapeCenterScreen(candidate.Cells) : pointerPosition;
+            if (sourceView)
+            {
+                sourceView.ShowDragBeam(sourceCenterScreen, ghostCenterScreen);
+            }
+            if (targetView != sourceView)
+            {
+                targetView.HideDragBeam();
+            }
+
+            if (preview.CanDrop && candidate != null)
+            {
+                if (destination != lastSynergyPreviewDestination || targetCell != lastSynergyPreviewCell || drag.ClockwiseTurns != lastSynergyPreviewRotation)
+                {
+                    lastSynergyPreviewDestination = destination;
+                    lastSynergyPreviewCell = targetCell;
+                    lastSynergyPreviewRotation = drag.ClockwiseTurns;
+                    CalculateAdjacentSynergyDeltas(destination, candidate, drag, cachedSynergyDeltas);
+                }
+                targetView.ShowAdjacentSynergyPreview(cachedSynergyDeltas);
+            }
+            else
+            {
+                targetView.HideAdjacentSynergyPreview();
+            }
+            if (targetView != sourceView && sourceView)
+            {
+                sourceView.HideAdjacentSynergyPreview();
+            }
+
             cityView.ShowTradeStatus(Presentation.PuzzleTradeStatus(preview, drag.Definition, _committed: false));
             return;
         }
 
-        var sourceView = ViewFor(drag.Source);
         SetDragView(sourceView);
-        sourceView.ShowGhost(drag.GetGhostPose(), drag.Definition, Vector2Int.zero, pointerPosition, drag.FreshnessPercent);
-        sourceView.ShowPreview(null, false);
+        if (sourceView)
+        {
+            sourceView.ShowGhostAtPointer(drag.GetGhostPose(), drag.Definition, Vector2Int.zero, pointerPosition, drag.FreshnessPercent);
+            sourceView.ShowPreview(null, false);
+            sourceView.HideAdjacentSynergyPreview();
+            Vector2 sourceCenterScreen = sourceView.GetShapeCenterScreen(drag.OriginalPose.Cells);
+            sourceView.ShowDragBeam(sourceCenterScreen, pointerPosition);
+        }
         cityView.ShowTradeStatus(string.Empty);
     }
 
@@ -654,7 +887,8 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             return;
         }
 
-        if (dragView)
+        var sourceView = drag != null ? ViewFor(drag.Source) : null;
+        if (dragView && dragView != sourceView)
         {
             dragView.ClearDrag();
         }
@@ -671,29 +905,32 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
                 _inventory = session.Train;
                 return true;
             }
-            if (session.IsMarketOpen && marketView && marketView.isActiveAndEnabled && marketView.TryGetBoardCell(_position, out _cell))
+            if (!isMapOpen)
             {
-                _view = marketView;
-                _inventory = session.Market;
-                return true;
-            }
-            if (ButcheryViewReady && butcheryView.TryGetBoardCell(_position, out _cell))
-            {
-                _view = butcheryView;
-                _inventory = session.ButcheryBoard();
-                return true;
-            }
-            if (ModificationViewReady && modificationView.TryGetBoardCell(_position, out _cell))
-            {
-                _view = modificationView;
-                _inventory = session.ModificationBoard();
-                return true;
-            }
-            if (RefiningViewReady && refiningView.TryGetBoardCell(_position, out _cell))
-            {
-                _view = refiningView;
-                _inventory = session.RefiningBoard();
-                return true;
+                if (session.IsMarketOpen && marketView && marketView.isActiveAndEnabled && marketView.TryGetBoardCell(_position, out _cell))
+                {
+                    _view = marketView;
+                    _inventory = session.Market;
+                    return true;
+                }
+                if (ButcheryViewReady && butcheryView.TryGetBoardCell(_position, out _cell))
+                {
+                    _view = butcheryView;
+                    _inventory = session.ButcheryBoard();
+                    return true;
+                }
+                if (ModificationViewReady && modificationView.TryGetBoardCell(_position, out _cell))
+                {
+                    _view = modificationView;
+                    _inventory = session.ModificationBoard();
+                    return true;
+                }
+                if (RefiningViewReady && refiningView.TryGetBoardCell(_position, out _cell))
+                {
+                    _view = refiningView;
+                    _inventory = session.RefiningBoard();
+                    return true;
+                }
             }
         }
 
@@ -705,7 +942,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
 
     void OnHovered(Vector2 _position)
     {
-        if (InventoryBlocked)
+        if (TrainOperationsBlocked)
         {
             return;
         }
@@ -743,7 +980,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
 
     void OnHoverEnded()
     {
-        if (InventoryBlocked)
+        if (TrainOperationsBlocked)
         {
             return;
         }
@@ -756,7 +993,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
 
     void RefreshHover()
     {
-        if (InventoryBlocked || drag != null)
+        if (TrainOperationsBlocked || drag != null)
         {
             currentHoveredInstanceId = null;
             if (tooltipView)
@@ -846,7 +1083,8 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             tooltipView.Show(item, actualValue, rate, effects.General, effects.Synergies, futureValue, pos, isTrain, _placement.FreshnessPercent,
                 session.MinutesUntilNextFreshnessBand(_placement), previewMinutes,
                 previewName, previewActivations, price, isTrain ? PuzzleSynergyBonus.GroupByNeighbor(value.SynergyBonuses) : null,
-                isTrain ? session.AppliedPreservationPercent(_placement) : 0);
+                isTrain ? session.AppliedPreservationPercent(_placement) : 0,
+                _placement.Pose?.ClockwiseTurns ?? 0);
             // 툴팁을 열면 미확인 알림만 지운다. 실제로 대기 중인 진행도와 빨간 표시는 상태가 풀릴 때까지 남는다.
             if ((_placement.HasUnreadSynergySettlement || _placement.HasUnreadSpaceNotice) && tooltipView.IsOpen)
             {
@@ -1164,6 +1402,17 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
     {
         bool hadHoveredWagon = hoveredWagonIndex.HasValue;
         hoveredWagonIndex = null;
+        lastSynergyPreviewDestination = null;
+        lastSynergyPreviewCell = new Vector2Int(int.MinValue, int.MinValue);
+        lastSynergyPreviewRotation = -1;
+        cachedSynergyDeltas.Clear();
+
+        if (trainView) trainView.ClearDrag();
+        if (marketView) marketView.ClearDrag();
+        if (butcheryView) butcheryView.ClearDrag();
+        if (modificationView) modificationView.ClearDrag();
+        if (refiningView) refiningView.ClearDrag();
+
         if (drag == null)
         {
             if (hadHoveredWagon)
@@ -1212,7 +1461,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         {
             return;
         }
-        wagonRefrigerationButton.interactable = !InventoryBlocked && session.CanInstallWagonRefrigeration;
+        wagonRefrigerationButton.interactable = !TrainOperationsBlocked && session.CanInstallWagonRefrigeration;
         wagonRefrigerationLabel.text = session.HasWagonRefrigeration
             ? Presentation.PuzzleWagonRefrigerationInstalled
             : Presentation.PuzzleWagonRefrigerationLabel(session.WagonRefrigerationCost);
@@ -1220,7 +1469,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
 
     void OnWagonRefrigerationClicked()
     {
-        if (InventoryBlocked || session == null)
+        if (TrainOperationsBlocked || session == null)
         {
             return;
         }
@@ -1278,7 +1527,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
 
     void OnWagonSelected(int _index)
     {
-        if (InventoryBlocked || session == null || session.RunStatus != PuzzleRunStatus.InProgress)
+        if (TrainOperationsBlocked || session == null || session.RunStatus != PuzzleRunStatus.InProgress)
         {
             return;
         }
@@ -1299,7 +1548,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
 
     void OnWagonMoved(int _sourceIndex, int _destinationIndex)
     {
-        if (!InventoryBlocked && drag == null && session.TryMoveWagon(_sourceIndex, _destinationIndex))
+        if (!TrainOperationsBlocked && drag == null && session.TryMoveWagon(_sourceIndex, _destinationIndex))
         {
             RefreshTrainBar();
         }
@@ -1307,7 +1556,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
 
     void OnWagonProductDropped(PuzzleWagonProductData _product)
     {
-        if (InventoryBlocked || session == null)
+        if (MarketOperationsBlocked || session == null)
         {
             return;
         }

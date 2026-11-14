@@ -17,6 +17,7 @@ public sealed class PuzzleStationActionsView : PanelBase
     [SerializeField] Button wagonShopNextPage;
     [SerializeField] TextMeshProUGUI wagonShopPageLabel;
     [SerializeField] PuzzleWagonProductRow[] wagonProductRows;
+    [SerializeField] PuzzleWagonDetailView wagonDetailView;
     [SerializeField] TextMeshProUGUI title;
     [SerializeField] TextMeshProUGUI marketLabel;
     [SerializeField] TextMeshProUGUI tavernLabel;
@@ -48,6 +49,8 @@ public sealed class PuzzleStationActionsView : PanelBase
     [SerializeField] Button modificationConfirmButton;
     [SerializeField] Button refiningButton;
     [SerializeField] Button refiningConfirmButton;
+    [SerializeField] GameObject noFacilityCard;
+    [SerializeField] TextMeshProUGUI noFacilityLabel;
     [SerializeField] CanvasGroup interaction;
 
     internal event Action MarketRequested;
@@ -78,8 +81,11 @@ public sealed class PuzzleStationActionsView : PanelBase
     internal bool ShowingButchery => butcheryContent && butcheryContent.activeSelf;
     internal bool ShowingModification => modificationContent && modificationContent.activeSelf;
     internal bool ShowingRefining => refiningContent && refiningContent.activeSelf;
+    public bool ShowingSubscreen => isActiveAndEnabled && actionsList && !actionsList.activeSelf;
     PuzzleWagonProductData[] wagonProducts;
     int wagonShopPage;
+    // 화차 상점은 선택 없음으로 시작하고, 카드를 누르거나 끌기 시작하면 선택된다. 같은 카드를 다시 누르거나 상점을 나가면 해제한다.
+    PuzzleWagonProductRow selectedWagonRow;
 
     protected override void Awake()
     {
@@ -120,6 +126,10 @@ public sealed class PuzzleStationActionsView : PanelBase
             refiningConfirmLabel.text = Presentation.StationRefiningConfirm;
             refiningContent.SetActive(false);
         }
+        if (noFacilityLabel)
+        {
+            noFacilityLabel.text = Presentation.StationNoFacility;
+        }
         base.Awake();
     }
 
@@ -134,6 +144,17 @@ public sealed class PuzzleStationActionsView : PanelBase
         restDurationButton.onClick.AddListener(OnRestTime);
         wagonShopButton.onClick.AddListener(ShowWagonShop);
         wagonShopNextPage.onClick.AddListener(NextWagonShopPage);
+        if (wagonProductRows != null)
+        {
+            for (int i = 0; i < wagonProductRows.Length; i++)
+            {
+                if (wagonProductRows[i] != null)
+                {
+                    wagonProductRows[i].Clicked += OnWagonRowClicked;
+                    wagonProductRows[i].DragStarted += OnWagonRowDragStarted;
+                }
+            }
+        }
         if (ButcheryWired)
         {
             butcheryButton.onClick.AddListener(OnButchery);
@@ -154,6 +175,13 @@ public sealed class PuzzleStationActionsView : PanelBase
 
     protected override void OnDisable()
     {
+        if (wagonShopContent && wagonShopContent.activeSelf)
+        {
+            // 비활성화 중에는 하위 오브젝트를 켜고 끄지 않는다. 다시 열면 RefreshWagonShopPage가 선택 없음으로 그린다.
+            selectedWagonRow = null;
+            wagonShopContent.SetActive(false);
+            GameEvents.RaisePanelVisibility(Presentation.PUZZLE_WAGON_SHOP_PANEL_NAME, false);
+        }
         marketButton.onClick.RemoveListener(OnMarket);
         tavernButton.onClick.RemoveListener(OnTavern);
         restButton.onClick.RemoveListener(OnRest);
@@ -162,6 +190,17 @@ public sealed class PuzzleStationActionsView : PanelBase
         restDurationButton.onClick.RemoveListener(OnRestTime);
         wagonShopButton.onClick.RemoveListener(ShowWagonShop);
         wagonShopNextPage.onClick.RemoveListener(NextWagonShopPage);
+        if (wagonProductRows != null)
+        {
+            for (int i = 0; i < wagonProductRows.Length; i++)
+            {
+                if (wagonProductRows[i] != null)
+                {
+                    wagonProductRows[i].Clicked -= OnWagonRowClicked;
+                    wagonProductRows[i].DragStarted -= OnWagonRowDragStarted;
+                }
+            }
+        }
         if (ButcheryWired)
         {
             butcheryButton.onClick.RemoveListener(OnButchery);
@@ -244,6 +283,14 @@ public sealed class PuzzleStationActionsView : PanelBase
         refiningConfirmButton.interactable = _confirmEnabled;
     }
 
+    internal void UpdateFacilityCard(bool _hasFacility)
+    {
+        if (noFacilityCard)
+        {
+            noFacilityCard.SetActive(!_hasFacility);
+        }
+    }
+
     // 닫기를 막거나 확인이 실패한 사유를 임시로 보여 준다. 다음 Refresh가 상태 문구로 되돌린다.
     internal void ShowButcheryNotice(string _message)
     {
@@ -253,12 +300,12 @@ public sealed class PuzzleStationActionsView : PanelBase
         }
     }
 
-    internal void ShowHome()
+    public void ShowHome()
     {
         ShowMode(actionsList, Presentation.StationActionsTitle);
     }
 
-    internal void ShowMarket()
+    public void ShowMarket()
     {
         ShowMode(marketContent, Presentation.StationMarket);
     }
@@ -278,6 +325,37 @@ public sealed class PuzzleStationActionsView : PanelBase
         RefreshWagonShopPage();
     }
 
+    void OnWagonRowClicked(PuzzleWagonProductRow _row)
+    {
+        SelectWagonRow(selectedWagonRow == _row ? null : _row);
+    }
+
+    void OnWagonRowDragStarted(PuzzleWagonProductRow _row)
+    {
+        SelectWagonRow(_row);
+    }
+
+    void SelectWagonRow(PuzzleWagonProductRow _row)
+    {
+        selectedWagonRow = _row != null && _row.Product != null ? _row : null;
+        if (wagonDetailView != null)
+        {
+            wagonDetailView.Bind(selectedWagonRow != null ? selectedWagonRow.Product : null,
+                selectedWagonRow != null ? selectedWagonRow.ArtworkSprite : null);
+        }
+        if (wagonProductRows != null)
+        {
+            for (int i = 0; i < wagonProductRows.Length; i++)
+            {
+                if (wagonProductRows[i] != null)
+                {
+                    wagonProductRows[i].SetSelected(wagonProductRows[i] == selectedWagonRow);
+                }
+            }
+        }
+    }
+
+    // 쪽을 넘기면 카드 내용이 바뀌므로 선택을 해제한다.
     void RefreshWagonShopPage()
     {
         int pageCount = (wagonProducts.Length + wagonProductRows.Length - 1) / wagonProductRows.Length;
@@ -285,10 +363,12 @@ public sealed class PuzzleStationActionsView : PanelBase
         for (int i = 0; i < wagonProductRows.Length; i++)
         {
             int index = firstIndex + i;
-            wagonProductRows[i].Bind(index < wagonProducts.Length ? wagonProducts[index] : null);
+            var prod = index < wagonProducts.Length ? wagonProducts[index] : null;
+            wagonProductRows[i].Bind(prod);
         }
         wagonShopPageLabel.text = Presentation.StationWagonShopPage(wagonShopPage + 1, pageCount);
         wagonShopNextPage.gameObject.SetActive(pageCount > 1);
+        SelectWagonRow(null);
     }
 
     internal void ShowRest()
@@ -352,7 +432,18 @@ public sealed class PuzzleStationActionsView : PanelBase
     {
         actionsList.SetActive(_content == actionsList);
         marketContent.SetActive(_content == marketContent);
-        wagonShopContent.SetActive(_content == wagonShopContent);
+        bool wagonShopOpen = _content == wagonShopContent;
+        bool wagonShopChanged = wagonShopContent.activeSelf != wagonShopOpen;
+        wagonShopContent.SetActive(wagonShopOpen);
+        // 화차 상점 열림 변화는 PanelVisibility로 흘린다. 화물칸 바가 다음 잠긴 칸 강조에 쓴다.
+        if (wagonShopChanged)
+        {
+            if (!wagonShopOpen)
+            {
+                SelectWagonRow(null);
+            }
+            GameEvents.RaisePanelVisibility(Presentation.PUZZLE_WAGON_SHOP_PANEL_NAME, wagonShopOpen);
+        }
         restContent.SetActive(_content == restContent);
         tavernContent.gameObject.SetActive(_content == tavernContent.gameObject);
         if (butcheryContent)
