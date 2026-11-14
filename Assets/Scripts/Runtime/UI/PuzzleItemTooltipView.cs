@@ -233,6 +233,8 @@ public sealed class PuzzleItemTooltipView : PanelBase
             categoryRow.gameObject.SetActive(false);
         }
 
+        UpdateMiniGrid(null, 0);
+
         SetRowActive(baseValueLabelText, baseValueValueText, false);
         if (activeEffectsSection)
         {
