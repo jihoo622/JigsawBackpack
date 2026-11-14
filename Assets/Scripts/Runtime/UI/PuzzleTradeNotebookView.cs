@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -7,11 +8,13 @@ using UnityEngine;
 public enum PuzzleNotebookTab
 {
     Rumors,
-    Quests
+    Quests,
+    Proficiency
 }
 
-// 사전 배치한 스크롤 본문·탭·접기 버튼만 제어한다. 기록 데이터는 Presenter가 전달한다.
-// 머리 줄(제목·개수·오른쪽 위 접기 버튼) 아래에 소문/의뢰 탭이 반반 폭으로 있고, 선택한 탭은 배경·글자색·밑줄로 구분한다.
+// 사전 배치한 스크롤 본문·숙련 패널·탭·접기 버튼만 제어한다. 기록 데이터는 Presenter가 전달한다.
+// 머리 줄(제목·개수·오른쪽 위 접기 버튼) 아래에 소문/의뢰/숙련 탭이 3등분 폭으로 있고, 선택한 탭은 배경·글자색·밑줄로 구분한다.
+// 숙련 탭에서는 스크롤 본문 대신 사전 배치한 숙련 패널을 켜고, 머리 줄 개수 표시는 숨긴다(평판은 패널 요약에 있다).
 // 접혔을 때는 화면 오른쪽 여백의 세로 '정보' 탭만 남고, 새 소식이 있으면 탭 위쪽에 작은 배지를 켠다.
 public sealed class PuzzleTradeNotebookView : PanelBase
 {
@@ -29,6 +32,10 @@ public sealed class PuzzleTradeNotebookView : PanelBase
     [SerializeField] TextMeshProUGUI questTabLabel;
     [SerializeField] Image rumorTabMark;
     [SerializeField] Image questTabMark;
+    [SerializeField] Button proficiencyTabButton;
+    [SerializeField] TextMeshProUGUI proficiencyTabLabel;
+    [SerializeField] Image proficiencyTabMark;
+    [SerializeField] TrainventoryProficiencyPanelView proficiencyPanel;
     [SerializeField] Image newBadge;
     [SerializeField] TextMeshProUGUI newBadgeLabel;
     bool scrollPending;
@@ -49,6 +56,7 @@ public sealed class PuzzleTradeNotebookView : PanelBase
         collapseButton.onClick.AddListener(Close);
         rumorTabButton.onClick.AddListener(SelectRumors);
         questTabButton.onClick.AddListener(SelectQuests);
+        proficiencyTabButton.onClick.AddListener(SelectProficiency);
     }
 
     protected override void OnDisable()
@@ -57,6 +65,7 @@ public sealed class PuzzleTradeNotebookView : PanelBase
         collapseButton.onClick.RemoveListener(Close);
         rumorTabButton.onClick.RemoveListener(SelectRumors);
         questTabButton.onClick.RemoveListener(SelectQuests);
+        proficiencyTabButton.onClick.RemoveListener(SelectProficiency);
         base.OnDisable();
     }
 
@@ -85,17 +94,34 @@ public sealed class PuzzleTradeNotebookView : PanelBase
         TabSelected?.Invoke(PuzzleNotebookTab.Quests);
     }
 
-    // _unseenCount: 수첩을 마지막으로 연 뒤 생긴 소문·의뢰 변화 수. 0이면 접힌 탭의 배지를 숨긴다.
+    void SelectProficiency()
+    {
+        TabSelected?.Invoke(PuzzleNotebookTab.Proficiency);
+    }
+
+    // 숙련 탭 패널 내용. 숙련 탭일 때 Render 직후 같은 갱신에서 호출한다.
+    internal void RenderProficiency(int _reputation, int _maxActiveQuests, bool _hasNextStage, int _nextReputation,
+        IReadOnlyList<TrainventoryProficiencyStanding> _standings)
+    {
+        proficiencyPanel.Render(_reputation, _maxActiveQuests, _hasNextStage, _nextReputation, _standings);
+    }
+
+    // _unseenCount: 수첩을 마지막으로 연 뒤 생긴 소문·의뢰 변화·숙련 레벨 상승 수. 0이면 접힌 탭의 배지를 숨긴다.
     internal void Render(PuzzleNotebookTab _tab, string _text, int _rumorCount, int _questCount, int _unseenCount)
     {
         if (!logText || !scroll || !toggleButton || !collapseButton || !toggleLabel ||
             !titleLabel || !countLabel || !collapseLabel || !rumorTabButton || !rumorTabLabel ||
-            !questTabButton || !questTabLabel || !rumorTabMark || !questTabMark || !newBadge || !newBadgeLabel)
+            !questTabButton || !questTabLabel || !rumorTabMark || !questTabMark || !proficiencyTabButton ||
+            !proficiencyTabLabel || !proficiencyTabMark || !proficiencyPanel || !newBadge || !newBadgeLabel)
         {
-            throw new InvalidOperationException("수첩 패널의 본문·스크롤·탭·탭 밑줄·접기 버튼·새 소식 배지를 연결하세요.");
+            throw new InvalidOperationException("수첩 패널의 본문·스크롤·숙련 패널·탭·탭 밑줄·접기 버튼·새 소식 배지를 연결하세요.");
         }
-        logText.text = _text;
+        bool proficiency = _tab == PuzzleNotebookTab.Proficiency;
+        scroll.gameObject.SetActive(!proficiency);
+        proficiencyPanel.gameObject.SetActive(proficiency);
+        logText.text = proficiency ? string.Empty : _text;
         titleLabel.text = Presentation.RumorLogTitle;
+        countLabel.gameObject.SetActive(!proficiency);
         countLabel.text = Presentation.RumorLogCount(_tab == PuzzleNotebookTab.Rumors ? _rumorCount : _questCount);
         toggleLabel.text = Presentation.RumorLogCollapsed;
         newBadge.color = Presentation.RumorLogBadgeColor;
@@ -105,9 +131,11 @@ public sealed class PuzzleTradeNotebookView : PanelBase
         collapseLabel.text = Presentation.RumorLogCollapse;
         rumorTabLabel.text = Presentation.RumorLogRumorTab;
         questTabLabel.text = Presentation.RumorLogQuestTab;
+        proficiencyTabLabel.text = Presentation.RumorLogProficiencyTab;
         ApplyTabState(rumorTabButton, rumorTabLabel, rumorTabMark, _tab == PuzzleNotebookTab.Rumors);
         ApplyTabState(questTabButton, questTabLabel, questTabMark, _tab == PuzzleNotebookTab.Quests);
-        scrollPending = IsOpen;
+        ApplyTabState(proficiencyTabButton, proficiencyTabLabel, proficiencyTabMark, proficiency);
+        scrollPending = IsOpen && !proficiency;
     }
 
     // 선택한 탭은 눌러도 바뀌지 않으므로 입력을 막고, 색 틴트 대신 배경·글자색·밑줄로 선택 상태를 보인다.
@@ -146,7 +174,7 @@ public sealed class PuzzleTradeNotebookView : PanelBase
 
     void LateUpdate()
     {
-        if (!scrollPending || !IsOpen)
+        if (!scrollPending || !IsOpen || !scroll.gameObject.activeInHierarchy)
         {
             return;
         }

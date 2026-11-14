@@ -30,11 +30,26 @@ public sealed partial class PuzzleInventoryService
         return LevelForXp(ProficiencyXp(_tag));
     }
 
-    // 경험치가 있는 숙련만 레벨·경험치가 높은 순으로 돌려준다.
-    internal IReadOnlyList<string> KnownProficiencyTags => tables.ProficiencyTags
-        .Where(_tag => ProficiencyXp(_tag) > 0)
-        .OrderByDescending(ProficiencyXp)
-        .ThenBy(_tag => _tag, StringComparer.Ordinal)
+    // 숙련 대상 태그(지역 생산 태그) 기본 순서. id 오름차순이다.
+    internal IReadOnlyList<string> ProficiencyTags => tables.ProficiencyTags;
+
+    // 태그 하나의 숙련 표시값. 레벨 구간·다음 경계·이득은 테이블 기준 계산을 그대로 쓴다.
+    internal TrainventoryProficiencyStanding ProficiencyStanding(string _tag)
+    {
+        long xp = ProficiencyXp(_tag);
+        int level = LevelForXp(xp);
+        return new TrainventoryProficiencyStanding(_tag, level, xp, ProficiencyLevelStartXp(level), NextProficiencyXp(level),
+            ProficiencyBonusPercent(level));
+    }
+
+    // 숙련 대상 태그 전체를 레벨 내림차순 → 경험치 내림차순 → 태그 기본 순서(id 오름차순)로 돌려준다.
+    // 경험치가 0인 태그도 포함한다(수첩 숙련 탭 표시용).
+    internal IReadOnlyList<string> RankedProficiencyTags => tables.ProficiencyTags
+        .Select((_tag, _index) => (tag: _tag, index: _index))
+        .OrderByDescending(_entry => ProficiencyLevel(_entry.tag))
+        .ThenByDescending(_entry => ProficiencyXp(_entry.tag))
+        .ThenBy(_entry => _entry.index)
+        .Select(_entry => _entry.tag)
         .ToArray();
 
     int LevelForXp(long _xp)
@@ -65,6 +80,12 @@ public sealed partial class PuzzleInventoryService
         }
         decimal next = thresholds[thresholds.Length - 1] + (decimal)(_level - thresholds.Length + 1) * proficiency.extraLevelXp;
         return next > long.MaxValue ? long.MaxValue : (long)next;
+    }
+
+    // 지정 레벨이 시작되는 누적 경험치. 0레벨은 0부터 시작한다.
+    internal long ProficiencyLevelStartXp(int _level)
+    {
+        return _level <= 0 ? 0 : NextProficiencyXp(_level - 1);
     }
 
     internal decimal ProficiencyBonusPercent(int _level)
@@ -212,6 +233,45 @@ public sealed partial class PuzzleInventoryService
             proficiencyXp[tag] = after;
             GameEvents.RaiseProficiencyChanged(new GameEvents.ProficiencyInfo(this, tag, _source.ToString(), gained, after,
                 previousLevel, LevelForXp(after), _instanceId, _questId, ElapsedTime));
+        }
+    }
+}
+
+// 수첩 숙련 탭·기차 카드 칩이 함께 쓰는 태그별 숙련 표시값.
+internal readonly struct TrainventoryProficiencyStanding
+{
+    internal string Tag { get; }
+    internal int Level { get; }
+    internal long Xp { get; }
+    // 현재 레벨이 시작된 누적 경험치와 다음 레벨 경계.
+    internal long LevelStartXp { get; }
+    internal long NextXp { get; }
+    internal decimal BonusPercent { get; }
+
+    internal TrainventoryProficiencyStanding(string _tag, int _level, long _xp, long _levelStartXp, long _nextXp,
+        decimal _bonusPercent)
+    {
+        Tag = _tag;
+        Level = _level;
+        Xp = _xp;
+        LevelStartXp = _levelStartXp;
+        NextXp = _nextXp;
+        BonusPercent = _bonusPercent;
+    }
+
+    internal bool HasXp => Xp > 0;
+
+    // 현재 레벨 구간 진행도(0~1).
+    internal float Progress
+    {
+        get
+        {
+            long span = NextXp - LevelStartXp;
+            if (span <= 0)
+            {
+                return 1f;
+            }
+            return Math.Max(0f, Math.Min(1f, (float)((double)(Xp - LevelStartXp) / span)));
         }
     }
 }

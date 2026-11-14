@@ -1,6 +1,7 @@
+using System.Linq;
 using UnityEngine;
 
-// 새 소식 수(unseenCount)는 수첩이 접혀 있는 동안 기록된 소문과 의뢰 변화(수락·완료·실패) 건수다.
+// 새 소식 수(unseenCount)는 수첩이 접혀 있는 동안 기록된 소문, 의뢰 변화(수락·완료·실패), 숙련 레벨 상승 건수다.
 // 수첩을 열면 0으로 돌아간다. 씬 로컬 인스턴스 필드이므로 정적 초기화가 필요 없다.
 public sealed class PuzzleTradeNotebookPresenter : MonoBehaviour
 {
@@ -70,10 +71,15 @@ public sealed class PuzzleTradeNotebookPresenter : MonoBehaviour
         }
     }
 
+    // 숙련 레벨이 오른 경우만 새 소식으로 센다(경험치만 늘면 세지 않는다).
     void OnProficiencyChanged(GameEvents.ProficiencyInfo _info)
     {
         if (_info.session == session)
         {
+            if (_info.LeveledUp)
+            {
+                CountUnseen();
+            }
             Refresh();
         }
     }
@@ -104,9 +110,18 @@ public sealed class PuzzleTradeNotebookPresenter : MonoBehaviour
 
     void Refresh()
     {
-        string text = tab == PuzzleNotebookTab.Rumors
-            ? Presentation.RumorLogEntries(session.TavernRumors)
-            : Presentation.QuestLogEntries(session);
+        string text = tab switch
+        {
+            PuzzleNotebookTab.Rumors => Presentation.RumorLogEntries(session.TavernRumors),
+            PuzzleNotebookTab.Quests => Presentation.QuestLogEntries(session),
+            _ => string.Empty
+        };
         view.Render(tab, text, session.TavernRumors.Count, session.Quests.Count, unseenCount);
+        if (tab == PuzzleNotebookTab.Proficiency)
+        {
+            bool hasNext = session.TryGetNextQuestReputationLevel(out int nextReputation, out _);
+            view.RenderProficiency(session.Reputation, session.MaxActiveQuests, hasNext, nextReputation,
+                session.RankedProficiencyTags.Select(session.ProficiencyStanding).ToArray());
+        }
     }
 }

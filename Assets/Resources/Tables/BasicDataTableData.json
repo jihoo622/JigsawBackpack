@@ -1167,6 +1167,10 @@
         {
           "id": "questTab",
           "value": "의뢰"
+        },
+        {
+          "id": "proficiencyTab",
+          "value": "숙련"
         }
       ]
     },
@@ -1364,23 +1368,79 @@
     },
     {
       "id": "presentation.proficiency",
+      "colors": [
+        {
+          "id": "rowBackground",
+          "r": 0.09411764705882353,
+          "g": 0.13725490196078433,
+          "b": 0.1803921568627451,
+          "a": 1
+        },
+        {
+          "id": "barTrack",
+          "r": 0.16470588235294117,
+          "g": 0.22745098039215686,
+          "b": 0.2823529411764706,
+          "a": 1
+        },
+        {
+          "id": "barFill",
+          "r": 0.94,
+          "g": 0.75,
+          "b": 0.39,
+          "a": 1
+        },
+        {
+          "id": "dimText",
+          "r": 0.42,
+          "g": 0.48,
+          "b": 0.53,
+          "a": 1
+        }
+      ],
       "texts": [
         {
-          "id": "logHeader",
-          "value": "<b>거래 숙련</b> (평판 = 숙련 레벨 합)"
+          "id": "infoBar",
+          "value": "평판 {0}",
+          "arguments": 1
         },
         {
-          "id": "logEmpty",
-          "value": "다른 마을에서 실어 온 화물을 팔면 품목 숙련이 오릅니다."
+          "id": "panelReputation",
+          "value": "평판 {0} · 동시 의뢰 {1}개",
+          "arguments": 2
         },
         {
-          "id": "logEntry",
-          "value": "{0} {1}레벨 · 거래 이득 {2}% · 경험치 {3}/{4}",
-          "arguments": 5
+          "id": "panelNextStage",
+          "value": "다음 단계(평판 {0})까지 {1}",
+          "arguments": 2
         },
         {
-          "id": "lineSeparator",
-          "value": "\n"
+          "id": "panelMaxStage",
+          "value": "최대 단계 · 동시 의뢰 상한에 도달했습니다"
+        },
+        {
+          "id": "panelHint",
+          "value": "다른 마을 화물을 팔면 숙련이 오르고, 레벨 합이 평판입니다."
+        },
+        {
+          "id": "rowLevel",
+          "value": "Lv {0}",
+          "arguments": 1
+        },
+        {
+          "id": "chipLevel",
+          "value": "{0}",
+          "arguments": 1
+        },
+        {
+          "id": "rowXp",
+          "value": "{0:N0}/{1:N0}",
+          "arguments": 2
+        },
+        {
+          "id": "rowBonus",
+          "value": "거래 이득 +{0}%",
+          "arguments": 1
         },
         {
           "id": "levelUp",
