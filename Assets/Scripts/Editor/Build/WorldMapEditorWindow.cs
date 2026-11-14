@@ -902,11 +902,12 @@ public sealed partial class WorldMapEditorWindow : EditorWindow
         var region = Regions.First(_region => (string)_region["id"] == regionId);
         bool tradeHub = (bool?)region["tradeHub"] == true;
         var production = (region["productionTags"] ?? new JArray()).Select(_tag => (string)_tag).ToArray();
+        var specialties = (region["specialtyTags"] ?? new JArray()).Select(_tag => (string)_tag).ToArray();
         var candidates = Cities.Where(_other => _other != _city && (string)_other["regionId"] == regionId)
             .Where(_other => tradeHub || production.Contains((string)_other["specialtyTag"]))
             .OrderBy(_other => (string)_other["id"], StringComparer.Ordinal).ToArray();
         var template = candidates.FirstOrDefault(_other => (string)_other["specialtyTag"] == (string)_city["specialtyTag"])
-            ?? candidates.FirstOrDefault(_other => (string)_other["specialtyTag"] == (string)region["specialtyTag"])
+            ?? candidates.FirstOrDefault(_other => specialties.Contains((string)_other["specialtyTag"]))
             ?? candidates.FirstOrDefault();
         if (template == null)
         {

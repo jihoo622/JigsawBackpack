@@ -499,26 +499,48 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
     void OnQuickTransferRequested(PointerEventData _eventData)
     {
         if (InventoryBlocked || drag != null || session.RunStatus != PuzzleRunStatus.InProgress ||
-            !trainView.isActiveAndEnabled || !marketView.isActiveAndEnabled ||
+            !trainView.isActiveAndEnabled ||
             !TryGetBoard(_eventData.position, out _, out var source, out var boardCell) ||
             !source.TryGetCell(boardCell, out var placement, out _))
         {
             return;
         }
 
+        var otherBoard = QuickTransferPartner();
+        if (otherBoard == null || (source != session.Train && source != otherBoard))
+        {
+            return;
+        }
+
+        var destination = source == session.Train ? otherBoard : session.Train;
         hoverPosition = _eventData.position;
-        var result = session.QuickTransfer(placement);
+        var result = session.QuickTransferTo(placement, destination, placement.Pose.ClockwiseTurns);
         if (result.CanDrop)
         {
-            session.RefreshButcheryAfterMove(source);
-            session.RefreshModificationAfterMove(source);
-            session.RefreshRefiningAfterMove(source);
+            RefreshActionBoardsAfter(source, destination);
             RenderValues();
             RefreshFunds();
             RefreshTrainBar();
         }
         RefreshHover();
         cityView.ShowTradeStatus(WithProficiencyNotice(Presentation.PuzzleTradeStatus(result, placement.Definition, _committed: true)));
+    }
+
+    PuzzleInventory QuickTransferPartner()
+    {
+        if (ButcheryViewReady)
+        {
+            return session.ButcheryBoard();
+        }
+        if (ModificationViewReady)
+        {
+            return session.ModificationBoard();
+        }
+        if (RefiningViewReady)
+        {
+            return session.RefiningBoard();
+        }
+        return marketView.isActiveAndEnabled ? session.Market : null;
     }
 
     void OnDragged(PointerEventData _eventData)
