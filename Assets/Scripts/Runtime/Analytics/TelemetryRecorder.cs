@@ -112,12 +112,7 @@ public sealed class TelemetryRecorder : MonoBehaviour
     {
         if (ReferenceEquals(activeRun, _info.session))
         {
-            TelemetryLog.Write(TelemetryEvents.RUMOR_LEARNED, new PuzzleRumorPayload
-            {
-                targetCityId = _info.targetCityId,
-                tag = _info.tag,
-                elapsedMinutes = _info.recordedMinutes
-            });
+            TelemetryLog.Write(TelemetryEvents.RUMOR_LEARNED, TelemetryPayload.Rumor(_info));
         }
     }
 

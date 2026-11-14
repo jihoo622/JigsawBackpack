@@ -25,7 +25,8 @@ Unity 6.3 LTS(6000.3.22f1) URP 기반의 기차 화물 거래 게임. 작업 규
 - 이동 시간은 고정 폴라인 길이 ÷ K(잠정 28픽셀/시간)를 시간 단위(`PuzzleTimeTableData.travelRoundingMinutes` 60분)로 올림한다. `PuzzleTimeTableData`가 이동/시각 설정의 원본이다. 시너지는 `PuzzleSynergyTableData.activationIntervalHours`의 6시간마다 정산하고 이동·휴식·아침 대기에 공통 적용한다. 06:00 시작, 야간 00:00~06:00에는 시장을 차단하며 아침 대기 버튼을 제공한다. 하단 예측 선택 UI는 제거했으며, 호버 미래 가치는 지도에서 선택한 목적지를 사용한다. 시간·HUD UI 배치는 프리팹에서 수정한다.
 - 화물 정의에 기본 가치를 통합하고 시장 재고는 7개 프로필을 공유한다. 기초데이터 필수 키 계약 생성 메뉴를 제공한다.
 - 거래 견적은 모델/툴팁이 공유한다. 툴팁은 기본·실제 가치와 현재 적용 효과·일반 효과·가능 가치 시너지를 나눠 표시한다. 정산 주기는 가치 시너지에 표시한다. 기차 합계는 누적 실제 가치를 사용한다. 패배도 결과 패널을 열며 사과는 일반 재고에 포함된다. 툴팁 배치는 프리팹(`Assets/Art/PuzzleItemTooltip.prefab`)에서 수정한다.
-- 술집 소문은 우측 접이식 로그에 게임 날짜·시각 - 들은 마을 - 내용 순으로 쌓인다. 지도는 닫았다 열어도 확대 배율·이동 위치를 유지한다. 로그는 지도와 역 화면이 공유하고 새 기록은 마지막으로 스크롤한다. 소문 대상인 미방문 마을은 지도에 `?`를 붙이고 호버에 미확인 소문을 표시한다. 소문 로그 배치는 프리팹(`Assets/Art/PuzzleTradeNotebook.prefab`)에서 수정한다.
+- 술집 소문은 두 종류다. 미방문 마을의 특산품(그 마을에서만 나오고 구매 배율이 기본보다 낮은 품목)과 희귀 수요(`Rare` 판매 태그) 후보를 `PuzzleRumorCandidate`로 만들고, 종류는 `PuzzleRumorTableData` 비율(50/50)로 고른 뒤 그 안에서 하나를 균등 선택한다. 후보가 없으면 소식 없음 문구를 쓴다. `TavernRumor`는 종류·대상 마을·품목/태그 ID를 함께 갖고, 수첩과 지도 `?`는 문장이 아니라 기록의 대상 마을로 표시한다.
+- 소문 로그는 우측 접이식 로그에 게임 날짜·시각 - 들은 마을 - 내용 순으로 쌓인다. 지도는 닫았다 열어도 확대 배율·이동 위치를 유지한다. 로그는 지도와 역 화면이 공유하고 새 기록은 마지막으로 스크롤한다. 소문 대상인 미방문 마을은 지도에 `?`를 붙이고 호버에 미확인 소문을 표시한다. 소문 로그 배치는 프리팹(`Assets/Art/PuzzleTradeNotebook.prefab`)에서 수정한다.
 - 술집에서 운송 의뢰를 받는다(의뢰 게시판). 의뢰 화물은 일반 화물처럼 실리고 목적지 도착 시 자동 완료, 기한 초과·판매·만료 시 실패한다. 진행 상황은 수첩의 의뢰 탭에 보인다. 규칙·잠정 수치는 `TrainventoryQuestTableData`. 새 테이블은 `Trainventory` 접두사를 쓴다.
 - 생산 태그별 거래 숙련: 다른 마을에서 얻은 화물을 팔거나 의뢰를 완료하면 경험치를 얻고(같은 방문 중 산 마을에 되팔면 구매 취소로 낸 금액 환불), 레벨당 0.5%씩 최종 구매가를 깎고 판매가를 올린다. 평판 = 숙련 레벨 합. 수치는 `TrainventoryProficiencyTableData`.
 - 수치·재고·노선은 `Assets/Resources/Tables/*.json`이 원본이다. 공통 문구·의미 색·규칙 수치는 **기초데이터**(`BasicDataTableData`)에 모았고, UI 배치는 프리팹이 원본이다([편집 계약](Docs/Management/BASIC_DATA.md)). 표기·색은 `Presentation`, 상태는 씬 로컬 `PuzzleInventoryService`, UI는 사전 배치한 View와 Presenter가 담당한다.
@@ -53,7 +54,7 @@ Unity 6.3 LTS(6000.3.22f1) URP 기반의 기차 화물 거래 게임. 작업 규
 
 ## 중요한 제약
 
-- 분석 로그는 schemaVersion 3다. 원본 행과 적용 테이블을 모두 LogKit Data로 전송하고 로컬 `Telemetry`에도 보관한다. 집계는 외부에서 수행한다. 서버 추출·테이블 조각 복원은 [로그 계약](Docs/Management/PLAY_LOG.md)을 따른다.
+- 분석 로그는 schemaVersion 4다(4부터 `rumor_learned`에 소문 종류 `kind`와 특산 `itemId` 추가). 원본 행과 적용 테이블을 모두 LogKit Data로 전송하고 로컬 `Telemetry`에도 보관한다. 집계는 외부에서 수행한다. 서버 추출·테이블 조각 복원은 [로그 계약](Docs/Management/PLAY_LOG.md)을 따른다.
 
 - `FlowTableData`에는 Preload·Title·Game이 있지만 빌드는 Game만 활성이다. ProjectValidation의 Preload·Title 빌드 목록 누락이 남아 있고 진입·전환 흐름도 미연결이다.
 - 테스트·플레이·입력 실험·캡처는 사용자 요청 시에만 실행한다. 임시 지역 맵·시간 소비·거래 경계·클리어 흐름의 남은 사용자 확인은 BACKLOG를 본다.

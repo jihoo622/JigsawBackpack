@@ -109,7 +109,8 @@ public struct PuzzleProficiencyPayload
 [Serializable]
 public struct PuzzleRumorPayload
 {
-    public string targetCityId, tag;
+    // "specialty"·"rare" 중 하나. 특산은 itemId에 품목 ID가 있고 tag는 대상 마을의 특산 태그다.
+    public string kind, targetCityId, tag, itemId;
     public long elapsedMinutes;
 }
 

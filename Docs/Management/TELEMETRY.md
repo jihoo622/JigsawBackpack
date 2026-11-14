@@ -8,7 +8,7 @@
 
 게임 사건은 GameEvents에서 발행하고 TelemetryRecorder가 TelemetryLog에 넘긴다. TelemetryLog는 원본 행을 한 번 직렬화해 LogKit Data로 보내고 같은 내용을 로컬에 보관한다. Debug.Log로 게임 사건을 다시 출력하지 않으므로 콘솔 자동 수집과 이중 전송되지 않는다.
 
-**콘솔·게임 분석·적용 테이블을 모두 LogKit으로 전송한다.** 기존 수신 API/주소/키를 그대로 사용한다. 서버에서 entries의 카테고리별 데이터를 추출하는 방법은 [PLAY_LOG](PLAY_LOG.md)에 명시했다. 게임 원본 계약은 schemaVersion 3이며 서버의 분석 가공·집계·대시보드는 외부에서 수행한다.
+**콘솔·게임 분석·적용 테이블을 모두 LogKit으로 전송한다.** 기존 수신 API/주소/키를 그대로 사용한다. 서버에서 entries의 카테고리별 데이터를 추출하는 방법은 [PLAY_LOG](PLAY_LOG.md)에 명시했다. 게임 원본 계약은 schemaVersion 4(schemaVersion 4부터 `rumor_learned`에 `kind`·`itemId`가 추가된다)이며 서버의 분석 가공·집계·대시보드는 외부에서 수행한다.
 
 ## 전송 계약
 

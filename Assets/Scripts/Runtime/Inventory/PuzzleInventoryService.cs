@@ -25,16 +25,25 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
 
     internal readonly struct TavernRumor
     {
+        public readonly PuzzleRumorKind Kind;
         public readonly string TargetCityId;
         public readonly string SourceCityId;
         public readonly string Message;
+        // 특산 소문이 언급하는 품목. 희귀 소문은 빈 문자열이다.
+        public readonly string ItemId;
+        // 희귀 소문은 수요 태그, 특산 소문은 대상 마을의 특산 태그다.
+        public readonly string Tag;
         public readonly long RecordedMinutes;
 
-        public TavernRumor(string _targetCityId, string _sourceCityId, string _message, long _recordedMinutes)
+        public TavernRumor(PuzzleRumorKind _kind, string _targetCityId, string _sourceCityId, string _message,
+            string _itemId, string _tag, long _recordedMinutes)
         {
+            Kind = _kind;
             TargetCityId = _targetCityId;
             SourceCityId = _sourceCityId;
             Message = _message;
+            ItemId = _itemId ?? string.Empty;
+            Tag = _tag ?? string.Empty;
             RecordedMinutes = _recordedMinutes;
         }
     }
@@ -46,13 +55,16 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         return tavernRumors.Any(_rumor => string.Equals(_rumor.TargetCityId, _cityId, StringComparison.Ordinal));
     }
 
-    internal void RecordTavernRumor(string _targetCityId, string _message, string _tag)
+    // 한 방문에 한 번만 남긴다. 문구는 이미 결정된 후보에서 만들어 함께 저장한다.
+    internal void RecordTavernRumor(PuzzleRumorCandidate _candidate, string _message)
     {
         if (lastRumorVisit != CityMoveCount)
         {
-            tavernRumors.Add(new TavernRumor(_targetCityId, CurrentCityId, _message, Time.ElapsedMinutes));
+            tavernRumors.Add(new TavernRumor(_candidate.Kind, _candidate.CityId, CurrentCityId, _message,
+                _candidate.ItemId, _candidate.Tag, Time.ElapsedMinutes));
             lastRumorVisit = CityMoveCount;
-            GameEvents.RaiseTavernRumorRecorded(this, CurrentCityId, _targetCityId, _message, Time.ElapsedMinutes, _tag);
+            GameEvents.RaiseTavernRumorRecorded(this, CurrentCityId, _candidate.CityId, _message,
+                Time.ElapsedMinutes, _candidate.Tag, _candidate.Kind, _candidate.ItemId);
         }
     }
 
@@ -1252,6 +1264,12 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
     // 아이템 태그와 맞는 규칙을 모두 합산한다. 맞는 규칙이 없으면 도시 기본 배율이다.
     PuzzleTradeRate RateFor(PuzzleCityData _city, PuzzleItemDefinition _item)
     {
+        return ApplyRegionPenalty(_city, CityTradeRate(_city, _item));
+    }
+
+    // 지역 불이익을 빼고 도시·태그 규칙만 합산한 비율. 표 기준을 비교하는 소문이 같은 경로를 쓴다.
+    internal PuzzleTradeRate CityTradeRate(PuzzleCityData _city, PuzzleItemDefinition _item)
+    {
         var rules = new List<PuzzleCityTagPriceData>();
         foreach (string tag in _item.Tags)
         {
@@ -1260,7 +1278,8 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
                 rules.Add(rule);
             }
         }
-        return ApplyRegionPenalty(_city, PuzzleTradeRate.Combine(_city, rules));
+
+        return PuzzleTradeRate.Combine(_city, rules);
     }
 
     // 툴팁과 실제 거래가 공유한다. 배치·자금 검사 없이 현재 도시의 정확한 금액만 산출한다.

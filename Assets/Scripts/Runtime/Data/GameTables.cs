@@ -56,6 +56,15 @@ public sealed class PuzzleSynergyTableData
     public PuzzleFreshnessData freshness;
 }
 
+// 술집 소문의 종류 선택 확률. 후보와 문장은 코드가 만들고 이 표는 두 종류를 고르는 비율만 원본으로 둔다.
+[Serializable]
+public sealed class PuzzleRumorTableData
+{
+    public string status, note;
+    public int specialtyPercent = -1;
+    public int rarePercent = -1;
+}
+
 // 마을별 추가 행동(도축 등)의 원본. 도시 id·작업 시간·변환 관계를 이 표만 안다.
 [Serializable]
 public sealed class PuzzleCityActionTableData

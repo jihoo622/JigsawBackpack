@@ -200,6 +200,7 @@ public sealed class GameTableRules
         ValidatePuzzleSynergy(_tables);
         ValidateCityActions(_tables);
         ValidatePuzzleTrade(_tables);
+        ValidateRumor(_tables);
         ValidateTime(_tables.PuzzleTime);
         ValidateRoutes(_tables);
         ValidateQuests(_tables);
@@ -352,6 +353,17 @@ public sealed class GameTableRules
                     PuzzleWagonModificationRegistry.Contains(product.modificationId), "화차 강화");
             }
         }
+    }
+
+    // 술집 소문의 종류 선택 확률. 두 종류밖에 없으므로 합은 정확히 100이다.
+    void ValidateRumor(TableManager _tables)
+    {
+        const string PATH = nameof(PuzzleRumorTableData);
+        var rumor = _tables.PuzzleRumor;
+        Check(rumor.specialtyPercent >= 0, PATH + ".specialtyPercent", "특산 소문 확률은 0 이상이어야 합니다.");
+        Check(rumor.rarePercent >= 0, PATH + ".rarePercent", "희귀 소문 확률은 0 이상이어야 합니다.");
+        Check(rumor.specialtyPercent + rumor.rarePercent == 100, PATH,
+            "특산·희귀 소문 확률의 합은 100이어야 합니다.");
     }
 
     void ValidateProficiency(TableManager _tables)
