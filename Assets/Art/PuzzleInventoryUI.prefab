@@ -192,7 +192,6 @@ MonoBehaviour:
   - {fileID: 11454266}
   - {fileID: 11454269}
   - {fileID: 11454400}
-  ghostLayer: {fileID: 99000000000000012}
   ghostSlots:
   - {fileID: 11468099}
   - {fileID: 11468102}
@@ -618,6 +617,11 @@ MonoBehaviour:
   - {fileID: 401343}
   increaseArrow: {fileID: 21300000, guid: acb2b9a51d51490da805e90620c0aa01, type: 3}
   decreaseArrow: {fileID: 21300000, guid: acb2b9a51d51490da805e90620c0aa03, type: 3}
+  dragBeam: {fileID: 0}
+  beamThickness: 3
+  synergyChips: []
+  synergyChipLabels: []
+  synergyChipBackgrounds: []
   cellGap: 2
   freshnessOutlineWidth: 0.35
   synergyArrowsCapacityMultiplier: 8
@@ -626,6 +630,7 @@ MonoBehaviour:
   synergyArrowHeightScale: 0.55
   synergyIncreaseLaneOffset: 0.08
   synergyDecreaseLaneOffset: 0.2
+  ghostLayer: {fileID: 99000000000000012}
 --- !u!225 &5162449441332754863
 CanvasGroup:
   m_ObjectHideFlags: 0
@@ -30212,6 +30217,107 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!1 &99000000000000011
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 99000000000000012}
+  - component: {fileID: 99000000000000013}
+  m_Layer: 5
+  m_Name: Drag Ghosts
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &99000000000000012
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 99000000000000011}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 22462979}
+  - {fileID: 22462982}
+  - {fileID: 22462985}
+  - {fileID: 22462988}
+  - {fileID: 22462991}
+  - {fileID: 22108188}
+  - {fileID: 22108191}
+  - {fileID: 22108194}
+  - {fileID: 22108197}
+  - {fileID: 22108200}
+  - {fileID: 22108203}
+  - {fileID: 22108206}
+  - {fileID: 22108209}
+  - {fileID: 22108212}
+  - {fileID: 22108215}
+  - {fileID: 22108218}
+  - {fileID: 22108221}
+  - {fileID: 22108224}
+  - {fileID: 22108227}
+  - {fileID: 22108230}
+  - {fileID: 22108233}
+  - {fileID: 22108236}
+  - {fileID: 22108239}
+  - {fileID: 22108242}
+  - {fileID: 22108245}
+  - {fileID: 22452064}
+  - {fileID: 22452067}
+  - {fileID: 22452070}
+  - {fileID: 22452073}
+  - {fileID: 22452076}
+  - {fileID: 22452079}
+  - {fileID: 22452082}
+  - {fileID: 22452085}
+  - {fileID: 22452088}
+  - {fileID: 22452091}
+  - {fileID: 22452094}
+  - {fileID: 22452097}
+  - {fileID: 22452100}
+  - {fileID: 22452103}
+  - {fileID: 22452106}
+  - {fileID: 22452109}
+  - {fileID: 22452112}
+  m_Father: {fileID: 100002}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!223 &99000000000000013
+Canvas:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 99000000000000011}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_RenderMode: 0
+  m_Camera: {fileID: 0}
+  m_PlaneDistance: 100
+  m_PixelPerfect: 0
+  m_ReceivesEvents: 0
+  m_OverrideSorting: 1
+  m_OverridePixelPerfect: 0
+  m_SortingBucketNormalizedSize: 0
+  m_VertexColorAlwaysGammaSpace: 0
+  m_AdditionalShaderChannelsFlag: 25
+  m_UpdateRectTransformForStandalone: 0
+  m_SortingLayerID: 0
+  m_SortingOrder: 260
+  m_TargetDisplay: 0
 --- !u!1001 &200105
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -34370,104 +34476,3 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 22400000, guid: e8ad4ec429d94652b6b70b8779fb965a, type: 3}
   m_PrefabInstance: {fileID: 300117}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &99000000000000011
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 99000000000000012}
-  - component: {fileID: 99000000000000013}
-  m_Layer: 5
-  m_Name: Drag Ghosts
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!224 &99000000000000012
-RectTransform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 99000000000000011}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 22462979}
-  - {fileID: 22462982}
-  - {fileID: 22462985}
-  - {fileID: 22462988}
-  - {fileID: 22462991}
-  - {fileID: 22108188}
-  - {fileID: 22108191}
-  - {fileID: 22108194}
-  - {fileID: 22108197}
-  - {fileID: 22108200}
-  - {fileID: 22108203}
-  - {fileID: 22108206}
-  - {fileID: 22108209}
-  - {fileID: 22108212}
-  - {fileID: 22108215}
-  - {fileID: 22108218}
-  - {fileID: 22108221}
-  - {fileID: 22108224}
-  - {fileID: 22108227}
-  - {fileID: 22108230}
-  - {fileID: 22108233}
-  - {fileID: 22108236}
-  - {fileID: 22108239}
-  - {fileID: 22108242}
-  - {fileID: 22108245}
-  - {fileID: 22452064}
-  - {fileID: 22452067}
-  - {fileID: 22452070}
-  - {fileID: 22452073}
-  - {fileID: 22452076}
-  - {fileID: 22452079}
-  - {fileID: 22452082}
-  - {fileID: 22452085}
-  - {fileID: 22452088}
-  - {fileID: 22452091}
-  - {fileID: 22452094}
-  - {fileID: 22452097}
-  - {fileID: 22452100}
-  - {fileID: 22452103}
-  - {fileID: 22452106}
-  - {fileID: 22452109}
-  - {fileID: 22452112}
-  m_Father: {fileID: 100002}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
-  m_Pivot: {x: 0.5, y: 0.5}
---- !u!223 &99000000000000013
-Canvas:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 99000000000000011}
-  m_Enabled: 1
-  serializedVersion: 3
-  m_RenderMode: 0
-  m_Camera: {fileID: 0}
-  m_PlaneDistance: 100
-  m_PixelPerfect: 0
-  m_ReceivesEvents: 0
-  m_OverrideSorting: 1
-  m_OverridePixelPerfect: 0
-  m_SortingBucketNormalizedSize: 0
-  m_VertexColorAlwaysGammaSpace: 0
-  m_AdditionalShaderChannelsFlag: 25
-  m_UpdateRectTransformForStandalone: 0
-  m_SortingLayerID: 0
-  m_SortingOrder: 1
-  m_TargetDisplay: 0
