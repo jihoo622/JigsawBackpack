@@ -458,7 +458,7 @@
         },
         {
           "id": "moveGuide",
-          "value": "드래그로 이동    R로 회전    Esc로 취소"
+          "value": "드래그로 이동    R·우클릭으로 회전    Esc로 취소"
         },
         {
           "id": "name",
