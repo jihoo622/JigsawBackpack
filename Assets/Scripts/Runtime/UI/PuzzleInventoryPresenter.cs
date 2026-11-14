@@ -516,6 +516,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         }
 
         drag = new PuzzleInventoryDrag(placement, cell);
+        sourceView.ShowOriginalOutline(drag.OriginalPose);
         cityView.ShowTradeStatus(string.Empty);
         pointerPosition = position;
         input.CapturePointer(_eventData.pointerId);
@@ -652,13 +653,163 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         }
     }
 
+    static readonly Vector2Int[] ADJACENT_OFFSETS =
+    {
+        Vector2Int.up, Vector2Int.right, Vector2Int.down, Vector2Int.left
+    };
+
+    PuzzleInventory lastSynergyPreviewDestination;
+    Vector2Int lastSynergyPreviewCell = new Vector2Int(int.MinValue, int.MinValue);
+    int lastSynergyPreviewRotation = -1;
+    readonly List<(PuzzlePlacement neighbor, decimal deltaPercent)> cachedSynergyDeltas = new();
+
+    void CalculateAdjacentSynergyDeltas(
+        PuzzleInventory _destination,
+        PuzzlePose _candidatePose,
+        PuzzleInventoryDrag _drag,
+        List<(PuzzlePlacement neighbor, decimal deltaPercent)> _results)
+    {
+        _results.Clear();
+        if (_destination == null || _candidatePose == null || _drag == null)
+        {
+            return;
+        }
+
+        string wasteTag = TableManager.Instance.PuzzleSynergy?.animals?.wasteTag;
+        var scope = session.IsTrainWagon(_destination) ? PuzzleSynergyScope.Train : PuzzleSynergyScope.Market;
+        var rules = TableManager.Instance.SynergiesFor(scope);
+        var adjacentRules = rules.Where(r => r.spatialRange == nameof(PuzzleSynergyRange.Adjacent)).ToArray();
+        if (adjacentRules.Length == 0)
+        {
+            return;
+        }
+
+        bool sameBoard = ReferenceEquals(_drag.Source, _destination);
+        int draggedInstanceId = _drag.InstanceId;
+
+        var neighborPlacements = new HashSet<PuzzlePlacement>();
+        var candidateCellSet = new HashSet<Vector2Int>();
+        foreach (var cell in _candidatePose.Cells)
+        {
+            candidateCellSet.Add(cell.Position);
+        }
+
+        foreach (var cellPos in candidateCellSet)
+        {
+            foreach (var offset in ADJACENT_OFFSETS)
+            {
+                var neighborPos = cellPos + offset;
+                if (candidateCellSet.Contains(neighborPos))
+                {
+                    continue;
+                }
+                if (_destination.TryGetCell(neighborPos, out var neighbor, out _) &&
+                    neighbor.InstanceId != draggedInstanceId)
+                {
+                    neighborPlacements.Add(neighbor);
+                }
+            }
+        }
+
+        if (sameBoard && _drag.OriginalPose != null)
+        {
+            var origCellSet = new HashSet<Vector2Int>();
+            foreach (var cell in _drag.OriginalPose.Cells)
+            {
+                origCellSet.Add(cell.Position);
+            }
+            foreach (var cellPos in origCellSet)
+            {
+                foreach (var offset in ADJACENT_OFFSETS)
+                {
+                    var neighborPos = cellPos + offset;
+                    if (origCellSet.Contains(neighborPos))
+                    {
+                        continue;
+                    }
+                    if (_destination.TryGetCell(neighborPos, out var neighbor, out _) &&
+                        neighbor.InstanceId != draggedInstanceId)
+                    {
+                        neighborPlacements.Add(neighbor);
+                    }
+                }
+            }
+        }
+
+        foreach (var neighbor in neighborPlacements)
+        {
+            decimal newPercent = 0;
+            foreach (var nCell in neighbor.Pose.Cells)
+            {
+                foreach (var offset in ADJACENT_OFFSETS)
+                {
+                    if (candidateCellSet.Contains(nCell.Position + offset))
+                    {
+                        foreach (var rule in adjacentRules)
+                        {
+                            if (PuzzlePieceEffects.IsTarget(neighbor.Definition, rule, wasteTag) &&
+                                PuzzlePieceEffects.IsSource(_drag.Definition, rule))
+                            {
+                                newPercent += (rule.multiplierPercent - PuzzleInventoryValuation.BASE_PERCENT);
+                            }
+                        }
+                    }
+                }
+            }
+
+            decimal oldPercent = 0;
+            if (sameBoard && _drag.OriginalPose != null)
+            {
+                var origCellSet = new HashSet<Vector2Int>(_drag.OriginalPose.Cells.Select(c => c.Position));
+                foreach (var nCell in neighbor.Pose.Cells)
+                {
+                    foreach (var offset in ADJACENT_OFFSETS)
+                    {
+                        if (origCellSet.Contains(nCell.Position + offset))
+                        {
+                            foreach (var rule in adjacentRules)
+                            {
+                                if (PuzzlePieceEffects.IsTarget(neighbor.Definition, rule, wasteTag) &&
+                                    PuzzlePieceEffects.IsSource(_drag.Definition, rule))
+                                {
+                                    oldPercent += (rule.multiplierPercent - PuzzleInventoryValuation.BASE_PERCENT);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            decimal delta = newPercent - oldPercent;
+            if (delta != 0)
+            {
+                _results.Add((neighbor, delta));
+            }
+        }
+    }
+
     void RefreshDrag()
     {
+        if (drag == null)
+        {
+            return;
+        }
+
+        var sourceView = ViewFor(drag.Source);
         if (!IsOnScreen(pointerPosition))
         {
             SetDragView(null);
+            if (sourceView)
+            {
+                sourceView.ClearDrag();
+            }
             cityView.ShowTradeStatus(string.Empty);
             return;
+        }
+
+        if (sourceView)
+        {
+            sourceView.ShowOriginalOutline(drag.OriginalPose);
         }
 
         if (TryGetBoard(pointerPosition, out var targetView, out var destination, out var targetCell))
@@ -669,14 +820,55 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             var grabbedBoardCell = candidate != null ? targetCell : Vector2Int.zero;
             targetView.ShowGhost(candidate ?? drag.GetGhostPose(), drag.Definition, grabbedBoardCell, pointerPosition, drag.FreshnessPercent);
             targetView.ShowPreview(candidate, preview.CanDrop);
+            if (targetView != sourceView && sourceView)
+            {
+                sourceView.ShowPreview(null, false);
+            }
+
+            Vector2 sourceCenterScreen = sourceView ? sourceView.GetShapeCenterScreen(drag.OriginalPose.Cells) : pointerPosition;
+            Vector2 ghostCenterScreen = candidate != null ? targetView.GetShapeCenterScreen(candidate.Cells) : pointerPosition;
+            if (sourceView)
+            {
+                sourceView.ShowDragBeam(sourceCenterScreen, ghostCenterScreen);
+            }
+            if (targetView != sourceView)
+            {
+                targetView.HideDragBeam();
+            }
+
+            if (preview.CanDrop && candidate != null)
+            {
+                if (destination != lastSynergyPreviewDestination || targetCell != lastSynergyPreviewCell || drag.ClockwiseTurns != lastSynergyPreviewRotation)
+                {
+                    lastSynergyPreviewDestination = destination;
+                    lastSynergyPreviewCell = targetCell;
+                    lastSynergyPreviewRotation = drag.ClockwiseTurns;
+                    CalculateAdjacentSynergyDeltas(destination, candidate, drag, cachedSynergyDeltas);
+                }
+                targetView.ShowAdjacentSynergyPreview(cachedSynergyDeltas);
+            }
+            else
+            {
+                targetView.HideAdjacentSynergyPreview();
+            }
+            if (targetView != sourceView && sourceView)
+            {
+                sourceView.HideAdjacentSynergyPreview();
+            }
+
             cityView.ShowTradeStatus(Presentation.PuzzleTradeStatus(preview, drag.Definition, _committed: false));
             return;
         }
 
-        var sourceView = ViewFor(drag.Source);
         SetDragView(sourceView);
-        sourceView.ShowGhost(drag.GetGhostPose(), drag.Definition, Vector2Int.zero, pointerPosition, drag.FreshnessPercent);
-        sourceView.ShowPreview(null, false);
+        if (sourceView)
+        {
+            sourceView.ShowGhost(drag.GetGhostPose(), drag.Definition, Vector2Int.zero, pointerPosition, drag.FreshnessPercent);
+            sourceView.ShowPreview(null, false);
+            sourceView.HideAdjacentSynergyPreview();
+            Vector2 sourceCenterScreen = sourceView.GetShapeCenterScreen(drag.OriginalPose.Cells);
+            sourceView.ShowDragBeam(sourceCenterScreen, pointerPosition);
+        }
         cityView.ShowTradeStatus(string.Empty);
     }
 
@@ -687,7 +879,8 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             return;
         }
 
-        if (dragView)
+        var sourceView = drag != null ? ViewFor(drag.Source) : null;
+        if (dragView && dragView != sourceView)
         {
             dragView.ClearDrag();
         }
@@ -1201,6 +1394,17 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
     {
         bool hadHoveredWagon = hoveredWagonIndex.HasValue;
         hoveredWagonIndex = null;
+        lastSynergyPreviewDestination = null;
+        lastSynergyPreviewCell = new Vector2Int(int.MinValue, int.MinValue);
+        lastSynergyPreviewRotation = -1;
+        cachedSynergyDeltas.Clear();
+
+        if (trainView) trainView.ClearDrag();
+        if (marketView) marketView.ClearDrag();
+        if (butcheryView) butcheryView.ClearDrag();
+        if (modificationView) modificationView.ClearDrag();
+        if (refiningView) refiningView.ClearDrag();
+
         if (drag == null)
         {
             if (hadHoveredWagon)

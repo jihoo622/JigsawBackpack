@@ -286,6 +286,27 @@
           "a": 1
         },
         {
+          "id": "originalSlotOutline",
+          "r": 0.67,
+          "g": 0.7,
+          "b": 0.75,
+          "a": 0.8
+        },
+        {
+          "id": "dragBeam",
+          "r": 0.67,
+          "g": 0.7,
+          "b": 0.75,
+          "a": 0.6
+        },
+        {
+          "id": "synergyChipBackground",
+          "r": 0.1,
+          "g": 0.13,
+          "b": 0.17,
+          "a": 0.95
+        },
+        {
           "id": "piece",
           "r": 1,
           "g": 1,

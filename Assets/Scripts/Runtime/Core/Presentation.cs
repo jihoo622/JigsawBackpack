@@ -781,6 +781,9 @@ public static class Presentation
     public static Color PuzzlePiece => BasicData.Color("presentation.inventory.piece");
     public static Color PuzzleGhost => BasicData.Color("presentation.inventory.ghost");
     public static Color PuzzleMoveTarget => BasicData.Color("presentation.inventory.moveTarget");
+    public static Color PuzzleOriginalSlotOutline => BasicData.Color("presentation.inventory.originalSlotOutline");
+    public static Color PuzzleDragBeam => BasicData.Color("presentation.inventory.dragBeam");
+    public static Color PuzzleSynergyChipBackground => BasicData.Color("presentation.inventory.synergyChipBackground");
 
     public static Color PuzzleTooltipHeaderBackground => BasicData.Color("presentation.tooltip.headerBackground");
     public static Color PuzzleTooltipBodyBackground => BasicData.Color("presentation.tooltip.bodyBackground");
