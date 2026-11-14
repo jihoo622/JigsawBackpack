@@ -224,6 +224,22 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
         string quests = Presentation.QuestMapInformation(session, _cityId);
         view.ShowInformation(string.IsNullOrEmpty(quests) ? information
             : information + BasicData.Text("presentation.quest.separator") + quests);
+
+        if (isConnected && !isCurrent)
+        {
+            var node = System.Array.Find(view.Nodes, n => n && string.Equals(n.CityId, _cityId, System.StringComparison.Ordinal));
+            if (node)
+            {
+                long deadline = session.Time != null && session.Time.HasDeadline ? session.Time.DeadlineMinutes : 0;
+                view.ShowTravelPreview(currentCityId, _cityId, eval, (RectTransform)node.transform, session.ElapsedTime, deadline);
+                view.HighlightRoute(currentCityId, _cityId);
+            }
+        }
+        else
+        {
+            view.HideTravelPreview();
+            view.ClearRouteHighlight();
+        }
     }
 
     void ClearInformation()
@@ -235,6 +251,8 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
         hoveredCityId = null;
         view.HighlightCity(null);
         view.ShowInformation(Presentation.PuzzleMapHint);
+        view.HideTravelPreview();
+        view.ClearRouteHighlight();
     }
 
     void OnNodeExited(string _cityId)
@@ -265,6 +283,8 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
         session.SetPreviewDestination(_cityId);
         phase = TravelPhase.Confirming;
         view.SetInteraction(false);
+        view.HideTravelPreview();
+        view.ClearRouteHighlight();
         travelView.ShowConfirmation(Presentation.PuzzleTravelConfirmation(
             TableManager.Instance.CityPrice(session.CurrentCityId).displayName,
             TableManager.Instance.CityPrice(_cityId).displayName, eval));

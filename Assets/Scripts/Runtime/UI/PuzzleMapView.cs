@@ -78,6 +78,17 @@ public sealed class PuzzleMapView : PanelBase
     [SerializeField] LineVisual[] lines;
     [SerializeField] PuzzleMapNavigation navigation;
 
+    [Header("E3 Travel Preview Card")]
+    [SerializeField] GameObject travelPreviewCard;
+    [SerializeField] Text previewTitle;
+    [SerializeField] Text previewTimeFare;
+    [SerializeField] Text previewArrival;
+    [SerializeField] Text previewDeadline;
+
+    readonly Dictionary<int, List<Image>> routeTrackImages = new Dictionary<int, List<Image>>();
+    readonly Dictionary<Image, Color> originalTrackColors = new Dictionary<Image, Color>();
+    int highlightedRouteIndex = -1;
+
     [Header("Map Viewport Padding")]
     [SerializeField] float viewportPaddingLeft = 8f;
     [SerializeField] float viewportPaddingBottom = 8f;
@@ -641,7 +652,159 @@ public sealed class PuzzleMapView : PanelBase
             }
             routeTime.label.color = Presentation.PuzzleHeading;
         }
+
+        if (routeLines != null)
+        {
+            foreach (var track in routeLines)
+            {
+                if (!track) continue;
+                originalTrackColors[track] = track.color;
+                string tName = track.name;
+                if (tName.StartsWith("Track_", StringComparison.Ordinal))
+                {
+                    var parts = tName.Split('_');
+                    if (parts.Length >= 2 && int.TryParse(parts[1], out int rIdx))
+                    {
+                        if (!routeTrackImages.TryGetValue(rIdx, out var list))
+                        {
+                            list = new List<Image>();
+                            routeTrackImages[rIdx] = list;
+                        }
+                        list.Add(track);
+                    }
+                }
+            }
+        }
+
         base.Awake();
+    }
+
+    internal void ShowTravelPreview(string _fromCityId, string _toCityId, PuzzleTravelResult _eval, RectTransform _nodeRt, long _elapsedTime, long _deadlineMinutes)
+    {
+        if (!travelPreviewCard)
+        {
+            return;
+        }
+
+        var tables = TableManager.Instance;
+        string destName = tables.HasCity(_toCityId) ? tables.CityPrice(_toCityId).displayName : _toCityId;
+
+        if (previewTitle)
+        {
+            previewTitle.text = $"{destName}까지";
+        }
+
+        if (previewTimeFare)
+        {
+            previewTimeFare.text = $"소요 {Presentation.PuzzleMapTime(_eval.TravelMinutes)} · 운임 {_eval.Cost:N0}$";
+        }
+
+        long arrivalTime = _elapsedTime + _eval.TravelMinutes;
+        string arrivalStr = Presentation.GameTimestamp(arrivalTime);
+        if (_eval.ArrivalIsNight)
+        {
+            arrivalStr += " <color=#FF6666>(야간 도착!)</color>";
+        }
+        if (previewArrival)
+        {
+            previewArrival.supportRichText = true;
+            previewArrival.text = $"도착 {arrivalStr}";
+        }
+
+        if (previewDeadline)
+        {
+            long remaining = _deadlineMinutes - arrivalTime;
+            if (remaining > 0)
+            {
+                previewDeadline.text = $"도착 시 남은 기한 {Presentation.TimeDeadlineValue(remaining)}";
+                previewDeadline.color = Presentation.TimeDeadlineWarning(remaining) ? Presentation.PuzzleTooltipRed : Presentation.PuzzleHeading;
+            }
+            else
+            {
+                previewDeadline.text = "도착 시 기한 초과!";
+                previewDeadline.color = Presentation.PuzzleTooltipRed;
+            }
+        }
+
+        var cardRt = travelPreviewCard.GetComponent<RectTransform>();
+        if (cardRt && navigation && _nodeRt)
+        {
+            RectTransform vp = (RectTransform)navigation.transform;
+            Vector2 nodeLocal = vp.InverseTransformPoint(_nodeRt.position);
+
+            float cardW = cardRt.sizeDelta.x;
+            float cardH = cardRt.sizeDelta.y;
+            float margin = 20f;
+
+            float targetX = nodeLocal.x + margin;
+            if (targetX + cardW > vp.rect.xMax - 10f)
+            {
+                targetX = nodeLocal.x - cardW - margin;
+            }
+
+            float targetY = Mathf.Clamp(nodeLocal.y, vp.rect.yMin + cardH * 0.5f + 10f, vp.rect.yMax - cardH * 0.5f - 10f);
+            cardRt.anchoredPosition = new Vector2(targetX, targetY);
+        }
+
+        travelPreviewCard.SetActive(true);
+    }
+
+    internal void HideTravelPreview()
+    {
+        if (travelPreviewCard)
+        {
+            travelPreviewCard.SetActive(false);
+        }
+    }
+
+    internal void HighlightRoute(string _cityA, string _cityB)
+    {
+        ClearRouteHighlight();
+        if (string.IsNullOrEmpty(_cityA) || string.IsNullOrEmpty(_cityB) || routeTimes == null)
+        {
+            return;
+        }
+
+        for (int i = 0; i < routeTimes.Length; i++)
+        {
+            var r = routeTimes[i];
+            if (r == null) continue;
+            if ((string.Equals(r.fromCityId, _cityA, StringComparison.Ordinal) && string.Equals(r.toCityId, _cityB, StringComparison.Ordinal)) ||
+                (string.Equals(r.fromCityId, _cityB, StringComparison.Ordinal) && string.Equals(r.toCityId, _cityA, StringComparison.Ordinal)))
+            {
+                highlightedRouteIndex = i;
+                if (routeTrackImages.TryGetValue(i, out var imgs))
+                {
+                    Color highlightColor = Presentation.PuzzleMapCurrent;
+                    foreach (var img in imgs)
+                    {
+                        if (img)
+                        {
+                            img.color = highlightColor;
+                        }
+                    }
+                }
+                break;
+            }
+        }
+    }
+
+    internal void ClearRouteHighlight()
+    {
+        if (highlightedRouteIndex >= 0)
+        {
+            if (routeTrackImages.TryGetValue(highlightedRouteIndex, out var imgs))
+            {
+                foreach (var img in imgs)
+                {
+                    if (img && originalTrackColors.TryGetValue(img, out var orig))
+                    {
+                        img.color = orig;
+                    }
+                }
+            }
+            highlightedRouteIndex = -1;
+        }
     }
 
     internal void ShowGuide(string _text)
