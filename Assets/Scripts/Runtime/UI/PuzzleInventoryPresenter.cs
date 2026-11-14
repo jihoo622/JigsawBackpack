@@ -846,7 +846,8 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             tooltipView.Show(item, actualValue, rate, effects.General, effects.Synergies, futureValue, pos, isTrain, _placement.FreshnessPercent,
                 session.MinutesUntilNextFreshnessBand(_placement), previewMinutes,
                 previewName, previewActivations, price, isTrain ? PuzzleSynergyBonus.GroupByNeighbor(value.SynergyBonuses) : null,
-                isTrain ? session.AppliedPreservationPercent(_placement) : 0);
+                isTrain ? session.AppliedPreservationPercent(_placement) : 0,
+                _placement.Pose?.ClockwiseTurns ?? 0);
             // 툴팁을 열면 미확인 알림만 지운다. 실제로 대기 중인 진행도와 빨간 표시는 상태가 풀릴 때까지 남는다.
             if ((_placement.HasUnreadSynergySettlement || _placement.HasUnreadSpaceNotice) && tooltipView.IsOpen)
             {

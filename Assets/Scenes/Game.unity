@@ -4652,30 +4652,6 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 1393410718688900740, guid: 19721697f67784642beb8b705f757d8b, type: 3}
-      propertyPath: m_AnchorMax.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1393410718688900740, guid: 19721697f67784642beb8b705f757d8b, type: 3}
-      propertyPath: m_AnchorMin.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1393410718688900740, guid: 19721697f67784642beb8b705f757d8b, type: 3}
-      propertyPath: m_SizeDelta.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1393410718688900740, guid: 19721697f67784642beb8b705f757d8b, type: 3}
-      propertyPath: m_SizeDelta.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1393410718688900740, guid: 19721697f67784642beb8b705f757d8b, type: 3}
-      propertyPath: m_AnchoredPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1393410718688900740, guid: 19721697f67784642beb8b705f757d8b, type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 2410886268347240945, guid: 19721697f67784642beb8b705f757d8b, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -4780,30 +4756,6 @@ PrefabInstance:
       propertyPath: m_sharedMaterial
       value: 
       objectReference: {fileID: 282881026}
-    - target: {fileID: 5415361309959656410, guid: 19721697f67784642beb8b705f757d8b, type: 3}
-      propertyPath: m_AnchorMax.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5415361309959656410, guid: 19721697f67784642beb8b705f757d8b, type: 3}
-      propertyPath: m_AnchorMin.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5415361309959656410, guid: 19721697f67784642beb8b705f757d8b, type: 3}
-      propertyPath: m_SizeDelta.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5415361309959656410, guid: 19721697f67784642beb8b705f757d8b, type: 3}
-      propertyPath: m_SizeDelta.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5415361309959656410, guid: 19721697f67784642beb8b705f757d8b, type: 3}
-      propertyPath: m_AnchoredPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5415361309959656410, guid: 19721697f67784642beb8b705f757d8b, type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 5879090599212456072, guid: 19721697f67784642beb8b705f757d8b, type: 3}
       propertyPath: m_fontMaterial
       value: 
@@ -4820,30 +4772,6 @@ PrefabInstance:
       propertyPath: m_sharedMaterial
       value: 
       objectReference: {fileID: 1839463923}
-    - target: {fileID: 6155321774309655650, guid: 19721697f67784642beb8b705f757d8b, type: 3}
-      propertyPath: m_AnchorMax.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6155321774309655650, guid: 19721697f67784642beb8b705f757d8b, type: 3}
-      propertyPath: m_AnchorMin.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6155321774309655650, guid: 19721697f67784642beb8b705f757d8b, type: 3}
-      propertyPath: m_SizeDelta.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6155321774309655650, guid: 19721697f67784642beb8b705f757d8b, type: 3}
-      propertyPath: m_SizeDelta.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6155321774309655650, guid: 19721697f67784642beb8b705f757d8b, type: 3}
-      propertyPath: m_AnchoredPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6155321774309655650, guid: 19721697f67784642beb8b705f757d8b, type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 7290506349529668397, guid: 19721697f67784642beb8b705f757d8b, type: 3}
       propertyPath: m_fontMaterial
       value: 
