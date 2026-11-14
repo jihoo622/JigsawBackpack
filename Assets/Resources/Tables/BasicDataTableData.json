@@ -905,7 +905,7 @@
         },
         {
           "id": "informationText10",
-          "value": "<color=#{0}><b>귀한 자원</b></color>   {1}",
+          "value": "<color=#{0}><b>귀한 자원</b></color>   {1}\n",
           "arguments": 2
         },
         {
@@ -2027,7 +2027,7 @@
         },
         {
           "id": "cityTagPreferencesText2",
-          "value": "<color=#{0}><b>귀한 자원</b></color>   {1}",
+          "value": "<color=#{0}><b>귀한 자원</b></color>   {1}\n",
           "arguments": 2
         },
         {

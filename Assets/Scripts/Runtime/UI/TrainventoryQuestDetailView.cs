@@ -42,11 +42,11 @@ public sealed class TrainventoryQuestDetailView : MonoBehaviour
         string cityName = TableManager.Instance.CityPrice(_offer.TargetCityId)?.displayName ?? _offer.TargetCityId;
         if (destinationLabel)
         {
-            destinationLabel.text = Presentation.QuestDetailDestination(cityName, _offer.TravelHours);
+            destinationLabel.text = Presentation.QuestDetailDestination(cityName, _offer.TravelHours * PuzzleTimeManager.MINUTES_PER_HOUR);
         }
         if (deadlineLabel)
         {
-            long deadlineMinutes = _session.ElapsedTime + _offer.DeadlineHours * 60;
+            long deadlineMinutes = _session.ElapsedTime + _offer.DeadlineHours * PuzzleTimeManager.MINUTES_PER_HOUR;
             deadlineLabel.text = Presentation.QuestDetailDeadline(deadlineMinutes);
         }
         if (rewardLabel)
