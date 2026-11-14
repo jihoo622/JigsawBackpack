@@ -2218,11 +2218,6 @@
           "arguments": 2
         },
         {
-          "id": "lockedSlot",
-          "value": "{0} · 잠김",
-          "arguments": 1
-        },
-        {
           "id": "wagonSizeLabel",
           "value": "칸 규격 {0}×{1}",
           "arguments": 2

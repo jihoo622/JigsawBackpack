@@ -33,9 +33,7 @@ public sealed class PuzzleTrainBarView : MonoBehaviour, IBeginDragHandler, IDrag
     [SerializeField] float originY = 0f;
 
     int ownedWagonCount = -1;
-    Color ownedSlotBackground = Color.white;
-    bool slotBackgroundCaptured;
-    bool wagonShopOpen;
+    bool dropHintVisible;
     int? draggedWagonIndex;
     int dragPointerId;
 
@@ -78,27 +76,24 @@ public sealed class PuzzleTrainBarView : MonoBehaviour, IBeginDragHandler, IDrag
         }
     }
 
-    void OnEnable()
-    {
-        // 화차 상점 하위 화면이 열리면 다음 잠긴 칸을 증차 드롭 대상으로 강조한다.
-        GameEvents.PanelVisibility += OnPanelVisibility;
-    }
-
     void OnDisable()
     {
-        GameEvents.PanelVisibility -= OnPanelVisibility;
         CancelWagonDrag();
     }
 
-    void OnPanelVisibility(GameEvents.PanelInfo _info)
+    void Update()
     {
-        if (_info.panel == Presentation.PUZZLE_WAGON_SHOP_PANEL_NAME)
+        // 화차 카드를 드래그하는 동안에만 다음 빈 칸 자리에 드롭 위치 힌트를 보인다.
+        bool dragging = PuzzleWagonProductRow.IsDraggingProduct;
+        if (dragging == dropHintVisible)
         {
-            wagonShopOpen = _info.open;
-            if (ownedWagonCount >= 0)
-            {
-                RefreshHighlightOnly();
-            }
+            return;
+        }
+        dropHintVisible = dragging;
+        if (ownedWagonCount >= 0 && wagonSlots != null && ownedWagonCount < wagonSlots.Length &&
+            wagonSlots[ownedWagonCount]?.root != null)
+        {
+            RefreshUnownedSlot(wagonSlots[ownedWagonCount], ownedWagonCount);
         }
     }
 
@@ -208,7 +203,8 @@ public sealed class PuzzleTrainBarView : MonoBehaviour, IBeginDragHandler, IDrag
         var canvas = GetComponentInParent<Canvas>();
         Camera eventCamera = canvas && canvas.renderMode != RenderMode.ScreenSpaceOverlay ? canvas.worldCamera : null;
 
-        // 잠긴 칸은 슬롯이 보여도 히트 대상이 아니다(전환·드롭·드래그 시작 불가).
+        // 미보유 칸은 숨기며, 드롭 위치 힌트로 보여도 히트 대상이 아니다(전환·순서 변경·드래그 시작 불가).
+        // 화차 카드 증차 드롭은 슬롯과 무관하게 화물칸 바 전체 영역에서 받는다(OnDrop).
         int owned = Mathf.Max(0, ownedWagonCount);
         for (int i = 0; i < wagonSlots.Length && i < owned; i++)
         {
@@ -238,6 +234,7 @@ public sealed class PuzzleTrainBarView : MonoBehaviour, IBeginDragHandler, IDrag
         }
 
         ownedWagonCount = Mathf.Min(_wagons.Count, wagonSlots.Length);
+        dropHintVisible = PuzzleWagonProductRow.IsDraggingProduct;
 
         for (int i = 0; i < wagonSlots.Length; i++)
         {
@@ -247,83 +244,89 @@ public sealed class PuzzleTrainBarView : MonoBehaviour, IBeginDragHandler, IDrag
                 continue;
             }
 
-            // 8칸 슬롯은 항상 보인다. 보유 수 이후는 잠김 라벨·어두운 색으로 표시하고 클릭을 막는다.
+            if (i >= ownedWagonCount)
+            {
+                RefreshUnownedSlot(slot, i);
+                continue;
+            }
+
             slot.root.SetActive(true);
-            bool owned = i < ownedWagonCount;
             if (slot.button != null)
             {
-                slot.button.interactable = owned;
+                slot.button.interactable = true;
             }
 
             if (slot.rectTransform != null)
             {
-                slot.rectTransform.localScale = owned && _dragHoveredIndex == i ? Vector3.one * wagonDragHoverScale : Vector3.one;
+                slot.rectTransform.localScale = _dragHoveredIndex == i ? Vector3.one * wagonDragHoverScale : Vector3.one;
             }
 
             if (slot.wagonImage != null)
             {
-                slot.wagonImage.enabled = owned;
+                slot.wagonImage.enabled = true;
             }
 
             if (slot.numberText != null)
             {
-                slot.numberText.text = owned ? _wagons[i].WagonNumber.ToString() : Presentation.TrainLockedSlot(i + 1);
-                slot.numberText.color = owned ? Presentation.PuzzleHeading : Presentation.PuzzleAddWagonTextDisabled;
+                slot.numberText.enabled = true;
+                slot.numberText.text = _wagons[i].WagonNumber.ToString();
+                slot.numberText.color = Presentation.PuzzleHeading;
             }
 
-            RefreshSlotBackground(slot, owned);
-            RefreshSlotHighlight(slot, i, owned, _selectedIndex, _dragHoveredIndex);
+            RefreshSlotHighlight(slot, i, _selectedIndex, _dragHoveredIndex);
         }
 
         LayoutButtons();
     }
 
-    // 화차 상점 열림 전환은 슬롯 표시를 다시 만들지 않고 강조만 다시 계산한다.
-    void RefreshHighlightOnly()
+    // 미보유 칸은 아무것도 보이지 않는다. 화차 카드를 드래그하는 동안 다음 빈 칸 하나만
+    // 그래픽·라벨 없이 외곽선(highlightBorder)만 켜서 드롭 위치 힌트로 쓴다.
+    void RefreshUnownedSlot(WagonSlotUI _slot, int _index)
     {
-        if (wagonSlots == null)
+        bool showDropHint = IsDropHintSlot(_index);
+        _slot.root.SetActive(showDropHint);
+        if (!showDropHint)
         {
             return;
         }
-        for (int i = 0; i < wagonSlots.Length; i++)
+
+        if (_slot.button != null)
         {
-            var slot = wagonSlots[i];
-            if (slot == null || slot.root == null)
-            {
-                continue;
-            }
-            RefreshSlotHighlight(slot, i, i < ownedWagonCount, -1, null);
+            _slot.button.interactable = false;
+        }
+        if (_slot.rectTransform != null)
+        {
+            _slot.rectTransform.localScale = Vector3.one;
+        }
+        if (_slot.wagonImage != null)
+        {
+            _slot.wagonImage.enabled = false;
+        }
+        if (_slot.numberText != null)
+        {
+            _slot.numberText.enabled = false;
+        }
+        if (_slot.highlightBorder != null)
+        {
+            _slot.highlightBorder.enabled = true;
+            _slot.highlightBorder.color = Presentation.PuzzleAddWagonBox;
         }
     }
 
-    void RefreshSlotBackground(WagonSlotUI _slot, bool _owned)
+    bool IsDropHintSlot(int _index)
     {
-        var background = _slot.root ? _slot.root.GetComponent<Image>() : null;
-        if (!background)
+        if (!dropHintVisible || _index != ownedWagonCount)
         {
-            return;
+            return false;
         }
-        if (!slotBackgroundCaptured)
-        {
-            // 보유 칸 배경은 프리팹 직렬화 색을 유지한다. 잠깐 칸은 기초데이터 배경색으로 어둡게 한다.
-            ownedSlotBackground = background.color;
-            slotBackgroundCaptured = true;
-        }
-        background.color = _owned ? ownedSlotBackground : Presentation.PuzzleBackground;
+        int maxWagonCount = TableManager.Instance?.PuzzleTrade?.maxWagonCount ?? 0;
+        return maxWagonCount <= 0 || ownedWagonCount < maxWagonCount;
     }
 
-    void RefreshSlotHighlight(WagonSlotUI _slot, int _index, bool _owned, int _selectedIndex, int? _dragHoveredIndex)
+    void RefreshSlotHighlight(WagonSlotUI _slot, int _index, int _selectedIndex, int? _dragHoveredIndex)
     {
         if (_slot.highlightBorder == null)
         {
-            return;
-        }
-        if (!_owned)
-        {
-            // 화차 상점이 열려 있으면 다음 잠긴 칸 하나를 증차 대상으로 강조한다.
-            bool isNextPurchaseTarget = wagonShopOpen && _index == ownedWagonCount;
-            _slot.highlightBorder.enabled = isNextPurchaseTarget;
-            _slot.highlightBorder.color = Presentation.PuzzleAddWagonBox;
             return;
         }
 

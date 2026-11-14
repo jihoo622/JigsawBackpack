@@ -20,6 +20,7 @@ public sealed class PauseMenu : PanelBase
     GameObject previousSelection;
     InputActionAsset actions;
     InputAction cancel;
+    InputAction back;
     int cancelConsumedFrame = -1;
 
     PuzzleMapPresenter mapPresenter;
@@ -47,6 +48,7 @@ public sealed class PauseMenu : PanelBase
         {
             actions = Instantiate(input.ActionsAsset);
             cancel = actions.FindAction("UI/Cancel", true);
+            back = actions.FindAction("UI/Back", true);
         }
         base.Awake();
     }
@@ -59,6 +61,11 @@ public sealed class PauseMenu : PanelBase
             cancel.performed += OnCancel;
             cancel.Enable();
         }
+        if (back != null)
+        {
+            back.performed += OnBack;
+            back.Enable();
+        }
     }
 
     protected override void OnDisable()
@@ -67,6 +74,11 @@ public sealed class PauseMenu : PanelBase
         {
             cancel.performed -= OnCancel;
             cancel.Disable();
+        }
+        if (back != null)
+        {
+            back.performed -= OnBack;
+            back.Disable();
         }
         base.OnDisable();
     }
@@ -81,15 +93,43 @@ public sealed class PauseMenu : PanelBase
 
     void OnCancel(InputAction.CallbackContext _context)
     {
+        if (TryClaimFrame())
+        {
+            TryConsumeCancelStep();
+        }
+    }
+
+    // 마우스 뒤로가기 버튼은 Esc와 같은 단계별 닫기 체인을 타되, 닫을 화면이 없으면 일시정지를 열지 않는다.
+    void OnBack(InputAction.CallbackContext _context)
+    {
+        if (TryClaimFrame())
+        {
+            TryConsumeBackStep();
+        }
+    }
+
+    // Esc와 뒤로가기 버튼이 같은 프레임에 눌려도 한 단계만 소비한다.
+    bool TryClaimFrame()
+    {
         if (cancelConsumedFrame == Time.frameCount)
         {
-            return;
+            return false;
         }
         cancelConsumedFrame = Time.frameCount;
-        TryConsumeCancelStep();
+        return true;
     }
 
     public bool TryConsumeCancelStep()
+    {
+        return TryConsumeStep(true);
+    }
+
+    public bool TryConsumeBackStep()
+    {
+        return TryConsumeStep(false);
+    }
+
+    bool TryConsumeStep(bool _pauseWhenIdle)
     {
         if (showingCompletion)
         {
@@ -103,6 +143,22 @@ public sealed class PauseMenu : PanelBase
             return true;
         }
 
+        if (TryConsumeScreenStep())
+        {
+            return true;
+        }
+
+        // 7. 아무것도 없으면 일시정지 토글 (뒤로가기 버튼은 소비하지 않음)
+        if (!_pauseWhenIdle)
+        {
+            return false;
+        }
+        Toggle();
+        return true;
+    }
+
+    bool TryConsumeScreenStep()
+    {
         // 1. 이동 확인 창 -> 취소
         if (TryConsumeTravelConfirmation())
         {
@@ -134,14 +190,7 @@ public sealed class PauseMenu : PanelBase
         }
 
         // 6. 역 하위 화면(시장·화차 상점·술집·휴식·도축·개조·정제) -> 행동 목록으로
-        if (TryConsumeStationSubscreen())
-        {
-            return true;
-        }
-
-        // 7. 아무것도 없으면 일시정지 토글
-        Toggle();
-        return true;
+        return TryConsumeStationSubscreen();
     }
 
     bool TryConsumeTravelConfirmation()

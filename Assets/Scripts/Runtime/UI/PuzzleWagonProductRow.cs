@@ -29,6 +29,9 @@ public sealed class PuzzleWagonProductRow : MonoBehaviour, IBeginDragHandler, ID
         activeDraggingRow = null;
     }
 
+    // 화물칸 바가 드래그 중에만 다음 빈 칸 자리에 드롭 위치 힌트를 띄우는 데 쓴다.
+    internal static bool IsDraggingProduct => activeDraggingRow != null && activeDraggingRow.draggedProduct != null;
+
     public static bool TryConsumeCancel()
     {
         if (activeDraggingRow != null && activeDraggingRow.draggedProduct != null)

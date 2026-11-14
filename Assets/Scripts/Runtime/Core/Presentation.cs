@@ -104,12 +104,6 @@ public static class Presentation
     // 행동 목록 6번째 카드. 시설이 없는 역의 비활성 카드 문구.
     public static string StationNoFacility => BasicData.Text("presentation.station.noFacility");
 
-    // 화물칸 바의 미보유 슬롯 라벨. 색은 inventory.background(배경)·train.addWagonTextDisabled(글자)를 재사용한다.
-    public static string TrainLockedSlot(int _slotNumber)
-    {
-        return BasicData.Format("presentation.train.lockedSlot", _slotNumber);
-    }
-
     // 정보 바 남은 기한 카드. D-n은 남은 시간을 일 단위로 올림한 값이다.
     public static string TimeDeadlineTitle => BasicData.Text("presentation.time.deadlineTitle");
 
