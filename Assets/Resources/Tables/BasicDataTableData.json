@@ -1741,22 +1741,22 @@
         },
         {
           "id": "effectHeader",
-          "value": "<color=#{0}><b>가능 인접 효과</b></color>",
+          "value": "<color=#{0}>가능 인접 효과</color>",
           "arguments": 1
         },
         {
           "id": "effectProgress",
-          "value": "<size=80%><color=#{0}>진행도: {1} / {2}</color></size>",
+          "value": "<size=85%><color=#{0}>진행도: {1} / {2}</color></size>",
           "arguments": 3
         },
         {
           "id": "effectSpaceBlocked",
-          "value": "<size=80%><color=#{0}>공간 부족</color></size>",
+          "value": "<size=85%><color=#{0}>공간 부족</color></size>",
           "arguments": 1
         },
         {
           "id": "generalEffectHeader",
-          "value": "<color=#{0}><b>일반 효과</b></color>",
+          "value": "<color=#{0}>일반 효과</color>",
           "arguments": 1
         },
         {
@@ -1861,12 +1861,12 @@
         },
         {
           "id": "activeEffectsTitle",
-          "value": "<b>현재 적용 효과</b>",
+          "value": "현재 적용 효과",
           "arguments": 0
         },
         {
           "id": "activeEffectsHeader",
-          "value": "<b>현재 적용 효과</b> <size=70%>(정산 1회 기준)</size>",
+          "value": "현재 적용 효과 <size=70%>(정산 1회 기준)</size>",
           "arguments": 0
         },
         {
@@ -1881,7 +1881,7 @@
         },
         {
           "id": "activeEffectValue",
-          "value": "<color=#{0}><b>{1:+0.##;-0.##;0} $</b></color>",
+          "value": "<color=#{0}>{1:+0.##;-0.##;0} $</color>",
           "arguments": 2
         }
       ]

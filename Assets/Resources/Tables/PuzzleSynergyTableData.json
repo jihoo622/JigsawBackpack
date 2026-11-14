@@ -103,9 +103,9 @@
       "spatialRange": "Adjacent",
       "multiplierPercent": 50,
       "descriptionTag": "Waste",
-      "description": "상하좌우로 맞닿은 화물에게 -50% (가축 제외)",
-      "targetDescription": "똥과 상하좌우 인접 시 -50% (배설물·가축 면역)",
-      "sourceDescription": "상하좌우로 맞닿은 화물에게 -50% (가축 제외)"
+      "description": "인접한 화물에게 -50% (가축 제외)",
+      "targetDescription": "거름과 인접 시 -50% (배설물·가축 제외)",
+      "sourceDescription": "인접한 화물에게 -50% (가축 제외)"
     },
     {
       "id": "cargoNearAnimal",
@@ -143,7 +143,7 @@
         "parentPieceId": "piece.cow",
         "offspringPieceId": "piece.babyCow",
         "offspringCount": 1,
-        "description": "번식 · 같은 객차의 같은 품목 2마리가 상하좌우로 {0} 동안 맞닿으면 {1} {2}마리 출산"
+        "description": "번식 · 같은 객차의 같은 품목 2마리가 {0} 동안 인접하면 {1} {2}마리 출산"
       }
     ]
   }

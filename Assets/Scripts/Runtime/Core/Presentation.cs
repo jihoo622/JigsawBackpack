@@ -893,7 +893,7 @@ public static class Presentation
         return Regex.Replace(_description, @"[+−-]\d+(?:[.,]\d+)?%", match =>
         {
             Color color = match.Value[0] == '+' ? PuzzleTooltipGreen : PuzzleTooltipRed;
-            return $"<color=#{ColorUtility.ToHtmlStringRGB(color)}><b>{match.Value}</b></color>";
+            return $"<color=#{ColorUtility.ToHtmlStringRGB(color)}>{match.Value}</color>";
         });
     }
 
