@@ -83,6 +83,8 @@ public static class Presentation
     #region E3 고정 UI·요약·상세 표시
 
     // 다음 정산 게이지. 남은 시간은 PuzzleMapTime, 예상치는 열차 전체 시너지 합(정산 계산 재사용 값)을 넣는다.
+    public static string GaugeTitle => BasicData.Text("presentation.gauge.title");
+
     public static string GaugeUntilSettlement(long _remainingMinutes)
     {
         return BasicData.Format("presentation.gauge.untilSettlement", PuzzleMapTime(_remainingMinutes));
@@ -106,6 +108,21 @@ public static class Presentation
     public static string TrainLockedSlot(int _slotNumber)
     {
         return BasicData.Format("presentation.train.lockedSlot", _slotNumber);
+    }
+
+    // 정보 바 남은 기한 카드. D-n은 남은 시간을 일 단위로 올림한 값이다.
+    public static string TimeDeadlineTitle => BasicData.Text("presentation.time.deadlineTitle");
+
+    public static string TimeDeadlineValue(long _remainingMinutes)
+    {
+        long days = (_remainingMinutes + PuzzleTimeManager.MINUTES_PER_DAY - 1) / PuzzleTimeManager.MINUTES_PER_DAY;
+        return BasicData.Format("presentation.time.deadlineValue", days, PuzzleMapTime(_remainingMinutes));
+    }
+
+    // 남은 기한이 3일 이하면 경고색으로 표시한다(UI_LAYOUT 2절 남은 기한 카드 규칙).
+    public static bool TimeDeadlineWarning(long _remainingMinutes)
+    {
+        return _remainingMinutes <= 3 * PuzzleTimeManager.MINUTES_PER_DAY;
     }
 
     // 화차 상세 줄. 칸 규격은 보드 Width×Height, 증감은 현재 편성과의 차이(보유 칸 수·적재 칸 수)를 넣는다.
@@ -377,6 +394,8 @@ public static class Presentation
         return _current ? PuzzleMapCurrentText : PuzzleMapTargetText;
     }
     public const string PUZZLE_TRAVEL_PANEL_NAME = "MapTravelPanel";
+    // 화차 상점 하위 화면 열림 여부는 StationActionsView가 이 이름으로 PanelVisibility를 올린다.
+    public const string PUZZLE_WAGON_SHOP_PANEL_NAME = "WagonShopContent";
     public static string PuzzleTravelQuestion => BasicData.Text("presentation.inventory.travelQuestion");
     public static string PuzzleTravelConfirm => BasicData.Text("presentation.inventory.travelConfirm");
     public static string PuzzleTravelCancel => BasicData.Text("presentation.inventory.travelCancel");

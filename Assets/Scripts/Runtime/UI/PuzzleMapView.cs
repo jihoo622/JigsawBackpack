@@ -69,7 +69,6 @@ public sealed class PuzzleMapView : PanelBase
     [SerializeField] Text title;
     [SerializeField] Text guide;
     [SerializeField] Text information;
-    [SerializeField] Text openLabel;
     [SerializeField] Text closeLabel;
     [SerializeField] Image background;
     [SerializeField] Image[] routeLines;
@@ -614,7 +613,7 @@ public sealed class PuzzleMapView : PanelBase
         title.text = Presentation.PuzzleMapTitle;
         guide.text = Presentation.PuzzleMapGuideText;
         closeLabel.text = Presentation.PuzzleMapClose;
-        title.color = guide.color = information.color = openLabel.color = closeLabel.color = Presentation.PuzzleHeading;
+        title.color = guide.color = information.color = closeLabel.color = Presentation.PuzzleHeading;
         background.color = Presentation.PuzzleBackground;
         if (lines != null)
         {

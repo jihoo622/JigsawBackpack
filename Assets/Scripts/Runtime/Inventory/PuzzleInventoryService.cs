@@ -76,6 +76,8 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
     public PuzzleInventory Train => CurrentTrainWagon;
     public int WagonCount => trainWagons.Count;
     public long NextWagonCost => tables.PuzzleTrade.wagonAddCostBase;
+    // 다음 정산 게이지 예상치용. 실제 6시간 정산(ApplySynergyActivations)이 읽는 평가(Value)와 같은 값을 쓴다.
+    internal decimal TrainSynergyDelta => trainWagons.Sum(_wagon => _wagon.Value.FinalValue - _wagon.Value.BaseValue);
     public bool CanAddWagon => RunStatus == PuzzleRunStatus.InProgress
         && (tables.PuzzleTrade.maxWagonCount <= 0 || trainWagons.Count < tables.PuzzleTrade.maxWagonCount)
         && Funds >= NextWagonCost;

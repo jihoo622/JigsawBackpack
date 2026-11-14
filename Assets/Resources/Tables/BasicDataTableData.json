@@ -184,6 +184,10 @@
           "id": "estimate",
           "value": "예상 {0:+#,0.##;-#,0.##;0}$",
           "arguments": 1
+        },
+        {
+          "id": "title",
+          "value": "다음 정산 게이지"
         }
       ]
     },
@@ -1718,6 +1722,15 @@
         {
           "id": "clockText3",
           "value": "일출"
+        },
+        {
+          "id": "deadlineTitle",
+          "value": "남은 기한"
+        },
+        {
+          "id": "deadlineValue",
+          "value": "D-{0} · {1}",
+          "arguments": 2
         }
       ]
     },

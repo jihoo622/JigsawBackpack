@@ -9,6 +9,8 @@ public sealed class PuzzleCityView : MonoBehaviour
 {
     [SerializeField] TextMeshProUGUI cityName;
     [SerializeField] TextMeshProUGUI timeLabel;
+    [SerializeField] TextMeshProUGUI deadlineTitle;
+    [SerializeField] TextMeshProUGUI deadlineLabel;
     [SerializeField] TextMeshProUGUI funds;
     [SerializeField] TextMeshProUGUI tradeStatus;
     [SerializeField] Button clearButton;
@@ -119,6 +121,32 @@ public sealed class PuzzleCityView : MonoBehaviour
     internal void ShowTime(PuzzleTimeManager _time)
     {
         timeLabel.text = Presentation.PuzzleTime(_time);
+        if (deadlineTitle)
+        {
+            deadlineTitle.text = Presentation.TimeDeadlineTitle;
+        }
+        if (!deadlineLabel)
+        {
+            return;
+        }
+        if (!_time.HasDeadline)
+        {
+            deadlineLabel.gameObject.SetActive(false);
+            if (deadlineTitle)
+            {
+                deadlineTitle.gameObject.SetActive(false);
+            }
+            return;
+        }
+        deadlineLabel.gameObject.SetActive(true);
+        if (deadlineTitle)
+        {
+            deadlineTitle.gameObject.SetActive(true);
+            deadlineTitle.color = Presentation.PuzzleHeading;
+        }
+        deadlineLabel.text = Presentation.TimeDeadlineValue(_time.RemainingMinutes);
+        deadlineLabel.color = Presentation.TimeDeadlineWarning(_time.RemainingMinutes)
+            ? Presentation.PuzzleTooltipRed : Presentation.PuzzleHeading;
     }
 
     internal void ShowFunds(long _funds, bool _canClear)

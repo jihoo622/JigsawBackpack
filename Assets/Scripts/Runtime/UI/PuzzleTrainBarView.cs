@@ -32,7 +32,10 @@ public sealed class PuzzleTrainBarView : MonoBehaviour, IBeginDragHandler, IDrag
     [SerializeField] float originX = 0f;
     [SerializeField] float originY = 0f;
 
-    int visibleWagonCount = -1;
+    int ownedWagonCount = -1;
+    Color ownedSlotBackground = Color.white;
+    bool slotBackgroundCaptured;
+    bool wagonShopOpen;
     int? draggedWagonIndex;
     int dragPointerId;
 
@@ -75,8 +78,36 @@ public sealed class PuzzleTrainBarView : MonoBehaviour, IBeginDragHandler, IDrag
         }
     }
 
+    void OnEnable()
+    {
+        // 화차 상점 하위 화면이 열리면 다음 잠긴 칸을 증차 드롭 대상으로 강조한다.
+        GameEvents.PanelVisibility += OnPanelVisibility;
+    }
+
+    void OnDisable()
+    {
+        GameEvents.PanelVisibility -= OnPanelVisibility;
+        CancelWagonDrag();
+    }
+
+    void OnPanelVisibility(GameEvents.PanelInfo _info)
+    {
+        if (_info.panel == Presentation.PUZZLE_WAGON_SHOP_PANEL_NAME)
+        {
+            wagonShopOpen = _info.open;
+            if (ownedWagonCount >= 0)
+            {
+                RefreshHighlightOnly();
+            }
+        }
+    }
+
     void OnWagonSelected(int _index)
     {
+        if (_index >= ownedWagonCount)
+        {
+            return;
+        }
         WagonSelected?.Invoke(_index);
     }
 
@@ -103,7 +134,7 @@ public sealed class PuzzleTrainBarView : MonoBehaviour, IBeginDragHandler, IDrag
 
     public void OnBeginDrag(PointerEventData _eventData)
     {
-        if (_eventData.button != PointerEventData.InputButton.Left || visibleWagonCount < 2 ||
+        if (_eventData.button != PointerEventData.InputButton.Left || ownedWagonCount < 2 ||
             !wagonDragPreview || wagonDragPreview.gameObject.activeSelf ||
             !TryGetWagonAtScreenPosition(_eventData.pressPosition, out int index))
         {
@@ -148,8 +179,6 @@ public sealed class PuzzleTrainBarView : MonoBehaviour, IBeginDragHandler, IDrag
         }
     }
 
-    void OnDisable() => CancelWagonDrag();
-
     void OnApplicationFocus(bool _focused)
     {
         if (!_focused)
@@ -169,7 +198,9 @@ public sealed class PuzzleTrainBarView : MonoBehaviour, IBeginDragHandler, IDrag
         var canvas = GetComponentInParent<Canvas>();
         Camera eventCamera = canvas && canvas.renderMode != RenderMode.ScreenSpaceOverlay ? canvas.worldCamera : null;
 
-        for (int i = 0; i < wagonSlots.Length; i++)
+        // 잠긴 칸은 슬롯이 보여도 히트 대상이 아니다(전환·드롭·드래그 시작 불가).
+        int owned = Mathf.Max(0, ownedWagonCount);
+        for (int i = 0; i < wagonSlots.Length && i < owned; i++)
         {
             var slot = wagonSlots[i];
             if (slot?.root != null && slot.root.activeInHierarchy && slot.rectTransform != null &&
@@ -196,7 +227,7 @@ public sealed class PuzzleTrainBarView : MonoBehaviour, IBeginDragHandler, IDrag
             throw new InvalidOperationException($"객차 바 슬롯 수({wagonSlots.Length})가 최대 객차 수({maxWagonCount})보다 적습니다.");
         }
 
-        visibleWagonCount = Mathf.Min(_wagons.Count, wagonSlots.Length);
+        ownedWagonCount = Mathf.Min(_wagons.Count, wagonSlots.Length);
 
         for (int i = 0; i < wagonSlots.Length; i++)
         {
@@ -206,34 +237,92 @@ public sealed class PuzzleTrainBarView : MonoBehaviour, IBeginDragHandler, IDrag
                 continue;
             }
 
-            bool active = i < _wagons.Count;
-            slot.root.SetActive(active);
-
-            if (active)
+            // 8칸 슬롯은 항상 보인다. 보유 수 이후는 잠김 라벨·어두운 색으로 표시하고 클릭을 막는다.
+            slot.root.SetActive(true);
+            bool owned = i < ownedWagonCount;
+            if (slot.button != null)
             {
-                bool isSelected = i == _selectedIndex;
-                bool isDragHovered = _dragHoveredIndex == i;
-                if (slot.rectTransform != null)
-                {
-                    slot.rectTransform.localScale = isDragHovered ? Vector3.one * wagonDragHoverScale : Vector3.one;
-                }
-
-                if (slot.numberText != null)
-                {
-                    slot.numberText.text = _wagons[i].WagonNumber.ToString();
-                }
-
-                if (slot.highlightBorder != null)
-                {
-                    slot.highlightBorder.enabled = isSelected || isDragHovered;
-                    slot.highlightBorder.color = isDragHovered
-                        ? Presentation.PuzzleWagonDragHoverBorder
-                        : Presentation.PuzzleWagonSelectedBorder;
-                }
+                slot.button.interactable = owned;
             }
+
+            if (slot.rectTransform != null)
+            {
+                slot.rectTransform.localScale = owned && _dragHoveredIndex == i ? Vector3.one * wagonDragHoverScale : Vector3.one;
+            }
+
+            if (slot.wagonImage != null)
+            {
+                slot.wagonImage.enabled = owned;
+            }
+
+            if (slot.numberText != null)
+            {
+                slot.numberText.text = owned ? _wagons[i].WagonNumber.ToString() : Presentation.TrainLockedSlot(i + 1);
+                slot.numberText.color = owned ? Presentation.PuzzleHeading : Presentation.PuzzleAddWagonTextDisabled;
+            }
+
+            RefreshSlotBackground(slot, owned);
+            RefreshSlotHighlight(slot, i, owned, _selectedIndex, _dragHoveredIndex);
         }
 
         LayoutButtons();
+    }
+
+    // 화차 상점 열림 전환은 슬롯 표시를 다시 만들지 않고 강조만 다시 계산한다.
+    void RefreshHighlightOnly()
+    {
+        if (wagonSlots == null)
+        {
+            return;
+        }
+        for (int i = 0; i < wagonSlots.Length; i++)
+        {
+            var slot = wagonSlots[i];
+            if (slot == null || slot.root == null)
+            {
+                continue;
+            }
+            RefreshSlotHighlight(slot, i, i < ownedWagonCount, -1, null);
+        }
+    }
+
+    void RefreshSlotBackground(WagonSlotUI _slot, bool _owned)
+    {
+        var background = _slot.root ? _slot.root.GetComponent<Image>() : null;
+        if (!background)
+        {
+            return;
+        }
+        if (!slotBackgroundCaptured)
+        {
+            // 보유 칸 배경은 프리팹 직렬화 색을 유지한다. 잠깐 칸은 기초데이터 배경색으로 어둡게 한다.
+            ownedSlotBackground = background.color;
+            slotBackgroundCaptured = true;
+        }
+        background.color = _owned ? ownedSlotBackground : Presentation.PuzzleBackground;
+    }
+
+    void RefreshSlotHighlight(WagonSlotUI _slot, int _index, bool _owned, int _selectedIndex, int? _dragHoveredIndex)
+    {
+        if (_slot.highlightBorder == null)
+        {
+            return;
+        }
+        if (!_owned)
+        {
+            // 화차 상점이 열려 있으면 다음 잠긴 칸 하나를 증차 대상으로 강조한다.
+            bool isNextPurchaseTarget = wagonShopOpen && _index == ownedWagonCount;
+            _slot.highlightBorder.enabled = isNextPurchaseTarget;
+            _slot.highlightBorder.color = Presentation.PuzzleAddWagonBox;
+            return;
+        }
+
+        bool isSelected = _index == _selectedIndex;
+        bool isDragHovered = _dragHoveredIndex == _index;
+        _slot.highlightBorder.enabled = isSelected || isDragHovered;
+        _slot.highlightBorder.color = isDragHovered
+            ? Presentation.PuzzleWagonDragHoverBorder
+            : Presentation.PuzzleWagonSelectedBorder;
     }
 
     void OnRectTransformDimensionsChange()
@@ -242,41 +331,39 @@ public sealed class PuzzleTrainBarView : MonoBehaviour, IBeginDragHandler, IDrag
         LayoutButtons();
     }
 
+    // E3 규격: 슬롯 8개(각 124×56, 간격 50)를 좌측 고정 간격으로 배치한다.
+    // 좌표는 직렬화 값(originX·originY·wagonWidth·wagonSpacing)에서 나오며 프리팹이 원본이다.
     void LayoutButtons()
     {
-        if (visibleWagonCount <= 0)
+        if (wagonSlots == null)
         {
             return;
         }
 
-        float available = ((RectTransform)transform).rect.width;
-        if (available <= 0f)
+        var rect = (RectTransform)transform;
+        if (rect.rect.width <= 0f)
         {
             return;
         }
 
-        int count = visibleWagonCount;
-        float gap = Mathf.Min(wagonSpacing, available / (count * 2f));
-        float width = Mathf.Min(wagonWidth, (available - gap * (count - 1)) / count);
-        float step = width + gap;
-        float start = originX + (count - 1) * step * 0.5f;
-        float y = originY;
-        var size = new Vector2(width, wagonHeight);
+        float step = wagonWidth + wagonSpacing;
+        var size = new Vector2(wagonWidth, wagonHeight);
 
-        for (int i = 0; i < visibleWagonCount; i++)
+        for (int i = 0; i < wagonSlots.Length; i++)
         {
-            var rect = wagonSlots[i]?.rectTransform;
-            if (rect)
+            var slotRect = wagonSlots[i]?.rectTransform;
+            if (!slotRect)
             {
-                rect.anchoredPosition = new Vector2(start - i * step, y);
-                rect.sizeDelta = size;
-                if (fitRotatedWagonArtwork && wagonSlots[i].wagonImage && wagonSlots[i].wagonImage.sprite)
-                {
-                    var image = wagonSlots[i].wagonImage;
-                    float aspect = image.sprite.rect.width / image.sprite.rect.height;
-                    float height = Mathf.Min(size.x, size.y / aspect);
-                    image.rectTransform.sizeDelta = new Vector2(height * aspect, height);
-                }
+                continue;
+            }
+            slotRect.anchoredPosition = new Vector2(originX + i * step, originY);
+            slotRect.sizeDelta = size;
+            if (fitRotatedWagonArtwork && wagonSlots[i].wagonImage && wagonSlots[i].wagonImage.sprite)
+            {
+                var image = wagonSlots[i].wagonImage;
+                float aspect = image.sprite.rect.width / image.sprite.rect.height;
+                float height = Mathf.Min(size.x, size.y / aspect);
+                image.rectTransform.sizeDelta = new Vector2(height * aspect, height);
             }
         }
     }

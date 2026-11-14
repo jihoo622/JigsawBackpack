@@ -154,6 +154,11 @@ public sealed class PuzzleStationActionsView : PanelBase
 
     protected override void OnDisable()
     {
+        if (wagonShopContent && wagonShopContent.activeSelf)
+        {
+            wagonShopContent.SetActive(false);
+            GameEvents.RaisePanelVisibility(Presentation.PUZZLE_WAGON_SHOP_PANEL_NAME, false);
+        }
         marketButton.onClick.RemoveListener(OnMarket);
         tavernButton.onClick.RemoveListener(OnTavern);
         restButton.onClick.RemoveListener(OnRest);
@@ -352,7 +357,14 @@ public sealed class PuzzleStationActionsView : PanelBase
     {
         actionsList.SetActive(_content == actionsList);
         marketContent.SetActive(_content == marketContent);
-        wagonShopContent.SetActive(_content == wagonShopContent);
+        bool wagonShopOpen = _content == wagonShopContent;
+        bool wagonShopChanged = wagonShopContent.activeSelf != wagonShopOpen;
+        wagonShopContent.SetActive(wagonShopOpen);
+        // 화차 상점 열림 변화는 PanelVisibility로 흘린다. 화물칸 바가 다음 잠긴 칸 강조에 쓴다.
+        if (wagonShopChanged)
+        {
+            GameEvents.RaisePanelVisibility(Presentation.PUZZLE_WAGON_SHOP_PANEL_NAME, wagonShopOpen);
+        }
         restContent.SetActive(_content == restContent);
         tavernContent.gameObject.SetActive(_content == tavernContent.gameObject);
         if (butcheryContent)

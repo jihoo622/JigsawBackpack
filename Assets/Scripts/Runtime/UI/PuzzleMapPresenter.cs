@@ -5,7 +5,6 @@ using UnityEngine;
 public sealed class PuzzleMapPresenter : MonoBehaviour
 {
     [SerializeField] PuzzleMapView view;
-    [SerializeField] Button openButton;
     [SerializeField] Button closeButton;
     [SerializeField] PuzzleMapTravelView travelView;
 
@@ -24,8 +23,9 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
     {
         session = SceneServices.For<PuzzleInventoryService>(gameObject.scene);
         session.Initialize();
-        openButton.onClick.AddListener(OpenMap);
         closeButton.onClick.AddListener(CloseMap);
+        // 지도 열기/닫기 토글은 고정 UI의 지도 버튼(GameEvents.MapToggleRequested)이 요청한다.
+        GameEvents.MapToggleRequested += OnMapToggleRequested;
         foreach (var node in view.Nodes)
         {
             node.Hovered += ShowCity;
@@ -45,8 +45,8 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
 
     void OnDisable()
     {
-        openButton.onClick.RemoveListener(OpenMap);
         closeButton.onClick.RemoveListener(CloseMap);
+        GameEvents.MapToggleRequested -= OnMapToggleRequested;
         foreach (var node in view.Nodes)
         {
             node.Hovered -= ShowCity;
@@ -70,6 +70,22 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
     {
         Refresh();
         view.Open();
+    }
+
+    void OnMapToggleRequested(GameEvents.MapToggleInfo _info)
+    {
+        if (_info.sceneHandle != gameObject.scene.handle)
+        {
+            return;
+        }
+        if (view.IsOpen)
+        {
+            CloseMap();
+        }
+        else if (phase == TravelPhase.None)
+        {
+            OpenMap();
+        }
     }
 
     void OnMapRequested(GameEvents.MapRequestInfo _info)

@@ -213,6 +213,36 @@ public static class GameEvents
     {
         Emit(MapRequested, new MapRequestInfo(_sceneHandle));
     }
+
+    // 고정 UI의 지도 토글 버튼. 같은 씬의 PuzzleMapPresenter가 열려 있으면 닫고, 닫혀 있으면 연다.
+    public readonly struct MapToggleInfo
+    {
+        public readonly int sceneHandle;
+        public MapToggleInfo(int _sceneHandle)
+        {
+            sceneHandle = _sceneHandle;
+        }
+    }
+    public static event Action<MapToggleInfo> MapToggleRequested;
+    public static void RaiseMapToggleRequested(int _sceneHandle)
+    {
+        Emit(MapToggleRequested, new MapToggleInfo(_sceneHandle));
+    }
+
+    // 고정 UI의 상성표 보기 버튼. 같은 씬의 상성표 패널이 토글 응답한다.
+    public readonly struct SynergyChartToggleInfo
+    {
+        public readonly int sceneHandle;
+        public SynergyChartToggleInfo(int _sceneHandle)
+        {
+            sceneHandle = _sceneHandle;
+        }
+    }
+    public static event Action<SynergyChartToggleInfo> SynergyChartToggleRequested;
+    public static void RaiseSynergyChartToggleRequested(int _sceneHandle)
+    {
+        Emit(SynergyChartToggleRequested, new SynergyChartToggleInfo(_sceneHandle));
+    }
     public static void RaiseTravelPreviewChanged(PuzzleInventoryService _session)
     {
         Emit(TravelPreviewChanged, new TravelPreviewInfo(_session));
@@ -515,6 +545,8 @@ public static class GameEvents
         TimeAdvanced = null;
         TravelPreviewChanged = null;
         MapRequested = null;
+        MapToggleRequested = null;
+        SynergyChartToggleRequested = null;
         ButcheryChanged = null;
         ModificationChanged = null;
         RefiningChanged = null;

@@ -29,13 +29,20 @@ public sealed class PuzzleSynergyChartView : PanelBase
     protected override void OnEnable()
     {
         base.OnEnable();
-        toggleButton.onClick.AddListener(ToggleChart);
+        // 기존 내부 토글 버튼은 고정 UI 버튼으로 옮겨졌다(PKG-03). 남은 참조는 선택적이다.
+        if (toggleButton)
+        {
+            toggleButton.onClick.AddListener(ToggleChart);
+        }
         closeButton.onClick.AddListener(Close);
     }
 
     protected override void OnDisable()
     {
-        toggleButton.onClick.RemoveListener(ToggleChart);
+        if (toggleButton)
+        {
+            toggleButton.onClick.RemoveListener(ToggleChart);
+        }
         closeButton.onClick.RemoveListener(Close);
         base.OnDisable();
     }
@@ -47,13 +54,16 @@ public sealed class PuzzleSynergyChartView : PanelBase
 
     internal void RenderFrame(string _title, string _toggle, string _close, string _corner, string _notes, string _itemTitle, string _itemTags)
     {
-        if (!toggleButton || !closeButton || !toggleLabel || !closeLabel || !titleLabel || !cornerLabel ||
+        if (!closeButton || !closeLabel || !titleLabel || !cornerLabel ||
             !notesText || !itemTitleText || !itemTagsText)
         {
             throw new InvalidOperationException("상성표 패널의 버튼·제목·설명 참조를 연결하세요(Tools/MyJG/Apply Synergy Chart).");
         }
         titleLabel.text = _title;
-        toggleLabel.text = _toggle;
+        if (toggleLabel)
+        {
+            toggleLabel.text = _toggle;
+        }
         closeLabel.text = _close;
         cornerLabel.text = _corner;
         notesText.text = _notes;

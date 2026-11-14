@@ -119,6 +119,17 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!114 &482293 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8000000000000000002, guid: 19721697f67784642beb8b705f757d8b, type: 3}
+  m_PrefabInstance: {fileID: 720373350394814051}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1c994b03afe34e12b62c2578d8f39e50, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PuzzleInventoryView
 --- !u!114 &142072423 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 872932236013795189, guid: 19721697f67784642beb8b705f757d8b, type: 3}
@@ -4587,11 +4598,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 340499794578077680, guid: 19721697f67784642beb8b705f757d8b, type: 3}
       propertyPath: m_SizeDelta.x
-      value: -80
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 340499794578077680, guid: 19721697f67784642beb8b705f757d8b, type: 3}
       propertyPath: m_SizeDelta.y
-      value: -272
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 340499794578077680, guid: 19721697f67784642beb8b705f757d8b, type: 3}
       propertyPath: m_LocalPosition.x
@@ -4627,7 +4638,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 340499794578077680, guid: 19721697f67784642beb8b705f757d8b, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -24
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 340499794578077680, guid: 19721697f67784642beb8b705f757d8b, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -4833,30 +4844,6 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 6412312823516842943, guid: 19721697f67784642beb8b705f757d8b, type: 3}
-      propertyPath: m_AnchorMax.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6412312823516842943, guid: 19721697f67784642beb8b705f757d8b, type: 3}
-      propertyPath: m_AnchorMin.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6412312823516842943, guid: 19721697f67784642beb8b705f757d8b, type: 3}
-      propertyPath: m_SizeDelta.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6412312823516842943, guid: 19721697f67784642beb8b705f757d8b, type: 3}
-      propertyPath: m_SizeDelta.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6412312823516842943, guid: 19721697f67784642beb8b705f757d8b, type: 3}
-      propertyPath: m_AnchoredPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6412312823516842943, guid: 19721697f67784642beb8b705f757d8b, type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 7290506349529668397, guid: 19721697f67784642beb8b705f757d8b, type: 3}
       propertyPath: m_fontMaterial
       value: 
@@ -4896,17 +4883,6 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
---- !u!114 &8901500000000000069 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 8901500000000000068, guid: 19721697f67784642beb8b705f757d8b, type: 3}
-  m_PrefabInstance: {fileID: 720373350394814051}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
-  m_Name:
   m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
 --- !u!114 &720373350394814053 stripped
 MonoBehaviour:
@@ -5034,19 +5010,19 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1467092771152156143, guid: 4d2fb3f87a79e254b9e85f7df6a78889, type: 3}
       propertyPath: m_Pivot.x
-      value: 0.5
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1467092771152156143, guid: 4d2fb3f87a79e254b9e85f7df6a78889, type: 3}
       propertyPath: m_Pivot.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1467092771152156143, guid: 4d2fb3f87a79e254b9e85f7df6a78889, type: 3}
-      propertyPath: m_AnchorMax.x
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1467092771152156143, guid: 4d2fb3f87a79e254b9e85f7df6a78889, type: 3}
-      propertyPath: m_AnchorMax.y
+      propertyPath: m_AnchorMax.x
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1467092771152156143, guid: 4d2fb3f87a79e254b9e85f7df6a78889, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1467092771152156143, guid: 4d2fb3f87a79e254b9e85f7df6a78889, type: 3}
       propertyPath: m_AnchorMin.x
@@ -5054,15 +5030,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1467092771152156143, guid: 4d2fb3f87a79e254b9e85f7df6a78889, type: 3}
       propertyPath: m_AnchorMin.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1467092771152156143, guid: 4d2fb3f87a79e254b9e85f7df6a78889, type: 3}
       propertyPath: m_SizeDelta.x
-      value: -80
+      value: 1340
       objectReference: {fileID: 0}
     - target: {fileID: 1467092771152156143, guid: 4d2fb3f87a79e254b9e85f7df6a78889, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 64
+      value: 32
       objectReference: {fileID: 0}
     - target: {fileID: 1467092771152156143, guid: 4d2fb3f87a79e254b9e85f7df6a78889, type: 3}
       propertyPath: m_LocalPosition.x
@@ -5094,11 +5070,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1467092771152156143, guid: 4d2fb3f87a79e254b9e85f7df6a78889, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 0
+      value: 290
       objectReference: {fileID: 0}
     - target: {fileID: 1467092771152156143, guid: 4d2fb3f87a79e254b9e85f7df6a78889, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 24
+      value: -852
       objectReference: {fileID: 0}
     - target: {fileID: 1467092771152156143, guid: 4d2fb3f87a79e254b9e85f7df6a78889, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -5304,7 +5280,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3408980576141941286, guid: a4dfbb98fce238c4ea342f9fe6ac7fda, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 112
+      value: 60
       objectReference: {fileID: 0}
     - target: {fileID: 3408980576141941286, guid: a4dfbb98fce238c4ea342f9fe6ac7fda, type: 3}
       propertyPath: m_LocalPosition.x
@@ -5340,7 +5316,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3408980576141941286, guid: a4dfbb98fce238c4ea342f9fe6ac7fda, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -24
+      value: -1004
       objectReference: {fileID: 0}
     - target: {fileID: 3408980576141941286, guid: a4dfbb98fce238c4ea342f9fe6ac7fda, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -5681,17 +5657,17 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: bbbee2d7cf1c87849a26919dabc69a89, type: 3}
---- !u!114 &482293 stripped
+--- !u!114 &8901500000000000069 stripped
 MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 8000000000000000002, guid: 19721697f67784642beb8b705f757d8b, type: 3}
+  m_CorrespondingSourceObject: {fileID: 8901500000000000068, guid: 19721697f67784642beb8b705f757d8b, type: 3}
   m_PrefabInstance: {fileID: 720373350394814051}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1c994b03afe34e12b62c2578d8f39e50, type: 3}
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PuzzleInventoryView
+  m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

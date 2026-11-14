@@ -11,6 +11,7 @@ public sealed class PuzzleSynergyChartPresenter : MonoBehaviour
     void OnEnable()
     {
         var tables = TableManager.Instance.RequireValid();
+        GameEvents.SynergyChartToggleRequested += OnToggleRequested;
         var chart = PuzzleSynergyChart.ForTrain(tables);
         if (!view.MatchesShape(chart.Rows.Count, chart.Columns.Count))
         {
@@ -54,5 +55,18 @@ public sealed class PuzzleSynergyChartPresenter : MonoBehaviour
             Presentation.SynergyChartCorner,
             Presentation.SynergyChartNotes(footnotes, tables.Pieces, tables.PuzzleSynergy.activationIntervalHours),
             Presentation.SynergyChartItemTitle, string.Join("\n", items));
+    }
+
+    void OnDisable()
+    {
+        GameEvents.SynergyChartToggleRequested -= OnToggleRequested;
+    }
+
+    void OnToggleRequested(GameEvents.SynergyChartToggleInfo _info)
+    {
+        if (_info.sceneHandle == gameObject.scene.handle)
+        {
+            view.Toggle();
+        }
     }
 }
