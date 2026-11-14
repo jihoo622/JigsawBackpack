@@ -127,7 +127,8 @@ public sealed class PuzzlePiecePreservationData
 [Serializable]
 public sealed class PuzzleRegionData
 {
-    public string id, displayName, specialtyTag;
+    public string id, displayName;
+    public string[] specialtyTags = Array.Empty<string>();
     public int mapLabelPriority = -1;
     public string[] productionTags = Array.Empty<string>();
     public int pricePercent = -1;

@@ -1039,8 +1039,7 @@
       "displayName": "꺾인 광석",
       "description": "L자로 꺾인 세 칸 광석.",
       "tags": [
-        "Ore",
-        "Metal"
+        "Ore"
       ],
       "visualKey": "cargo.oreL",
       "slotCount": 3,
@@ -1074,16 +1073,6 @@
       "baseValue": 33,
       "synergyEffects": [
         {
-          "ruleId": "metalNearFish",
-          "target": true,
-          "source": false
-        },
-        {
-          "ruleId": "metalNearWater",
-          "target": true,
-          "source": false
-        },
-        {
           "ruleId": "wasteNearbyPenalty",
           "target": true,
           "source": false
@@ -1101,8 +1090,7 @@
       "displayName": "십자 광석",
       "description": "십자 모양으로 붙은 다섯 칸 광석.",
       "tags": [
-        "Ore",
-        "Metal"
+        "Ore"
       ],
       "visualKey": "cargo.oreCross",
       "slotCount": 5,
@@ -1152,16 +1140,6 @@
       "baseValue": 55,
       "synergyEffects": [
         {
-          "ruleId": "metalNearFish",
-          "target": true,
-          "source": false
-        },
-        {
-          "ruleId": "metalNearWater",
-          "target": true,
-          "source": false
-        },
-        {
           "ruleId": "wasteNearbyPenalty",
           "target": true,
           "source": false
@@ -1177,7 +1155,6 @@
       "displayName": "금속 주괴",
       "description": "한 칸을 차지하는 정제된 금속 덩어리.",
       "tags": [
-        "Ore",
         "Metal"
       ],
       "visualKey": "cargo.metalIngot",
@@ -1455,45 +1432,33 @@
       "id": "city.riobruk",
       "displayName": "리오브루크",
       "regionId": "region.mine",
-      "specialtyTag": "Metal",
+      "specialtyTag": "Ore",
       "buyEnabled": true,
       "sellEnabled": true,
       "buyPercentOfBaseValue": 100,
       "sellPercentOfFinalValue": 100,
       "tagPrices": [
         {
-          "tag": "Metal",
+          "tag": "Ore",
           "priority": 1000,
           "buyPercent": 80,
           "sellPercent": 70
         },
         {
-          "tag": "Machinery",
+          "tag": "Food",
           "priority": 200,
           "buyPercent": 150,
           "sellPercent": 130
         },
         {
-          "tag": "Fish",
+          "tag": "Machinery",
           "priority": 201,
           "buyPercent": 150,
           "sellPercent": 130
         },
         {
-          "tag": "Fruit",
+          "tag": "Water",
           "priority": 202,
-          "buyPercent": 150,
-          "sellPercent": 130
-        },
-        {
-          "tag": "Animal",
-          "priority": 203,
-          "buyPercent": 150,
-          "sellPercent": 130
-        },
-        {
-          "tag": "Meat",
-          "priority": 204,
           "buyPercent": 150,
           "sellPercent": 130
         }
@@ -1512,7 +1477,7 @@
           {
             "id": "city.riobruk.stock.1",
             "pieceId": "piece.oreL",
-            "x": 1,
+            "x": 0,
             "y": 1,
             "clockwiseTurns": 0
           },
@@ -1526,16 +1491,9 @@
           {
             "id": "city.riobruk.stock.3",
             "pieceId": "piece.oreL",
-            "x": 2,
-            "y": 3,
-            "clockwiseTurns": 1
-          },
-          {
-            "id": "city.riobruk.stock.4",
-            "pieceId": "piece.oreL",
             "x": 5,
             "y": 1,
-            "clockwiseTurns": 2
+            "clockwiseTurns": 3
           }
         ]
       },
@@ -1560,32 +1518,20 @@
           "sellPercent": 70
         },
         {
-          "tag": "Machinery",
+          "tag": "Food",
           "priority": 200,
           "buyPercent": 150,
           "sellPercent": 130
         },
         {
-          "tag": "Fish",
+          "tag": "Machinery",
           "priority": 201,
           "buyPercent": 150,
           "sellPercent": 130
         },
         {
-          "tag": "Fruit",
-          "priority": 202,
-          "buyPercent": 150,
-          "sellPercent": 130
-        },
-        {
-          "tag": "Animal",
-          "priority": 203,
-          "buyPercent": 150,
-          "sellPercent": 130
-        },
-        {
           "tag": "Water",
-          "priority": 204,
+          "priority": 202,
           "buyPercent": 150,
           "sellPercent": 130
         }
@@ -1638,32 +1584,20 @@
           "sellPercent": 70
         },
         {
-          "tag": "Machinery",
+          "tag": "Food",
           "priority": 200,
           "buyPercent": 150,
           "sellPercent": 130
         },
         {
-          "tag": "Fish",
+          "tag": "Machinery",
           "priority": 201,
           "buyPercent": 150,
           "sellPercent": 130
         },
         {
-          "tag": "Fruit",
+          "tag": "Water",
           "priority": 202,
-          "buyPercent": 150,
-          "sellPercent": 130
-        },
-        {
-          "tag": "Animal",
-          "priority": 203,
-          "buyPercent": 150,
-          "sellPercent": 130
-        },
-        {
-          "tag": "Grain",
-          "priority": 204,
           "buyPercent": 150,
           "sellPercent": 130
         }
@@ -1716,32 +1650,20 @@
           "sellPercent": 70
         },
         {
-          "tag": "Machinery",
+          "tag": "Food",
           "priority": 200,
           "buyPercent": 150,
           "sellPercent": 130
         },
         {
-          "tag": "Fish",
+          "tag": "Machinery",
           "priority": 201,
           "buyPercent": 150,
           "sellPercent": 130
         },
         {
-          "tag": "Fruit",
+          "tag": "Water",
           "priority": 202,
-          "buyPercent": 150,
-          "sellPercent": 130
-        },
-        {
-          "tag": "Animal",
-          "priority": 203,
-          "buyPercent": 150,
-          "sellPercent": 130
-        },
-        {
-          "tag": "Wood",
-          "priority": 204,
           "buyPercent": 150,
           "sellPercent": 130
         }
@@ -1794,32 +1716,14 @@
           "sellPercent": 70
         },
         {
-          "tag": "Machinery",
+          "tag": "Metal",
           "priority": 200,
           "buyPercent": 150,
           "sellPercent": 130
         },
         {
-          "tag": "Fish",
+          "tag": "Grain",
           "priority": 201,
-          "buyPercent": 150,
-          "sellPercent": 130
-        },
-        {
-          "tag": "Salt",
-          "priority": 202,
-          "buyPercent": 150,
-          "sellPercent": 130
-        },
-        {
-          "tag": "Fruit",
-          "priority": 203,
-          "buyPercent": 150,
-          "sellPercent": 130
-        },
-        {
-          "tag": "Metal",
-          "priority": 204,
           "buyPercent": 150,
           "sellPercent": 130
         }
@@ -1872,32 +1776,14 @@
           "sellPercent": 70
         },
         {
-          "tag": "Machinery",
+          "tag": "Metal",
           "priority": 200,
           "buyPercent": 150,
           "sellPercent": 130
         },
         {
-          "tag": "Fish",
-          "priority": 201,
-          "buyPercent": 150,
-          "sellPercent": 130
-        },
-        {
-          "tag": "Salt",
-          "priority": 202,
-          "buyPercent": 150,
-          "sellPercent": 130
-        },
-        {
-          "tag": "Fruit",
-          "priority": 203,
-          "buyPercent": 150,
-          "sellPercent": 130
-        },
-        {
           "tag": "Grain",
-          "priority": 204,
+          "priority": 201,
           "buyPercent": 150,
           "sellPercent": 130
         }
@@ -1950,32 +1836,14 @@
           "sellPercent": 70
         },
         {
-          "tag": "Machinery",
+          "tag": "Metal",
           "priority": 200,
           "buyPercent": 150,
           "sellPercent": 130
         },
         {
-          "tag": "Fish",
+          "tag": "Grain",
           "priority": 201,
-          "buyPercent": 150,
-          "sellPercent": 130
-        },
-        {
-          "tag": "Salt",
-          "priority": 202,
-          "buyPercent": 150,
-          "sellPercent": 130
-        },
-        {
-          "tag": "Fruit",
-          "priority": 203,
-          "buyPercent": 150,
-          "sellPercent": 130
-        },
-        {
-          "tag": "Water",
-          "priority": 204,
           "buyPercent": 150,
           "sellPercent": 130
         }
@@ -2028,32 +1896,14 @@
           "sellPercent": 70
         },
         {
-          "tag": "Machinery",
+          "tag": "Metal",
           "priority": 200,
           "buyPercent": 150,
           "sellPercent": 130
         },
         {
-          "tag": "Fish",
+          "tag": "Grain",
           "priority": 201,
-          "buyPercent": 150,
-          "sellPercent": 130
-        },
-        {
-          "tag": "Salt",
-          "priority": 202,
-          "buyPercent": 150,
-          "sellPercent": 130
-        },
-        {
-          "tag": "Fruit",
-          "priority": 203,
-          "buyPercent": 150,
-          "sellPercent": 130
-        },
-        {
-          "tag": "Wood",
-          "priority": 204,
           "buyPercent": 150,
           "sellPercent": 130
         }
@@ -2106,32 +1956,20 @@
           "sellPercent": 70
         },
         {
-          "tag": "Fish",
+          "tag": "Food",
           "priority": 200,
           "buyPercent": 150,
           "sellPercent": 130
         },
         {
-          "tag": "Salt",
+          "tag": "Metal",
           "priority": 201,
           "buyPercent": 150,
           "sellPercent": 130
         },
         {
-          "tag": "Fruit",
+          "tag": "Wood",
           "priority": 202,
-          "buyPercent": 150,
-          "sellPercent": 130
-        },
-        {
-          "tag": "Animal",
-          "priority": 203,
-          "buyPercent": 150,
-          "sellPercent": 130
-        },
-        {
-          "tag": "Grain",
-          "priority": 204,
           "buyPercent": 150,
           "sellPercent": 130
         }
@@ -2184,32 +2022,20 @@
           "sellPercent": 70
         },
         {
-          "tag": "Fish",
+          "tag": "Food",
           "priority": 200,
           "buyPercent": 150,
           "sellPercent": 130
         },
         {
-          "tag": "Salt",
+          "tag": "Metal",
           "priority": 201,
           "buyPercent": 150,
           "sellPercent": 130
         },
         {
-          "tag": "Fruit",
+          "tag": "Wood",
           "priority": 202,
-          "buyPercent": 150,
-          "sellPercent": 130
-        },
-        {
-          "tag": "Animal",
-          "priority": 203,
-          "buyPercent": 150,
-          "sellPercent": 130
-        },
-        {
-          "tag": "Water",
-          "priority": 204,
           "buyPercent": 150,
           "sellPercent": 130
         }
@@ -2262,32 +2088,20 @@
           "sellPercent": 70
         },
         {
-          "tag": "Fish",
+          "tag": "Food",
           "priority": 200,
           "buyPercent": 150,
           "sellPercent": 130
         },
         {
-          "tag": "Salt",
+          "tag": "Metal",
           "priority": 201,
           "buyPercent": 150,
           "sellPercent": 130
         },
         {
-          "tag": "Fruit",
+          "tag": "Wood",
           "priority": 202,
-          "buyPercent": 150,
-          "sellPercent": 130
-        },
-        {
-          "tag": "Animal",
-          "priority": 203,
-          "buyPercent": 150,
-          "sellPercent": 130
-        },
-        {
-          "tag": "Meat",
-          "priority": 204,
           "buyPercent": 150,
           "sellPercent": 130
         }
@@ -2340,32 +2154,20 @@
           "sellPercent": 70
         },
         {
-          "tag": "Fish",
+          "tag": "Food",
           "priority": 200,
           "buyPercent": 150,
           "sellPercent": 130
         },
         {
-          "tag": "Salt",
+          "tag": "Metal",
           "priority": 201,
           "buyPercent": 150,
           "sellPercent": 130
         },
         {
-          "tag": "Fruit",
-          "priority": 202,
-          "buyPercent": 150,
-          "sellPercent": 130
-        },
-        {
-          "tag": "Animal",
-          "priority": 203,
-          "buyPercent": 150,
-          "sellPercent": 130
-        },
-        {
           "tag": "Wood",
-          "priority": 204,
+          "priority": 202,
           "buyPercent": 150,
           "sellPercent": 130
         }
@@ -2706,32 +2508,26 @@
           "sellPercent": 70
         },
         {
-          "tag": "Machinery",
+          "tag": "Metal",
           "priority": 200,
           "buyPercent": 150,
           "sellPercent": 130
         },
         {
-          "tag": "Salt",
+          "tag": "Grain",
           "priority": 201,
           "buyPercent": 150,
           "sellPercent": 130
         },
         {
-          "tag": "Fruit",
+          "tag": "Wood",
           "priority": 202,
           "buyPercent": 150,
           "sellPercent": 130
         },
         {
-          "tag": "Animal",
+          "tag": "Machinery",
           "priority": 203,
-          "buyPercent": 150,
-          "sellPercent": 130
-        },
-        {
-          "tag": "Meat",
-          "priority": 204,
           "buyPercent": 150,
           "sellPercent": 130
         }
@@ -2784,32 +2580,26 @@
           "sellPercent": 70
         },
         {
-          "tag": "Machinery",
+          "tag": "Metal",
           "priority": 200,
           "buyPercent": 150,
           "sellPercent": 130
         },
         {
-          "tag": "Salt",
+          "tag": "Grain",
           "priority": 201,
           "buyPercent": 150,
           "sellPercent": 130
         },
         {
-          "tag": "Fruit",
+          "tag": "Wood",
           "priority": 202,
           "buyPercent": 150,
           "sellPercent": 130
         },
         {
-          "tag": "Animal",
+          "tag": "Machinery",
           "priority": 203,
-          "buyPercent": 150,
-          "sellPercent": 130
-        },
-        {
-          "tag": "Grain",
-          "priority": 204,
           "buyPercent": 150,
           "sellPercent": 130
         }
@@ -2862,32 +2652,26 @@
           "sellPercent": 70
         },
         {
-          "tag": "Machinery",
+          "tag": "Metal",
           "priority": 200,
           "buyPercent": 150,
           "sellPercent": 130
         },
         {
-          "tag": "Salt",
+          "tag": "Grain",
           "priority": 201,
           "buyPercent": 150,
           "sellPercent": 130
         },
         {
-          "tag": "Fruit",
+          "tag": "Wood",
           "priority": 202,
           "buyPercent": 150,
           "sellPercent": 130
         },
         {
-          "tag": "Animal",
+          "tag": "Machinery",
           "priority": 203,
-          "buyPercent": 150,
-          "sellPercent": 130
-        },
-        {
-          "tag": "Wood",
-          "priority": 204,
           "buyPercent": 150,
           "sellPercent": 130
         }
@@ -2940,32 +2724,26 @@
           "sellPercent": 70
         },
         {
-          "tag": "Machinery",
+          "tag": "Metal",
           "priority": 200,
           "buyPercent": 150,
           "sellPercent": 130
         },
         {
-          "tag": "Salt",
+          "tag": "Grain",
           "priority": 201,
           "buyPercent": 150,
           "sellPercent": 130
         },
         {
-          "tag": "Fruit",
+          "tag": "Wood",
           "priority": 202,
           "buyPercent": 150,
           "sellPercent": 130
         },
         {
-          "tag": "Animal",
+          "tag": "Machinery",
           "priority": 203,
-          "buyPercent": 150,
-          "sellPercent": 130
-        },
-        {
-          "tag": "Metal",
-          "priority": 204,
           "buyPercent": 150,
           "sellPercent": 130
         }
@@ -3024,26 +2802,8 @@
           "sellPercent": 130
         },
         {
-          "tag": "Fish",
+          "tag": "Metal",
           "priority": 201,
-          "buyPercent": 150,
-          "sellPercent": 130
-        },
-        {
-          "tag": "Salt",
-          "priority": 202,
-          "buyPercent": 150,
-          "sellPercent": 130
-        },
-        {
-          "tag": "Animal",
-          "priority": 203,
-          "buyPercent": 150,
-          "sellPercent": 130
-        },
-        {
-          "tag": "Water",
-          "priority": 204,
           "buyPercent": 150,
           "sellPercent": 130
         }
@@ -3102,26 +2862,8 @@
           "sellPercent": 130
         },
         {
-          "tag": "Fish",
+          "tag": "Metal",
           "priority": 201,
-          "buyPercent": 150,
-          "sellPercent": 130
-        },
-        {
-          "tag": "Salt",
-          "priority": 202,
-          "buyPercent": 150,
-          "sellPercent": 130
-        },
-        {
-          "tag": "Animal",
-          "priority": 203,
-          "buyPercent": 150,
-          "sellPercent": 130
-        },
-        {
-          "tag": "Meat",
-          "priority": 204,
           "buyPercent": 150,
           "sellPercent": 130
         }
@@ -3180,26 +2922,8 @@
           "sellPercent": 130
         },
         {
-          "tag": "Fish",
-          "priority": 201,
-          "buyPercent": 150,
-          "sellPercent": 130
-        },
-        {
-          "tag": "Salt",
-          "priority": 202,
-          "buyPercent": 150,
-          "sellPercent": 130
-        },
-        {
-          "tag": "Animal",
-          "priority": 203,
-          "buyPercent": 150,
-          "sellPercent": 130
-        },
-        {
           "tag": "Metal",
-          "priority": 204,
+          "priority": 201,
           "buyPercent": 150,
           "sellPercent": 130
         }
@@ -3258,26 +2982,8 @@
           "sellPercent": 130
         },
         {
-          "tag": "Fish",
+          "tag": "Metal",
           "priority": 201,
-          "buyPercent": 150,
-          "sellPercent": 130
-        },
-        {
-          "tag": "Salt",
-          "priority": 202,
-          "buyPercent": 150,
-          "sellPercent": 130
-        },
-        {
-          "tag": "Animal",
-          "priority": 203,
-          "buyPercent": 150,
-          "sellPercent": 130
-        },
-        {
-          "tag": "Water",
-          "priority": 204,
           "buyPercent": 150,
           "sellPercent": 130
         }
@@ -3330,32 +3036,20 @@
           "sellPercent": 70
         },
         {
-          "tag": "Fish",
+          "tag": "Food",
           "priority": 200,
           "buyPercent": 150,
           "sellPercent": 130
         },
         {
-          "tag": "Salt",
+          "tag": "Metal",
           "priority": 201,
           "buyPercent": 150,
           "sellPercent": 130
         },
         {
-          "tag": "Fruit",
+          "tag": "Wood",
           "priority": 202,
-          "buyPercent": 150,
-          "sellPercent": 130
-        },
-        {
-          "tag": "Animal",
-          "priority": 203,
-          "buyPercent": 150,
-          "sellPercent": 130
-        },
-        {
-          "tag": "Box",
-          "priority": 204,
           "buyPercent": 150,
           "sellPercent": 130
         }
@@ -3480,32 +3174,20 @@
           "sellPercent": 70
         },
         {
-          "tag": "Fish",
+          "tag": "Food",
           "priority": 200,
           "buyPercent": 150,
           "sellPercent": 130
         },
         {
-          "tag": "Salt",
+          "tag": "Metal",
           "priority": 201,
           "buyPercent": 150,
           "sellPercent": 130
         },
         {
-          "tag": "Fruit",
+          "tag": "Wood",
           "priority": 202,
-          "buyPercent": 150,
-          "sellPercent": 130
-        },
-        {
-          "tag": "Animal",
-          "priority": 203,
-          "buyPercent": 150,
-          "sellPercent": 130
-        },
-        {
-          "tag": "Grain",
-          "priority": 204,
           "buyPercent": 150,
           "sellPercent": 130
         }
@@ -3599,32 +3281,20 @@
           "sellPercent": 70
         },
         {
-          "tag": "Machinery",
+          "tag": "Food",
           "priority": 200,
           "buyPercent": 150,
           "sellPercent": 130
         },
         {
-          "tag": "Fish",
+          "tag": "Machinery",
           "priority": 201,
           "buyPercent": 150,
           "sellPercent": 130
         },
         {
-          "tag": "Fruit",
+          "tag": "Water",
           "priority": 202,
-          "buyPercent": 150,
-          "sellPercent": 130
-        },
-        {
-          "tag": "Animal",
-          "priority": 203,
-          "buyPercent": 150,
-          "sellPercent": 130
-        },
-        {
-          "tag": "Wood",
-          "priority": 204,
           "buyPercent": 150,
           "sellPercent": 130
         }
@@ -3718,32 +3388,20 @@
           "sellPercent": 70
         },
         {
-          "tag": "Machinery",
+          "tag": "Food",
           "priority": 200,
           "buyPercent": 150,
           "sellPercent": 130
         },
         {
-          "tag": "Fish",
+          "tag": "Machinery",
           "priority": 201,
           "buyPercent": 150,
           "sellPercent": 130
         },
         {
-          "tag": "Fruit",
+          "tag": "Water",
           "priority": 202,
-          "buyPercent": 150,
-          "sellPercent": 130
-        },
-        {
-          "tag": "Animal",
-          "priority": 203,
-          "buyPercent": 150,
-          "sellPercent": 130
-        },
-        {
-          "tag": "Wood",
-          "priority": 204,
           "buyPercent": 150,
           "sellPercent": 130
         }
@@ -3784,9 +3442,13 @@
     {
       "id": "region.mine",
       "displayName": "광산 지역",
-      "specialtyTag": "Salt",
+      "specialtyTags": [
+        "Metal",
+        "Ore"
+      ],
       "productionTags": [
         "Metal",
+        "Ore",
         "Salt"
       ],
       "pricePercent": 100,
@@ -3796,7 +3458,9 @@
     {
       "id": "region.ranch",
       "displayName": "목축 지역",
-      "specialtyTag": "Animal",
+      "specialtyTags": [
+        "Animal"
+      ],
       "productionTags": [
         "Meat",
         "Animal"
@@ -3808,7 +3472,9 @@
     {
       "id": "region.industry",
       "displayName": "공업 지역",
-      "specialtyTag": "Machinery",
+      "specialtyTags": [
+        "Machinery"
+      ],
       "productionTags": [
         "Machinery"
       ],
@@ -3819,7 +3485,7 @@
     {
       "id": "region.capital",
       "displayName": "수도권",
-      "specialtyTag": "",
+      "specialtyTags": [],
       "productionTags": [],
       "pricePercent": 100,
       "tradeHub": true,
@@ -3828,7 +3494,9 @@
     {
       "id": "region.coast",
       "displayName": "해안 지역",
-      "specialtyTag": "Fish",
+      "specialtyTags": [
+        "Fish"
+      ],
       "productionTags": [
         "Fish",
         "Water"
@@ -3840,7 +3508,9 @@
     {
       "id": "region.farm",
       "displayName": "농업 지역",
-      "specialtyTag": "Fruit",
+      "specialtyTags": [
+        "Fruit"
+      ],
       "productionTags": [
         "Grain",
         "Fruit",
@@ -3853,7 +3523,7 @@
     {
       "id": "region.common",
       "displayName": "일반 마을권",
-      "specialtyTag": "",
+      "specialtyTags": [],
       "productionTags": [],
       "pricePercent": 100,
       "tradeHub": true,
@@ -3975,7 +3645,8 @@
     {
       "id": "stock.mine",
       "pieceIds": [
-        "piece.saltSack"
+        "piece.elbowRight",
+        "piece.oreL"
       ],
       "slots": [
         {

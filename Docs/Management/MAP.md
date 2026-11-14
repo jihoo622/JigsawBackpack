@@ -91,7 +91,7 @@
 
 | id | 표시 이름 | 대표 태그 | 생산 태그 | 물가 | `tradeHub` |
 |---|---|---|---|---:|---|
-| `region.mine` | 광산 지역 | Salt | Metal, Salt | 100% | — |
+| `region.mine` | 광산 지역 | Metal, Ore | Metal, Ore, Salt | 100% | — |
 | `region.ranch` | 목축 지역 | Animal | Meat, Animal | 100% | — |
 | `region.industry` | 공업 지역 | Machinery | Machinery | 100% | — |
 | `region.capital` | 수도권 | — | — | 100%(할증은 도시 기본 배율 125%) | O |
@@ -116,7 +116,7 @@
 | `city.osber` | 오스베르 | mine | Salt | 100/100 | 6 | 오스베르 `S29` | 59, 42 | 3 |
 | `city.rasburk` | 라스부르크 | mine | Salt | 100/100 | 6 | Map Editor 추가 `editor.city.rasburk` | — | 3 |
 | `city.rasenton` | 라센턴 | mine | Metal | 100/100 | 6 | 라센턴 `S05` | 40, 14 | 3 |
-| `city.riobruk` | 리오브루크 | mine | Metal | 100/100 | 6 | 리오브루크 `S14` | 47, 5 | 2 |
+| `city.riobruk` | 리오브루크 | mine | Ore | 100/100 | 6 | 리오브루크 `S14` | 47, 5 | 2 |
 | `city.pioa` | 피오아 항 | coast | Fish | 100/100 | 6 | 피오아 항 `S03` | 101, 36 | 3 |
 | `city.teraka` | 테라카 | coast | Water | 100/100 | 6 | 테라카 `S19` | 88, 20 | 2 |
 | `city.teratia` | 테라티아 | coast | Fish | 100/100 | 6 | 테라티아 `S17` | 105, 19 | 2 |

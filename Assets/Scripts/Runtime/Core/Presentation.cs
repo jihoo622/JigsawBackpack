@@ -558,8 +558,14 @@ public static class Presentation
 
     public static string PuzzleMapRegionLabel(PuzzleRegionData _region)
     {
-        return string.IsNullOrEmpty(_region.specialtyTag) ? _region.displayName :
-            BasicData.Format("presentation.map.regionLabel", _region.displayName, PuzzleTagLabel(_region.specialtyTag));
+        var tags = _region.specialtyTags ?? Array.Empty<string>();
+        if (tags.Length == 0)
+        {
+            return _region.displayName;
+        }
+
+        string specialties = string.Join(" + ", tags.OrderBy(_tag => _tag, StringComparer.Ordinal).Select(PuzzleTagLabel));
+        return BasicData.Format("presentation.map.regionLabel", _region.displayName, specialties);
     }
 
     public static string PuzzleMapStationName(string _name, bool _planningTarget, bool _uncertain = false)

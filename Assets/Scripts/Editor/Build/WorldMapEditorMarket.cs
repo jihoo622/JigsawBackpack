@@ -360,6 +360,7 @@ public sealed partial class WorldMapEditorWindow
     {
         string regionId = (string)_region["id"];
         var used = Cities.Where(_city => (string)_city["regionId"] == regionId).Select(_city => (string)_city["regionalStockId"]).Distinct().ToArray();
+        var specialties = (_region["specialtyTags"] ?? new JArray()).Select(_tag => (string)_tag).OrderBy(_tag => _tag, StringComparer.Ordinal);
         var pieces = Pieces.ToArray();
         foreach (var profile in StockProfiles.Where(_profile => used.Contains((string)_profile["id"])).ToArray())
         {
@@ -373,7 +374,7 @@ public sealed partial class WorldMapEditorWindow
             }
             if ((bool?)_region["tradeHub"] != true)
             {
-                EditorGUILayout.LabelField("교역 중심지가 아닌 지역의 후보는 모두 지역 대표 특산 태그(" + (string)_region["specialtyTag"] + ")를 가져야 합니다.", EditorStyles.wordWrappedMiniLabel);
+                EditorGUILayout.LabelField("지역 재고 후보는 대표 특산 태그(" + string.Join(", ", specialties) + ") 중 하나 이상을 가져야 합니다.", EditorStyles.wordWrappedMiniLabel);
             }
             var ids = profile["pieceIds"].Select(_id => (string)_id).ToArray();
             foreach (var piece in pieces)

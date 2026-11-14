@@ -1258,14 +1258,22 @@ public sealed class GameTableRules
             Check(region.mapLabelPriority >= 0, regionPath + ".mapLabelPriority", "지도 지역 우선순위는 0 이상의 명시적 값이어야 합니다.");
             Check(!string.IsNullOrWhiteSpace(region.displayName), regionPath, "지역 이름이 필요합니다.");
             Check(region.pricePercent > 0, regionPath + ".pricePercent", "지역 물가 배율은 양수여야 합니다.");
-            Check(region.tradeHub || knownTags.Contains(region.specialtyTag ?? string.Empty), regionPath,
-                "생산 지역의 대표 특산품 태그가 필요합니다.");
-            foreach (string tag in region.productionTags ?? Array.Empty<string>())
+            var specialtyTags = region.specialtyTags ?? Array.Empty<string>();
+            var productionTags = region.productionTags ?? Array.Empty<string>();
+            string specialtyPath = regionPath + ".specialtyTags";
+            Check(region.tradeHub || specialtyTags.Length > 0, specialtyPath, "생산 지역의 대표 특산품 태그가 필요합니다.");
+            Check(specialtyTags.Distinct(StringComparer.Ordinal).Count() == specialtyTags.Length, specialtyPath,
+                "지역 특산품 태그는 중복될 수 없습니다.");
+            foreach (string tag in specialtyTags)
+            {
+                Check(!string.IsNullOrWhiteSpace(tag) && knownTags.Contains(tag), specialtyPath,
+                    $"등록된 지역 특산품 태그가 필요합니다. ('{tag}')");
+                Check(productionTags.Contains(tag), specialtyPath, $"지역 특산품 '{tag}'는 지역 생산 목록에 있어야 합니다.");
+            }
+            foreach (string tag in productionTags)
             {
                 Check(knownTags.Contains(tag), regionPath + ".productionTags", "등록된 생산 태그가 필요합니다.");
             }
-            Check(region.tradeHub || (region.productionTags ?? Array.Empty<string>()).Contains(region.specialtyTag),
-                regionPath, "지역 특산품은 지역 생산 목록에 있어야 합니다.");
         }
         Check((_tables.Puzzle.regions ?? Array.Empty<PuzzleRegionData>()).Length > 0, PATH + ".regions",
             "지역이 하나 이상 필요합니다.");
@@ -1368,7 +1376,7 @@ public sealed class GameTableRules
             // 실제 거래와 같은 합산 배율로 판정한다.
             var fromRate = PuzzleTradeRate.Combine(_from, MatchingTagPrices(_from, tags));
             bool nativeSupply = (fromRate.BuyPercent < 100 && fromRate.SellPercent < 100) ||
-                (region != null && !string.IsNullOrEmpty(region.specialtyTag) && tags.Contains(region.specialtyTag));
+                MatchesRegionSpecialty(region, tags);
             if (!nativeSupply)
             {
                 continue;
@@ -1380,6 +1388,12 @@ public sealed class GameTableRules
             }
         }
         return false;
+    }
+
+    static bool MatchesRegionSpecialty(PuzzleRegionData _region, string[] _tags)
+    {
+        var tags = _tags ?? Array.Empty<string>();
+        return (_region?.specialtyTags ?? Array.Empty<string>()).Any(_tag => tags.Contains(_tag));
     }
 
     void ValidateCitySpecialty(TableManager _tables, PuzzleCityData _city, HashSet<string> _knownTags, string _path)
@@ -1442,8 +1456,8 @@ public sealed class GameTableRules
             {
                 if (_tables.TryGetPiece(id, out var definition))
                 {
-                    Check((definition.tags ?? Array.Empty<string>()).Contains(region.specialtyTag),
-                        _path, "지역 재고는 지역 특산품 태그를 가져야 합니다.");
+                    Check(MatchesRegionSpecialty(region, definition.tags), _path,
+                        $"지역 재고 '{id}'는 지역 특산품 태그 중 하나 이상을 가져야 합니다.");
                 }
             }
         }
