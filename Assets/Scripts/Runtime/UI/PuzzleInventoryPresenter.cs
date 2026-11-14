@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -8,8 +9,13 @@ using TMPro;
 [DisallowMultipleComponent]
 public sealed class PuzzleInventoryPresenter : MonoBehaviour
 {
+    const float KEYWORD_DWELL_MOVE_THRESHOLD = 4f;
+
     [Header("Drag Settings")]
     [SerializeField] float wagonDragHoverDelay = 0.5f;
+
+    [Header("Tooltip Settings")]
+    [SerializeField] float keywordTooltipDelay = 0.35f;
 
     [SerializeField] PuzzleInventoryView trainView;
     [SerializeField] TextMeshProUGUI wagonEffectsLabel;
@@ -21,6 +27,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
     [SerializeField] PuzzleInventoryView refiningView;
     [SerializeField] PuzzleCityView cityView;
     [SerializeField] PuzzleItemTooltipView tooltipView;
+    [SerializeField] PuzzleItemTooltipView keywordTooltipView;
     [SerializeField] PuzzleTrainBarView trainBarView;
     [SerializeField] PauseMenu pauseMenu;
 
@@ -33,7 +40,12 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
     Vector2 pointerPosition;
     Vector2? hoverPosition;
     int? currentHoveredInstanceId;
+    string currentHoveredKeywordId;
+    string pendingKeywordId;
+    float pendingKeywordStartTime;
+    Vector2 pendingKeywordPosition;
     int? hoveredWagonIndex;
+    PuzzleItemTooltipView KeywordTooltipView => keywordTooltipView ? keywordTooltipView : tooltipView;
     float hoveredWagonStartTime;
     bool initialized;
     bool isMapOpen;
@@ -181,6 +193,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         {
             tooltipView.Close();
         }
+        ClearKeywordHover();
         currentHoveredInstanceId = null;
         isMapOpen = false;
         pendingSettlementValue = null;
@@ -214,8 +227,37 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
 
     void Update()
     {
-        if (!initialized || TrainOperationsBlocked || drag == null || !trainBarView || session == null ||
-            session.RunStatus != PuzzleRunStatus.InProgress)
+        if (!initialized || session == null)
+        {
+            ClearKeywordHover();
+            if (hoveredWagonIndex.HasValue)
+            {
+                hoveredWagonIndex = null;
+                RefreshTrainBar();
+            }
+            return;
+        }
+
+        if (drag == null)
+        {
+            if (hoveredWagonIndex.HasValue)
+            {
+                hoveredWagonIndex = null;
+                RefreshTrainBar();
+            }
+            if (MarketOperationsBlocked || (pauseMenu && pauseMenu.IsOpen) || !Application.isFocused)
+            {
+                ClearKeywordHover();
+                return;
+            }
+
+            Vector2? currentPointer = Pointer.current != null ? Pointer.current.position.ReadValue() : hoverPosition;
+            UpdateKeywordHover(currentPointer);
+            return;
+        }
+
+        ClearKeywordHover();
+        if (TrainOperationsBlocked || !trainBarView || session.RunStatus != PuzzleRunStatus.InProgress)
         {
             if (hoveredWagonIndex.HasValue)
             {
@@ -956,6 +998,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         if (TryGetBoard(_position, out var view, out var board, out var boardCell) &&
             board.TryGetCell(boardCell, out var placement, out _))
         {
+            ClearKeywordHover(_closeSharedTooltip: false);
             bool tooltipClosed = tooltipView && (!tooltipView.IsOpen || !tooltipView.gameObject.activeInHierarchy);
             if (currentHoveredInstanceId != placement.InstanceId || tooltipClosed)
             {
@@ -970,11 +1013,18 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             return;
         }
 
-        if (currentHoveredInstanceId.HasValue || (tooltipView && tooltipView.IsOpen))
+        if (currentHoveredInstanceId.HasValue || (tooltipView && tooltipView.IsOpen && currentHoveredKeywordId == null))
         {
             currentHoveredInstanceId = null;
             RenderBoards();
-            ShowItemDetails(null, null);
+            if (currentHoveredKeywordId == null)
+            {
+                ShowItemDetails(null, null);
+            }
+            else
+            {
+                ClearBoardItemDetails();
+            }
         }
     }
 
@@ -988,7 +1038,14 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         hoverPosition = null;
         currentHoveredInstanceId = null;
         RenderBoards();
-        ShowItemDetails(null, null);
+        if (currentHoveredKeywordId == null)
+        {
+            ShowItemDetails(null, null);
+        }
+        else
+        {
+            ClearBoardItemDetails();
+        }
     }
 
     void RefreshHover()
@@ -996,6 +1053,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         if (TrainOperationsBlocked || drag != null)
         {
             currentHoveredInstanceId = null;
+            ClearKeywordHover();
             if (tooltipView)
             {
                 tooltipView.Close();
@@ -1006,6 +1064,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         if (hoverPosition is Vector2 position && TryGetBoard(position, out var view, out var board, out var boardCell) &&
             board.TryGetCell(boardCell, out var placement, out _))
         {
+            ClearKeywordHover(_closeSharedTooltip: false);
             currentHoveredInstanceId = placement.InstanceId;
             RenderBoards(placement.InstanceId);
             ShowItemDetails(view, placement, position);
@@ -1014,7 +1073,114 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
 
         currentHoveredInstanceId = null;
         RenderBoards();
-        ShowItemDetails(null, null);
+        if (currentHoveredKeywordId == null)
+        {
+            ShowItemDetails(null, null);
+        }
+        else
+        {
+            ClearBoardItemDetails();
+        }
+    }
+
+    void UpdateKeywordHover(Vector2? _screenPosition)
+    {
+        if (!_screenPosition.HasValue || currentHoveredInstanceId.HasValue || !marketView ||
+            !marketView.TryGetHoveredBoardInfoLink(_screenPosition.Value, out string linkId) ||
+            !Presentation.TryGetTradeKeywordTooltip(linkId, out string title, out string description))
+        {
+            ClearKeywordHover();
+            return;
+        }
+
+        var targetTooltip = KeywordTooltipView;
+        if (!targetTooltip)
+        {
+            ClearKeywordHover();
+            return;
+        }
+
+        Vector2 pos = _screenPosition.Value;
+        if (currentHoveredKeywordId == linkId)
+        {
+            if (!targetTooltip.IsOpen || !targetTooltip.gameObject.activeInHierarchy)
+            {
+                targetTooltip.ShowKeyword(title, description, pos);
+            }
+            else
+            {
+                targetTooltip.SetPointerPosition(pos);
+            }
+            return;
+        }
+
+        if (currentHoveredKeywordId != null)
+        {
+            currentHoveredKeywordId = null;
+            targetTooltip.Close();
+        }
+
+        if (pendingKeywordId != linkId)
+        {
+            pendingKeywordId = linkId;
+            pendingKeywordStartTime = Time.unscaledTime;
+            pendingKeywordPosition = pos;
+            return;
+        }
+
+        if (Vector2.Distance(pos, pendingKeywordPosition) > KEYWORD_DWELL_MOVE_THRESHOLD)
+        {
+            pendingKeywordStartTime = Time.unscaledTime;
+            pendingKeywordPosition = pos;
+            return;
+        }
+
+        if (Time.unscaledTime - pendingKeywordStartTime >= keywordTooltipDelay)
+        {
+            currentHoveredKeywordId = linkId;
+            pendingKeywordId = null;
+            targetTooltip.ShowKeyword(title, description, pos);
+        }
+    }
+
+    void ClearKeywordHover(bool _closeSharedTooltip = true)
+    {
+        pendingKeywordId = null;
+        if (currentHoveredKeywordId == null)
+        {
+            return;
+        }
+
+        currentHoveredKeywordId = null;
+        var targetTooltip = KeywordTooltipView;
+        if (targetTooltip && (_closeSharedTooltip || targetTooltip != tooltipView))
+        {
+            targetTooltip.Close();
+        }
+    }
+
+    void ClearBoardItemDetails()
+    {
+        if (trainView)
+        {
+            trainView.ShowItemDetails(null, default, default, default);
+        }
+        if (marketView)
+        {
+            marketView.ShowItemDetails(null, default, default, default);
+        }
+        if (butcheryView)
+        {
+            butcheryView.ShowItemDetails(null, default, default, default);
+        }
+        if (modificationView)
+        {
+            modificationView.ShowItemDetails(null, default, default, default);
+        }
+        if (refiningView)
+        {
+            refiningView.ShowItemDetails(null, default, default, default);
+        }
     }
 
     void ShowItemDetails(PuzzleInventoryView _view, PuzzlePlacement _placement, Vector2? _position = null)

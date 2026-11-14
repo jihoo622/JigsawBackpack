@@ -2083,12 +2083,12 @@
       "texts": [
         {
           "id": "cityTagPreferences",
-          "value": "<color=#{0}><b>흔한 자원</b></color>   {1}\n",
+          "value": "<color=#{0}><b><link=\"common\">흔한 자원</link></b></color>   {1}\n",
           "arguments": 2
         },
         {
           "id": "cityTagPreferencesText2",
-          "value": "<color=#{0}><b>귀한 자원</b></color>   {1}\n",
+          "value": "<color=#{0}><b><link=\"expensive\">귀한 자원</link></b></color>   {1}\n",
           "arguments": 2
         },
         {
@@ -2101,13 +2101,45 @@
         },
         {
           "id": "cityTagPreferencesText5",
-          "value": "<color=#{0}><b>희귀 자원</b></color>   {1}\n",
+          "value": "<color=#{0}><b><link=\"rare\">희귀 자원</link></b></color>   {1}\n",
           "arguments": 2
         },
         {
           "id": "wastePurchase",
-          "value": "   ·   <color=#{0}><b>특수 매입</b></color> {1} (+10$)",
+          "value": "   ·   <color=#{0}><b><link=\"waste\">특수 매입</link></b></color> {1} (+10$)",
           "arguments": 2
+        },
+        {
+          "id": "commonResourceTitle",
+          "value": "흔한 자원"
+        },
+        {
+          "id": "commonResourceTooltip",
+          "value": "해당 태그 물품은 이 지역의 특산품으로, 거래 시 기본 배율에 -30%가 적용됩니다.\n(구매·판매 모두 적용)"
+        },
+        {
+          "id": "expensiveResourceTitle",
+          "value": "귀한 자원"
+        },
+        {
+          "id": "expensiveResourceTooltip",
+          "value": "해당 태그 물품 거래 시 기본 배율에 +30%가 적용됩니다.\n(구매·판매 모두 적용)"
+        },
+        {
+          "id": "rareResourceTitle",
+          "value": "희귀 자원"
+        },
+        {
+          "id": "rareResourceTooltip",
+          "value": "해당 태그 물품 거래 시 기본 배율에 +50%가 적용됩니다.\n(구매·판매 모두 적용)"
+        },
+        {
+          "id": "wastePurchaseTitle",
+          "value": "특수 매입"
+        },
+        {
+          "id": "wastePurchaseTooltip",
+          "value": "농업 지역에서는 거름을 판매할 때 처분 비용을 내지 않고 +10$으로 매입합니다."
         },
         {
           "id": "cityTitle",

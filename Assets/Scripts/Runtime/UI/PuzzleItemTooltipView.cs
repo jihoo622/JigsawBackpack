@@ -212,6 +212,92 @@ public sealed class PuzzleItemTooltipView : PanelBase
         SetPointerPosition(_screenPosition);
     }
 
+    internal void ShowKeyword(string _title, string _description, Vector2 _screenPosition)
+    {
+        EnsureInitialized();
+        needsSnap = true;
+        SetOpen(true);
+
+        if (panelRect)
+        {
+            panelRect.SetAsLastSibling();
+        }
+
+        if (itemNameText)
+        {
+            itemNameText.text = _title ?? string.Empty;
+        }
+
+        if (categoryRow)
+        {
+            categoryRow.gameObject.SetActive(false);
+        }
+
+        SetRowActive(baseValueLabelText, baseValueValueText, false);
+        if (activeEffectsSection)
+        {
+            activeEffectsSection.gameObject.SetActive(false);
+        }
+        SetRowActive(actualValueLabelText, actualValueValueText, false);
+        SetRowActive(sellRateLabelText, sellRateValueText, false);
+        SetRowActive(buyRateLabelText, buyRateValueText, false);
+        if (synergySection)
+        {
+            synergySection.SetActive(false);
+        }
+        SetRowActive(futureValueLabelText, futureValueValueText, false);
+        SetRowActive(freshnessLabelText, freshnessValueText, false);
+        SetRowActive(shelfLifeLabelText, shelfLifeValueText, false);
+
+        if (generalEffectSection)
+        {
+            bool hasDescription = !string.IsNullOrEmpty(_description);
+            generalEffectSection.SetActive(hasDescription);
+            SetSectionBottomRuleActive(generalEffectSection, false);
+            if (hasDescription)
+            {
+                if (generalEffectHeaderText)
+                {
+                    generalEffectHeaderText.gameObject.SetActive(false);
+                }
+                if (generalEffectSlots != null)
+                {
+                    for (int i = 0; i < generalEffectSlots.Length; i++)
+                    {
+                        var slot = generalEffectSlots[i];
+                        if (!slot)
+                        {
+                            continue;
+                        }
+                        bool used = i == 0;
+                        slot.gameObject.SetActive(used);
+                        if (used)
+                        {
+                            slot.text = _description;
+                        }
+                    }
+                }
+            }
+        }
+
+        RebuildLayouts();
+        SetPointerPosition(_screenPosition);
+    }
+
+    static void SetSectionBottomRuleActive(GameObject _section, bool _active)
+    {
+        if (!_section)
+        {
+            return;
+        }
+
+        var bottomRule = _section.transform.Find("Bottom Rule");
+        if (bottomRule)
+        {
+            bottomRule.gameObject.SetActive(_active);
+        }
+    }
+
     static void UpdateEffectSection(GameObject _section, TextMeshProUGUI _header, TextMeshProUGUI[] _slots,
         IReadOnlyList<string> _effects, string _title, bool _showEmpty)
     {
@@ -228,7 +314,12 @@ public sealed class PuzzleItemTooltipView : PanelBase
             return;
         }
 
-        _header.text = _title;
+        SetSectionBottomRuleActive(_section, true);
+        if (_header)
+        {
+            _header.gameObject.SetActive(true);
+            _header.text = _title;
+        }
         for (int i = 0; i < _slots.Length; i++)
         {
             var slot = _slots[i];
@@ -539,6 +630,7 @@ public sealed class PuzzleItemTooltipView : PanelBase
 
     void SetRow(TextMeshProUGUI _label, TextMeshProUGUI _value, string _labelText, string _valueText)
     {
+        SetRowActive(_label, _value, true);
         if (_label)
         {
             _label.text = _labelText;

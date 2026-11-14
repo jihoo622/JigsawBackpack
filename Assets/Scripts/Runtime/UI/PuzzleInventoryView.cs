@@ -698,6 +698,41 @@ public sealed class PuzzleInventoryView : MonoBehaviour
     {
         boardValue.overflowMode = TextOverflowModes.Overflow;
         boardValue.text = _text;
+        boardValue.ForceMeshUpdate();
+    }
+
+    internal bool TryGetHoveredBoardInfoLink(Vector2 _screenPosition, out string _linkId)
+    {
+        _linkId = null;
+        if (!boardValue || !boardValue.gameObject.activeInHierarchy)
+        {
+            return false;
+        }
+        if (!canvas)
+        {
+            var parentCanvas = GetComponentInParent<Canvas>();
+            if (parentCanvas)
+            {
+                canvas = parentCanvas.rootCanvas;
+            }
+        }
+        if (boardValue.havePropertiesChanged)
+        {
+            boardValue.ForceMeshUpdate();
+        }
+        if (boardValue.textInfo == null || boardValue.textInfo.linkCount == 0)
+        {
+            return false;
+        }
+
+        Camera eventCamera = canvas && canvas.renderMode != RenderMode.ScreenSpaceOverlay ? canvas.worldCamera : null;
+        int linkIndex = TMP_TextUtilities.FindIntersectingLink(boardValue, _screenPosition, eventCamera);
+        if (linkIndex < 0 || linkIndex >= boardValue.textInfo.linkInfo.Length)
+        {
+            return false;
+        }
+        _linkId = boardValue.textInfo.linkInfo[linkIndex].GetLinkID();
+        return !string.IsNullOrEmpty(_linkId);
     }
 
     internal void ShowItemDetails(PuzzleItemDefinition _item, PuzzleValue _value, decimal _actualValue,
