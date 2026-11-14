@@ -51,12 +51,6 @@ public sealed class PuzzleItemTooltipView : PanelBase
     [SerializeField] TextMeshProUGUI shelfLifeLabelText;
     [SerializeField] TextMeshProUGUI shelfLifeValueText;
 
-    [Header("Mini Shape Grid")]
-    [SerializeField] GameObject miniGridRoot;
-    [SerializeField] Image[] miniGridCells;
-    [SerializeField] Color miniGridFilledColor = new Color(0.961f, 0.875f, 0.753f, 1f);
-    [SerializeField] Color miniGridEmptyColor = new Color(0.17f, 0.21f, 0.26f, 0.8f);
-
     [Header("Layout & Movement")]
     [SerializeField] float defaultFollowSpeed = 25f;
     [SerializeField, Range(0f, 1f)] float badgeBlend = 0.35f;
@@ -112,8 +106,7 @@ public sealed class PuzzleItemTooltipView : PanelBase
     internal void Show(PuzzleItemDefinition _item, decimal _actualValue, PuzzleTradeRate _rate,
         IReadOnlyList<string> _generalEffects, IReadOnlyList<string> _synergyEffects, decimal? _futureValue, Vector2 _screenPosition,
         bool _isTrainInventory, int? _freshness, long? _minutesUntilNextFreshnessBand, long? _previewMinutes, string _previewCityName,
-        long? _previewActivations, long? _tradePrice, IReadOnlyList<PuzzleSynergyBonus> _activeEffects, int _appliedPreservation,
-        int _clockwiseTurns = 0)
+        long? _previewActivations, long? _tradePrice, IReadOnlyList<PuzzleSynergyBonus> _activeEffects, int _appliedPreservation)
     {
         if (_item == null)
         {
@@ -136,7 +129,6 @@ public sealed class PuzzleItemTooltipView : PanelBase
         }
 
         UpdateCategoryBadges(_item);
-        UpdateMiniGrid(_item, _clockwiseTurns);
 
         SetRow(baseValueLabelText, baseValueValueText,
             Presentation.PuzzleTooltipBaseValueLabel, Presentation.PuzzleTooltipActualValueValue(_item.BaseValue));
@@ -232,8 +224,6 @@ public sealed class PuzzleItemTooltipView : PanelBase
         {
             categoryRow.gameObject.SetActive(false);
         }
-
-        UpdateMiniGrid(null, 0);
 
         SetRowActive(baseValueLabelText, baseValueValueText, false);
         if (activeEffectsSection)
@@ -383,75 +373,6 @@ public sealed class PuzzleItemTooltipView : PanelBase
         }
     }
 
-    void UpdateMiniGrid(PuzzleItemDefinition _item, int _clockwiseTurns)
-    {
-        if (!miniGridRoot)
-        {
-            return;
-        }
-
-        if (_item == null || _item.Cells == null || _item.Cells.Count == 0 || miniGridCells == null || miniGridCells.Length != 25)
-        {
-            miniGridRoot.SetActive(false);
-            return;
-        }
-
-        miniGridRoot.SetActive(true);
-
-        int turns = ((_clockwiseTurns % 4) + 4) % 4;
-
-        var rotatedCells = new Vector2Int[_item.Cells.Count];
-        int minX = int.MaxValue;
-        int maxX = int.MinValue;
-        int minY = int.MaxValue;
-        int maxY = int.MinValue;
-
-        for (int i = 0; i < _item.Cells.Count; i++)
-        {
-            var cell = _item.Cells[i];
-            var rotated = turns switch
-            {
-                0 => cell,
-                1 => new Vector2Int(-cell.y, cell.x),
-                2 => new Vector2Int(-cell.x, -cell.y),
-                3 => new Vector2Int(cell.y, -cell.x),
-                _ => cell
-            };
-            rotatedCells[i] = rotated;
-            if (rotated.x < minX) minX = rotated.x;
-            if (rotated.x > maxX) maxX = rotated.x;
-            if (rotated.y < minY) minY = rotated.y;
-            if (rotated.y > maxY) maxY = rotated.y;
-        }
-
-        int width = maxX - minX + 1;
-        int height = maxY - minY + 1;
-        int offsetX = Mathf.Max(0, (5 - width) / 2);
-        int offsetY = Mathf.Max(0, (5 - height) / 2);
-
-        bool[] occupied = new bool[25];
-        for (int i = 0; i < rotatedCells.Length; i++)
-        {
-            int col = offsetX + (rotatedCells[i].x - minX);
-            int row = offsetY + (rotatedCells[i].y - minY);
-            if (col >= 0 && col < 5 && row >= 0 && row < 5)
-            {
-                occupied[row * 5 + col] = true;
-            }
-        }
-
-        Color filledColor = miniGridFilledColor;
-        Color emptyColor = miniGridEmptyColor;
-
-        for (int i = 0; i < 25; i++)
-        {
-            if (miniGridCells[i] != null)
-            {
-                miniGridCells[i].color = occupied[i] ? filledColor : emptyColor;
-            }
-        }
-    }
-
     void RebuildLayouts()
     {
         Canvas.ForceUpdateCanvases();
@@ -468,13 +389,6 @@ public sealed class PuzzleItemTooltipView : PanelBase
                 }
             }
             LayoutRebuilder.ForceRebuildLayoutImmediate(categoryRow);
-        }
-        if (miniGridRoot && miniGridRoot.activeSelf)
-        {
-            if (miniGridRoot.transform is RectTransform miniGridRect)
-            {
-                LayoutRebuilder.ForceRebuildLayoutImmediate(miniGridRect);
-            }
         }
         if (activeEffectsListRoot && activeEffectsListRoot.gameObject.activeSelf)
         {
