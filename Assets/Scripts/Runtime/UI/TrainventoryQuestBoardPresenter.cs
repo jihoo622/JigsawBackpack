@@ -6,6 +6,7 @@ using UnityEngine;
 public sealed class TrainventoryQuestBoardPresenter : MonoBehaviour
 {
     [SerializeField] TrainventoryQuestBoardView view;
+    [SerializeField] TrainventoryQuestDetailView detailView;
     PuzzleInventoryService session;
     // 마지막 수락 시도의 실패 사유. 다른 마을에 도착하면 지운다.
     string acceptMessage;
@@ -16,6 +17,7 @@ public sealed class TrainventoryQuestBoardPresenter : MonoBehaviour
         session = SceneServices.For<PuzzleInventoryService>(gameObject.scene);
         session.Initialize();
         view.OfferAccepted += OnOfferAccepted;
+        view.OfferSelected += OnOfferSelected;
         GameEvents.QuestChanged += OnQuestChanged;
         GameEvents.ProficiencyChanged += OnProficiencyChanged;
         GameEvents.FundsChanged += OnFundsChanged;
@@ -26,6 +28,7 @@ public sealed class TrainventoryQuestBoardPresenter : MonoBehaviour
     void OnDisable()
     {
         view.OfferAccepted -= OnOfferAccepted;
+        view.OfferSelected -= OnOfferSelected;
         GameEvents.QuestChanged -= OnQuestChanged;
         GameEvents.ProficiencyChanged -= OnProficiencyChanged;
         GameEvents.FundsChanged -= OnFundsChanged;
@@ -81,6 +84,19 @@ public sealed class TrainventoryQuestBoardPresenter : MonoBehaviour
         Refresh();
     }
 
+    void OnOfferSelected(int _index)
+    {
+        var offers = session.QuestOffers;
+        if (_index >= 0 && _index < offers.Count)
+        {
+            detailView?.Bind(offers[_index], session);
+        }
+        else
+        {
+            detailView?.Bind(null, session);
+        }
+    }
+
     void Refresh()
     {
         if (messageVisit != session.CityMoveCount)
@@ -113,8 +129,25 @@ public sealed class TrainventoryQuestBoardPresenter : MonoBehaviour
         {
             message = Presentation.QuestMoreOffers(offers.Count - shown.Length);
         }
+
+        int selectedIndex = view.SelectedIndex;
+        if (selectedIndex < 0 || selectedIndex >= shown.Length)
+        {
+            selectedIndex = shown.Length > 0 ? 0 : -1;
+        }
+        view.SetSelectedIndex(selectedIndex);
+
         view.Render(Presentation.QuestBoardTitle,
             Presentation.QuestStatus(session.ActiveQuestCount, session.MaxActiveQuests, session.Reputation),
             contents.ToArray(), message);
+
+        if (selectedIndex >= 0 && selectedIndex < shown.Length)
+        {
+            detailView?.Bind(shown[selectedIndex], session);
+        }
+        else
+        {
+            detailView?.Bind(null, session);
+        }
     }
 }

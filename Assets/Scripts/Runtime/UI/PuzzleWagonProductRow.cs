@@ -1,13 +1,22 @@
+using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public sealed class PuzzleWagonProductRow : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
+public sealed class PuzzleWagonProductRow : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerClickHandler
 {
     [SerializeField] TextMeshProUGUI label;
     [SerializeField] Image artwork;
     [SerializeField] Image dragPreview;
+    [SerializeField] Image selectionHighlight;
+    [SerializeField] GameObject chipRoot;
+    [SerializeField] TextMeshProUGUI chipLabel;
+
+    internal event Action<PuzzleWagonProductRow, PuzzleWagonProductData> Selected;
+    internal PuzzleWagonProductData Product => product;
+    internal Sprite ArtworkSprite => artwork != null ? artwork.sprite : null;
+
     PuzzleWagonProductData product;
     int dragPointerId;
     PuzzleWagonProductData draggedProduct;
@@ -20,6 +29,30 @@ public sealed class PuzzleWagonProductRow : MonoBehaviour, IBeginDragHandler, ID
         if (product != null)
         {
             label.text = Presentation.WagonProductLabel(product.displayName, product.price);
+            if (chipLabel != null)
+            {
+                chipLabel.text = "+1칸";
+            }
+            if (chipRoot != null)
+            {
+                chipRoot.SetActive(true);
+            }
+        }
+    }
+
+    public void OnPointerClick(PointerEventData _eventData)
+    {
+        if (product != null)
+        {
+            Selected?.Invoke(this, product);
+        }
+    }
+
+    internal void SetSelected(bool _selected)
+    {
+        if (selectionHighlight != null)
+        {
+            selectionHighlight.gameObject.SetActive(_selected);
         }
     }
 
@@ -30,6 +63,8 @@ public sealed class PuzzleWagonProductRow : MonoBehaviour, IBeginDragHandler, ID
         {
             return;
         }
+
+        Selected?.Invoke(this, product);
 
         draggedProduct = product;
         dragPointerId = _eventData.pointerId;

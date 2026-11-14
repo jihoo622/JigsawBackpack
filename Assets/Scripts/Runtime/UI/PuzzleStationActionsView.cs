@@ -17,6 +17,7 @@ public sealed class PuzzleStationActionsView : PanelBase
     [SerializeField] Button wagonShopNextPage;
     [SerializeField] TextMeshProUGUI wagonShopPageLabel;
     [SerializeField] PuzzleWagonProductRow[] wagonProductRows;
+    [SerializeField] PuzzleWagonDetailView wagonDetailView;
     [SerializeField] TextMeshProUGUI title;
     [SerializeField] TextMeshProUGUI marketLabel;
     [SerializeField] TextMeshProUGUI tavernLabel;
@@ -140,6 +141,16 @@ public sealed class PuzzleStationActionsView : PanelBase
         restDurationButton.onClick.AddListener(OnRestTime);
         wagonShopButton.onClick.AddListener(ShowWagonShop);
         wagonShopNextPage.onClick.AddListener(NextWagonShopPage);
+        if (wagonProductRows != null)
+        {
+            for (int i = 0; i < wagonProductRows.Length; i++)
+            {
+                if (wagonProductRows[i] != null)
+                {
+                    wagonProductRows[i].Selected += OnWagonRowSelected;
+                }
+            }
+        }
         if (ButcheryWired)
         {
             butcheryButton.onClick.AddListener(OnButchery);
@@ -173,6 +184,16 @@ public sealed class PuzzleStationActionsView : PanelBase
         restDurationButton.onClick.RemoveListener(OnRestTime);
         wagonShopButton.onClick.RemoveListener(ShowWagonShop);
         wagonShopNextPage.onClick.RemoveListener(NextWagonShopPage);
+        if (wagonProductRows != null)
+        {
+            for (int i = 0; i < wagonProductRows.Length; i++)
+            {
+                if (wagonProductRows[i] != null)
+                {
+                    wagonProductRows[i].Selected -= OnWagonRowSelected;
+                }
+            }
+        }
         if (ButcheryWired)
         {
             butcheryButton.onClick.RemoveListener(OnButchery);
@@ -297,17 +318,50 @@ public sealed class PuzzleStationActionsView : PanelBase
         RefreshWagonShopPage();
     }
 
+    void OnWagonRowSelected(PuzzleWagonProductRow _row, PuzzleWagonProductData _product)
+    {
+        if (wagonDetailView != null)
+        {
+            wagonDetailView.Bind(_product, _row != null ? _row.ArtworkSprite : null);
+        }
+        if (wagonProductRows != null)
+        {
+            for (int i = 0; i < wagonProductRows.Length; i++)
+            {
+                if (wagonProductRows[i] != null)
+                {
+                    wagonProductRows[i].SetSelected(wagonProductRows[i] == _row);
+                }
+            }
+        }
+    }
+
     void RefreshWagonShopPage()
     {
         int pageCount = (wagonProducts.Length + wagonProductRows.Length - 1) / wagonProductRows.Length;
         int firstIndex = wagonShopPage * wagonProductRows.Length;
+        PuzzleWagonProductRow firstValidRow = null;
         for (int i = 0; i < wagonProductRows.Length; i++)
         {
             int index = firstIndex + i;
-            wagonProductRows[i].Bind(index < wagonProducts.Length ? wagonProducts[index] : null);
+            var prod = index < wagonProducts.Length ? wagonProducts[index] : null;
+            wagonProductRows[i].Bind(prod);
+            if (prod != null && firstValidRow == null)
+            {
+                firstValidRow = wagonProductRows[i];
+            }
         }
         wagonShopPageLabel.text = Presentation.StationWagonShopPage(wagonShopPage + 1, pageCount);
         wagonShopNextPage.gameObject.SetActive(pageCount > 1);
+
+        if (firstValidRow != null)
+        {
+            OnWagonRowSelected(firstValidRow, firstValidRow.Product);
+        }
+        else if (wagonDetailView != null)
+        {
+            wagonDetailView.Bind(null);
+        }
     }
 
     internal void ShowRest()
