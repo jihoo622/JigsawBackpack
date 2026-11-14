@@ -437,14 +437,6 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 2156000533, guid: d6db183cc9fc4e2ea80ab81aa49778fc, type: 3}
-      propertyPath: m_fontSize
-      value: 21.4
-      objectReference: {fileID: 0}
-    - target: {fileID: 2156000533, guid: d6db183cc9fc4e2ea80ab81aa49778fc, type: 3}
-      propertyPath: m_fontColor32.rgba
-      value: 4294308584
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

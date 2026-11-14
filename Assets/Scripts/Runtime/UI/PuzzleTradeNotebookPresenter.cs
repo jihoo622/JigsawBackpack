@@ -1,10 +1,13 @@
 using UnityEngine;
 
+// 새 소식 수(unseenCount)는 수첩이 접혀 있는 동안 기록된 소문과 의뢰 변화(수락·완료·실패) 건수다.
+// 수첩을 열면 0으로 돌아간다. 씬 로컬 인스턴스 필드이므로 정적 초기화가 필요 없다.
 public sealed class PuzzleTradeNotebookPresenter : MonoBehaviour
 {
     [SerializeField] PuzzleTradeNotebookView view;
     PuzzleInventoryService session;
     PuzzleNotebookTab tab = PuzzleNotebookTab.Rumors;
+    int unseenCount;
 
     void OnEnable()
     {
@@ -16,6 +19,7 @@ public sealed class PuzzleTradeNotebookPresenter : MonoBehaviour
         GameEvents.TimeAdvanced += OnTimeAdvanced;
         GameEvents.NotebookOpenRequested += OnNotebookOpenRequested;
         view.TabSelected += OnTabSelected;
+        view.Shown += OnShown;
         Refresh();
     }
 
@@ -27,6 +31,7 @@ public sealed class PuzzleTradeNotebookPresenter : MonoBehaviour
         GameEvents.TimeAdvanced -= OnTimeAdvanced;
         GameEvents.NotebookOpenRequested -= OnNotebookOpenRequested;
         view.TabSelected -= OnTabSelected;
+        view.Shown -= OnShown;
     }
 
     public bool TryConsumeCancel()
@@ -41,10 +46,17 @@ public sealed class PuzzleTradeNotebookPresenter : MonoBehaviour
         view.SetOpen(true);
     }
 
+    void OnShown()
+    {
+        unseenCount = 0;
+        Refresh();
+    }
+
     void OnRumorRecorded(GameEvents.TavernRumorInfo _info)
     {
         if (_info.session == session)
         {
+            CountUnseen();
             Refresh();
         }
     }
@@ -53,6 +65,7 @@ public sealed class PuzzleTradeNotebookPresenter : MonoBehaviour
     {
         if (_info.session == session)
         {
+            CountUnseen();
             Refresh();
         }
     }
@@ -80,11 +93,20 @@ public sealed class PuzzleTradeNotebookPresenter : MonoBehaviour
         Refresh();
     }
 
+    // 펼쳐 둔 수첩에서 바로 보이는 변화는 새 소식으로 세지 않는다.
+    void CountUnseen()
+    {
+        if (!view.IsOpen)
+        {
+            unseenCount++;
+        }
+    }
+
     void Refresh()
     {
         string text = tab == PuzzleNotebookTab.Rumors
             ? Presentation.RumorLogEntries(session.TavernRumors)
             : Presentation.QuestLogEntries(session);
-        view.Render(tab, text, session.TavernRumors.Count, session.Quests.Count);
+        view.Render(tab, text, session.TavernRumors.Count, session.Quests.Count, unseenCount);
     }
 }

@@ -43,10 +43,16 @@ public static class Presentation
         return BasicData.Format("presentation.rumorLog.count", _count);
     }
 
-    public static string RumorLogCollapsed(int _rumorCount, int _questCount)
+    // 접힌 탭은 세로로 쓴 짧은 이름만 보이고, 수첩을 마지막으로 연 뒤 생긴 변화 수는 작은 배지로 붙인다.
+    public static string RumorLogCollapsed => BasicData.Text("presentation.rumorLog.collapsed");
+
+    public static string RumorLogBadge(int _count)
     {
-        return BasicData.Format("presentation.rumorLog.collapsed", _rumorCount, _questCount);
+        return BasicData.Format("presentation.rumorLog.badge", _count);
     }
+
+    public static Color RumorLogBadgeColor => BasicData.Color("presentation.rumorLog.badge");
+    public static Color RumorLogBadgeText => BasicData.Color("presentation.rumorLog.badgeText");
 
     public static string RumorLogRumorTab => BasicData.Text("presentation.rumorLog.rumorTab");
     public static string RumorLogQuestTab => BasicData.Text("presentation.rumorLog.questTab");
