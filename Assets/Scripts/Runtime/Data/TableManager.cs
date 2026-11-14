@@ -34,6 +34,7 @@ public sealed class TableManager
     public PuzzleSynergyTableData PuzzleSynergy { get; }
     public PuzzleCityActionTableData PuzzleCityAction { get; }
     public PuzzleTradeTableData PuzzleTrade { get; }
+    public PuzzleRumorTableData PuzzleRumor { get; }
     public PuzzleRouteTableData PuzzleRoute { get; }
     public PuzzleTimeTableData PuzzleTime { get; }
     public TrainventoryQuestTableData Quest { get; }
@@ -85,6 +86,7 @@ public sealed class TableManager
         PuzzleSynergy = Load<PuzzleSynergyTableData>(ref loaded, _sources);
         PuzzleCityAction = Load<PuzzleCityActionTableData>(ref loaded, _sources);
         PuzzleTrade = Load<PuzzleTradeTableData>(ref loaded, _sources);
+        PuzzleRumor = Load<PuzzleRumorTableData>(ref loaded, _sources);
         PuzzleRoute = Load<PuzzleRouteTableData>(ref loaded, _sources);
         PuzzleTime = Load<PuzzleTimeTableData>(ref loaded, _sources);
         Quest = Load<TrainventoryQuestTableData>(ref loaded, _sources);

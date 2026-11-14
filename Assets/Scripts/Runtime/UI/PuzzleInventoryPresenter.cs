@@ -278,40 +278,39 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
 
     #region 술집 대화 생성
 
-    // 지도 전체의 미방문 도시에서 고가 수요를 모아, 마을·품목 조합 하나를 동일한 확률로 고른다.
+    // 미방문 마을의 특산·희귀 후보에서 테이블 비율로 종류를 고르고, 그 종류 안에서 후보 하나를 균등 추첨한다.
     string GetTavernRumor()
     {
-        // 1. 지도에 있는 모든 도시를 소문 후보로 살펴본다.
-        var tables = TableManager.Instance;
-        var candidates = new List<(PuzzleCityData city, string tag)>();
-        foreach (var city in tables.Cities)
+        var specialty = new List<PuzzleRumorCandidate>();
+        var rare = new List<PuzzleRumorCandidate>();
+        foreach (var candidate in session.CollectRumorCandidates())
         {
-            // 2. 이미 방문했거나 플레이어가 물건을 팔 수 없는 도시는 건너뛴다.
-            if (session.HasVisitedCity(city.id) || !city.sellEnabled)
+            if (candidate.Kind == PuzzleRumorKind.Specialty)
             {
-                continue;
+                specialty.Add(candidate);
             }
-
-            // 3. 판매 등급이 귀함 또는 희귀인 품목을 고가 수요 후보에 넣는다. 판매 등급으로 판정해 구매가가 100%인 희귀도 빠지지 않는다.
-            foreach (var rule in city.tagPrices)
+            else
             {
-                PuzzleSellGradeKind grade = TableManager.SellGradeKindOf(rule);
-                if (grade == PuzzleSellGradeKind.Expensive || grade == PuzzleSellGradeKind.Rare)
-                {
-                    candidates.Add((city, rule.tag));
-                }
+                rare.Add(candidate);
             }
         }
-        // 4. 조건에 맞는 품목이 없으면 들은 소식이 없다고 답한다.
-        if (candidates.Count == 0)
+
+        // 두 종류 모두에 후보가 없으면 들은 소식이 없다고 답한다.
+        if (specialty.Count == 0 && rare.Count == 0)
         {
             return Presentation.TavernNoRumor;
         }
 
-        // 5. 후보 하나를 무작위로 골라 대사를 만들고 수첩에 기록한다.
-        var selected = candidates[Random.Range(0, candidates.Count)];
-        string message = Presentation.TavernRumor(selected.city.displayName, selected.tag);
-        session.RecordTavernRumor(selected.city.id, message, selected.tag);
+        // 한 종류에만 후보가 있으면 그쪽에서 고른다.
+        var rumorTable = TableManager.Instance.PuzzleRumor;
+        bool pickSpecialty = specialty.Count > 0 && (rare.Count == 0 ||
+            Random.Range(0, rumorTable.specialtyPercent + rumorTable.rarePercent) < rumorTable.specialtyPercent);
+        var selected = pickSpecialty
+            ? specialty[Random.Range(0, specialty.Count)]
+            : rare[Random.Range(0, rare.Count)];
+
+        string message = Presentation.TavernRumor(selected);
+        session.RecordTavernRumor(selected, message);
         return message;
     }
 

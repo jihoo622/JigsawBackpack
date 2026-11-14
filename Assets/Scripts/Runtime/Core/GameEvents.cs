@@ -111,11 +111,13 @@ public static class GameEvents
     public readonly struct TavernRumorInfo
     {
         public readonly PuzzleInventoryService session;
-        public readonly string sourceCityId, targetCityId, message, tag;
+        // 특산·희귀 종류와 특산이 언급하는 품목 ID. 문장을 다시 해석해 되추론하지 않는다.
+        public readonly PuzzleRumorKind kind;
+        public readonly string sourceCityId, targetCityId, message, tag, itemId;
         public readonly long recordedMinutes;
 
         public TavernRumorInfo(PuzzleInventoryService _session, string _sourceCityId, string _targetCityId,
-            string _message, long _recordedMinutes, string _tag)
+            string _message, long _recordedMinutes, string _tag, PuzzleRumorKind _kind, string _itemId)
         {
             session = _session;
             sourceCityId = _sourceCityId;
@@ -123,6 +125,8 @@ public static class GameEvents
             message = _message;
             recordedMinutes = _recordedMinutes;
             tag = _tag;
+            kind = _kind;
+            itemId = _itemId ?? string.Empty;
         }
     }
     public static event Action<TavernRumorInfo> TavernRumorRecorded;
@@ -195,9 +199,10 @@ public static class GameEvents
     }
 
     public static void RaiseTavernRumorRecorded(PuzzleInventoryService _session, string _sourceCityId,
-        string _targetCityId, string _message, long _recordedMinutes, string _tag)
+        string _targetCityId, string _message, long _recordedMinutes, string _tag, PuzzleRumorKind _kind, string _itemId)
     {
-        Emit(TavernRumorRecorded, new TavernRumorInfo(_session, _sourceCityId, _targetCityId, _message, _recordedMinutes, _tag));
+        Emit(TavernRumorRecorded, new TavernRumorInfo(_session, _sourceCityId, _targetCityId, _message,
+            _recordedMinutes, _tag, _kind, _itemId));
     }
 
     public readonly struct MapRequestInfo

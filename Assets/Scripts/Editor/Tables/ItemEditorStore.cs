@@ -57,6 +57,7 @@ public static class ItemEditorStore
         AddTable<PuzzleSynergyTableData>(source);
         AddTable<PuzzleCityActionTableData>(source);
         AddTable<PuzzleTradeTableData>(source);
+        AddTable<PuzzleRumorTableData>(source);
         AddTable<PuzzleRouteTableData>(source);
         AddTable<PuzzleTimeTableData>(source);
         AddTable<TrainventoryQuestTableData>(source);

@@ -29,9 +29,14 @@ public static class Presentation
         return BasicData.Format("presentation.station.title", _cityName);
     }
 
-    public static string TavernRumor(string _cityName, string _tag)
+    // 소문 문구는 대상 마을명과 품목명 또는 태그 표시명만 쓴다. 남은 수량과 최종 거래가는 보증하지 않는다.
+    internal static string TavernRumor(PuzzleRumorCandidate _candidate)
     {
-        return BasicData.Format("presentation.station.rumor", _cityName, PuzzleTagLabel(_tag));
+        var tables = TableManager.Instance;
+        string city = tables.CityPrice(_candidate.CityId).displayName;
+        return _candidate.Kind == PuzzleRumorKind.Specialty
+            ? BasicData.Format("presentation.station.specialtyRumor", city, tables.Piece(_candidate.ItemId).displayName)
+            : BasicData.Format("presentation.station.rareRumor", city, PuzzleTagLabel(_candidate.Tag));
     }
 
     public static string RumorLogTitle => BasicData.Text("presentation.rumorLog.title");

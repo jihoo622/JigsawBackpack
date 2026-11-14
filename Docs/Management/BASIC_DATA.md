@@ -38,7 +38,7 @@
 - 거래 숙련 문구(수첩 숙련 목록·레벨 상승 알림)는 `presentation.proficiency.*`, 구매 취소 거래 표시는 `presentation.trade.purchaseCancel`이고 숙련 수치는 `TrainventoryProficiencyTableData`에 둔다.
 - 지도 의뢰 표식 문구는 `presentation.quest.mapBadge`·`mapBadgeMany`·`mapStation`·`mapInformation`, 표식 색은 `presentation.quest.mapMarker`다.
 - 술집 의뢰 문구·형식은 `presentation.quest.*`, 의뢰 태그 이름·색은 `presentation.tags.questLabel`·`questBackground`다. 의뢰 규칙 수치는 기초데이터가 아닌 `TrainventoryQuestTableData`에 둔다.
-- 소문 로그의 문구/날짜·기록 형식은 `presentation.rumorLog.*`이며, 배치는 프리팹(`Assets/Art/PuzzleTradeNotebook.prefab`)에서 수정한다. 지도 미확인 소문의 `?` 및 안내 서식은 `presentation.map.rumorStation`·`rumorInformation`을 사용한다.
+- 소문 로그의 문구/날짜·기록 형식은 `presentation.rumorLog.*`이며, 배치는 프리팹(`Assets/Art/PuzzleTradeNotebook.prefab`)에서 수정한다. 지도 미확인 소문의 `?` 및 안내 서식은 `presentation.map.rumorStation`·`rumorInformation`을 사용한다. 술집에서 듣는 소문 문구는 특산 `presentation.station.specialtyRumor`·희귀 `presentation.station.rareRumor`이고 후보의 ID는 `Presentation`이 표기로 바꾼다.
 
 ## 소유권과 잔여 후보
 

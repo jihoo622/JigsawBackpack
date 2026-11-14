@@ -102,7 +102,8 @@ public static partial class TelemetryPayload
     public static SessionPayload Session(string _reason)
     {
         var payload = new SessionPayload();
-        payload.schemaVersion = 3;
+        // 4부터 rumor_learned에 kind·itemId가 추가된다. 이전 레코드는 두 필드가 없다.
+        payload.schemaVersion = 4;
         payload.reason = _reason ?? string.Empty;
         payload.appVersion = Application.version;
         payload.unityVersion = Application.unityVersion;
@@ -155,6 +156,19 @@ public static partial class TelemetryPayload
             cityId = _info.cityId,
             outputCount = _info.outputCount,
             time = _info.time
+        };
+    }
+
+    // 소문 종류 ID와 품목 ID의 대응은 여기만 있다. 문서(PLAY_LOG)의 rumor_learned 필드와 같은 값을 쓴다.
+    public static PuzzleRumorPayload Rumor(GameEvents.TavernRumorInfo _info)
+    {
+        return new PuzzleRumorPayload
+        {
+            kind = _info.kind == PuzzleRumorKind.Specialty ? "specialty" : "rare",
+            targetCityId = _info.targetCityId,
+            tag = _info.tag,
+            itemId = _info.itemId,
+            elapsedMinutes = _info.recordedMinutes
         };
     }
 
