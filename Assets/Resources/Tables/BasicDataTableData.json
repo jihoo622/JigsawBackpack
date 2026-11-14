@@ -654,7 +654,7 @@
         },
         {
           "id": "boardActualValue",
-          "value": "화물 현재 가치  <nobr><mspace=0.6em>{0}</mspace></nobr> <size=18>기본 {1:N0}$</size>",
+          "value": "화물 현재 가치  <size=125%><b><nobr><mspace=0.6em>{0}</mspace></nobr></b></size><pos=74%><size=75%><alpha=#B3>기본 {1:N0}$</size>",
           "arguments": 2
         },
         {
@@ -1178,6 +1178,14 @@
           "id": "detailCargo",
           "value": "의뢰 화물: {0} ({1}칸)",
           "arguments": 2
+        },
+        {
+          "id": "detailTitle",
+          "value": "선택한 의뢰 상세"
+        },
+        {
+          "id": "detailEmpty",
+          "value": "왼쪽 게시판에서 의뢰를 고르면 상세가 표시됩니다."
         },
         {
           "id": "boardTitle",

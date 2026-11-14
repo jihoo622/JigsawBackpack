@@ -15,8 +15,8 @@ public sealed class PuzzleStationSummaryPresenter : MonoBehaviour
 
         if (view)
         {
-            view.RumorViewAllClicked += OnRumorViewAll;
-            view.QuestViewAllClicked += OnQuestViewAll;
+            view.RumorClicked += OnRumorClicked;
+            view.QuestClicked += OnQuestClicked;
         }
 
         GameEvents.TavernRumorRecorded += OnRumorRecorded;
@@ -33,8 +33,8 @@ public sealed class PuzzleStationSummaryPresenter : MonoBehaviour
     {
         if (view)
         {
-            view.RumorViewAllClicked -= OnRumorViewAll;
-            view.QuestViewAllClicked -= OnQuestViewAll;
+            view.RumorClicked -= OnRumorClicked;
+            view.QuestClicked -= OnQuestClicked;
         }
 
         GameEvents.TavernRumorRecorded -= OnRumorRecorded;
@@ -53,12 +53,12 @@ public sealed class PuzzleStationSummaryPresenter : MonoBehaviour
         }
     }
 
-    void OnRumorViewAll()
+    void OnRumorClicked()
     {
         GameEvents.RaiseNotebookOpenRequested(PuzzleNotebookTab.Rumors);
     }
 
-    void OnQuestViewAll()
+    void OnQuestClicked()
     {
         GameEvents.RaiseNotebookOpenRequested(PuzzleNotebookTab.Quests);
     }

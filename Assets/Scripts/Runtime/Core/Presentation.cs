@@ -95,8 +95,8 @@ public static class Presentation
         return BasicData.Format("presentation.gauge.estimate", _amount);
     }
 
-    // 소문·의뢰 요약 띠 제목과 의뢰 빈 상태. 소문 빈 상태는 presentation.station.unreadRumor,
-    // 넘치는 항목은 presentation.quest.moreOffers("외 {0}건"), "전체 보기" 버튼은 presentation.map.fit을 재사용한다.
+    // 소문·의뢰 요약 띠 머리표와 의뢰 빈 상태. 소문 빈 상태는 presentation.station.unreadRumor,
+    // 넘치는 항목은 presentation.quest.moreOffers("외 {0}건")를 재사용한다. 띠 전체를 누르면 수첩의 해당 탭이 열린다.
     public static string SummaryRumorTitle => BasicData.Text("presentation.summary.rumorTitle");
     public static string SummaryQuestTitle => BasicData.Text("presentation.summary.questTitle");
     public static string SummaryNoQuest => BasicData.Text("presentation.summary.noQuest");
@@ -162,6 +162,10 @@ public static class Presentation
     {
         return BasicData.Format("presentation.quest.detailCargo", _cargoName, _cellCount);
     }
+
+    // 상세 패널 제목과 의뢰를 고르기 전 안내. 게시판은 선택 없음으로 시작한다.
+    public static string QuestDetailTitle => BasicData.Text("presentation.quest.detailTitle");
+    public static string QuestDetailEmpty => BasicData.Text("presentation.quest.detailEmpty");
 
     #endregion
 
@@ -796,10 +800,10 @@ public static class Presentation
     internal static string PuzzleTooltipPriceUnavailable => BasicData.Text("presentation.tooltip.priceUnavailable");
     internal static string PuzzleMarketNoSettlement => BasicData.Text("presentation.tooltip.marketNoSettlement");
 
+    // \uAE30\uBCF8 \uAC00\uCE58\uB294 \uBB38\uAD6C\uC758 \uACE0\uC815 \uC704\uCE58(<pos>)\uC5D0 \uB193\uC774\uBBC0\uB85C \uD604\uC7AC \uAC00\uCE58 \uC790\uB9BF\uC218\uAC00 \uBC14\uB00C\uC5B4\uB3C4 \uC6C0\uC9C1\uC774\uC9C0 \uC54A\uB294\uB2E4.
     internal static string PuzzleBoardActualValue(decimal _actualValue, long _baseValue)
     {
-        string amount = $"{_actualValue:#,0.##}$".PadRight(7, '\u00A0');
-        return BasicData.Format("presentation.inventory.boardActualValue", amount, _baseValue);
+        return BasicData.Format("presentation.inventory.boardActualValue", $"{_actualValue:#,0.##}$", _baseValue);
     }
 
     public static string PuzzleNoActiveEffects => BasicData.Text("presentation.tooltip.activeEffectsNone");

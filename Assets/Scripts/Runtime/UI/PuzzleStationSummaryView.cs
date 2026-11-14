@@ -4,19 +4,20 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
+// 도착지 축 상단의 소문·의뢰 요약 띠. 띠 전체가 버튼이며 누르면 수첩의 해당 탭을 연다.
 public sealed class PuzzleStationSummaryView : MonoBehaviour
 {
     [SerializeField] GameObject rumorRoot;
     [SerializeField] GameObject questRoot;
     [SerializeField] TextMeshProUGUI rumorTitleLabel;
     [SerializeField] TextMeshProUGUI questTitleLabel;
-    [SerializeField] Button rumorViewAllButton;
-    [SerializeField] Button questViewAllButton;
+    [SerializeField] Button rumorButton;
+    [SerializeField] Button questButton;
     [SerializeField] TextMeshProUGUI[] rumorLines;
     [SerializeField] TextMeshProUGUI[] questLines;
 
-    internal event Action RumorViewAllClicked;
-    internal event Action QuestViewAllClicked;
+    internal event Action RumorClicked;
+    internal event Action QuestClicked;
 
     void Awake()
     {
@@ -56,36 +57,36 @@ public sealed class PuzzleStationSummaryView : MonoBehaviour
 
     void OnEnable()
     {
-        if (rumorViewAllButton)
+        if (rumorButton)
         {
-            rumorViewAllButton.onClick.AddListener(OnRumorViewAll);
+            rumorButton.onClick.AddListener(OnRumorClicked);
         }
-        if (questViewAllButton)
+        if (questButton)
         {
-            questViewAllButton.onClick.AddListener(OnQuestViewAll);
+            questButton.onClick.AddListener(OnQuestClicked);
         }
     }
 
     void OnDisable()
     {
-        if (rumorViewAllButton)
+        if (rumorButton)
         {
-            rumorViewAllButton.onClick.RemoveListener(OnRumorViewAll);
+            rumorButton.onClick.RemoveListener(OnRumorClicked);
         }
-        if (questViewAllButton)
+        if (questButton)
         {
-            questViewAllButton.onClick.RemoveListener(OnQuestViewAll);
+            questButton.onClick.RemoveListener(OnQuestClicked);
         }
     }
 
-    void OnRumorViewAll()
+    void OnRumorClicked()
     {
-        RumorViewAllClicked?.Invoke();
+        RumorClicked?.Invoke();
     }
 
-    void OnQuestViewAll()
+    void OnQuestClicked()
     {
-        QuestViewAllClicked?.Invoke();
+        QuestClicked?.Invoke();
     }
 
     public void SetVisible(bool _visible)

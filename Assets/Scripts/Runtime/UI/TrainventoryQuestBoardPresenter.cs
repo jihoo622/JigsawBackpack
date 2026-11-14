@@ -81,6 +81,11 @@ public sealed class TrainventoryQuestBoardPresenter : MonoBehaviour
             ? null
             : Presentation.QuestAcceptFailure(failure, offer, session.MaxActiveQuests);
         messageVisit = session.CityMoveCount;
+        // 수락하면 게시판 목록이 당겨지므로 선택을 해제해 다른 의뢰의 상세가 남지 않게 한다.
+        if (failure == TrainventoryQuestAcceptFailure.None)
+        {
+            view.SetSelectedIndex(-1);
+        }
         Refresh();
     }
 
@@ -130,17 +135,12 @@ public sealed class TrainventoryQuestBoardPresenter : MonoBehaviour
             message = Presentation.QuestMoreOffers(offers.Count - shown.Length);
         }
 
-        int selectedIndex = view.SelectedIndex;
-        if (selectedIndex < 0 || selectedIndex >= shown.Length)
-        {
-            selectedIndex = shown.Length > 0 ? 0 : -1;
-        }
-        view.SetSelectedIndex(selectedIndex);
-
+        // 선택은 사용자가 슬롯을 눌렀을 때만 생긴다. 범위를 벗어나면 Render가 선택 없음으로 되돌린다.
         view.Render(Presentation.QuestBoardTitle,
             Presentation.QuestStatus(session.ActiveQuestCount, session.MaxActiveQuests, session.Reputation),
             contents.ToArray(), message);
 
+        int selectedIndex = view.SelectedIndex;
         if (selectedIndex >= 0 && selectedIndex < shown.Length)
         {
             detailView?.Bind(shown[selectedIndex], session);
