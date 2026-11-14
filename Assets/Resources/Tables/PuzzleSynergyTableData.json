@@ -103,9 +103,9 @@
       "spatialRange": "Adjacent",
       "multiplierPercent": 50,
       "descriptionTag": "Waste",
-      "description": "인접한 화물에게 -50% (가축 제외)",
+      "description": "인접한 물품에게 -50% (가축 제외)",
       "targetDescription": "거름과 인접 시 -50% (배설물·가축 제외)",
-      "sourceDescription": "인접한 화물에게 -50% (가축 제외)"
+      "sourceDescription": "인접한 물품에게 -50% (가축 제외)"
     },
     {
       "id": "cargoNearAnimal",
@@ -133,7 +133,7 @@
     "animalTag": "Animal",
     "wasteTag": "Waste",
     "wastePieceId": "piece.poo",
-    "wasteDescription": "배설 · 객차에서 {0}일마다 빈자리에 {1} {2}개 생성",
+    "wasteDescription": "{0}일마다 객차 빈 칸에 {1} {2}개 생성",
     "wasteIntervalDays": 1,
     "wasteCountPerAnimal": 1,
     "breedingHours": 48,
@@ -143,7 +143,7 @@
         "parentPieceId": "piece.cow",
         "offspringPieceId": "piece.babyCow",
         "offspringCount": 1,
-        "description": "번식 · 같은 객차의 같은 품목 2마리가 {0} 동안 인접하면 {1} {2}마리 출산"
+        "description": "같은 종류 2마리가 {0} 동안 인접 시 {1} {2}마리 출산"
       }
     ]
   }

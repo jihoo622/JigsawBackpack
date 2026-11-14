@@ -1846,7 +1846,7 @@
         },
         {
           "id": "refrigerationEffect",
-          "value": "인접 음식 신선도 유지 +{0}%",
+          "value": "인접한 음식에게 신선도 유지 +{0}%",
           "arguments": 1
         },
         {

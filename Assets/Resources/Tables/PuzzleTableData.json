@@ -856,7 +856,7 @@
       "adultPieceId": "piece.cow",
       "growthHours": 48,
       "growthBlockedHours": 1,
-      "growthDescription": "성장 · 객차에서 {0} 후 성체({1})로 성장. 성체 자리가 없으면 마지막 {2}은 공간이 생길 때까지 대기",
+      "growthDescription": "{0} 후 {1}(으)로 성장 (공간 부족 시 마지막 {2}에서 대기)",
       "baseValue": 40,
       "cells": [
         {

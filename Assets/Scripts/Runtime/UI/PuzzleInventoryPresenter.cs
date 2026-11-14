@@ -888,12 +888,12 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
 
         PuzzleSynergyScope scope = _isTrain ? PuzzleSynergyScope.Train : PuzzleSynergyScope.Market;
         var general = new List<PuzzleEffectDisplay>();
-        var synergies = new List<string>();
+        var synergies = new List<(bool isTarget, bool isPenalty, string text)>();
         var tables = TableManager.Instance;
         int preservation = PuzzleRefrigeration.SourceReductionPercent(item, tables.PuzzleSynergy.freshness);
         if (preservation > 0)
         {
-            synergies.Add(Presentation.PuzzleRefrigerationEffect(preservation));
+            synergies.Add((false, false, Presentation.PuzzleRefrigerationEffect(preservation)));
         }
 
         var animals = tables.PuzzleSynergy.animals;
@@ -932,17 +932,23 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
 
         foreach (var rule in tables.SynergiesFor(scope))
         {
-            if (PuzzlePieceEffects.IsTarget(item, rule, animals.wasteTag))
-            {
-                synergies.Add(Presentation.PuzzleTooltipEffectDescription(rule.targetDescription));
-            }
+            bool isPenalty = rule.multiplierPercent < 100;
             if (PuzzlePieceEffects.IsSource(item, rule))
             {
-                synergies.Add(Presentation.PuzzleTooltipEffectDescription(rule.sourceDescription));
+                synergies.Add((false, isPenalty, Presentation.PuzzleTooltipEffectDescription(rule.sourceDescription)));
+            }
+            if (PuzzlePieceEffects.IsTarget(item, rule, animals.wasteTag))
+            {
+                synergies.Add((true, isPenalty, Presentation.PuzzleTooltipEffectDescription(rule.targetDescription)));
             }
         }
 
-        return (general.Select(_effect => Presentation.PuzzleTooltipGeneralEffect(_effect)).ToList(), synergies);
+        var orderedSynergies = synergies
+            .OrderBy(_entry => _entry.isTarget)
+            .ThenBy(_entry => _entry.isPenalty)
+            .Select(_entry => _entry.text)
+            .ToList();
+        return (general.Select(_effect => Presentation.PuzzleTooltipGeneralEffect(_effect)).ToList(), orderedSynergies);
     }
 
     void RenderValues()
