@@ -1441,25 +1441,25 @@
         {
           "tag": "Ore",
           "priority": 1000,
-          "buyPercent": 80,
+          "buyPercent": 70,
           "sellGradeId": "Common"
         },
         {
           "tag": "Food",
           "priority": 200,
-          "buyPercent": 150,
+          "buyPercent": 130,
           "sellGradeId": "Expensive"
         },
         {
           "tag": "Machinery",
           "priority": 201,
-          "buyPercent": 150,
+          "buyPercent": 130,
           "sellGradeId": "Expensive"
         },
         {
           "tag": "Water",
           "priority": 202,
-          "buyPercent": 150,
+          "buyPercent": 130,
           "sellGradeId": "Expensive"
         }
       ],
@@ -1514,25 +1514,25 @@
         {
           "tag": "Salt",
           "priority": 1000,
-          "buyPercent": 80,
+          "buyPercent": 70,
           "sellGradeId": "Common"
         },
         {
           "tag": "Food",
           "priority": 200,
-          "buyPercent": 150,
+          "buyPercent": 130,
           "sellGradeId": "Expensive"
         },
         {
           "tag": "Machinery",
           "priority": 201,
-          "buyPercent": 150,
+          "buyPercent": 130,
           "sellGradeId": "Expensive"
         },
         {
           "tag": "Water",
           "priority": 202,
-          "buyPercent": 150,
+          "buyPercent": 130,
           "sellGradeId": "Expensive"
         }
       ],
@@ -1580,25 +1580,25 @@
         {
           "tag": "Metal",
           "priority": 1000,
-          "buyPercent": 80,
+          "buyPercent": 70,
           "sellGradeId": "Common"
         },
         {
           "tag": "Food",
           "priority": 200,
-          "buyPercent": 150,
+          "buyPercent": 130,
           "sellGradeId": "Expensive"
         },
         {
           "tag": "Machinery",
           "priority": 201,
-          "buyPercent": 150,
+          "buyPercent": 130,
           "sellGradeId": "Expensive"
         },
         {
           "tag": "Water",
           "priority": 202,
-          "buyPercent": 150,
+          "buyPercent": 130,
           "sellGradeId": "Expensive"
         }
       ],
@@ -1646,25 +1646,25 @@
         {
           "tag": "Salt",
           "priority": 1000,
-          "buyPercent": 80,
+          "buyPercent": 70,
           "sellGradeId": "Common"
         },
         {
           "tag": "Food",
           "priority": 200,
-          "buyPercent": 150,
+          "buyPercent": 130,
           "sellGradeId": "Expensive"
         },
         {
           "tag": "Machinery",
           "priority": 201,
-          "buyPercent": 150,
+          "buyPercent": 130,
           "sellGradeId": "Expensive"
         },
         {
           "tag": "Water",
           "priority": 202,
-          "buyPercent": 150,
+          "buyPercent": 130,
           "sellGradeId": "Expensive"
         },
         {
@@ -1718,19 +1718,19 @@
         {
           "tag": "Animal",
           "priority": 1000,
-          "buyPercent": 80,
+          "buyPercent": 70,
           "sellGradeId": "Common"
         },
         {
           "tag": "Metal",
           "priority": 200,
-          "buyPercent": 150,
+          "buyPercent": 130,
           "sellGradeId": "Expensive"
         },
         {
           "tag": "Grain",
           "priority": 201,
-          "buyPercent": 150,
+          "buyPercent": 130,
           "sellGradeId": "Expensive"
         }
       ],
@@ -1778,19 +1778,19 @@
         {
           "tag": "Meat",
           "priority": 1000,
-          "buyPercent": 80,
+          "buyPercent": 70,
           "sellGradeId": "Common"
         },
         {
           "tag": "Metal",
           "priority": 200,
-          "buyPercent": 150,
+          "buyPercent": 130,
           "sellGradeId": "Expensive"
         },
         {
           "tag": "Grain",
           "priority": 201,
-          "buyPercent": 150,
+          "buyPercent": 130,
           "sellGradeId": "Expensive"
         }
       ],
@@ -1838,19 +1838,19 @@
         {
           "tag": "Animal",
           "priority": 1000,
-          "buyPercent": 80,
+          "buyPercent": 70,
           "sellGradeId": "Common"
         },
         {
           "tag": "Metal",
           "priority": 200,
-          "buyPercent": 150,
+          "buyPercent": 130,
           "sellGradeId": "Expensive"
         },
         {
           "tag": "Grain",
           "priority": 201,
-          "buyPercent": 150,
+          "buyPercent": 130,
           "sellGradeId": "Expensive"
         },
         {
@@ -1904,19 +1904,19 @@
         {
           "tag": "Meat",
           "priority": 1000,
-          "buyPercent": 80,
+          "buyPercent": 70,
           "sellGradeId": "Common"
         },
         {
           "tag": "Metal",
           "priority": 200,
-          "buyPercent": 150,
+          "buyPercent": 130,
           "sellGradeId": "Expensive"
         },
         {
           "tag": "Grain",
           "priority": 201,
-          "buyPercent": 150,
+          "buyPercent": 130,
           "sellGradeId": "Expensive"
         }
       ],
@@ -1964,25 +1964,25 @@
         {
           "tag": "Machinery",
           "priority": 1000,
-          "buyPercent": 80,
+          "buyPercent": 70,
           "sellGradeId": "Common"
         },
         {
           "tag": "Food",
           "priority": 200,
-          "buyPercent": 150,
+          "buyPercent": 130,
           "sellGradeId": "Expensive"
         },
         {
           "tag": "Metal",
           "priority": 201,
-          "buyPercent": 150,
+          "buyPercent": 130,
           "sellGradeId": "Expensive"
         },
         {
           "tag": "Wood",
           "priority": 202,
-          "buyPercent": 150,
+          "buyPercent": 130,
           "sellGradeId": "Expensive"
         }
       ],
@@ -2030,25 +2030,25 @@
         {
           "tag": "Machinery",
           "priority": 1000,
-          "buyPercent": 80,
+          "buyPercent": 70,
           "sellGradeId": "Common"
         },
         {
           "tag": "Food",
           "priority": 200,
-          "buyPercent": 150,
+          "buyPercent": 130,
           "sellGradeId": "Expensive"
         },
         {
           "tag": "Metal",
           "priority": 201,
-          "buyPercent": 150,
+          "buyPercent": 130,
           "sellGradeId": "Expensive"
         },
         {
           "tag": "Wood",
           "priority": 202,
-          "buyPercent": 150,
+          "buyPercent": 130,
           "sellGradeId": "Expensive"
         }
       ],
@@ -2096,25 +2096,25 @@
         {
           "tag": "Machinery",
           "priority": 1000,
-          "buyPercent": 80,
+          "buyPercent": 70,
           "sellGradeId": "Common"
         },
         {
           "tag": "Food",
           "priority": 200,
-          "buyPercent": 150,
+          "buyPercent": 130,
           "sellGradeId": "Expensive"
         },
         {
           "tag": "Metal",
           "priority": 201,
-          "buyPercent": 150,
+          "buyPercent": 130,
           "sellGradeId": "Expensive"
         },
         {
           "tag": "Wood",
           "priority": 202,
-          "buyPercent": 150,
+          "buyPercent": 130,
           "sellGradeId": "Expensive"
         }
       ],
@@ -2162,25 +2162,25 @@
         {
           "tag": "Machinery",
           "priority": 1000,
-          "buyPercent": 80,
+          "buyPercent": 70,
           "sellGradeId": "Common"
         },
         {
           "tag": "Food",
           "priority": 200,
-          "buyPercent": 150,
+          "buyPercent": 130,
           "sellGradeId": "Expensive"
         },
         {
           "tag": "Metal",
           "priority": 201,
-          "buyPercent": 150,
+          "buyPercent": 130,
           "sellGradeId": "Expensive"
         },
         {
           "tag": "Wood",
           "priority": 202,
-          "buyPercent": 150,
+          "buyPercent": 130,
           "sellGradeId": "Expensive"
         }
       ],
@@ -2228,31 +2228,31 @@
         {
           "tag": "Machinery",
           "priority": 200,
-          "buyPercent": 150,
+          "buyPercent": 130,
           "sellGradeId": "Expensive"
         },
         {
           "tag": "Fish",
           "priority": 201,
-          "buyPercent": 150,
+          "buyPercent": 130,
           "sellGradeId": "Expensive"
         },
         {
           "tag": "Salt",
           "priority": 202,
-          "buyPercent": 150,
+          "buyPercent": 130,
           "sellGradeId": "Expensive"
         },
         {
           "tag": "Fruit",
           "priority": 203,
-          "buyPercent": 150,
+          "buyPercent": 130,
           "sellGradeId": "Expensive"
         },
         {
           "tag": "Animal",
           "priority": 204,
-          "buyPercent": 150,
+          "buyPercent": 130,
           "sellGradeId": "Expensive"
         }
       ],
@@ -2300,31 +2300,31 @@
         {
           "tag": "Machinery",
           "priority": 200,
-          "buyPercent": 150,
+          "buyPercent": 130,
           "sellGradeId": "Expensive"
         },
         {
           "tag": "Fish",
           "priority": 201,
-          "buyPercent": 150,
+          "buyPercent": 130,
           "sellGradeId": "Expensive"
         },
         {
           "tag": "Salt",
           "priority": 202,
-          "buyPercent": 150,
+          "buyPercent": 130,
           "sellGradeId": "Expensive"
         },
         {
           "tag": "Fruit",
           "priority": 203,
-          "buyPercent": 150,
+          "buyPercent": 130,
           "sellGradeId": "Expensive"
         },
         {
           "tag": "Animal",
           "priority": 204,
-          "buyPercent": 150,
+          "buyPercent": 130,
           "sellGradeId": "Expensive"
         }
       ],
@@ -2372,31 +2372,31 @@
         {
           "tag": "Machinery",
           "priority": 200,
-          "buyPercent": 150,
+          "buyPercent": 130,
           "sellGradeId": "Expensive"
         },
         {
           "tag": "Fish",
           "priority": 201,
-          "buyPercent": 150,
+          "buyPercent": 130,
           "sellGradeId": "Expensive"
         },
         {
           "tag": "Salt",
           "priority": 202,
-          "buyPercent": 150,
+          "buyPercent": 130,
           "sellGradeId": "Expensive"
         },
         {
           "tag": "Fruit",
           "priority": 203,
-          "buyPercent": 150,
+          "buyPercent": 130,
           "sellGradeId": "Expensive"
         },
         {
           "tag": "Animal",
           "priority": 204,
-          "buyPercent": 150,
+          "buyPercent": 130,
           "sellGradeId": "Expensive"
         }
       ],
@@ -2444,31 +2444,31 @@
         {
           "tag": "Machinery",
           "priority": 200,
-          "buyPercent": 150,
+          "buyPercent": 130,
           "sellGradeId": "Expensive"
         },
         {
           "tag": "Fish",
           "priority": 201,
-          "buyPercent": 150,
+          "buyPercent": 130,
           "sellGradeId": "Expensive"
         },
         {
           "tag": "Salt",
           "priority": 202,
-          "buyPercent": 150,
+          "buyPercent": 130,
           "sellGradeId": "Expensive"
         },
         {
           "tag": "Fruit",
           "priority": 203,
-          "buyPercent": 150,
+          "buyPercent": 130,
           "sellGradeId": "Expensive"
         },
         {
           "tag": "Animal",
           "priority": 204,
-          "buyPercent": 150,
+          "buyPercent": 130,
           "sellGradeId": "Expensive"
         }
       ],
@@ -2516,31 +2516,31 @@
         {
           "tag": "Fish",
           "priority": 1000,
-          "buyPercent": 80,
+          "buyPercent": 70,
           "sellGradeId": "Common"
         },
         {
           "tag": "Metal",
           "priority": 200,
-          "buyPercent": 150,
+          "buyPercent": 130,
           "sellGradeId": "Expensive"
         },
         {
           "tag": "Grain",
           "priority": 201,
-          "buyPercent": 150,
+          "buyPercent": 130,
           "sellGradeId": "Expensive"
         },
         {
           "tag": "Wood",
           "priority": 202,
-          "buyPercent": 150,
+          "buyPercent": 130,
           "sellGradeId": "Expensive"
         },
         {
           "tag": "Machinery",
           "priority": 203,
-          "buyPercent": 150,
+          "buyPercent": 130,
           "sellGradeId": "Expensive"
         }
       ],
@@ -2588,31 +2588,31 @@
         {
           "tag": "Water",
           "priority": 1000,
-          "buyPercent": 80,
+          "buyPercent": 70,
           "sellGradeId": "Common"
         },
         {
           "tag": "Metal",
           "priority": 200,
-          "buyPercent": 150,
+          "buyPercent": 130,
           "sellGradeId": "Expensive"
         },
         {
           "tag": "Grain",
           "priority": 201,
-          "buyPercent": 150,
+          "buyPercent": 130,
           "sellGradeId": "Expensive"
         },
         {
           "tag": "Wood",
           "priority": 202,
-          "buyPercent": 150,
+          "buyPercent": 130,
           "sellGradeId": "Expensive"
         },
         {
           "tag": "Machinery",
           "priority": 203,
-          "buyPercent": 150,
+          "buyPercent": 130,
           "sellGradeId": "Expensive"
         },
         {
@@ -2666,31 +2666,31 @@
         {
           "tag": "Fish",
           "priority": 1000,
-          "buyPercent": 80,
+          "buyPercent": 70,
           "sellGradeId": "Common"
         },
         {
           "tag": "Metal",
           "priority": 200,
-          "buyPercent": 150,
+          "buyPercent": 130,
           "sellGradeId": "Expensive"
         },
         {
           "tag": "Grain",
           "priority": 201,
-          "buyPercent": 150,
+          "buyPercent": 130,
           "sellGradeId": "Expensive"
         },
         {
           "tag": "Wood",
           "priority": 202,
-          "buyPercent": 150,
+          "buyPercent": 130,
           "sellGradeId": "Expensive"
         },
         {
           "tag": "Machinery",
           "priority": 203,
-          "buyPercent": 150,
+          "buyPercent": 130,
           "sellGradeId": "Expensive"
         }
       ],
@@ -2738,31 +2738,31 @@
         {
           "tag": "Water",
           "priority": 1000,
-          "buyPercent": 80,
+          "buyPercent": 70,
           "sellGradeId": "Common"
         },
         {
           "tag": "Metal",
           "priority": 200,
-          "buyPercent": 150,
+          "buyPercent": 130,
           "sellGradeId": "Expensive"
         },
         {
           "tag": "Grain",
           "priority": 201,
-          "buyPercent": 150,
+          "buyPercent": 130,
           "sellGradeId": "Expensive"
         },
         {
           "tag": "Wood",
           "priority": 202,
-          "buyPercent": 150,
+          "buyPercent": 130,
           "sellGradeId": "Expensive"
         },
         {
           "tag": "Machinery",
           "priority": 203,
-          "buyPercent": 150,
+          "buyPercent": 130,
           "sellGradeId": "Expensive"
         },
         {
@@ -2816,19 +2816,19 @@
         {
           "tag": "Grain",
           "priority": 1000,
-          "buyPercent": 80,
+          "buyPercent": 70,
           "sellGradeId": "Common"
         },
         {
           "tag": "Machinery",
           "priority": 200,
-          "buyPercent": 150,
+          "buyPercent": 130,
           "sellGradeId": "Expensive"
         },
         {
           "tag": "Metal",
           "priority": 201,
-          "buyPercent": 150,
+          "buyPercent": 130,
           "sellGradeId": "Expensive"
         }
       ],
@@ -2876,19 +2876,19 @@
         {
           "tag": "Fruit",
           "priority": 1000,
-          "buyPercent": 80,
+          "buyPercent": 70,
           "sellGradeId": "Common"
         },
         {
           "tag": "Machinery",
           "priority": 200,
-          "buyPercent": 150,
+          "buyPercent": 130,
           "sellGradeId": "Expensive"
         },
         {
           "tag": "Metal",
           "priority": 201,
-          "buyPercent": 150,
+          "buyPercent": 130,
           "sellGradeId": "Expensive"
         }
       ],
@@ -2936,19 +2936,19 @@
         {
           "tag": "Wood",
           "priority": 1000,
-          "buyPercent": 80,
+          "buyPercent": 70,
           "sellGradeId": "Common"
         },
         {
           "tag": "Machinery",
           "priority": 200,
-          "buyPercent": 150,
+          "buyPercent": 130,
           "sellGradeId": "Expensive"
         },
         {
           "tag": "Metal",
           "priority": 201,
-          "buyPercent": 150,
+          "buyPercent": 130,
           "sellGradeId": "Expensive"
         }
       ],
@@ -2996,7 +2996,7 @@
         {
           "tag": "Grain",
           "priority": 1000,
-          "buyPercent": 80,
+          "buyPercent": 70,
           "sellGradeId": "Common"
         },
         {
@@ -3008,7 +3008,7 @@
         {
           "tag": "Metal",
           "priority": 201,
-          "buyPercent": 150,
+          "buyPercent": 130,
           "sellGradeId": "Expensive"
         }
       ],
@@ -3056,25 +3056,25 @@
         {
           "tag": "Machinery",
           "priority": 1000,
-          "buyPercent": 80,
+          "buyPercent": 70,
           "sellGradeId": "Common"
         },
         {
           "tag": "Food",
           "priority": 200,
-          "buyPercent": 150,
+          "buyPercent": 130,
           "sellGradeId": "Expensive"
         },
         {
           "tag": "Metal",
           "priority": 201,
-          "buyPercent": 150,
+          "buyPercent": 130,
           "sellGradeId": "Expensive"
         },
         {
           "tag": "Wood",
           "priority": 202,
-          "buyPercent": 150,
+          "buyPercent": 130,
           "sellGradeId": "Expensive"
         },
         {
@@ -3128,31 +3128,31 @@
         {
           "tag": "Machinery",
           "priority": 200,
-          "buyPercent": 150,
+          "buyPercent": 130,
           "sellGradeId": "Expensive"
         },
         {
           "tag": "Fish",
           "priority": 201,
-          "buyPercent": 150,
+          "buyPercent": 130,
           "sellGradeId": "Expensive"
         },
         {
           "tag": "Salt",
           "priority": 202,
-          "buyPercent": 150,
+          "buyPercent": 130,
           "sellGradeId": "Expensive"
         },
         {
           "tag": "Fruit",
           "priority": 203,
-          "buyPercent": 150,
+          "buyPercent": 130,
           "sellGradeId": "Expensive"
         },
         {
           "tag": "Animal",
           "priority": 204,
-          "buyPercent": 150,
+          "buyPercent": 130,
           "sellGradeId": "Expensive"
         }
       ],
@@ -3200,25 +3200,25 @@
         {
           "tag": "Machinery",
           "priority": 1000,
-          "buyPercent": 80,
+          "buyPercent": 70,
           "sellGradeId": "Common"
         },
         {
           "tag": "Food",
           "priority": 200,
-          "buyPercent": 150,
+          "buyPercent": 130,
           "sellGradeId": "Expensive"
         },
         {
           "tag": "Metal",
           "priority": 201,
-          "buyPercent": 150,
+          "buyPercent": 130,
           "sellGradeId": "Expensive"
         },
         {
           "tag": "Wood",
           "priority": 202,
-          "buyPercent": 150,
+          "buyPercent": 130,
           "sellGradeId": "Expensive"
         }
       ],
@@ -3307,25 +3307,25 @@
         {
           "tag": "Salt",
           "priority": 1000,
-          "buyPercent": 80,
+          "buyPercent": 70,
           "sellGradeId": "Common"
         },
         {
           "tag": "Food",
           "priority": 200,
-          "buyPercent": 150,
+          "buyPercent": 130,
           "sellGradeId": "Expensive"
         },
         {
           "tag": "Machinery",
           "priority": 201,
-          "buyPercent": 150,
+          "buyPercent": 130,
           "sellGradeId": "Expensive"
         },
         {
           "tag": "Water",
           "priority": 202,
-          "buyPercent": 150,
+          "buyPercent": 130,
           "sellGradeId": "Expensive"
         }
       ],
@@ -3414,25 +3414,25 @@
         {
           "tag": "Salt",
           "priority": 1000,
-          "buyPercent": 80,
+          "buyPercent": 70,
           "sellGradeId": "Common"
         },
         {
           "tag": "Food",
           "priority": 200,
-          "buyPercent": 150,
+          "buyPercent": 130,
           "sellGradeId": "Expensive"
         },
         {
           "tag": "Machinery",
           "priority": 201,
-          "buyPercent": 150,
+          "buyPercent": 130,
           "sellGradeId": "Expensive"
         },
         {
           "tag": "Water",
           "priority": 202,
-          "buyPercent": 150,
+          "buyPercent": 130,
           "sellGradeId": "Expensive"
         }
       ],

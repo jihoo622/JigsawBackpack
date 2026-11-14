@@ -125,7 +125,7 @@ public sealed partial class WorldMapEditorWindow
     void DrawTagPrices(JObject _city)
     {
         EditorGUILayout.LabelField("태그 가격", EditorStyles.boldLabel);
-        EditorGUILayout.LabelField("기본 배율에 더하는 태그별 구매·판매 규칙입니다. 판매는 흔함(70%)/일반(100%)/귀함(130%)/희귀(150%) 등급 또는 사용자 지정 중 하나이며, 등급 수치는 판매 등급 테이블의 단일 원본을 따릅니다. 구매는 배율로 직접 정하되, 희귀는 구매·판매 모두 150%로 함께 설정됩니다. 우선순위가 높은 항목부터 적용하며 역 안에서 태그가 중복될 수 없습니다.", EditorStyles.wordWrappedMiniLabel);
+        EditorGUILayout.LabelField("기본 배율에 더하는 태그별 구매·판매 규칙입니다. 판매는 흔함(70%)/일반(100%)/귀함(130%)/희귀(150%) 등급 또는 사용자 지정 중 하나이며, 등급 수치는 판매 등급 테이블의 단일 원본을 따르고 네 등급 모두 구매 배율이 판매와 같은 수치로 함께 설정됩니다. 사용자 지정 판매를 고를 때만 구매 배율을 따로 정합니다. 우선순위가 높은 항목부터 적용하며 역 안에서 태그가 중복될 수 없습니다.", EditorStyles.wordWrappedMiniLabel);
         var prices = _city["tagPrices"] as JArray ?? new JArray();
         string[] tags = KnownTags;
         using (new EditorGUILayout.HorizontalScope())
@@ -258,8 +258,8 @@ public sealed partial class WorldMapEditorWindow
         {
             _entry["sellGradeId"] = option.id;
             _entry.Remove("sellPercent");
-            // 희귀는 구매·판매 대칭(150%) 규칙이라 구매 배율도 등급 수치를 따른다.
-            if (option.id == GRADE_RARE)
+            // 네 등급 모두 구매·판매 대칭이라 구매 배율은 항상 등급 수치를 따른다(등급 없는 항목은 건드리지 않는다).
+            if (option.percent > 0)
             {
                 _entry["buyPercent"] = option.percent;
             }
