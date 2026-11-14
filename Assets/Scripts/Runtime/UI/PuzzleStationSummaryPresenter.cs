@@ -24,6 +24,7 @@ public sealed class PuzzleStationSummaryPresenter : MonoBehaviour
         GameEvents.CityArrived += OnCityArrived;
         GameEvents.PanelVisibility += OnPanelVisibility;
         GameEvents.TimeAdvanced += OnTimeAdvanced;
+        GameEvents.PuzzleRunStarted += OnRunStarted;
 
         Refresh();
     }
@@ -41,6 +42,15 @@ public sealed class PuzzleStationSummaryPresenter : MonoBehaviour
         GameEvents.CityArrived -= OnCityArrived;
         GameEvents.PanelVisibility -= OnPanelVisibility;
         GameEvents.TimeAdvanced -= OnTimeAdvanced;
+        GameEvents.PuzzleRunStarted -= OnRunStarted;
+    }
+
+    void OnRunStarted(GameEvents.PuzzleRunInfo _info)
+    {
+        if (_info.session == session)
+        {
+            Refresh();
+        }
     }
 
     void OnRumorViewAll()
@@ -104,7 +114,7 @@ public sealed class PuzzleStationSummaryPresenter : MonoBehaviour
     void RefreshRumors()
     {
         var marketTags = new HashSet<string>(StringComparer.Ordinal);
-        if (session.Market != null)
+        if (!string.IsNullOrEmpty(session.CurrentCityId) && session.Market != null)
         {
             foreach (var placement in session.Market.Placements)
             {

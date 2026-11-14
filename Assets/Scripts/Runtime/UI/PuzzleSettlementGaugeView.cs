@@ -39,9 +39,9 @@ public sealed class PuzzleSettlementGaugeView : MonoBehaviour
         {
             border.color = Presentation.PuzzleWagonNormalBorder;
         }
-        foreach (var cell in cells)
+        for (int i = 0; i < cells.Length; i++)
         {
-            cell.color = Presentation.PuzzleWagonNormalBorder;
+            ApplyCellVisual(i, false);
         }
     }
 
@@ -51,7 +51,7 @@ public sealed class PuzzleSettlementGaugeView : MonoBehaviour
         estimateLabel.text = Presentation.GaugeEstimate(_estimate);
         for (int i = 0; i < cells.Length; i++)
         {
-            cells[i].color = i < _filledCells ? Presentation.PuzzleTimeAccent : Presentation.PuzzleWagonNormalBorder;
+            ApplyCellVisual(i, i < _filledCells);
         }
     }
 
@@ -61,7 +61,25 @@ public sealed class PuzzleSettlementGaugeView : MonoBehaviour
         estimateLabel.text = string.Empty;
         for (int i = 0; i < cells.Length; i++)
         {
-            cells[i].color = Presentation.PuzzleWagonNormalBorder;
+            ApplyCellVisual(i, false);
+        }
+    }
+
+    void ApplyCellVisual(int _index, bool _filled)
+    {
+        var cell = cells[_index];
+        if (!cell)
+        {
+            return;
+        }
+        cell.color = _filled ? Presentation.PuzzleTimeAccent : Presentation.PuzzleWagonNormalBorder;
+        if (cell.transform.childCount > 0)
+        {
+            var inner = cell.transform.GetChild(0).GetComponent<Image>();
+            if (inner)
+            {
+                inner.color = _filled ? Presentation.PuzzleTimeAccent : Presentation.PuzzleBackground;
+            }
         }
     }
 }

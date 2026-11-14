@@ -28,6 +28,30 @@ public sealed class PuzzleStationSummaryView : MonoBehaviour
         {
             questTitleLabel.text = Presentation.SummaryQuestTitle;
         }
+        if (questLines != null && questLines.Length > 0 && questLines[0])
+        {
+            questLines[0].gameObject.SetActive(true);
+            questLines[0].text = Presentation.SummaryNoQuest;
+            for (int i = 1; i < questLines.Length; i++)
+            {
+                if (questLines[i])
+                {
+                    questLines[i].gameObject.SetActive(false);
+                }
+            }
+        }
+        if (rumorLines != null && rumorLines.Length > 0 && rumorLines[0])
+        {
+            rumorLines[0].gameObject.SetActive(true);
+            rumorLines[0].text = Presentation.TavernUnreadRumor;
+            for (int i = 1; i < rumorLines.Length; i++)
+            {
+                if (rumorLines[i])
+                {
+                    rumorLines[i].gameObject.SetActive(false);
+                }
+            }
+        }
     }
 
     void OnEnable()
