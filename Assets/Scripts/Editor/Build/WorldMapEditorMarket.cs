@@ -10,6 +10,7 @@ public sealed partial class WorldMapEditorWindow
 {
     const float MARKET_CELL = 18f;
     const int ERROR_LIST_LIMIT = 30;
+    const string GRADE_COMMON = "Common", GRADE_NORMAL = "Normal", GRADE_EXPENSIVE = "Expensive", GRADE_RARE = "Rare";
     static readonly string[] TURN_LABELS = { "0°", "90°", "180°", "270°" };
     List<string> draftErrors = new List<string>();
     bool validationDirty = true, showAllErrors;
@@ -124,14 +125,15 @@ public sealed partial class WorldMapEditorWindow
     void DrawTagPrices(JObject _city)
     {
         EditorGUILayout.LabelField("태그 가격", EditorStyles.boldLabel);
-        EditorGUILayout.LabelField("기본 배율에 더하는 태그별 구매·판매 %입니다. 100 미만은 풍부(싸게 사고 싸게 팖), 초과는 귀함입니다. 우선순위가 높은 항목부터 적용하며 역 안에서 중복될 수 없습니다.", EditorStyles.wordWrappedMiniLabel);
+        EditorGUILayout.LabelField("기본 배율에 더하는 태그별 구매·판매 규칙입니다. 판매는 흔함(70%)/일반(100%)/귀함(130%)/희귀(150%) 등급 또는 사용자 지정 중 하나이며, 등급 수치는 판매 등급 테이블의 단일 원본을 따릅니다. 구매는 배율로 직접 정하되, 희귀는 구매·판매 모두 150%로 함께 설정됩니다. 우선순위가 높은 항목부터 적용하며 역 안에서 태그가 중복될 수 없습니다.", EditorStyles.wordWrappedMiniLabel);
         var prices = _city["tagPrices"] as JArray ?? new JArray();
         string[] tags = KnownTags;
         using (new EditorGUILayout.HorizontalScope())
         {
             GUILayout.Label("태그", EditorStyles.miniLabel, GUILayout.Width(110f));
             GUILayout.Label("구매%", EditorStyles.miniLabel, GUILayout.Width(48f));
-            GUILayout.Label("판매%", EditorStyles.miniLabel, GUILayout.Width(48f));
+            GUILayout.Label("판매 등급", EditorStyles.miniLabel, GUILayout.Width(84f));
+            GUILayout.Label("판매%", EditorStyles.miniLabel, GUILayout.Width(46f));
             GUILayout.Label("우선순위", EditorStyles.miniLabel, GUILayout.Width(56f));
         }
         foreach (var entry in prices.OfType<JObject>().ToArray())
@@ -144,10 +146,10 @@ public sealed partial class WorldMapEditorWindow
                 int next = EditorGUILayout.Popup(index, options, GUILayout.Width(110f));
                 if (next != index)
                 {
-                    Change("태그 가격 태그", () => entry["tag"] = options[next]);
+                    RenameTagRow(_city, entry, options[next]);
                 }
                 PriceField(entry, "buyPercent", "태그 구매 배율", 48f);
-                PriceField(entry, "sellPercent", "태그 판매 배율", 48f);
+                SellGradeField(_city, entry, 84f, 46f);
                 PriceField(entry, "priority", "태그 가격 우선순위", 56f);
                 if (GUILayout.Button("−", GUILayout.Width(22f)))
                 {
@@ -171,15 +173,152 @@ public sealed partial class WorldMapEditorWindow
                     _city["tagPrices"] = prices;
                 }
                 int priority = prices.Count == 0 ? 100 : prices.Max(_entry => (int)_entry["priority"]) + 1;
-                prices.Add(new JObject { ["tag"] = tag, ["priority"] = priority, ["buyPercent"] = 100, ["sellPercent"] = 100 });
+                prices.Add(new JObject { ["tag"] = tag, ["priority"] = priority, ["buyPercent"] = 100, ["sellGradeId"] = GRADE_NORMAL });
             });
             GUIUtility.ExitGUI();
         }
     }
 
+    void RenameTagRow(JObject _city, JObject _entry, string _tag)
+    {
+        if (_tag == (string)_entry["tag"])
+        {
+            return;
+        }
+        var prices = _city["tagPrices"] as JArray ?? new JArray();
+        if (prices.OfType<JObject>().Any(_other => !ReferenceEquals(_other, _entry) && (string)_other["tag"] == _tag))
+        {
+            message = "태그 '" + _tag + "'는 이미 이 역의 태그 가격 목록에 있습니다.";
+            return;
+        }
+        Change("태그 가격 태그", () => _entry["tag"] = _tag);
+    }
+
+    // 판매 등급 참조/사용자 지정을 고른다. 등급을 고르면 sellGradeId만 남기고 수치는 단일 원본 테이블에서 해결한다.
+    void SellGradeField(JObject _city, JObject _entry, float _gradeWidth, float _valueWidth)
+    {
+        var options = SellGradeOptions();
+        string currentGrade = (string)_entry["sellGradeId"];
+        int current;
+        if (!string.IsNullOrEmpty(currentGrade))
+        {
+            current = options.FindIndex(_option => _option.id == currentGrade);
+            if (current < 0)
+            {
+                options.Insert(0, (currentGrade, currentGrade + " (등급 없음)", 0));
+                current = 0;
+            }
+        }
+        else
+        {
+            current = options.Count - 1;
+        }
+
+        int next = EditorGUILayout.Popup(current, options.Select(_option => _option.label).ToArray(), GUILayout.Width(_gradeWidth));
+        if (next != current)
+        {
+            ApplySellGrade(_city, _entry, options, next);
+            return;
+        }
+
+        if (options[current].id == null)
+        {
+            int original = (int?)_entry["sellPercent"] ?? 0;
+            int value = EditorGUILayout.DelayedIntField(original, GUILayout.Width(_valueWidth));
+            if (value != original)
+            {
+                ApplyCustomSell(_city, _entry, value);
+            }
+        }
+        else
+        {
+            EditorGUILayout.LabelField(options[current].percent + "%", GUILayout.Width(_valueWidth));
+        }
+    }
+
+    void ApplySellGrade(JObject _city, JObject _entry, List<(string id, string label, int percent)> _options, int _index)
+    {
+        var option = _options[_index];
+        if (option.percent >= 100 && IsSpecialtyTagRow(_city, _entry))
+        {
+            message = "'" + (string)_entry["tag"] + "'는 이 역의 대표 특산 태그라 판매 100% 미만(흔함)이어야 하여 희귀·귀함으로 바꿀 수 없습니다.";
+            return;
+        }
+        if (option.id == null)
+        {
+            int start = (int?)_entry["sellPercent"] ?? GradePercent((string)_entry["sellGradeId"]) ?? 100;
+            Change("태그 판매 사용자 지정", () =>
+            {
+                _entry["sellPercent"] = start;
+                _entry.Remove("sellGradeId");
+            });
+            return;
+        }
+        Change("태그 판매 등급", () =>
+        {
+            _entry["sellGradeId"] = option.id;
+            _entry.Remove("sellPercent");
+            // 희귀는 구매·판매 대칭(150%) 규칙이라 구매 배율도 등급 수치를 따른다.
+            if (option.id == GRADE_RARE)
+            {
+                _entry["buyPercent"] = option.percent;
+            }
+        });
+    }
+
+    void ApplyCustomSell(JObject _city, JObject _entry, int _value)
+    {
+        if (_value >= 100 && IsSpecialtyTagRow(_city, _entry))
+        {
+            message = "대표 특산 태그의 사용자 지정 판매 배율은 100 미만이어야 합니다.";
+            return;
+        }
+        Change("태그 판매 배율", () => _entry["sellPercent"] = _value);
+    }
+
+    bool IsSpecialtyTagRow(JObject _city, JObject _entry)
+    {
+        string specialty = (string)_city["specialtyTag"];
+        if (string.IsNullOrEmpty(specialty) || (string)_entry["tag"] != specialty)
+        {
+            return false;
+        }
+        return (bool?)Region((string)_city["regionId"])?["tradeHub"] != true;
+    }
+
+    List<(string id, string label, int percent)> SellGradeOptions()
+    {
+        var options = (puzzle["sellGrades"] as JArray ?? new JArray()).OfType<JObject>()
+            .Select(_grade => (id: (string)_grade["id"], label: GradeLabel((string)_grade["id"]), percent: (int?)_grade["sellPercent"] ?? 0))
+            .OrderBy(_option => _option.percent)
+            .ThenBy(_option => _option.id, StringComparer.Ordinal)
+            .ToList();
+        options.Add((null, "사용자 지정", -1));
+        return options;
+    }
+
+    static string GradeLabel(string _id) => _id switch
+    {
+        GRADE_COMMON => "흔함",
+        GRADE_NORMAL => "일반",
+        GRADE_EXPENSIVE => "귀함",
+        GRADE_RARE => "희귀",
+        _ => _id
+    };
+
+    int? GradePercent(string _id)
+    {
+        if (string.IsNullOrEmpty(_id))
+        {
+            return null;
+        }
+        var token = (puzzle["sellGrades"] as JArray)?.OfType<JObject>().FirstOrDefault(_grade => (string)_grade["id"] == _id)?["sellPercent"];
+        return token == null ? (int?)null : (int)token;
+    }
+
     void PriceField(JObject _entry, string _key, string _label, float _width)
     {
-        int original = (int)_entry[_key];
+        int original = (int?)_entry[_key] ?? 0;
         int value = EditorGUILayout.DelayedIntField(original, GUILayout.Width(_width));
         if (value != original)
         {

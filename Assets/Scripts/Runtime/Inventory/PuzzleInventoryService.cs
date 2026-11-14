@@ -2709,6 +2709,8 @@ internal readonly struct PuzzleTradeRate
     }
 
     // 합연산: 도시 기본 배율 + Σ(일치한 태그 규칙 배율 − 100). 구매·판매를 따로 더하며 0 이하도 허용한다.
+    // 태그 행의 sellPercent는 TableManager가 판매 등급 단일 원본(sellGrades)으로 해결한 실효 값이다.
+    // 희귀는 별도 공식을 쓰지 않고 같은 합산 경로로 +50%가 반영된다.
     internal static PuzzleTradeRate Combine(PuzzleCityData _city, IEnumerable<PuzzleCityTagPriceData> _rules)
     {
         var ordered = _rules.OrderByDescending(_rule => _rule.priority).ToList();

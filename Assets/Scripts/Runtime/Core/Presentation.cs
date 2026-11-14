@@ -452,6 +452,7 @@ public static class Presentation
     public static Color PuzzleMapCurrent => BasicData.Color("presentation.map.current");
     public static Color PuzzleMapTarget => PuzzleMapCurrent;
     public static Color PuzzleMapVisited => BasicData.Color("presentation.map.visited");
+    public static Color PuzzleMapRare => BasicData.Color("presentation.map.rare");
     public static Color PuzzleMapUnknown => BasicData.Color("presentation.map.unknown");
     public static Color PuzzleMapRoute => BasicData.Color("presentation.map.route");
     public static Color PuzzleMapConnected => BasicData.Color("presentation.map.connected");
@@ -527,18 +528,17 @@ public static class Presentation
         }
         else
         {
-            var rules = _city.tagPrices ?? Array.Empty<PuzzleCityTagPriceData>();
-            string common = string.Join(" · ", rules
-                .Where(rule => rule != null && rule.buyPercent < BasicData.Int("presentation.inventory.puzzleMapNodeLabelAbovePercent") && rule.sellPercent < BasicData.Int("presentation.inventory.puzzleMapNodeLabelAbovePercent2"))
-                .OrderBy(rule => rule.tag, StringComparer.Ordinal).Select(rule => PuzzleTagLabel(rule.tag)));
-            string rare = string.Join(" · ", rules
-                .Where(rule => rule != null && rule.buyPercent > BasicData.Int("presentation.inventory.puzzleMapNodeLabelAbovePercent3") && rule.sellPercent > BasicData.Int("presentation.inventory.puzzleMapNodeLabelAbovePercent4"))
-                .OrderBy(rule => rule.tag, StringComparer.Ordinal).Select(rule => PuzzleTagLabel(rule.tag)));
+            var buckets = ClassifyTagRulesBySellGrade(_city);
+            string common = JoinTags(buckets.common);
+            string expensive = JoinTags(buckets.expensive);
+            string rare = JoinTags(buckets.rare);
             string commonColor = ColorUtility.ToHtmlStringRGB(PuzzleMapVisited);
-            string rareColor = ColorUtility.ToHtmlStringRGB(PuzzleMapCurrent);
+            string expensiveColor = ColorUtility.ToHtmlStringRGB(PuzzleMapCurrent);
+            string rareColor = ColorUtility.ToHtmlStringRGB(PuzzleMapRare);
             trade = BasicData.Format("presentation.map.informationText8", (_region.tradeHub ? BasicData.Text("presentation.map.informationText13") : PuzzleTagLabel(_city.specialtyTag))) +
                 BasicData.Format("presentation.map.informationText9", commonColor, (string.IsNullOrEmpty(common) ? BasicData.Text("presentation.map.informationText14") : common)) +
-                BasicData.Format("presentation.map.informationText10", rareColor, (string.IsNullOrEmpty(rare) ? BasicData.Text("presentation.map.informationText15") : rare)) +
+                BasicData.Format("presentation.map.informationText10", expensiveColor, (string.IsNullOrEmpty(expensive) ? BasicData.Text("presentation.map.informationText15") : expensive)) +
+                BasicData.Format("presentation.map.informationText16", rareColor, (string.IsNullOrEmpty(rare) ? BasicData.Text("presentation.map.informationText15") : rare)) +
                 FarmWastePurchaseLine("presentation.map.wastePurchase", _region.id);
         }
 
@@ -1011,34 +1011,52 @@ public static class Presentation
         return BasicData.Format("presentation.inventory.funds", _funds);
     }
 
-    // 도시의 태그 규칙을 구매·판매 비율 기준으로 귀함/흔함으로 묶는다.
-    // 두 비율이 100을 사이에 두고 갈리거나 한쪽이 100이면 어느 쪽도 아닌 것으로 보고 표시하지 않는다.
-    internal static string PuzzleCityTagPreferences(PuzzleCityData _city)
+    // 태그 행을 판매 등급의 단일 기준으로 흔함/귀함/희귀로 나눈다. 등급이 없거나 일반(100%)이면 어느 목록에도 넣지 않는다.
+    static (List<string> common, List<string> expensive, List<string> rare) ClassifyTagRulesBySellGrade(PuzzleCityData _city)
     {
-        var expensive = new List<string>();
         var common = new List<string>();
+        var expensive = new List<string>();
+        var rare = new List<string>();
         foreach (var rule in _city?.tagPrices ?? Array.Empty<PuzzleCityTagPriceData>())
         {
             if (rule == null)
             {
                 continue;
             }
-            if (rule.buyPercent > BasicData.Int("presentation.trade.puzzleCityTagPreferencesAbovePercent") && rule.sellPercent > BasicData.Int("presentation.trade.puzzleCityTagPreferencesAbovePercent2"))
+            switch (TableManager.SellGradeKindOf(rule))
             {
-                expensive.Add(rule.tag);
-            }
-            else if (rule.buyPercent < BasicData.Int("presentation.inventory.puzzleCityTagPreferencesBelowPercent") && rule.sellPercent < BasicData.Int("presentation.inventory.puzzleCityTagPreferencesBelowPercent2"))
-            {
-                common.Add(rule.tag);
+                case PuzzleSellGradeKind.Common:
+                    common.Add(rule.tag);
+                    break;
+                case PuzzleSellGradeKind.Expensive:
+                    expensive.Add(rule.tag);
+                    break;
+                case PuzzleSellGradeKind.Rare:
+                    rare.Add(rule.tag);
+                    break;
             }
         }
+        return (common, expensive, rare);
+    }
 
-        string commonText = string.Join(" · ", common.OrderBy(tag => tag, StringComparer.Ordinal).Select(PuzzleTagLabel));
-        string rareText = string.Join(" · ", expensive.OrderBy(tag => tag, StringComparer.Ordinal).Select(PuzzleTagLabel));
+    static string JoinTags(IEnumerable<string> _tags)
+    {
+        return string.Join(" · ", _tags.OrderBy(_tag => _tag, StringComparer.Ordinal).Select(PuzzleTagLabel));
+    }
+
+    // 도시의 태그 규칙을 판매 등급 기준으로 흔함/귀함/희귀로 묶는다. 임의 배율이나 일반(100%)은 표시하지 않는다.
+    internal static string PuzzleCityTagPreferences(PuzzleCityData _city)
+    {
+        var buckets = ClassifyTagRulesBySellGrade(_city);
+        string commonText = JoinTags(buckets.common);
+        string expensiveText = JoinTags(buckets.expensive);
+        string rareText = JoinTags(buckets.rare);
         string commonColor = ColorUtility.ToHtmlStringRGB(PuzzleMapVisited);
-        string rareColor = ColorUtility.ToHtmlStringRGB(PuzzleMapCurrent);
+        string expensiveColor = ColorUtility.ToHtmlStringRGB(PuzzleMapCurrent);
+        string rareColor = ColorUtility.ToHtmlStringRGB(PuzzleMapRare);
         return BasicData.Format("presentation.trade.cityTagPreferences", commonColor, (string.IsNullOrEmpty(commonText) ? BasicData.Text("presentation.trade.cityTagPreferencesText3") : commonText)) +
-            BasicData.Format("presentation.trade.cityTagPreferencesText2", rareColor, (string.IsNullOrEmpty(rareText) ? BasicData.Text("presentation.trade.cityTagPreferencesText4") : rareText)) +
+            BasicData.Format("presentation.trade.cityTagPreferencesText2", expensiveColor, (string.IsNullOrEmpty(expensiveText) ? BasicData.Text("presentation.trade.cityTagPreferencesText4") : expensiveText)) +
+            BasicData.Format("presentation.trade.cityTagPreferencesText5", rareColor, (string.IsNullOrEmpty(rareText) ? BasicData.Text("presentation.trade.cityTagPreferencesText4") : rareText)) +
             BasicData.Format("presentation.trade.regionPrice", _city.buyPercentOfBaseValue, _city.sellPercentOfFinalValue) +
             FarmWastePurchaseLine("presentation.trade.wastePurchase", _city?.regionId);
 

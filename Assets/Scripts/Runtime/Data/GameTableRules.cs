@@ -195,6 +195,7 @@ public sealed class GameTableRules
         ValidateUpgrades(_tables);
         ValidateScenes(_tables);
         ValidateStockProfiles(_tables);
+        ValidateSellGrades(_tables);
         ValidatePuzzle(_tables);
         ValidatePuzzleSynergy(_tables);
         ValidateCityActions(_tables);
@@ -598,7 +599,7 @@ public sealed class GameTableRules
         }
     }
 
-    void ValidateCityTagPrices(PuzzleCityData _city, HashSet<string> _knownTags, string _path)
+    void ValidateCityTagPrices(TableManager _tables, PuzzleCityData _city, HashSet<string> _knownTags, string _path)
     {
         Check(_city.tagPrices != null, _path, "태그별 가격 목록이 필요합니다.");
         var entries = _city.tagPrices ?? Array.Empty<PuzzleCityTagPriceData>();
@@ -632,8 +633,29 @@ public sealed class GameTableRules
             }
 
             Check(entry.buyPercent > 0, path + ".buyPercent", "구매 배율은 0보다 커야 합니다.");
-            Check(entry.sellPercent > 0, path + ".sellPercent", "판매 배율은 0보다 커야 합니다.");
+            ValidateSellRate(_tables, entry, path);
         }
+    }
+
+    // 판매 배율은 등급 참조와 사용자 지정 수치가 서로 배타적이어야 한다. 등급 참조는 단일 원본 테이블로 해결된다.
+    void ValidateSellRate(TableManager _tables, PuzzleCityTagPriceData _entry, string _path)
+    {
+        bool hasGrade = !string.IsNullOrWhiteSpace(_entry.sellGradeId);
+        bool hasValue = _entry.sellPercent >= 0;
+        if (hasGrade && hasValue)
+        {
+            Check(false, _path + ".sellGradeId", "판매 등급을 지정하면 판매 배율을 함께 저장하지 않는다.");
+            return;
+        }
+        if (hasGrade)
+        {
+            Check(_entry.sellGradeId == _entry.sellGradeId.Trim(), _path + ".sellGradeId",
+                "판매 등급 ID에 앞뒤 공백이 있어서는 안 됩니다.");
+            Reference(_entry.sellGradeId, _path + ".sellGradeId", _tables.TryGetSellGrade(_entry.sellGradeId, out _), "판매 등급");
+            return;
+        }
+        Check(hasValue, _path, "판매 등급 또는 0보다 큰 사용자 지정 판매 배율 중 하나가 필요합니다.");
+        Check(_entry.sellPercent > 0, _path + ".sellPercent", "사용자 지정 판매 배율은 0보다 커야 합니다.");
     }
 
     void ValidatePuzzleSynergy(TableManager _tables)
@@ -1178,6 +1200,26 @@ public sealed class GameTableRules
         return input.Length == output.Length && !input.Where((_, index) => input[index] != output[index]).Any();
     }
 
+    // 판매 등급 테이블은 등급별 배율의 단일 원본이다. id 고유성·null은 Index가 보고하고 여기서는 값과 형식을 검사한다.
+    void ValidateSellGrades(TableManager _tables)
+    {
+        const string PATH = "PuzzleTableData.sellGrades";
+        var grades = _tables.Puzzle.sellGrades ?? Array.Empty<PuzzleSellGradeData>();
+        for (int i = 0; i < grades.Length; i++)
+        {
+            var grade = grades[i];
+            string path = $"{PATH}[{i}]";
+            if (grade == null)
+            {
+                continue;
+            }
+            Check(!string.IsNullOrWhiteSpace(grade.id) && grade.id == grade.id.Trim(), path + ".id",
+                "앞뒤 공백이 없는 비어 있지 않은 판매 등급 ID가 필요합니다.");
+            Check(grade.sellPercent > 0, path + ".sellPercent", "판매 등급 배율은 0보다 커야 합니다.");
+        }
+        Check(grades.Length > 0, PATH, "판매 등급이 하나 이상 필요합니다.");
+    }
+
     void ValidateStockProfiles(TableManager _tables)
     {
         foreach (var profile in _tables.Puzzle.stockProfiles ?? Array.Empty<PuzzleMarketStockData>())
@@ -1291,7 +1333,7 @@ public sealed class GameTableRules
             Check(city.buyPercentOfBaseValue > 0, cityPath + ".buyPercentOfBaseValue", "기본 구매 배율은 0보다 커야 합니다.");
             Check(city.sellPercentOfFinalValue > 0, cityPath + ".sellPercentOfFinalValue", "기본 판매 배율은 0보다 커야 합니다.");
             Reference(city.regionId, cityPath + ".regionId", _tables.TryGetRegion(city.regionId, out _), "지역");
-            ValidateCityTagPrices(city, knownTags, cityPath + ".tagPrices");
+            ValidateCityTagPrices(_tables, city, knownTags, cityPath + ".tagPrices");
             ValidateCitySpecialty(_tables, city, knownTags, cityPath);
             ValidateBoard(_tables, city.market, shapes, placementIds, cityPath + ".market");
             ValidateGeneralStock(_tables, city, shapes, placementIds, cityPath + ".stock");
@@ -1354,9 +1396,31 @@ public sealed class GameTableRules
             _path, "태그 색 RGBA는 0~1 범위여야 합니다.");
     }
 
-    static IEnumerable<PuzzleCityTagPriceData> MatchingTagPrices(PuzzleCityData _city, IReadOnlyCollection<string> _tags)
+    static IEnumerable<PuzzleCityTagPriceData> MatchingTagPrices(TableManager _tables, PuzzleCityData _city, IReadOnlyCollection<string> _tags)
     {
-        return (_city.tagPrices ?? Array.Empty<PuzzleCityTagPriceData>()).Where(_price => _price != null && _tags.Contains(_price.tag));
+        return (_city.tagPrices ?? Array.Empty<PuzzleCityTagPriceData>())
+            .Where(_price => _price != null && _tags.Contains(_price.tag))
+            .Select(_price => SellPercentOf(_tables, _price) == _price.sellPercent
+                ? _price
+                : new PuzzleCityTagPriceData
+                {
+                    tag = _price.tag,
+                    priority = _price.priority,
+                    buyPercent = _price.buyPercent,
+                    sellPercent = SellPercentOf(_tables, _price)
+                });
+    }
+
+    // 태그 행의 실효 판매 배율. 판매 등급을 참조하면 등급 테이블의 단일 원본으로 해결한다.
+    static int SellPercentOf(TableManager _tables, PuzzleCityTagPriceData _price)
+    {
+        if (_price == null)
+        {
+            return 0;
+        }
+        return !string.IsNullOrEmpty(_price.sellGradeId) && _tables.TryGetSellGrade(_price.sellGradeId, out var grade)
+            ? grade.sellPercent
+            : _price.sellPercent;
     }
 
     static bool HasNearbyTradeMatch(TableManager _tables, PuzzleCityData _from, PuzzleCityData _to)
@@ -1374,14 +1438,14 @@ public sealed class GameTableRules
             }
             var tags = piece.tags ?? Array.Empty<string>();
             // 실제 거래와 같은 합산 배율로 판정한다.
-            var fromRate = PuzzleTradeRate.Combine(_from, MatchingTagPrices(_from, tags));
+            var fromRate = PuzzleTradeRate.Combine(_from, MatchingTagPrices(_tables, _from, tags));
             bool nativeSupply = (fromRate.BuyPercent < 100 && fromRate.SellPercent < 100) ||
                 MatchesRegionSpecialty(region, tags);
             if (!nativeSupply)
             {
                 continue;
             }
-            var toRate = PuzzleTradeRate.Combine(_to, MatchingTagPrices(_to, tags));
+            var toRate = PuzzleTradeRate.Combine(_to, MatchingTagPrices(_tables, _to, tags));
             if (toRate.Tag != null && toRate.BuyPercent > 100 && toRate.SellPercent > 100)
             {
                 return true;
@@ -1416,7 +1480,8 @@ public sealed class GameTableRules
                 "마을 특산품은 소속 지역의 생산 태그에 있어야 합니다.");
         }
         var prices = _city.tagPrices ?? Array.Empty<PuzzleCityTagPriceData>();
-        Check(prices.Any(_price => _price != null && _price.tag == tag && _price.buyPercent < 100 && _price.sellPercent < 100),
+        Check(prices.Any(_price => _price != null && _price.tag == tag && _price.buyPercent < 100 &&
+            SellPercentOf(_tables, _price) < 100),
             _path + ".specialtyTag", "대표 특산품은 구매·판매 배율이 모두 100 미만인 풍부한 품목이어야 합니다.");
         var stock = _city.market?.startingPlacements ?? Array.Empty<PuzzleStartingPlacementData>();
         Check(stock.Length > 0, _path + ".market.startingPlacements", "대표 특산품의 고정 재고가 필요합니다.");
