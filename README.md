@@ -44,6 +44,7 @@ Unity 6.3 LTS(6000.3.22f1) URP 기반의 기차 화물 거래 게임. 작업 규
 ## 문서
 
 - [게임 기획서](<Docs/게임 기획서.md>): 게임 목표·규칙·지역·경제·화면·미정 사항의 본문.
+- [세계관 기획서](<Docs/세계관 기획서.md>) / [WORLD_BRIEF](Docs/Management/WORLD_BRIEF.md): 스팀펑크 벨 에포크 세계관(확정 방향·초안) / 세계관 작업자용 시스템 안내.
 - [TABLES](Docs/Management/TABLES.md): 데이터 소유권과 검증 계약.
 - [MAP](Docs/Management/MAP.md): 맵 데이터와 화면 구성의 저장소 좌표.
 - [BACKLOG](Docs/Management/BACKLOG.md): 개발 기반 제약·남은 사용자 확인.
