@@ -19,6 +19,7 @@ public sealed class PuzzleInventoryInput : MonoBehaviour, IPointerDownHandler, I
     int? hoveredPointerId;
     bool navigationSuppressed;
     bool previousNavigation;
+    bool textInputFocused;
     internal InputActionAsset ActionsAsset => uiInputModule.actionsAsset;
 
     internal event Action<PointerEventData> Pressed;
@@ -32,6 +33,7 @@ public sealed class PuzzleInventoryInput : MonoBehaviour, IPointerDownHandler, I
 
     void OnEnable()
     {
+        GameEvents.TextInputFocusChanged += OnTextInputFocusChanged;
         if (!uiInputModule || !uiInputModule.actionsAsset || !uiInputModule.TryGetComponent(out eventSystem))
         {
             Debug.LogError("PuzzleInventoryInput에 액션 자산이 연결된 InputSystemUIInputModule이 필요합니다.", this);
@@ -56,6 +58,8 @@ public sealed class PuzzleInventoryInput : MonoBehaviour, IPointerDownHandler, I
 
     void OnDisable()
     {
+        GameEvents.TextInputFocusChanged -= OnTextInputFocusChanged;
+        textInputFocused = false;
         ClearHover();
         CancelCapture();
         RestoreNavigation();
@@ -128,7 +132,7 @@ public sealed class PuzzleInventoryInput : MonoBehaviour, IPointerDownHandler, I
     {
         if (!pointerId.HasValue && _eventData.button == PointerEventData.InputButton.Left)
         {
-            if (quickTransferModifier != null && quickTransferModifier.IsPressed())
+            if (!textInputFocused && quickTransferModifier != null && quickTransferModifier.IsPressed())
             {
                 QuickTransferRequested?.Invoke(_eventData);
                 return;
@@ -194,13 +198,30 @@ public sealed class PuzzleInventoryInput : MonoBehaviour, IPointerDownHandler, I
         }
     }
 
+    void OnTextInputFocusChanged(GameEvents.TextInputFocusInfo _info)
+    {
+        if (_info.sceneHandle != gameObject.scene.handle)
+        {
+            return;
+        }
+        textInputFocused = _info.focused;
+    }
+
     void OnRotate(InputAction.CallbackContext _context)
     {
+        if (textInputFocused)
+        {
+            return;
+        }
         Rotated?.Invoke();
     }
 
     public bool TryConsumeCancel()
     {
+        if (textInputFocused)
+        {
+            return false;
+        }
         if (!pointerId.HasValue)
         {
             return false;

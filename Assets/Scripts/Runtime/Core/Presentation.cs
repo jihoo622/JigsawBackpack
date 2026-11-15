@@ -13,7 +13,7 @@ public enum EffectCategory
     Offense, Mobility, Defense, Utility, BaseStat
 }
 
-public static class Presentation
+public static partial class Presentation
 {
     public static Color SharedColor(string _id)
     {

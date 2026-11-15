@@ -32,6 +32,9 @@ public sealed class TelemetryRecorder : MonoBehaviour
         GameEvents.ProficiencyChanged += OnProficiencyChanged;
         GameEvents.EntityLinkClicked += OnEntityLinkClicked;
         GameEvents.EntityLinkContextRequested += OnEntityLinkContextRequested;
+        GameEvents.RoutePlanned += OnRoutePlanned;
+        GameEvents.RouteEnded += OnRouteEnded;
+        GameEvents.AutoTravelStopped += OnAutoTravelStopped;
         TelemetryLog.BeforeClose += OnSessionClosing;
     }
 
@@ -51,6 +54,9 @@ public sealed class TelemetryRecorder : MonoBehaviour
         GameEvents.ProficiencyChanged -= OnProficiencyChanged;
         GameEvents.EntityLinkClicked -= OnEntityLinkClicked;
         GameEvents.EntityLinkContextRequested -= OnEntityLinkContextRequested;
+        GameEvents.RoutePlanned -= OnRoutePlanned;
+        GameEvents.RouteEnded -= OnRouteEnded;
+        GameEvents.AutoTravelStopped -= OnAutoTravelStopped;
         TelemetryLog.BeforeClose -= OnSessionClosing;
     }
 
@@ -203,5 +209,29 @@ public sealed class TelemetryRecorder : MonoBehaviour
     void OnEntityLinkContextRequested(GameEvents.EntityLinkInfo _info)
     {
         TelemetryLog.Write(TelemetryEvents.ENTITY_LINK_CLICKED, TelemetryPayload.EntityLink(_info, "context"));
+    }
+
+    void OnRoutePlanned(GameEvents.RoutePlannedInfo _info)
+    {
+        if (ReferenceEquals(activeRun, _info.session))
+        {
+            TelemetryLog.Write(TelemetryEvents.ROUTE_PLANNED, TelemetryPayload.RoutePlanned(_info));
+        }
+    }
+
+    void OnRouteEnded(GameEvents.RouteEndedInfo _info)
+    {
+        if (ReferenceEquals(activeRun, _info.session))
+        {
+            TelemetryLog.Write(TelemetryEvents.ROUTE_ENDED, TelemetryPayload.RouteEnded(_info));
+        }
+    }
+
+    void OnAutoTravelStopped(GameEvents.AutoTravelStoppedInfo _info)
+    {
+        if (ReferenceEquals(activeRun, _info.session))
+        {
+            TelemetryLog.Write(TelemetryEvents.AUTO_TRAVEL_STOPPED, TelemetryPayload.AutoTravelStopped(_info));
+        }
     }
 }

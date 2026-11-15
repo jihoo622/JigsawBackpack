@@ -305,6 +305,118 @@ public static class GameEvents
     {
         Emit(MapFocusRequested, _info);
     }
+
+    // 경로 계획(예약)이 만들어지거나·진행되거나·정차역이 바뀌거나·끝났다. 현재 계획은 session.RoutePlan(없으면 null).
+    public readonly struct RoutePlanInfo
+    {
+        public readonly PuzzleInventoryService session;
+        public RoutePlanInfo(PuzzleInventoryService _session)
+        {
+            session = _session;
+        }
+    }
+    public static event Action<RoutePlanInfo> RoutePlanChanged;
+    public static void RaiseRoutePlanChanged(RoutePlanInfo _info)
+    {
+        Emit(RoutePlanChanged, _info);
+    }
+
+    // 분석 로그용 경로 사건. reason 값은 PLAY_LOG.md가 원본.
+    public readonly struct RoutePlannedInfo
+    {
+        public readonly PuzzleInventoryService session;
+        public readonly string fromCityId;
+        public readonly string toCityId;
+        public readonly int legs;
+        public readonly long totalMinutes;
+        public readonly int stops;
+        public RoutePlannedInfo(PuzzleInventoryService _session, string _fromCityId, string _toCityId, int _legs, long _totalMinutes, int _stops)
+        {
+            session = _session;
+            fromCityId = _fromCityId;
+            toCityId = _toCityId;
+            legs = _legs;
+            totalMinutes = _totalMinutes;
+            stops = _stops;
+        }
+    }
+    public static event Action<RoutePlannedInfo> RoutePlanned;
+    public static void RaiseRoutePlanned(RoutePlannedInfo _info)
+    {
+        Emit(RoutePlanned, _info);
+    }
+
+    // reason: completed / canceled / deviated / run_ended
+    public readonly struct RouteEndedInfo
+    {
+        public readonly PuzzleInventoryService session;
+        public readonly string reason;
+        public readonly string toCityId;
+        public RouteEndedInfo(PuzzleInventoryService _session, string _reason, string _toCityId)
+        {
+            session = _session;
+            reason = _reason;
+            toCityId = _toCityId;
+        }
+    }
+    public static event Action<RouteEndedInfo> RouteEnded;
+    public static void RaiseRouteEnded(RouteEndedInfo _info)
+    {
+        Emit(RouteEnded, _info);
+    }
+
+    // reason: stop_reached / insufficient_funds / run_ended / user_stopped / failed
+    public readonly struct AutoTravelStoppedInfo
+    {
+        public readonly PuzzleInventoryService session;
+        public readonly string reason;
+        public readonly string cityId;
+        public AutoTravelStoppedInfo(PuzzleInventoryService _session, string _reason, string _cityId)
+        {
+            session = _session;
+            reason = _reason;
+            cityId = _cityId;
+        }
+    }
+    public static event Action<AutoTravelStoppedInfo> AutoTravelStopped;
+    public static void RaiseAutoTravelStopped(AutoTravelStoppedInfo _info)
+    {
+        Emit(AutoTravelStopped, _info);
+    }
+
+    // 지도 밖(검색 결과 등)에서 그 역까지 경로 계획을 만들어 달라는 요청. 지도 경로 계획 Presenter가 받는다.
+    public readonly struct RoutePlanRequestInfo
+    {
+        public readonly int sceneHandle;
+        public readonly string cityId;
+        public RoutePlanRequestInfo(int _sceneHandle, string _cityId)
+        {
+            sceneHandle = _sceneHandle;
+            cityId = _cityId;
+        }
+    }
+    public static event Action<RoutePlanRequestInfo> RoutePlanRequested;
+    public static void RaiseRoutePlanRequested(RoutePlanRequestInfo _info)
+    {
+        Emit(RoutePlanRequested, _info);
+    }
+
+    // 글자 입력 칸(검색 등)이 포커스를 얻거나 잃었다. 켜져 있는 동안 키보드 게임 입력(회전·단축키)을 막는다.
+    public readonly struct TextInputFocusInfo
+    {
+        public readonly int sceneHandle;
+        public readonly bool focused;
+        public TextInputFocusInfo(int _sceneHandle, bool _focused)
+        {
+            sceneHandle = _sceneHandle;
+            focused = _focused;
+        }
+    }
+    public static event Action<TextInputFocusInfo> TextInputFocusChanged;
+    public static void RaiseTextInputFocusChanged(TextInputFocusInfo _info)
+    {
+        Emit(TextInputFocusChanged, _info);
+    }
     public readonly struct SynergyHighlightInfo
     {
         public readonly int sceneHandle;
@@ -637,6 +749,12 @@ public static class GameEvents
         EntityLinkHovered = null;
         EntityLinkHoverEnded = null;
         MapFocusRequested = null;
+        RoutePlanChanged = null;
+        RoutePlanned = null;
+        RouteEnded = null;
+        AutoTravelStopped = null;
+        RoutePlanRequested = null;
+        TextInputFocusChanged = null;
         SynergyHighlightRequested = null;
         ButcheryChanged = null;
         ModificationChanged = null;
