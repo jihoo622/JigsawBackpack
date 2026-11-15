@@ -13,6 +13,45 @@ public enum EffectCategory
     Offense, Mobility, Defense, Utility, BaseStat
 }
 
+internal enum PuzzleCityTradeGrade
+{
+    Common,
+    Expensive,
+    Rare,
+    Waste
+}
+
+internal readonly struct PuzzleCityTradePreferencesData
+{
+    public readonly bool IsValid;
+    public readonly IReadOnlyList<string> CommonTags;
+    public readonly IReadOnlyList<string> ExpensiveTags;
+    public readonly IReadOnlyList<string> RareTags;
+    public readonly IReadOnlyList<string> WasteTags;
+    public readonly bool HasWastePurchase;
+    public readonly int BuyPercentOfBaseValue;
+    public readonly int SellPercentOfFinalValue;
+
+    public PuzzleCityTradePreferencesData(
+        IReadOnlyList<string> _commonTags,
+        IReadOnlyList<string> _expensiveTags,
+        IReadOnlyList<string> _rareTags,
+        IReadOnlyList<string> _wasteTags,
+        bool _hasWastePurchase,
+        int _buyPercentOfBaseValue,
+        int _sellPercentOfFinalValue)
+    {
+        IsValid = true;
+        CommonTags = _commonTags ?? Array.Empty<string>();
+        ExpensiveTags = _expensiveTags ?? Array.Empty<string>();
+        RareTags = _rareTags ?? Array.Empty<string>();
+        WasteTags = _wasteTags ?? Array.Empty<string>();
+        HasWastePurchase = _hasWastePurchase;
+        BuyPercentOfBaseValue = _buyPercentOfBaseValue;
+        SellPercentOfFinalValue = _sellPercentOfFinalValue;
+    }
+}
+
 public static partial class Presentation
 {
     public static Color SharedColor(string _id)
@@ -1083,8 +1122,8 @@ public static partial class Presentation
         return _name + (_visited ? BasicData.Text("presentation.map.nodeLabelText4") : BasicData.Text("presentation.map.nodeLabelText5"));
     }
 
-    internal static string PuzzleMapInformation(PuzzleCityData _city, bool _visited, bool _current, bool _connected,
-        PuzzleTravelResult _evaluation, PuzzleRegionData _region, IReadOnlyList<PuzzleInventoryService.TavernRumor> _rumors)
+    static (string heading, string status) BuildPuzzleMapCityHeadingParts(PuzzleCityData _city, bool _visited, bool _current, bool _connected,
+        PuzzleTravelResult _evaluation, PuzzleRegionData _region)
     {
         string heading = BasicData.Format("presentation.map.information", _city.displayName);
         heading += _visited
@@ -1111,6 +1150,20 @@ public static partial class Presentation
         {
             status = BasicData.Format("presentation.map.informationText7", ColorUtility.ToHtmlStringRGB(PuzzleMapConnectedDisabled), PuzzleTravelStatus(_evaluation), PuzzleMapTime(_evaluation.TravelMinutes));
         }
+        return (heading, status);
+    }
+
+    internal static string PuzzleMapCityHeading(PuzzleCityData _city, bool _visited, bool _current, bool _connected,
+        PuzzleTravelResult _evaluation, PuzzleRegionData _region)
+    {
+        var (heading, status) = BuildPuzzleMapCityHeadingParts(_city, _visited, _current, _connected, _evaluation, _region);
+        return BasicData.Format("presentation.map.informationText11", heading, status, string.Empty).TrimEnd('\n');
+    }
+
+    internal static string PuzzleMapInformation(PuzzleCityData _city, bool _visited, bool _current, bool _connected,
+        PuzzleTravelResult _evaluation, PuzzleRegionData _region, IReadOnlyList<PuzzleInventoryService.TavernRumor> _rumors)
+    {
+        var (heading, status) = BuildPuzzleMapCityHeadingParts(_city, _visited, _current, _connected, _evaluation, _region);
 
         string trade;
         if (!_visited)
@@ -1762,6 +1815,72 @@ public static partial class Presentation
         return string.Join(" · ", _tags.OrderBy(_tag => _tag, StringComparer.Ordinal).Select(PuzzleTagLabel));
     }
 
+    // 도시의 태그 규칙을 판매 등급 기준으로 구조화해 반환한다. 지도/상점의 배지 뷰가 공용으로 사용한다.
+    internal static PuzzleCityTradePreferencesData GetCityTradePreferences(PuzzleCityData _city)
+    {
+        if (_city == null)
+        {
+            return default;
+        }
+        var buckets = ClassifyTagRulesBySellGrade(_city);
+        bool hasWaste = string.Equals(_city.regionId, "region.farm", StringComparison.Ordinal);
+        IReadOnlyList<string> wasteTags = hasWaste ? new[] { "Waste" } : Array.Empty<string>();
+        return new PuzzleCityTradePreferencesData(
+            PrioritizeTags(buckets.common),
+            PrioritizeTags(buckets.expensive),
+            PrioritizeTags(buckets.rare),
+            wasteTags,
+            hasWaste,
+            _city.buyPercentOfBaseValue,
+            _city.sellPercentOfFinalValue);
+    }
+
+    internal static void CityTradeGradeInfo(PuzzleCityTradeGrade _grade, bool _withLink,
+        out string _formattedLabel, out string _linkId, out Color _color)
+    {
+        string rawTitle;
+        switch (_grade)
+        {
+            case PuzzleCityTradeGrade.Common:
+                rawTitle = BasicData.Text("presentation.trade.commonResourceTitle");
+                _linkId = "common";
+                _color = PuzzleMapVisited;
+                break;
+            case PuzzleCityTradeGrade.Expensive:
+                rawTitle = BasicData.Text("presentation.trade.expensiveResourceTitle");
+                _linkId = "expensive";
+                _color = PuzzleMapCurrent;
+                break;
+            case PuzzleCityTradeGrade.Rare:
+                rawTitle = BasicData.Text("presentation.trade.rareResourceTitle");
+                _linkId = "rare";
+                _color = PuzzleMapRare;
+                break;
+            case PuzzleCityTradeGrade.Waste:
+                rawTitle = BasicData.Text("presentation.trade.wastePurchaseTitle");
+                _linkId = "waste";
+                _color = PuzzleTooltipGreen;
+                break;
+            default:
+                rawTitle = string.Empty;
+                _linkId = string.Empty;
+                _color = UnityEngine.Color.white;
+                break;
+        }
+
+        string content = _withLink && !string.IsNullOrEmpty(_linkId)
+            ? $"<link=\"{_linkId}\">{rawTitle}</link>"
+            : rawTitle;
+        _formattedLabel = $"<color=#{ColorUtility.ToHtmlStringRGB(_color)}><b>{content}</b></color>";
+    }
+
+    internal static string CityTradeWasteSuffix => "(+10$)";
+
+    internal static string CityTradeRegionPriceText(int _buyPercent, int _sellPercent)
+    {
+        return BasicData.Format("presentation.trade.regionPrice", _buyPercent, _sellPercent).TrimStart('\n');
+    }
+
     // 도시의 태그 규칙을 판매 등급 기준으로 흔함/귀함/희귀로 묶는다. 임의 배율이나 일반(100%)은 표시하지 않는다.
     internal static string PuzzleCityTagPreferences(PuzzleCityData _city)
     {
@@ -1963,7 +2082,7 @@ public static partial class Presentation
             : BasicData.Color("presentation.tags.puzzleTagTextColor");
     }
 
-    static Color PuzzleTagTextOnBackground(Color _background)
+    public static Color PuzzleTagTextOnBackground(Color _background)
     {
         Color light = BasicData.Color("presentation.tags.puzzleTagTextColor");
         Color dark = BasicData.Color("presentation.tags.freshTextColor");
@@ -1986,14 +2105,14 @@ public static partial class Presentation
             || string.Equals(_tag, "Refrigerator", StringComparison.OrdinalIgnoreCase);
     }
 
-    internal static Color PuzzleTooltipTagBackground(string _tag, float _blend)
+    public static Color PuzzleTooltipTagBackground(string _tag, float _blend)
     {
         Color background = PuzzleTagBackgroundColor(_tag);
         return IsFreshTag(_tag) ? background
             : UnityEngine.Color.Lerp(background, PuzzleTooltipBodyBackground, _blend);
     }
 
-    internal static Color PuzzleTooltipTagTextColor(string _tag, float _blend)
+    public static Color PuzzleTooltipTagTextColor(string _tag, float _blend)
     {
         if (TableManager.Instance.Puzzle.tagPresentations.Any(_entry => _entry.id == _tag))
         {

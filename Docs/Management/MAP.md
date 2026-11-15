@@ -18,7 +18,7 @@
 - 맵 UI 스크립트(PuzzleMapPresenter 1·PuzzleMapView 1·PuzzleMapNavigation 1·PuzzleMapTravelView 1·PuzzleMapNodeView 31)는 **전부 프리팹 안에 자기 완결로 들어 있다.** `Assets/Scenes/Game.unity`는 프리팹 인스턴스 하나를 사용한다.
 - `Game.unity`의 인스턴스는 루트 RectTransform(fileID 700011)에 프로퍼티 오버라이드 11개(pivot·anchor·sizeDelta·localScale)를 저장한다. 노드·선분·라벨 좌표는 전부 프리팹에 있고 씬 오버라이드는 없다.
 - 배경 이미지의 지리 원본은 `rail_map_geography_seed_20265146.json`이며, `Game.unity`는 지도 프리팹 인스턴스를 사용한다.
-- 역 연결은 생성 데이터 `ProjectWorldData.json`(seed 20265146)의 `projectMapData` 43개에서 시작해 Map Editor로 고쳤다(현재 왕복 50개, R01~R51 중 R29 없음). 역 좌표와 노선 모양도 Map Editor로 편집한 값이다. 표에 들어갈 값은 `targetTables`가 지정한 3개 테이블에 넣고, 표시 좌표와 노선 폴리라인은 [rail_map_layout_seed_20265146.json](rail_map_layout_seed_20265146.json)에 따로 저장한다. 원본 `ProjectWorldData.json`(1.5MB, 지형 배열 포함)은 저장소에 넣지 않고 위 파일만 보관한다. 지역 구분·태그 경제·시장 격자는 생성 데이터 대신 기존 테이블 값을 유지한다.
+- 역 연결은 생성 데이터 `ProjectWorldData.json`(seed 20265146)의 `projectMapData` 43개에서 시작해 Map Editor로 고쳤다(현재 왕복 51개, R01~R52 중 R29 없음. R52는 메르트–세르그라드). 역 좌표와 노선 모양도 Map Editor로 편집한 값이다. 표에 들어갈 값은 `targetTables`가 지정한 3개 테이블에 넣고, 표시 좌표와 노선 폴리라인은 [rail_map_layout_seed_20265146.json](rail_map_layout_seed_20265146.json)에 따로 저장한다. 원본 `ProjectWorldData.json`(1.5MB, 지형 배열 포함)은 저장소에 넣지 않고 위 파일만 보관한다. 지역 구분·태그 경제·시장 격자는 생성 데이터 대신 기존 테이블 값을 유지한다.
 - 프리팹에도 노드 좌표·노선 선분·시간 라벨·환승 표시를 적용해 저장했다. `Tools/MyJG/Apply Rail Map Layout (seed 20265146)`으로 같은 레이아웃을 다시 적용할 수 있다(§4).
 
 ## 노선 데이터 무결성

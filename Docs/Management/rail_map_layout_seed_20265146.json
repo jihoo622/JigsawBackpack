@@ -30,8 +30,8 @@
       "displayName": "금융마을",
       "regionId": "region.capital",
       "settlementType": "town",
-      "x": 310.0,
-      "y": -160.0,
+      "x": 290.0,
+      "y": -110.0,
       "interchange": true,
       "degree": 3,
       "tileX": 89,
@@ -43,10 +43,10 @@
       "displayName": "세르그라드",
       "regionId": "region.capital",
       "settlementType": "town",
-      "x": 90.0,
-      "y": 30.0,
+      "x": 110.0,
+      "y": 10.0,
       "interchange": false,
-      "degree": 3,
+      "degree": 4,
       "tileX": 65,
       "tileY": 31,
       "sourceId": "S25"
@@ -57,7 +57,7 @@
       "regionId": "region.capital",
       "settlementType": "town",
       "x": 350.0,
-      "y": 0.0,
+      "y": 10.0,
       "interchange": true,
       "degree": 4,
       "tileX": 92,
@@ -69,8 +69,8 @@
       "displayName": "트렌포드",
       "regionId": "region.capital",
       "settlementType": "city",
-      "x": 190.0,
-      "y": 140.0,
+      "x": 230.0,
+      "y": 80.0,
       "interchange": true,
       "degree": 4,
       "tileX": 77,
@@ -83,7 +83,7 @@
       "regionId": "region.coast",
       "settlementType": "town",
       "x": 530.0,
-      "y": 220.0,
+      "y": 210.0,
       "interchange": false,
       "degree": 2,
       "tileX": 105,
@@ -121,8 +121,8 @@
       "displayName": "테라카",
       "regionId": "region.coast",
       "settlementType": "town",
-      "x": 610.0,
-      "y": 310.0,
+      "x": 600.0,
+      "y": 300.0,
       "interchange": false,
       "degree": 2,
       "tileX": 88,
@@ -147,8 +147,8 @@
       "displayName": "오스베르",
       "regionId": "region.mine",
       "settlementType": "town",
-      "x": -110.0,
-      "y": 330.0,
+      "x": -140.0,
+      "y": 320.0,
       "interchange": true,
       "degree": 3,
       "tileX": 59,
@@ -161,9 +161,9 @@
       "regionId": "region.common",
       "settlementType": "town",
       "x": 160.0,
-      "y": -160.0,
+      "y": -100.0,
       "interchange": true,
-      "degree": 3,
+      "degree": 4,
       "tileX": 74,
       "tileY": 57,
       "sourceId": "S30"
@@ -171,9 +171,9 @@
     {
       "cityId": "city.sera",
       "displayName": "세르아",
-      "regionId": "region.common",
+      "regionId": "region.ranch",
       "settlementType": "town",
-      "x": -160.0,
+      "x": -180.0,
       "y": -220.0,
       "interchange": true,
       "degree": 4,
@@ -199,8 +199,8 @@
       "displayName": "이브트",
       "regionId": "region.farm",
       "settlementType": "city",
-      "x": 44.31,
-      "y": -195,
+      "x": 40.0,
+      "y": -220.0,
       "interchange": true,
       "degree": 3,
       "tileX": 65,
@@ -212,8 +212,8 @@
       "displayName": "베르스카",
       "regionId": "region.farm",
       "settlementType": "town",
-      "x": -120.0,
-      "y": 10.0,
+      "x": -70.0,
+      "y": 0.0,
       "interchange": true,
       "degree": 4,
       "tileX": 50,
@@ -225,8 +225,8 @@
       "displayName": "테라폴",
       "regionId": "region.farm",
       "settlementType": "city",
-      "x": -60.0,
-      "y": -120.0,
+      "x": -20.0,
+      "y": -110.0,
       "interchange": true,
       "degree": 4,
       "tileX": 54,
@@ -251,8 +251,8 @@
       "displayName": "노르노바",
       "regionId": "region.industry",
       "settlementType": "town",
-      "x": -570.0,
-      "y": -150.0,
+      "x": -550.0,
+      "y": -130.0,
       "interchange": false,
       "degree": 4,
       "tileX": 19,
@@ -277,7 +277,7 @@
       "displayName": "헤일포드",
       "regionId": "region.industry",
       "settlementType": "town",
-      "x": -690.0,
+      "x": -660.0,
       "y": -50.0,
       "interchange": false,
       "degree": 2,
@@ -342,7 +342,7 @@
       "displayName": "다르안",
       "regionId": "region.mine",
       "settlementType": "town",
-      "x": -160.0,
+      "x": -180.0,
       "y": 190.0,
       "interchange": false,
       "degree": 3,
@@ -456,14 +456,14 @@
       "points": [
         -270.0,
         360.0,
-        -110.0,
-        330.0
+        -140.0,
+        320.0
       ],
       "displayPoints": [
         -270.0,
         360.0,
-        -110.0,
-        330.0
+        -140.0,
+        320.0
       ],
       "labelManual": true
     },
@@ -509,17 +509,17 @@
       "corridorType": "trade_backbone",
       "distance": 2,
       "cost": 3,
-      "labelX": 190.0,
-      "labelY": -80.0,
+      "labelX": 200.0,
+      "labelY": -50.0,
       "points": [
         160.0,
-        -160.0,
+        -100.0,
         220.0,
         -20.0
       ],
       "displayPoints": [
         160.0,
-        -160.0,
+        -100.0,
         220.0,
         -20.0
       ],
@@ -534,19 +534,19 @@
       "corridorType": "trade_backbone",
       "distance": 2,
       "cost": 3,
-      "labelX": 280.0,
-      "labelY": -80.0,
+      "labelX": 260.0,
+      "labelY": -70.0,
       "points": [
         220.0,
         -20.0,
-        310.0,
-        -160.0
+        290.0,
+        -110.0
       ],
       "displayPoints": [
         220.0,
         -20.0,
-        310.0,
-        -160.0
+        290.0,
+        -110.0
       ],
       "labelManual": true
     },
@@ -560,7 +560,7 @@
       "distance": 1,
       "cost": 3,
       "labelX": -480.0,
-      "labelY": -80.0,
+      "labelY": -50.0,
       "points": [
         -540.0,
         -20.0,
@@ -585,7 +585,7 @@
       "distance": 2,
       "cost": 3,
       "labelX": -320.0,
-      "labelY": -100.0,
+      "labelY": -90.0,
       "points": [
         -430.0,
         -80.0,
@@ -605,20 +605,20 @@
       "sourceId": "R08",
       "fromCityId": "city.sera",
       "toCityId": "city.rasenpol",
-      "regionId": "line.regional",
+      "regionId": "region.ranch",
       "corridorType": "express_backbone",
       "distance": 2,
       "cost": 3,
-      "labelX": -220.0,
-      "labelY": -200.0,
+      "labelX": -230.0,
+      "labelY": -210.0,
       "points": [
-        -160.0,
+        -180.0,
         -220.0,
         -310.0,
         -190.0
       ],
       "displayPoints": [
-        -160.0,
+        -180.0,
         -220.0,
         -310.0,
         -190.0
@@ -639,13 +639,13 @@
       "points": [
         -50.0,
         220.0,
-        -160.0,
+        -180.0,
         190.0
       ],
       "displayPoints": [
         -50.0,
         220.0,
-        -160.0,
+        -180.0,
         190.0
       ],
       "labelManual": true
@@ -659,19 +659,19 @@
       "corridorType": "recommended_trade",
       "distance": 2,
       "cost": 3,
-      "labelX": 260.0,
-      "labelY": -150.0,
+      "labelX": 230.0,
+      "labelY": -100.0,
       "points": [
         160.0,
-        -160.0,
-        310.0,
-        -160.0
+        -100.0,
+        290.0,
+        -110.0
       ],
       "displayPoints": [
         160.0,
-        -160.0,
-        310.0,
-        -160.0
+        -100.0,
+        290.0,
+        -110.0
       ],
       "labelManual": true
     },
@@ -685,16 +685,16 @@
       "distance": 2,
       "cost": 3,
       "labelX": -490.0,
-      "labelY": -140.0,
+      "labelY": -110.0,
       "points": [
-        -570.0,
-        -150.0,
+        -550.0,
+        -130.0,
         -430.0,
         -80.0
       ],
       "displayPoints": [
-        -570.0,
-        -150.0,
+        -550.0,
+        -130.0,
         -430.0,
         -80.0
       ],
@@ -705,22 +705,22 @@
       "sourceId": "R12",
       "fromCityId": "city.osgrad",
       "toCityId": "city.sera",
-      "regionId": "line.regional",
+      "regionId": "region.ranch",
       "corridorType": "recommended_trade",
       "distance": 3,
       "cost": 3,
-      "labelX": -160.0,
-      "labelY": -240.0,
+      "labelX": -190.0,
+      "labelY": -260.0,
       "points": [
         -200.0,
         -290.0,
-        -160.0,
+        -180.0,
         -220.0
       ],
       "displayPoints": [
         -200.0,
         -290.0,
-        -160.0,
+        -180.0,
         -220.0
       ],
       "labelManual": true
@@ -734,19 +734,19 @@
       "corridorType": "mst",
       "distance": 2,
       "cost": 3,
-      "labelX": 210.0,
-      "labelY": 60.0,
+      "labelX": 230.0,
+      "labelY": 40.0,
       "points": [
         220.0,
         -20.0,
-        190.0,
-        140.0
+        230.0,
+        80.0
       ],
       "displayPoints": [
         220.0,
         -20.0,
-        190.0,
-        140.0
+        230.0,
+        80.0
       ],
       "labelManual": true
     },
@@ -762,16 +762,16 @@
       "labelX": -10.0,
       "labelY": -150.0,
       "points": [
-        44.31,
-        -195,
-        -60.0,
-        -120.0
+        40.0,
+        -220.0,
+        -20.0,
+        -110.0
       ],
       "displayPoints": [
-        44.31,
-        -195,
-        -60.0,
-        -120.0
+        40.0,
+        -220.0,
+        -20.0,
+        -110.0
       ],
       "labelManual": true
     },
@@ -790,13 +790,13 @@
         220.0,
         -20.0,
         350.0,
-        0.0
+        10.0
       ],
       "displayPoints": [
         220.0,
         -20.0,
         350.0,
-        0.0
+        10.0
       ],
       "labelManual": true
     },
@@ -809,19 +809,19 @@
       "corridorType": "mst",
       "distance": 1,
       "cost": 3,
-      "labelX": -90.0,
+      "labelX": -40.0,
       "labelY": -60.0,
       "points": [
-        -60.0,
-        -120.0,
-        -120.0,
-        10.0
+        -20.0,
+        -110.0,
+        -70.0,
+        0.0
       ],
       "displayPoints": [
-        -60.0,
-        -120.0,
-        -120.0,
-        10.0
+        -20.0,
+        -110.0,
+        -70.0,
+        0.0
       ],
       "labelManual": true
     },
@@ -859,19 +859,19 @@
       "corridorType": "mst",
       "distance": 1,
       "cost": 3,
-      "labelX": 120.28,
-      "labelY": 81,
+      "labelX": 180.0,
+      "labelY": 50.0,
       "points": [
-        190.0,
-        140.0,
-        90.0,
-        30.0
+        230.0,
+        80.0,
+        110.0,
+        10.0
       ],
       "displayPoints": [
-        190.0,
-        140.0,
-        90.0,
-        30.0
+        230.0,
+        80.0,
+        110.0,
+        10.0
       ],
       "labelManual": true
     },
@@ -909,18 +909,18 @@
       "corridorType": "mst",
       "distance": 2,
       "cost": 3,
-      "labelX": -620.0,
+      "labelX": -600.0,
       "labelY": -30.0,
       "points": [
         -540.0,
         -20.0,
-        -690.0,
+        -660.0,
         -50.0
       ],
       "displayPoints": [
         -540.0,
         -20.0,
-        -690.0,
+        -660.0,
         -50.0
       ],
       "labelManual": true
@@ -942,7 +942,7 @@
         530.0,
         150.0,
         530.0,
-        220.0
+        210.0
       ],
       "displayPoints": [
         480.0,
@@ -950,7 +950,7 @@
         530.0,
         150.0,
         530.0,
-        220.0
+        210.0
       ],
       "labelManual": true
     },
@@ -964,22 +964,22 @@
       "distance": 1,
       "cost": 3,
       "labelX": 530.0,
-      "labelY": 280.0,
+      "labelY": 270.0,
       "points": [
         530.0,
-        220.0,
+        210.0,
         530.0,
-        280.0,
-        610.0,
-        310.0
+        270.0,
+        600.0,
+        300.0
       ],
       "displayPoints": [
         530.0,
-        220.0,
+        210.0,
         530.0,
-        280.0,
-        610.0,
-        310.0
+        270.0,
+        600.0,
+        300.0
       ],
       "labelManual": true
     },
@@ -993,18 +993,18 @@
       "distance": 1,
       "cost": 3,
       "labelX": -550.0,
-      "labelY": -80.0,
+      "labelY": -70.0,
       "points": [
         -540.0,
         -20.0,
-        -570.0,
-        -150.0
+        -550.0,
+        -130.0
       ],
       "displayPoints": [
         -540.0,
         -20.0,
-        -570.0,
-        -150.0
+        -550.0,
+        -130.0
       ],
       "labelManual": true
     },
@@ -1017,17 +1017,17 @@
       "corridorType": "mst",
       "distance": 1,
       "cost": 3,
-      "labelX": -160.0,
-      "labelY": -20.0,
+      "labelX": -140.0,
+      "labelY": -40.0,
       "points": [
-        -120.0,
-        10.0,
+        -70.0,
+        0.0,
         -220.0,
         -100.0
       ],
       "displayPoints": [
-        -120.0,
-        10.0,
+        -70.0,
+        0.0,
         -220.0,
         -100.0
       ],
@@ -1070,14 +1070,14 @@
       "labelX": 94.955,
       "labelY": -280.0,
       "points": [
-        44.31,
-        -195,
+        40.0,
+        -220.0,
         120.0,
         -320.0
       ],
       "displayPoints": [
-        44.31,
-        -195,
+        40.0,
+        -220.0,
         120.0,
         -320.0
       ],
@@ -1092,8 +1092,8 @@
       "corridorType": "mst",
       "distance": 1,
       "cost": 3,
-      "labelX": -270.0,
-      "labelY": -130.0,
+      "labelX": -260.0,
+      "labelY": -140.0,
       "points": [
         -220.0,
         -100.0,
@@ -1120,16 +1120,16 @@
       "labelX": -120.0,
       "labelY": 80.0,
       "points": [
-        -160.0,
+        -180.0,
         190.0,
-        -120.0,
-        10.0
+        -70.0,
+        0.0
       ],
       "displayPoints": [
-        -160.0,
+        -180.0,
         190.0,
-        -120.0,
-        10.0
+        -70.0,
+        0.0
       ],
       "labelManual": true
     },
@@ -1171,8 +1171,8 @@
       "corridorType": "mst",
       "distance": 2,
       "cost": 3,
-      "labelX": -457.000824,
-      "labelY": 278.166718,
+      "labelX": -410.0,
+      "labelY": 260.0,
       "points": [
         -320.0,
         190.0,
@@ -1200,17 +1200,17 @@
       "corridorType": "recommended_trade",
       "distance": 2,
       "cost": 3,
-      "labelX": -150.0,
-      "labelY": -80.0,
+      "labelX": -120.0,
+      "labelY": -100.0,
       "points": [
-        -60.0,
-        -120.0,
+        -20.0,
+        -110.0,
         -220.0,
         -100.0
       ],
       "displayPoints": [
-        -60.0,
-        -120.0,
+        -20.0,
+        -110.0,
         -220.0,
         -100.0
       ],
@@ -1225,19 +1225,19 @@
       "corridorType": "hub",
       "distance": 2,
       "cost": 3,
-      "labelX": 280.0,
-      "labelY": 70.0,
+      "labelX": 290.0,
+      "labelY": 40.0,
       "points": [
-        190.0,
-        140.0,
+        230.0,
+        80.0,
         350.0,
-        0.0
+        10.0
       ],
       "displayPoints": [
-        190.0,
-        140.0,
+        230.0,
+        80.0,
         350.0,
-        0.0
+        10.0
       ],
       "labelManual": true
     },
@@ -1250,19 +1250,19 @@
       "corridorType": "economy_extra",
       "distance": 2,
       "cost": 3,
-      "labelX": 350.0,
-      "labelY": -70.0,
+      "labelX": 330.0,
+      "labelY": -40.0,
       "points": [
-        310.0,
-        -160.0,
+        290.0,
+        -110.0,
         350.0,
-        0.0
+        10.0
       ],
       "displayPoints": [
-        310.0,
-        -160.0,
+        290.0,
+        -110.0,
         350.0,
-        0.0
+        10.0
       ],
       "labelManual": true
     },
@@ -1275,8 +1275,8 @@
       "corridorType": "recommended_trade",
       "distance": 1,
       "cost": 3,
-      "labelX": -380.0,
-      "labelY": -90.0,
+      "labelX": -370.0,
+      "labelY": -50.0,
       "points": [
         -320.0,
         -30.0,
@@ -1303,20 +1303,20 @@
       "labelX": 100.0,
       "labelY": -170.0,
       "points": [
-        44.31,
-        -195,
+        40.0,
+        -220.0,
         120.0,
         -160.0,
         160.0,
-        -160.0
+        -100.0
       ],
       "displayPoints": [
-        44.31,
-        -195,
+        40.0,
+        -220.0,
         120.0,
         -160.0,
         160.0,
-        -160.0
+        -100.0
       ],
       "labelManual": true
     },
@@ -1325,22 +1325,22 @@
       "sourceId": "R37",
       "fromCityId": "city.heilheim",
       "toCityId": "city.sera",
-      "regionId": "line.regional",
+      "regionId": "region.ranch",
       "corridorType": "economy_extra",
       "distance": 1,
       "cost": 3,
-      "labelX": -180.0,
-      "labelY": -140.0,
+      "labelX": -190.0,
+      "labelY": -160.0,
       "points": [
         -220.0,
         -100.0,
-        -160.0,
+        -180.0,
         -220.0
       ],
       "displayPoints": [
         -220.0,
         -100.0,
-        -160.0,
+        -180.0,
         -220.0
       ],
       "labelManual": true
@@ -1357,14 +1357,14 @@
       "labelX": -440.0,
       "labelY": -220.0,
       "points": [
-        -570.0,
-        -150.0,
+        -550.0,
+        -130.0,
         -290.0,
         -290.0
       ],
       "displayPoints": [
-        -570.0,
-        -150.0,
+        -550.0,
+        -130.0,
         -290.0,
         -290.0
       ],
@@ -1382,16 +1382,16 @@
       "labelX": -40.0,
       "labelY": 20.0,
       "points": [
-        -120.0,
-        10.0,
-        90.0,
-        30.0
+        -70.0,
+        0.0,
+        110.0,
+        10.0
       ],
       "displayPoints": [
-        -120.0,
-        10.0,
-        90.0,
-        30.0
+        -70.0,
+        0.0,
+        110.0,
+        10.0
       ],
       "labelManual": true
     },
@@ -1410,13 +1410,13 @@
         480.0,
         90.0,
         350.0,
-        0.0
+        10.0
       ],
       "displayPoints": [
         480.0,
         90.0,
         350.0,
-        0.0
+        10.0
       ],
       "labelManual": true
     },
@@ -1457,15 +1457,15 @@
       "labelX": -100.0,
       "labelY": -160.0,
       "points": [
-        -60.0,
-        -120.0,
-        -160.0,
+        -20.0,
+        -110.0,
+        -180.0,
         -220.0
       ],
       "displayPoints": [
-        -60.0,
-        -120.0,
-        -160.0,
+        -20.0,
+        -110.0,
+        -180.0,
         -220.0
       ],
       "labelManual": true
@@ -1484,14 +1484,14 @@
       "points": [
         -50.0,
         220.0,
-        190.0,
-        140.0
+        230.0,
+        80.0
       ],
       "displayPoints": [
         -50.0,
         220.0,
-        190.0,
-        140.0
+        230.0,
+        80.0
       ],
       "labelManual": true
     },
@@ -1554,18 +1554,18 @@
       "corridorType": "mst",
       "distance": 2,
       "cost": 3,
-      "labelX": -200.0,
-      "labelY": 200.0,
+      "labelX": -250.0,
+      "labelY": 190.0,
       "points": [
         -320.0,
         190.0,
-        -160.0,
+        -180.0,
         190.0
       ],
       "displayPoints": [
         -320.0,
         190.0,
-        -160.0,
+        -180.0,
         190.0
       ],
       "labelManual": true
@@ -1579,17 +1579,17 @@
       "corridorType": "mst",
       "distance": 1,
       "cost": 3,
-      "labelX": 150.0,
+      "labelX": 170.0,
       "labelY": 0.0,
       "points": [
-        90.0,
-        30.0,
+        110.0,
+        10.0,
         220.0,
         -20.0
       ],
       "displayPoints": [
-        90.0,
-        30.0,
+        110.0,
+        10.0,
         220.0,
         -20.0
       ],
@@ -1607,16 +1607,16 @@
       "labelX": 150.0,
       "labelY": 320.0,
       "points": [
-        -110.0,
-        330.0,
-        610.0,
-        310.0
+        -140.0,
+        320.0,
+        600.0,
+        300.0
       ],
       "displayPoints": [
-        -110.0,
-        330.0,
-        610.0,
-        310.0
+        -140.0,
+        320.0,
+        600.0,
+        300.0
       ],
       "labelManual": true
     },
@@ -1632,14 +1632,14 @@
       "labelX": -70.0,
       "labelY": 280.0,
       "points": [
-        -110.0,
-        330.0,
+        -140.0,
+        320.0,
         -50.0,
         220.0
       ],
       "displayPoints": [
-        -110.0,
-        330.0,
+        -140.0,
+        320.0,
         -50.0,
         220.0
       ],
@@ -1679,19 +1679,44 @@
       "corridorType": "mst",
       "distance": 2,
       "cost": 3,
-      "labelX": -640.0,
-      "labelY": -100.0,
+      "labelX": -610.0,
+      "labelY": -90.0,
       "points": [
-        -690.0,
+        -660.0,
         -50.0,
-        -570.0,
-        -150.0
+        -550.0,
+        -130.0
       ],
       "displayPoints": [
-        -690.0,
+        -660.0,
         -50.0,
-        -570.0,
-        -150.0
+        -550.0,
+        -130.0
+      ],
+      "labelManual": true
+    },
+    {
+      "railIndex": 51,
+      "sourceId": "R52",
+      "fromCityId": "city.mert",
+      "toCityId": "city.sergrad",
+      "regionId": "line.regional",
+      "corridorType": "economy_extra",
+      "distance": 1,
+      "cost": 3,
+      "labelX": 130.0,
+      "labelY": -40.0,
+      "points": [
+        160.0,
+        -100.0,
+        110.0,
+        10.0
+      ],
+      "displayPoints": [
+        160.0,
+        -100.0,
+        110.0,
+        10.0
       ],
       "labelManual": true
     }

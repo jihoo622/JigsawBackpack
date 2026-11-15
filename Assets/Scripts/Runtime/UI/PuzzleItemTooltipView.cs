@@ -12,9 +12,7 @@ public sealed class PuzzleItemTooltipView : PanelBase
     [SerializeField] CanvasGroup canvasGroup;
     [SerializeField] RectTransform pointer;
     [SerializeField] TextMeshProUGUI itemNameText;
-    [SerializeField] RectTransform categoryRow;
-    [SerializeField] Image[] categoryBadgeImages;
-    [SerializeField] TextMeshProUGUI[] categoryBadgeTexts;
+    [SerializeField] TagBadgeGroup categoryBadgeGroup;
     [System.Serializable]
     struct EffectRow
     {
@@ -53,7 +51,6 @@ public sealed class PuzzleItemTooltipView : PanelBase
 
     [Header("Layout & Movement")]
     [SerializeField] float defaultFollowSpeed = 25f;
-    [SerializeField, Range(0f, 1f)] float badgeBlend = 0.35f;
     [SerializeField] float pointerOffset = 24f;
     [SerializeField] float pointerTopInset = 32f;
     [SerializeField] float pointerEdgeInset = 20f;
@@ -61,11 +58,6 @@ public sealed class PuzzleItemTooltipView : PanelBase
     [SerializeField] float screenBottomMargin = 228f;
 
     float FollowSpeed => defaultFollowSpeed;
-
-    void OnValidate()
-    {
-        badgeBlend = Mathf.Clamp01(badgeBlend);
-    }
 
     RectTransform canvasRectTransform;
     Vector2 targetCanvasPosition;
@@ -524,66 +516,13 @@ public sealed class PuzzleItemTooltipView : PanelBase
 
     void UpdateCategoryBadges(IReadOnlyList<string> _rawTags)
     {
-        if (!categoryRow)
-        {
-            return;
-        }
-
-        var tags = _rawTags != null && _rawTags.Count > 0 ? Presentation.PrioritizeTags(_rawTags) : System.Array.Empty<string>();
-        bool hasBadges = tags != null && tags.Count > 0 && categoryBadgeImages != null && categoryBadgeImages.Length > 0;
-        categoryRow.gameObject.SetActive(hasBadges);
-
-        if (!hasBadges)
-        {
-            return;
-        }
-
-        for (int i = 0; i < categoryBadgeImages.Length; i++)
-        {
-            var badgeImage = categoryBadgeImages[i];
-            var badgeText = categoryBadgeTexts != null && i < categoryBadgeTexts.Length ? categoryBadgeTexts[i] : null;
-
-            if (i < tags.Count)
-            {
-                string tag = tags[i];
-                if (badgeImage)
-                {
-                    badgeImage.gameObject.SetActive(true);
-                    badgeImage.color = Presentation.PuzzleTooltipTagBackground(tag, badgeBlend);
-                }
-                if (badgeText)
-                {
-                    badgeText.text = Presentation.PuzzleTagLabel(tag);
-                    badgeText.color = Presentation.PuzzleTooltipTagTextColor(tag, badgeBlend);
-                }
-            }
-            else
-            {
-                if (badgeImage)
-                {
-                    badgeImage.gameObject.SetActive(false);
-                }
-            }
-        }
+        categoryBadgeGroup?.ShowTags(_rawTags);
     }
 
     void RebuildLayouts()
     {
         Canvas.ForceUpdateCanvases();
-        if (categoryRow && categoryRow.gameObject.activeSelf)
-        {
-            if (categoryBadgeImages != null)
-            {
-                foreach (var badge in categoryBadgeImages)
-                {
-                    if (badge && badge.gameObject.activeSelf)
-                    {
-                        LayoutRebuilder.ForceRebuildLayoutImmediate(badge.rectTransform);
-                    }
-                }
-            }
-            LayoutRebuilder.ForceRebuildLayoutImmediate(categoryRow);
-        }
+        categoryBadgeGroup?.RebuildLayout();
         if (activeEffectsListRoot && activeEffectsListRoot.gameObject.activeSelf)
         {
             LayoutRebuilder.ForceRebuildLayoutImmediate(activeEffectsListRoot);

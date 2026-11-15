@@ -78,6 +78,8 @@ public sealed class PuzzleMapView : PanelBase
     [SerializeField] TMPro.TextMeshProUGUI title;
     [SerializeField] TMPro.TextMeshProUGUI guide;
     [SerializeField] TMPro.TextMeshProUGUI information;
+    [SerializeField] CityTradePreferencesView tradePreferences;
+    [SerializeField] TMPro.TextMeshProUGUI questInformation;
     // 닫기 버튼은 다른 화면과 같은 공용 헤더 버튼(HeaderButton, TMP 라벨)이다.
     [SerializeField] TMPro.TextMeshProUGUI closeLabel;
     [SerializeField] Image background;
@@ -1145,8 +1147,31 @@ public sealed class PuzzleMapView : PanelBase
 
     internal void ShowInformation(string _text)
     {
+        tradePreferences?.Hide();
+        if (questInformation)
+        {
+            questInformation.text = string.Empty;
+            questInformation.gameObject.SetActive(false);
+        }
         information.richText = true;
         information.text = _text;
+    }
+
+    internal void ShowVisitedInformation(string _headingText, PuzzleCityTradePreferencesData _tradePreferences, string _questText)
+    {
+        information.richText = true;
+        information.text = _headingText;
+        tradePreferences?.Show(_tradePreferences);
+        if (questInformation)
+        {
+            bool hasQuest = !string.IsNullOrEmpty(_questText);
+            questInformation.gameObject.SetActive(hasQuest);
+            if (hasQuest)
+            {
+                questInformation.richText = true;
+                questInformation.text = _questText;
+            }
+        }
     }
 
     protected override void OnShow()
