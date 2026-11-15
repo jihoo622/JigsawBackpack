@@ -355,15 +355,10 @@ public sealed class GameTableRules
         }
     }
 
-    // 술집 소문의 종류 선택 확률. 두 종류밖에 없으므로 합은 정확히 100이다.
     void ValidateRumor(TableManager _tables)
     {
         const string PATH = nameof(PuzzleRumorTableData);
         var rumor = _tables.PuzzleRumor;
-        Check(rumor.specialtyPercent >= 0, PATH + ".specialtyPercent", "특산 소문 확률은 0 이상이어야 합니다.");
-        Check(rumor.rarePercent >= 0, PATH + ".rarePercent", "희귀 소문 확률은 0 이상이어야 합니다.");
-        Check(rumor.specialtyPercent + rumor.rarePercent == 100, PATH,
-            "특산·희귀 소문 확률의 합은 100이어야 합니다.");
         var excludedIds = new HashSet<string>(StringComparer.Ordinal);
         var excludedItemIds = rumor.excludedItemIds ?? Array.Empty<string>();
         for (int i = 0; i < excludedItemIds.Length; i++)
@@ -912,18 +907,13 @@ public sealed class GameTableRules
                 $"행동 종류는 {string.Join(", ", Enum.GetNames(typeof(PuzzleCityActionType)))} 중 하나여야 합니다.");
             Check(!string.IsNullOrWhiteSpace(action.title), path + ".title", "행동 이름이 필요합니다.");
             Check(!string.IsNullOrWhiteSpace(action.description), path + ".description", "행동 설명이 필요합니다.");
-            Check(!knownType || type != PuzzleCityActionType.Butchery || action.workMinutes > 0,
-                path + ".workMinutes", "도축 작업 시간은 0보다 큰 분 단위여야 합니다.");
-            Check(!knownType || type != PuzzleCityActionType.Modification || action.workMinutes == 0,
-                path + ".workMinutes", "개조는 즉시 처리하므로 workMinutes가 0이어야 합니다.");
+            Check(action.workMinutes > 0, path + ".workMinutes", "작업 시간은 0보다 큰 분 단위여야 합니다.");
             Check(!knownType || type != PuzzleCityActionType.Butchery || action.cost >= 0,
                 path + ".cost", "도축 확인 1회당 비용은 0 이상의 정수여야 합니다.");
             Check(!knownType || type != PuzzleCityActionType.Butchery ||
                 (!string.IsNullOrWhiteSpace(action.inputTag) && !string.IsNullOrWhiteSpace(action.outputTag) &&
                 (action.conversions ?? Array.Empty<PuzzleActionConversionData>()).Length > 0),
                 path, "도축은 행동 차원의 입력·산출 태그와 변환 규칙이 필요합니다.");
-            Check(!knownType || type != PuzzleCityActionType.Refining || action.workMinutes > 0,
-                path + ".workMinutes", "정제 작업 시간은 0보다 큰 분 단위여야 합니다.");
             Check(!knownType || type != PuzzleCityActionType.Refining || action.cost >= 0,
                 path + ".cost", "정제 확인 1회당 비용은 0 이상의 정수여야 합니다.");
             Check(!knownType || type != PuzzleCityActionType.Refining ||

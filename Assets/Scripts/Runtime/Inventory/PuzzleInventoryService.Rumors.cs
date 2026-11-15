@@ -2,15 +2,19 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-// 술집 소문의 후보 정의. 종류를 고르고 문장을 만드는 일은 Presenter가 담당하고 여기서는 후보만 만든다.
 public sealed partial class PuzzleInventoryService
 {
-    // 미방문 마을에서 특산·희귀 후보를 모두 모은다. 순서는 테이블 배열 순서와 무관하다.
-    internal IReadOnlyList<PuzzleRumorCandidate> CollectRumorCandidates()
+    internal IEnumerable<PuzzleRumorCandidate> CollectRumorCandidates()
+    {
+        return CollectRumorDefinitions().Where(_candidate => IsRumorTarget(_candidate.CityId));
+    }
+
+    IReadOnlyList<PuzzleRumorCandidate> CollectRumorDefinitions()
     {
         var candidates = new List<PuzzleRumorCandidate>();
         CollectSpecialtyCandidates(candidates);
         CollectRareCandidates(candidates);
+        CollectActionCandidates(candidates);
         return PuzzleRumorCandidate.SortDistinct(candidates);
     }
 
@@ -23,7 +27,7 @@ public sealed partial class PuzzleInventoryService
             tables.PuzzleRumor.excludedItemIds ?? Array.Empty<string>(), StringComparer.Ordinal);
         foreach (var city in tables.Cities)
         {
-            if (!IsRumorTarget(city) || !city.buyEnabled || string.IsNullOrEmpty(city.specialtyTag))
+            if (!city.buyEnabled || string.IsNullOrEmpty(city.specialtyTag))
             {
                 continue;
             }
@@ -47,7 +51,7 @@ public sealed partial class PuzzleInventoryService
     {
         foreach (var city in tables.Cities)
         {
-            if (!IsRumorTarget(city) || !city.sellEnabled)
+            if (!city.sellEnabled)
             {
                 continue;
             }
@@ -60,7 +64,18 @@ public sealed partial class PuzzleInventoryService
                     continue;
                 }
 
-                _candidates.Add(new PuzzleRumorCandidate(PuzzleRumorKind.RareDemand, city.id, null, rule.tag));
+                _candidates.Add(new PuzzleRumorCandidate(PuzzleRumorKind.RareDemand, city.id, _tag: rule.tag));
+            }
+        }
+    }
+
+    void CollectActionCandidates(List<PuzzleRumorCandidate> _candidates)
+    {
+        foreach (var city in tables.Cities)
+        {
+            foreach (var action in tables.CityActionsOf(city.id))
+            {
+                _candidates.Add(new PuzzleRumorCandidate(PuzzleRumorKind.Action, city.id, _actionId: action.id));
             }
         }
     }
@@ -94,9 +109,9 @@ public sealed partial class PuzzleInventoryService
         return definitions.Values.Any(_item => !_item.ExcludeFromMarket && _item.Tags.Contains(_tag));
     }
 
-    bool IsRumorTarget(PuzzleCityData _city)
+    bool IsRumorTarget(string _cityId)
     {
-        return _city != null && !string.IsNullOrEmpty(_city.id) &&
-            !string.Equals(_city.id, CurrentCityId, StringComparison.Ordinal) && !HasVisitedCity(_city.id);
+        return !string.Equals(_cityId, CurrentCityId, StringComparison.Ordinal) &&
+            !HasVisitedCity(_cityId) && !HasRumorForCity(_cityId);
     }
 }

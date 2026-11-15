@@ -11947,8 +11947,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\uAE30\uACC4 \uD0DC\uADF8 \uD654\uBB3C\uC5D0 \uD2B9\uC218 \uD6A8\uACFC\uB97C
-    \uBD80\uC5EC\uD569\uB2C8\uB2E4."
+  m_text: 
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: b2eeb73aa1ee10b48a7fe11797ba93c5, type: 2}
   m_sharedMaterial: {fileID: -3217437318264749832, guid: b2eeb73aa1ee10b48a7fe11797ba93c5, type: 2}
@@ -42066,8 +42065,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 0, y: -176}
-  m_SizeDelta: {x: 292.8, y: 292.8}
+  m_AnchoredPosition: {x: 0, y: -60}
+  m_SizeDelta: {x: 440, y: 440}
   m_Pivot: {x: 0, y: 1}
 --- !u!222 &7766083028072690446
 CanvasRenderer:
@@ -126057,13 +126056,16 @@ MonoBehaviour:
   restDurationLabel: {fileID: 1878501411914185333}
   restHint: {fileID: 4718228020666192064}
   butcheryLabel: {fileID: 4782734757913025136}
+  butcheryDescription: {fileID: 2089712061496950152}
   butcheryHint: {fileID: 8964197918873104253}
   butcheryConfirmLabel: {fileID: 8167430675730527923}
   modificationLabel: {fileID: 1042448297624096944}
+  modificationDescription: {fileID: 6198785190321855423}
   modificationHint: {fileID: 5997873628322475639}
   modificationModeLabel: {fileID: 1812627074722901578}
   modificationConfirmLabel: {fileID: 5467123585577839983}
   refiningLabel: {fileID: 8000000000000006471}
+  refiningDescription: {fileID: 8000000000000006467}
   refiningHint: {fileID: 8000000000000006453}
   refiningConfirmLabel: {fileID: 8000000000000000011}
   marketButton: {fileID: 1255990386467226954}
@@ -126095,6 +126097,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PuzzleStationActionsPresenter
   view: {fileID: 7041788284103280147}
+  workWait: {fileID: 716350000000004003}
 --- !u!1 &3719244652607393025
 GameObject:
   m_ObjectHideFlags: 0
@@ -133247,6 +133250,7 @@ RectTransform:
   - {fileID: 6155321774309655650}
   - {fileID: 1393410718688900740}
   - {fileID: 6675017890109719645}
+  - {fileID: 716350000000004002}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -133254,6 +133258,35 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!1001 &716350000000004001
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 340499794578077680}
+    m_Modifications: []
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 39cf64c9a7bf406e8d9d50521304a226, type: 3}
+--- !u!224 &716350000000004002 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 1001, guid: 39cf64c9a7bf406e8d9d50521304a226, type: 3}
+  m_PrefabInstance: {fileID: 716350000000004001}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &716350000000004003 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1002, guid: 39cf64c9a7bf406e8d9d50521304a226, type: 3}
+  m_PrefabInstance: {fileID: 716350000000004001}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 476a7a4a02ec45d3b2a70ee028d56ed3, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::PuzzleWorkWaitView
 --- !u!1 &3953496176808260989
 GameObject:
   m_ObjectHideFlags: 0
@@ -152247,8 +152280,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\uB3D9\uBB3C \uD0DC\uADF8 \uD654\uBB3C\uC744 \uB9E1\uAE30\uBA74 \uC2DC\uAC04\uC774
-    \uC9C0\uB098 \uACE0\uAE30\uB85C \uB3CC\uB824\uC90D\uB2C8\uB2E4."
+  m_text: 
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: b2eeb73aa1ee10b48a7fe11797ba93c5, type: 2}
   m_sharedMaterial: {fileID: -3217437318264749832, guid: b2eeb73aa1ee10b48a7fe11797ba93c5, type: 2}
@@ -185726,8 +185758,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 0, y: -176}
-  m_SizeDelta: {x: 292.8, y: 292.8}
+  m_AnchoredPosition: {x: 0, y: -60}
+  m_SizeDelta: {x: 440, y: 440}
   m_Pivot: {x: 0, y: 1}
 --- !u!222 &692118656675353127
 CanvasRenderer:
@@ -302135,8 +302167,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 0, y: -176}
-  m_SizeDelta: {x: 292.8, y: 292.8}
+  m_AnchoredPosition: {x: 0, y: -60}
+  m_SizeDelta: {x: 440, y: 440}
   m_Pivot: {x: 0, y: 1}
 --- !u!222 &8000000000000001662
 CanvasRenderer:
@@ -394241,11 +394273,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\uBCC0\uD658\uD45C\uC5D0 \uB4F1\uB85D\uD55C \uAD11\uC11D \uD654\uBB3C\uC744
-    \uB9E1\uAE30\uBA74 \uC2DC\uAC04\uC774 \uC9C0\uB098 \uAE08\uC18D \uC8FC\uAD34\uB85C
-    \uB3CC\uB824\uC90D\uB2C8\uB2E4. \uC785\uB825 \uD558\uB098\uC758 \uC0B0\uCD9C
-    \uAC1C\uC218\uB294 \uD45C\uC758 \uBC94\uC704\uC5D0\uC11C \uBB34\uC791\uC704\uB85C
-    \uC815\uD574\uC9D1\uB2C8\uB2E4."
+  m_text: 
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: b2eeb73aa1ee10b48a7fe11797ba93c5, type: 2}
   m_sharedMaterial: {fileID: -3217437318264749832, guid: b2eeb73aa1ee10b48a7fe11797ba93c5, type: 2}

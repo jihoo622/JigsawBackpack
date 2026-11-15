@@ -322,36 +322,19 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
 
     #region 술집 대화 생성
 
-    // 미방문 마을의 특산·희귀 후보에서 테이블 비율로 종류를 고르고, 그 종류 안에서 후보 하나를 균등 추첨한다.
     string GetTavernRumor()
     {
-        var specialty = new List<PuzzleRumorCandidate>();
-        var rare = new List<PuzzleRumorCandidate>();
-        foreach (var candidate in session.CollectRumorCandidates())
-        {
-            if (candidate.Kind == PuzzleRumorKind.Specialty)
-            {
-                specialty.Add(candidate);
-            }
-            else
-            {
-                rare.Add(candidate);
-            }
-        }
-
-        // 두 종류 모두에 후보가 없으면 들은 소식이 없다고 답한다.
-        if (specialty.Count == 0 && rare.Count == 0)
+        var candidatesByKind = session.CollectRumorCandidates()
+            .GroupBy(_candidate => _candidate.Kind)
+            .Select(_group => _group.ToArray())
+            .ToArray();
+        if (candidatesByKind.Length == 0)
         {
             return Presentation.TavernNoRumor;
         }
 
-        // 한 종류에만 후보가 있으면 그쪽에서 고른다.
-        var rumorTable = TableManager.Instance.PuzzleRumor;
-        bool pickSpecialty = specialty.Count > 0 && (rare.Count == 0 ||
-            Random.Range(0, rumorTable.specialtyPercent + rumorTable.rarePercent) < rumorTable.specialtyPercent);
-        var selected = pickSpecialty
-            ? specialty[Random.Range(0, specialty.Count)]
-            : rare[Random.Range(0, rare.Count)];
+        var candidates = candidatesByKind[Random.Range(0, candidatesByKind.Length)];
+        var selected = candidates[Random.Range(0, candidates.Length)];
 
         string message = Presentation.TavernRumor(selected);
         session.RecordTavernRumor(selected, message);

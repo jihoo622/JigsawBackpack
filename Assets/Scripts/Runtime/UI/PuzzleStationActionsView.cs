@@ -27,13 +27,16 @@ public sealed class PuzzleStationActionsView : PanelBase
     [SerializeField] TextMeshProUGUI restDurationLabel;
     [SerializeField] TextMeshProUGUI restHint;
     [SerializeField] TextMeshProUGUI butcheryLabel;
+    [SerializeField] TextMeshProUGUI butcheryDescription;
     [SerializeField] TextMeshProUGUI butcheryHint;
     [SerializeField] TextMeshProUGUI butcheryConfirmLabel;
     [SerializeField] TextMeshProUGUI modificationLabel;
+    [SerializeField] TextMeshProUGUI modificationDescription;
     [SerializeField] TextMeshProUGUI modificationHint;
     [SerializeField] TextMeshProUGUI modificationModeLabel;
     [SerializeField] TextMeshProUGUI modificationConfirmLabel;
     [SerializeField] TextMeshProUGUI refiningLabel;
+    [SerializeField] TextMeshProUGUI refiningDescription;
     [SerializeField] TextMeshProUGUI refiningHint;
     [SerializeField] TextMeshProUGUI refiningConfirmLabel;
     [SerializeField] Button marketButton;
@@ -68,12 +71,13 @@ public sealed class PuzzleStationActionsView : PanelBase
     internal event Action ActionBackRequested;
     public RectTransform TavernContent => tavernContent;
     // 도축 UI는 버튼·라벨·content·hint·확인 버튼이 모두 배선됐을 때만 동작한다. 일부만 있으면 기능이 꺼지고 로그만 남긴다.
-    bool ButcheryWired => butcheryButton && butcheryLabel && butcheryContent && butcheryHint &&
+    bool ButcheryWired => butcheryButton && butcheryLabel && butcheryDescription && butcheryContent && butcheryHint &&
         butcheryConfirmButton && butcheryConfirmLabel;
-    bool ModificationWired => modificationButton && modificationLabel && modificationContent && modificationHint &&
+    bool ModificationWired => modificationButton && modificationLabel && modificationDescription &&
+        modificationContent && modificationHint &&
         modificationModeButton && modificationModeLabel && modificationConfirmButton && modificationConfirmLabel;
     // 정제 UI는 버튼·라벨·content·hint·확인 버튼이 모두 배선됐을 때만 동작한다. 일부만 있으면 기능이 꺼지고 로그만 남긴다.
-    bool RefiningWired => refiningButton && refiningLabel && refiningContent && refiningHint &&
+    bool RefiningWired => refiningButton && refiningLabel && refiningDescription && refiningContent && refiningHint &&
         refiningConfirmButton && refiningConfirmLabel;
     public bool HasButcheryButton => ButcheryWired;
     public bool HasModificationButton => ModificationWired;
@@ -98,7 +102,7 @@ public sealed class PuzzleStationActionsView : PanelBase
         tavernContent.gameObject.SetActive(false);
         if (butcheryButton && !ButcheryWired)
         {
-            Debug.LogError("도축 버튼이 있는 View에는 행동 라벨·작업 화면·상태 라벨·확인 버튼과 확인 라벨 참조가 모두 필요합니다.", this);
+            Debug.LogError("도축 버튼이 있는 View에는 행동 라벨·설명·작업 화면·상태 라벨·확인 버튼과 확인 라벨 참조가 모두 필요합니다.", this);
         }
         if (ButcheryWired)
         {
@@ -108,7 +112,7 @@ public sealed class PuzzleStationActionsView : PanelBase
         }
         if (modificationButton && !ModificationWired)
         {
-            Debug.LogError("개조 버튼이 있는 View에는 행동 라벨·작업 화면·상태 라벨·모드 및 확인 버튼과 각 라벨 참조가 모두 필요합니다.", this);
+            Debug.LogError("개조 버튼이 있는 View에는 행동 라벨·설명·작업 화면·상태 라벨·모드 및 확인 버튼과 각 라벨 참조가 모두 필요합니다.", this);
         }
         if (ModificationWired)
         {
@@ -118,7 +122,7 @@ public sealed class PuzzleStationActionsView : PanelBase
         }
         if (refiningButton && !RefiningWired)
         {
-            Debug.LogError("정제 버튼이 있는 View에는 행동 라벨·작업 화면·상태 라벨·확인 버튼과 확인 라벨 참조가 모두 필요합니다.", this);
+            Debug.LogError("정제 버튼이 있는 View에는 행동 라벨·설명·작업 화면·상태 라벨·확인 버튼과 확인 라벨 참조가 모두 필요합니다.", this);
         }
         if (RefiningWired)
         {
@@ -221,7 +225,8 @@ public sealed class PuzzleStationActionsView : PanelBase
     }
 
     internal void Refresh(bool _marketOpen, bool _inProgress, long _restMinutes, bool _butcheryAvailable,
-        bool _butcheryEnabled, bool _butcheryConfirmEnabled, string _butcheryHint, long _butcheryCost)
+        bool _butcheryEnabled, bool _butcheryConfirmEnabled, string _butcheryHint, long _butcheryCost,
+        string _butcheryDescription)
     {
         marketLabel.text = _marketOpen ? Presentation.StationMarket : Presentation.StationMarketClosed;
         marketButton.interactable = _marketOpen;
@@ -236,6 +241,7 @@ public sealed class PuzzleStationActionsView : PanelBase
         {
             butcheryButton.gameObject.SetActive(_butcheryAvailable && _inProgress);
             butcheryButton.interactable = _butcheryEnabled;
+            butcheryDescription.text = _butcheryDescription;
             butcheryHint.text = _butcheryHint;
             butcheryConfirmLabel.text = _butcheryCost >= 0
                 ? Presentation.StationButcheryConfirmCost(_butcheryCost)
@@ -248,16 +254,17 @@ public sealed class PuzzleStationActionsView : PanelBase
         }
     }
 
-    internal void RefreshModification(bool _inProgress, bool _available, bool _modeSelected,
-        bool _confirmEnabled, string _modeDisplayName, string _hint, long _modificationCost)
+    internal void RefreshModification(bool _inProgress, bool _available, PuzzleModificationPhase _phase, bool _modeSelected,
+        bool _confirmEnabled, string _modeDisplayName, string _hint, long _modificationCost, string _description)
     {
         if (!ModificationWired)
         {
             return;
         }
         modificationButton.gameObject.SetActive(_available && _inProgress);
-        modificationButton.interactable = _available;
-        modificationModeButton.interactable = _available;
+        modificationButton.interactable = _inProgress && _available && _phase != PuzzleModificationPhase.Working;
+        modificationDescription.text = _description;
+        modificationModeButton.interactable = _inProgress && _available && _phase == PuzzleModificationPhase.Idle;
         modificationModeLabel.text = _modeDisplayName;
         modificationModeLabel.color = _modeSelected ? Presentation.PuzzleTimeAccent : Presentation.PuzzleHeading;
         modificationHint.text = _hint;
@@ -268,7 +275,7 @@ public sealed class PuzzleStationActionsView : PanelBase
     }
 
     internal void RefreshRefining(bool _inProgress, bool _available, bool _enabled, bool _confirmEnabled,
-        string _hint, long _refiningCost)
+        string _hint, long _refiningCost, string _description)
     {
         if (!RefiningWired)
         {
@@ -276,6 +283,7 @@ public sealed class PuzzleStationActionsView : PanelBase
         }
         refiningButton.gameObject.SetActive(_available && _inProgress);
         refiningButton.interactable = _enabled;
+        refiningDescription.text = _description;
         refiningHint.text = _hint;
         refiningConfirmLabel.text = _refiningCost >= 0
             ? Presentation.StationRefiningConfirmCost(_refiningCost)
