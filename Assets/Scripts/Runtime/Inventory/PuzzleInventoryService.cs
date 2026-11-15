@@ -29,14 +29,15 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         public readonly string TargetCityId;
         public readonly string SourceCityId;
         public readonly string Message;
-        // 특산 소문이 언급하는 품목. 희귀 소문은 빈 문자열이다.
+        // 특산 소문이 언급하는 품목 ID.
         public readonly string ItemId;
         // 희귀 소문은 수요 태그, 특산 소문은 대상 마을의 특산 태그다.
         public readonly string Tag;
+        public readonly string ActionId;
         public readonly long RecordedMinutes;
 
         public TavernRumor(PuzzleRumorKind _kind, string _targetCityId, string _sourceCityId, string _message,
-            string _itemId, string _tag, long _recordedMinutes)
+            string _itemId, string _tag, string _actionId, long _recordedMinutes)
         {
             Kind = _kind;
             TargetCityId = _targetCityId;
@@ -44,6 +45,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
             Message = _message;
             ItemId = _itemId ?? string.Empty;
             Tag = _tag ?? string.Empty;
+            ActionId = _actionId ?? string.Empty;
             RecordedMinutes = _recordedMinutes;
         }
     }
@@ -61,10 +63,10 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         if (lastRumorVisit != CityMoveCount)
         {
             tavernRumors.Add(new TavernRumor(_candidate.Kind, _candidate.CityId, CurrentCityId, _message,
-                _candidate.ItemId, _candidate.Tag, Time.ElapsedMinutes));
+                _candidate.ItemId, _candidate.Tag, _candidate.ActionId, Time.ElapsedMinutes));
             lastRumorVisit = CityMoveCount;
             GameEvents.RaiseTavernRumorRecorded(this, CurrentCityId, _candidate.CityId, _message,
-                Time.ElapsedMinutes, _candidate.Tag, _candidate.Kind, _candidate.ItemId);
+                Time.ElapsedMinutes, _candidate.Tag, _candidate.Kind, _candidate.ItemId, _candidate.ActionId);
         }
     }
 
@@ -1099,6 +1101,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         {
             CheckButcheryReady();
             CheckRefiningReady();
+            CheckModificationReady();
             GameEvents.RaiseTimeAdvanced(previous, Time.ElapsedMinutes, this, _plan.cargoValueBeforeSettlement,
                 _plan.cargoValueBeforeFreshnessLoss);
         }
@@ -1521,10 +1524,16 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         }
 
         // 작업대 산출물을 기차로 옮기면 이 마을에서 얻은 화물로 기록한다(판매 숙련 경험치 판정).
-        if ((IsButchery(_original.Owner) || IsModification(_original.Owner) || IsRefining(_original.Owner)) &&
+        var modification = ModificationStateOf(_original.Owner);
+        if ((IsButchery(_original.Owner) || modification != null || IsRefining(_original.Owner)) &&
             IsTrainWagon(_destination))
         {
             RecordLocalOrigin(_original.InstanceId);
+            if (modification != null && modification.Phase == PuzzleModificationPhase.Ready &&
+                modification.Board.Placements.Count == 0)
+            {
+                modification.Phase = PuzzleModificationPhase.Idle;
+            }
         }
 
         // 객차에서 사라진 동물의 대기 상태는 다음 진행까지 기다리지 않고 정리한다.
@@ -1997,7 +2006,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         }
         if (modifications.TryGetValue(_cityId, out var existing))
         {
-            return existing;
+            return RefreshModificationReady(existing);
         }
 
         var board = new PuzzleInventory(action.board, Array.Empty<PuzzleStartingPlacementData>(), definitions,
@@ -2010,6 +2019,24 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
     internal PuzzleInventory ModificationBoard(string _cityId = null)
     {
         return EnsureModification(string.IsNullOrEmpty(_cityId) ? CurrentCityId : _cityId)?.Board;
+    }
+
+    internal PuzzleModificationPhase ModificationPhase(string _cityId = null)
+    {
+        var state = EnsureModification(string.IsNullOrEmpty(_cityId) ? CurrentCityId : _cityId);
+        return state?.Phase ?? PuzzleModificationPhase.Idle;
+    }
+
+    // 작업 중에는 남은 분, 그 외에는 -1을 반환한다.
+    internal long ModificationRemainingMinutes(string _cityId = null)
+    {
+        var state = EnsureModification(string.IsNullOrEmpty(_cityId) ? CurrentCityId : _cityId);
+        if (state == null || state.Phase != PuzzleModificationPhase.Working || Time == null)
+        {
+            return -1;
+        }
+
+        return Math.Max(0, state.ReadyAtMinutes - Time.ElapsedMinutes);
     }
 
     internal IReadOnlyList<PuzzleActionModeData> ModificationModes(string _cityId = null)
@@ -2032,6 +2059,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         _selected = false;
         var state = EnsureModification(string.IsNullOrEmpty(_cityId) ? CurrentCityId : _cityId);
         if (state == null || RunStatus != PuzzleRunStatus.InProgress || !IsModificationOpen ||
+            state.Phase != PuzzleModificationPhase.Idle ||
             !string.Equals(state.CityId, CurrentCityId, StringComparison.Ordinal) ||
             string.IsNullOrEmpty(_modeId) || !TryFindActionMode(state.Action, _modeId, out _))
         {
@@ -2070,7 +2098,8 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
     internal bool OpenModification()
     {
         var state = EnsureModification(CurrentCityId);
-        if (state == null || RunStatus != PuzzleRunStatus.InProgress)
+        if (state == null || RunStatus != PuzzleRunStatus.InProgress ||
+            state.Phase == PuzzleModificationPhase.Working)
         {
             IsModificationOpen = false;
             return false;
@@ -2090,55 +2119,71 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
     internal bool CanLeaveModification(string _cityId = null)
     {
         var state = EnsureModification(string.IsNullOrEmpty(_cityId) ? CurrentCityId : _cityId);
-        return state == null || state.Board.Placements.Count == 0;
+        return state == null || state.Phase != PuzzleModificationPhase.Idle || state.Board.Placements.Count == 0;
     }
 
     internal bool ModificationConfirmable(string _cityId = null)
     {
-        return TryPlanModificationSwaps(string.IsNullOrEmpty(_cityId) ? CurrentCityId : _cityId, out _, out _);
+        var state = EnsureModification(string.IsNullOrEmpty(_cityId) ? CurrentCityId : _cityId);
+        return TryPlanModificationSwaps(state, out _, out _, out _);
     }
 
     internal bool TryConfirmModification(out int _convertedCount, out PuzzleModificationFailure _failure,
         string _cityId = null)
     {
         _convertedCount = 0;
-        string cityId = string.IsNullOrEmpty(_cityId) ? CurrentCityId : _cityId;
-        if (!TryPlanModificationSwaps(cityId, out var swaps, out _failure))
+        var state = EnsureModification(string.IsNullOrEmpty(_cityId) ? CurrentCityId : _cityId);
+        if (!TryPlanModificationSwaps(state, out var swaps, out long cost, out _failure))
         {
             return false;
         }
 
-        var state = EnsureModification(cityId);
-        if (state == null)
+        long readyAtMinutes;
+        try
         {
-            _failure = PuzzleModificationFailure.Unavailable;
-            return false;
+            readyAtMinutes = checked(Time.ElapsedMinutes + state.Action.workMinutes);
         }
-        if (!TryFindSelectedMode(state, out var mode))
+        catch (OverflowException)
         {
-            _failure = PuzzleModificationFailure.NoMode;
-            return false;
-        }
-
-        // 정의 교체가 성공한 뒤에만 딱 한 번 차감한다. 잔액을 다시 확인해 초과 차감을 막는다.
-        long cost = mode.cost;
-        if (Funds < cost)
-        {
-            _failure = PuzzleModificationFailure.InsufficientFunds;
-            return false;
-        }
-        if (!state.Board.TrySwapDefinitions(swaps, out var replacements))
-        {
-            _failure = PuzzleModificationFailure.InvalidResult;
+            _failure = PuzzleModificationFailure.Blocked;
             return false;
         }
 
+        // 입력은 작업대에 잠그고 확정된 정의 교체를 완료 때 적용한다.
+        state.PendingSwaps = swaps;
+        state.ReadyAtMinutes = readyAtMinutes;
+        state.Phase = PuzzleModificationPhase.Working;
+        state.SelectedModeId = null;
         long previousFunds = Funds;
         Funds -= cost;
-        _convertedCount = replacements.Count;
+        _convertedCount = swaps.Count;
         NotifyModification(state);
         GameEvents.RaiseFundsChanged(this, previousFunds);
         return true;
+    }
+
+    void CheckModificationReady()
+    {
+        foreach (var state in modifications.Values.ToArray())
+        {
+            RefreshModificationReady(state);
+        }
+    }
+
+    PuzzleModificationState RefreshModificationReady(PuzzleModificationState _state)
+    {
+        if (_state.Phase != PuzzleModificationPhase.Working || Time == null ||
+            Time.ElapsedMinutes < _state.ReadyAtMinutes ||
+            !_state.Board.TrySwapDefinitions(_state.PendingSwaps, out _))
+        {
+            return _state;
+        }
+
+        _state.PendingSwaps = null;
+        _state.ReadyAtMinutes = -1;
+        _state.Phase = PuzzleModificationPhase.Ready;
+        NotifyModification(_state);
+        return _state;
     }
 
     internal void RefreshModificationAfterMove(PuzzleInventory _board)
@@ -2163,52 +2208,61 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
             return false;
         }
         var state = ModificationStateOf(_source) ?? ModificationStateOf(_destination);
-        if (state == null || !ReferenceEquals(state.Action, ModificationAction()))
+        if (state == null || !string.Equals(state.CityId, CurrentCityId, StringComparison.Ordinal))
         {
             return false;
         }
 
-        bool sameBoard = ReferenceEquals(state.Board, _source) && ReferenceEquals(state.Board, _destination);
-        return sameBoard ||
-            (ReferenceEquals(state.Board, _destination) ? IsTrainWagon(_source) : IsTrainWagon(_destination));
+        bool fromBoard = ReferenceEquals(state.Board, _source);
+        bool toBoard = ReferenceEquals(state.Board, _destination);
+        switch (state.Phase)
+        {
+            case PuzzleModificationPhase.Idle:
+                return fromBoard && toBoard || (toBoard ? IsTrainWagon(_source) : IsTrainWagon(_destination));
+            case PuzzleModificationPhase.Ready:
+                return fromBoard && (toBoard || IsTrainWagon(_destination));
+            default:
+                return false;
+        }
     }
 
-    bool TryPlanModificationSwaps(string _cityId, out List<PuzzleDefinitionSwap> _swaps,
+    bool TryPlanModificationSwaps(PuzzleModificationState _state, out List<PuzzleDefinitionSwap> _swaps, out long _cost,
         out PuzzleModificationFailure _failure)
     {
         _swaps = null;
+        _cost = 0;
         _failure = PuzzleModificationFailure.None;
-        if (RunStatus != PuzzleRunStatus.InProgress)
+        if (RunStatus != PuzzleRunStatus.InProgress || Time == null)
         {
             _failure = PuzzleModificationFailure.Blocked;
             return false;
         }
 
-        var state = EnsureModification(_cityId);
-        if (state == null)
+        if (_state == null)
         {
             _failure = PuzzleModificationFailure.Unavailable;
             return false;
         }
-        if (!IsModificationOpen || !string.Equals(state.CityId, CurrentCityId, StringComparison.Ordinal))
+        if (!IsModificationOpen || _state.Phase != PuzzleModificationPhase.Idle ||
+            !string.Equals(_state.CityId, CurrentCityId, StringComparison.Ordinal))
         {
             _failure = PuzzleModificationFailure.Blocked;
             return false;
         }
-        if (!TryFindSelectedMode(state, out var mode) || string.IsNullOrEmpty(mode.inputTag) ||
+        if (!TryFindSelectedMode(_state, out var mode) || string.IsNullOrEmpty(mode.inputTag) ||
             string.IsNullOrEmpty(mode.outputTag) || string.Equals(mode.inputTag, mode.outputTag, StringComparison.Ordinal))
         {
             _failure = PuzzleModificationFailure.NoMode;
             return false;
         }
-        if (state.Board.Placements.Count == 0)
+        if (_state.Board.Placements.Count == 0)
         {
             _failure = PuzzleModificationFailure.Empty;
             return false;
         }
 
-        var swaps = new List<PuzzleDefinitionSwap>(state.Board.Placements.Count);
-        foreach (var placement in state.Board.Placements)
+        var swaps = new List<PuzzleDefinitionSwap>(_state.Board.Placements.Count);
+        foreach (var placement in _state.Board.Placements)
         {
             if (!placement.Definition.Tags.Contains(mode.inputTag))
             {
@@ -2234,7 +2288,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
             swaps.Add(new PuzzleDefinitionSwap(placement, result));
         }
 
-        if (!state.Board.TryPlanDefinitionSwaps(swaps))
+        if (!_state.Board.TryPlanDefinitionSwaps(swaps))
         {
             _failure = PuzzleModificationFailure.InvalidResult;
             return false;
@@ -2247,6 +2301,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         }
 
         _swaps = swaps;
+        _cost = mode.cost;
         return true;
     }
 

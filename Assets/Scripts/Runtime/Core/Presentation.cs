@@ -29,14 +29,31 @@ public static partial class Presentation
         return BasicData.Format("presentation.station.title", _cityName);
     }
 
-    // 소문 문구는 대상 마을명과 품목명 또는 태그 표시명만 쓴다. 남은 수량과 최종 거래가는 보증하지 않는다.
     internal static string TavernRumor(PuzzleRumorCandidate _candidate)
     {
         var tables = TableManager.Instance;
         string city = CityLink(_candidate.CityId);
-        return _candidate.Kind == PuzzleRumorKind.Specialty
-            ? BasicData.Format("presentation.station.specialtyRumor", city, ItemLink(_candidate.ItemId, tables.Piece(_candidate.ItemId).displayName))
-            : BasicData.Format("presentation.station.rareRumor", city, TagLink(_candidate.Tag));
+        return _candidate.Kind switch
+        {
+            PuzzleRumorKind.Specialty => BasicData.Format("presentation.station.specialtyRumor", city,
+                ItemLink(_candidate.ItemId, tables.Piece(_candidate.ItemId).displayName)),
+            PuzzleRumorKind.RareDemand => BasicData.Format("presentation.station.rareRumor", city,
+                TagLink(_candidate.Tag)),
+            PuzzleRumorKind.Action => BasicData.Format("presentation.station.actionRumor", city,
+                TavernActionName(tables.CityAction(_candidate.ActionId).title)),
+            _ => throw new ArgumentOutOfRangeException(nameof(_candidate), _candidate.Kind, "지원하지 않는 소문 종류입니다.")
+        };
+    }
+
+    static string TavernActionName(string _title)
+    {
+        const string BUTTON_SUFFIX = "하기";
+        if (_title.Length > BUTTON_SUFFIX.Length && _title.EndsWith(BUTTON_SUFFIX, StringComparison.Ordinal))
+        {
+            return _title.Substring(0, _title.Length - BUTTON_SUFFIX.Length);
+        }
+
+        return _title;
     }
 
     public static string RumorLogTitle => BasicData.Text("presentation.rumorLog.title");
@@ -896,6 +913,11 @@ public static partial class Presentation
         return BasicData.Format("presentation.station.restDuration", PuzzleMapTime(_minutes));
     }
     public static string StationButchery => BasicData.Text("presentation.StationButchery");
+    internal static string StationActionDescription(PuzzleCityActionData _action) =>
+        _action == null ? string.Empty : _action.description;
+    public static string StationWorkWaitQuestion => BasicData.Text("presentation.StationWorkWaitQuestion");
+    public static string StationWorkWaitLater => BasicData.Text("presentation.StationWorkWaitLater");
+    public static string StationWorkWaitNow => BasicData.Text("presentation.StationWorkWaitNow");
     public static string StationButcheryConfirm => BasicData.Text("presentation.StationButcheryConfirm");
     // 확인 버튼 라벨에 표 행동 비용을 붙인다. 비용을 모르면 기본 라벨을 쓴다.
     public static string StationButcheryConfirmCost(long _cost) =>
@@ -945,6 +967,15 @@ public static partial class Presentation
         {
             return BasicData.Text("rules.modification.unavailable");
         }
+        switch (_session.ModificationPhase())
+        {
+            case PuzzleModificationPhase.Working:
+                return BasicData.Format("presentation.StationModificationCountdown",
+                    PuzzleMapTime(_session.ModificationRemainingMinutes()));
+            case PuzzleModificationPhase.Ready:
+                return BasicData.Text("presentation.StationModificationCollect");
+        }
+
         bool selected = _session.TryGetSelectedModificationMode(out var mode);
         string modeName = selected ? mode.displayName : FirstModificationModeName(_session);
         if (!selected)

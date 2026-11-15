@@ -56,13 +56,11 @@ public sealed class PuzzleSynergyTableData
     public PuzzleFreshnessData freshness;
 }
 
-// 술집 소문의 종류 선택 확률. 후보와 문장은 코드가 만들고 이 표는 두 종류를 고르는 비율만 원본으로 둔다.
+// 특산 소문 후보에서 제외할 품목.
 [Serializable]
 public sealed class PuzzleRumorTableData
 {
     public string status, note;
-    public int specialtyPercent = -1;
-    public int rarePercent = -1;
     // 소문에서 빼는 품목 ID. 특산 후보만 막고 품목의 시장 유통은 그대로 둔다.
     public string[] excludedItemIds = Array.Empty<string>();
 }

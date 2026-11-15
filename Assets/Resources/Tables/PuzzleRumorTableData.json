@@ -1,8 +1,6 @@
 {
   "status": "provisional",
-  "note": "술집 소문의 종류 선택 확률(%)과 소문에서 뺄 품목. 특산과 희귀 두 종류만 있으며 합계는 100이어야 한다. excludedItemIds는 특산 후보에서만 빠지고 시장 유통은 그대로 둔다. 문장은 실행 코드가 결정한다.",
-  "specialtyPercent": 50,
-  "rarePercent": 50,
+  "note": "excludedItemIds는 특산 소문 후보에서 제외할 품목이다. 후보가 있는 소문 종류와 선택한 종류 내의 후보는 각각 균등 추첨한다.",
   "excludedItemIds": [
     "piece.oreCross"
   ]

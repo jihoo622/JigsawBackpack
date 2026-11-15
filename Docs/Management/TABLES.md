@@ -58,7 +58,7 @@
 ## 가치·거래
 
 - 기본 가치는 `pieces[].baseValue`에 통합했다. 기존 음수 가치도 유지하며 누락 센티널 `-1`은 오류다. 별도 가격 표와 중복 참조는 두지 않는다.
-- 도시의 `tagPrices`는 등록된 `tag`, 고유 `priority`, 양의 `buyPercent`를 가진다. 판매는 `sellGradeId`(판매 등급 참조) 또는 `sellPercent`(사용자 지정) 중 하나로만 정하고 둘을 함께 두면 오류다. 등급별 판매 수치는 `PuzzleTableData.sellGrades`가 단일 원본이며 `Common` 70·`Normal` 100·`Expensive` 130·`Rare` 150%를 제공하고 도시 행은 id로 참조한다. 희귀(`Rare`) 행은 구매·판매 대칭 규칙이라 `buyPercent`도 150으로 둔다. 거래 배율은 `buyPercentOfBaseValue`·`sellPercentOfFinalValue`에 일치한 모든 태그 규칙의 (배율 − 100)을 더한 값이며 하한 없이 0 이하도 허용한다. 개별 규칙의 배율은 양수여야 한다. `priority`는 적용 태그 표기 순서다. 수도권 할증은 지역 `pricePercent`(현재 모두 100)가 아니라 도시 기본 배율로 표현한다.
+- 도시의 `tagPrices`는 등록된 `tag`, 고유 `priority`, 양의 `buyPercent`를 가진다. 판매는 `sellGradeId`(판매 등급 참조) 또는 `sellPercent`(사용자 지정) 중 하나로만 정하고 둘을 함께 두면 오류다. 등급별 판매 수치는 `PuzzleTableData.sellGrades`가 단일 원본이며 `Common` 70·`Normal` 100·`Expensive` 130·`Rare` 200%를 제공하고 도시 행은 id로 참조한다. 구매 배율은 도시 행의 `buyPercent`를 사용한다. 거래 배율은 `buyPercentOfBaseValue`·`sellPercentOfFinalValue`에 일치한 모든 태그 규칙의 (배율 − 100)을 더한 값이며 하한 없이 0 이하도 허용한다. 개별 규칙의 배율은 양수여야 한다. `priority`는 적용 태그 표기 순서다. 수도권 할증은 지역 `pricePercent`(현재 모두 100)가 아니라 도시 기본 배율로 표현한다.
 - 거래 모델과 툴팁 견적은 `PuzzleInventoryService.TryQuoteTrade`를 공유하며 기획에 없는 고정 단가 예외는 두지 않는다.
 - 현재 거래가는 구매·판매 모두 인스턴스의 신선도 반영 실제 가치(`FreshnessAdjustedValue` = `ActualValue` × 기초데이터 `rules.freshness.*` 구간 배율)에 선택된 도시 배율을 곱한다. 새 재고는 `ActualValue`가 기본 가치와 같다. 도시 배율과 지역의 `pricePercent`를 중간 반올림 없이 곱한 최종 금액을 `MidpointRounding.AwayFromZero`로 정수화한다. 범위 초과는 거래 실패로 처리한다. 미리보기와 확정 모두 `EvaluateDrop` 경로를 쓰고 확정 직전에 다시 평가한다.
 - `startingFunds`는 0 이상, `wagonAddCostBase`·`gameClearCost`는 양수다. 가격 계산에 사용하지 않던 공통 구매 할증 필드는 제거했다. 현재 구매/판매 배율은 도시와 지역 표에서 읽는다.

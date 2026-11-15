@@ -1,6 +1,6 @@
 # 외부 행동 복원 계약
 
-이 문서와 schemaVersion 4 구조화 로그, 해당 Rules 테이블만으로 외부 도구가 행동과 관측 상태를 복원한다. Unity 실행·게임 소스·콘솔 문장 해석을 요구하지 않는다. 복원 규칙과 게임의 기대 규칙 검증을 구분한다. 실제 변화는 로그에서 적용하고, 기대 가격·시너지·조건은 테이블과 비교한다.
+이 문서와 schemaVersion 5 구조화 로그, 해당 Rules 테이블만으로 외부 도구가 행동과 관측 상태를 복원한다. Unity 실행·게임 소스·콘솔 문장 해석을 요구하지 않는다. 복원 규칙과 게임의 기대 규칙 검증을 구분한다. 실제 변화는 로그에서 적용하고, 기대 가격·시너지·조건은 테이블과 비교한다.
 
 ## LogKit 서버에서 원본 추출
 
@@ -19,7 +19,7 @@
 - 입력: 세션 JSONL과 각 run_start.rulesHash에 해당하는 `Rules/<hash>.json`. 파일 바이트의 SHA-256이 hash와 같아야 한다. 파일을 재직렬화한 결과가 아니라 전달된 UTF-8 원본 바이트를 해시한다.
 - Rules의 `tables[{name,json}]`에서 name은 확장자 없는 테이블 이름, json은 해당 원본 JSON 문자열이다. 판마다 참조가 고정되며 최신 테이블로 대체하지 않는다.
 - JSONL의 dataJson은 JSON 문자열이므로 한 번 더 파싱한다. sessionId별 sequence 순으로 읽는다. timestampUtc나 디렉터리 나열 순서로 정렬하지 않는다.
-- session_start.schemaVersion은 **4**다. 없는 버전은 1, 이전 변화분 계약은 2, 구매·판매·재배치의 의미 분리는 3, `rumor_learned`에 `kind`·`itemId`를 더한 것이 4다. 서로 같은 파서로 해석하지 않는다.
+- session_start.schemaVersion은 **5**다. 없는 버전은 1, 이전 변화분 계약은 2, 구매·판매·재배치의 의미 분리는 3, `rumor_learned`에 `kind`·`itemId`를 더한 것이 4, 행동 종류와 `actionId`를 더한 것이 5다. 버전에 맞춰 필드를 해석한다.
 - run_start에서 새 판을 만들고 run_end에서 닫는다. 판 키는 `(sessionId, run_start.sequence)`다. instanceId는 판 안에서만 유일하다. 재시작 후 같은 번호를 이전 판 화물과 연결하지 않는다.
 - 시퀀스 누락·중복·파싱 실패·run_start 부재·Rules 누락은 불완전 입력이다. 누락 부분을 가격·이동 성공 여부 등으로 추측해서 채우지 않는다. 마지막 연속된 원본까지의 복원만 확정한다.
 - run_end/session_end가 없으면 완결된 승패가 아닌 중단된 접두 기록이다. 완전한 마지막 행동까지 복원할 수 있지만 이후 행동·종료 사유는 알 수 없다.
@@ -120,7 +120,7 @@ introduced의 ID는 적용 중인 S에 없어야 한다. moved/values/durability
 
 - quest_updated는 의뢰 하나의 상태가 바뀔 때(Active=수락, Completed, Failed) questId/cargoInstanceId/templateId/pieceId/sourceCityId/targetCityId/penaltyId/state/failure(CargoLost·Overdue)/reward/deposit/payout/deadlineMinutes/elapsedMinutes를 기록한다. 기한 초과 실패 시 남아 있던 의뢰 화물은 회수되며 자금은 바꾸지 않는다. 지역 거래 불이익은 이후 거래 가격에만 반영된다.
 - proficiency_gained는 태그 하나의 숙련 경험치가 늘 때 tag/source(Sale·Quest)/gainedXp/xp(누적)/previousLevel/level/instanceId/questId(판매면 0)/elapsedMinutes를 기록한다. 판매는 그 판매의 puzzle_action보다 먼저, 의뢰는 complete_quest보다 먼저 나온다. 판매 moneyDelta에는 숙련 이득이 이미 반영되어 있다.
-- rumor_learned는 kind(specialty·rare)/targetCityId/tag/itemId/elapsedMinutes를 기록한다. kind는 표시 문구가 아니라 종류 ID다. specialty는 itemId에 특산 품목 ID가 있고 tag는 대상 마을의 `specialtyTag`다. rare은 itemId가 빈 문자열이고 tag가 수요 태그다. schemaVersion 3 이하에는 kind·itemId가 없어 문장 없이 종류를 구분할 수 없다. 출처는 그 시점 S.cityId이며 의미상 소문 한 건을 목록에 추가한다. UI 문장·서식 전체 재생은 범위 밖이다.
+- `rumor_learned`는 `kind`·`targetCityId`·`tag`·`itemId`·`actionId`·`elapsedMinutes`를 기록한다. `specialty`의 `itemId`는 특산 품목 ID, `tag`는 대상 마을의 `specialtyTag`다. `rare`의 `tag`는 수요 태그다. `action`의 `actionId`는 `PuzzleCityActionTableData.actions[].id`다. 종류에 해당하지 않는 `tag`·`itemId`·`actionId`는 빈 문자열이다. schemaVersion 4의 종류는 `specialty`·`rare`이며 `actionId` 필드는 5부터 있다. schemaVersion 3 이하에는 `kind`·`itemId`가 없다. 출처는 그 시점의 S.cityId이며 소문 한 건을 목록에 추가한다.
 - run_end.reason은 won/deadline/restart/scene_unloaded/shutdown/recorder_disabled/replaced다. 승패와 중단을 구분하고 S를 닫는다. 결과 패널/씬 이벤트가 뒤에 있어도 새 run_start 전까지 이전 판 행동으로 추가하지 않는다.
 - session_start는 schemaVersion/reason/appVersion/unityVersion/platform/isEditor/scene, session_end는 reason이다. scene_change는 scene/loaded, panel_visibility는 panel/open, upgrade_granted는 id, entity_link_clicked는 kind(city·item·tag·quest·region 소문자)/id/action(click·context)이다. 원본 시각은 공통 봉투에서 읽는다.
 - entity_link_clicked는 플레이어가 고유명사 하이퍼링크를 클릭하거나 컨텍스트(우클릭 등)를 요청했을 때 kind/id/action을 기록한다. 호버는 고빈도이므로 수집 경계에 따라 기록하지 않는다.

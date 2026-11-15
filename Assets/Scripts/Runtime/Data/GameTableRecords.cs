@@ -260,7 +260,7 @@ public sealed class PuzzleCityTagPriceData
 public sealed class PuzzleSellGradeData
 {
     public string id;
-    // 도시 기본 배율에 더하는 기준이 되는 절대 판매 배율(%). 흔함 70·일반 100·귀함 130·희귀 150.
+    // 도시 기본 배율에 (sellPercent - 100)을 더한다.
     public int sellPercent = -1;
 }
 
