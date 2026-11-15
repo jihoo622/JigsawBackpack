@@ -862,7 +862,7 @@ public static class BasicDataContract
             { "presentation.search.placeholder", 0 },
             { "presentation.search.remainingCount", 1 },
             { "presentation.search.routeButton", 0 },
-            { "presentation.station.actionRumor", 2 },
+            { "presentation.station.actionRumor", 3 },
             { "presentation.station.actionsTitle", 0 },
             { "presentation.station.back", 0 },
             { "presentation.station.market", 0 },

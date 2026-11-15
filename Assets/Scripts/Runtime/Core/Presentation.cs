@@ -39,10 +39,21 @@ public static partial class Presentation
                 ItemLink(_candidate.ItemId, tables.Piece(_candidate.ItemId).displayName)),
             PuzzleRumorKind.RareDemand => BasicData.Format("presentation.station.rareRumor", city,
                 TagLink(_candidate.Tag)),
-            PuzzleRumorKind.Action => BasicData.Format("presentation.station.actionRumor", city,
-                TavernActionName(tables.CityAction(_candidate.ActionId).title)),
+            PuzzleRumorKind.Action => TavernActionRumor(city, tables.CityAction(_candidate.ActionId).title),
             _ => throw new ArgumentOutOfRangeException(nameof(_candidate), _candidate.Kind, "지원하지 않는 소문 종류입니다.")
         };
+    }
+
+    static string TavernActionRumor(string _city, string _title)
+    {
+        const int HANGUL_FIRST_SYLLABLE = 0xAC00;
+        const int HANGUL_LAST_SYLLABLE = 0xD7A3;
+        const int FINAL_CONSONANT_COUNT = 28;
+        string action = TavernActionName(_title.TrimEnd().Normalize());
+        char last = action[^1];
+        bool hasFinalConsonant = last >= HANGUL_FIRST_SYLLABLE && last <= HANGUL_LAST_SYLLABLE &&
+            (last - HANGUL_FIRST_SYLLABLE) % FINAL_CONSONANT_COUNT != 0;
+        return BasicData.Format("presentation.station.actionRumor", _city, action, hasFinalConsonant ? "이" : "가");
     }
 
     static string TavernActionName(string _title)

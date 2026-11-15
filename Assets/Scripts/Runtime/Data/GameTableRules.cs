@@ -760,9 +760,9 @@ public sealed class GameTableRules
             if (rule != null)
             {
                 Check(!effect.target || PuzzlePieceEffects.EligibleTarget(tags, rule, _wasteTag), path + ".target",
-                    "대상 태그·제외 태그·배설물 면역 조건과 맞지 않는 대상 역할입니다.");
+                    "품목의 태그가 이 시너지의 대상 조건과 맞지 않습니다. 대상 역할을 해제하고 남은 역할이 없으면 효과 항목을 제거하세요.");
                 Check(!effect.source || PuzzlePieceEffects.EligibleSource(tags, rule), path + ".source",
-                    "이웃 태그 또는 제외 이웃 태그와 맞지 않는 발생원 역할입니다.");
+                    "품목의 태그가 이 시너지의 발생원 조건과 맞지 않습니다. 발생원 역할을 해제하고 남은 역할이 없으면 효과 항목을 제거하세요.");
             }
         }
         var preservation = _piece.preservationEffect;
