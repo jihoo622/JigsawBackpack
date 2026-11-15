@@ -17,6 +17,7 @@ public static class TelemetryEvents
     public const string RUMOR_LEARNED = "rumor_learned";
     public const string QUEST_UPDATED = "quest_updated";
     public const string PROFICIENCY_GAINED = "proficiency_gained";
+    public const string ENTITY_LINK_CLICKED = "entity_link_clicked";
     public const string RULES_CHUNK = "rules_chunk";
 }
 
@@ -83,6 +84,14 @@ public struct ButcheryReadyPayload
     public string actionId, cityId;
     public int outputCount;
     public double time;
+}
+
+[Serializable]
+public struct EntityLinkClickedPayload
+{
+    public string kind;
+    public string id;
+    public string action;
 }
 
 // 좌표는 히트맵에 충분한 1cm 단위로 줄여 행 크기를 낮춘다.
@@ -170,6 +179,35 @@ public static partial class TelemetryPayload
             itemId = _info.itemId,
             elapsedMinutes = _info.recordedMinutes
         };
+    }
+
+    public static EntityLinkClickedPayload EntityLink(GameEvents.EntityLinkInfo _info, string _action)
+    {
+        return new EntityLinkClickedPayload
+        {
+            kind = EntityLinkKindString(_info.kind),
+            id = _info.id ?? string.Empty,
+            action = _action ?? string.Empty
+        };
+    }
+
+    static string EntityLinkKindString(EntityLinkKind _kind)
+    {
+        switch (_kind)
+        {
+            case EntityLinkKind.City:
+                return "city";
+            case EntityLinkKind.Item:
+                return "item";
+            case EntityLinkKind.Tag:
+                return "tag";
+            case EntityLinkKind.Quest:
+                return "quest";
+            case EntityLinkKind.Region:
+                return "region";
+            default:
+                return _kind.ToString().ToLowerInvariant();
+        }
     }
 
     public static TelemetryPosition Position(Vector3 _value)

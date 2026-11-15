@@ -121,7 +121,8 @@ introduced의 ID는 적용 중인 S에 없어야 한다. moved/values/durability
 - proficiency_gained는 태그 하나의 숙련 경험치가 늘 때 tag/source(Sale·Quest)/gainedXp/xp(누적)/previousLevel/level/instanceId/questId(판매면 0)/elapsedMinutes를 기록한다. 판매는 그 판매의 puzzle_action보다 먼저, 의뢰는 complete_quest보다 먼저 나온다. 판매 moneyDelta에는 숙련 이득이 이미 반영되어 있다.
 - rumor_learned는 kind(specialty·rare)/targetCityId/tag/itemId/elapsedMinutes를 기록한다. kind는 표시 문구가 아니라 종류 ID다. specialty는 itemId에 특산 품목 ID가 있고 tag는 대상 마을의 `specialtyTag`다. rare은 itemId가 빈 문자열이고 tag가 수요 태그다. schemaVersion 3 이하에는 kind·itemId가 없어 문장 없이 종류를 구분할 수 없다. 출처는 그 시점 S.cityId이며 의미상 소문 한 건을 목록에 추가한다. UI 문장·서식 전체 재생은 범위 밖이다.
 - run_end.reason은 won/deadline/restart/scene_unloaded/shutdown/recorder_disabled/replaced다. 승패와 중단을 구분하고 S를 닫는다. 결과 패널/씬 이벤트가 뒤에 있어도 새 run_start 전까지 이전 판 행동으로 추가하지 않는다.
-- session_start는 schemaVersion/reason/appVersion/unityVersion/platform/isEditor/scene, session_end는 reason이다. scene_change는 scene/loaded, panel_visibility는 panel/open, upgrade_granted는 id다. 원본 시각은 공통 봉투에서 읽는다.
+- session_start는 schemaVersion/reason/appVersion/unityVersion/platform/isEditor/scene, session_end는 reason이다. scene_change는 scene/loaded, panel_visibility는 panel/open, upgrade_granted는 id, entity_link_clicked는 kind(city·item·tag·quest·region 소문자)/id/action(click·context)이다. 원본 시각은 공통 봉투에서 읽는다.
+- entity_link_clicked는 플레이어가 고유명사 하이퍼링크를 클릭하거나 컨텍스트(우클릭 등)를 요청했을 때 kind/id/action을 기록한다. 호버는 고빈도이므로 수집 경계에 따라 기록하지 않는다.
 - 공통 time은 일시정지를 반영하는 실제 플레이 누적 초, timestampUtc는 UTC, elapsedMinutes는 게임 달력이다. 실제 체류 시간과 게임 소비 시간을 섞지 않는다.
 - 기본 기차 화물의 보유 시간은 0에서 시작하고 시장 화물은 미소유다. 성공 buy에서 0, sell에서 미소유로 바뀐다. 새 기차 화물은 해당 행동 끝에 보유를 시작한다. 이후 게임 소비 분을 합해 보유 기간을 계산한다.
 

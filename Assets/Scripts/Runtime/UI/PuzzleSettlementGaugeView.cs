@@ -3,83 +3,83 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-// 다음 정산 게이지의 표시만 담당한다. 값은 PuzzleSettlementGaugePresenter가 시간·정산 계산에서 넣는다.
-// 6칸 막대는 프리팹에 미리 배치한 Image를 켜고 끄는 방식이다(런타임 생성 금지).
+// 상단 시간 칸 아랫줄의 정산 표시. 24시간 낮·밤 막대 위에 정산 시각 눈금을 긋고(다음 정산은 강조색),
+// 막대 아래 띠로 이번 정산 주기의 진행을 채운다. 오른쪽 글자는 남은 시간·예상치다.
+// 눈금은 프리팹에 미리 배치한 Image를 켜고 끈다(런타임 생성 금지). 값은 PuzzleSettlementGaugePresenter가 넣는다.
 public sealed class PuzzleSettlementGaugeView : MonoBehaviour
 {
-    [SerializeField] TextMeshProUGUI titleLabel;
-    [SerializeField] TextMeshProUGUI timeLabel;
-    [SerializeField] TextMeshProUGUI estimateLabel;
-    [SerializeField] Image[] cells;
-    [SerializeField] Image background;
-    [SerializeField] Image border;
+    [SerializeField] TextMeshProUGUI label;
+    // 진행 띠. 자정을 넘는 주기는 두 칸으로 나눈다.
+    [SerializeField] Image progressA;
+    [SerializeField] Image progressB;
+    [SerializeField] RectTransform[] ticks;
 
-    internal int CellCount => cells == null ? 0 : cells.Length;
+    internal int TickCount => ticks == null ? 0 : ticks.Length;
 
     internal void Initialize()
     {
-        if (!timeLabel || !estimateLabel || cells == null || cells.Length == 0 ||
-            System.Array.Exists(cells, _cell => _cell == null))
+        if (!label || !progressA || !progressB || ticks == null || ticks.Length == 0 ||
+            Array.Exists(ticks, _tick => _tick == null))
         {
-            throw new InvalidOperationException("정산 게이지 View에 남은 시간·예상치 라벨과 미리 배치한 칸 Image 참조가 필요합니다.");
+            throw new InvalidOperationException("정산 표시 View에 글자·진행 띠 2개·미리 배치한 눈금 참조가 필요합니다.");
         }
-
-        if (titleLabel)
-        {
-            titleLabel.text = Presentation.GaugeTitle;
-            titleLabel.color = Presentation.PuzzleHeading;
-        }
-        timeLabel.color = Presentation.PuzzleHeading;
-        estimateLabel.color = Presentation.PuzzleHeading;
-        if (background)
-        {
-            background.color = Presentation.PuzzleBackground;
-        }
-        if (border)
-        {
-            border.color = Presentation.PuzzleWagonNormalBorder;
-        }
-        for (int i = 0; i < cells.Length; i++)
-        {
-            ApplyCellVisual(i, false);
-        }
+        label.color = Presentation.PuzzleHeading;
+        progressA.color = Presentation.PuzzleTimeAccent;
+        progressB.color = Presentation.PuzzleTimeAccent;
     }
 
-    internal void Render(string _timeText, decimal _estimate, int _filledCells)
+    // _start·_now: 하루(0~1) 위 이번 주기 시작과 지금. _ticks: 다음 정산부터 차례로 하루 위 위치(개수는 _tickCount).
+    internal void Render(string _text, float _start, float _now, float[] _ticks, int _tickCount)
     {
-        timeLabel.text = _timeText;
-        estimateLabel.text = Presentation.GaugeEstimate(_estimate);
-        for (int i = 0; i < cells.Length; i++)
+        label.text = _text;
+        ShowProgress(_start, _now);
+        for (int i = 0; i < ticks.Length; i++)
         {
-            ApplyCellVisual(i, i < _filledCells);
-        }
-    }
-
-    internal void Clear(string _timeText)
-    {
-        timeLabel.text = _timeText;
-        estimateLabel.text = string.Empty;
-        for (int i = 0; i < cells.Length; i++)
-        {
-            ApplyCellVisual(i, false);
-        }
-    }
-
-    void ApplyCellVisual(int _index, bool _filled)
-    {
-        var cell = cells[_index];
-        if (!cell)
-        {
-            return;
-        }
-        cell.color = _filled ? Presentation.PuzzleTimeAccent : Presentation.PuzzleWagonNormalBorder;
-        if (cell.transform.childCount > 0)
-        {
-            var inner = cell.transform.GetChild(0).GetComponent<Image>();
-            if (inner)
+            bool used = i < _tickCount;
+            ticks[i].gameObject.SetActive(used);
+            if (!used)
             {
-                inner.color = _filled ? Presentation.PuzzleTimeAccent : Presentation.PuzzleBackground;
+                continue;
+            }
+            ticks[i].anchorMin = new Vector2(_ticks[i], ticks[i].anchorMin.y);
+            ticks[i].anchorMax = new Vector2(_ticks[i], ticks[i].anchorMax.y);
+            ticks[i].anchoredPosition = new Vector2(0f, ticks[i].anchoredPosition.y);
+            if (ticks[i].TryGetComponent<Graphic>(out var graphic))
+            {
+                graphic.color = i == 0 ? Presentation.PuzzleTimeAccent : Presentation.GaugeTick;
             }
         }
+    }
+
+    internal void Clear(string _text)
+    {
+        label.text = _text;
+        progressA.gameObject.SetActive(false);
+        progressB.gameObject.SetActive(false);
+        for (int i = 0; i < ticks.Length; i++)
+        {
+            ticks[i].gameObject.SetActive(false);
+        }
+    }
+
+    void ShowProgress(float _start, float _now)
+    {
+        bool wraps = _now < _start;
+        progressA.gameObject.SetActive(true);
+        SetSpan(progressA, _start, wraps ? 1f : _now);
+        progressB.gameObject.SetActive(wraps);
+        if (wraps)
+        {
+            SetSpan(progressB, 0f, _now);
+        }
+    }
+
+    static void SetSpan(Image _segment, float _from, float _to)
+    {
+        var rect = _segment.rectTransform;
+        rect.anchorMin = new Vector2(_from, rect.anchorMin.y);
+        rect.anchorMax = new Vector2(_to, rect.anchorMax.y);
+        rect.offsetMin = new Vector2(0f, rect.offsetMin.y);
+        rect.offsetMax = new Vector2(0f, rect.offsetMax.y);
     }
 }

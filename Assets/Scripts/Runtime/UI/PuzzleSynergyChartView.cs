@@ -26,6 +26,8 @@ public sealed class PuzzleSynergyChartView : PanelBase
     internal int RowCapacity => rowHeaderTexts == null ? 0 : rowHeaderTexts.Length;
     internal int ColumnCapacity => columnHeaderTexts == null ? 0 : columnHeaderTexts.Length;
 
+    internal event Action Hidden;
+
     protected override void OnEnable()
     {
         base.OnEnable();
@@ -45,6 +47,12 @@ public sealed class PuzzleSynergyChartView : PanelBase
         }
         closeButton.onClick.RemoveListener(Close);
         base.OnDisable();
+    }
+
+    protected override void OnHide()
+    {
+        base.OnHide();
+        Hidden?.Invoke();
     }
 
     public bool TryConsumeCancel()
@@ -79,6 +87,14 @@ public sealed class PuzzleSynergyChartView : PanelBase
         notesText.text = _notes;
         itemTitleText.text = _itemTitle;
         itemTagsText.text = _itemTags;
+    }
+
+    internal void RenderItemTags(string _itemTags)
+    {
+        if (itemTagsText)
+        {
+            itemTagsText.text = _itemTags;
+        }
     }
 
     internal void RenderRowHeader(int _row, string _text, Color _background, Color _textColor)

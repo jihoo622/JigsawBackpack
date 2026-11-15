@@ -9,6 +9,12 @@ public sealed class PuzzleCityView : MonoBehaviour
 {
     [SerializeField] TextMeshProUGUI cityName;
     [SerializeField] TextMeshProUGUI timeLabel;
+    // 시계 아래 하루(0~24시) 막대: 바탕은 낮, 밤 구간 두 칸(자정을 넘는 밤을 위해 둘), 현재 시각 표시선.
+    // 위치는 가로 앵커 비율로만 정하며 밤 구간은 시간 테이블이 원본이다.
+    [SerializeField] Image dayNightBar;
+    [SerializeField] Image nightSegmentA;
+    [SerializeField] Image nightSegmentB;
+    [SerializeField] RectTransform clockMarker;
     [SerializeField] TextMeshProUGUI deadlineTitle;
     [SerializeField] TextMeshProUGUI deadlineLabel;
     [SerializeField] TextMeshProUGUI funds;
@@ -118,9 +124,48 @@ public sealed class PuzzleCityView : MonoBehaviour
         cityName.text = _name;
     }
 
+    void ShowDayNight(PuzzleTimeManager _time)
+    {
+        if (!dayNightBar || !nightSegmentA || !nightSegmentB || !clockMarker)
+        {
+            throw new InvalidOperationException("도시 View에 낮·밤 막대·밤 구간 2개·현재 시각 표시선 참조가 필요합니다.");
+        }
+        dayNightBar.color = Presentation.TimeDayBar;
+        nightSegmentA.color = Presentation.TimeNightBar;
+        nightSegmentB.color = Presentation.TimeNightBar;
+        float day = PuzzleTimeManager.MINUTES_PER_DAY;
+        float start = _time.NightStartMinuteOfDay / day;
+        float end = start + _time.NightLengthMinutes / day;
+        // 자정을 넘는 밤은 [시작, 1)과 [0, 끝-1) 두 칸으로 나눈다.
+        SetSpan(nightSegmentA, start, Mathf.Min(end, 1f));
+        nightSegmentB.gameObject.SetActive(end > 1f);
+        if (end > 1f)
+        {
+            SetSpan(nightSegmentB, 0f, end - 1f);
+        }
+        float now = _time.MinuteOfDay / day;
+        clockMarker.anchorMin = new Vector2(now, clockMarker.anchorMin.y);
+        clockMarker.anchorMax = new Vector2(now, clockMarker.anchorMax.y);
+        clockMarker.anchoredPosition = new Vector2(0f, clockMarker.anchoredPosition.y);
+        if (clockMarker.TryGetComponent<Graphic>(out var markerGraphic))
+        {
+            markerGraphic.color = Presentation.PuzzleTimeAccent;
+        }
+    }
+
+    static void SetSpan(Image _segment, float _from, float _to)
+    {
+        var rect = _segment.rectTransform;
+        rect.anchorMin = new Vector2(_from, 0f);
+        rect.anchorMax = new Vector2(_to, 1f);
+        rect.offsetMin = Vector2.zero;
+        rect.offsetMax = Vector2.zero;
+    }
+
     internal void ShowTime(PuzzleTimeManager _time)
     {
         timeLabel.text = Presentation.PuzzleTime(_time);
+        ShowDayNight(_time);
         if (deadlineTitle)
         {
             deadlineTitle.text = Presentation.TimeDeadlineTitle;

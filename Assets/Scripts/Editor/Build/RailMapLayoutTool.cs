@@ -371,7 +371,7 @@ public static class RailMapLayoutTool
         for (int i = 0; i < regionBindings.arraySize; i++)
         {
             var binding = regionBindings.GetArrayElementAtIndex(i);
-            var label = binding.FindPropertyRelative("label").objectReferenceValue as Text;
+            var label = binding.FindPropertyRelative("label").objectReferenceValue as TMPro.TMP_Text;
             if (label)
             {
                 string regionId = binding.FindPropertyRelative("regionId").stringValue;
@@ -516,7 +516,7 @@ public static class RailMapLayoutTool
                 interchange.boolValue = layout.interchange;
             }
             serialized.ApplyModifiedPropertiesWithoutUndo();
-            var label = serialized.FindProperty("label").objectReferenceValue as Text;
+            var label = serialized.FindProperty("label").objectReferenceValue as TMPro.TMP_Text;
             if (label != null)
             {
                 label.text = Presentation.PuzzleMapStationName(layout.displayName, cityId == _planningTargetCityId);
@@ -562,8 +562,8 @@ public static class RailMapLayoutTool
             var label = element.FindPropertyRelative("label");
             if (_timeByIndex.TryGetValue(rail.railIndex, out var time))
             {
-                label.objectReferenceValue = time.GetComponent<Text>();
-                var text = label.objectReferenceValue as Text;
+                label.objectReferenceValue = time.GetComponent<TMPro.TextMeshProUGUI>();
+                var text = label.objectReferenceValue as TMPro.TMP_Text;
                 if (text != null)
                 {
                     var route = Array.Find(TableManager.Instance.RequireValid().PuzzleRoute.routes,
@@ -577,7 +577,7 @@ public static class RailMapLayoutTool
                 }
                 if (!label.objectReferenceValue)
                 {
-                    Debug.LogError($"[RailMap] Time_{rail.railIndex}에 Text 컴포넌트가 없습니다.");
+                    Debug.LogError($"[RailMap] Time_{rail.railIndex}에 TextMeshProUGUI 컴포넌트가 없습니다.");
                 }
             }
         }

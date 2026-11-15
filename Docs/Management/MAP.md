@@ -197,7 +197,7 @@
 - `Assets/Art/PuzzleMapTerrain.png`는 지형 원본 `rail_map_geography_seed_20265146.json`에서 만든 배경이다. 원본은 칸 격자(416×184칸, 칸 12.66×10)이며 칸마다 지형 글자(`~` 바다, `p` 평야, `g` 초원, `h` 구릉, `m` 산, `M` 고산, `r` 강)와 지역 글자(`.` 없음, `a`부터 `regions` 순서)를 행 문자열로 저장한다.
 - 색은 기초데이터 `presentation.map.terrain*`·`river`·`terrainBorder`이며 지역별 색조는 넣지 않는다. 바다는 육지에서 멀수록 얕은 색→깊은 색으로 바뀌고, 지역이 다른 육지 칸 사이에 옅은 경계선(`editor.MapPresentationTool.generateTerrain4`)을 그린다. 칸당 픽셀은 `pixelspertile`(4), 텍스처는 점 필터·밉맵 없음·비압축이다.
 - 기존 124×82칸 지도를 가운데에 두고 서·북·남쪽 육지와 동쪽 바다를 이어 생성했다. 최소 줌(35%)에서도 지도 영역 전체를 덮는 크기다.
-- 지도 프리팹은 `MapViewport`(RectMask2D) 아래 `MapContent`에 배경·노드·선분·시간 라벨을 함께 배치한다. `TerrainBackground` 크기·위치는 지형 격자(칸 수×칸 크기, 중심)와 같고 노선 레이아웃 적용 때 함께 맞춘다. 역 이름·배지에는 밝은 지형에서도 읽히도록 2px 외곽선(Outline)을 둔다.
+- 지도 프리팹은 `MapViewport`(RectMask2D) 아래 `MapContent`에 배경·노드·선분·시간 라벨을 함께 배치한다. `TerrainBackground` 크기·위치는 지형 격자(칸 수×칸 크기, 중심)와 같고 노선 레이아웃 적용 때 함께 맞춘다. 지도 글자는 모두 TextMeshPro(`NotoSansKR-Medium SDF`)이며, 역 이름·배지에는 밝은 지형에서도 읽히도록 TMP 외곽선 머티리얼(`Assets/Art/UI/Materials/NotoSansKR-Medium SDF - Map Outline Dark/Soft.mat`)을 쓴다.
 - `PuzzleMapNavigation`은 복제한 `InputSystem_Actions`의 `Map/Zoom`·`Map/Point`를 사용한다. 휠은 포인터 위치 기준 35~250% 확대·축소, UI 드래그는 지도 이동이다. 가장자리를 제한하고, 전체 보기와 현재 위치 버튼을 연결한다. 패널을 닫으면 입력 구독을 해제한다.
 - 지형과 역 좌표는 줌에 따라 변하지만 노드 전체·시간 라벨·시간 배경은 역배율로 보정해 화면상 크기를 유지한다. 노선 길이는 확대하고 굵기는 역배율로 보정한다. 이름은 전체 보기에서 18, 상세에서 22, 현재 역은 24 크기다. 시간은 18, 현재 위치 배지는 16 크기다. 시각 크기의 원본은 `Presentation`이다.
 - 확대·축소·드래그·호버·도착 때 `PuzzleMapView.UpdateMapLayout`이 라벨을 재배치한다. 이름은 현재 역·가리킨 역·목표 역·직접 연결 역·환승역·나머지 역 순으로 처리하고, ID로 동률을 정렬한다. 마커를 피하는 방향을 선택하고 자리가 없으면 이름만 생략한다. 현재 역과 가리킨 역의 이름은 우선 보존한다. 시간은 85% 이상에서 남은 공간에 배치하고, 겹치는 시간 라벨은 숨긴다. 생략된 도시 정보·이동 시간은 역을 가리켜 하단 정보에서 확인한다.

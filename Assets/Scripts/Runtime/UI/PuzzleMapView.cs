@@ -45,15 +45,24 @@ public sealed class PuzzleMapView : PanelBase
     sealed class RegionVisual
     {
         public string regionId;
-        public Text label;
+        public TMPro.TextMeshProUGUI label;
         public Image area;
+    }
+
+    // 축소 배율에서 역 이름 대신 보이는 지도 위 지역명(지역 역들의 가운데).
+    [System.Serializable]
+    sealed class MapRegionLabelVisual
+    {
+        public string regionId;
+        public TMPro.TextMeshProUGUI label;
+        public Image plate;
     }
 
     [System.Serializable]
     sealed class RouteTimeVisual
     {
         public string fromCityId, toCityId;
-        public Text label;
+        public TMPro.TextMeshProUGUI label;
         public Image plate;
         public bool manualPosition;
         [NonSerialized] public Vector2 position;
@@ -66,24 +75,26 @@ public sealed class PuzzleMapView : PanelBase
         public Image[] segments;
     }
 
-    [SerializeField] Text title;
-    [SerializeField] Text guide;
-    [SerializeField] Text information;
-    [SerializeField] Text closeLabel;
+    [SerializeField] TMPro.TextMeshProUGUI title;
+    [SerializeField] TMPro.TextMeshProUGUI guide;
+    [SerializeField] TMPro.TextMeshProUGUI information;
+    // 닫기 버튼은 다른 화면과 같은 공용 헤더 버튼(HeaderButton, TMP 라벨)이다.
+    [SerializeField] TMPro.TextMeshProUGUI closeLabel;
     [SerializeField] Image background;
     [SerializeField] Image[] routeLines;
     [SerializeField] PuzzleMapNodeView[] nodes;
     [SerializeField] RegionVisual[] regions;
+    [SerializeField] MapRegionLabelVisual[] regionLabels;
     [SerializeField] RouteTimeVisual[] routeTimes;
     [SerializeField] LineVisual[] lines;
     [SerializeField] PuzzleMapNavigation navigation;
 
     [Header("E3 Travel Preview Card")]
     [SerializeField] GameObject travelPreviewCard;
-    [SerializeField] Text previewTitle;
-    [SerializeField] Text previewTimeFare;
-    [SerializeField] Text previewArrival;
-    [SerializeField] Text previewDeadline;
+    [SerializeField] TMPro.TextMeshProUGUI previewTitle;
+    [SerializeField] TMPro.TextMeshProUGUI previewTimeFare;
+    [SerializeField] TMPro.TextMeshProUGUI previewArrival;
+    [SerializeField] TMPro.TextMeshProUGUI previewDeadline;
 
     readonly Dictionary<int, List<Image>> routeTrackImages = new Dictionary<int, List<Image>>();
     readonly Dictionary<Image, Color> originalTrackColors = new Dictionary<Image, Color>();
@@ -124,6 +135,7 @@ public sealed class PuzzleMapView : PanelBase
     [SerializeField] float stationBadgeExtraWidth = 12f;
     [SerializeField] float stationBadgeMinWidth = 160f;
     [SerializeField] float stationBadgeHeight = 24f;
+    // 도시 이름 아래 판매 칩: 글자 폭 + 좌우 여백 합, 칩 사이 간격
 
     [Header("Station Font Sizes")]
     [SerializeField] int stationFontSizeEmphasized = 24;
@@ -135,6 +147,14 @@ public sealed class PuzzleMapView : PanelBase
     [Header("Map Label Priorities & Policies")]
     [SerializeField] int majorStationThreshold = 200;
     [SerializeField] float labelDetailMinZoom = 0.85f;
+    // 이 배율보다 작으면 역 이름 대신 지역명을 보인다(현재·목표·의뢰 목적지·선택 역 이름은 남긴다).
+    [SerializeField] float regionLabelMaxZoom = 0.85f;
+    [SerializeField] int regionLabelFontSize = 20;
+    [SerializeField] float regionLabelPaddingX = 16f;
+    [SerializeField] float regionLabelHeight = 32f;
+    // 지역 가운데에서 빈자리를 찾는 최대 거리·간격(화면 px)
+    [SerializeField] float regionLabelSearchDistance = 240f;
+    [SerializeField] float regionLabelSearchStep = 16f;
     [SerializeField] float regionBalanceBelowZoom = 1.0f;
     [SerializeField] int regionCrowdingPenalty = 180;
     [SerializeField] int labelPriorityCurrent = 10000;
@@ -240,6 +260,24 @@ public sealed class PuzzleMapView : PanelBase
         RefreshLayout();
     }
 
+    internal PuzzleMapNavigation Navigation => navigation;
+
+    internal void FocusCity(string _cityId)
+    {
+        if (navigation)
+        {
+            navigation.FocusCity(_cityId);
+        }
+    }
+
+    internal void FocusRegion(string _regionId)
+    {
+        if (navigation)
+        {
+            navigation.FocusRegion(_regionId);
+        }
+    }
+
     void PrepareLayout()
     {
         if (layoutNodes != null)
@@ -260,6 +298,15 @@ public sealed class PuzzleMapView : PanelBase
         {
             route.label.transform.SetAsLastSibling();
             route.position = route.label.rectTransform.anchoredPosition;
+        }
+        // 지역명은 선로·역 표식 위에 그린다(판 → 글자 순).
+        if (regionLabels != null)
+        {
+            foreach (var region in regionLabels)
+            {
+                region.plate.transform.SetAsLastSibling();
+                region.label.transform.SetAsLastSibling();
+            }
         }
         foreach (var track in routeLines)
         {
@@ -302,14 +349,17 @@ public sealed class PuzzleMapView : PanelBase
         pendingLabels.Clear();
         requiredLabels.Clear();
         regionLabelCounts.Clear();
+        bool regionMode = _zoom < regionLabelMaxZoom;
         foreach (var node in layoutNodes)
         {
             node.HideLabel();
-            if (node.IsLabelRequired(selectedCityId, nodeSettings))
+            bool required = regionMode ? node.IsLabelEssential(selectedCityId) : node.IsLabelRequired(selectedCityId, nodeSettings);
+            if (required)
             {
                 requiredLabels.Add(node);
             }
-            if (node.ShouldShowLabel(_zoom, selectedCityId, nodeSettings) && bounds.Contains(node.MarkerPosition(_viewport)))
+            bool show = regionMode ? required : node.ShouldShowLabel(_zoom, selectedCityId, nodeSettings);
+            if (show && bounds.Contains(node.MarkerPosition(_viewport)))
             {
                 pendingLabels.Add(node);
             }
@@ -337,6 +387,7 @@ public sealed class PuzzleMapView : PanelBase
                 regionLabelCounts[best.RegionId] = count + 1;
             }
         }
+        LayoutRegionLabels(regionMode, _zoom, bounds, _viewport);
 
         foreach (var track in routeLines)
         {
@@ -395,14 +446,89 @@ public sealed class PuzzleMapView : PanelBase
         }
     }
 
+    // 지역명은 그 지역 역 표식들의 가운데에서 바깥으로 넓혀 가며 역 표식·이름·연결선과 겹치지 않는 첫 자리에 둔다.
+    // 역 이름(필수)을 먼저 놓은 뒤 호출한다. 자리가 없으면 겹쳐 그리지 않고 숨긴다.
+    void LayoutRegionLabels(bool _visible, float _zoom, Rect _bounds, RectTransform _viewport)
+    {
+        if (regionLabels == null)
+        {
+            return;
+        }
+        var tables = TableManager.Instance;
+        foreach (var region in regionLabels)
+        {
+            Vector2 center = Vector2.zero;
+            int count = 0;
+            if (_visible)
+            {
+                foreach (var node in layoutNodes)
+                {
+                    if (tables.HasCity(node.CityId) && tables.CityPrice(node.CityId).regionId == region.regionId)
+                    {
+                        center += node.MarkerPosition(_viewport);
+                        count++;
+                    }
+                }
+            }
+            var label = region.label;
+            bool placed = false;
+            if (count > 0)
+            {
+                center /= count;
+                label.fontSize = regionLabelFontSize;
+                label.enableAutoSizing = false;
+                label.textWrappingMode = TMPro.TextWrappingModes.NoWrap;
+                label.overflowMode = TMPro.TextOverflowModes.Overflow;
+                label.alignment = TMPro.TextAlignmentOptions.Center;
+                Vector2 size = new Vector2(Mathf.Ceil(label.preferredWidth) + regionLabelPaddingX, regionLabelHeight);
+                if (TryFindRegionLabelSpot(center, size, _bounds, out Rect spot))
+                {
+                    occupied.Add(spot);
+                    Vector3 local = label.rectTransform.parent.InverseTransformPoint(_viewport.TransformPoint(spot.center));
+                    foreach (var rect in new[] { label.rectTransform, region.plate.rectTransform })
+                    {
+                        rect.anchorMin = rect.anchorMax = rect.pivot = Vector2.one * 0.5f;
+                        rect.localScale = Vector3.one / _zoom;
+                        rect.sizeDelta = size;
+                        rect.anchoredPosition = local;
+                    }
+                    placed = true;
+                }
+            }
+            label.gameObject.SetActive(placed);
+            region.plate.gameObject.SetActive(placed);
+        }
+    }
+
+    bool TryFindRegionLabelSpot(Vector2 _center, Vector2 _size, Rect _bounds, out Rect _spot)
+    {
+        _spot = Box(_center, _size);
+        if (Available(_spot, _bounds))
+        {
+            return true;
+        }
+        for (float distance = regionLabelSearchStep; distance <= regionLabelSearchDistance; distance += regionLabelSearchStep)
+        {
+            foreach (var direction in LABEL_DIRECTIONS)
+            {
+                _spot = Box(_center + direction.normalized * distance, _size);
+                if (Available(_spot, _bounds))
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     Vector2 PrepareTimeLabel(RouteTimeVisual _route, float _zoom)
     {
         var label = _route.label;
         label.rectTransform.localScale = Vector3.one / _zoom;
         label.rectTransform.anchoredPosition = _route.position;
         label.fontSize = timeFontSize;
-        label.resizeTextForBestFit = false;
-        label.horizontalOverflow = HorizontalWrapMode.Overflow;
+        label.enableAutoSizing = false;
+        label.textWrappingMode = TMPro.TextWrappingModes.NoWrap;
         Vector2 size = new Vector2(Mathf.Ceil(label.preferredWidth) + timeLabelPaddingX, timeLabelHeight);
         label.rectTransform.sizeDelta = size;
         return size;
@@ -644,6 +770,17 @@ public sealed class PuzzleMapView : PanelBase
             region.label.color = Presentation.PuzzleMapLineColor(region.regionId);
             region.area.color = Presentation.PuzzleMapLineColor(region.regionId);
         }
+        if (regionLabels != null)
+        {
+            foreach (var region in regionLabels)
+            {
+                region.label.text = tables.Region(region.regionId).displayName;
+                region.label.color = Presentation.PuzzleMapLineColor(region.regionId);
+                region.label.raycastTarget = false;
+                region.plate.color = Presentation.MapLabelPlate;
+                region.plate.raycastTarget = false;
+            }
+        }
         foreach (var routeTime in routeTimes)
         {
             if (tables.TryGetRoute(routeTime.fromCityId, routeTime.toCityId, out var route))
@@ -707,7 +844,7 @@ public sealed class PuzzleMapView : PanelBase
         }
         if (previewArrival)
         {
-            previewArrival.supportRichText = true;
+            previewArrival.richText = true;
             previewArrival.text = $"도착 {arrivalStr}";
         }
 
@@ -817,7 +954,7 @@ public sealed class PuzzleMapView : PanelBase
 
     internal void ShowInformation(string _text)
     {
-        information.supportRichText = true;
+        information.richText = true;
         information.text = _text;
     }
 

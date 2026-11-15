@@ -1,12 +1,13 @@
 using UnityEngine;
 
-// 다음 정산 게이지의 값 계산. 남은 시간과 채운 칸은 시간 시스템의 실제 정산 주기(테이블 activationIntervalHours)에서,
+// 시간 칸 정산 표시의 값 계산. 남은 시간·눈금·진행 띠는 시간 시스템의 실제 정산 주기(테이블 activationIntervalHours)에서,
 // 예상치는 실제 정산이 쓰는 평가(TrainSynergyDelta)를 재사용한다.
 public sealed class PuzzleSettlementGaugePresenter : MonoBehaviour
 {
     [SerializeField] PuzzleSettlementGaugeView view;
 
     PuzzleInventoryService session;
+    float[] tickPositions;
 
     void OnEnable()
     {
@@ -19,6 +20,7 @@ public sealed class PuzzleSettlementGaugePresenter : MonoBehaviour
         session = SceneServices.For<PuzzleInventoryService>(gameObject.scene);
         session.Initialize();
         view.Initialize();
+        tickPositions = new float[view.TickCount];
         GameEvents.TimeAdvanced += OnTimeAdvanced;
         GameEvents.PuzzleActionCommitted += OnActionCommitted;
         GameEvents.PuzzleRunStarted += OnRunStarted;
@@ -63,14 +65,23 @@ public sealed class PuzzleSettlementGaugePresenter : MonoBehaviour
             PuzzleTimeManager.MINUTES_PER_HOUR;
         if (interval <= 0)
         {
-            view.Clear(Presentation.GaugeUntilSettlement(0));
+            view.Clear(Presentation.GaugeInline(0, 0m));
             return;
         }
 
         long elapsed = session.ElapsedTime;
         long elapsedInCycle = elapsed % interval;
         long remaining = interval - elapsedInCycle;
-        int filled = view.CellCount == 0 ? 0 : (int)(elapsedInCycle / (interval / view.CellCount));
-        view.Render(Presentation.GaugeUntilSettlement(remaining), session.TrainSynergyDelta, filled);
+        // 막대는 하루(0~1)다. 정산 시각은 경과 시간 기준 주기라 지금 위치에서 거꾸로·앞으로 잰다.
+        const float DAY = PuzzleTimeManager.MINUTES_PER_DAY;
+        float now = session.Time.MinuteOfDay / DAY;
+        float start = Mathf.Repeat(now - elapsedInCycle / DAY, 1f);
+        int count = 0;
+        for (long offset = remaining; offset <= PuzzleTimeManager.MINUTES_PER_DAY && count < view.TickCount; offset += interval)
+        {
+            tickPositions[count] = Mathf.Repeat(now + offset / DAY, 1f);
+            count++;
+        }
+        view.Render(Presentation.GaugeInline(remaining, session.TrainSynergyDelta), start, now, tickPositions, count);
     }
 }
