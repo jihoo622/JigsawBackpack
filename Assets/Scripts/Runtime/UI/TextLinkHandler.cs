@@ -56,7 +56,7 @@ public sealed class TextLinkHandler : MonoBehaviour, IPointerMoveHandler, IPoint
 
     public void OnPointerMove(PointerEventData _eventData)
     {
-        if (_eventData.dragging)
+        if (_eventData.dragging || PuzzleInventoryPresenter.HasActiveDrag)
         {
             ClearHover();
             return;

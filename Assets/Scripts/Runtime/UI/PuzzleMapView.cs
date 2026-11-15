@@ -89,12 +89,11 @@ public sealed class PuzzleMapView : PanelBase
     [SerializeField] LineVisual[] lines;
     [SerializeField] PuzzleMapNavigation navigation;
 
-    [Header("E3 Travel Preview Card")]
-    [SerializeField] GameObject travelPreviewCard;
-    [SerializeField] TMPro.TextMeshProUGUI previewTitle;
-    [SerializeField] TMPro.TextMeshProUGUI previewTimeFare;
-    [SerializeField] TMPro.TextMeshProUGUI previewArrival;
-    [SerializeField] TMPro.TextMeshProUGUI previewDeadline;
+    [Header("Town Tooltip")]
+    [SerializeField] PuzzleItemTooltipView travelPreviewTooltip;
+
+    readonly List<string> tooltipInfoLines = new List<string>();
+    readonly List<(string label, string value)> tooltipStatRows = new List<(string label, string value)>();
 
     readonly Dictionary<int, List<Image>> routeTrackImages = new Dictionary<int, List<Image>>();
     readonly Dictionary<Image, Color> originalTrackColors = new Dictionary<Image, Color>();
@@ -816,81 +815,107 @@ public sealed class PuzzleMapView : PanelBase
         base.Awake();
     }
 
-    internal void ShowTravelPreview(string _fromCityId, string _toCityId, PuzzleTravelResult _eval, RectTransform _nodeRt, long _elapsedTime, long _deadlineMinutes)
+    internal void ShowTownTooltip(string _toCityId, PuzzleTravelResult _eval, bool _isCurrent, bool _isConnected,
+        RectTransform _nodeRt, PuzzleInventoryService _session)
     {
-        if (!travelPreviewCard)
+        if (!travelPreviewTooltip || !_nodeRt || _session == null)
         {
+            HideTravelPreview();
             return;
         }
 
-        var tables = TableManager.Instance;
-        string destName = tables.HasCity(_toCityId) ? tables.CityPrice(_toCityId).displayName : _toCityId;
+        Vector2 screenPosition = NodeScreenPosition(_nodeRt);
+        Color titleColor = Presentation.EntityPreviewTitleColor(EntityLinkKind.City, _toCityId);
 
-        if (previewTitle)
+        if (_isConnected && !_isCurrent)
         {
-            previewTitle.text = $"{destName}까지";
+            var tables = TableManager.Instance;
+            string destName = tables.HasCity(_toCityId) ? tables.CityPrice(_toCityId).displayName : _toCityId;
+            BuildTravelStatRows(_toCityId, _eval, _session);
+            BuildTownSummaryLines(_toCityId, _eval, _isConnected, _session);
+            travelPreviewTooltip.ShowTravelPreview($"{destName}까지", titleColor, tooltipStatRows, tooltipInfoLines, screenPosition);
+            return;
         }
 
-        if (previewTimeFare)
+        Presentation.EntityPreview(EntityLinkKind.City, _toCityId, _session, out string title, tooltipInfoLines);
+        if (!_isCurrent && !_isConnected)
         {
-            previewTimeFare.text = $"소요 {Presentation.PuzzleMapTime(_eval.TravelMinutes)} · 운임 {_eval.Cost:N0}$";
+            tooltipInfoLines.Add("직행 선로 없음");
         }
+        travelPreviewTooltip.ShowEntityInfo(title, titleColor, tooltipInfoLines, screenPosition);
+    }
 
-        long arrivalTime = _elapsedTime + _eval.TravelMinutes;
+    Vector2 NodeScreenPosition(RectTransform _nodeRt)
+    {
+        var rootCanvas = GetComponentInParent<Canvas>(true);
+        Camera cam = rootCanvas && rootCanvas.renderMode != RenderMode.ScreenSpaceOverlay ? rootCanvas.worldCamera : null;
+        return RectTransformUtility.WorldToScreenPoint(cam, _nodeRt.position);
+    }
+
+    void BuildTravelStatRows(string _toCityId, PuzzleTravelResult _eval, PuzzleInventoryService _session)
+    {
+        tooltipStatRows.Clear();
+        tooltipStatRows.Add(("소요시간", Presentation.PuzzleMapTime(_eval.TravelMinutes)));
+
+        string fareText = $"{_eval.Cost:N0}$";
+        if (_eval.Failure == PuzzleTravelFailure.InsufficientFunds)
+        {
+            fareText = $"<color=#{ColorUtility.ToHtmlStringRGB(Presentation.PuzzleTooltipRed)}>{fareText}</color>";
+        }
+        tooltipStatRows.Add(("운임", fareText));
+
+        long arrivalTime = _session.ElapsedTime + _eval.TravelMinutes;
         string arrivalStr = Presentation.GameTimestamp(arrivalTime);
         if (_eval.ArrivalIsNight)
         {
-            arrivalStr += " <color=#FF6666>(야간 도착!)</color>";
+            arrivalStr += $" <color=#{ColorUtility.ToHtmlStringRGB(Presentation.PuzzleTooltipRed)}>(야간)</color>";
         }
-        if (previewArrival)
-        {
-            previewArrival.richText = true;
-            previewArrival.text = $"도착 {arrivalStr}";
-        }
+        tooltipStatRows.Add(("도착 예정", arrivalStr));
 
-        if (previewDeadline)
+        if (_session.Time != null && _session.Time.HasDeadline)
         {
-            long remaining = _deadlineMinutes - arrivalTime;
+            long remaining = _session.Time.DeadlineMinutes - arrivalTime;
+            string deadlineStr;
             if (remaining > 0)
             {
-                previewDeadline.text = $"도착 시 남은 기한 {Presentation.TimeDeadlineValue(remaining)}";
-                previewDeadline.color = Presentation.TimeDeadlineWarning(remaining) ? Presentation.PuzzleTooltipRed : Presentation.PuzzleHeading;
+                string formatted = Presentation.TimeDeadlineValue(remaining);
+                deadlineStr = Presentation.TimeDeadlineWarning(remaining)
+                    ? $"<color=#{ColorUtility.ToHtmlStringRGB(Presentation.PuzzleTooltipGold)}>{formatted}</color>"
+                    : formatted;
             }
             else
             {
-                previewDeadline.text = "도착 시 기한 초과!";
-                previewDeadline.color = Presentation.PuzzleTooltipRed;
+                deadlineStr = $"<color=#{ColorUtility.ToHtmlStringRGB(Presentation.PuzzleTooltipRed)}>기한 초과!</color>";
             }
+            tooltipStatRows.Add(("남은 기한", deadlineStr));
         }
+    }
 
-        var cardRt = travelPreviewCard.GetComponent<RectTransform>();
-        if (cardRt && navigation && _nodeRt)
+    void BuildTownSummaryLines(string _toCityId, PuzzleTravelResult _eval, bool _isConnected, PuzzleInventoryService _session)
+    {
+        tooltipInfoLines.Clear();
+        var tables = TableManager.Instance;
+        if (tables.HasCity(_toCityId))
         {
-            RectTransform vp = (RectTransform)navigation.transform;
-            Vector2 nodeLocal = vp.InverseTransformPoint(_nodeRt.position);
-
-            float cardW = cardRt.sizeDelta.x;
-            float cardH = cardRt.sizeDelta.y;
-            float margin = 20f;
-
-            float targetX = nodeLocal.x + margin;
-            if (targetX + cardW > vp.rect.xMax - 10f)
+            var city = tables.CityPrice(_toCityId);
+            if (tables.TryGetRegion(city.regionId, out var region))
             {
-                targetX = nodeLocal.x - cardW - margin;
+                tooltipInfoLines.Add($"소속 지역: {region.displayName}");
             }
-
-            float targetY = Mathf.Clamp(nodeLocal.y, vp.rect.yMin + cardH * 0.5f + 10f, vp.rect.yMax - cardH * 0.5f - 10f);
-            cardRt.anchoredPosition = new Vector2(targetX, targetY);
         }
-
-        travelPreviewCard.SetActive(true);
+        bool visited = _session.HasVisitedCity(_toCityId);
+        tooltipInfoLines.Add(visited ? "방문한 마을" : "미방문 마을");
+        if (!_eval.IsSuccess && _eval.Failure != PuzzleTravelFailure.InsufficientFunds)
+        {
+            tooltipInfoLines.Add($"<color=#{ColorUtility.ToHtmlStringRGB(Presentation.PuzzleTooltipRed)}>{Presentation.PuzzleTravelStatus(_eval)}</color>");
+        }
     }
 
     internal void HideTravelPreview()
     {
-        if (travelPreviewCard)
+        if (travelPreviewTooltip)
         {
-            travelPreviewCard.SetActive(false);
+            travelPreviewTooltip.Close();
         }
     }
 
@@ -960,6 +985,7 @@ public sealed class PuzzleMapView : PanelBase
 
     protected override void OnShow()
     {
+        HideTravelPreview();
         ShowInformation(Presentation.PuzzleMapHint);
         navigation.Open();
     }
@@ -967,5 +993,7 @@ public sealed class PuzzleMapView : PanelBase
     protected override void OnHide()
     {
         ShowInformation(string.Empty);
+        HideTravelPreview();
+        ClearRouteHighlight();
     }
 }

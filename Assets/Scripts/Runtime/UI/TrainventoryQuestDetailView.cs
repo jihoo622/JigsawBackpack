@@ -80,7 +80,8 @@ public sealed class TrainventoryQuestDetailView : MonoBehaviour
         string cargoName = def != null ? def.DisplayName : _offer.PieceId;
         if (cargoLabel)
         {
-            cargoLabel.text = Presentation.QuestDetailCargo(cargoName, cellCount);
+            cargoLabel.richText = true;
+            cargoLabel.text = Presentation.QuestDetailCargo(Presentation.ItemLink(_offer.PieceId, cargoName), cellCount);
         }
 
         UpdateMiniGrid(def);

@@ -312,19 +312,15 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
         view.ShowInformation(string.IsNullOrEmpty(quests) ? information
             : information + BasicData.Text("presentation.quest.separator") + quests);
 
+        var node = System.Array.Find(view.Nodes, n => n && string.Equals(n.CityId, _cityId, System.StringComparison.Ordinal));
+        view.ShowTownTooltip(_cityId, eval, isCurrent, isConnected, node ? (RectTransform)node.transform : null, session);
+
         if (isConnected && !isCurrent)
         {
-            var node = System.Array.Find(view.Nodes, n => n && string.Equals(n.CityId, _cityId, System.StringComparison.Ordinal));
-            if (node)
-            {
-                long deadline = session.Time != null && session.Time.HasDeadline ? session.Time.DeadlineMinutes : 0;
-                view.ShowTravelPreview(currentCityId, _cityId, eval, (RectTransform)node.transform, session.ElapsedTime, deadline);
-                view.HighlightRoute(currentCityId, _cityId);
-            }
+            view.HighlightRoute(currentCityId, _cityId);
         }
         else
         {
-            view.HideTravelPreview();
             view.ClearRouteHighlight();
         }
     }

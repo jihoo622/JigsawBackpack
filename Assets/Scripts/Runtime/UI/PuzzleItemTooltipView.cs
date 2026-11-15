@@ -69,6 +69,8 @@ public sealed class PuzzleItemTooltipView : PanelBase
 
     RectTransform canvasRectTransform;
     Vector2 targetCanvasPosition;
+    Color defaultTitleColor;
+    bool hasDefaultTitleColor;
     bool pointerFlipped;
     bool needsSnap;
 
@@ -80,9 +82,9 @@ public sealed class PuzzleItemTooltipView : PanelBase
 
     void EnsureInitialized()
     {
-        if (!canvas)
+        if (!canvas || canvas.gameObject == gameObject)
         {
-            canvas = GetComponentInParent<Canvas>(true);
+            canvas = transform.parent ? transform.parent.GetComponentInParent<Canvas>(true) : null;
         }
         if (canvas && !canvasRectTransform)
         {
@@ -101,6 +103,110 @@ public sealed class PuzzleItemTooltipView : PanelBase
             canvasGroup.blocksRaycasts = false;
             canvasGroup.interactable = false;
         }
+        if (itemNameText && !hasDefaultTitleColor)
+        {
+            defaultTitleColor = itemNameText.color;
+            hasDefaultTitleColor = true;
+        }
+    }
+
+    void BeginShow(string _title, Color? _titleColor = null)
+    {
+        EnsureInitialized();
+        needsSnap = true;
+        SetOpen(true);
+
+        if (panelRect)
+        {
+            panelRect.SetAsLastSibling();
+        }
+
+        if (itemNameText)
+        {
+            itemNameText.text = _title ?? string.Empty;
+            if (_titleColor.HasValue)
+            {
+                itemNameText.color = _titleColor.Value;
+            }
+            else if (hasDefaultTitleColor)
+            {
+                itemNameText.color = defaultTitleColor;
+            }
+        }
+    }
+
+    void HideAllStatRows()
+    {
+        SetRowActive(baseValueLabelText, baseValueValueText, false);
+        SetRowActive(actualValueLabelText, actualValueValueText, false);
+        SetRowActive(sellRateLabelText, sellRateValueText, false);
+        SetRowActive(buyRateLabelText, buyRateValueText, false);
+        SetRowActive(futureValueLabelText, futureValueValueText, false);
+        SetRowActive(freshnessLabelText, freshnessValueText, false);
+        SetRowActive(shelfLifeLabelText, shelfLifeValueText, false);
+    }
+
+    void SetPlainRow(TextMeshProUGUI _label, TextMeshProUGUI _value, string _labelText, string _valueText)
+    {
+        if (_label)
+        {
+            _label.color = Presentation.PuzzleTooltipText;
+        }
+        if (_value)
+        {
+            _value.color = Presentation.PuzzleTooltipText;
+        }
+        SetRow(_label, _value, _labelText, _valueText);
+    }
+
+    void PopulatePlainEffectSection(IReadOnlyList<string> _lines, bool _showHeader = false, string _headerText = null)
+    {
+        if (!generalEffectSection)
+        {
+            return;
+        }
+
+        bool hasLines = _lines != null && _lines.Count > 0;
+        generalEffectSection.SetActive(hasLines);
+        SetSectionBottomRuleActive(generalEffectSection, false);
+        if (!hasLines)
+        {
+            return;
+        }
+
+        if (generalEffectHeaderText)
+        {
+            generalEffectHeaderText.gameObject.SetActive(_showHeader && !string.IsNullOrEmpty(_headerText));
+            if (_showHeader && !string.IsNullOrEmpty(_headerText))
+            {
+                generalEffectHeaderText.color = Presentation.PuzzleTooltipText;
+                generalEffectHeaderText.text = _headerText;
+            }
+        }
+
+        if (generalEffectSlots == null)
+        {
+            return;
+        }
+
+        for (int i = 0; i < generalEffectSlots.Length; i++)
+        {
+            var slot = generalEffectSlots[i];
+            if (!slot)
+            {
+                continue;
+            }
+
+            bool used = i < _lines.Count;
+            slot.gameObject.SetActive(used);
+            if (used)
+            {
+                slot.color = Presentation.PuzzleTooltipText;
+                slot.text = i == generalEffectSlots.Length - 1 && _lines.Count > generalEffectSlots.Length
+                    ? string.Join("\n", _lines.Skip(i))
+                    : _lines[i];
+            }
+        }
     }
 
     internal void Show(PuzzleItemDefinition _item, decimal _actualValue, PuzzleTradeRate _rate,
@@ -114,18 +220,11 @@ public sealed class PuzzleItemTooltipView : PanelBase
             return;
         }
 
-        EnsureInitialized();
-        needsSnap = true;
-        SetOpen(true);
+        BeginShow(_item.DisplayName);
 
-        if (panelRect)
+        if (activeEffectsSection)
         {
-            panelRect.SetAsLastSibling();
-        }
-
-        if (itemNameText)
-        {
-            itemNameText.text = _item.DisplayName;
+            activeEffectsSection.gameObject.SetActive(true);
         }
 
         UpdateCategoryBadges(_item);
@@ -205,74 +304,112 @@ public sealed class PuzzleItemTooltipView : PanelBase
 
     internal void ShowKeyword(string _title, string _description, Vector2 _screenPosition)
     {
-        EnsureInitialized();
-        needsSnap = true;
-        SetOpen(true);
+        ShowEntityInfo(_title, null, string.IsNullOrEmpty(_description) ? null : new[] { _description }, _screenPosition);
+    }
 
-        if (panelRect)
-        {
-            panelRect.SetAsLastSibling();
-        }
-
-        if (itemNameText)
-        {
-            itemNameText.text = _title ?? string.Empty;
-        }
-
-        if (categoryRow)
-        {
-            categoryRow.gameObject.SetActive(false);
-        }
-
-        SetRowActive(baseValueLabelText, baseValueValueText, false);
+    /// <summary>
+    /// 엔티티 링크(지역·마을·태그·의뢰) 및 안내 문구를 기존 툴팁 카드 레이아웃으로 표시한다.
+    /// </summary>
+    internal void ShowEntityInfo(string _title, Color? _titleColor, IReadOnlyList<string> _lines,
+        Vector2 _screenPosition, IReadOnlyList<string> _tags = null)
+    {
+        BeginShow(_title, _titleColor);
+        UpdateCategoryBadges(_tags);
+        HideAllStatRows();
         if (activeEffectsSection)
         {
             activeEffectsSection.gameObject.SetActive(false);
         }
-        SetRowActive(actualValueLabelText, actualValueValueText, false);
-        SetRowActive(sellRateLabelText, sellRateValueText, false);
-        SetRowActive(buyRateLabelText, buyRateValueText, false);
         if (synergySection)
         {
             synergySection.SetActive(false);
         }
+        PopulatePlainEffectSection(_lines);
+        RebuildLayouts();
+        SetPointerPosition(_screenPosition);
+    }
+
+    /// <summary>
+    /// 의뢰·소문의 화물 품목 링크 정보를 기존 아이템 툴팁 레이아웃(태그 배지, 기본 능력치, 인접 상성)으로 표시한다.
+    /// </summary>
+    internal void ShowPieceInfo(PuzzlePieceData _piece, IReadOnlyList<string> _statLabels,
+        IReadOnlyList<string> _statValues, IReadOnlyList<PuzzleTooltipEffectEntry> _synergies, Vector2 _screenPosition)
+    {
+        if (_piece == null)
+        {
+            Close();
+            return;
+        }
+
+        BeginShow(_piece.displayName);
+        UpdateCategoryBadges(_piece.tags);
+
+        int statCount = Mathf.Min(_statLabels?.Count ?? 0, _statValues?.Count ?? 0);
+        var statRows = new List<(string label, string value)>(statCount);
+        for (int i = 0; i < statCount; i++)
+        {
+            statRows.Add((_statLabels[i], _statValues[i]));
+        }
+        ApplyPlainStatRows(statRows);
+
+        if (activeEffectsSection)
+        {
+            activeEffectsSection.gameObject.SetActive(false);
+        }
+        if (generalEffectSection)
+        {
+            generalEffectSection.SetActive(false);
+        }
+
+        UpdateSynergySection(_synergies, Presentation.ItemInfoSynergyHeader, Presentation.ItemInfoNoSynergy);
+        RebuildLayouts();
+        SetPointerPosition(_screenPosition);
+    }
+
+    /// <summary>
+    /// 세계 지도의 마을 정보와 이동 견적을 기존 툴팁 레이아웃으로 표시한다.
+    /// </summary>
+    internal void ShowTravelPreview(string _title, Color _titleColor,
+        IReadOnlyList<(string label, string value)> _statRows, IReadOnlyList<string> _infoLines, Vector2 _screenPosition)
+    {
+        BeginShow(_title, _titleColor);
+        UpdateCategoryBadges((IReadOnlyList<string>)null);
+        ApplyPlainStatRows(_statRows);
+        if (activeEffectsSection)
+        {
+            activeEffectsSection.gameObject.SetActive(false);
+        }
+        if (synergySection)
+        {
+            synergySection.SetActive(false);
+        }
+        PopulatePlainEffectSection(_infoLines);
+        RebuildLayouts();
+        SetPointerPosition(_screenPosition);
+    }
+
+    void ApplyPlainStatRows(IReadOnlyList<(string label, string value)> _rows)
+    {
+        SetPlainStatSlot(baseValueLabelText, baseValueValueText, _rows, 0);
+        SetPlainStatSlot(actualValueLabelText, actualValueValueText, _rows, 1);
+        SetPlainStatSlot(sellRateLabelText, sellRateValueText, _rows, 2);
+        SetPlainStatSlot(buyRateLabelText, buyRateValueText, _rows, 3);
         SetRowActive(futureValueLabelText, futureValueValueText, false);
         SetRowActive(freshnessLabelText, freshnessValueText, false);
         SetRowActive(shelfLifeLabelText, shelfLifeValueText, false);
+    }
 
-        if (generalEffectSection)
+    void SetPlainStatSlot(TextMeshProUGUI _label, TextMeshProUGUI _value,
+        IReadOnlyList<(string label, string value)> _rows, int _index)
+    {
+        if (_rows != null && _index < _rows.Count)
         {
-            bool hasDescription = !string.IsNullOrEmpty(_description);
-            generalEffectSection.SetActive(hasDescription);
-            SetSectionBottomRuleActive(generalEffectSection, false);
-            if (hasDescription)
-            {
-                if (generalEffectHeaderText)
-                {
-                    generalEffectHeaderText.gameObject.SetActive(false);
-                }
-                if (generalEffectSlots != null)
-                {
-                    for (int i = 0; i < generalEffectSlots.Length; i++)
-                    {
-                        var slot = generalEffectSlots[i];
-                        if (!slot)
-                        {
-                            continue;
-                        }
-                        bool used = i == 0;
-                        slot.gameObject.SetActive(used);
-                        if (used)
-                        {
-                            slot.text = _description;
-                        }
-                    }
-                }
-            }
+            SetPlainRow(_label, _value, _rows[_index].label, _rows[_index].value);
         }
-
-        RebuildLayouts();
-        SetPointerPosition(_screenPosition);
+        else
+        {
+            SetRowActive(_label, _value, false);
+        }
     }
 
     static void SetSectionBottomRuleActive(GameObject _section, bool _active)
@@ -307,6 +444,7 @@ public sealed class PuzzleItemTooltipView : PanelBase
         if (_header)
         {
             _header.gameObject.SetActive(true);
+            _header.color = Presentation.PuzzleTooltipText;
             _header.text = _title;
         }
         return true;
@@ -337,12 +475,31 @@ public sealed class PuzzleItemTooltipView : PanelBase
         }
     }
 
-    void UpdateSynergySection(IReadOnlyList<PuzzleTooltipEffectEntry> _effects)
+    void UpdateSynergySection(IReadOnlyList<PuzzleTooltipEffectEntry> _effects,
+        string _header = null, string _emptyText = null)
     {
         int effectCount = _effects?.Count ?? 0;
-        if (!PrepareEffectSection(synergySection, synergyHeaderText, Presentation.PuzzleTooltipValueSynergyHeader(),
-            effectCount, _showEmpty: false) || synergyRows == null)
+        bool showEmpty = !string.IsNullOrEmpty(_emptyText);
+        string header = string.IsNullOrEmpty(_header) ? Presentation.PuzzleTooltipValueSynergyHeader() : _header;
+        if (!PrepareEffectSection(synergySection, synergyHeaderText, header, effectCount, showEmpty) || synergyRows == null)
         {
+            return;
+        }
+
+        if (effectCount == 0)
+        {
+            for (int i = 0; i < synergyRows.Length; i++)
+            {
+                EffectRow row = synergyRows[i];
+                if (i == 0)
+                {
+                    SetPlainRow(row.labelText, row.valueText, _emptyText, string.Empty);
+                }
+                else
+                {
+                    SetRowActive(row.labelText, row.valueText, false);
+                }
+            }
             return;
         }
 
@@ -354,11 +511,11 @@ public sealed class PuzzleItemTooltipView : PanelBase
                 if (i == synergyRows.Length - 1 && effectCount > synergyRows.Length)
                 {
                     string combined = string.Join("\n", _effects.Skip(i).Select(JoinEffectEntry));
-                    SetRow(row.labelText, row.valueText, combined, string.Empty);
+                    SetPlainRow(row.labelText, row.valueText, combined, string.Empty);
                 }
                 else
                 {
-                    SetRow(row.labelText, row.valueText, _effects[i].Description, _effects[i].Value);
+                    SetPlainRow(row.labelText, row.valueText, _effects[i].Description, _effects[i].Value);
                 }
             }
             else
@@ -375,12 +532,17 @@ public sealed class PuzzleItemTooltipView : PanelBase
 
     void UpdateCategoryBadges(PuzzleItemDefinition _item)
     {
+        UpdateCategoryBadges(_item != null ? _item.Tags : null);
+    }
+
+    void UpdateCategoryBadges(IReadOnlyList<string> _rawTags)
+    {
         if (!categoryRow)
         {
             return;
         }
 
-        var tags = _item != null ? Presentation.PrioritizeTags(_item.Tags) : System.Array.Empty<string>();
+        var tags = _rawTags != null && _rawTags.Count > 0 ? Presentation.PrioritizeTags(_rawTags) : System.Array.Empty<string>();
         bool hasBadges = tags != null && tags.Count > 0 && categoryBadgeImages != null && categoryBadgeImages.Length > 0;
         categoryRow.gameObject.SetActive(hasBadges);
 

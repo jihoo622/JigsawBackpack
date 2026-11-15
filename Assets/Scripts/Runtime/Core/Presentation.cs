@@ -486,12 +486,42 @@ public static class Presentation
     internal static void ItemInfoSynergies(PuzzlePieceData _piece, List<string> _lines)
     {
         _lines.Clear();
-        var tags = _piece.tags ?? Array.Empty<string>();
-        var chart = PuzzleSynergyChart.ForTrain(TableManager.Instance);
-        var totals = new int[chart.Columns.Count];
-        for (int row = 0; row < chart.Rows.Count; row++)
+        int[] totals = ComputeTrainSynergyTotals(_piece, out var chart);
+        string positive = ColorUtility.ToHtmlStringRGB(BasicData.Color("presentation.itemInfo.positive"));
+        string negative = ColorUtility.ToHtmlStringRGB(BasicData.Color("presentation.itemInfo.negative"));
+        foreach (int column in OrderedSynergyColumns(totals, chart))
         {
-            string key = chart.Rows[row];
+            int percent = totals[column];
+            _lines.Add(BasicData.Format("presentation.itemInfo.synergyLine", PuzzleTagLabel(chart.Columns[column]),
+                percent > 0 ? positive : negative, percent > 0 ? "+" + percent : percent.ToString()));
+        }
+    }
+
+    internal static void ItemInfoSynergyEntries(PuzzlePieceData _piece, List<PuzzleTooltipEffectEntry> _entries)
+    {
+        _entries.Clear();
+        int[] totals = ComputeTrainSynergyTotals(_piece, out var chart);
+        string positive = ColorUtility.ToHtmlStringRGB(BasicData.Color("presentation.itemInfo.positive"));
+        string negative = ColorUtility.ToHtmlStringRGB(BasicData.Color("presentation.itemInfo.negative"));
+        foreach (int column in OrderedSynergyColumns(totals, chart))
+        {
+            int percent = totals[column];
+            string sign = percent > 0 ? "+" : string.Empty;
+            string hex = percent > 0 ? positive : negative;
+            _entries.Add(new PuzzleTooltipEffectEntry(
+                PuzzleTagLabel(chart.Columns[column]),
+                $"<color=#{hex}>{sign}{percent}%</color>"));
+        }
+    }
+
+    static int[] ComputeTrainSynergyTotals(PuzzlePieceData _piece, out PuzzleSynergyChart _chart)
+    {
+        var tags = _piece.tags ?? Array.Empty<string>();
+        _chart = PuzzleSynergyChart.ForTrain(TableManager.Instance);
+        var totals = new int[_chart.Columns.Count];
+        for (int row = 0; row < _chart.Rows.Count; row++)
+        {
+            string key = _chart.Rows[row];
             bool applies = PuzzleSynergyChart.IsExclusionRow(key)
                 ? !PuzzleSynergyChart.ExcludedTags(key).Any(tags.Contains)
                 : tags.Contains(key);
@@ -499,20 +529,20 @@ public static class Presentation
             {
                 continue;
             }
-            for (int column = 0; column < chart.Columns.Count; column++)
+            for (int column = 0; column < _chart.Columns.Count; column++)
             {
-                totals[column] += chart.PercentAt(row, column);
+                totals[column] += _chart.PercentAt(row, column);
             }
         }
-        string positive = ColorUtility.ToHtmlStringRGB(BasicData.Color("presentation.itemInfo.positive"));
-        string negative = ColorUtility.ToHtmlStringRGB(BasicData.Color("presentation.itemInfo.negative"));
-        foreach (int column in Enumerable.Range(0, totals.Length).Where(_column => totals[_column] != 0)
-            .OrderByDescending(_column => totals[_column]).ThenBy(_column => chart.Columns[_column], StringComparer.Ordinal))
-        {
-            int percent = totals[column];
-            _lines.Add(BasicData.Format("presentation.itemInfo.synergyLine", PuzzleTagLabel(chart.Columns[column]),
-                percent > 0 ? positive : negative, percent > 0 ? "+" + percent : percent.ToString()));
-        }
+        return totals;
+    }
+
+    static IEnumerable<int> OrderedSynergyColumns(int[] _totals, PuzzleSynergyChart _chart)
+    {
+        return Enumerable.Range(0, _totals.Length)
+            .Where(_column => _totals[_column] != 0)
+            .OrderByDescending(_column => _totals[_column])
+            .ThenBy(_column => _chart.Columns[_column], StringComparer.Ordinal);
     }
 
     public static string ItemInfoSynergyHeader => BasicData.Text("presentation.itemInfo.synergyHeader");

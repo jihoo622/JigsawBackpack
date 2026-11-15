@@ -55,6 +55,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
     // 도축대는 세션이 조작을 허용하고 패널에 View가 나와 있을 때만 드래그·표시 대상이 된다.
     bool ButcheryViewReady => session != null && session.IsButcheryOpen && butcheryView != null &&
         butcheryView.gameObject.activeInHierarchy;
+    internal static bool HasActiveDrag { get; private set; }
     bool ModificationViewReady => session != null && session.IsModificationOpen && modificationView != null &&
         modificationView.gameObject.activeInHierarchy;
     bool RefiningViewReady => session != null && session.IsRefiningOpen && refiningView != null &&
@@ -196,6 +197,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         ClearKeywordHover();
         currentHoveredInstanceId = null;
         isMapOpen = false;
+        HasActiveDrag = false;
         pendingSettlementValue = null;
         pendingFreshnessLossValue = null;
         pendingFundsRefresh = false;
@@ -558,6 +560,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         }
 
         drag = new PuzzleInventoryDrag(placement, cell);
+        HasActiveDrag = true;
         sourceView.ShowOriginalOutline(drag.OriginalPose);
         cityView.ShowTradeStatus(string.Empty);
         pointerPosition = position;
@@ -1588,6 +1591,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         }
 
         drag = null;
+        HasActiveDrag = false;
         SetDragView(null);
         if (hadHoveredWagon)
         {
