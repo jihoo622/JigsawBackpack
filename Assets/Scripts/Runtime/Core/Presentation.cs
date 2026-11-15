@@ -1526,6 +1526,12 @@ public static partial class Presentation
             _intervalDays, _wasteName, _count));
     }
 
+    internal static string PuzzleCombinationEffect(string _description, long _minutes, string _resultName)
+    {
+        return PuzzleTooltipEffectDescription(string.Format(_description,
+            PuzzleMapTime(_minutes), _resultName));
+    }
+
     internal static string PuzzleFreshnessDot => BasicData.Text("presentation.freshness.dot");
 
     internal static Color PuzzleFreshnessOutline => BasicData.Color("presentation.freshness.outline");
@@ -1671,6 +1677,32 @@ public static partial class Presentation
             general.Add(new PuzzleEffectDisplay(PuzzleAnimalWasteEffect(animals.wasteDescription,
                 animals.wasteIntervalDays, waste.displayName, animals.wasteCountPerAnimal)));
         }
+
+        // 인접 조합은 입력으로 등록된 품목 양쪽에 같은 규칙 설명을 보인다. 진행도는 객차에서 실제로
+        // 맺힌 쌍의 설명에만 붙이고, 결과 품목은 입력 목록에 없으므로 설명이 붙지 않는다.
+        foreach (var combination in tables.Combinations)
+        {
+            bool isInput = string.Equals(combination.sourcePieceId, _item.Id, StringComparison.Ordinal) ||
+                string.Equals(combination.partnerPieceId, _item.Id, StringComparison.Ordinal);
+            if (!isInput)
+            {
+                continue;
+            }
+
+            var product = tables.Piece(combination.resultPieceId);
+            long combinationMinutes = (long)combination.requiredHours * PuzzleTimeManager.MINUTES_PER_HOUR;
+            PuzzleProgressDisplay? combinationProgress = null;
+            if (isTrain && _placement != null && _session != null
+                && _session.TryGetCombinationProgress(_placement, out var activeCombination,
+                    out long combinationElapsed) && ReferenceEquals(activeCombination, combination))
+            {
+                combinationProgress = new PuzzleProgressDisplay(combinationElapsed, combinationMinutes, false);
+            }
+
+            general.Add(new PuzzleEffectDisplay(PuzzleCombinationEffect(combination.description,
+                combinationMinutes, product.displayName), combinationProgress));
+        }
+
 
         foreach (var rule in tables.SynergiesFor(_scope))
         {

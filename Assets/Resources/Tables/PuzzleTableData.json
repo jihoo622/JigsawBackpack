@@ -820,6 +820,167 @@
       }
     },
     {
+      "id": "piece.pickledBeef",
+      "displayName": "절인 소고기",
+      "description": "소금에 절여 가치를 올린 소고기.",
+      "tags": [
+        "Food",
+        "Meat"
+      ],
+      "shelfLifeHours": 168,
+      "visualKey": "cargo.beef",
+      "slotCount": 2,
+      "durability": 100,
+      "cells": [
+        {
+          "x": 0,
+          "y": 0,
+          "north": "Flat",
+          "east": "Flat",
+          "south": "Flat",
+          "west": "Flat"
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "north": "Flat",
+          "east": "Flat",
+          "south": "Flat",
+          "west": "Flat"
+        }
+      ],
+      "baseValue": 62,
+      "synergyEffects": [
+        {
+          "ruleId": "foodNearSalt",
+          "target": true,
+          "source": false
+        },
+        {
+          "ruleId": "sample.cargoNearFood",
+          "target": false,
+          "source": true
+        },
+        {
+          "ruleId": "wasteNearbyPenalty",
+          "target": true,
+          "source": false
+        }
+      ],
+      "preservationEffect": {
+        "enabled": false,
+        "reductionPercent": 0
+      }
+    },
+    {
+      "id": "piece.pickledFish",
+      "displayName": "절인 물고기",
+      "description": "소금에 절여 가치를 올린 물고기.",
+      "tags": [
+        "Food",
+        "Fish"
+      ],
+      "shelfLifeHours": 168,
+      "visualKey": "cargo.fish",
+      "slotCount": 2,
+      "cells": [
+        {
+          "x": 0,
+          "y": 0,
+          "north": "Flat",
+          "east": "Flat",
+          "south": "Flat",
+          "west": "Flat"
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "north": "Flat",
+          "east": "Flat",
+          "south": "Flat",
+          "west": "Flat"
+        }
+      ],
+      "durability": 100,
+      "baseValue": 50,
+      "synergyEffects": [
+        {
+          "ruleId": "fishNearWater",
+          "target": true,
+          "source": false
+        },
+        {
+          "ruleId": "foodNearSalt",
+          "target": true,
+          "source": false
+        },
+        {
+          "ruleId": "metalNearFish",
+          "target": false,
+          "source": true
+        },
+        {
+          "ruleId": "wasteNearbyPenalty",
+          "target": true,
+          "source": false
+        },
+        {
+          "ruleId": "woodNearFish",
+          "target": false,
+          "source": true
+        }
+      ],
+      "preservationEffect": {
+        "enabled": false,
+        "reductionPercent": 0
+      }
+    },
+    {
+      "id": "piece.pickledMeat",
+      "displayName": "절인 고기 포장",
+      "description": "소금에 절여 가치를 올린 고기 포장.",
+      "tags": [
+        "Food",
+        "Meat"
+      ],
+      "shelfLifeHours": 168,
+      "visualKey": "cargo.meatPackage",
+      "slotCount": 1,
+      "cells": [
+        {
+          "x": 0,
+          "y": 0,
+          "north": "Flat",
+          "east": "Flat",
+          "south": "Flat",
+          "west": "Flat"
+        }
+      ],
+      "durability": 100,
+      "baseValue": 46,
+      "synergyEffects": [
+        {
+          "ruleId": "foodNearSalt",
+          "target": true,
+          "source": false
+        },
+        {
+          "ruleId": "sample.cargoNearFood",
+          "target": false,
+          "source": true
+        },
+        {
+          "ruleId": "wasteNearbyPenalty",
+          "target": true,
+          "source": false
+        }
+      ],
+      "preservationEffect": {
+        "enabled": false,
+        "reductionPercent": 0
+      }
+    },
+    {
       "id": "piece.babyCow",
       "displayName": "송아지",
       "description": "어린 소.",

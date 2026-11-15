@@ -1,0 +1,30 @@
+{
+  "status": "active",
+  "note": "같은 객차에서 상하좌우로 인접한 서로 다른 두 품목을 정해진 시간 후 결과 하나로 바꾸는 공용 조합 규칙의 원본이다. sourcePieceId는 결과의 자리·모양·회전·유통기한을 이어받는 입력이고 partnerPieceId는 함께 소모되는 입력이며 두 입력은 서로 다른 품목이어야 한다. 결과는 requiredHours가 지나면 resultPieceId 새 인스턴스로 source의 위치·회전에 생성하고, 진행 상태는 세션이 가진다. 결과 품목은 다른 규칙의 입력으로 등록하지 않아 다시 조합되지 않는다. description은 두 입력의 툴팁에 같은 문구로 표시되며 {0}은 requiredHours를 읽은 소요 시간, {1}은 결과 품목 이름이다.",
+  "rules": [
+    {
+      "id": "combine.pickledFish",
+      "sourcePieceId": "piece.fish",
+      "partnerPieceId": "piece.saltSack",
+      "resultPieceId": "piece.pickledFish",
+      "requiredHours": 12,
+      "description": "소금과 {0} 동안 인접 시 {1} 생성"
+    },
+    {
+      "id": "combine.pickledBeef",
+      "sourcePieceId": "piece.beef",
+      "partnerPieceId": "piece.saltSack",
+      "resultPieceId": "piece.pickledBeef",
+      "requiredHours": 12,
+      "description": "소금과 {0} 동안 인접 시 {1} 생성"
+    },
+    {
+      "id": "combine.pickledMeat",
+      "sourcePieceId": "piece.meat",
+      "partnerPieceId": "piece.saltSack",
+      "resultPieceId": "piece.pickledMeat",
+      "requiredHours": 12,
+      "description": "소금과 {0} 동안 인접 시 {1} 생성"
+    }
+  ]
+}

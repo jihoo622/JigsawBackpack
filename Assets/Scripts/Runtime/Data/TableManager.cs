@@ -32,6 +32,7 @@ public sealed class TableManager
     public FlowTableData Flow { get; }
     public PuzzleTableData Puzzle { get; }
     public PuzzleSynergyTableData PuzzleSynergy { get; }
+    public PuzzleCombinationTableData PuzzleCombination { get; }
     public PuzzleCityActionTableData PuzzleCityAction { get; }
     public PuzzleTradeTableData PuzzleTrade { get; }
     public PuzzleRumorTableData PuzzleRumor { get; }
@@ -43,6 +44,8 @@ public sealed class TableManager
     public IReadOnlyList<string> ProficiencyTags { get; }
     public IReadOnlyList<TrainventoryCourierQuestData> CourierQuests { get; }
     public IReadOnlyList<PuzzleSynergyRuleData> SynergyRules { get; }
+    // 인접 조합 규칙. id 오름차순이라 배열 순서에 의존하지 않는다.
+    public IReadOnlyList<PuzzleCombinationRuleData> Combinations { get; }
     public IReadOnlyList<PuzzleCityActionData> CityActions { get; }
     public IReadOnlyList<PuzzlePieceData> Pieces { get; }
     public IReadOnlyList<PuzzleCityData> Cities { get; }
@@ -59,6 +62,9 @@ public sealed class TableManager
     readonly Dictionary<string, SceneLinkData> scenes;
     readonly Dictionary<string, PuzzlePieceData> pieces;
     readonly Dictionary<string, PuzzleAnimalBreedingData> animalBreeding;
+    readonly Dictionary<string, PuzzleCombinationRuleData> combinations;
+    readonly Dictionary<string, List<PuzzleCombinationRuleData>> combinationsByPiece;
+    readonly HashSet<string> combinationResults;
     readonly Dictionary<string, PuzzleCityData> cities;
     readonly Dictionary<string, PuzzleRegionData> regions;
     readonly Dictionary<string, PuzzleMarketStockData> stockProfiles;
@@ -84,6 +90,7 @@ public sealed class TableManager
         Flow = Load<FlowTableData>(ref loaded, _sources);
         Puzzle = Load<PuzzleTableData>(ref loaded, _sources);
         PuzzleSynergy = Load<PuzzleSynergyTableData>(ref loaded, _sources);
+        PuzzleCombination = Load<PuzzleCombinationTableData>(ref loaded, _sources);
         PuzzleCityAction = Load<PuzzleCityActionTableData>(ref loaded, _sources);
         PuzzleTrade = Load<PuzzleTradeTableData>(ref loaded, _sources);
         PuzzleRumor = Load<PuzzleRumorTableData>(ref loaded, _sources);
@@ -120,6 +127,11 @@ public sealed class TableManager
         var synergyRules = rules.Index(PuzzleSynergy.rules, e => e.id, "PuzzleSynergyTableData.rules");
         animalBreeding = rules.Index(PuzzleSynergy.animals?.breeding, _row => _row.parentPieceId,
             "PuzzleSynergyTableData.animals.breeding");
+        combinations = rules.Index(PuzzleCombination.rules, _row => _row.id, "PuzzleCombinationTableData.rules");
+        combinationsByPiece = IndexCombinationsByPiece(combinations);
+        combinationResults = new HashSet<string>(combinations.Values.Select(_rule => _rule.resultPieceId)
+            .Where(_id => !string.IsNullOrEmpty(_id)), StringComparer.Ordinal);
+        Combinations = Array.AsReadOnly(combinations.Values.OrderBy(_rule => _rule.id, StringComparer.Ordinal).ToArray());
         SynergyRules = Array.AsReadOnly(synergyRules.Values.OrderBy(entry => entry.id, StringComparer.Ordinal).ToArray());
         cityActions = rules.Index(PuzzleCityAction.actions, e => e.id, "PuzzleCityActionTableData.actions");
         actionsByCity = IndexActionsByCity(cityActions);
@@ -449,6 +461,94 @@ public sealed class TableManager
     {
         return animalBreeding.TryGetValue(_pieceId, out _rule);
     }
+
+    internal bool TryGetCombination(string _id, out PuzzleCombinationRuleData _rule)
+    {
+        if (!string.IsNullOrEmpty(_id) && combinations.TryGetValue(_id, out _rule))
+        {
+            return true;
+        }
+
+        _rule = null;
+        return false;
+    }
+
+    // 품목이 입력으로 참여하는 조합 규칙. id 오름차순이라 배열 순서에 의존하지 않는다.
+    internal IReadOnlyList<PuzzleCombinationRuleData> CombinationsWith(string _pieceId)
+    {
+        if (!string.IsNullOrEmpty(_pieceId) && combinationsByPiece.TryGetValue(_pieceId, out var list))
+        {
+            return list;
+        }
+
+        return Array.Empty<PuzzleCombinationRuleData>();
+    }
+
+    // 조합 결과로만 나오는 품목. 입력 목록에 없으므로 재조합되지 않는다.
+    internal bool IsCombinationResult(string _pieceId)
+    {
+        return !string.IsNullOrEmpty(_pieceId) && combinationResults.Contains(_pieceId);
+    }
+
+    // 두 품목 사이에 적용되는 조합 규칙. 첫 품목을 자리를 이어받는 입력으로 보는 방향과
+    // 반대 방향을 모두 검사하므로 호출자의 품목 순서와 무관하게 같은 규칙을 찾는다.
+    internal bool TryGetCombinationBetween(string _firstPieceId, string _secondPieceId,
+        out PuzzleCombinationRuleData _rule, out bool _firstIsSource)
+    {
+        _rule = null;
+        _firstIsSource = false;
+        if (string.IsNullOrEmpty(_firstPieceId) || string.IsNullOrEmpty(_secondPieceId) ||
+            string.Equals(_firstPieceId, _secondPieceId, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        foreach (var candidate in CombinationsWith(_firstPieceId))
+        {
+            bool forward = string.Equals(candidate.sourcePieceId, _firstPieceId, StringComparison.Ordinal) &&
+                string.Equals(candidate.partnerPieceId, _secondPieceId, StringComparison.Ordinal);
+            bool backward = string.Equals(candidate.partnerPieceId, _firstPieceId, StringComparison.Ordinal) &&
+                string.Equals(candidate.sourcePieceId, _secondPieceId, StringComparison.Ordinal);
+            if (!forward && !backward)
+            {
+                continue;
+            }
+
+            _rule = candidate;
+            _firstIsSource = forward;
+            return true;
+        }
+
+        return false;
+    }
+
+    // 입력 품목별 역방향 색인. 한 규칙의 두 입력은 서로 다른 품목이므로 같은 규칙이 두 번 들어가지 않는다.
+    static Dictionary<string, List<PuzzleCombinationRuleData>> IndexCombinationsByPiece(
+        Dictionary<string, PuzzleCombinationRuleData> _rules)
+    {
+        var result = new Dictionary<string, List<PuzzleCombinationRuleData>>(StringComparer.Ordinal);
+        foreach (var rule in _rules.Values.OrderBy(_entry => _entry.id, StringComparer.Ordinal))
+        {
+            foreach (string pieceId in new[] { rule.sourcePieceId, rule.partnerPieceId })
+            {
+                if (string.IsNullOrEmpty(pieceId))
+                {
+                    continue;
+                }
+                if (!result.TryGetValue(pieceId, out var list))
+                {
+                    list = new List<PuzzleCombinationRuleData>();
+                    result.Add(pieceId, list);
+                }
+                if (!list.Contains(rule))
+                {
+                    list.Add(rule);
+                }
+            }
+        }
+        return result;
+    }
+
     internal bool TryGetStockProfile(string _id, out PuzzleMarketStockData _profile)
     {
         _profile = null;
