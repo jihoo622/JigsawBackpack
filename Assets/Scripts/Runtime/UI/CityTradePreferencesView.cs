@@ -30,6 +30,7 @@ public sealed class CityTradePreferencesView : MonoBehaviour
         if (!_data.IsValid)
         {
             Hide();
+            return;
         }
 
         gameObject.SetActive(true);
