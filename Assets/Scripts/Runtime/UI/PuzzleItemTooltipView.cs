@@ -148,14 +148,6 @@ public sealed class PuzzleItemTooltipView : PanelBase
 
     void SetPlainRow(TextMeshProUGUI _label, TextMeshProUGUI _value, string _labelText, string _valueText)
     {
-        if (_label)
-        {
-            _label.color = Presentation.PuzzleTooltipText;
-        }
-        if (_value)
-        {
-            _value.color = Presentation.PuzzleTooltipText;
-        }
         SetRow(_label, _value, _labelText, _valueText);
     }
 
@@ -212,7 +204,8 @@ public sealed class PuzzleItemTooltipView : PanelBase
     internal void Show(PuzzleItemDefinition _item, decimal _actualValue, PuzzleTradeRate _rate,
         IReadOnlyList<string> _generalEffects, IReadOnlyList<PuzzleTooltipEffectEntry> _synergyEffects, decimal? _futureValue, Vector2 _screenPosition,
         bool _isTrainInventory, int? _freshness, long? _minutesUntilNextFreshnessBand, long? _previewMinutes, string _previewCityName,
-        long? _previewActivations, long? _tradePrice, IReadOnlyList<PuzzleSynergyBonus> _activeEffects, int _appliedPreservation)
+        long? _previewActivations, long? _tradePrice, IReadOnlyList<PuzzleSynergyBonus> _activeEffects, int _appliedPreservation,
+        bool _isActionBoard = false)
     {
         if (_item == null)
         {
@@ -231,11 +224,11 @@ public sealed class PuzzleItemTooltipView : PanelBase
 
         SetRow(baseValueLabelText, baseValueValueText,
             Presentation.PuzzleTooltipBaseValueLabel, Presentation.PuzzleTooltipActualValueValue(_item.BaseValue));
-        UpdateActiveEffects(_isTrainInventory, _activeEffects, _appliedPreservation);
+        UpdateActiveEffects(_isTrainInventory, _isActionBoard, _activeEffects, _appliedPreservation);
         SetRow(actualValueLabelText, actualValueValueText,
             Presentation.PuzzleTooltipActualValueLabel(), Presentation.PuzzleTooltipActualValueValue(_actualValue));
 
-        if (_isTrainInventory)
+        if (_isTrainInventory || _isActionBoard)
         {
             int sellPercent = _rate.SellPercent;
             string price = _tradePrice.HasValue
@@ -690,7 +683,8 @@ public sealed class PuzzleItemTooltipView : PanelBase
         panelRect.anchoredPosition = Vector2.Lerp(panelRect.anchoredPosition, targetCanvasPosition, Time.unscaledDeltaTime * FollowSpeed);
     }
 
-    void UpdateActiveEffects(bool _isTrainInventory, IReadOnlyList<PuzzleSynergyBonus> _activeEffects, int _appliedPreservation)
+    void UpdateActiveEffects(bool _isTrainInventory, bool _isActionBoard, IReadOnlyList<PuzzleSynergyBonus> _activeEffects,
+        int _appliedPreservation)
     {
         int valueCount = _isTrainInventory ? _activeEffects?.Count ?? 0 : 0;
         bool hasPreservation = _isTrainInventory && _appliedPreservation > 0;
@@ -716,7 +710,7 @@ public sealed class PuzzleItemTooltipView : PanelBase
                 string preservationLine = hasPreservation ? JoinEffectEntry(preservation) : null;
                 activeEffectsMessageText.text = activeCount > 0
                     ? string.Join("\n", new[] { valueSummary, preservationLine }.Where(_line => !string.IsNullOrEmpty(_line)))
-                    : _isTrainInventory ? Presentation.PuzzleNoActiveEffects : Presentation.PuzzleMarketNoSettlement;
+                    : _isTrainInventory || _isActionBoard ? Presentation.PuzzleNoActiveEffects : Presentation.PuzzleMarketNoSettlement;
             }
         }
 
@@ -756,10 +750,12 @@ public sealed class PuzzleItemTooltipView : PanelBase
         SetRowActive(_label, _value, true);
         if (_label)
         {
+            _label.color = Presentation.PuzzleTooltipText;
             _label.text = _labelText;
         }
         if (_value)
         {
+            _value.color = Presentation.PuzzleTooltipText;
             _value.text = _valueText;
             _value.gameObject.SetActive(!string.IsNullOrEmpty(_valueText));
         }

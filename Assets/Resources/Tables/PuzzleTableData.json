@@ -654,7 +654,7 @@
         "Fruit"
       ],
       "shelfLifeHours": 168,
-      "visualKey": "cargo.smallCrate",
+      "visualKey": "cargo.fruitCrate",
       "slotCount": 1,
       "cells": [
         {
