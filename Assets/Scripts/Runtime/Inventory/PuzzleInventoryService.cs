@@ -317,6 +317,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
     internal long ElapsedTime => Time.ElapsedMinutes;
     internal PuzzleRegionData RegionData => tables.Region(CityData.regionId);
     internal long MarketCapacity { get; private set; }
+    long marketStockCount;
     internal IReadOnlyCollection<PuzzleItemDefinition> ItemDefinitions { get; private set; }
 
     // 경제 분석이 같은 시장 재고를 재현할 때 Initialize 전에 호출한다.
@@ -354,10 +355,12 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         }
         var cityMarkets = new Dictionary<string, PuzzleInventory>(StringComparer.Ordinal);
         long marketCapacity = 0;
+        marketStockCount = 0;
         foreach (var city in validatedTables.Cities)
         {
             var market = CreateMarket(city.id, ref lastInstanceId);
             cityMarkets.Add(city.id, market);
+            marketStockCount += market.Placements.Count;
             marketCapacity = Math.Max(marketCapacity, (long)market.Width * market.Height);
         }
 
@@ -483,10 +486,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
 
         if (failure == PuzzleTravelFailure.None)
         {
-            long replacementStockCount = IsPassingThrough ? 0 : ((long)tables.MarketStartingPlacements(fromCityId).Count +
-                tables.StockProfile(CityData.regionalStockId).slots.Length +
-                tables.StockProfile(CityData.generalStockId).slots.Length);
-            if (CityMoveCount == int.MaxValue || _plan.lastInstanceId + replacementStockCount > int.MaxValue)
+            if (CityMoveCount == int.MaxValue)
             {
                 return new PuzzleTravelResult(PuzzleTravelFailure.TimeOverflow);
             }
@@ -604,6 +604,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         internal Dictionary<(int First, int Second), BreedingState> breedingProgress;
         internal Dictionary<int, WasteState> wasteProgress;
         internal int lastInstanceId;
+        internal long marketRestocks;
         internal decimal? cargoValueBeforeSettlement;
         internal decimal? cargoValueBeforeFreshnessLoss;
 
@@ -633,6 +634,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
             var waste = definitions[animals.wastePieceId];
             var expiredFood = definitions[ExpiredFoodPieceId];
             long animalEventsThrough = Time.HasDeadline ? Math.Min(arrival, Time.DeadlineMinutes) : arrival;
+            plan.marketRestocks = Time.DaylightOpeningsThrough(animalEventsThrough);
             long breedingMinutes = (long)animals.breedingHours * PuzzleTimeManager.MINUTES_PER_HOUR;
             long wasteMinutes = (long)animals.wasteIntervalDays * PuzzleTimeManager.MINUTES_PER_DAY;
             long holdMinutes = (long)animals.completionHoldHours * PuzzleTimeManager.MINUTES_PER_HOUR;
@@ -717,6 +719,10 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
             {
                 plan.cargoValueBeforeFreshnessLoss =
                     selectedWagon.Placements.Sum(_item => _item.FreshnessAdjustedValue) - freshnessDelta;
+            }
+            if (marketStockCount > 0 && plan.marketRestocks > (int.MaxValue - plan.lastInstanceId) / marketStockCount)
+            {
+                return PuzzleTravelFailure.TimeOverflow;
             }
             _plan = plan;
             return PuzzleTravelFailure.None;
@@ -1088,6 +1094,13 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         wasteProgress = _plan.wasteProgress;
         PruneAnimalStates();
         lastInstanceId = _plan.lastInstanceId;
+        for (long opening = 0; opening < _plan.marketRestocks; opening++)
+        {
+            foreach (var city in tables.Cities)
+            {
+                markets[city.id] = CreateMarket(city.id, ref lastInstanceId);
+            }
+        }
         Time.Advance(_minutes);
         if (Time.IsOverdue)
         {
@@ -1136,11 +1149,6 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         }
 
         long duration = evaluation.TravelMinutes;
-        if (!IsPassingThrough)
-        {
-            var replacementMarket = CreateMarket(evaluation.FromCityId, ref plan.lastInstanceId);
-            markets[evaluation.FromCityId] = replacementMarket;
-        }
         long previousFunds = Funds;
         Funds -= evaluation.Cost;
         currentCityId = evaluation.ToCityId;

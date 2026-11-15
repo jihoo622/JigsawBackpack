@@ -40,6 +40,13 @@ public sealed class PuzzleTimeManager
         return (int)((clock % MINUTES_PER_DAY + MINUTES_PER_DAY) % MINUTES_PER_DAY);
     }
 
+    internal long DaylightOpeningsThrough(long _elapsedMinutes)
+    {
+        long minutesUntilNextOpening = MINUTES_PER_DAY - DaylightOffset(ElapsedMinutes);
+        long minutesAfterFirstOpening = _elapsedMinutes - ElapsedMinutes - minutesUntilNextOpening;
+        return minutesAfterFirstOpening < 0 ? 0 : 1 + minutesAfterFirstOpening / MINUTES_PER_DAY;
+    }
+
     public bool IsNightAt(long _elapsedMinutes)
     {
         return DaylightOffset(_elapsedMinutes) >= rules.daylightHours * MINUTES_PER_HOUR;
