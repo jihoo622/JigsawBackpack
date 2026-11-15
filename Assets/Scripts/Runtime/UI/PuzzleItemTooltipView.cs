@@ -311,11 +311,19 @@ public sealed class PuzzleItemTooltipView : PanelBase
     /// 엔티티 링크(지역·마을·태그·의뢰) 및 안내 문구를 기존 툴팁 카드 레이아웃으로 표시한다.
     /// </summary>
     internal void ShowEntityInfo(string _title, Color? _titleColor, IReadOnlyList<string> _lines,
-        Vector2 _screenPosition, IReadOnlyList<string> _tags = null)
+        Vector2 _screenPosition, IReadOnlyList<string> _tags = null,
+        IReadOnlyList<(string label, string value)> _statRows = null)
     {
         BeginShow(_title, _titleColor);
         UpdateCategoryBadges(_tags);
-        HideAllStatRows();
+        if (_statRows != null && _statRows.Count > 0)
+        {
+            ApplyPlainStatRows(_statRows);
+        }
+        else
+        {
+            HideAllStatRows();
+        }
         if (activeEffectsSection)
         {
             activeEffectsSection.gameObject.SetActive(false);
@@ -330,10 +338,11 @@ public sealed class PuzzleItemTooltipView : PanelBase
     }
 
     /// <summary>
-    /// 의뢰·소문의 화물 품목 링크 정보를 기존 아이템 툴팁 레이아웃(태그 배지, 기본 능력치, 인접 상성)으로 표시한다.
+    /// 의뢰·소문의 화물 품목 링크 정보를 기존 아이템 툴팁 레이아웃(태그 배지, 기본 능력치, 일반 효과·가능 인접 효과)으로 표시한다.
     /// </summary>
     internal void ShowPieceInfo(PuzzlePieceData _piece, IReadOnlyList<string> _statLabels,
-        IReadOnlyList<string> _statValues, IReadOnlyList<PuzzleTooltipEffectEntry> _synergies, Vector2 _screenPosition)
+        IReadOnlyList<string> _statValues, IReadOnlyList<string> _generalEffects,
+        IReadOnlyList<PuzzleTooltipEffectEntry> _synergies, Vector2 _screenPosition)
     {
         if (_piece == null)
         {
@@ -356,12 +365,10 @@ public sealed class PuzzleItemTooltipView : PanelBase
         {
             activeEffectsSection.gameObject.SetActive(false);
         }
-        if (generalEffectSection)
-        {
-            generalEffectSection.SetActive(false);
-        }
 
-        UpdateSynergySection(_synergies, Presentation.ItemInfoSynergyHeader, Presentation.ItemInfoNoSynergy);
+        UpdateEffectSection(generalEffectSection, generalEffectHeaderText, generalEffectSlots, _generalEffects,
+            Presentation.PuzzleTooltipGeneralEffectHeader(), _showEmpty: (_synergies?.Count ?? 0) == 0);
+        UpdateSynergySection(_synergies);
         RebuildLayouts();
         SetPointerPosition(_screenPosition);
     }
@@ -372,20 +379,7 @@ public sealed class PuzzleItemTooltipView : PanelBase
     internal void ShowTravelPreview(string _title, Color _titleColor,
         IReadOnlyList<(string label, string value)> _statRows, IReadOnlyList<string> _infoLines, Vector2 _screenPosition)
     {
-        BeginShow(_title, _titleColor);
-        UpdateCategoryBadges((IReadOnlyList<string>)null);
-        ApplyPlainStatRows(_statRows);
-        if (activeEffectsSection)
-        {
-            activeEffectsSection.gameObject.SetActive(false);
-        }
-        if (synergySection)
-        {
-            synergySection.SetActive(false);
-        }
-        PopulatePlainEffectSection(_infoLines);
-        RebuildLayouts();
-        SetPointerPosition(_screenPosition);
+        ShowEntityInfo(_title, _titleColor, _infoLines, _screenPosition, _statRows: _statRows);
     }
 
     void ApplyPlainStatRows(IReadOnlyList<(string label, string value)> _rows)

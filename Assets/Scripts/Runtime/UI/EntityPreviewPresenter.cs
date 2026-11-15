@@ -8,7 +8,7 @@ public sealed class EntityPreviewPresenter : MonoBehaviour
     readonly List<string> lines = new List<string>();
     readonly List<string> statNames = new List<string>();
     readonly List<string> statTexts = new List<string>();
-    readonly List<PuzzleTooltipEffectEntry> synergyEntries = new List<PuzzleTooltipEffectEntry>();
+    readonly List<(string label, string value)> statRows = new List<(string label, string value)>();
     PuzzleInventoryService session;
 
     void OnEnable()
@@ -55,14 +55,15 @@ public sealed class EntityPreviewPresenter : MonoBehaviour
                 return;
             }
             Presentation.ItemInfoStats(piece, statNames, statTexts);
-            Presentation.ItemInfoSynergyEntries(piece, synergyEntries);
-            view.ShowPieceInfo(piece, statNames, statTexts, synergyEntries, _info.screenPosition);
+            var effects = Presentation.PuzzleTooltipPossibleEffects(
+                new PuzzleItemDefinition(piece), PuzzleSynergyScope.Train);
+            view.ShowPieceInfo(piece, statNames, statTexts, effects.General, effects.Synergies, _info.screenPosition);
             return;
         }
 
-        Presentation.EntityPreview(_info.kind, _info.id, session, out string title, lines);
+        Presentation.EntityPreview(_info.kind, _info.id, session, out string title, statRows, lines);
         string[] tags = _info.kind == EntityLinkKind.Tag ? new[] { _info.id } : null;
-        view.ShowEntityInfo(title, Presentation.EntityPreviewTitleColor(_info.kind, _info.id), lines, _info.screenPosition, tags);
+        view.ShowEntityInfo(title, Presentation.EntityPreviewTitleColor(_info.kind, _info.id), lines, _info.screenPosition, tags, statRows);
     }
 
     void OnHoverEnded(int _sceneHandle)

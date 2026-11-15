@@ -347,16 +347,18 @@ public static class Presentation
         return BasicData.Format("presentation.link.actionBack", _name);
     }
 
-    // 마우스를 올렸을 때 보이는 미리보기 카드 내용(제목 + 최대 4줄). 링크 없이 글자만 쓴다(카드는 입력을 받지 않는다).
-    internal static void EntityPreview(EntityLinkKind _kind, string _id, PuzzleInventoryService _session, out string _title, List<string> _lines)
+    // 마우스를 올렸을 때 보이는 미리보기 카드 내용(제목 + 상단 표 행 + 본문 줄). 링크 없이 글자만 쓴다(카드는 입력을 받지 않는다).
+    internal static void EntityPreview(EntityLinkKind _kind, string _id, PuzzleInventoryService _session,
+        out string _title, List<(string label, string value)> _statRows, List<string> _lines)
     {
+        _statRows?.Clear();
         _lines.Clear();
         _title = EntityName(_kind, _id, _session);
         var tables = TableManager.Instance;
         switch (_kind)
         {
             case EntityLinkKind.City:
-                PreviewCity(_id, _session, _lines);
+                PreviewCity(_id, _session, _statRows, _lines);
                 break;
             case EntityLinkKind.Region:
                 if (tables.TryGetRegion(_id, out var region))
@@ -381,17 +383,41 @@ public static class Presentation
         }
     }
 
-    static void PreviewCity(string _cityId, PuzzleInventoryService _session, List<string> _lines)
+    internal static bool TryGetCityRegionRow(string _cityId, out (string label, string value) _row)
+    {
+        var tables = TableManager.Instance;
+        if (tables.HasCity(_cityId))
+        {
+            var city = tables.CityPrice(_cityId);
+            if (tables.TryGetRegion(city.regionId, out var region))
+            {
+                string hex = ColorUtility.ToHtmlStringRGB(PuzzleMapLineColor(region.id));
+                _row = ("지역", $"<color=#{hex}>{region.displayName}</color>");
+                return true;
+            }
+        }
+        _row = default;
+        return false;
+    }
+
+    static void PreviewCity(string _cityId, PuzzleInventoryService _session,
+        List<(string label, string value)> _statRows, List<string> _lines)
     {
         var tables = TableManager.Instance;
         if (!tables.HasCity(_cityId))
         {
             return;
         }
-        var city = tables.CityPrice(_cityId);
-        if (tables.TryGetRegion(city.regionId, out var region))
+        if (TryGetCityRegionRow(_cityId, out var regionRow))
         {
-            _lines.Add(BasicData.Format("presentation.link.previewRegion", region.displayName));
+            if (_statRows != null)
+            {
+                _statRows.Add(regionRow);
+            }
+            else
+            {
+                _lines.Add(BasicData.Format("presentation.link.previewRegion", regionRow.value));
+            }
         }
         bool visited = _session != null && _session.HasVisitedCity(_cityId);
         if (_session != null)
@@ -494,23 +520,6 @@ public static class Presentation
             int percent = totals[column];
             _lines.Add(BasicData.Format("presentation.itemInfo.synergyLine", PuzzleTagLabel(chart.Columns[column]),
                 percent > 0 ? positive : negative, percent > 0 ? "+" + percent : percent.ToString()));
-        }
-    }
-
-    internal static void ItemInfoSynergyEntries(PuzzlePieceData _piece, List<PuzzleTooltipEffectEntry> _entries)
-    {
-        _entries.Clear();
-        int[] totals = ComputeTrainSynergyTotals(_piece, out var chart);
-        string positive = ColorUtility.ToHtmlStringRGB(BasicData.Color("presentation.itemInfo.positive"));
-        string negative = ColorUtility.ToHtmlStringRGB(BasicData.Color("presentation.itemInfo.negative"));
-        foreach (int column in OrderedSynergyColumns(totals, chart))
-        {
-            int percent = totals[column];
-            string sign = percent > 0 ? "+" : string.Empty;
-            string hex = percent > 0 ? positive : negative;
-            _entries.Add(new PuzzleTooltipEffectEntry(
-                PuzzleTagLabel(chart.Columns[column]),
-                $"<color=#{hex}>{sign}{percent}%</color>"));
         }
     }
 
@@ -1512,6 +1521,82 @@ public static class Presentation
                 ColorUtility.ToHtmlStringRGB(PuzzleTooltipRed));
         }
         return _effect.Description + "\n" + line;
+    }
+
+    // 화물·품목 링크 툴팁 공통: 일반 효과와 가능 인접 효과를 기존 시너지 규칙(PuzzlePieceEffects) 기준으로 수집한다.
+    internal static (IReadOnlyList<string> General, IReadOnlyList<PuzzleTooltipEffectEntry> Synergies)
+        PuzzleTooltipPossibleEffects(PuzzleItemDefinition _item, PuzzleSynergyScope _scope,
+            PuzzlePlacement _placement = null, PuzzleInventoryService _session = null)
+    {
+        if (_item == null)
+        {
+            return default;
+        }
+
+        bool isTrain = _scope == PuzzleSynergyScope.Train;
+        var general = new List<PuzzleEffectDisplay>();
+        var synergies = new List<(bool isTarget, bool isPenalty, PuzzleTooltipEffectEntry entry)>();
+        var tables = TableManager.Instance;
+        int preservation = PuzzleRefrigeration.SourceReductionPercent(_item, tables.PuzzleSynergy.freshness);
+        if (preservation > 0)
+        {
+            synergies.Add((false, false, PuzzleRefrigerationEffect(preservation)));
+        }
+
+        var animals = tables.PuzzleSynergy.animals;
+        if (_item.Tags.Contains(animals.animalTag))
+        {
+            if (!_item.IsBaby && tables.TryGetAnimalBreeding(_item.Id, out var breeding))
+            {
+                var offspring = tables.Piece(breeding.offspringPieceId);
+                long breedingMinutes = (long)animals.breedingHours * PuzzleTimeManager.MINUTES_PER_HOUR;
+                // 실제 선택된 번식 쌍에 속한 동물에만 진행도를 표시한다.
+                PuzzleProgressDisplay? breedingProgress = null;
+                if (isTrain && _placement != null && _session != null
+                    && _session.TryGetBreedingProgress(_placement, out long pairedMinutes, out bool pairedBlocked))
+                {
+                    breedingProgress = new PuzzleProgressDisplay(pairedMinutes, breedingMinutes, pairedBlocked);
+                }
+                general.Add(new PuzzleEffectDisplay(PuzzleAnimalBreedingEffect(breeding.description,
+                    breedingMinutes, offspring.displayName, breeding.offspringCount), breedingProgress));
+            }
+            if (_item.GrowthMinutes > 0)
+            {
+                var adult = tables.Piece(_item.AdultPieceId);
+                // 성장 시계는 객차의 소유 물건에만 있다. 시장·도축·개조 보드에는 진행도를 보여주지 않는다.
+                PuzzleProgressDisplay? growthProgress = isTrain && _placement != null && _placement.GrowthElapsedMinutes >= 0
+                    ? new PuzzleProgressDisplay(_placement.GrowthElapsedMinutes, _item.GrowthMinutes,
+                        _placement.GrowthSpaceBlocked)
+                    : null;
+                general.Add(new PuzzleEffectDisplay(PuzzleAnimalGrowthEffect(_item.GrowthDescription,
+                    _item.GrowthMinutes, adult.displayName, _item.GrowthBlockedMinutes), growthProgress));
+            }
+
+            var waste = tables.Piece(animals.wastePieceId);
+            // 배설은 달력 경계 기반으로 흐르므로 진행도를 붙이지 않는다.
+            general.Add(new PuzzleEffectDisplay(PuzzleAnimalWasteEffect(animals.wasteDescription,
+                animals.wasteIntervalDays, waste.displayName, animals.wasteCountPerAnimal)));
+        }
+
+        foreach (var rule in tables.SynergiesFor(_scope))
+        {
+            bool isPenalty = rule.multiplierPercent < 100;
+            if (PuzzlePieceEffects.IsSource(_item, rule))
+            {
+                synergies.Add((false, isPenalty, PuzzleTooltipSynergyEffect(rule.sourceDescription)));
+            }
+            if (PuzzlePieceEffects.IsTarget(_item, rule, animals.wasteTag))
+            {
+                synergies.Add((true, isPenalty, PuzzleTooltipSynergyEffect(rule.targetDescription)));
+            }
+        }
+
+        var orderedSynergies = synergies
+            .OrderBy(_entry => _entry.isTarget)
+            .ThenBy(_entry => _entry.isPenalty)
+            .Select(_entry => _entry.entry)
+            .ToList();
+        return (general.Select(_effect => PuzzleTooltipGeneralEffect(_effect)).ToList(), orderedSynergies);
     }
 
     internal static string PuzzleTooltipNoEffect()

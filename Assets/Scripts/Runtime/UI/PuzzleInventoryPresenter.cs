@@ -1286,75 +1286,11 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
 
     (IReadOnlyList<string> General, IReadOnlyList<PuzzleTooltipEffectEntry> Synergies) BuildEffectDescriptions(PuzzlePlacement _placement, bool _isTrain)
     {
-        PuzzleItemDefinition item = _placement?.Definition;
-        if (item == null)
-        {
-            return default;
-        }
-
-        PuzzleSynergyScope scope = _isTrain ? PuzzleSynergyScope.Train : PuzzleSynergyScope.Market;
-        var general = new List<PuzzleEffectDisplay>();
-        var synergies = new List<(bool isTarget, bool isPenalty, PuzzleTooltipEffectEntry entry)>();
-        var tables = TableManager.Instance;
-        int preservation = PuzzleRefrigeration.SourceReductionPercent(item, tables.PuzzleSynergy.freshness);
-        if (preservation > 0)
-        {
-            synergies.Add((false, false, Presentation.PuzzleRefrigerationEffect(preservation)));
-        }
-
-        var animals = tables.PuzzleSynergy.animals;
-        if (item.Tags.Contains(animals.animalTag))
-        {
-            if (!item.IsBaby && tables.TryGetAnimalBreeding(item.Id, out var breeding))
-            {
-                var offspring = tables.Piece(breeding.offspringPieceId);
-                long breedingMinutes = (long)animals.breedingHours * PuzzleTimeManager.MINUTES_PER_HOUR;
-                // 실제 선택된 번식 쌍에 속한 동물에만 진행도를 표시한다.
-                PuzzleProgressDisplay? breedingProgress = null;
-                if (_isTrain && session.TryGetBreedingProgress(_placement, out long pairedMinutes, out bool pairedBlocked))
-                {
-                    breedingProgress = new PuzzleProgressDisplay(pairedMinutes, breedingMinutes, pairedBlocked);
-                }
-                general.Add(new PuzzleEffectDisplay(Presentation.PuzzleAnimalBreedingEffect(breeding.description,
-                    breedingMinutes, offspring.displayName, breeding.offspringCount), breedingProgress));
-            }
-            if (item.GrowthMinutes > 0)
-            {
-                var adult = tables.Piece(item.AdultPieceId);
-                // 성장 시계는 객차의 소유 물건에만 있다. 시장·도축·개조 보드에는 진행도를 보여주지 않는다.
-                PuzzleProgressDisplay? growthProgress = _isTrain && _placement.GrowthElapsedMinutes >= 0
-                    ? new PuzzleProgressDisplay(_placement.GrowthElapsedMinutes, item.GrowthMinutes,
-                        _placement.GrowthSpaceBlocked)
-                    : null;
-                general.Add(new PuzzleEffectDisplay(Presentation.PuzzleAnimalGrowthEffect(item.GrowthDescription,
-                    item.GrowthMinutes, adult.displayName, item.GrowthBlockedMinutes), growthProgress));
-            }
-
-            var waste = tables.Piece(animals.wastePieceId);
-            // 배설은 달력 경계 기반으로 흐르므로 진행도를 붙이지 않는다.
-            general.Add(new PuzzleEffectDisplay(Presentation.PuzzleAnimalWasteEffect(animals.wasteDescription,
-                animals.wasteIntervalDays, waste.displayName, animals.wasteCountPerAnimal)));
-        }
-
-        foreach (var rule in tables.SynergiesFor(scope))
-        {
-            bool isPenalty = rule.multiplierPercent < 100;
-            if (PuzzlePieceEffects.IsSource(item, rule))
-            {
-                synergies.Add((false, isPenalty, Presentation.PuzzleTooltipSynergyEffect(rule.sourceDescription)));
-            }
-            if (PuzzlePieceEffects.IsTarget(item, rule, animals.wasteTag))
-            {
-                synergies.Add((true, isPenalty, Presentation.PuzzleTooltipSynergyEffect(rule.targetDescription)));
-            }
-        }
-
-        var orderedSynergies = synergies
-            .OrderBy(_entry => _entry.isTarget)
-            .ThenBy(_entry => _entry.isPenalty)
-            .Select(_entry => _entry.entry)
-            .ToList();
-        return (general.Select(_effect => Presentation.PuzzleTooltipGeneralEffect(_effect)).ToList(), orderedSynergies);
+        return Presentation.PuzzleTooltipPossibleEffects(
+            _placement?.Definition,
+            _isTrain ? PuzzleSynergyScope.Train : PuzzleSynergyScope.Market,
+            _placement,
+            session);
     }
 
     void RenderValues()
