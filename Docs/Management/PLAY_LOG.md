@@ -68,6 +68,7 @@ failure가 null/빈 문자열이면 성공이고 그 외는 거부/오류다. bu
 | 필드 | 의미와 적용 |
 |---|---|
 | action, method, failure | 요청 의미·입력 방식·결과. 상태 변화가 아니라 행동 분류에 사용 |
+| passThrough | travel 행동에서 통과역 여부. true면 도착 처리(방문·의뢰·시장) 없이 다음 구간으로 진행 중 |
 | instanceId | buy/sell/reposition/placement의 대상 화물. 그 외 0 |
 | elapsedMinutes | 행동 직후 실제 게임 누적 분. 항상 필요. 이전 값과 차이가 실제 소비 시간 |
 | moneyDelta | 관측한 자금 증감. S.funds에 더함. 실패라도 실제 변화가 있으면 적용 |
@@ -123,6 +124,9 @@ introduced의 ID는 적용 중인 S에 없어야 한다. moved/values/durability
 - run_end.reason은 won/deadline/restart/scene_unloaded/shutdown/recorder_disabled/replaced다. 승패와 중단을 구분하고 S를 닫는다. 결과 패널/씬 이벤트가 뒤에 있어도 새 run_start 전까지 이전 판 행동으로 추가하지 않는다.
 - session_start는 schemaVersion/reason/appVersion/unityVersion/platform/isEditor/scene, session_end는 reason이다. scene_change는 scene/loaded, panel_visibility는 panel/open, upgrade_granted는 id, entity_link_clicked는 kind(city·item·tag·quest·region 소문자)/id/action(click·context)이다. 원본 시각은 공통 봉투에서 읽는다.
 - entity_link_clicked는 플레이어가 고유명사 하이퍼링크를 클릭하거나 컨텍스트(우클릭 등)를 요청했을 때 kind/id/action을 기록한다. 호버는 고빈도이므로 수집 경계에 따라 기록하지 않는다.
+- route_planned는 경로 계획이 생성되었을 때 from/to/legs/totalMinutes/stops를 기록한다. legs는 구간 수, totalMinutes는 계획 구간들의 노선 소요 시간 합계, stops는 목적지를 포함한 계획 상의 정차역 수다.
+- route_ended는 경로 계획이 종료되었을 때 reason(completed/canceled/deviated/run_ended)/to를 기록한다. to는 계획했던 목적지 역 ID다.
+- auto_travel_stopped는 자동 이동 루프가 정지되었을 때 reason(stop_reached/insufficient_funds/run_ended/user_stopped/failed)/city를 기록한다. city는 정지 시점의 현재 역 ID다.
 - 공통 time은 일시정지를 반영하는 실제 플레이 누적 초, timestampUtc는 UTC, elapsedMinutes는 게임 달력이다. 실제 체류 시간과 게임 소비 시간을 섞지 않는다.
 - 기본 기차 화물의 보유 시간은 0에서 시작하고 시장 화물은 미소유다. 성공 buy에서 0, sell에서 미소유로 바뀐다. 새 기차 화물은 해당 행동 끝에 보유를 시작한다. 이후 게임 소비 분을 합해 보유 기간을 계산한다.
 

@@ -19,6 +19,9 @@ public static class TelemetryEvents
     public const string PROFICIENCY_GAINED = "proficiency_gained";
     public const string ENTITY_LINK_CLICKED = "entity_link_clicked";
     public const string RULES_CHUNK = "rules_chunk";
+    public const string ROUTE_PLANNED = "route_planned";
+    public const string ROUTE_ENDED = "route_ended";
+    public const string AUTO_TRAVEL_STOPPED = "auto_travel_stopped";
 }
 
 // LogKit 전송용 분할 원본. Base64를 조각별 디코딩한 바이트를 chunkIndex 순서로 이어 붙인다.
@@ -92,6 +95,30 @@ public struct EntityLinkClickedPayload
     public string kind;
     public string id;
     public string action;
+}
+
+[Serializable]
+public struct RoutePlannedPayload
+{
+    public string from;
+    public string to;
+    public int legs;
+    public long totalMinutes;
+    public int stops;
+}
+
+[Serializable]
+public struct RouteEndedPayload
+{
+    public string reason;
+    public string to;
+}
+
+[Serializable]
+public struct AutoTravelStoppedPayload
+{
+    public string reason;
+    public string city;
 }
 
 // 좌표는 히트맵에 충분한 1cm 단위로 줄여 행 크기를 낮춘다.
@@ -188,6 +215,36 @@ public static partial class TelemetryPayload
             kind = EntityLinkKindString(_info.kind),
             id = _info.id ?? string.Empty,
             action = _action ?? string.Empty
+        };
+    }
+
+    public static RoutePlannedPayload RoutePlanned(GameEvents.RoutePlannedInfo _info)
+    {
+        return new RoutePlannedPayload
+        {
+            from = _info.fromCityId,
+            to = _info.toCityId,
+            legs = _info.legs,
+            totalMinutes = _info.totalMinutes,
+            stops = _info.stops
+        };
+    }
+
+    public static RouteEndedPayload RouteEnded(GameEvents.RouteEndedInfo _info)
+    {
+        return new RouteEndedPayload
+        {
+            reason = _info.reason,
+            to = _info.toCityId
+        };
+    }
+
+    public static AutoTravelStoppedPayload AutoTravelStopped(GameEvents.AutoTravelStoppedInfo _info)
+    {
+        return new AutoTravelStoppedPayload
+        {
+            reason = _info.reason,
+            city = _info.cityId
         };
     }
 

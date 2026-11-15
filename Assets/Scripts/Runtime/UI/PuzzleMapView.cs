@@ -98,6 +98,9 @@ public sealed class PuzzleMapView : PanelBase
     readonly Dictionary<int, List<Image>> routeTrackImages = new Dictionary<int, List<Image>>();
     readonly Dictionary<Image, Color> originalTrackColors = new Dictionary<Image, Color>();
     int highlightedRouteIndex = -1;
+    readonly HashSet<int> highlightedPathIndices = new HashSet<int>();
+    // 강조한 선분은 같은 부모 안에서 맨 위로 올려 다른 노선에 가려 끊겨 보이지 않게 한다. 올리기 전 형제 순서를 기억해 되돌린다.
+    readonly Dictionary<Image, int> raisedTrackSiblings = new Dictionary<Image, int>();
 
     [Header("Map Viewport Padding")]
     [SerializeField] float viewportPaddingLeft = 8f;
@@ -919,6 +922,7 @@ public sealed class PuzzleMapView : PanelBase
         ClearRouteHighlight();
         if (string.IsNullOrEmpty(_cityA) || string.IsNullOrEmpty(_cityB) || routeTimes == null)
         {
+            ApplyTrackOrder();
             return;
         }
 
@@ -944,6 +948,7 @@ public sealed class PuzzleMapView : PanelBase
                 break;
             }
         }
+        ApplyTrackOrder();
     }
 
     internal void ClearRouteHighlight()
@@ -951,6 +956,145 @@ public sealed class PuzzleMapView : PanelBase
         if (highlightedRouteIndex >= 0)
         {
             if (routeTrackImages.TryGetValue(highlightedRouteIndex, out var imgs))
+            {
+                bool inPath = highlightedPathIndices.Contains(highlightedRouteIndex);
+                Color highlightColor = Presentation.PuzzleMapCurrent;
+                foreach (var img in imgs)
+                {
+                    if (img)
+                    {
+                        if (inPath)
+                        {
+                            img.color = highlightColor;
+                        }
+                        else if (originalTrackColors.TryGetValue(img, out var orig))
+                        {
+                            img.color = orig;
+                        }
+                    }
+                }
+            }
+            highlightedRouteIndex = -1;
+        }
+        ApplyTrackOrder();
+    }
+
+    internal void HighlightPath(IReadOnlyList<string> _cities)
+    {
+        ClearPathHighlight();
+        if (_cities == null || _cities.Count < 2 || routeTimes == null)
+        {
+            ApplyTrackOrder();
+            return;
+        }
+
+        Color highlightColor = Presentation.PuzzleMapCurrent;
+        for (int c = 0; c < _cities.Count - 1; c++)
+        {
+            string cityA = _cities[c];
+            string cityB = _cities[c + 1];
+            if (string.IsNullOrEmpty(cityA) || string.IsNullOrEmpty(cityB))
+            {
+                continue;
+            }
+
+            for (int i = 0; i < routeTimes.Length; i++)
+            {
+                var r = routeTimes[i];
+                if (r == null)
+                {
+                    continue;
+                }
+                if ((string.Equals(r.fromCityId, cityA, StringComparison.Ordinal) && string.Equals(r.toCityId, cityB, StringComparison.Ordinal)) ||
+                    (string.Equals(r.fromCityId, cityB, StringComparison.Ordinal) && string.Equals(r.toCityId, cityA, StringComparison.Ordinal)))
+                {
+                    highlightedPathIndices.Add(i);
+                    if (routeTrackImages.TryGetValue(i, out var imgs))
+                    {
+                        foreach (var img in imgs)
+                        {
+                            if (img)
+                            {
+                                img.color = highlightColor;
+                            }
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+        ApplyTrackOrder();
+    }
+
+    // 강조 중인 선분(경로 → 호버 노선 순)만 맨 위로 올리고, 나머지 올렸던 선분은 원래 순서로 되돌린다.
+    void ApplyTrackOrder()
+    {
+        if (raisedTrackSiblings.Count > 0)
+        {
+            var restore = new List<KeyValuePair<Image, int>>(raisedTrackSiblings);
+            restore.Sort((_a, _b) => _a.Value.CompareTo(_b.Value));
+            foreach (var pair in restore)
+            {
+                if (pair.Key)
+                {
+                    pair.Key.transform.SetSiblingIndex(pair.Value);
+                }
+            }
+            raisedTrackSiblings.Clear();
+        }
+        // 모두 원래 순서인 상태에서 올릴 선분의 위치를 먼저 기록한 뒤 올린다(되돌릴 때 위치 오름차순으로 복원).
+        var raise = new List<Image>();
+        foreach (int index in highlightedPathIndices)
+        {
+            CollectTracks(index, raise);
+        }
+        if (highlightedRouteIndex >= 0)
+        {
+            CollectTracks(highlightedRouteIndex, raise);
+        }
+        foreach (var img in raise)
+        {
+            if (!raisedTrackSiblings.ContainsKey(img))
+            {
+                raisedTrackSiblings.Add(img, img.transform.GetSiblingIndex());
+            }
+        }
+        foreach (var img in raise)
+        {
+            img.transform.SetAsLastSibling();
+        }
+    }
+
+    void CollectTracks(int _routeIndex, List<Image> _into)
+    {
+        if (!routeTrackImages.TryGetValue(_routeIndex, out var imgs))
+        {
+            return;
+        }
+        foreach (var img in imgs)
+        {
+            if (img)
+            {
+                _into.Add(img);
+            }
+        }
+    }
+
+    internal void ClearPathHighlight()
+    {
+        if (highlightedPathIndices.Count == 0)
+        {
+            ApplyTrackOrder();
+            return;
+        }
+
+        foreach (int index in highlightedPathIndices)
+        {
+            if (index == highlightedRouteIndex)
+            {
+                continue;
+            }
+            if (routeTrackImages.TryGetValue(index, out var imgs))
             {
                 foreach (var img in imgs)
                 {
@@ -960,8 +1104,9 @@ public sealed class PuzzleMapView : PanelBase
                     }
                 }
             }
-            highlightedRouteIndex = -1;
         }
+        highlightedPathIndices.Clear();
+        ApplyTrackOrder();
     }
 
     internal void ShowGuide(string _text)
@@ -990,5 +1135,6 @@ public sealed class PuzzleMapView : PanelBase
         ShowInformation(string.Empty);
         HideTravelPreview();
         ClearRouteHighlight();
+        ClearPathHighlight();
     }
 }

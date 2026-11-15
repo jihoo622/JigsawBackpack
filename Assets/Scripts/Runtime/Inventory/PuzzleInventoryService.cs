@@ -152,9 +152,22 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
 
     void OnDestroy()
     {
+        HandleRunStatusChanged();
         if (Time != null)
         {
             GameEvents.RaisePuzzleRunEnded(this, "scene_unloaded");
+        }
+    }
+
+    void HandleRunStatusChanged()
+    {
+        if (RunStatus != PuzzleRunStatus.InProgress)
+        {
+            if (RoutePlan != null)
+            {
+                EndRoutePlan(PuzzleRouteEndReason.RunEnded);
+            }
+            IsPassingThrough = false;
         }
     }
 
@@ -358,6 +371,8 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         lastRumorVisit = -1;
         ResetQuests();
         ResetProficiency();
+        RoutePlan = null;
+        IsPassingThrough = false;
         Funds = tables.PuzzleTrade.startingFunds;
         CityMoveCount = 0;
         RunStatus = PuzzleRunStatus.InProgress;
@@ -468,9 +483,9 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
 
         if (failure == PuzzleTravelFailure.None)
         {
-            long replacementStockCount = (long)tables.MarketStartingPlacements(fromCityId).Count +
+            long replacementStockCount = IsPassingThrough ? 0 : ((long)tables.MarketStartingPlacements(fromCityId).Count +
                 tables.StockProfile(CityData.regionalStockId).slots.Length +
-                tables.StockProfile(CityData.generalStockId).slots.Length;
+                tables.StockProfile(CityData.generalStockId).slots.Length);
             if (CityMoveCount == int.MaxValue || _plan.lastInstanceId + replacementStockCount > int.MaxValue)
             {
                 return new PuzzleTravelResult(PuzzleTravelFailure.TimeOverflow);
@@ -531,6 +546,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         long previousFunds = Funds;
         Funds -= GameClearCost;
         RunStatus = PuzzleRunStatus.Won;
+        HandleRunStatusChanged();
         GameEvents.RaiseFundsChanged(this, previousFunds);
         RecordAction(PuzzleActionKind.Repay);
         return true;
@@ -1076,6 +1092,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         if (Time.IsOverdue)
         {
             RunStatus = PuzzleRunStatus.Lost;
+            HandleRunStatusChanged();
         }
         CheckQuestFailures();
         if (_minutes > 0)
@@ -1109,7 +1126,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         return AdvanceMinutes(checked(_hours * PuzzleTimeManager.MINUTES_PER_HOUR));
     }
 
-    internal PuzzleTravelResult Travel(string _cityId)
+    internal PuzzleTravelResult TravelLeg(string _cityId, bool _passThrough)
     {
         var evaluation = EvaluateTravel(_cityId, out var plan);
         if (!evaluation.IsSuccess)
@@ -1119,10 +1136,13 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         }
 
         long duration = evaluation.TravelMinutes;
-        var replacementMarket = CreateMarket(evaluation.FromCityId, ref plan.lastInstanceId);
+        if (!IsPassingThrough)
+        {
+            var replacementMarket = CreateMarket(evaluation.FromCityId, ref plan.lastInstanceId);
+            markets[evaluation.FromCityId] = replacementMarket;
+        }
         long previousFunds = Funds;
         Funds -= evaluation.Cost;
-        markets[evaluation.FromCityId] = replacementMarket;
         currentCityId = evaluation.ToCityId;
         // 떠난 도시의 도축대는 조작 대상이 아니다. 도착 후 패널을 다시 열 때 열어 준다.
         IsButcheryOpen = false;
@@ -1131,21 +1151,62 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         bool previewChanged = PreviewCityId != null;
         PreviewCityId = null;
         CityMoveCount++;
-        visitedCities.Add(CurrentCityId);
         CommitTimeAdvance(duration, plan);
         if (previewChanged)
         {
             GameEvents.RaiseTravelPreviewChanged(this);
         }
-        RecordAction(PuzzleActionKind.Travel, _targetCityId: _cityId);
-        GameEvents.RaiseCityArrived(CurrentCityId, CityMoveCount);
-        GameEvents.RaiseFundsChanged(this, previousFunds);
+
+        if (_passThrough)
+        {
+            IsPassingThrough = true;
+            RecordAction(PuzzleActionKind.Travel, _targetCityId: _cityId);
+            GameEvents.RaiseFundsChanged(this, previousFunds);
+        }
+        else
+        {
+            IsPassingThrough = false;
+            visitedCities.Add(CurrentCityId);
+            RecordAction(PuzzleActionKind.Travel, _targetCityId: _cityId);
+            GameEvents.RaiseCityArrived(CurrentCityId, CityMoveCount);
+            GameEvents.RaiseFundsChanged(this, previousFunds);
+            CompleteArrivedQuests();
+        }
 
         var arrival = new PuzzleTravelResult(PuzzleTravelFailure.None, evaluation.Cost, evaluation.FromCityId,
             evaluation.ToCityId, Funds, evaluation.BaseCost, evaluation.Cells, evaluation.Distance, evaluation.DistanceCost,
             evaluation.TravelMinutes, evaluation.ArrivalClockMinutes, evaluation.ArrivalIsNight);
-        // 운임 정산 결과를 확정한 뒤 목적지 의뢰를 완료한다. 의뢰 보상은 별도 행동으로 기록한다.
-        CompleteArrivedQuests();
+        return arrival;
+    }
+
+    internal PuzzleTravelResult Travel(string _cityId)
+    {
+        var arrival = TravelLeg(_cityId, _passThrough: false);
+        if (!arrival.IsSuccess)
+        {
+            return arrival;
+        }
+
+        if (RoutePlan != null)
+        {
+            if (string.Equals(_cityId, RoutePlan.NextCityId, StringComparison.Ordinal))
+            {
+                RoutePlan.Advance();
+                if (string.Equals(_cityId, RoutePlan.DestinationCityId, StringComparison.Ordinal))
+                {
+                    EndRoutePlan(PuzzleRouteEndReason.Completed);
+                }
+                else
+                {
+                    GameEvents.RaiseRoutePlanChanged(new GameEvents.RoutePlanInfo(this));
+                }
+            }
+            else
+            {
+                EndRoutePlan(PuzzleRouteEndReason.Deviated);
+            }
+        }
+
         return arrival;
     }
 

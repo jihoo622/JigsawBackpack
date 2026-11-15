@@ -73,6 +73,7 @@ public sealed class PuzzleActionAttempt
 public sealed class PuzzleActionPayload
 {
     public string action, method, failure, targetCityId, cityId;
+    public bool passThrough;
     public int instanceId;
     public int wagonDelta;
     public long elapsedMinutes, moneyDelta;
@@ -150,6 +151,7 @@ public static partial class TelemetryPayload
                 failure = _info.failure,
                 targetCityId = _info.targetCityId,
                 cityId = _info.session.CurrentCityId != previousCityId ? _info.session.CurrentCityId : null,
+                passThrough = _info.action == PuzzleActionKind.Travel && _info.session.IsPassingThrough,
                 wagonDelta = _info.session.WagonCount - previousWagonCount,
                 instanceId = _info.instanceId,
                 elapsedMinutes = _info.session.ElapsedTime,

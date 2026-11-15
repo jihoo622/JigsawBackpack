@@ -1222,13 +1222,13 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
 
         var item = _placement.Definition;
         var value = _placement.Owner.ValueOf(_placement.InstanceId);
-        bool isButchery = session.IsButchery(_placement.Owner);
-        bool isActionBoard = isButchery || session.IsModification(_placement.Owner) || session.IsRefining(_placement.Owner);
+        bool isActionBoard = session.IsButchery(_placement.Owner) || session.IsModification(_placement.Owner) ||
+            session.IsRefining(_placement.Owner);
         bool isTrain = _view == trainView || session.IsTrainWagon(_placement.Owner);
         decimal actualValue = _placement.FreshnessAdjustedValue;
-        var rate = item == null || isActionBoard ? default : session.RateFor(item);
+        var rate = item == null ? default : session.RateFor(item);
         (IReadOnlyList<string> General, IReadOnlyList<PuzzleTooltipEffectEntry> Synergies) effects =
-            isActionBoard ? default : BuildEffectDescriptions(_placement, isTrain);
+            BuildEffectDescriptions(_placement, isTrain, isActionBoard);
         long? previewMinutes = session.PreviewMinutes;
         long? previewActivations = null;
         decimal? futureValue = null;
@@ -1249,12 +1249,12 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         {
             Vector2 pos = _position ?? hoverPosition.Value;
             string previewName = session.PreviewCityId == null ? null : TableManager.Instance.CityPrice(session.PreviewCityId).displayName;
-            var direction = isTrain ? PuzzleTradeDirection.Sell : PuzzleTradeDirection.Buy;
-            long? price = !isActionBoard && session.TryQuoteTrade(_placement, direction, out long quote) ? quote : (long?)null;
+            var direction = isTrain || isActionBoard ? PuzzleTradeDirection.Sell : PuzzleTradeDirection.Buy;
+            long? price = session.TryQuoteTrade(_placement, direction, out long quote) ? quote : (long?)null;
             tooltipView.Show(item, actualValue, rate, effects.General, effects.Synergies, futureValue, pos, isTrain, _placement.FreshnessPercent,
                 session.MinutesUntilNextFreshnessBand(_placement), previewMinutes,
                 previewName, previewActivations, price, isTrain ? PuzzleSynergyBonus.GroupByNeighbor(value.SynergyBonuses) : null,
-                isTrain ? session.AppliedPreservationPercent(_placement) : 0);
+                isTrain ? session.AppliedPreservationPercent(_placement) : 0, isActionBoard);
             // 툴팁을 열면 미확인 알림만 지운다. 실제로 대기 중인 진행도와 빨간 표시는 상태가 풀릴 때까지 남는다.
             if ((_placement.HasUnreadSynergySettlement || _placement.HasUnreadSpaceNotice) && tooltipView.IsOpen)
             {
@@ -1286,12 +1286,13 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         }
     }
 
-    (IReadOnlyList<string> General, IReadOnlyList<PuzzleTooltipEffectEntry> Synergies) BuildEffectDescriptions(PuzzlePlacement _placement, bool _isTrain)
+    (IReadOnlyList<string> General, IReadOnlyList<PuzzleTooltipEffectEntry> Synergies) BuildEffectDescriptions(
+        PuzzlePlacement _placement, bool _isTrain, bool _isActionBoard)
     {
         return Presentation.PuzzleTooltipPossibleEffects(
             _placement?.Definition,
-            _isTrain ? PuzzleSynergyScope.Train : PuzzleSynergyScope.Market,
-            _placement,
+            _isTrain || _isActionBoard ? PuzzleSynergyScope.Train : PuzzleSynergyScope.Market,
+            _isTrain ? _placement : null,
             session);
     }
 

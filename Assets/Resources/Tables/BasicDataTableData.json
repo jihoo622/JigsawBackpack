@@ -926,7 +926,7 @@
         },
         {
           "id": "informationText10",
-          "value": "<color=#{0}><b>귀한 자원</b></color>   {1}\n",
+          "value": "<pos=50%><color=#{0}><b>귀한 자원</b></color>   {1}\n",
           "arguments": 2
         },
         {
@@ -936,7 +936,7 @@
         },
         {
           "id": "informationText12",
-          "value": "<size=20>미방문 · 정보 미수집</size>\n\n직접 방문하면 교역 정보가 기록됩니다."
+          "value": "<size=20>미방문 · 정보 미수집</size>\n직접 방문하면 교역 정보가 기록됩니다."
         },
         {
           "id": "informationText13",
@@ -952,7 +952,7 @@
         },
         {
           "id": "informationText16",
-          "value": "<color=#{0}><b>희귀 자원</b></color>   {1}\n",
+          "value": "<color=#{0}><b>희귀 자원</b></color>   {1}",
           "arguments": 2
         },
         {
@@ -992,12 +992,12 @@
         },
         {
           "id": "informationText9",
-          "value": "<color=#{0}><b>흔한 자원</b></color>   {1}\n",
+          "value": "<color=#{0}><b>흔한 자원</b></color>   {1}",
           "arguments": 2
         },
         {
           "id": "wastePurchase",
-          "value": "\n<color=#{0}><b>특수 매입</b></color>   {1} (+10$)",
+          "value": "<pos=50%><color=#{0}><b>특수 매입</b></color>   {1} (+10$)",
           "arguments": 2
         },
         {
@@ -2057,6 +2057,137 @@
         },
         {
           "id": "more",
+          "value": "외 {0}개",
+          "arguments": 1
+        }
+      ]
+    },
+    {
+      "id": "presentation.route",
+      "colors": [
+        {
+          "id": "warningColor",
+          "r": 0.95,
+          "g": 0.52,
+          "b": 0.47,
+          "a": 1
+        }
+      ],
+      "texts": [
+        {
+          "id": "title",
+          "value": "{0} → {1}",
+          "arguments": 2
+        },
+        {
+          "id": "summary",
+          "value": "{0}구간 · {1} · 도착 {2:00}:{3:00} {4} · 예상 운임 {5}$",
+          "arguments": 6
+        },
+        {
+          "id": "warningFunds",
+          "value": "지금 자금으로는 첫 구간 운임이 모자랍니다."
+        },
+        {
+          "id": "arrivalNight",
+          "value": "(밤)"
+        },
+        {
+          "id": "arrivalDay",
+          "value": "(낮)"
+        },
+        {
+          "id": "stop",
+          "value": "정차"
+        },
+        {
+          "id": "pass",
+          "value": "통과"
+        },
+        {
+          "id": "moreStations",
+          "value": "외 {0}개 역",
+          "arguments": 1
+        },
+        {
+          "id": "autoTravelBtn",
+          "value": "자동 이동"
+        },
+        {
+          "id": "stopBtn",
+          "value": "중지"
+        },
+        {
+          "id": "cancelBtn",
+          "value": "계획 취소"
+        },
+        {
+          "id": "stoppingNotice",
+          "value": "이번 구간을 마치고 멈춥니다."
+        },
+        {
+          "id": "failureBlocked",
+          "value": "지금은 경로를 계획할 수 없습니다."
+        },
+        {
+          "id": "failureSameCity",
+          "value": "이미 이 역에 있습니다."
+        },
+        {
+          "id": "failureInvalidCity",
+          "value": "알 수 없는 역입니다."
+        },
+        {
+          "id": "failureUnreachable",
+          "value": "이 역으로 가는 철로가 없습니다."
+        },
+        {
+          "id": "stoppedStopReached",
+          "value": "정차역에 도착했습니다."
+        },
+        {
+          "id": "stoppedInsufficientFunds",
+          "value": "운임이 모자라 멈췄습니다."
+        },
+        {
+          "id": "stoppedRunEnded",
+          "value": "운행이 끝나 멈췄습니다."
+        },
+        {
+          "id": "stoppedUserStopped",
+          "value": "자동 이동을 멈췄습니다. 이 역에 정차합니다."
+        },
+        {
+          "id": "stoppedFailed",
+          "value": "다음 구간으로 갈 수 없어 멈췄습니다."
+        }
+      ]
+    },
+    {
+      "id": "presentation.search",
+      "texts": [
+        {
+          "id": "placeholder",
+          "value": "역·지역 검색"
+        },
+        {
+          "id": "kindStation",
+          "value": "역"
+        },
+        {
+          "id": "kindRegion",
+          "value": "지역"
+        },
+        {
+          "id": "routeButton",
+          "value": "경로"
+        },
+        {
+          "id": "noResults",
+          "value": "결과 없음"
+        },
+        {
+          "id": "remainingCount",
           "value": "외 {0}개",
           "arguments": 1
         }

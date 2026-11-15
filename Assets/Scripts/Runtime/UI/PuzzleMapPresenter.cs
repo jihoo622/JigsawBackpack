@@ -7,16 +7,19 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
     [SerializeField] PuzzleMapView view;
     [SerializeField] Button closeButton;
     [SerializeField] PuzzleMapTravelView travelView;
+    [SerializeField] PuzzleRoutePlanPresenter routePlanPresenter;
 
     PuzzleInventoryService session;
     string pendingCityId;
     string hoveredCityId;
     Coroutine travelRoutine;
+    Coroutine autoTravelRoutine;
+    bool stopAutoTravelRequested;
     TravelPhase phase;
 
     enum TravelPhase
     {
-        None, Confirming, Traveling, Arrived
+        None, Confirming, Traveling, Arrived, AutoTraveling
     }
 
     void OnEnable()
@@ -39,6 +42,13 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
         GameEvents.PanelVisibility += OnPanelVisibility;
         GameEvents.MapRequested += OnMapRequested;
         GameEvents.MapFocusRequested += OnMapFocusRequested;
+        GameEvents.RoutePlanChanged += OnRoutePlanChanged;
+        GameEvents.RoutePlanRequested += OnRoutePlanRequested;
+        if (routePlanPresenter)
+        {
+            routePlanPresenter.AutoTravelRequested += StartAutoTravel;
+            routePlanPresenter.StopRequested += RequestStopAutoTravel;
+        }
         travelView.Confirmed += ConfirmTravel;
         travelView.Canceled += AbortTravel;
         Refresh();
@@ -61,6 +71,13 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
         GameEvents.PanelVisibility -= OnPanelVisibility;
         GameEvents.MapRequested -= OnMapRequested;
         GameEvents.MapFocusRequested -= OnMapFocusRequested;
+        GameEvents.RoutePlanChanged -= OnRoutePlanChanged;
+        GameEvents.RoutePlanRequested -= OnRoutePlanRequested;
+        if (routePlanPresenter)
+        {
+            routePlanPresenter.AutoTravelRequested -= StartAutoTravel;
+            routePlanPresenter.StopRequested -= RequestStopAutoTravel;
+        }
         travelView.Confirmed -= ConfirmTravel;
         travelView.Canceled -= AbortTravel;
         AbortTravel();
@@ -72,6 +89,11 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
     {
         Refresh();
         view.Open();
+        RefreshRoutePlanHighlight();
+        if (routePlanPresenter)
+        {
+            routePlanPresenter.Refresh();
+        }
     }
 
     void OnMapToggleRequested(GameEvents.MapToggleInfo _info)
@@ -153,8 +175,40 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
         }
     }
 
+    void OnRoutePlanRequested(GameEvents.RoutePlanRequestInfo _info)
+    {
+        if (_info.sceneHandle != gameObject.scene.handle)
+        {
+            return;
+        }
+        if (phase != TravelPhase.None)
+        {
+            return;
+        }
+        if (!view.IsOpen)
+        {
+            OpenMap();
+        }
+
+        var planFailure = session.PlanRoute(_info.cityId);
+        if (planFailure != PuzzleRoutePlanFailure.None)
+        {
+            view.ShowInformation(Presentation.RoutePlanFailureStatus(planFailure));
+        }
+        else
+        {
+            view.FocusCity(_info.cityId);
+            ShowCity(_info.cityId);
+        }
+    }
+
     public bool TryConsumeTravelCancel()
     {
+        if (phase == TravelPhase.AutoTraveling)
+        {
+            RequestStopAutoTravel();
+            return true;
+        }
         if (travelView && travelView.TryConsumeCancel())
         {
             AbortTravel();
@@ -195,6 +249,11 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
     {
         Refresh();
         ClearInformation();
+        RefreshRoutePlanHighlight();
+        if (routePlanPresenter)
+        {
+            routePlanPresenter.Refresh();
+        }
     }
 
     void OnRumorRecorded(GameEvents.TavernRumorInfo _info)
@@ -358,6 +417,16 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
         var eval = session.EvaluateTravel(_cityId);
         if (!eval.IsSuccess)
         {
+            if (eval.Failure == PuzzleTravelFailure.MissingRoute)
+            {
+                var planFailure = session.PlanRoute(_cityId);
+                if (planFailure != PuzzleRoutePlanFailure.None)
+                {
+                    view.ShowInformation(Presentation.RoutePlanFailureStatus(planFailure));
+                }
+                return;
+            }
+
             view.ShowInformation(Presentation.PuzzleTravelStatus(eval));
             return;
         }
@@ -436,10 +505,246 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
             StopCoroutine(travelRoutine);
             travelRoutine = null;
         }
+        if (autoTravelRoutine != null)
+        {
+            StopCoroutine(autoTravelRoutine);
+            autoTravelRoutine = null;
+            if (session != null && session.IsPassingThrough)
+            {
+                session.StopAtCurrentCity();
+            }
+            session?.ReportAutoTravelStopped("user_stopped");
+        }
+        stopAutoTravelRequested = false;
         phase = TravelPhase.None;
         pendingCityId = null;
         travelView.Close();
         view.SetInteraction(true);
+        if (routePlanPresenter)
+        {
+            routePlanPresenter.SetAutoTraveling(false);
+        }
+    }
+
+    void OnRoutePlanChanged(GameEvents.RoutePlanInfo _info)
+    {
+        if (_info.session != session)
+        {
+            return;
+        }
+        RefreshRoutePlanHighlight();
+    }
+
+    void RefreshRoutePlanHighlight()
+    {
+        if (session != null && session.RoutePlan != null && session.RoutePlan.Cities != null && session.RoutePlan.Cities.Count >= 2)
+        {
+            view.HighlightPath(session.RoutePlan.Cities);
+        }
+        else
+        {
+            view.ClearPathHighlight();
+        }
+    }
+
+    void StartAutoTravel()
+    {
+        if (phase != TravelPhase.None || !view.IsOpen || session == null ||
+            session.RunStatus != PuzzleRunStatus.InProgress || session.RoutePlan == null ||
+            session.RoutePlan.Cities == null || session.RoutePlan.Cities.Count < 2)
+        {
+            return;
+        }
+
+        phase = TravelPhase.AutoTraveling;
+        stopAutoTravelRequested = false;
+        view.SetInteraction(false);
+        view.HideTravelPreview();
+        view.ClearRouteHighlight();
+        if (routePlanPresenter)
+        {
+            routePlanPresenter.SetAutoTraveling(true);
+        }
+        autoTravelRoutine = StartCoroutine(AutoTravelLoop());
+    }
+
+    public void RequestStopAutoTravel()
+    {
+        if (phase == TravelPhase.AutoTraveling)
+        {
+            stopAutoTravelRequested = true;
+            view.ShowInformation(Presentation.RouteAutoTravelStoppingNotice);
+        }
+    }
+
+    IEnumerator AutoTravelLoop()
+    {
+        while (true)
+        {
+            if (session.RunStatus != PuzzleRunStatus.InProgress)
+            {
+                if (session.IsPassingThrough)
+                {
+                    session.StopAtCurrentCity();
+                }
+                session.ReportAutoTravelStopped("run_ended");
+                view.ShowInformation(Presentation.RouteAutoTravelStoppedMessage("run_ended"));
+                EndAutoTravel();
+                yield break;
+            }
+
+            if (stopAutoTravelRequested)
+            {
+                if (session.IsPassingThrough)
+                {
+                    session.StopAtCurrentCity();
+                }
+                session.ReportAutoTravelStopped("user_stopped");
+                view.ShowInformation(Presentation.RouteAutoTravelStoppedMessage("user_stopped"));
+                EndAutoTravel();
+                yield break;
+            }
+
+            var plan = session.RoutePlan;
+            if (plan == null || plan.Cities == null || plan.Cities.Count < 2)
+            {
+                if (session.IsPassingThrough)
+                {
+                    session.StopAtCurrentCity();
+                }
+                session.ReportAutoTravelStopped("failed");
+                view.ShowInformation(Presentation.RouteAutoTravelStoppedMessage("failed"));
+                EndAutoTravel();
+                yield break;
+            }
+
+            var eval = session.EvaluateNextRouteLeg();
+            if (!eval.IsSuccess)
+            {
+                if (session.IsPassingThrough)
+                {
+                    session.StopAtCurrentCity();
+                }
+                string reason = eval.Failure == PuzzleTravelFailure.InsufficientFunds
+                    ? "insufficient_funds"
+                    : "failed";
+                session.ReportAutoTravelStopped(reason);
+                view.ShowInformation(eval.Failure == PuzzleTravelFailure.InsufficientFunds
+                    ? Presentation.PuzzleTravelStatus(eval)
+                    : Presentation.RouteAutoTravelStoppedMessage(reason));
+                EndAutoTravel();
+                yield break;
+            }
+
+            string nextCityId = plan.NextCityId;
+            if (string.IsNullOrEmpty(nextCityId))
+            {
+                if (session.IsPassingThrough)
+                {
+                    session.StopAtCurrentCity();
+                }
+                session.ReportAutoTravelStopped("failed");
+                view.ShowInformation(Presentation.RouteAutoTravelStoppedMessage("failed"));
+                EndAutoTravel();
+                yield break;
+            }
+
+            bool isStopLeg = plan.IsStop(nextCityId);
+            string currentCityName = TableManager.Instance.CityPrice(session.CurrentCityId).displayName;
+            string nextCityName = TableManager.Instance.CityPrice(nextCityId).displayName;
+            travelView.BeginJourney(Presentation.PuzzleTravelJourney(currentCityName, nextCityName));
+
+            float elapsed = 0f;
+            float baseDuration = TableManager.Instance.PuzzleTrade.travelEffectSeconds;
+            float duration = isStopLeg ? baseDuration : Mathf.Max(0.2f, baseDuration * 0.5f);
+            while (elapsed < duration)
+            {
+                elapsed += Time.unscaledDeltaTime;
+                travelView.ShowProgress(Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(elapsed / duration)));
+                yield return null;
+            }
+
+            var travelResult = session.TravelNextRouteLeg(out bool stopped);
+            if (!travelResult.IsSuccess)
+            {
+                if (session.IsPassingThrough)
+                {
+                    session.StopAtCurrentCity();
+                }
+                session.ReportAutoTravelStopped("failed");
+                view.ShowInformation(Presentation.PuzzleTravelStatus(travelResult));
+                EndAutoTravel();
+                yield break;
+            }
+
+            if (stopped)
+            {
+                phase = TravelPhase.Arrived;
+                travelView.ShowArrival();
+                elapsed = 0f;
+                float arrivalDuration = TableManager.Instance.PuzzleTrade.travelArrivalHoldSeconds;
+                while (elapsed < arrivalDuration)
+                {
+                    elapsed += Time.unscaledDeltaTime;
+                    yield return null;
+                }
+                session.ReportAutoTravelStopped("stop_reached");
+                EndAutoTravel();
+                view.Close();
+                yield break;
+            }
+
+            if (stopAutoTravelRequested)
+            {
+                if (session.IsPassingThrough)
+                {
+                    session.StopAtCurrentCity();
+                }
+                session.ReportAutoTravelStopped("user_stopped");
+                view.ShowInformation(Presentation.RouteAutoTravelStoppedMessage("user_stopped"));
+                EndAutoTravel();
+                yield break;
+            }
+
+            if (session.RunStatus != PuzzleRunStatus.InProgress)
+            {
+                if (session.IsPassingThrough)
+                {
+                    session.StopAtCurrentCity();
+                }
+                session.ReportAutoTravelStopped("run_ended");
+                view.ShowInformation(Presentation.RouteAutoTravelStoppedMessage("run_ended"));
+                EndAutoTravel();
+                yield break;
+            }
+
+            Refresh();
+            RefreshRoutePlanHighlight();
+            if (routePlanPresenter)
+            {
+                routePlanPresenter.Refresh();
+            }
+        }
+    }
+
+    void EndAutoTravel()
+    {
+        if (autoTravelRoutine != null)
+        {
+            StopCoroutine(autoTravelRoutine);
+            autoTravelRoutine = null;
+        }
+        stopAutoTravelRequested = false;
+        phase = TravelPhase.None;
+        travelView.Close();
+        view.SetInteraction(true);
+        if (routePlanPresenter)
+        {
+            routePlanPresenter.SetAutoTraveling(false);
+            routePlanPresenter.Refresh();
+        }
+        Refresh();
+        RefreshRoutePlanHighlight();
     }
 
     void OnPanelVisibility(GameEvents.PanelInfo _info)

@@ -30,6 +30,7 @@ public sealed class PauseMenu : PanelBase
     PuzzleTradeNotebookView notebookView;
     PuzzleStationActionsPresenter stationPresenter;
     EntityContextMenuPresenter linkMenu;
+    MapSearchPresenter searchPresenter;
 
     internal bool CanShowCompletion => isActiveAndEnabled && !IsOpen && restartButton && panelTitle && panelHint;
 
@@ -160,6 +161,13 @@ public sealed class PauseMenu : PanelBase
 
     bool TryConsumeScreenStep()
     {
+        // 지도 검색 칸 -> 비우고 닫고 포커스 해제
+        var search = Resolve(ref searchPresenter);
+        if (search && search.TryConsumeCancel())
+        {
+            return true;
+        }
+
         // 0. 고유명사 우클릭 메뉴 -> 닫기
         var menu = Resolve(ref linkMenu);
         if (menu && menu.TryConsumeCancel())
