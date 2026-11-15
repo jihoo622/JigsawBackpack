@@ -1458,8 +1458,8 @@
       "texts": [
         {
           "id": "actionRumor",
-          "value": "{0}에서 {1}이 가능하다던데..",
-          "arguments": 2
+          "value": "{0}에서 {1}{2} 가능하다던데...",
+          "arguments": 3
         },
         {
           "id": "actionsTitle",

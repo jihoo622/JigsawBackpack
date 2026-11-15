@@ -739,7 +739,7 @@ public static class BasicDataContract
             { "presentation.rumorLog.separator", 0 },
             { "presentation.rumorLog.time", 3 },
             { "presentation.rumorLog.title", 0 },
-            { "presentation.station.actionRumor", 2 },
+            { "presentation.station.actionRumor", 3 },
             { "presentation.station.actionsTitle", 0 },
             { "presentation.station.back", 0 },
             { "presentation.station.market", 0 },

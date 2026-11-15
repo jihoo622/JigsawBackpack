@@ -122,6 +122,10 @@ public sealed class PuzzleItemTooltipView : PanelBase
         }
 
         EnsureInitialized();
+        if (synergySection)
+        {
+            synergySection.SetActive(false);
+        }
         needsSnap = true;
         SetOpen(true);
 
@@ -169,8 +173,9 @@ public sealed class PuzzleItemTooltipView : PanelBase
 
         UpdateEffectSection(generalEffectSection, generalEffectHeaderText, generalEffectSlots, _generalEffects,
             Presentation.PuzzleTooltipGeneralEffectHeader(), _showEmpty: (_synergyEffects?.Count ?? 0) == 0);
-        UpdateEffectSection(synergySection, synergyHeaderText, synergySlots, _synergyEffects,
-            Presentation.PuzzleTooltipValueSynergyHeader(), _showEmpty: false);
+        // 인접 가치 시너지 비활성화 버전: 가능 인접 효과 영역을 표시하지 않는다(위에서 숨김).
+        // UpdateEffectSection(synergySection, synergyHeaderText, synergySlots, _synergyEffects,
+        //     Presentation.PuzzleTooltipValueSynergyHeader(), _showEmpty: false);
 
         if (futureValueLabelText || futureValueValueText)
         {
