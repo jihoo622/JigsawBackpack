@@ -926,7 +926,7 @@
         },
         {
           "id": "informationText10",
-          "value": "<pos=50%><color=#{0}><b>귀한 자원</b></color>   {1}\n",
+          "value": "<pos=50%><color=#{0}><b>선호 130%</b></color>   {1}\n",
           "arguments": 2
         },
         {
@@ -952,7 +952,7 @@
         },
         {
           "id": "informationText16",
-          "value": "<color=#{0}><b>희귀 자원</b></color>   {1}",
+          "value": "<color=#{0}><b>희귀 150%</b></color>   {1}",
           "arguments": 2
         },
         {
@@ -992,7 +992,7 @@
         },
         {
           "id": "informationText9",
-          "value": "<color=#{0}><b>흔한 자원</b></color>   {1}",
+          "value": "<color=#{0}><b>풍부 70%</b></color>   {1}",
           "arguments": 2
         },
         {
@@ -2498,12 +2498,12 @@
       "texts": [
         {
           "id": "cityTagPreferences",
-          "value": "<color=#{0}><b><link=\"common\">흔한 자원</link></b></color>   {1}\n",
+          "value": "<color=#{0}><b><link=\"common\">풍부 70%</link></b></color>   {1}\n",
           "arguments": 2
         },
         {
           "id": "cityTagPreferencesText2",
-          "value": "<color=#{0}><b><link=\"expensive\">귀한 자원</link></b></color>   {1}\n",
+          "value": "<color=#{0}><b><link=\"expensive\">선호 130%</link></b></color>   {1}\n",
           "arguments": 2
         },
         {
@@ -2516,7 +2516,7 @@
         },
         {
           "id": "cityTagPreferencesText5",
-          "value": "<color=#{0}><b><link=\"rare\">희귀 자원</link></b></color>   {1}\n",
+          "value": "<color=#{0}><b><link=\"rare\">희귀 150%</link></b></color>   {1}\n",
           "arguments": 2
         },
         {
@@ -2526,7 +2526,7 @@
         },
         {
           "id": "commonResourceTitle",
-          "value": "흔한 자원"
+          "value": "풍부 70%"
         },
         {
           "id": "commonResourceTooltip",
@@ -2534,7 +2534,7 @@
         },
         {
           "id": "expensiveResourceTitle",
-          "value": "귀한 자원"
+          "value": "선호 130%"
         },
         {
           "id": "expensiveResourceTooltip",
@@ -2542,7 +2542,7 @@
         },
         {
           "id": "rareResourceTitle",
-          "value": "희귀 자원"
+          "value": "희귀 150%"
         },
         {
           "id": "rareResourceTooltip",

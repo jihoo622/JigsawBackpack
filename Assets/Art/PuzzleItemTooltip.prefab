@@ -369,6 +369,7 @@ GameObject:
   m_Component:
   - component: {fileID: 96981325}
   - component: {fileID: 96981327}
+  - component: {fileID: 910000000000000001}
   m_Layer: 0
   m_Name: CategoryRow
   m_TagString: Untagged
@@ -1038,6 +1039,7 @@ GameObject:
   - component: {fileID: 524167037}
   - component: {fileID: 524167035}
   - component: {fileID: 524167034}
+  - component: {fileID: 910000000000000003}
   m_Layer: 0
   m_Name: Badge_1
   m_TagString: Untagged
@@ -2291,6 +2293,7 @@ GameObject:
   - component: {fileID: 839602795}
   - component: {fileID: 839602793}
   - component: {fileID: 839602792}
+  - component: {fileID: 910000000000000002}
   m_Layer: 0
   m_Name: Badge_0
   m_TagString: Untagged
@@ -2841,6 +2844,7 @@ GameObject:
   - component: {fileID: 1246902195}
   - component: {fileID: 1246902193}
   - component: {fileID: 1246902192}
+  - component: {fileID: 910000000000000004}
   m_Layer: 0
   m_Name: Badge_2
   m_TagString: Untagged
@@ -3510,15 +3514,7 @@ MonoBehaviour:
   canvasGroup: {fileID: 1424905559}
   pointer: {fileID: 1832332286}
   itemNameText: {fileID: 2109250324}
-  categoryRow: {fileID: 96981325}
-  categoryBadgeImages:
-  - {fileID: 839602795}
-  - {fileID: 524167037}
-  - {fileID: 1246902195}
-  categoryBadgeTexts:
-  - {fileID: 1765795753}
-  - {fileID: 1864637190}
-  - {fileID: 1871920276}
+  categoryBadgeGroup: {fileID: 910000000000000001}
   bodyRect: {fileID: 1991297859}
   baseValueLabelText: {fileID: 492260224402133874}
   baseValueValueText: {fileID: 5609784503651640077}
@@ -3578,7 +3574,6 @@ MonoBehaviour:
   shelfLifeLabelText: {fileID: 5300000000000000107}
   shelfLifeValueText: {fileID: 5300000000000000109}
   defaultFollowSpeed: 25
-  badgeBlend: 0.35
   pointerOffset: 24
   pointerTopInset: 32
   pointerEdgeInset: 20
@@ -11161,3 +11156,75 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+
+--- !u!114 &910000000000000001
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 96981324}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 39e261fc0dc44e0fa7664c559a6b6bcc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TagBadgeGroup
+  badgePrefab: {fileID: 100000000000000007, guid: d819369c810b4272b39369db202ca7f8, type: 3}
+  slots:
+  - {fileID: 910000000000000002}
+  - {fileID: 910000000000000003}
+  - {fileID: 910000000000000004}
+  emptyLabel: {fileID: 0}
+  emptyText: 
+  badgeBlend: 0.35
+  fontSizeOverride: 16
+  hideWhenEmpty: 1
+  maxVisibleCount: 0
+--- !u!114 &910000000000000002
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 839602790}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2d0374033384401fb5c758765d81c6fb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TagBadgeView
+  plate: {fileID: 839602795}
+  label: {fileID: 1765795753}
+  defaultBlend: 0.35
+  fontSizeOverride: 0
+--- !u!114 &910000000000000003
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 524167032}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2d0374033384401fb5c758765d81c6fb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TagBadgeView
+  plate: {fileID: 524167037}
+  label: {fileID: 1864637190}
+  defaultBlend: 0.35
+  fontSizeOverride: 0
+--- !u!114 &910000000000000004
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1246902190}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2d0374033384401fb5c758765d81c6fb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TagBadgeView
+  plate: {fileID: 1246902195}
+  label: {fileID: 1871920276}
+  defaultBlend: 0.35
+  fontSizeOverride: 0

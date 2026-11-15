@@ -1302,7 +1302,14 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         }
         if (marketView)
         {
-            marketView.ShowBoardInfo(Presentation.PuzzleCityTagPreferences(session.CityData));
+            if (marketView.HasTradePreferences)
+            {
+                marketView.ShowBoardTradePreferences(Presentation.GetCityTradePreferences(session.CityData));
+            }
+            else
+            {
+                marketView.ShowBoardInfo(Presentation.PuzzleCityTagPreferences(session.CityData));
+            }
         }
     }
 
