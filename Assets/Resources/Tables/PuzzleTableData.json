@@ -1934,8 +1934,8 @@
           {
             "id": "city.osgrad.stock.1",
             "pieceId": "piece.beef",
-            "x": 4,
-            "y": 1,
+            "x": 2,
+            "y": 3,
             "clockwiseTurns": 0
           },
           {
@@ -1943,6 +1943,27 @@
             "pieceId": "piece.beef",
             "x": 0,
             "y": 3,
+            "clockwiseTurns": 0
+          },
+          {
+            "id": "city.osgrad.stock.3",
+            "pieceId": "piece.beef",
+            "x": 1,
+            "y": 1,
+            "clockwiseTurns": 0
+          },
+          {
+            "id": "city.osgrad.stock.4",
+            "pieceId": "piece.beef",
+            "x": 1,
+            "y": 3,
+            "clockwiseTurns": 0
+          },
+          {
+            "id": "city.osgrad.stock.5",
+            "pieceId": "piece.beef",
+            "x": 2,
+            "y": 1,
             "clockwiseTurns": 0
           }
         ]
@@ -3256,34 +3277,59 @@
     {
       "id": "city.sera",
       "displayName": "세르아",
-      "regionId": "region.common",
-      "specialtyTag": "",
+      "regionId": "region.ranch",
+      "specialtyTag": "Animal",
       "buyEnabled": true,
       "sellEnabled": true,
       "buyPercentOfBaseValue": 100,
       "sellPercentOfFinalValue": 100,
-      "tagPrices": [],
+      "tagPrices": [
+        {
+          "tag": "Animal",
+          "priority": 1000,
+          "buyPercent": 70,
+          "sellGradeId": "Common"
+        },
+        {
+          "tag": "Metal",
+          "priority": 200,
+          "buyPercent": 130,
+          "sellGradeId": "Expensive"
+        },
+        {
+          "tag": "Grain",
+          "priority": 201,
+          "buyPercent": 130,
+          "sellGradeId": "Expensive"
+        },
+        {
+          "tag": "Fish",
+          "priority": 202,
+          "buyPercent": 150,
+          "sellGradeId": "Rare"
+        }
+      ],
       "market": {
         "width": 7,
         "height": 6,
         "startingPlacements": [
           {
             "id": "city.sera.stock.0",
-            "pieceId": "piece.box",
+            "pieceId": "piece.cow",
             "x": 0,
             "y": 1,
             "clockwiseTurns": 0
           },
           {
             "id": "city.sera.stock.1",
-            "pieceId": "piece.verticalTabs",
+            "pieceId": "piece.cow",
             "x": 4,
             "y": 1,
             "clockwiseTurns": 0
           },
           {
             "id": "city.sera.stock.2",
-            "pieceId": "piece.topNotch",
+            "pieceId": "piece.cow",
             "x": 0,
             "y": 3,
             "clockwiseTurns": 0
@@ -3291,7 +3337,7 @@
         ]
       },
       "generalStockId": "stock.general",
-      "regionalStockId": "stock.hub",
+      "regionalStockId": "stock.ranch",
       "mapLabelImportance": 240
     },
     {
