@@ -1060,6 +1060,12 @@ public static class Presentation
             _intervalDays, _wasteName, _count));
     }
 
+    internal static string PuzzleCombinationEffect(string _description, long _minutes, string _resultName)
+    {
+        return PuzzleTooltipEffectDescription(string.Format(_description,
+            PuzzleMapTime(_minutes), _resultName));
+    }
+
     internal static string PuzzleFreshnessDot => BasicData.Text("presentation.freshness.dot");
 
     internal static Color PuzzleFreshnessOutline => BasicData.Color("presentation.freshness.outline");

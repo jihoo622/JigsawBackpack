@@ -52,6 +52,12 @@ public sealed class PuzzleInventory
         return placements[_instanceId].FreshnessAdjustedValue;
     }
 
+    // 이 보드에 해당 인스턴스가 아직 있는지. 미리보기 진행에서 소모된 품목의 값을 안전하게 처리할 때 쓴다.
+    internal bool HasPlacement(int _instanceId)
+    {
+        return placements.ContainsKey(_instanceId);
+    }
+
     internal bool TryInstallWagonModification(PuzzleWagonModification _modification)
     {
         return !wagonModifications.ContainsKey(_modification.Id) && _modification.CanInstallOn(this) &&
@@ -85,6 +91,11 @@ public sealed class PuzzleInventory
 
     internal void CommitTimeAdvance(PuzzleInventory _staged)
     {
+        // 계획에서 사라진 입력(조합 소모)은 원본에도 남기지 않는다. 점유는 아래에서 사본대로 다시 채운다.
+        foreach (int instanceId in placements.Keys.Where(_id => !_staged.placements.ContainsKey(_id)).ToArray())
+        {
+            placements.Remove(instanceId);
+        }
         occupancy.Clear();
         foreach (var staged in _staged.placements.Values)
         {
@@ -508,6 +519,56 @@ public sealed class PuzzleInventory
         placements.Remove(_placement.InstanceId);
         RecalculateValue();
         return true;
+    }
+
+    // 조합 완료 판정. 두 입력이 이 보드의 현재 인스턴스이고 상하좌우로 붙어 있으며, 결과를 자리를
+    // 이어받는 입력의 칸에 그대로 놓을 수 있을 때만 참이다. 상태는 바꾸지 않는다.
+    internal bool CanCombine(PuzzlePlacement _source, PuzzlePlacement _partner, PuzzleItemDefinition _result)
+    {
+        if (_source == null || _partner == null || _result == null || ReferenceEquals(_source, _partner) ||
+            !ReferenceEquals(_source.Owner, this) || !ReferenceEquals(_partner.Owner, this) ||
+            !IsCurrentPlacement(_source) || !IsCurrentPlacement(_partner) ||
+            !SameLocalCells(_source.Definition.Cells, _result.Cells) ||
+            !PuzzleRefrigeration.TryGetContact(_source, _partner, out _))
+        {
+            return false;
+        }
+
+        // 결과가 앉을 칸은 이번 조합으로 비는 두 입력의 칸이어야 한다. 다른 물건이 끼어 있으면 성립하지 않는다.
+        foreach (var cell in _source.Pose.Cells)
+        {
+            if (!occupancy.TryGetValue(cell.Position, out var occupant) ||
+                (occupant.InstanceId != _source.InstanceId && occupant.InstanceId != _partner.InstanceId))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    // 두 입력을 소모해 결과 하나를 만든다. 결과는 자리를 이어받는 입력의 자리·회전을 이어받고 새 인스턴스로
+    // 태어나므로 보유 시간과 신선도 나이는 0부터 시작한다. 실패하면 입력도 보드도 그대로다.
+    internal bool TryCombine(PuzzlePlacement _source, PuzzlePlacement _partner, PuzzleItemDefinition _result,
+        ref int _lastInstanceId)
+    {
+        if (!CanCombine(_source, _partner, _result))
+        {
+            return false;
+        }
+
+        PuzzlePose pose = _source.Pose;
+        ClearOccupancy(_source);
+        ClearOccupancy(_partner);
+        placements.Remove(_source.InstanceId);
+        placements.Remove(_partner.InstanceId);
+        PlaceSpawnedItem(_result, checked(++_lastInstanceId), pose);
+        return true;
+    }
+
+    bool IsCurrentPlacement(PuzzlePlacement _placement)
+    {
+        return placements.TryGetValue(_placement.InstanceId, out var current) && ReferenceEquals(current, _placement);
     }
 
     internal PuzzlePose GetDragPose(PuzzleItemDefinition _definition, Vector2Int _grabbedCell, int _clockwiseTurns)

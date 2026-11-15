@@ -132,12 +132,16 @@
   "animals": {
     "animalTag": "Animal",
     "wasteTag": "Waste",
+    "grainTag": "Grain",
     "wastePieceId": "piece.poo",
     "wasteDescription": "{0}일마다 객차 빈 칸에 {1} {2}개 생성",
     "wasteIntervalDays": 1,
     "wasteCountPerAnimal": 1,
     "breedingHours": 48,
     "completionHoldHours": 1,
+    "feedIntervalHours": 3,
+    "feedReductionHours": 24,
+    "note": "grainTag·feedIntervalHours·feedReductionHours는 소·송아지의 곡물 섭취 규칙 원본이다. 같은 객차에서 grainTag 품목을 feedIntervalHours마다 하나 소비하고, 소는 번식 쌍의 진행을 송아지는 자신의 성장을 feedReductionHours만큼 앞당긴다. 섭취 대상은 animalTag 품목이며 번식 가능한 짝이 없거나 공간 부족 대기 중이면 소비하지 않는다.",
     "breeding": [
       {
         "parentPieceId": "piece.cow",

@@ -55,6 +55,7 @@ public static class ItemEditorStore
         AddTable<FlowTableData>(source);
         AddTable<PuzzleTableData>(source);
         AddTable<PuzzleSynergyTableData>(source);
+        AddTable<PuzzleCombinationTableData>(source);
         AddTable<PuzzleCityActionTableData>(source);
         AddTable<PuzzleTradeTableData>(source);
         AddTable<PuzzleRumorTableData>(source);
@@ -305,9 +306,9 @@ public static class ItemEditorStore
                 {
                     review.pieces.Add(id + (isNew ? " (신규, 시장 자동 등록 없음)" : " (수정)"));
                 }
-                if (isNew && (bool?)piece["excludeFromMarket"] != true)
+                if (isNew && (bool?)piece["excludeFromMarket"] != true && !IsCombinationResult(sources, id))
                 {
-                    review.errors.Add(id + ": 새 품목은 excludeFromMarket: true로 저장해야 합니다.");
+                    review.errors.Add(id + ": 새 품목은 excludeFromMarket: true로 저장하거나 조합 규칙의 결과로 등록해야 합니다.");
                 }
                 if (!icons.TryGetValue(id, out var matches) || matches.Length != 1)
                 {
@@ -403,6 +404,18 @@ public static class ItemEditorStore
             sources[typeof(PuzzleSynergyTableData)] = _draft.synergy;
         }
         return sources;
+    }
+
+    // 조합 규칙의 결과로 등록한 품목은 조합으로만 늘어나므로 시장 재고 자동 추가 대상이 아니다.
+    // 이 경우 신규 품목이라도 원본과 같은 excludeFromMarket 값을 유지할 수 있다.
+    static bool IsCombinationResult(IReadOnlyDictionary<Type, string> _sources, string _id)
+    {
+        if (string.IsNullOrEmpty(_id) || !_sources.TryGetValue(typeof(PuzzleCombinationTableData), out string json))
+        {
+            return false;
+        }
+        return ((JObject.Parse(json)["rules"] as JArray ?? new JArray()).OfType<JObject>())
+            .Any(_rule => (string)_rule["resultPieceId"] == _id);
     }
 
     static void ReviewBreeding(ItemEditorSource _source, ItemEditorDraft _draft, ItemEditorSaveReview _review)

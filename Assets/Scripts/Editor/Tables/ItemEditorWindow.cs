@@ -355,19 +355,16 @@ public sealed partial class ItemEditorWindow : EditorWindow
             Change("품목 기본 가치", () => piece["baseValue"] = nextValue);
         }
         EditorGUILayout.LabelField("음수 가치 허용 · -1은 누락 판정값", EditorStyles.wordWrappedMiniLabel);
-        using (new EditorGUI.DisabledScope(isNew))
+        bool excluded = (bool?)piece["excludeFromMarket"] ?? false;
+        MarkValidationField("excludeFromMarket");
+        bool nextExcluded = EditorGUILayout.Toggle("자동 시장 재고에서 제외", excluded);
+        if (excluded != nextExcluded)
         {
-            bool excluded = (bool?)piece["excludeFromMarket"] ?? false;
-            MarkValidationField("excludeFromMarket");
-            bool nextExcluded = EditorGUILayout.Toggle("자동 시장 재고에서 제외", excluded);
-            if (excluded != nextExcluded)
-            {
-                Change("시장 재고 제외", () => piece["excludeFromMarket"] = nextExcluded);
-            }
+            Change("시장 재고 제외", () => piece["excludeFromMarket"] = nextExcluded);
         }
         if (isNew)
         {
-            EditorGUILayout.HelpBox("새 품목은 미출시 상태로 저장합니다. 시작 객차와 시장 재고에는 자동 추가하지 않습니다.", MessageType.None);
+            EditorGUILayout.HelpBox("새 품목은 시작 객차와 시장 재고에 자동 추가하지 않습니다. 조합 규칙의 결과가 아닌 새 품목은 시장 재고 제외를 켠 상태로 저장하세요.", MessageType.None);
         }
         DrawDefinitionFields(piece);
         EditorGUILayout.Space();

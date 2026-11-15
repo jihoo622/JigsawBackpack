@@ -56,6 +56,14 @@ public sealed class PuzzleSynergyTableData
     public PuzzleFreshnessData freshness;
 }
 
+// 같은 객차에서 인접한 품목 두 개를 정해진 시간 후 하나로 바꾸는 공용 조합 규칙. 진행 상태는 세션이 가진다.
+[Serializable]
+public sealed class PuzzleCombinationTableData
+{
+    public string status, note;
+    public PuzzleCombinationRuleData[] rules = Array.Empty<PuzzleCombinationRuleData>();
+}
+
 // 특산 소문 후보에서 제외할 품목.
 [Serializable]
 public sealed class PuzzleRumorTableData

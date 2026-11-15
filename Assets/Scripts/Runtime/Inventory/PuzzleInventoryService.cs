@@ -79,6 +79,10 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
     Dictionary<(int First, int Second), BreedingState> breedingProgress = new();
     // 동물 인스턴스 ID별 배설 진행. 대기 상태를 포함해 씬 안에서만 살며 플레이어에게 표시하지 않는다.
     Dictionary<int, WasteState> wasteProgress = new();
+    // 조합 진행. 두 입력 인스턴스 ID를 작은 쪽 먼저 정렬한 키로 관리하며 씬 안에서만 산다.
+    Dictionary<(int First, int Second), long> combinationProgress = new();
+    // 동물 인스턴스 ID별 곡물 섭취 진행(현재 3시간 주기 내 경과 분). 배설과 같이 씬 안에서만 산다.
+    Dictionary<int, long> feedingProgress = new();
     // 도시별 도축대. 행동이 없는 도시는 항목을 만들지 않는다.
     readonly Dictionary<string, PuzzleButcheryState> butcheries = new Dictionary<string, PuzzleButcheryState>(StringComparer.Ordinal);
     // 도시별 정제대. 도축과 독립적인 보드·진행 상태를 가지며 행동이 없는 도시는 항목을 만들지 않는다.
@@ -368,6 +372,8 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         trainWagons.Add(train);
         breedingProgress.Clear();
         wasteProgress.Clear();
+        combinationProgress.Clear();
+        feedingProgress.Clear();
         CurrentWagonIndex = 0;
         butcheries.Clear();
         modifications.Clear();
@@ -581,7 +587,9 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
             return null;
         }
 
-        return plan.wagons[wagonIndex].FreshnessAdjustedValueOf(_item.InstanceId);
+        // 미리보기 진행에서 곡물 섭취·조합으로 소모된 품목은 미래 가치가 없다. 원본은 건드리지 않는다.
+        PuzzleInventory staged = plan.wagons[wagonIndex];
+        return staged.HasPlacement(_item.InstanceId) ? staged.FreshnessAdjustedValueOf(_item.InstanceId) : (decimal?)null;
     }
 
     sealed class TimeAdvancePlan
@@ -589,17 +597,23 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         internal readonly PuzzleInventory[] wagons;
         internal Dictionary<(int First, int Second), BreedingState> breedingProgress;
         internal Dictionary<int, WasteState> wasteProgress;
+        internal Dictionary<(int First, int Second), long> combinationProgress;
+        internal Dictionary<int, long> feedingProgress;
         internal int lastInstanceId;
         internal decimal? cargoValueBeforeSettlement;
         internal decimal? cargoValueBeforeFreshnessLoss;
 
         internal TimeAdvancePlan(PuzzleInventory[] _wagons,
             Dictionary<(int First, int Second), BreedingState> _breedingProgress,
-            Dictionary<int, WasteState> _wasteProgress, int _lastInstanceId)
+            Dictionary<int, WasteState> _wasteProgress,
+            Dictionary<(int First, int Second), long> _combinationProgress,
+            Dictionary<int, long> _feedingProgress, int _lastInstanceId)
         {
             wagons = _wagons;
             breedingProgress = _breedingProgress;
             wasteProgress = _wasteProgress;
+            combinationProgress = _combinationProgress;
+            feedingProgress = _feedingProgress;
             lastInstanceId = _lastInstanceId;
         }
     }
@@ -610,11 +624,13 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         try
         {
             long arrival = Time.ArrivalAt(_minutes);
-            // 시간 진행이 거부되거나 미리보기인 경우 원본 객차와 번식·배설 상태를 바꾸지 않는다.
+            // 시간 진행이 거부되거나 미리보기인 경우 원본 객차와 번식·배설·조합 상태를 바꾸지 않는다.
             var wagons = trainWagons.Select(_wagon => _wagon.CopyForTimeAdvance()).ToArray();
             var plan = new TimeAdvancePlan(wagons,
                 new Dictionary<(int First, int Second), BreedingState>(breedingProgress),
-                new Dictionary<int, WasteState>(wasteProgress), lastInstanceId);
+                new Dictionary<int, WasteState>(wasteProgress),
+                new Dictionary<(int First, int Second), long>(combinationProgress),
+                new Dictionary<int, long>(feedingProgress), lastInstanceId);
             var animals = tables.PuzzleSynergy.animals;
             var waste = definitions[animals.wastePieceId];
             var expiredFood = definitions[ExpiredFoodPieceId];
@@ -622,6 +638,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
             long breedingMinutes = (long)animals.breedingHours * PuzzleTimeManager.MINUTES_PER_HOUR;
             long wasteMinutes = (long)animals.wasteIntervalDays * PuzzleTimeManager.MINUTES_PER_DAY;
             long holdMinutes = (long)animals.completionHoldHours * PuzzleTimeManager.MINUTES_PER_HOUR;
+            long feedIntervalMinutes = (long)animals.feedIntervalHours * PuzzleTimeManager.MINUTES_PER_HOUR;
             long synergyInterval = SynergyIntervalMinutes;
             var freshness = tables.PuzzleSynergy.freshness;
             var preservation = CreatePreservation(freshness);
@@ -637,13 +654,18 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
             while (cursor < arrival)
             {
                 EnsureWasteStates(plan, wagons, animals, wasteMinutes, cursor);
+                EnsureFeedingStates(plan, wagons, animals, feedIntervalMinutes);
                 var pairs = SelectBreedingPairs(wagons, plan.breedingProgress);
+                var combinations = SelectCombinationPairs(wagons, plan.combinationProgress);
                 long step = Math.Min(arrival - cursor, MinutesUntilCargoChange(wagons, preservation));
                 step = Math.Min(step, MinutesUntilBirth(pairs, breedingMinutes, animalEventsThrough - cursor));
                 step = Math.Min(step, MinutesUntilWaste(wagons, plan.wasteProgress, animals.animalTag, wasteMinutes,
                     animalEventsThrough - cursor));
+                step = Math.Min(step, MinutesUntilCombination(combinations));
+                step = Math.Min(step, MinutesUntilFeeding(wagons, plan.feedingProgress, animals.animalTag,
+                    feedIntervalMinutes, animalEventsThrough - cursor));
                 long boundary = cursor + step;
-                // 같은 시각에는 정산, 배설, 식품 만료, 성장, 출산 순으로 처리한다.
+                // 같은 시각에는 정산, 배설, 식품 만료, 조합, 곡물 섭취, 성장, 출산 순으로 처리한다.
                 long activations = boundary / synergyInterval - cursor / synergyInterval;
                 foreach (var wagon in wagons)
                 {
@@ -670,7 +692,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
                     AdvanceWaste(plan, wagons, animals, waste, wasteMinutes, holdMinutes, step);
                 }
 
-                growth.Clear();
+                // 만료를 섭취보다 먼저 처리해 부패로 바뀐 곡물을 먹지 않게 한다.
                 foreach (var wagon in wagons)
                 {
                     decimal valueBeforeExpiry = wagon == selectedWagon
@@ -680,7 +702,21 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
                     {
                         freshnessDelta += wagon.Placements.Sum(_item => _item.FreshnessAdjustedValue) - valueBeforeExpiry;
                     }
-                    // 공간이 없는 성장은 전체 진행을 거절하지 않고 그 품목만 대기한다.
+                }
+
+                // 만료로 입력이 바뀐 조합은 처리하지 않는다. 같은 시각의 절임 완료를 섭취보다 먼저 반영한다.
+                AdvanceCombinations(plan, combinations, step);
+
+                // 곡물 섭취와 가속은 성장·출산보다 먼저 처리한다. 섭취로 빈 칸이 성장 자리로 쓰인다.
+                if (animalEvents)
+                {
+                    AdvanceFeeding(plan, wagons, animals, step, feedIntervalMinutes);
+                }
+
+                // 공간이 없는 성장은 전체 진행을 거절하지 않고 그 품목만 대기한다.
+                growth.Clear();
+                foreach (var wagon in wagons)
+                {
                     wagon.PlanGrowth(growth);
                 }
                 foreach (var change in growth)
@@ -928,6 +964,31 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         return false;
     }
 
+    // 표시가 읽는 조합 진행. 쌍 선택 규칙을 그대로 쓰므로 같은 쌍의 두 입력은 같은 규칙과 경과 시간을 본다.
+    // 규칙을 함께 돌려 여러 규칙에 걸린 품목은 실제로 맺힌 쌍의 설명에만 진행도를 붙인다.
+    internal bool TryGetCombinationProgress(PuzzlePlacement _placement, out PuzzleCombinationRuleData _rule,
+        out long _elapsedMinutes)
+    {
+        _rule = null;
+        _elapsedMinutes = 0;
+        if (_placement == null || !trainWagons.Contains(_placement.Owner))
+        {
+            return false;
+        }
+
+        foreach (var pair in SelectCombinationPairs(trainWagons.ToArray(), combinationProgress))
+        {
+            if (pair.key.First == _placement.InstanceId || pair.key.Second == _placement.InstanceId)
+            {
+                _rule = pair.rule;
+                _elapsedMinutes = pair.elapsedMinutes;
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     static long MinutesUntilBirth(List<BreedingPair> _pairs, long _breedingMinutes, long _minutesUntilDeadline)
     {
         long next = long.MaxValue;
@@ -979,6 +1040,124 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
             progress.Add(pair.key, new BreedingState(elapsed, blocked));
         }
         _plan.breedingProgress = progress;
+    }
+
+    // 인접 두 품목의 조합 진행. 결과는 자리를 이어받는 입력의 칸에 그대로 들어가므로 공간 대기가 없고
+    // 경과 분만 이어간다. 키는 두 입력의 인스턴스 ID를 정렬해 쌍의 순서와 무관하게 본다.
+    readonly struct CombinationPair
+    {
+        internal readonly (int First, int Second) key;
+        internal readonly PuzzleCombinationRuleData rule;
+        internal readonly PuzzlePlacement source;
+        internal readonly PuzzlePlacement partner;
+        internal readonly PuzzleInventory wagon;
+        internal readonly PuzzleItemDefinition result;
+        internal readonly long requiredMinutes;
+        internal readonly long elapsedMinutes;
+
+        internal CombinationPair(PuzzlePlacement _source, PuzzlePlacement _partner, PuzzleInventory _wagon,
+            PuzzleCombinationRuleData _rule, PuzzleItemDefinition _result, long _elapsedMinutes)
+        {
+            key = CombinationKey(_source.InstanceId, _partner.InstanceId);
+            rule = _rule;
+            source = _source;
+            partner = _partner;
+            wagon = _wagon;
+            result = _result;
+            requiredMinutes = (long)_rule.requiredHours * PuzzleTimeManager.MINUTES_PER_HOUR;
+            elapsedMinutes = _elapsedMinutes;
+        }
+    }
+
+    static (int First, int Second) CombinationKey(int _left, int _right)
+    {
+        return _left <= _right ? (First: _left, Second: _right) : (First: _right, Second: _left);
+    }
+
+    // 규칙과 두 품목 ID로 조합 가능한 쌍을 고른다. 번식과 같이 기존 쌍을 먼저, 나머지는 인스턴스 ID순으로
+    // 두고 한 품목이 여러 쌍에 동시에 들어가지 않게 한다. 인접 판정도 냉장과 같은 조건을 쓴다.
+    List<CombinationPair> SelectCombinationPairs(PuzzleInventory[] _wagons,
+        Dictionary<(int First, int Second), long> _previous)
+    {
+        var candidates = new List<CombinationPair>();
+        foreach (var wagon in _wagons)
+        {
+            var items = wagon.Placements.OrderBy(_item => _item.InstanceId).ToArray();
+            for (int i = 0; i < items.Length; i++)
+            {
+                var first = items[i];
+                for (int j = i + 1; j < items.Length; j++)
+                {
+                    var second = items[j];
+                    if (!tables.TryGetCombinationBetween(first.Definition.Id, second.Definition.Id, out var rule,
+                        out bool firstIsSource) || !Touches(first, second))
+                    {
+                        continue;
+                    }
+
+                    var source = firstIsSource ? first : second;
+                    var partner = firstIsSource ? second : first;
+                    _previous.TryGetValue(CombinationKey(source.InstanceId, partner.InstanceId), out long elapsed);
+                    candidates.Add(new CombinationPair(source, partner, wagon, rule, definitions[rule.resultPieceId],
+                        elapsed));
+                }
+            }
+        }
+
+        var pairedIds = new HashSet<int>();
+        var pairs = new List<CombinationPair>();
+        foreach (var candidate in candidates.OrderByDescending(_pair => _previous.ContainsKey(_pair.key))
+            .ThenBy(_pair => _pair.key.First).ThenBy(_pair => _pair.key.Second))
+        {
+            if (pairedIds.Contains(candidate.key.First) || pairedIds.Contains(candidate.key.Second))
+            {
+                continue;
+            }
+            pairedIds.Add(candidate.key.First);
+            pairedIds.Add(candidate.key.Second);
+            pairs.Add(candidate);
+        }
+        return pairs;
+    }
+
+    static long MinutesUntilCombination(List<CombinationPair> _pairs)
+    {
+        long next = long.MaxValue;
+        foreach (var pair in _pairs)
+        {
+            long remaining = pair.requiredMinutes - pair.elapsedMinutes;
+            if (remaining < next)
+            {
+                next = remaining;
+            }
+        }
+
+        return Math.Max(1, next);
+    }
+
+    // 조합 완료 시각에 두 입력을 소모한다. 만료·대체로 입력이 바뀌었다면 조합하지 않고 진행을 처음부터 세고,
+    // 소모에 성공한 쌍은 진행을 남기지 않는다.
+    void AdvanceCombinations(TimeAdvancePlan _plan, List<CombinationPair> _pairs, long _step)
+    {
+        var progress = new Dictionary<(int First, int Second), long>();
+        foreach (var pair in _pairs)
+        {
+            long elapsed = pair.elapsedMinutes + _step;
+            if (elapsed >= pair.requiredMinutes)
+            {
+                if (!pair.wagon.TryCombine(pair.source, pair.partner, pair.result, ref _plan.lastInstanceId))
+                {
+                    elapsed = 0;
+                }
+            }
+
+            if (elapsed < pair.requiredMinutes)
+            {
+                progress[pair.key] = elapsed;
+            }
+        }
+
+        _plan.combinationProgress = progress;
     }
 
     // 배설 진행도가 없는 동물은 이번 시각 이후 처음 맞는 달력 경계에 첫 발생을 맞춘다.
@@ -1063,6 +1242,140 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         _plan.wasteProgress = progress;
     }
 
+    // 곡물 섭취는 소유 시각에서 3시간 주기로 돌아간다. 진행도가 없는 개체는 현재 보유 시간으로 주기를 맞춘다.
+    void EnsureFeedingStates(TimeAdvancePlan _plan, PuzzleInventory[] _wagons, PuzzleAnimalSynergyData _animals,
+        long _cycleMinutes)
+    {
+        foreach (var wagon in _wagons)
+        {
+            foreach (var animal in wagon.Placements)
+            {
+                if (animal.Definition.Tags.Contains(_animals.animalTag) &&
+                    !_plan.feedingProgress.ContainsKey(animal.InstanceId))
+                {
+                    _plan.feedingProgress.Add(animal.InstanceId, Math.Max(0, animal.OwnedMinutes) % _cycleMinutes);
+                }
+            }
+        }
+    }
+
+    static long MinutesUntilFeeding(PuzzleInventory[] _wagons, Dictionary<int, long> _progress, string _animalTag,
+        long _cycleMinutes, long _minutesUntilDeadline)
+    {
+        long next = long.MaxValue;
+        foreach (var wagon in _wagons)
+        {
+            foreach (var animal in wagon.Placements)
+            {
+                if (!animal.Definition.Tags.Contains(_animalTag) ||
+                    !_progress.TryGetValue(animal.InstanceId, out long elapsed))
+                {
+                    continue;
+                }
+
+                long remaining = _cycleMinutes - elapsed;
+                if (remaining < next && remaining <= _minutesUntilDeadline)
+                {
+                    next = remaining;
+                }
+            }
+        }
+        return Math.Max(1, next);
+    }
+
+    // 경계에 선 동물은 객차 순서, 좌측 하단 좌표, 인스턴스 ID 순으로 같은 객차의 첫 곡물을 하나 소비한다.
+    void AdvanceFeeding(TimeAdvancePlan _plan, PuzzleInventory[] _wagons, PuzzleAnimalSynergyData _animals,
+        long _step, long _cycleMinutes)
+    {
+        var currentPairs = SelectBreedingPairs(_wagons, _plan.breedingProgress);
+        var candidates = new List<(int wagonIndex, int instanceId, Vector2Int bottomLeft, PuzzlePlacement placement)>();
+        var progress = new Dictionary<int, long>();
+        for (int i = 0; i < _wagons.Length; i++)
+        {
+            foreach (var animal in _wagons[i].Placements)
+            {
+                if (!animal.Definition.Tags.Contains(_animals.animalTag))
+                {
+                    continue;
+                }
+
+                _plan.feedingProgress.TryGetValue(animal.InstanceId, out long elapsed);
+                bool fires = elapsed + _step >= _cycleMinutes;
+                progress[animal.InstanceId] = fires ? 0 : elapsed + _step;
+                if (fires)
+                {
+                    candidates.Add((i, animal.InstanceId, BottomLeft(animal), animal));
+                }
+            }
+        }
+
+        foreach (var candidate in candidates
+            .OrderBy(_candidate => _candidate.wagonIndex)
+            .ThenBy(_candidate => _candidate.bottomLeft.y)
+            .ThenBy(_candidate => _candidate.bottomLeft.x)
+            .ThenBy(_candidate => _candidate.instanceId))
+        {
+            if (CanConsumeGrain(candidate.placement, currentPairs))
+            {
+                TryConsumeGrain(_wagons[candidate.wagonIndex], _animals.grainTag);
+            }
+        }
+
+        _plan.feedingProgress = progress;
+    }
+
+    static bool CanConsumeGrain(PuzzlePlacement _placement, IReadOnlyList<BreedingPair> _pairs)
+    {
+        if (_placement.OwnedMinutes < 0)
+        {
+            return false;
+        }
+
+        if (_placement.Definition.IsBaby)
+        {
+            return _placement.Definition.GrowthMinutes > 0 && !_placement.GrowthSpaceBlocked;
+        }
+
+        foreach (var pair in _pairs)
+        {
+            if (!pair.state.SpaceBlocked &&
+                (pair.key.First == _placement.InstanceId || pair.key.Second == _placement.InstanceId))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    static bool TryConsumeGrain(PuzzleInventory _wagon, string _grainTag)
+    {
+        foreach (var grain in _wagon.Placements
+            .Where(_item => _item.Definition.Tags.Contains(_grainTag))
+            .OrderBy(_item => BottomLeft(_item).y)
+            .ThenBy(_item => BottomLeft(_item).x)
+            .ThenBy(_item => _item.InstanceId))
+        {
+            if (_wagon.Remove(grain))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    static Vector2Int BottomLeft(PuzzlePlacement _placement)
+    {
+        Vector2Int result = _placement.Pose.Cells[0].Position;
+        foreach (var cell in _placement.Pose.Cells)
+        {
+            if (cell.Position.y < result.y || (cell.Position.y == result.y && cell.Position.x < result.x))
+            {
+                result = cell.Position;
+            }
+        }
+        return result;
+    }
+
     void CommitTimeAdvance(long _minutes, TimeAdvancePlan _plan)
     {
         long previous = Time.ElapsedMinutes;
@@ -1072,6 +1385,8 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         }
         breedingProgress = _plan.breedingProgress;
         wasteProgress = _plan.wasteProgress;
+        combinationProgress = _plan.combinationProgress;
+        feedingProgress = _plan.feedingProgress;
         PruneAnimalStates();
         lastInstanceId = _plan.lastInstanceId;
         Time.Advance(_minutes);
@@ -1103,6 +1418,10 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
             !alive.Contains(_key.First) || !alive.Contains(_key.Second)).ToArray())
         {
             breedingProgress.Remove(key);
+        }
+        foreach (var id in feedingProgress.Keys.Where(_id => !alive.Contains(_id)).ToArray())
+        {
+            feedingProgress.Remove(id);
         }
     }
 

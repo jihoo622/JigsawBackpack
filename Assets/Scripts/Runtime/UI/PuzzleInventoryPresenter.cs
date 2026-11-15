@@ -1319,6 +1319,30 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
                 animals.wasteIntervalDays, waste.displayName, animals.wasteCountPerAnimal)));
         }
 
+        // 인접 조합은 입력으로 등록된 품목 양쪽에 같은 규칙 설명을 보인다. 진행도는 객차에서 실제로
+        // 맺힌 쌍의 설명에만 붙이고, 결과 품목은 입력 목록에 없으므로 설명이 붙지 않는다.
+        foreach (var combination in tables.Combinations)
+        {
+            bool isInput = string.Equals(combination.sourcePieceId, item.Id, System.StringComparison.Ordinal) ||
+                string.Equals(combination.partnerPieceId, item.Id, System.StringComparison.Ordinal);
+            if (!isInput)
+            {
+                continue;
+            }
+
+            var product = tables.Piece(combination.resultPieceId);
+            long combinationMinutes = (long)combination.requiredHours * PuzzleTimeManager.MINUTES_PER_HOUR;
+            PuzzleProgressDisplay? combinationProgress = null;
+            if (_isTrain && session.TryGetCombinationProgress(_placement, out var activeCombination,
+                    out long combinationElapsed) && ReferenceEquals(activeCombination, combination))
+            {
+                combinationProgress = new PuzzleProgressDisplay(combinationElapsed, combinationMinutes, false);
+            }
+
+            general.Add(new PuzzleEffectDisplay(Presentation.PuzzleCombinationEffect(combination.description,
+                combinationMinutes, product.displayName), combinationProgress));
+        }
+
         foreach (var rule in tables.SynergiesFor(scope))
         {
             bool isPenalty = rule.multiplierPercent < 100;
