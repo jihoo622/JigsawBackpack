@@ -1087,8 +1087,7 @@ public static partial class Presentation
             string commonColor = ColorUtility.ToHtmlStringRGB(PuzzleMapVisited);
             string expensiveColor = ColorUtility.ToHtmlStringRGB(PuzzleMapCurrent);
             string rareColor = ColorUtility.ToHtmlStringRGB(PuzzleMapRare);
-            trade = BasicData.Format("presentation.map.informationText8", (_region.tradeHub ? BasicData.Text("presentation.map.informationText13") : PuzzleTagLabel(_city.specialtyTag))) +
-                BasicData.Format("presentation.map.informationText9", commonColor, (string.IsNullOrEmpty(common) ? BasicData.Text("presentation.map.informationText14") : common)) +
+            trade = BasicData.Format("presentation.map.informationText9", commonColor, (string.IsNullOrEmpty(common) ? BasicData.Text("presentation.map.informationText14") : common)) +
                 BasicData.Format("presentation.map.informationText10", expensiveColor, (string.IsNullOrEmpty(expensive) ? BasicData.Text("presentation.map.informationText15") : expensive)) +
                 BasicData.Format("presentation.map.informationText16", rareColor, (string.IsNullOrEmpty(rare) ? BasicData.Text("presentation.map.informationText15") : rare)) +
                 FarmWastePurchaseLine("presentation.map.wastePurchase", _region.id);
