@@ -9,15 +9,12 @@ public sealed class ItemInfoPopupView : MonoBehaviour
 {
     [SerializeField] RectTransform card;
     [SerializeField] TextMeshProUGUI titleLabel;
-    [SerializeField] GameObject tagRow;
-    [SerializeField] Image[] tagPlates;
-    [SerializeField] TextMeshProUGUI[] tagLabels;
+    [SerializeField] TagBadgeGroup tagGroup;
     [SerializeField] TextMeshProUGUI descriptionLabel;
     [SerializeField] TextMeshProUGUI[] statLabels;
     [SerializeField] TextMeshProUGUI[] statValues;
     [SerializeField] TextMeshProUGUI synergyHeader;
     [SerializeField] TextMeshProUGUI[] synergyLines;
-    [SerializeField, Range(0f, 1f)] float tagBlend = 0.35f;
     // 커서에서 팝업 왼쪽 위까지의 거리와 화면 가장자리 여백(프리팹 값이 원본)
     [SerializeField] Vector2 cursorOffset = new Vector2(16f, -16f);
     [SerializeField] float screenMargin = 16f;
@@ -27,7 +24,7 @@ public sealed class ItemInfoPopupView : MonoBehaviour
     {
         titleLabel.text = _piece.displayName;
         titleLabel.color = Presentation.PuzzleHeading;
-        ShowTags(Presentation.PrioritizeTags(_piece.tags ?? System.Array.Empty<string>()));
+        tagGroup?.ShowTags(_piece.tags);
         bool hasDescription = !string.IsNullOrEmpty(_piece.description);
         descriptionLabel.gameObject.SetActive(hasDescription);
         if (hasDescription)
@@ -58,22 +55,6 @@ public sealed class ItemInfoPopupView : MonoBehaviour
     internal void Hide()
     {
         card.gameObject.SetActive(false);
-    }
-
-    void ShowTags(IReadOnlyList<string> _tags)
-    {
-        tagRow.SetActive(_tags.Count > 0);
-        for (int i = 0; i < tagPlates.Length; i++)
-        {
-            bool used = i < _tags.Count;
-            tagPlates[i].gameObject.SetActive(used);
-            if (used)
-            {
-                tagPlates[i].color = Presentation.PuzzleTooltipTagBackground(_tags[i], tagBlend);
-                tagLabels[i].text = Presentation.PuzzleTagLabel(_tags[i]);
-                tagLabels[i].color = Presentation.PuzzleTooltipTagTextColor(_tags[i], tagBlend);
-            }
-        }
     }
 
     // 슬롯보다 많으면 마지막 슬롯에 "외 N개"를 쓴다. 하나도 없으면 첫 슬롯에 '없음' 문구.

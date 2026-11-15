@@ -28,6 +28,7 @@ public sealed class PuzzleInventoryView : MonoBehaviour
     [SerializeField] CanvasGroup interaction;
     [SerializeField] TextMeshProUGUI boardTitle;
     [SerializeField] TextMeshProUGUI boardValue;
+    [SerializeField] CityTradePreferencesView boardTradePreferences;
     [SerializeField] GameObject synergySettlementNotice;
     [SerializeField] TextMeshProUGUI moveGuide;
     [SerializeField] TextMeshProUGUI itemDetails;
@@ -694,20 +695,27 @@ public sealed class PuzzleInventoryView : MonoBehaviour
         }
     }
 
+    internal bool HasTradePreferences => boardTradePreferences;
+
     internal void ShowBoardInfo(string _text)
     {
+        boardTradePreferences?.Hide();
         boardValue.overflowMode = TextOverflowModes.Overflow;
         boardValue.text = _text;
         boardValue.ForceMeshUpdate();
     }
 
+    internal void ShowBoardTradePreferences(PuzzleCityTradePreferencesData _data)
+    {
+        if (boardValue)
+        {
+            boardValue.text = string.Empty;
+        }
+        boardTradePreferences?.Show(_data);
+    }
+
     internal bool TryGetHoveredBoardInfoLink(Vector2 _screenPosition, out string _linkId)
     {
-        _linkId = null;
-        if (!boardValue || !boardValue.gameObject.activeInHierarchy)
-        {
-            return false;
-        }
         if (!canvas)
         {
             var parentCanvas = GetComponentInParent<Canvas>();
@@ -716,23 +724,13 @@ public sealed class PuzzleInventoryView : MonoBehaviour
                 canvas = parentCanvas.rootCanvas;
             }
         }
-        if (boardValue.havePropertiesChanged)
-        {
-            boardValue.ForceMeshUpdate();
-        }
-        if (boardValue.textInfo == null || boardValue.textInfo.linkCount == 0)
-        {
-            return false;
-        }
-
         Camera eventCamera = canvas && canvas.renderMode != RenderMode.ScreenSpaceOverlay ? canvas.worldCamera : null;
-        int linkIndex = TMP_TextUtilities.FindIntersectingLink(boardValue, _screenPosition, eventCamera);
-        if (linkIndex < 0 || linkIndex >= boardValue.textInfo.linkInfo.Length)
+
+        if (boardTradePreferences && boardTradePreferences.TryGetHoveredKeywordLink(_screenPosition, eventCamera, out _linkId))
         {
-            return false;
+            return true;
         }
-        _linkId = boardValue.textInfo.linkInfo[linkIndex].GetLinkID();
-        return !string.IsNullOrEmpty(_linkId);
+        return CityTradePreferencesView.TryGetHoveredTmpLink(boardValue, _screenPosition, eventCamera, out _linkId);
     }
 
     internal void ShowItemDetails(PuzzleItemDefinition _item, PuzzleValue _value, decimal _actualValue,

@@ -345,6 +345,7 @@ GameObject:
   - component: {fileID: 5873133234873101061}
   - component: {fileID: 592321811625741832}
   - component: {fileID: 8902227389746356754}
+  - component: {fileID: 910000000000000003}
   m_Layer: 5
   m_Name: Tag_1
   m_TagString: Untagged
@@ -512,15 +513,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ItemInfoPopupView
   card: {fileID: 4711605241675224536}
   titleLabel: {fileID: 4496670245099942645}
-  tagRow: {fileID: 3961170139183221328}
-  tagPlates:
-  - {fileID: 781655280281590697}
-  - {fileID: 592321811625741832}
-  - {fileID: 7558252552296807428}
-  tagLabels:
-  - {fileID: 2211086623904100700}
-  - {fileID: 8803154686156848294}
-  - {fileID: 2398013031297863446}
+  tagGroup: {fileID: 910000000000000001}
   descriptionLabel: {fileID: 7585492965494486401}
   statLabels:
   - {fileID: 3006177411295199810}
@@ -536,7 +529,6 @@ MonoBehaviour:
   - {fileID: 2135153563587666908}
   - {fileID: 1311751485791372408}
   - {fileID: 4519700979615147733}
-  tagBlend: 0.35
   cursorOffset: {x: 16, y: -16}
   screenMargin: 16
 --- !u!114 &7834571344547495507
@@ -857,6 +849,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2669120512120833848}
   - component: {fileID: 2493007252407470826}
+  - component: {fileID: 910000000000000001}
   m_Layer: 5
   m_Name: Tags
   m_TagString: Untagged
@@ -1335,6 +1328,7 @@ GameObject:
   - component: {fileID: 4098974689018950785}
   - component: {fileID: 781655280281590697}
   - component: {fileID: 3380308545159828310}
+  - component: {fileID: 910000000000000002}
   m_Layer: 5
   m_Name: Tag_0
   m_TagString: Untagged
@@ -1671,6 +1665,7 @@ GameObject:
   - component: {fileID: 2620675683641716326}
   - component: {fileID: 7558252552296807428}
   - component: {fileID: 8560447730047878587}
+  - component: {fileID: 910000000000000004}
   m_Layer: 5
   m_Name: Tag_2
   m_TagString: Untagged
@@ -3288,3 +3283,74 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &910000000000000001
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3961170139183221328}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 39e261fc0dc44e0fa7664c559a6b6bcc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TagBadgeGroup
+  badgePrefab: {fileID: 100000000000000007, guid: d819369c810b4272b39369db202ca7f8, type: 3}
+  slots:
+  - {fileID: 910000000000000002}
+  - {fileID: 910000000000000003}
+  - {fileID: 910000000000000004}
+  emptyLabel: {fileID: 0}
+  emptyText: 
+  badgeBlend: 0.35
+  fontSizeOverride: 14
+  hideWhenEmpty: 1
+  maxVisibleCount: 0
+--- !u!114 &910000000000000002
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5130901751341978156}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2d0374033384401fb5c758765d81c6fb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TagBadgeView
+  plate: {fileID: 781655280281590697}
+  label: {fileID: 2211086623904100700}
+  defaultBlend: 0.35
+  fontSizeOverride: 0
+--- !u!114 &910000000000000003
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2566408046991276005}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2d0374033384401fb5c758765d81c6fb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TagBadgeView
+  plate: {fileID: 592321811625741832}
+  label: {fileID: 8803154686156848294}
+  defaultBlend: 0.35
+  fontSizeOverride: 0
+--- !u!114 &910000000000000004
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5487674548416118676}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2d0374033384401fb5c758765d81c6fb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TagBadgeView
+  plate: {fileID: 7558252552296807428}
+  label: {fileID: 2398013031297863446}
+  defaultBlend: 0.35
+  fontSizeOverride: 0
