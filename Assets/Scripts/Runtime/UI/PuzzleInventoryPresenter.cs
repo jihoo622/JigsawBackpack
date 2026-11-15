@@ -695,6 +695,8 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         }
     }
 
+    static readonly bool ADJACENT_SYNERGY_PREVIEW_ENABLED = false;
+
     static readonly Vector2Int[] ADJACENT_OFFSETS =
     {
         Vector2Int.up, Vector2Int.right, Vector2Int.down, Vector2Int.left
@@ -886,7 +888,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
                 targetView.HideDragBeam();
             }
 
-            if (preview.CanDrop && candidate != null)
+            if (ADJACENT_SYNERGY_PREVIEW_ENABLED && preview.CanDrop && candidate != null)
             {
                 if (destination != lastSynergyPreviewDestination || targetCell != lastSynergyPreviewCell || drag.ClockwiseTurns != lastSynergyPreviewRotation)
                 {

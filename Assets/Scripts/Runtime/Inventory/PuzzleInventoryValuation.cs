@@ -102,11 +102,12 @@ internal sealed class PuzzleInventoryValuation
     internal void Recalculate(PuzzleInventory _board, IReadOnlyList<PuzzleSynergyRuleData> _rules)
     {
         var effects = new Dictionary<int, List<NeighborEffect>>();
-        var adjacentRules = _rules.Where(_rule => _rule.spatialRange == nameof(PuzzleSynergyRange.Adjacent)).ToArray();
-        if (adjacentRules.Length > 0)
-        {
-            CollectAdjacentEffects(_board, adjacentRules, effects);
-        }
+        // 인접 가치 시너지 임시 비활성화
+        // var adjacentRules = _rules.Where(_rule => _rule.spatialRange == nameof(PuzzleSynergyRange.Adjacent)).ToArray();
+        // if (adjacentRules.Length > 0)
+        // {
+        //     CollectAdjacentEffects(_board, adjacentRules, effects);
+        // }
 
         var boardRules = _rules.Where(_rule => _rule.spatialRange == nameof(PuzzleSynergyRange.Board)).ToArray();
         if (boardRules.Length > 0)
