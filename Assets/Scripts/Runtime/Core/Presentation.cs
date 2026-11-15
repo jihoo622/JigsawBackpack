@@ -1354,9 +1354,11 @@ public static class Presentation
         return BasicData.Format("presentation.tooltip.effectHeader", TooltipLabelHtml());
     }
 
-    internal static string PuzzleRefrigerationEffect(int _reductionPercent)
+    static readonly Regex EFFECT_PERCENTAGE_REGEX = new(@"[+−-]\d+(?:[.,]\d+)?%");
+
+    internal static PuzzleTooltipEffectEntry PuzzleRefrigerationEffect(int _reductionPercent)
     {
-        return PuzzleTooltipEffectDescription(PuzzlePreservationDescription(_reductionPercent, BasicData.Text));
+        return PuzzleTooltipSynergyEffect(PuzzlePreservationDescription(_reductionPercent, BasicData.Text));
     }
 
     public static string PuzzlePreservationDescription(int _reductionPercent, Func<string, string> _text)
@@ -1364,10 +1366,13 @@ public static class Presentation
         return string.Format(_text("presentation.tooltip.refrigerationEffect"), _reductionPercent);
     }
 
-    internal static string PuzzleAppliedPreservationEffect(int _reductionPercent)
+    internal static PuzzleTooltipEffectEntry PuzzleAppliedPreservationEffect(int _reductionPercent)
     {
-        string description = BasicData.Format("presentation.tooltip.appliedPreservationEffect", _reductionPercent);
-        return BasicData.Format("presentation.tooltip.activeEffectLabel", TooltipLabelHtml(), HighlightEffectPercentages(description));
+        string raw = BasicData.Format("presentation.tooltip.appliedPreservationEffect", _reductionPercent);
+        (string label, string value) = SplitEffectPercentage(raw);
+        return new PuzzleTooltipEffectEntry(
+            BasicData.Format("presentation.tooltip.activeEffectLabel", TooltipLabelHtml(), label),
+            FormatEffectPercentage(value));
     }
 
     internal static string PuzzleAnimalBreedingEffect(string _description, long _minutes, string _offspringName, int _count)
@@ -1403,10 +1408,51 @@ public static class Presentation
         };
     }
 
+    internal static PuzzleTooltipEffectEntry PuzzleTooltipSynergyEffect(string _description)
+    {
+        (string label, string value) = SplitEffectPercentage(_description);
+        string formattedLabel = BasicData.Format("presentation.tooltip.effectDescription",
+            TooltipLabelHtml(), ShrinkParentheticalNotes(label));
+        return new PuzzleTooltipEffectEntry(formattedLabel, FormatEffectPercentage(value));
+    }
+
     internal static string PuzzleTooltipEffectDescription(string _description)
     {
         string highlighted = ShrinkParentheticalNotes(HighlightEffectPercentages(_description));
         return BasicData.Format("presentation.tooltip.effectDescription", TooltipLabelHtml(), highlighted);
+    }
+
+    static (string Label, string Value) SplitEffectPercentage(string _text)
+    {
+        if (string.IsNullOrEmpty(_text))
+        {
+            return (string.Empty, string.Empty);
+        }
+
+        Match match = EFFECT_PERCENTAGE_REGEX.Match(_text);
+        if (!match.Success)
+        {
+            return (_text, string.Empty);
+        }
+
+        string prefix = _text[..match.Index].TrimEnd(' ');
+        string suffix = _text[(match.Index + match.Length)..];
+        if (prefix.Length == 0)
+        {
+            suffix = suffix.TrimStart(' ');
+        }
+        return (prefix + suffix, match.Value);
+    }
+
+    static string FormatEffectPercentage(string _percentage)
+    {
+        if (string.IsNullOrEmpty(_percentage))
+        {
+            return string.Empty;
+        }
+
+        Color color = _percentage[0] == '+' ? PuzzleTooltipGreen : PuzzleTooltipRed;
+        return $"<color=#{ColorUtility.ToHtmlStringRGB(color)}>{_percentage}</color>";
     }
 
     static string ShrinkParentheticalNotes(string _text)
@@ -1416,11 +1462,7 @@ public static class Presentation
 
     static string HighlightEffectPercentages(string _description)
     {
-        return Regex.Replace(_description, @"[+−-]\d+(?:[.,]\d+)?%", match =>
-        {
-            Color color = match.Value[0] == '+' ? PuzzleTooltipGreen : PuzzleTooltipRed;
-            return $"<color=#{ColorUtility.ToHtmlStringRGB(color)}>{match.Value}</color>";
-        });
+        return EFFECT_PERCENTAGE_REGEX.Replace(_description, match => FormatEffectPercentage(match.Value));
     }
 
     // 일반 효과 한 행. 진행도가 있으면 설명 바로 아래에 녹색으로 놓고, 공간을 막혀 있으면 같은 줄에 빨간 표시를 덧붙인다.

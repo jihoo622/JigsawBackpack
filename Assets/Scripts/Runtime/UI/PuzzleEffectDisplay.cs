@@ -25,3 +25,16 @@ public readonly struct PuzzleEffectDisplay
         Progress = _progress;
     }
 }
+
+/// <summary>툴팁 효과 한 행. 왼쪽 설명과 오른쪽 끝 수치(없으면 빈 문자열)로 나뉜다.</summary>
+public readonly struct PuzzleTooltipEffectEntry
+{
+    public string Description { get; }
+    public string Value { get; }
+
+    public PuzzleTooltipEffectEntry(string _description, string _value)
+    {
+        Description = _description;
+        Value = _value;
+    }
+}

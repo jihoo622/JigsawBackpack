@@ -10,9 +10,9 @@
       "scope": "Both",
       "spatialRange": "Adjacent",
       "multiplierPercent": 120,
-      "description": "음식과 인접 시 +20% (곡물·물고기 제외)",
-      "targetDescription": "음식과 인접 시 +20% (곡물·물고기 제외)",
-      "sourceDescription": "인접한 화물(Cargo)에게 +20% (곡물·물고기는 발생원에서 제외)"
+      "description": "음식과 인접 시 +20%\n   (곡물·물고기 제외)",
+      "targetDescription": "음식과 인접 시 +20%\n   (곡물·물고기 제외)",
+      "sourceDescription": "인접한 화물(Cargo)에게 +20%\n   (곡물·물고기는 발생원에서 제외)"
     },
     {
       "id": "sample.machineryNearWood",
@@ -103,9 +103,9 @@
       "spatialRange": "Adjacent",
       "multiplierPercent": 50,
       "descriptionTag": "Waste",
-      "description": "인접한 물품에게 -50% (가축 제외)",
-      "targetDescription": "거름과 인접 시 -50% (배설물·가축 제외)",
-      "sourceDescription": "인접한 물품에게 -50% (가축 제외)"
+      "description": "인접한 물품에게 -50%\n   (가축 제외)",
+      "targetDescription": "거름과 인접 시 -50%\n   (거름·가축 제외)",
+      "sourceDescription": "인접한 물품에게 -50%\n   (가축 제외)"
     },
     {
       "id": "cargoNearAnimal",

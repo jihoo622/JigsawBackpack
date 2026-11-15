@@ -1222,7 +1222,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         bool isTrain = _view == trainView || session.IsTrainWagon(_placement.Owner);
         decimal actualValue = _placement.FreshnessAdjustedValue;
         var rate = item == null || isActionBoard ? default : session.RateFor(item);
-        (IReadOnlyList<string> General, IReadOnlyList<string> Synergies) effects =
+        (IReadOnlyList<string> General, IReadOnlyList<PuzzleTooltipEffectEntry> Synergies) effects =
             isActionBoard ? default : BuildEffectDescriptions(_placement, isTrain);
         long? previewMinutes = session.PreviewMinutes;
         long? previewActivations = null;
@@ -1281,7 +1281,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         }
     }
 
-    (IReadOnlyList<string> General, IReadOnlyList<string> Synergies) BuildEffectDescriptions(PuzzlePlacement _placement, bool _isTrain)
+    (IReadOnlyList<string> General, IReadOnlyList<PuzzleTooltipEffectEntry> Synergies) BuildEffectDescriptions(PuzzlePlacement _placement, bool _isTrain)
     {
         PuzzleItemDefinition item = _placement?.Definition;
         if (item == null)
@@ -1291,7 +1291,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
 
         PuzzleSynergyScope scope = _isTrain ? PuzzleSynergyScope.Train : PuzzleSynergyScope.Market;
         var general = new List<PuzzleEffectDisplay>();
-        var synergies = new List<(bool isTarget, bool isPenalty, string text)>();
+        var synergies = new List<(bool isTarget, bool isPenalty, PuzzleTooltipEffectEntry entry)>();
         var tables = TableManager.Instance;
         int preservation = PuzzleRefrigeration.SourceReductionPercent(item, tables.PuzzleSynergy.freshness);
         if (preservation > 0)
@@ -1338,18 +1338,18 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             bool isPenalty = rule.multiplierPercent < 100;
             if (PuzzlePieceEffects.IsSource(item, rule))
             {
-                synergies.Add((false, isPenalty, Presentation.PuzzleTooltipEffectDescription(rule.sourceDescription)));
+                synergies.Add((false, isPenalty, Presentation.PuzzleTooltipSynergyEffect(rule.sourceDescription)));
             }
             if (PuzzlePieceEffects.IsTarget(item, rule, animals.wasteTag))
             {
-                synergies.Add((true, isPenalty, Presentation.PuzzleTooltipEffectDescription(rule.targetDescription)));
+                synergies.Add((true, isPenalty, Presentation.PuzzleTooltipSynergyEffect(rule.targetDescription)));
             }
         }
 
         var orderedSynergies = synergies
             .OrderBy(_entry => _entry.isTarget)
             .ThenBy(_entry => _entry.isPenalty)
-            .Select(_entry => _entry.text)
+            .Select(_entry => _entry.entry)
             .ToList();
         return (general.Select(_effect => Presentation.PuzzleTooltipGeneralEffect(_effect)).ToList(), orderedSynergies);
     }

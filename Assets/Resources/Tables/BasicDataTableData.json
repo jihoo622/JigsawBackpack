@@ -2200,7 +2200,7 @@
         },
         {
           "id": "effectDescription",
-          "value": "<color=#{0}><size=85%>• {1}</size></color>",
+          "value": "<color=#{0}>• {1}</color>",
           "arguments": 2
         },
         {
@@ -2280,7 +2280,7 @@
         },
         {
           "id": "noEffect",
-          "value": "<color=#{0}><size=85%>가능한 효과 없음</size></color>",
+          "value": "<color=#{0}>가능한 효과 없음</color>",
           "arguments": 1
         },
         {
