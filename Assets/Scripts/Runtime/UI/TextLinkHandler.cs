@@ -72,7 +72,7 @@ public sealed class TextLinkHandler : MonoBehaviour, IPointerMoveHandler, IPoint
             return;
         }
         hoveredLink = index;
-        Tint(index, Presentation.EntityLinkHover);
+        Tint(index, Presentation.EntityLinkHoverColor(kind, id));
         GameEvents.RaiseEntityLinkHovered(new GameEvents.EntityLinkInfo(gameObject.scene.handle, kind, id, _eventData.position));
     }
 

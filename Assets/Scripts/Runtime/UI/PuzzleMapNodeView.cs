@@ -13,13 +13,10 @@ public sealed class PuzzleMapNodeView : MonoBehaviour, IPointerEnterHandler, IPo
     [SerializeField] Image currentHalo;
     [SerializeField] TMPro.TextMeshProUGUI currentBadge;
     [SerializeField] Image labelConnector;
+    // 이름 뒤 어두운 판. 이름 상자 크기·위치를 그대로 따른다.
+    [SerializeField] Image labelPlate;
 
-    [Header("E3 Tags and Badges")]
-    [SerializeField] GameObject tagChipsContainer;
-    [SerializeField] Image tagPlate0;
-    [SerializeField] TMPro.TextMeshProUGUI tagLabel0;
-    [SerializeField] Image tagPlate1;
-    [SerializeField] TMPro.TextMeshProUGUI tagLabel1;
+    [Header("Badges")]
     [SerializeField] TMPro.TextMeshProUGUI rumorBadge;
     [SerializeField] TMPro.TextMeshProUGUI questBadge;
 
@@ -28,7 +25,6 @@ public sealed class PuzzleMapNodeView : MonoBehaviour, IPointerEnterHandler, IPo
     // 진행 중 의뢰의 목적지. 줌과 관계없이 이름·의뢰 표식을 보인다.
     bool isQuestTarget;
     bool hasRumor;
-    bool hasAnyTag;
     bool isConnected;
     bool layoutPrepared;
     Vector2 preferredLabelDirection;
@@ -100,6 +96,12 @@ public sealed class PuzzleMapNodeView : MonoBehaviour, IPointerEnterHandler, IPo
         return IsEmphasized || isQuestTarget || cityId == _selectedCityId || IsMajor(_settings.majorStationThreshold);
     }
 
+    // 지역명으로 바뀌는 축소 배율에서도 남기는 이름: 현재·목표·의뢰 목적지·선택 역.
+    internal bool IsLabelEssential(string _selectedCityId)
+    {
+        return IsEmphasized || isQuestTarget || cityId == _selectedCityId;
+    }
+
     internal bool ShouldShowLabel(float _zoom, string _selectedCityId, in PuzzleMapView.NodeLayoutSettings _settings)
     {
         return IsLabelRequired(_selectedCityId, _settings) || _zoom >= _settings.labelDetailMinZoom;
@@ -131,6 +133,9 @@ public sealed class PuzzleMapNodeView : MonoBehaviour, IPointerEnterHandler, IPo
         label.rectTransform.sizeDelta = new Vector2(width, _settings.stationLabelHeight);
         float nameHeight = Mathf.Max(label.rectTransform.sizeDelta.y, Mathf.Ceil(label.preferredHeight));
         label.rectTransform.sizeDelta = new Vector2(width, nameHeight);
+        CenterAnchor(labelPlate.rectTransform);
+        labelPlate.rectTransform.sizeDelta = label.rectTransform.sizeDelta;
+        labelPlate.raycastTarget = false;
         currentHalo.rectTransform.sizeDelta = Vector2.one * _settings.stationHaloSize;
         currentBadge.textWrappingMode = TMPro.TextWrappingModes.NoWrap;
         currentBadge.overflowMode = TMPro.TextOverflowModes.Overflow;
@@ -192,9 +197,9 @@ public sealed class PuzzleMapNodeView : MonoBehaviour, IPointerEnterHandler, IPo
     internal void HideLabel()
     {
         label.gameObject.SetActive(false);
+        labelPlate.gameObject.SetActive(false);
         currentBadge.gameObject.SetActive(false);
         labelConnector.gameObject.SetActive(false);
-        if (tagChipsContainer) tagChipsContainer.SetActive(false);
         if (rumorBadge) rumorBadge.gameObject.SetActive(false);
         if (questBadge) questBadge.gameObject.SetActive(false);
     }
@@ -204,6 +209,7 @@ public sealed class PuzzleMapNodeView : MonoBehaviour, IPointerEnterHandler, IPo
         preferredLabelDirection = _direction;
         Vector2 center = transform.InverseTransformPoint(_viewport.TransformPoint(_footprint.center));
         label.rectTransform.anchoredPosition = center + Vector2.up * nameOffsetY;
+        labelPlate.rectTransform.anchoredPosition = label.rectTransform.anchoredPosition;
         currentBadge.rectTransform.anchoredPosition = center + Vector2.up * badgeOffsetY;
         Vector2 start = transform.InverseTransformPoint(_viewport.TransformPoint(_start));
         Vector2 end = transform.InverseTransformPoint(_viewport.TransformPoint(_end));
@@ -214,16 +220,7 @@ public sealed class PuzzleMapNodeView : MonoBehaviour, IPointerEnterHandler, IPo
         connector.localRotation = Quaternion.Euler(0f, 0f, Mathf.Atan2(delta.y, delta.x) * Mathf.Rad2Deg);
         labelConnector.gameObject.SetActive(true);
         label.gameObject.SetActive(true);
-
-        if (tagChipsContainer)
-        {
-            var tcRt = tagChipsContainer.GetComponent<RectTransform>();
-            if (tcRt)
-            {
-                tcRt.anchoredPosition = center + Vector2.up * (nameOffsetY - label.rectTransform.sizeDelta.y * 0.5f - 14f);
-            }
-            tagChipsContainer.SetActive(hasAnyTag);
-        }
+        labelPlate.gameObject.SetActive(true);
         LayoutBadges(center);
     }
 
@@ -283,6 +280,7 @@ public sealed class PuzzleMapNodeView : MonoBehaviour, IPointerEnterHandler, IPo
         label.text = Presentation.QuestMapStation(
             Presentation.PuzzleMapStationName(_city.displayName, _planningTarget, !_visited && _hasRumor), _questBadge);
         label.color = emphasized ? highlight : Presentation.PuzzleHeading;
+        labelPlate.color = Presentation.MapLabelPlate;
         labelConnector.color = emphasized ? highlight : Presentation.PuzzleMapLineColor(_city.regionId);
         label.fontStyle = emphasized || IsMajor(_settings.majorStationThreshold) ? TMPro.FontStyles.Bold : TMPro.FontStyles.Normal;
         currentHalo.gameObject.SetActive(emphasized);
@@ -305,49 +303,6 @@ public sealed class PuzzleMapNodeView : MonoBehaviour, IPointerEnterHandler, IPo
             questBadge.gameObject.SetActive(isQuestTarget);
         }
 
-        // 선호 태그 칩 설정 (상위 2개)
-        var tagPrices = _city.tagPrices ?? System.Array.Empty<PuzzleCityTagPriceData>();
-        var preferredTags = new System.Collections.Generic.List<PuzzleCityTagPriceData>();
-        foreach (var tp in tagPrices)
-        {
-            if (tp != null && (tp.sellPercent > 100 || tp.buyPercent > 100))
-            {
-                preferredTags.Add(tp);
-            }
-        }
-        preferredTags.Sort((a, b) => b.sellPercent.CompareTo(a.sellPercent));
-
-        hasAnyTag = preferredTags.Count > 0;
-        if (tagChipsContainer)
-        {
-            if (preferredTags.Count >= 1)
-            {
-                if (tagPlate0) tagPlate0.gameObject.SetActive(true);
-                if (tagLabel0)
-                {
-                    tagLabel0.text = Presentation.MapSellChip(Presentation.PuzzleTagLabel(preferredTags[0].tag), preferredTags[0].sellPercent, _visited);
-                }
-            }
-            else
-            {
-                if (tagPlate0) tagPlate0.gameObject.SetActive(false);
-            }
-
-            if (preferredTags.Count >= 2)
-            {
-                if (tagPlate1) tagPlate1.gameObject.SetActive(true);
-                if (tagLabel1)
-                {
-                    tagLabel1.text = Presentation.MapSellChip(Presentation.PuzzleTagLabel(preferredTags[1].tag), preferredTags[1].sellPercent, _visited);
-                }
-            }
-            else
-            {
-                if (tagPlate1) tagPlate1.gameObject.SetActive(false);
-            }
-            tagChipsContainer.SetActive(hasAnyTag);
-            LayoutTagChips(_settings);
-        }
         if (emphasized)
         {
             transform.SetAsLastSibling();
@@ -357,30 +312,6 @@ public sealed class PuzzleMapNodeView : MonoBehaviour, IPointerEnterHandler, IPo
             isQuestTarget ? Presentation.QuestMapMarker :
             Presentation.PuzzleMapLineColor(_city.regionId);
         marker.color = Presentation.PuzzleMapNodeMarkerColor(_current, _visited, _connected, _canAfford);
-    }
-
-    // 칩 폭을 글자에 맞추고 두 칩을 가운데 기준으로 나란히 둔다(여백·간격은 지도 프리팹 설정).
-    void LayoutTagChips(in PuzzleMapView.NodeLayoutSettings _settings)
-    {
-        bool show0 = tagPlate0 && tagLabel0 && tagPlate0.gameObject.activeSelf;
-        bool show1 = tagPlate1 && tagLabel1 && tagPlate1.gameObject.activeSelf;
-        float width0 = show0 ? Mathf.Ceil(tagLabel0.preferredWidth) + _settings.tagChipPadding : 0f;
-        float width1 = show1 ? Mathf.Ceil(tagLabel1.preferredWidth) + _settings.tagChipPadding : 0f;
-        float total = width0 + width1 + (show0 && show1 ? _settings.tagChipGap : 0f);
-        if (show0)
-        {
-            var rect = tagPlate0.rectTransform;
-            rect.sizeDelta = new Vector2(width0, rect.sizeDelta.y);
-            rect.anchoredPosition = new Vector2(-total * 0.5f + width0 * 0.5f, rect.anchoredPosition.y);
-        }
-        if (show1)
-        {
-            var rect = tagPlate1.rectTransform;
-            rect.sizeDelta = new Vector2(width1, rect.sizeDelta.y);
-            rect.anchoredPosition = new Vector2(total * 0.5f - width1 * 0.5f, rect.anchoredPosition.y);
-        }
-        var container = (RectTransform)tagChipsContainer.transform;
-        container.sizeDelta = new Vector2(total, container.sizeDelta.y);
     }
 
     public void OnPointerEnter(PointerEventData _eventData)

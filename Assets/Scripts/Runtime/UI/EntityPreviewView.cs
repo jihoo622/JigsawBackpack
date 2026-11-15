@@ -12,10 +12,10 @@ public sealed class EntityPreviewView : MonoBehaviour
     [SerializeField] Vector2 cursorOffset = new Vector2(16f, -16f);
     [SerializeField] float screenMargin = 16f;
 
-    internal void Show(string _title, System.Collections.Generic.IReadOnlyList<string> _lines, Vector2 _screenPosition)
+    internal void Show(string _title, Color _titleColor, System.Collections.Generic.IReadOnlyList<string> _lines, Vector2 _screenPosition)
     {
         titleLabel.text = _title;
-        titleLabel.color = Presentation.PuzzleHeading;
+        titleLabel.color = _titleColor;
         for (int i = 0; i < lineLabels.Length; i++)
         {
             bool used = i < _lines.Count;

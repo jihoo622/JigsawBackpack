@@ -32,8 +32,14 @@ public sealed class EntityPreviewPresenter : MonoBehaviour
         {
             return;
         }
+        // 품목은 아이템 정보 팝업이 맡는다.
+        if (_info.kind == EntityLinkKind.Item)
+        {
+            view.Hide();
+            return;
+        }
         Presentation.EntityPreview(_info.kind, _info.id, session, out string title, lines);
-        view.Show(title, lines, _info.screenPosition);
+        view.Show(title, Presentation.EntityPreviewTitleColor(_info.kind, _info.id), lines, _info.screenPosition);
     }
 
     void OnHoverEnded(int _sceneHandle)

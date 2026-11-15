@@ -176,18 +176,18 @@
       "id": "presentation.gauge",
       "texts": [
         {
-          "id": "untilSettlement",
-          "value": "다음 정산까지 {0}",
-          "arguments": 1
-        },
+          "id": "inline",
+          "value": "정산 {0} · 예상 {1:+#,0.##;-#,0.##;0}$",
+          "arguments": 2
+        }
+      ],
+      "colors": [
         {
-          "id": "estimate",
-          "value": "예상 {0:+#,0.##;-#,0.##;0}$",
-          "arguments": 1
-        },
-        {
-          "id": "title",
-          "value": "다음 정산 게이지"
+          "id": "tick",
+          "r": 0.91,
+          "g": 0.95,
+          "b": 0.96,
+          "a": 0.45
         }
       ]
     },
@@ -710,6 +710,13 @@
           "a": 0.25
         },
         {
+          "id": "labelPlate",
+          "r": 0,
+          "g": 0,
+          "b": 0,
+          "a": 0.72
+        },
+        {
           "id": "interchange",
           "r": 0.8941176470588236,
           "g": 0.9137254901960784,
@@ -1033,16 +1040,6 @@
         {
           "id": "target",
           "value": "▼ 상환 목표"
-        },
-        {
-          "id": "sellChip",
-          "value": "{0} 판매 {1}%",
-          "arguments": 2
-        },
-        {
-          "id": "sellChipUnvisited",
-          "value": "{0} 판매 우대",
-          "arguments": 1
         },
         {
           "id": "time",
@@ -1886,6 +1883,12 @@
     },
     {
       "id": "presentation.link",
+      "numbers": [
+        {
+          "id": "regionHoverLighten",
+          "value": 0.45
+        }
+      ],
       "colors": [
         {
           "id": "color",
@@ -1928,29 +1931,9 @@
           "arguments": 1
         },
         {
-          "id": "previewSell",
-          "value": "판매 우대 · {0}",
-          "arguments": 1
-        },
-        {
           "id": "previewTravel",
           "value": "이동 {0} · 운임 {1}$",
           "arguments": 2
-        },
-        {
-          "id": "previewTags",
-          "value": "태그 · {0}",
-          "arguments": 1
-        },
-        {
-          "id": "previewValue",
-          "value": "기본 가치 {0}$",
-          "arguments": 1
-        },
-        {
-          "id": "previewBestCity",
-          "value": "비싸게 팔리는 곳 · {0}",
-          "arguments": 1
         },
         {
           "id": "previewSynergy",
@@ -2009,6 +1992,72 @@
         {
           "id": "actionBack",
           "value": "◀ 이전: {0}",
+          "arguments": 1
+        }
+      ]
+    },
+    {
+      "id": "presentation.itemInfo",
+      "colors": [
+        {
+          "id": "positive",
+          "r": 0.56,
+          "g": 0.86,
+          "b": 0.56,
+          "a": 1
+        },
+        {
+          "id": "negative",
+          "r": 0.95,
+          "g": 0.52,
+          "b": 0.47,
+          "a": 1
+        }
+      ],
+      "texts": [
+        {
+          "id": "value",
+          "value": "기본 가치"
+        },
+        {
+          "id": "valueFormat",
+          "value": "{0}$",
+          "arguments": 1
+        },
+        {
+          "id": "size",
+          "value": "크기"
+        },
+        {
+          "id": "sizeFormat",
+          "value": "{0}칸",
+          "arguments": 1
+        },
+        {
+          "id": "shelfLife",
+          "value": "보관 기한"
+        },
+        {
+          "id": "shelfLifeFormat",
+          "value": "{0}시간",
+          "arguments": 1
+        },
+        {
+          "id": "synergyHeader",
+          "value": "옆에 두면 (맞닿은 면마다)"
+        },
+        {
+          "id": "synergyLine",
+          "value": "{0} 옆 <color=#{1}>{2}%</color>",
+          "arguments": 3
+        },
+        {
+          "id": "noSynergy",
+          "value": "받는 상성 없음"
+        },
+        {
+          "id": "more",
+          "value": "외 {0}개",
           "arguments": 1
         }
       ]
