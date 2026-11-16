@@ -304,14 +304,12 @@ public sealed class PuzzleCityActionData
 }
 
 // 행동의 입력 아이템 하나를 산출물로 바꾸는 대응. inputPieceId 기준 고유하다.
-// 도축·개조는 outputCount를 쓰고 정제는 minOutputCount~maxOutputCount 무작위 범위를 쓴다.
+// outputCount는 입력 하나당 생성하는 고정 산출 개수다.
 [Serializable]
 public sealed class PuzzleActionConversionData
 {
     public string inputPieceId, outputPieceId;
     public int outputCount = -1;
-    // 정제 전용. 입력 하나의 산출 개수 하한·상한이며 범위의 양 끝을 포함한다. 누락과 0을 구별하기 위한 검증용 값.
-    public int minOutputCount = -1, maxOutputCount = -1;
 }
 
 // 개조 행동의 선택 모드. 입력 태그의 화물을 결과 태그가 붙은 품목으로 즉시 바꾼다.
