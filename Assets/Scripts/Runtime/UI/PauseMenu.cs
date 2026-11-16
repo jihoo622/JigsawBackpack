@@ -32,6 +32,7 @@ public sealed class PauseMenu : PanelBase
     PuzzleStationActionsPresenter stationPresenter;
     EntityContextMenuPresenter linkMenu;
     MapSearchPresenter searchPresenter;
+    PuzzleObjectiveView objectiveView;
 
     internal bool CanShowCompletion => isActiveAndEnabled && !IsOpen && restartButton && panelTitle && panelHint;
 
@@ -186,6 +187,13 @@ public sealed class PauseMenu : PanelBase
 
     bool TryConsumeScreenStep()
     {
+        var objective = Resolve(ref objectiveView);
+        if (objective && objective.IsOpen)
+        {
+            objective.Close();
+            return true;
+        }
+
         // 지도 검색 칸 -> 비우고 닫고 포커스 해제
         var search = Resolve(ref searchPresenter);
         if (search && search.TryConsumeCancel())

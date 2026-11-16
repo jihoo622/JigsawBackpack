@@ -454,6 +454,11 @@
           "value": "게임 완료"
         },
         {
+          "id": "objectiveHint",
+          "value": "{0}에서 빚을 갚으세요!",
+          "arguments": 1
+        },
+        {
           "id": "dim",
           "value": "<color={0}>{1}</color>",
           "arguments": 2
@@ -1526,8 +1531,8 @@
         },
         {
           "id": "wagonProduct",
-          "value": "{0}   {1:N0} $",
-          "arguments": 2
+          "value": "{0} {1}×{2}   {3:N0} $",
+          "arguments": 4
         },
         {
           "id": "back",
@@ -1548,6 +1553,11 @@
         {
           "id": "noRumor",
           "value": "아직 가보지 않은 마을 소식은 못 들었어요."
+        },
+        {
+          "id": "preferenceRumor",
+          "value": "{0}에서 {1}{2} 선호한데요.",
+          "arguments": 3
         },
         {
           "id": "rareRumor",

@@ -167,6 +167,12 @@ public sealed class PuzzleMarketStockSlotData
 }
 
 [Serializable]
+public sealed class PuzzleRumorPreferenceData
+{
+    public string cityId, tag;
+}
+
+[Serializable]
 public sealed class PuzzleBoardData
 {
     // 화차의 선택적 표시 이름. 지정한 화차는 번호 대신 이 이름을 제목에 표시한다.

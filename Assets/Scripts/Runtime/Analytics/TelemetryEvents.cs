@@ -216,6 +216,7 @@ public static partial class TelemetryPayload
                 PuzzleRumorKind.Specialty => "specialty",
                 PuzzleRumorKind.RareDemand => "rare",
                 PuzzleRumorKind.Action => "action",
+                PuzzleRumorKind.Preference => "preference",
                 _ => throw new ArgumentOutOfRangeException(nameof(_info), _info.kind, "알 수 없는 소문 종류입니다.")
             },
             targetCityId = _info.targetCityId,

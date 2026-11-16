@@ -1,5 +1,34 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1001 &4916298200000000100
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 3437675962481259490}
+    m_Modifications: []
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 7288c37eb19748bfb3a413b756fa6151, type: 3}
+--- !u!224 &4916298200000000101 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 1001, guid: 7288c37eb19748bfb3a413b756fa6151, type: 3}
+  m_PrefabInstance: {fileID: 4916298200000000100}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &4916298200000000102 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1002, guid: 7288c37eb19748bfb3a413b756fa6151, type: 3}
+  m_PrefabInstance: {fileID: 4916298200000000100}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9833429fbdcf4af89c0aba4fb77f307e, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::PuzzleObjectiveView
 --- !u!1 &7345048188792227815
 GameObject:
   m_ObjectHideFlags: 0
@@ -47,6 +76,7 @@ RectTransform:
   - {fileID: 5729835475404626177}
   - {fileID: 7223456789752744155}
   - {fileID: 1848153140614148802}
+  - {fileID: 4916298200000000101}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -190,6 +220,7 @@ MonoBehaviour:
   modificationView: {fileID: 4262795179971854737}
   refiningView: {fileID: 4927823686251968170}
   cityView: {fileID: 3630064202348007284}
+  objectiveView: {fileID: 4916298200000000102}
   tooltipView: {fileID: 5879900000134522345}
   wagonTooltipView: {fileID: 8901500000000000074}
   keywordTooltipView: {fileID: 0}

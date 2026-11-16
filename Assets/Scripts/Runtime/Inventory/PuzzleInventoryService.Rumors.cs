@@ -15,6 +15,7 @@ public sealed partial class PuzzleInventoryService
         CollectSpecialtyCandidates(candidates);
         CollectRareCandidates(candidates);
         CollectActionCandidates(candidates);
+        CollectPreferenceCandidates(candidates);
         return PuzzleRumorCandidate.SortDistinct(candidates);
     }
 
@@ -78,6 +79,27 @@ public sealed partial class PuzzleInventoryService
                 _candidates.Add(new PuzzleRumorCandidate(PuzzleRumorKind.Action, city.id, _actionId: action.id));
             }
         }
+    }
+
+    // 선호 소문은 시작 마을의 첫 대화에서 제공하는 테이블 지정 한 건이다.
+    void CollectPreferenceCandidates(List<PuzzleRumorCandidate> _candidates)
+    {
+        var firstPreference = tables.PuzzleRumor.firstPreference;
+        if (firstPreference == null || CityMoveCount != 0 || tavernRumors.Count > 0)
+        {
+            return;
+        }
+
+        var city = tables.CityPrice(firstPreference.cityId);
+        if (!city.sellEnabled || !HasMarketItem(firstPreference.tag) ||
+            !tables.TryGetCityTagPrice(firstPreference.cityId, firstPreference.tag, out var rule) ||
+            TableManager.SellGradeKindOf(rule) != PuzzleSellGradeKind.Expensive)
+        {
+            return;
+        }
+
+        _candidates.Add(new PuzzleRumorCandidate(PuzzleRumorKind.Preference, firstPreference.cityId,
+            _tag: firstPreference.tag));
     }
 
     // 품목이 그 마을의 지역 재고 로테이션에 들어 있으면 지역 공통 물건이라 특산이라 말하지 않는다.

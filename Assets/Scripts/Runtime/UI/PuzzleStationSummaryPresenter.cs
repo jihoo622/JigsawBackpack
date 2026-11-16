@@ -173,7 +173,7 @@ public sealed class PuzzleStationSummaryPresenter : MonoBehaviour
             {
                 break;
             }
-            chosenRumors.Add(r.Message);
+            chosenRumors.Add(Presentation.TavernRumorMessage(r));
         }
         foreach (var r in otherRumors)
         {
@@ -181,7 +181,7 @@ public sealed class PuzzleStationSummaryPresenter : MonoBehaviour
             {
                 break;
             }
-            chosenRumors.Add(r.Message);
+            chosenRumors.Add(Presentation.TavernRumorMessage(r));
         }
 
         int overflow = Math.Max(0, allRumors.Count - chosenRumors.Count);

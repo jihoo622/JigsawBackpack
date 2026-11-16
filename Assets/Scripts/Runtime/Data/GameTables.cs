@@ -71,6 +71,8 @@ public sealed class PuzzleCombinationTableData
 public sealed class PuzzleRumorTableData
 {
     public string status, note;
+    // 시작 마을의 첫 대화에서 제공하는 선호 소문 한 건. 생략하면 희귀 수요·특산·행동에서 선택한다.
+    public PuzzleRumorPreferenceData firstPreference;
     // 소문에서 빼는 품목 ID. 특산 후보만 막고 품목의 시장 유통은 그대로 둔다.
     public string[] excludedItemIds = Array.Empty<string>();
 }

@@ -21,6 +21,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
     [SerializeField] PuzzleInventoryView modificationView;
     [SerializeField] PuzzleInventoryView refiningView;
     [SerializeField] PuzzleCityView cityView;
+    [SerializeField] PuzzleObjectiveView objectiveView;
     [SerializeField] PuzzleItemTooltipView tooltipView;
     [SerializeField] PuzzleItemTooltipView wagonTooltipView;
     readonly List<(string label, string value)> wagonTooltipStats = new();
@@ -63,6 +64,18 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
     bool isTravelOpen;
     bool TrainOperationsBlocked => isTravelOpen;
     bool MarketOperationsBlocked => isMapOpen || isTravelOpen;
+
+    void Start()
+    {
+        if (!initialized || !objectiveView || session.RunStatus != PuzzleRunStatus.InProgress ||
+            string.IsNullOrEmpty(session.DebtCityId))
+        {
+            return;
+        }
+
+        var destination = TableManager.Instance.CityPrice(session.DebtCityId);
+        objectiveView.ShowObjective(session.GameClearCost, destination.displayName);
+    }
 
     void OnEnable()
     {
@@ -337,6 +350,12 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
     string GetTavernRumor()
     {
         var candidates = session.CollectRumorCandidates().ToArray();
+        var preferenceCandidates = candidates.Where(_candidate => _candidate.Kind == PuzzleRumorKind.Preference).ToArray();
+        if (preferenceCandidates.Length > 0)
+        {
+            return PickRumor(preferenceCandidates);
+        }
+
         var rareCandidates = candidates.Where(_candidate => _candidate.Kind == PuzzleRumorKind.RareDemand).ToArray();
         if (rareCandidates.Length > 0)
         {
@@ -344,7 +363,8 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         }
 
         var candidatesByKind = candidates
-            .Where(_candidate => _candidate.Kind != PuzzleRumorKind.RareDemand)
+            .Where(_candidate => _candidate.Kind != PuzzleRumorKind.Preference &&
+                _candidate.Kind != PuzzleRumorKind.RareDemand)
             .GroupBy(_candidate => _candidate.Kind)
             .Select(_group => _group.ToArray())
             .ToArray();

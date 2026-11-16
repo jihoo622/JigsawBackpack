@@ -1,6 +1,10 @@
 {
   "status": "provisional",
-  "note": "excludedItemIds는 특산 소문 후보에서 제외할 품목이다. 후보가 있는 소문 종류와 선택한 종류 내의 후보는 각각 균등 추첨한다.",
+  "note": "firstPreference는 시작 마을의 첫 술집 대화에서 제공하는 선호(Expensive) 소문 한 건이다. 현재 라센턴·기계만 등록하며 방문한 라센턴은 제외한다. 이동 후에는 희귀 수요, 특산·행동 순으로 선택한다. excludedItemIds는 특산 소문 후보에서 제외할 품목이다.",
+  "firstPreference": {
+    "cityId": "city.rasenton",
+    "tag": "Machinery"
+  },
   "excludedItemIds": [
     "piece.oreCross"
   ]

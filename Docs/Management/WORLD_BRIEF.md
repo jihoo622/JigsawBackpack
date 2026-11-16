@@ -109,7 +109,7 @@
 
 | 장치 | 지금 동작 | 문구·데이터 위치 | 데이터만으로 가능한 것 | 코드가 필요한 것 |
 |---|---|---|---|---|
-| 술집 소문 | 방문당 1회 "손님에게 말 걸기". 현재·방문 마을과 이미 소문에 나온 마을을 모든 종류에서 제외하고, 후보가 남은 희귀 수요가 있으면 그중 하나를 우선한다. 희귀가 없을 때만 특산·마을 행동 중 후보가 남은 종류를 균등 추첨한 뒤 그 안에서 후보 하나를 균등 추첨한다. 술집 수첩에 쌓인다 | `BasicDataTableData`의 `presentation.station` 소문 서식, `PuzzleCityActionTableData`의 행동과 마을, `PuzzleRumorTableData.excludedItemIds`의 특산 제외 품목 | 대사 말투 변경(인자 2개 유지) | 세력 소식·인물 대사 같은 다른 종류의 소문, 조건부 소문 |
+| 술집 소문 | 방문당 1회 "손님에게 말 걸기". 현재·방문 마을과 이미 소문에 나온 마을을 모든 종류에서 제외하고, 선호(Expensive 판매 등급) 태그 소문을 0순위로 우선한다. 이어서 후보가 남은 희귀 수요, 없으면 특산·마을 행동 중 후보가 남은 종류를 균등 추첨한 뒤 그 안에서 후보 하나를 균등 추첨한다. 술집 수첩에 쌓인다 | `BasicDataTableData`의 `presentation.station` 소문 서식, `PuzzleCityActionTableData`의 행동과 마을, `PuzzleRumorTableData.excludedItemIds`의 특산 제외 품목 | 대사 말투 변경(인자 2개 유지) | 세력 소식·인물 대사 같은 다른 종류의 소문, 조건부 소문 |
 | 술집 의뢰 | 방문당 2개. 의뢰 틀(신선 식품 / 소포·공구 상자)을 가중치로 뽑고, 최단 시간 범위 안의 목적지를 무작위로 고른다. 목적지 도착 시 자동 완료 | 규칙·수치 `TrainventoryQuestTableData`, 문구 `presentation.quest.*`, 화물 `PuzzleTableData` 의뢰 품목 | 문구 변경, 의뢰 틀 추가(기존 운송 규칙 안에서), 의뢰 화물 추가 | 의뢰인·세력·사연 필드, 이어지는 의뢰(퀘스트라인), 특정 마을·날짜에만 나오는 의뢰, 납품 의뢰 |
 | 의뢰 실패 패널티 | 보증금 몰수 또는 의뢰 지역 72시간 거래 불이익 | `TrainventoryQuestTableData.penalties` | 이름·설명·수치 변경 | 새 패널티 종류("보상이 문제를 일으킴" 등) |
 | 거래 숙련·평판 | 생산 태그 10종별 경험치·레벨. 평판 = 레벨 합. 평판이 오르면 동시 의뢰 수가 는다 | `TrainventoryProficiencyTableData`, 문구 `presentation.proficiency.*` | 문구 변경 | 칭호, 세력별 평판, 평판으로 열리는 이야기 |

@@ -76,25 +76,61 @@ public static partial class Presentation
         {
             PuzzleRumorKind.Specialty => BasicData.Format("presentation.station.specialtyRumor", city,
                 ItemLink(_candidate.ItemId, tables.Piece(_candidate.ItemId).displayName)),
-            PuzzleRumorKind.RareDemand => BasicData.Format("presentation.station.rareRumor", city,
-                TagLink(_candidate.Tag)),
+            PuzzleRumorKind.RareDemand or PuzzleRumorKind.Preference => TavernDemandRumor(_candidate, city),
             PuzzleRumorKind.Action => TavernActionRumor(city, tables.CityAction(_candidate.ActionId)),
             _ => throw new ArgumentOutOfRangeException(nameof(_candidate), _candidate.Kind, "지원하지 않는 소문 종류입니다.")
         };
     }
 
+    static string TavernDemandRumor(PuzzleRumorCandidate _candidate, string _city)
+    {
+        var tables = TableManager.Instance;
+        var firstPreference = tables.PuzzleRumor.firstPreference;
+        bool isPreference = _candidate.Kind == PuzzleRumorKind.Preference && firstPreference != null &&
+            string.Equals(_candidate.CityId, firstPreference.cityId, StringComparison.Ordinal) &&
+            string.Equals(_candidate.Tag, firstPreference.tag, StringComparison.Ordinal) &&
+            tables.TryGetCityTagPrice(_candidate.CityId, _candidate.Tag, out var rule) &&
+            TableManager.SellGradeKindOf(rule) == PuzzleSellGradeKind.Expensive;
+        if (isPreference)
+        {
+            return BasicData.Format("presentation.station.preferenceRumor", _city, TagLink(_candidate.Tag),
+                HasFinalConsonant(PuzzleTagLabel(_candidate.Tag)) ? "을" : "를");
+        }
+        return BasicData.Format("presentation.station.rareRumor", _city, TagLink(_candidate.Tag));
+    }
+
+    // 저장된 수요 소문도 종류·마을·태그로 문구를 만들어 현재 표시 원본을 사용한다.
+    internal static string TavernRumorMessage(PuzzleInventoryService.TavernRumor _rumor)
+    {
+        if (_rumor.Kind == PuzzleRumorKind.RareDemand || _rumor.Kind == PuzzleRumorKind.Preference)
+        {
+            return TavernRumor(new PuzzleRumorCandidate(_rumor.Kind, _rumor.TargetCityId, _rumor.ItemId,
+                _rumor.Tag, _rumor.ActionId));
+        }
+        return _rumor.Message;
+    }
+
     static string TavernActionRumor(string _city, PuzzleCityActionData _cityAction)
+    {
+        string action = _cityAction.type == nameof(PuzzleCityActionType.Refining)
+            ? BasicData.Text("presentation.station.refiningRumorAction")
+            : TavernActionName(_cityAction.title.TrimEnd().Normalize());
+        return BasicData.Format("presentation.station.actionRumor", _city, action, HasFinalConsonant(action) ? "이" : "가");
+    }
+
+    static bool HasFinalConsonant(string _word)
     {
         const int HANGUL_FIRST_SYLLABLE = 0xAC00;
         const int HANGUL_LAST_SYLLABLE = 0xD7A3;
         const int FINAL_CONSONANT_COUNT = 28;
-        string action = _cityAction.type == nameof(PuzzleCityActionType.Refining)
-            ? BasicData.Text("presentation.station.refiningRumorAction")
-            : TavernActionName(_cityAction.title.TrimEnd().Normalize());
-        char last = action[^1];
-        bool hasFinalConsonant = last >= HANGUL_FIRST_SYLLABLE && last <= HANGUL_LAST_SYLLABLE &&
+        if (string.IsNullOrEmpty(_word))
+        {
+            return false;
+        }
+
+        char last = _word[^1];
+        return last >= HANGUL_FIRST_SYLLABLE && last <= HANGUL_LAST_SYLLABLE &&
             (last - HANGUL_FIRST_SYLLABLE) % FINAL_CONSONANT_COUNT != 0;
-        return BasicData.Format("presentation.station.actionRumor", _city, action, hasFinalConsonant ? "이" : "가");
     }
 
     static string TavernActionName(string _title)
@@ -164,7 +200,7 @@ public static partial class Presentation
         {
             string timestamp = GameTimestamp(rumor.RecordedMinutes);
             entries.Add(BasicData.Format("presentation.rumorLog.entry", timestamp,
-                CityLink(rumor.SourceCityId), rumor.Message));
+                CityLink(rumor.SourceCityId), TavernRumorMessage(rumor)));
         }
         return string.Join(BasicData.Text("presentation.rumorLog.separator"), entries);
     }
@@ -954,8 +990,11 @@ public static partial class Presentation
     internal static string StationWagonShop => BasicData.Text("presentation.station.wagonShop");
     internal static string StationWagonShopPage(int _page, int _pageCount) =>
         BasicData.Format("presentation.station.wagonShopPage", _page, _pageCount);
-    internal static string WagonProductLabel(string _name, long _price) =>
-        BasicData.Format("presentation.station.wagonProduct", _name, _price);
+    internal static string WagonProductLabel(string _name, long _price)
+    {
+        var board = TableManager.Instance.RequireValid().Puzzle.train;
+        return BasicData.Format("presentation.station.wagonProduct", _name, board.width, board.height, _price);
+    }
 
     internal static string WagonSaleAmount(long _price, bool _showPlus = false)
     {
@@ -2236,6 +2275,16 @@ public static partial class Presentation
     }
 
     internal static string PuzzleClearTitle => BasicData.Text("presentation.inventory.clearTitle");
+
+    internal static Color32 PuzzleObjectiveBackground => new Color32(22, 27, 43, 255);
+    internal static Color32 PuzzleObjectiveBackdrop => new Color32(0, 0, 0, 140);
+    internal static Color32 PuzzleObjectiveSurface => new Color32(28, 33, 42, 255);
+    internal static string PuzzleObjectiveConfirm => BasicData.Text("presentation.inventory.travelConfirm");
+
+    internal static string PuzzleObjectiveHint(string _cityName)
+    {
+        return BasicData.Format("presentation.inventory.objectiveHint", _cityName);
+    }
 
     public static string PuzzleClearButton(long _cost)
     {

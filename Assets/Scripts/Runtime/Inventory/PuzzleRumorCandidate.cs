@@ -7,7 +7,8 @@ public enum PuzzleRumorKind
 {
     Specialty,
     RareDemand,
-    Action
+    Action,
+    Preference
 }
 
 // 소문 후보에는 대상 마을과 종류별 ID를 보관한다.

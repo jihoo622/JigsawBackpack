@@ -363,6 +363,24 @@ public sealed class GameTableRules
     {
         const string PATH = nameof(PuzzleRumorTableData);
         var rumor = _tables.PuzzleRumor;
+        var firstPreference = rumor.firstPreference;
+        if (firstPreference != null)
+        {
+            string path = PATH + ".firstPreference";
+            bool hasCity = _tables.HasCity(firstPreference.cityId);
+            Reference(firstPreference.cityId, path + ".cityId", hasCity, "첫 선호 소문 마을");
+            Check(!string.IsNullOrWhiteSpace(firstPreference.tag) && _tables.Pieces.Any(_piece =>
+                    !_piece.excludeFromMarket && (_piece.tags ?? Array.Empty<string>()).Contains(firstPreference.tag)),
+                path + ".tag", "시장에 유통되는 품목의 태그가 필요합니다.");
+            if (hasCity)
+            {
+                var city = _tables.CityPrice(firstPreference.cityId);
+                Check(city.sellEnabled && (city.tagPrices ?? Array.Empty<PuzzleCityTagPriceData>()).Any(_rule =>
+                        _rule != null && _rule.tag == firstPreference.tag &&
+                        TableManager.SellGradeKindOf(_rule) == PuzzleSellGradeKind.Expensive),
+                    path + ".tag", "첫 선호 소문의 태그는 해당 마을에서 Expensive 판매 등급이어야 합니다.");
+            }
+        }
         var excludedIds = new HashSet<string>(StringComparer.Ordinal);
         var excludedItemIds = rumor.excludedItemIds ?? Array.Empty<string>();
         for (int i = 0; i < excludedItemIds.Length; i++)
