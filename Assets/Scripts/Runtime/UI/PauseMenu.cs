@@ -21,6 +21,7 @@ public sealed class PauseMenu : PanelBase
     InputActionAsset actions;
     InputAction cancel;
     InputAction back;
+    InputAction rightClick;
     int cancelConsumedFrame = -1;
 
     PuzzleMapPresenter mapPresenter;
@@ -51,6 +52,7 @@ public sealed class PauseMenu : PanelBase
             actions = Instantiate(input.ActionsAsset);
             cancel = actions.FindAction("UI/Cancel", true);
             back = actions.FindAction("UI/Back", true);
+            rightClick = actions.FindAction("UI/RightClick", true);
         }
         base.Awake();
     }
@@ -68,6 +70,11 @@ public sealed class PauseMenu : PanelBase
             back.performed += OnBack;
             back.Enable();
         }
+        if (rightClick != null)
+        {
+            rightClick.performed += OnRightClickBack;
+            rightClick.Enable();
+        }
     }
 
     protected override void OnDisable()
@@ -81,6 +88,11 @@ public sealed class PauseMenu : PanelBase
         {
             back.performed -= OnBack;
             back.Disable();
+        }
+        if (rightClick != null)
+        {
+            rightClick.performed -= OnRightClickBack;
+            rightClick.Disable();
         }
         base.OnDisable();
     }
@@ -110,7 +122,20 @@ public sealed class PauseMenu : PanelBase
         }
     }
 
-    // Esc와 뒤로가기 버튼이 같은 프레임에 눌려도 한 단계만 소비한다.
+    // UI/RightClick은 누름·해제 모두 performed가 온다. 누를 때만 뒤로가고 화물 드래그 중에는 회전 입력이 처리한다.
+    void OnRightClickBack(InputAction.CallbackContext _context)
+    {
+        if (!_context.ReadValueAsButton() || PuzzleInventoryPresenter.HasActiveDrag)
+        {
+            return;
+        }
+        if (TryClaimFrame())
+        {
+            TryConsumeBackStep();
+        }
+    }
+
+    // Esc·뒤로가기·우클릭이 같은 프레임에 눌려도 한 단계만 소비한다.
     bool TryClaimFrame()
     {
         if (cancelConsumedFrame == Time.frameCount)

@@ -3,7 +3,8 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 
 // 고유명사 링크(<link="종류:ID">)가 들어가는 TMP 글자에 붙인다.
-// 마우스를 올리면 링크 글자를 강조 색으로 바꾸고 미리보기를 요청하며, 왼쪽 클릭은 이동, 오른쪽 클릭은 메뉴를 요청한다.
+// 마우스를 올리면 링크 글자를 강조 색으로 바꾸고 미리보기를 요청하며, 왼쪽 클릭은 이동을 요청한다.
+// 우클릭은 PauseMenu의 공통 뒤로가기 입력으로 처리한다.
 // 링크가 아닌 곳의 누름·클릭은 부모(요약 띠·의뢰 슬롯 같은 버튼)로 넘겨 기존 버튼 동작을 막지 않는다.
 // 화물을 끄는 중에는 반응하지 않는다.
 [RequireComponent(typeof(TextMeshProUGUI))]
@@ -96,7 +97,8 @@ public sealed class TextLinkHandler : MonoBehaviour, IPointerMoveHandler, IPoint
 
     public void OnPointerClick(PointerEventData _eventData)
     {
-        if (_eventData.dragging)
+        if (_eventData.dragging || PuzzleInventoryPresenter.HasActiveDrag ||
+            _eventData.button != PointerEventData.InputButton.Left)
         {
             return;
         }
@@ -108,14 +110,7 @@ public sealed class TextLinkHandler : MonoBehaviour, IPointerMoveHandler, IPoint
         }
         var info = new GameEvents.EntityLinkInfo(gameObject.scene.handle, kind, id, _eventData.position);
         ClearHover();
-        if (_eventData.button == PointerEventData.InputButton.Right)
-        {
-            GameEvents.RaiseEntityLinkContextRequested(info);
-        }
-        else if (_eventData.button == PointerEventData.InputButton.Left)
-        {
-            GameEvents.RaiseEntityLinkClicked(info);
-        }
+        GameEvents.RaiseEntityLinkClicked(info);
     }
 
     void Forward<T>(PointerEventData _eventData, ExecuteEvents.EventFunction<T> _handler) where T : IEventSystemHandler
