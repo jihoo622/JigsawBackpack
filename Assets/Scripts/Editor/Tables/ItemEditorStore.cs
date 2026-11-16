@@ -83,7 +83,9 @@ public static class ItemEditorStore
             {
                 foreach (var view in _views)
                 {
-                    var icons = new SerializedObject(view).FindProperty("itemIcons");
+                    // 미리보기 씬 오브젝트는 곧 닫히므로 SerializedObject를 바로 해제한다.
+                    using var serialized = new SerializedObject(view);
+                    var icons = serialized.FindProperty("itemIcons");
                     for (int i = 0; i < icons.arraySize; i++)
                     {
                         var entry = icons.GetArrayElementAtIndex(i);
@@ -456,7 +458,7 @@ public static class ItemEditorStore
     static bool UpdateIcons(PuzzleInventoryView _view, Dictionary<string, Sprite> _sprites,
         List<string> _errors, string _path, bool _apply)
     {
-        var serialized = new SerializedObject(_view);
+        using var serialized = new SerializedObject(_view);
         var array = serialized.FindProperty("itemIcons");
         var indices = new Dictionary<string, int>(StringComparer.Ordinal);
         for (int i = 0; i < array.arraySize; i++)
@@ -522,7 +524,8 @@ public static class ItemEditorStore
 
     static List<ViewIcon> ReadViewIcons(PuzzleInventoryView _view)
     {
-        var icons = new SerializedObject(_view).FindProperty("itemIcons");
+        using var serialized = new SerializedObject(_view);
+        var icons = serialized.FindProperty("itemIcons");
         var result = new List<ViewIcon>();
         for (int index = 0; index < icons.arraySize; index++)
         {
