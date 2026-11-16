@@ -845,7 +845,7 @@ public static class BasicDataContract
             { "presentation.trade.expensiveResourceTooltip", 0 },
             { "presentation.trade.purchaseCancel", 0 },
             { "presentation.trade.rareResourceTitle", 0 },
-            { "presentation.trade.rareResourceTooltip", 0 },
+            { "presentation.trade.rareResourceTooltip", 1 },
             { "presentation.trade.regionPrice", 2 },
             { "presentation.trade.tradeRateText", 3 },
             { "presentation.trade.tradeRateTextText2", 0 },

@@ -1060,6 +1060,13 @@ public static class Presentation
             _intervalDays, _wasteName, _count));
     }
 
+    internal static string PuzzleAnimalFeedEffect(string _description, int _intervalHours, int _reductionHours)
+    {
+        return PuzzleTooltipEffectDescription(string.Format(_description,
+            PuzzleMapTime((long)_intervalHours * PuzzleTimeManager.MINUTES_PER_HOUR),
+            PuzzleMapTime((long)_reductionHours * PuzzleTimeManager.MINUTES_PER_HOUR)));
+    }
+
     internal static string PuzzleCombinationEffect(string _description, long _minutes, string _resultName)
     {
         return PuzzleTooltipEffectDescription(string.Format(_description,
@@ -1283,7 +1290,7 @@ public static class Presentation
                 return true;
             case "rare":
                 _title = BasicData.Text("presentation.trade.rareResourceTitle");
-                _description = FormatKeywordTooltipDescription(BasicData.Text("presentation.trade.rareResourceTooltip"));
+                _description = FormatKeywordTooltipDescription(BasicData.Format("presentation.trade.rareResourceTooltip", RareSellPercent() - PuzzleInventoryValuation.BASE_PERCENT));
                 return true;
             case "waste":
                 _title = BasicData.Text("presentation.trade.wastePurchaseTitle");
@@ -1294,6 +1301,16 @@ public static class Presentation
                 _description = null;
                 return false;
         }
+    }
+
+    static int RareSellPercent()
+    {
+        var tables = TableManager.Instance.RequireValid();
+        if (!tables.TryGetSellGrade(TableManager.SELL_GRADE_RARE, out var grade))
+        {
+            throw new InvalidOperationException("희귀 판매 등급이 필요합니다.");
+        }
+        return grade.sellPercent;
     }
 
     static string FormatKeywordTooltipDescription(string _description)

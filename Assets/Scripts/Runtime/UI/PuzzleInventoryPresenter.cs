@@ -1300,6 +1300,8 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
                 }
                 general.Add(new PuzzleEffectDisplay(Presentation.PuzzleAnimalBreedingEffect(breeding.description,
                     breedingMinutes, offspring.displayName, breeding.offspringCount), breedingProgress));
+                general.Add(new PuzzleEffectDisplay(Presentation.PuzzleAnimalFeedEffect(animals.breedingFeedDescription,
+                    animals.feedIntervalHours, animals.breedingFeedReductionHours)));
             }
             if (item.GrowthMinutes > 0)
             {
@@ -1311,6 +1313,8 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
                     : null;
                 general.Add(new PuzzleEffectDisplay(Presentation.PuzzleAnimalGrowthEffect(item.GrowthDescription,
                     item.GrowthMinutes, adult.displayName, item.GrowthBlockedMinutes), growthProgress));
+                general.Add(new PuzzleEffectDisplay(Presentation.PuzzleAnimalFeedEffect(animals.growthFeedDescription,
+                    animals.feedIntervalHours, animals.growthFeedReductionHours)));
             }
 
             var waste = tables.Piece(animals.wastePieceId);

@@ -823,7 +823,14 @@ public sealed class GameTableRules
         Check(animals.grainTag != animals.animalTag && animals.grainTag != animals.wasteTag, PATH + ".grainTag",
             "곡물 태그는 동물·배설물 태그와 서로 달라야 합니다.");
         Check(animals.feedIntervalHours > 0, PATH + ".feedIntervalHours", "곡물 섭취 주기는 양의 정수 시간이어야 합니다.");
-        Check(animals.feedReductionHours > 0, PATH + ".feedReductionHours", "섭취 1회 시간 단축은 양의 정수 시간이어야 합니다.");
+        Check(animals.breedingFeedReductionHours > 0, PATH + ".breedingFeedReductionHours",
+            "섭취 1회 번식 시간 단축은 양의 정수 시간이어야 합니다.");
+        Check(animals.growthFeedReductionHours > 0, PATH + ".growthFeedReductionHours",
+            "섭취 1회 성장 시간 단축은 양의 정수 시간이어야 합니다.");
+        ValidateEffectDescription(animals.breedingFeedDescription, PATH + ".breedingFeedDescription",
+            string.Empty, string.Empty);
+        ValidateEffectDescription(animals.growthFeedDescription, PATH + ".growthFeedDescription",
+            string.Empty, string.Empty);
 
         var breeding = animals.breeding ?? Array.Empty<PuzzleAnimalBreedingData>();
         for (int i = 0; i < breeding.Length; i++)
@@ -891,7 +898,7 @@ public sealed class GameTableRules
     }
 
     // 같은 객차에서 인접한 두 품목을 정해진 시간 후 하나로 바꾸는 공용 조합 규칙.
-    // 품목 참조, 서로 다른 두 입력, 양의 시간, 자리를 이어받는 입력과 같은 결과 모양·유통기한,
+    // 품목 참조, 서로 다른 두 입력, 양의 시간, 자리를 이어받는 입력과 같은 결과 모양,
     // 중복 입력 쌍, 결과를 입력으로 되돌리는 재조합을 항목별로 검사한다.
     void ValidateCombinations(TableManager _tables)
     {
@@ -944,8 +951,6 @@ public sealed class GameTableRules
 
             Check(SamePieceGeometry(source, result), path + ".resultPieceId",
                 "조합 결과는 자리를 이어받는 입력과 같은 셀 좌표와 slotCount를 가져야 합니다.", rule.resultPieceId, "cells");
-            Check(result.shelfLifeHours == source.shelfLifeHours, path + ".resultPieceId",
-                "조합 결과의 유통기한은 자리를 이어받는 입력과 같아야 합니다.", rule.resultPieceId, "shelfLifeHours");
             Check(result.excludeFromMarket == source.excludeFromMarket, path + ".resultPieceId",
                 "조합 결과의 시장 재고 제외 설정은 자리를 이어받는 입력과 같아야 합니다.", rule.resultPieceId, "excludeFromMarket");
         }
@@ -1318,6 +1323,7 @@ public sealed class GameTableRules
             Check(grade.sellPercent > 0, path + ".sellPercent", "판매 등급 배율은 0보다 커야 합니다.");
         }
         Check(grades.Length > 0, PATH, "판매 등급이 하나 이상 필요합니다.");
+        Reference(TableManager.SELL_GRADE_RARE, PATH + ".Rare", _tables.TryGetSellGrade(TableManager.SELL_GRADE_RARE, out _), "판매 등급");
     }
 
     void ValidateStockProfiles(TableManager _tables)
