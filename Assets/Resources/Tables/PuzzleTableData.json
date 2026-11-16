@@ -827,7 +827,7 @@
         "Food",
         "Meat"
       ],
-      "shelfLifeHours": 168,
+      "shelfLifeHours": 336,
       "visualKey": "cargo.beef",
       "slotCount": 2,
       "durability": 100,
@@ -880,7 +880,7 @@
         "Food",
         "Fish"
       ],
-      "shelfLifeHours": 168,
+      "shelfLifeHours": 336,
       "visualKey": "cargo.fish",
       "slotCount": 2,
       "cells": [
@@ -943,7 +943,7 @@
         "Food",
         "Meat"
       ],
-      "shelfLifeHours": 168,
+      "shelfLifeHours": 336,
       "visualKey": "cargo.meatPackage",
       "slotCount": 1,
       "cells": [

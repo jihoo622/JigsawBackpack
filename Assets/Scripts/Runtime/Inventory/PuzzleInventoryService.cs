@@ -681,7 +681,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
                 step = Math.Min(step, MinutesUntilFeeding(wagons, plan.feedingProgress, animals.animalTag,
                     feedIntervalMinutes, animalEventsThrough - cursor));
                 long boundary = cursor + step;
-                // 같은 시각에는 정산, 배설, 식품 만료, 조합, 곡물 섭취, 성장, 출산 순으로 처리한다.
+                // 정산·배설·만료·조합 뒤 섭취하며 각 가속의 완료는 즉시 반영한다. 나머지 성장·출산은 그 뒤 처리한다.
                 long activations = boundary / synergyInterval - cursor / synergyInterval;
                 foreach (var wagon in wagons)
                 {
@@ -726,7 +726,10 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
                 // 곡물 섭취와 가속은 성장·출산보다 먼저 처리한다. 섭취로 빈 칸이 성장 자리로 쓰인다.
                 if (animalEvents)
                 {
-                    AdvanceFeeding(plan, wagons, animals, step, feedIntervalMinutes);
+                    // 자연 경과를 먼저 더해 두 부모의 섭취가 같은 경계의 쌍 진행에 누적되게 한다.
+                    AdvanceBreedingProgress(plan, pairs, step);
+                    AdvanceFeeding(plan, wagons, animals, step, feedIntervalMinutes, breedingMinutes,
+                        holdMinutes, growth);
                 }
 
                 // 공간이 없는 성장은 전체 진행을 거절하지 않고 그 품목만 대기한다.
@@ -742,7 +745,8 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
 
                 if (animalEvents)
                 {
-                    AdvanceBreeding(plan, pairs, step, breedingMinutes, holdMinutes);
+                    CompleteBreeding(plan, SelectBreedingPairs(wagons, plan.breedingProgress), breedingMinutes,
+                        holdMinutes);
                 }
                 cursor = boundary;
             }
@@ -1020,42 +1024,51 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         return Math.Max(1, next);
     }
 
-    void AdvanceBreeding(TimeAdvancePlan _plan, List<BreedingPair> _pairs, long _step, long _breedingMinutes,
+    static void AdvanceBreedingProgress(TimeAdvancePlan _plan, List<BreedingPair> _pairs, long _step)
+    {
+        var progress = new Dictionary<(int First, int Second), BreedingState>();
+        foreach (var pair in _pairs)
+        {
+            progress.Add(pair.key, pair.state.SpaceBlocked
+                ? pair.state
+                : new BreedingState(checked(pair.state.ElapsedMinutes + _step), false));
+        }
+        _plan.breedingProgress = progress;
+    }
+
+    void CompleteBreeding(TimeAdvancePlan _plan, List<BreedingPair> _pairs, long _breedingMinutes,
         long _holdMinutes)
     {
         var progress = new Dictionary<(int First, int Second), BreedingState>();
         foreach (var pair in _pairs)
         {
-            if (pair.state.SpaceBlocked)
-            {
-                // 자리가 돌아올 때까지는 완료 직전 진행도를 유지하고, 자리를 찾으면 마지막 1시간을 다시 흘려보낸다.
-                progress.Add(pair.key,
-                    pair.wagon.CanAutoPlaceAll(pair.offspring, pair.offspringCount, _allowRotation: true)
-                        ? new BreedingState(_breedingMinutes - _holdMinutes, false)
-                        : pair.state);
-                continue;
-            }
-
-            long elapsed = pair.state.ElapsedMinutes + _step;
-            bool blocked = false;
-            if (elapsed >= _breedingMinutes)
-            {
-                // 같은 시각의 배설·성장이 끝난 배치에 출산하고, 산출물이 전부 들어갈 때만 진행을 넘긴다.
-                if (pair.wagon.TryAutoPlaceAll(pair.offspring, pair.offspringCount, ref _plan.lastInstanceId,
-                    _allowRotation: true))
-                {
-                    elapsed %= _breedingMinutes;
-                }
-                else
-                {
-                    elapsed = _breedingMinutes - _holdMinutes;
-                    blocked = true;
-                    pair.RaiseSpaceNotice();
-                }
-            }
-            progress.Add(pair.key, new BreedingState(elapsed, blocked));
+            progress.Add(pair.key, CompleteBreedingPair(_plan, pair, pair.state.ElapsedMinutes,
+                _breedingMinutes, _holdMinutes));
         }
         _plan.breedingProgress = progress;
+    }
+
+    static BreedingState CompleteBreedingPair(TimeAdvancePlan _plan, BreedingPair _pair, long _elapsed,
+        long _breedingMinutes, long _holdMinutes)
+    {
+        if (_pair.state.SpaceBlocked)
+        {
+            return _pair.wagon.CanAutoPlaceAll(_pair.offspring, _pair.offspringCount, _allowRotation: true)
+                ? new BreedingState(_breedingMinutes - _holdMinutes, false)
+                : _pair.state;
+        }
+
+        while (_elapsed >= _breedingMinutes)
+        {
+            if (!_pair.wagon.TryAutoPlaceAll(_pair.offspring, _pair.offspringCount, ref _plan.lastInstanceId,
+                _allowRotation: true))
+            {
+                _pair.RaiseSpaceNotice();
+                return new BreedingState(_breedingMinutes - _holdMinutes, true);
+            }
+            _elapsed -= _breedingMinutes;
+        }
+        return new BreedingState(_elapsed, false);
     }
 
     // 인접 두 품목의 조합 진행. 결과는 자리를 이어받는 입력의 칸에 그대로 들어가므로 공간 대기가 없고
@@ -1301,10 +1314,11 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
 
     // 경계에 선 동물은 객차 순서, 좌측 하단 좌표, 인스턴스 ID 순으로 같은 객차의 첫 곡물을 하나 소비한다.
     void AdvanceFeeding(TimeAdvancePlan _plan, PuzzleInventory[] _wagons, PuzzleAnimalSynergyData _animals,
-        long _step, long _cycleMinutes)
+        long _step, long _cycleMinutes, long _breedingMinutes, long _holdMinutes, List<PuzzleGrowth> _growth)
     {
-        var currentPairs = SelectBreedingPairs(_wagons, _plan.breedingProgress);
-        var candidates = new List<(int wagonIndex, int instanceId, Vector2Int bottomLeft, PuzzlePlacement placement)>();
+        long breedingReductionMinutes = (long)_animals.breedingFeedReductionHours * PuzzleTimeManager.MINUTES_PER_HOUR;
+        long growthReductionMinutes = (long)_animals.growthFeedReductionHours * PuzzleTimeManager.MINUTES_PER_HOUR;
+        var candidates = new List<(int wagonIndex, int instanceId, Vector2Int bottomLeft)>();
         var progress = new Dictionary<int, long>();
         for (int i = 0; i < _wagons.Length; i++)
         {
@@ -1320,7 +1334,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
                 progress[animal.InstanceId] = fires ? 0 : elapsed + _step;
                 if (fires)
                 {
-                    candidates.Add((i, animal.InstanceId, BottomLeft(animal), animal));
+                    candidates.Add((i, animal.InstanceId, BottomLeft(animal)));
                 }
             }
         }
@@ -1331,9 +1345,36 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
             .ThenBy(_candidate => _candidate.bottomLeft.x)
             .ThenBy(_candidate => _candidate.instanceId))
         {
-            if (CanConsumeGrain(candidate.placement, currentPairs))
+            // 앞선 섭취로 성장·출산한 뒤의 배치와 쌍을 다시 읽는다.
+            var wagon = _wagons[candidate.wagonIndex];
+            var animal = wagon.Placements.FirstOrDefault(_item => _item.InstanceId == candidate.instanceId);
+            var currentPairs = SelectBreedingPairs(_wagons, _plan.breedingProgress);
+            if (animal == null || !CanConsumeGrain(animal, currentPairs) ||
+                !TryConsumeGrain(wagon, _animals.grainTag))
             {
-                TryConsumeGrain(_wagons[candidate.wagonIndex], _animals.grainTag);
+                continue;
+            }
+
+            if (animal.Definition.IsBaby)
+            {
+                animal.GrowthElapsedMinutes = checked(animal.GrowthElapsedMinutes + growthReductionMinutes);
+                _growth.Clear();
+                wagon.PlanGrowth(_growth);
+                foreach (var change in _growth)
+                {
+                    wagon.ApplyGrowth(change);
+                }
+                continue;
+            }
+
+            foreach (var pair in currentPairs)
+            {
+                if (pair.key.First == animal.InstanceId || pair.key.Second == animal.InstanceId)
+                {
+                    _plan.breedingProgress[pair.key] = CompleteBreedingPair(_plan, pair,
+                        checked(pair.state.ElapsedMinutes + breedingReductionMinutes), _breedingMinutes, _holdMinutes);
+                    break;
+                }
             }
         }
 

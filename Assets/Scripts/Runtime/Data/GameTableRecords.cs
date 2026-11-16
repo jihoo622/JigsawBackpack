@@ -232,8 +232,9 @@ public sealed class PuzzleAnimalSynergyData
     // 출산·배설이 끝나기 직전 산출물을 놓을 자리가 없을 때 대기하는 시간. 동물 규칙 전체가 공유하는 값이다.
     public int completionHoldHours;
     // 소·송아지가 같은 객차의 곡물을 섭취하는 규칙의 공통 원본. 곡물 태그(grainTag)로 대상 품목을 찾고,
-    // feedIntervalHours마다 하나를 소비해 번식·성장을 feedReductionHours만큼 앞당긴다. 값이 없으면 테이블 오류다.
-    public int feedIntervalHours, feedReductionHours;
+    // feedIntervalHours마다 하나를 소비한다. breedingFeedReductionHours는 번식, growthFeedReductionHours는 성장 단축량이다.
+    public int feedIntervalHours, breedingFeedReductionHours, growthFeedReductionHours;
+    public string breedingFeedDescription, growthFeedDescription;
     public PuzzleAnimalBreedingData[] breeding = Array.Empty<PuzzleAnimalBreedingData>();
 }
 
@@ -245,7 +246,8 @@ public sealed class PuzzleAnimalBreedingData
 }
 
 // 인접 조합 한 규칙. 입력 두 품목은 서로 달라야 하고 보드에서 어느 쪽에 있어도 같은 쌍으로 본다.
-// sourcePieceId는 결과의 자리·모양·회전·유통기한을 이어받는 입력, partnerPieceId는 함께 소모되는 입력이다.
+// sourcePieceId는 결과의 자리·모양·회전을 이어받는 입력, partnerPieceId는 함께 소모되는 입력이다.
+// 결과의 기본 유통기한은 resultPieceId 품목의 shelfLifeHours를 쓴다.
 [Serializable]
 public sealed class PuzzleCombinationRuleData
 {

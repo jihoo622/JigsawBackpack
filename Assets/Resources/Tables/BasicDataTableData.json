@@ -952,8 +952,8 @@
         },
         {
           "id": "informationText16",
-          "value": "<color=#{0}><b>희귀 150%</b></color>   {1}",
-          "arguments": 2
+          "value": "<color=#{0}><b>희귀 {2}%</b></color>   {1}",
+          "arguments": 3
         },
         {
           "id": "informationText2",
@@ -2521,8 +2521,8 @@
         },
         {
           "id": "cityTagPreferencesText5",
-          "value": "<color=#{0}><b><link=\"rare\">희귀 150%</link></b></color>   {1}\n",
-          "arguments": 2
+          "value": "<color=#{0}><b><link=\"rare\">희귀 {2}%</link></b></color>   {1}\n",
+          "arguments": 3
         },
         {
           "id": "wastePurchase",
@@ -2547,11 +2547,13 @@
         },
         {
           "id": "rareResourceTitle",
-          "value": "희귀 150%"
+          "value": "희귀 {0}%",
+          "arguments": 1
         },
         {
           "id": "rareResourceTooltip",
-          "value": "해당 태그 물품 거래 시 기본 배율에 +50%가 적용됩니다.\n(구매·판매 모두 적용)"
+          "value": "해당 태그 물품 판매 시 기본 배율에 +{0}%가 적용됩니다.",
+          "arguments": 1
         },
         {
           "id": "wastePurchaseTitle",
