@@ -19,6 +19,7 @@ public sealed class EntityPreviewPresenter : MonoBehaviour
         }
         session = SceneServices.For<PuzzleInventoryService>(gameObject.scene);
         GameEvents.EntityLinkHovered += OnHovered;
+        GameEvents.EntityLinkHoverMoved += OnHoverMoved;
         GameEvents.EntityLinkHoverEnded += OnHoverEnded;
         GameEvents.EntityLinkClicked += OnClicked;
         GameEvents.EntityLinkContextRequested += OnClicked;
@@ -31,6 +32,7 @@ public sealed class EntityPreviewPresenter : MonoBehaviour
     void OnDisable()
     {
         GameEvents.EntityLinkHovered -= OnHovered;
+        GameEvents.EntityLinkHoverMoved -= OnHoverMoved;
         GameEvents.EntityLinkHoverEnded -= OnHoverEnded;
         GameEvents.EntityLinkClicked -= OnClicked;
         GameEvents.EntityLinkContextRequested -= OnClicked;
@@ -64,6 +66,14 @@ public sealed class EntityPreviewPresenter : MonoBehaviour
         Presentation.EntityPreview(_info.kind, _info.id, session, out string title, statRows, lines);
         string[] tags = _info.kind == EntityLinkKind.Tag ? new[] { _info.id } : null;
         view.ShowEntityInfo(title, Presentation.EntityPreviewTitleColor(_info.kind, _info.id), lines, _info.screenPosition, tags, statRows);
+    }
+
+    void OnHoverMoved(GameEvents.EntityLinkInfo _info)
+    {
+        if (view && view.IsOpen && _info.sceneHandle == gameObject.scene.handle)
+        {
+            view.SetPointerPosition(_info.screenPosition);
+        }
     }
 
     void OnHoverEnded(int _sceneHandle)

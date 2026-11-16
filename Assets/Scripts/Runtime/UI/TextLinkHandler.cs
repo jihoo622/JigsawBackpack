@@ -8,7 +8,7 @@ using UnityEngine.EventSystems;
 // 링크가 아닌 곳의 누름·클릭은 부모(요약 띠·의뢰 슬롯 같은 버튼)로 넘겨 기존 버튼 동작을 막지 않는다.
 // 화물을 끄는 중에는 반응하지 않는다.
 [RequireComponent(typeof(TextMeshProUGUI))]
-public sealed class TextLinkHandler : MonoBehaviour, IPointerMoveHandler, IPointerExitHandler, IPointerDownHandler, IPointerUpHandler, IPointerClickHandler
+public sealed class TextLinkHandler : MonoBehaviour, IPointerEnterHandler, IPointerMoveHandler, IPointerExitHandler, IPointerDownHandler, IPointerUpHandler, IPointerClickHandler
 {
     TextMeshProUGUI text;
     Canvas rootCanvas;
@@ -55,6 +55,8 @@ public sealed class TextLinkHandler : MonoBehaviour, IPointerMoveHandler, IPoint
         return Presentation.TryParseEntityLink(text.textInfo.linkInfo[index].GetLinkID(), out _kind, out _id) ? index : -1;
     }
 
+    public void OnPointerEnter(PointerEventData _eventData) => OnPointerMove(_eventData);
+
     public void OnPointerMove(PointerEventData _eventData)
     {
         if (_eventData.dragging || PuzzleInventoryPresenter.HasActiveDrag)
@@ -65,6 +67,10 @@ public sealed class TextLinkHandler : MonoBehaviour, IPointerMoveHandler, IPoint
         int index = LinkAt(_eventData.position, out var kind, out var id);
         if (index == hoveredLink)
         {
+            if (index >= 0)
+            {
+                GameEvents.RaiseEntityLinkHoverMoved(new GameEvents.EntityLinkInfo(gameObject.scene.handle, kind, id, _eventData.position));
+            }
             return;
         }
         ClearHover();

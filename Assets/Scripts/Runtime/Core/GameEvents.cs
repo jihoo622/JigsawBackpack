@@ -280,6 +280,7 @@ public static class GameEvents
     public static event Action<EntityLinkInfo> EntityLinkClicked;
     public static event Action<EntityLinkInfo> EntityLinkContextRequested;
     public static event Action<EntityLinkInfo> EntityLinkHovered;
+    public static event Action<EntityLinkInfo> EntityLinkHoverMoved;
     public static event Action<int> EntityLinkHoverEnded;
     public static void RaiseEntityLinkClicked(EntityLinkInfo _info)
     {
@@ -297,6 +298,8 @@ public static class GameEvents
     {
         Emit(EntityLinkHoverEnded, _sceneHandle);
     }
+
+    public static void RaiseEntityLinkHoverMoved(EntityLinkInfo _info) => Emit(EntityLinkHoverMoved, _info);
 
     // 링크 이동 요청: 지도에서 도시(또는 지역)를 보이기, 상성표에서 태그·품목을 강조하기.
     public readonly struct MapFocusInfo
@@ -778,6 +781,7 @@ public static class GameEvents
         EntityLinkClicked = null;
         EntityLinkContextRequested = null;
         EntityLinkHovered = null;
+        EntityLinkHoverMoved = null;
         EntityLinkHoverEnded = null;
         MapFocusRequested = null;
         RoutePlanChanged = null;

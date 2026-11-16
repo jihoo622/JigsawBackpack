@@ -84,6 +84,14 @@ public sealed class ItemInfoPopupView : MonoBehaviour
     }
 
     // 커서 오른쪽 아래에 두되 화면 밖으로 나가면 반대쪽으로 붙인다.
+    internal void SetPointerPosition(Vector2 _screenPosition)
+    {
+        if (card.gameObject.activeSelf)
+        {
+            Place(_screenPosition);
+        }
+    }
+
     void Place(Vector2 _screenPosition)
     {
         var parent = (RectTransform)card.parent;

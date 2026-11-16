@@ -9,13 +9,8 @@ using TMPro;
 [DisallowMultipleComponent]
 public sealed class PuzzleInventoryPresenter : MonoBehaviour
 {
-    const float KEYWORD_DWELL_MOVE_THRESHOLD = 4f;
-
     [Header("Drag Settings")]
     [SerializeField] float wagonDragHoverDelay = 0.5f;
-
-    [Header("Tooltip Settings")]
-    [SerializeField] float keywordTooltipDelay = 0.35f;
 
     [SerializeField] PuzzleInventoryView trainView;
     [SerializeField] TextMeshProUGUI wagonEffectsLabel;
@@ -46,9 +41,6 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
     Vector2? hoverPosition;
     int? currentHoveredInstanceId;
     string currentHoveredKeywordId;
-    string pendingKeywordId;
-    float pendingKeywordStartTime;
-    Vector2 pendingKeywordPosition;
     int? hoveredWagonIndex;
     PuzzleItemTooltipView KeywordTooltipView => keywordTooltipView ? keywordTooltipView : tooltipView;
     float hoveredWagonStartTime;
@@ -1136,38 +1128,12 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             return;
         }
 
-        if (currentHoveredKeywordId != null)
-        {
-            currentHoveredKeywordId = null;
-            targetTooltip.Close();
-        }
-
-        if (pendingKeywordId != linkId)
-        {
-            pendingKeywordId = linkId;
-            pendingKeywordStartTime = Time.unscaledTime;
-            pendingKeywordPosition = pos;
-            return;
-        }
-
-        if (Vector2.Distance(pos, pendingKeywordPosition) > KEYWORD_DWELL_MOVE_THRESHOLD)
-        {
-            pendingKeywordStartTime = Time.unscaledTime;
-            pendingKeywordPosition = pos;
-            return;
-        }
-
-        if (Time.unscaledTime - pendingKeywordStartTime >= keywordTooltipDelay)
-        {
-            currentHoveredKeywordId = linkId;
-            pendingKeywordId = null;
-            targetTooltip.ShowKeyword(title, description, pos);
-        }
+        currentHoveredKeywordId = linkId;
+        targetTooltip.ShowKeyword(title, description, pos);
     }
 
     void ClearKeywordHover(bool _closeSharedTooltip = true)
     {
-        pendingKeywordId = null;
         if (currentHoveredKeywordId == null)
         {
             return;

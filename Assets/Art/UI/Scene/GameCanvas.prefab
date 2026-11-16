@@ -181,7 +181,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PuzzleInventoryPresenter
   wagonDragHoverDelay: 0.5
-  keywordTooltipDelay: 0.35
   trainView: {fileID: 2016023246669034752}
   wagonEffectsLabel: {fileID: 3122431651549472657}
   wagonRefrigerationButton: {fileID: 2450536085962433544}

@@ -12,6 +12,7 @@ public sealed class ItemInfoPopupPresenter : MonoBehaviour
     void OnEnable()
     {
         GameEvents.EntityLinkHovered += OnHovered;
+        GameEvents.EntityLinkHoverMoved += OnHoverMoved;
         GameEvents.EntityLinkHoverEnded += OnHoverEnded;
         GameEvents.EntityLinkClicked += OnClicked;
         GameEvents.EntityLinkContextRequested += OnClicked;
@@ -21,6 +22,7 @@ public sealed class ItemInfoPopupPresenter : MonoBehaviour
     void OnDisable()
     {
         GameEvents.EntityLinkHovered -= OnHovered;
+        GameEvents.EntityLinkHoverMoved -= OnHoverMoved;
         GameEvents.EntityLinkHoverEnded -= OnHoverEnded;
         GameEvents.EntityLinkClicked -= OnClicked;
         GameEvents.EntityLinkContextRequested -= OnClicked;
@@ -41,6 +43,14 @@ public sealed class ItemInfoPopupPresenter : MonoBehaviour
         Presentation.ItemInfoStats(piece, statNames, statTexts);
         Presentation.ItemInfoSynergies(piece, synergies);
         view.Show(piece, statNames, statTexts, synergies, _info.screenPosition);
+    }
+
+    void OnHoverMoved(GameEvents.EntityLinkInfo _info)
+    {
+        if (_info.kind == EntityLinkKind.Item && _info.sceneHandle == gameObject.scene.handle)
+        {
+            view.SetPointerPosition(_info.screenPosition);
+        }
     }
 
     void OnHoverEnded(int _sceneHandle)
