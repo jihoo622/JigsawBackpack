@@ -993,7 +993,7 @@
       "durability": 100,
       "excludeFromMarket": true,
       "adultPieceId": "piece.cow",
-      "growthHours": 48,
+      "growthHours": 24,
       "growthBlockedHours": 1,
       "growthDescription": "{0} 후 {1}(으)로 성장 (공간 부족 시 마지막 {2}에서 대기)",
       "baseValue": 20,
