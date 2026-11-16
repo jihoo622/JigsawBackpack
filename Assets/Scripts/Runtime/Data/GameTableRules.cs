@@ -1042,6 +1042,7 @@ public sealed class GameTableRules
             {
                 Check(board.width > 0, path + ".board.width", "작업 보드 너비는 0보다 커야 합니다.");
                 Check(board.height > 0, path + ".board.height", "작업 보드 높이는 0보다 커야 합니다.");
+                ValidateBlockedCells(board, path + ".board");
                 Check((board.startingPlacements ?? Array.Empty<PuzzleStartingPlacementData>()).Length == 0,
                     path + ".board.startingPlacements", "작업 보드는 빈 판으로 시작해야 합니다.");
             }
@@ -1361,7 +1362,8 @@ public sealed class GameTableRules
         var puzzle = _tables.Puzzle;
         ValidateTagPresentations(puzzle);
         var cities = puzzle.cities ?? Array.Empty<PuzzleCityData>();
-        int maxSide = cities.Select(city => MaxBoardSide(city?.market)).Append(MaxBoardSide(puzzle.train)).Max();
+        int maxSide = cities.Select(_city => MaxBoardSide(_city?.market)).Append(MaxBoardSide(puzzle.train))
+            .Append(MaxBoardSide(puzzle.startingTrain)).Max();
 
         var pieces = puzzle.pieces ?? Array.Empty<PuzzlePieceData>();
         var shapes = new Dictionary<PuzzlePieceData, Vector2Int[]>();
@@ -1383,6 +1385,10 @@ public sealed class GameTableRules
 
         var placementIds = new HashSet<string>(StringComparer.Ordinal);
         ValidateBoard(_tables, puzzle.train, shapes, placementIds, PATH + ".train");
+        if (puzzle.startingTrain != null)
+        {
+            ValidateBoard(_tables, puzzle.startingTrain, shapes, placementIds, PATH + ".startingTrain");
+        }
         Check(cities.Length > 0, PATH + ".cities", "도시가 하나 이상 필요합니다.");
         Reference(puzzle.startCity, PATH + ".startCity", _tables.HasCity(puzzle.startCity), "시작 도시");
         if (!string.IsNullOrEmpty(puzzle.planningTargetCityId))
@@ -1831,6 +1837,31 @@ public sealed class GameTableRules
         }
     }
 
+    HashSet<Vector2Int> ValidateBlockedCells(PuzzleBoardData _board, string _path)
+    {
+        var cells = _board.blockedCells ?? Array.Empty<PuzzleBoardCellData>();
+        var blocked = new HashSet<Vector2Int>();
+        for (int i = 0; i < cells.Length; i++)
+        {
+            var cell = cells[i];
+            string path = $"{_path}.blockedCells[{i}]";
+            if (cell == null)
+            {
+                Check(false, path, "사용 불가 칸 좌표가 누락되었습니다.");
+                continue;
+            }
+            bool inBounds = cell.x >= 0 && cell.x < _board.width && cell.y >= 0 && cell.y < _board.height;
+            Check(inBounds, path, "사용 불가 칸 좌표는 보드 안에 있어야 합니다.");
+            if (inBounds)
+            {
+                Check(blocked.Add(new Vector2Int(cell.x, cell.y)), path, "사용 불가 칸 좌표가 중복되었습니다.");
+            }
+        }
+        Check(blocked.Count < (long)_board.width * _board.height, _path + ".blockedCells",
+            "사용 가능한 칸이 하나 이상 필요합니다.");
+        return blocked;
+    }
+
     void ValidateBoard(TableManager _tables, PuzzleBoardData _board, Dictionary<PuzzlePieceData, Vector2Int[]> _shapes,
         HashSet<string> _placementIds, string _path)
     {
@@ -1842,6 +1873,7 @@ public sealed class GameTableRules
 
         Check(_board.width > 0, _path + ".width", "격자 너비는 0보다 커야 합니다.");
         Check(_board.height > 0, _path + ".height", "격자 높이는 0보다 커야 합니다.");
+        var blocked = ValidateBlockedCells(_board, _path);
         Check(_board.startingPlacements != null, _path + ".startingPlacements", "시작 배치 목록이 필요합니다.");
         var placements = _board.startingPlacements ?? Array.Empty<PuzzleStartingPlacementData>();
         var occupied = new Dictionary<Vector2Int, string>();
@@ -1890,6 +1922,7 @@ public sealed class GameTableRules
                 }
 
                 var position = new Vector2Int((int)x, (int)y);
+                Check(!blocked.Contains(position), path, $"슬롯 {position}은 사용할 수 없는 칸입니다.", piece.id, "cells");
                 if (!occupied.TryAdd(position, path))
                 {
                     Check(false, path, $"슬롯 {position}이 {occupied[position]}의 시작 배치와 겹칩니다.", piece.id, "cells");

@@ -50,6 +50,7 @@ public sealed class TableManager
     public IReadOnlyList<PuzzlePieceData> Pieces { get; }
     public IReadOnlyList<PuzzleCityData> Cities { get; }
     public IReadOnlyList<PuzzleStartingPlacementData> TrainStartingPlacements { get; }
+    public PuzzleBoardData StartingTrainBoard => Puzzle.startingTrain ?? Puzzle.train;
     public bool IsValid { get; }
 
     readonly Dictionary<string, UpgradeData> upgrades;
@@ -138,7 +139,7 @@ public sealed class TableManager
         actionModes = IndexActionModes(cityActions, rules);
         CityActions = Array.AsReadOnly(cityActions.Values.OrderBy(entry => entry.id, StringComparer.Ordinal).ToArray());
         Pieces = Array.AsReadOnly(pieces.Values.OrderBy(entry => entry.id, StringComparer.Ordinal).ToArray());
-        TrainStartingPlacements = SortStartingPlacements(Puzzle.train);
+        TrainStartingPlacements = SortStartingPlacements(StartingTrainBoard);
         Cities = Array.AsReadOnly(cities.Values.OrderBy(entry => entry.id == Puzzle.startCity ? 0 : 1)
             .ThenBy(entry => entry.id, StringComparer.Ordinal).ToArray());
         // 노출용 목록은 배열 순서에 의존하지 않는다. 사슬의 첫 항목 우선, 이후 id 오름차순의 결정적 순서.

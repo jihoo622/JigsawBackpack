@@ -36,6 +36,8 @@ public sealed class PuzzleTableData
     public PuzzlePieceData[] pieces = Array.Empty<PuzzlePieceData>();
     public PuzzleTagPresentationData[] tagPresentations = Array.Empty<PuzzleTagPresentationData>();
     public PuzzleBoardData train;
+    // 시작 전용 화차. 생략한 기존 데이터는 train을 시작 화차로 사용한다.
+    public PuzzleBoardData startingTrain;
     public string startCity;
     // 지도상 예정 목적지. 실제 상환 장소 판정인 debtCityId와 별개다.
     public string planningTargetCityId;

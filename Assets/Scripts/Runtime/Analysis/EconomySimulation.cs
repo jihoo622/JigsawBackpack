@@ -385,7 +385,7 @@ internal sealed class EconomyBot
 
     int FreeCells()
     {
-        return service.TrainWagons.Sum(_wagon => _wagon.Width * _wagon.Height - _wagon.OccupiedCells);
+        return service.TrainWagons.Sum(_wagon => _wagon.UsableCellCount - _wagon.OccupiedCells);
     }
 
     long SellPriceAt(string _cityId, PuzzlePlacement _item)

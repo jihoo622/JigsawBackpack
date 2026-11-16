@@ -10,10 +10,14 @@ public sealed class PuzzleInventory
     PuzzleInventoryValuation valuation = new();
     readonly SortedDictionary<int, PuzzlePlacement> placements = new();
     readonly Dictionary<Vector2Int, (int InstanceId, PuzzleCell Cell)> occupancy = new();
+    readonly HashSet<Vector2Int> blockedCells = new();
     readonly Dictionary<string, PuzzleWagonModification> wagonModifications = new(StringComparer.Ordinal);
 
     public int Width { get; }
     public int Height { get; }
+    internal string DisplayName { get; }
+    internal int UsableCellCount => checked(Width * Height - blockedCells.Count);
+    internal IReadOnlyCollection<Vector2Int> BlockedCells => blockedCells;
     internal int WagonNumber { get; set; }
     public IReadOnlyCollection<PuzzlePlacement> Placements => placements.Values;
     internal IReadOnlyCollection<PuzzleWagonModification> WagonModifications => wagonModifications.Values;
@@ -26,6 +30,11 @@ public sealed class PuzzleInventory
     {
         Width = _board.width;
         Height = _board.height;
+        DisplayName = _board.displayName;
+        foreach (var cell in _board.blockedCells ?? Array.Empty<PuzzleBoardCellData>())
+        {
+            blockedCells.Add(new Vector2Int(cell.x, cell.y));
+        }
         definitions = _definitions;
         synergyRules = _synergyRules;
         foreach (var placement in _startingPlacements)
@@ -33,7 +42,8 @@ public sealed class PuzzleInventory
             var definition = definitions[placement.pieceId];
             var rotation = new PuzzleRotation(definition.Cells, placement.clockwiseTurns);
             var origin = new Vector2Int(placement.x, placement.y);
-            if (!TryCreatePose(definition.Cells, origin, rotation, out var pose))
+            if (!TryCreatePose(definition.Cells, origin, rotation, out var pose) ||
+                CheckPlacement(pose.Cells, null) != PuzzlePlacementFailure.None)
             {
                 throw new InvalidOperationException($"'{placement.id}' 시작 배치의 좌표를 만들 수 없습니다.");
             }
@@ -85,6 +95,8 @@ public sealed class PuzzleInventory
     {
         Width = _source.Width;
         Height = _source.Height;
+        DisplayName = _source.DisplayName;
+        blockedCells.UnionWith(_source.blockedCells);
         definitions = _source.definitions;
         synergyRules = _source.synergyRules;
         wagonModifications = new Dictionary<string, PuzzleWagonModification>(_source.wagonModifications, StringComparer.Ordinal);
@@ -678,7 +690,8 @@ public sealed class PuzzleInventory
 
     bool InBounds(Vector2Int _position)
     {
-        return _position.x >= 0 && _position.x < Width && _position.y >= 0 && _position.y < Height;
+        return _position.x >= 0 && _position.x < Width && _position.y >= 0 && _position.y < Height &&
+            !blockedCells.Contains(_position);
     }
 
     static bool TryTranslate(Vector2Int _origin, Vector2Int _offset, out Vector2Int _position)

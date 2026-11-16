@@ -1277,9 +1277,11 @@ public static partial class Presentation
     public static Color PuzzleSynergyArrow => BasicData.Color("presentation.inventory.synergyArrow");
     internal static Color PuzzleRefrigerationArrow => BasicData.Color("presentation.inventory.refrigerationArrow");
     public static string PuzzleTrainTitleText => BasicData.Text("presentation.train.trainTitle");
-    internal static string PuzzleTrainTitle(int _wagonNumber)
+    internal static string PuzzleTrainTitle(PuzzleInventory _wagon)
     {
-        return BasicData.Format("presentation.train.trainTitle2", _wagonNumber);
+        return string.IsNullOrEmpty(_wagon.DisplayName)
+            ? BasicData.Format("presentation.train.trainTitle2", _wagon.WagonNumber)
+            : _wagon.DisplayName;
     }
     public static string PuzzleAddWagonLabel(long _cost)
     {

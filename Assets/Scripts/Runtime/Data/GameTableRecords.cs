@@ -169,8 +169,18 @@ public sealed class PuzzleMarketStockSlotData
 [Serializable]
 public sealed class PuzzleBoardData
 {
+    // 화차의 선택적 표시 이름. 지정한 화차는 번호 대신 이 이름을 제목에 표시한다.
+    public string displayName;
     public int width, height;
+    // 사용할 수 없는 칸. 빈 목록은 직사각형 전체를 사용한다.
+    public PuzzleBoardCellData[] blockedCells = Array.Empty<PuzzleBoardCellData>();
     public PuzzleStartingPlacementData[] startingPlacements = Array.Empty<PuzzleStartingPlacementData>();
+}
+
+[Serializable]
+public sealed class PuzzleBoardCellData
+{
+    public int x = -1, y = -1;
 }
 
 [Serializable]

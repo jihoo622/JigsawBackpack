@@ -417,7 +417,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         lastInstanceId = 0;
         var trainRules = validatedTables.SynergiesFor(PuzzleSynergyScope.Train);
         marketRules = validatedTables.SynergiesFor(PuzzleSynergyScope.Market);
-        var train = new PuzzleInventory(validatedTables.Puzzle.train, validatedTables.TrainStartingPlacements, definitions, trainRules,
+        var train = new PuzzleInventory(validatedTables.StartingTrainBoard, validatedTables.TrainStartingPlacements, definitions, trainRules,
             ref lastInstanceId);
         // 시작 지급 화물도 처음부터 소유 중이므로 게임 시작을 보유 시간의 기준으로 삼는다.
         foreach (var item in train.Placements)

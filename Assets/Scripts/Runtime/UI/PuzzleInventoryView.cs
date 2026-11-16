@@ -69,6 +69,7 @@ public sealed class PuzzleInventoryView : MonoBehaviour
     }
 
     readonly HashSet<Vector2Int> piecePositions = new();
+    readonly HashSet<Vector2Int> blockedCells = new();
     Dictionary<string, ItemIcon> iconIndex;
     Material freshnessMaterial;
     Coroutine settlementFeedback;
@@ -169,9 +170,11 @@ public sealed class PuzzleInventoryView : MonoBehaviour
         }
     }
 
-    internal void SetBoardSize(int _width, int _height)
+    internal void SetBoardSize(int _width, int _height, IReadOnlyCollection<Vector2Int> _blockedCells)
     {
         gridSize = new Vector2Int(_width, _height);
+        blockedCells.Clear();
+        blockedCells.UnionWith(_blockedCells);
         Rect boardRect = board.rectTransform.rect;
         cellSize = Mathf.Min(boardRect.width / _width, boardRect.height / _height);
         gridMin = boardRect.center - new Vector2(_width, _height) * (cellSize * 0.5f);
@@ -180,7 +183,7 @@ public sealed class PuzzleInventoryView : MonoBehaviour
         for (int i = 0; i < boardCells.Length; i++)
         {
             var cell = boardCells[i];
-            cell.enabled = i < cellCount;
+            cell.enabled = i < cellCount && !blockedCells.Contains(new Vector2Int(i % _width, i / _width));
             if (cell.enabled)
             {
                 cell.color = Presentation.PuzzleCell;
@@ -201,7 +204,8 @@ public sealed class PuzzleInventoryView : MonoBehaviour
         {
             var position = (local - gridMin) / cellSize;
             _cell = new Vector2Int(Mathf.FloorToInt(position.x), Mathf.FloorToInt(position.y));
-            return _cell.x >= 0 && _cell.x < gridSize.x && _cell.y >= 0 && _cell.y < gridSize.y;
+            return _cell.x >= 0 && _cell.x < gridSize.x && _cell.y >= 0 && _cell.y < gridSize.y &&
+                !blockedCells.Contains(_cell);
         }
 
         _cell = default;

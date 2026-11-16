@@ -8,6 +8,8 @@ Unity 6.3 LTS(6000.3.22f1) URP 기반의 기차 화물 거래 게임. 작업 규
 
 상세 구현 현황과 기획 대비 차이는 [현재 구현 상태](Docs/Management/CURRENT_STATE.md)를 본다.
 
+- 시작 화차는 5×5 외곽에서 위쪽 두 줄, 세 번째 줄 오른쪽 두 칸, 맨 아래 네 번째 칸을 제외한 12칸이다. `PuzzleTableData.startingTrain.blockedCells`가 모양 원본이며 시작 지급 전용이다. 구매 화차는 `train`의 5×5 보드를 사용한다. 제거한 칸은 표시·포인터·수동/자동 배치·성장·시간 진행 사본에서 함께 제외한다. 시작 목재 묶음 하나는 남은 칸으로 재배치했다. Unity 컴파일·플레이·시각 확인은 남아 있다.
+
 - `Tools/MyJG/Item Editor`에 1~5단계를 구현했다. 품목·모양/이미지·효과·성장/번식·태그 편집과 참조 현황을 제공한다. 기존/추가 오류 구분·필드 이동, 다중 파일 저장 후 JSON·모든 View 이미지 참조 대조와 실패 복구를 연결했다. Unity 컴파일·실행 확인은 남아 있다([사용법·확인 항목](Docs/Management/ITEM_EDITOR.md)).
 
 - POC_06 에셋 90개는 `Assets/Art/External/POC_06`에 있다. `feature/아트리소스`에서 기차 카드/선택 바·역 메뉴 아이콘·지도 이동 열차에 적용했다. 배치는 프리팹에서 수정하며 상세는 [외부 에셋](Docs/Management/ASSET_IMPORTS.md)을 본다.

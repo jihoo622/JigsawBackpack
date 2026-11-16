@@ -96,7 +96,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         session.Initialize();
         long trainCapacity = (long)session.Train.Width * session.Train.Height;
         long dragCapacity = System.Math.Max(trainCapacity, session.MarketCapacity);
-        trainView.Initialize(trainCapacity, dragCapacity, Presentation.PuzzleTrainTitle(session.Train.WagonNumber), session.ItemDefinitions, _showSynergies: true);
+        trainView.Initialize(trainCapacity, dragCapacity, Presentation.PuzzleTrainTitle(session.Train), session.ItemDefinitions, _showSynergies: true);
         marketView.Initialize(session.MarketCapacity, dragCapacity, Presentation.PuzzleMarketTitle, session.ItemDefinitions, _showSynergies: false);
         ConfigureButcheryView();
         ConfigureModificationView();
@@ -308,8 +308,8 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         }
 
         SetDragView(null);
-        trainView.SetTitle(Presentation.PuzzleTrainTitle(session.Train.WagonNumber));
-        trainView.SetBoardSize(session.Train.Width, session.Train.Height);
+        trainView.SetTitle(Presentation.PuzzleTrainTitle(session.Train));
+        trainView.SetBoardSize(session.Train.Width, session.Train.Height, session.Train.BlockedCells);
         RenderBoards();
         RenderValues();
         RefreshTrainBar();
@@ -531,8 +531,8 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             : Presentation.PuzzleRunStatusText(session.RunStatus));
         marketView.SetMarketOpen(session.IsMarketOpen);
         RefreshWaitAction();
-        marketView.SetBoardSize(session.Market.Width, session.Market.Height);
-        trainView.SetBoardSize(session.Train.Width, session.Train.Height);
+        marketView.SetBoardSize(session.Market.Width, session.Market.Height, session.Market.BlockedCells);
+        trainView.SetBoardSize(session.Train.Width, session.Train.Height, session.Train.BlockedCells);
         RenderBoards();
         RenderValues();
         ShowItemDetails(null, null);
@@ -1383,7 +1383,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
                 _showSynergies: false);
             butcheryConfigured = true;
         }
-        butcheryView.SetBoardSize(board.Width, board.Height);
+        butcheryView.SetBoardSize(board.Width, board.Height, board.BlockedCells);
     }
 
     void OnButcheryChanged(GameEvents.ButcheryInfo _info)
@@ -1420,7 +1420,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
                 session.ItemDefinitions, _showSynergies: false);
             modificationConfigured = true;
         }
-        modificationView.SetBoardSize(board.Width, board.Height);
+        modificationView.SetBoardSize(board.Width, board.Height, board.BlockedCells);
     }
 
     void OnModificationChanged(GameEvents.ModificationInfo _info)
@@ -1457,7 +1457,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
                 session.ItemDefinitions, _showSynergies: false);
             refiningConfigured = true;
         }
-        refiningView.SetBoardSize(board.Width, board.Height);
+        refiningView.SetBoardSize(board.Width, board.Height, board.BlockedCells);
     }
 
     void OnRefiningChanged(GameEvents.RefiningInfo _info)
@@ -1608,8 +1608,8 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         }
         input.CancelCapture();
         ClearDrag();
-        trainView.SetTitle(Presentation.PuzzleTrainTitle(session.CurrentWagonIndex + 1));
-        trainView.SetBoardSize(session.Train.Width, session.Train.Height);
+        trainView.SetTitle(Presentation.PuzzleTrainTitle(session.Train));
+        trainView.SetBoardSize(session.Train.Width, session.Train.Height, session.Train.BlockedCells);
         RenderBoards();
         RenderValues();
         RefreshTrainBar();
@@ -1654,8 +1654,8 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         {
             return;
         }
-        trainView.SetTitle(Presentation.PuzzleTrainTitle(session.Train.WagonNumber));
-        trainView.SetBoardSize(session.Train.Width, session.Train.Height);
+        trainView.SetTitle(Presentation.PuzzleTrainTitle(session.Train));
+        trainView.SetBoardSize(session.Train.Width, session.Train.Height, session.Train.BlockedCells);
         RenderBoards();
         RenderValues();
         ShowItemDetails(null, null);
@@ -1686,8 +1686,8 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         }
 
         RefreshFunds();
-        trainView.SetTitle(Presentation.PuzzleTrainTitle(session.Train.WagonNumber));
-        trainView.SetBoardSize(session.Train.Width, session.Train.Height);
+        trainView.SetTitle(Presentation.PuzzleTrainTitle(session.Train));
+        trainView.SetBoardSize(session.Train.Width, session.Train.Height, session.Train.BlockedCells);
         RenderBoards();
         RenderValues();
         ShowItemDetails(null, null);
