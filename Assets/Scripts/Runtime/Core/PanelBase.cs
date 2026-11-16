@@ -32,6 +32,14 @@ public abstract class PanelBase : MonoBehaviour
     }
     protected bool Active;                      // OnEnable 이후 표시 동작이 유효한 상태
 
+    // 포인터를 따라 자주 열리고 닫히는 패널(호버 툴팁 등). 열림 변화는 그대로 발행하되 분석 로그는 수집하지 않는다.
+    protected virtual bool TransientVisibility
+    {
+        get
+        {
+            return false;
+        }
+    }
     // 열 수 있는 조건(플레이 사망·다른 패널 열림 등). 조건이 false면 SetOpen(true)가 거부된다.
     protected virtual bool CanOpen
     {
@@ -133,7 +141,7 @@ public abstract class PanelBase : MonoBehaviour
         }
         if (!_quiet && changed)
         {
-            GameEvents.RaisePanelVisibility(PanelName, _open);
+            GameEvents.RaisePanelVisibility(PanelName, _open, TransientVisibility);
         }
         return IsOpen == _open;
     }

@@ -184,7 +184,7 @@ public sealed class PuzzleStationActionsPresenter : MonoBehaviour
             return;
         }
         Refresh();
-        OfferWorkWait(session.ButcheryRemainingMinutes, OpenButchery);
+        OfferWorkWait(session.ButcheryRemainingMinutes, OpenButchery, session.ButcheryAction()?.id);
     }
 
     void OpenModification()
@@ -221,7 +221,7 @@ public sealed class PuzzleStationActionsPresenter : MonoBehaviour
         }
         session.CloseModification();
         Refresh();
-        OfferWorkWait(session.ModificationRemainingMinutes, OpenModification);
+        OfferWorkWait(session.ModificationRemainingMinutes, OpenModification, session.ModificationAction()?.id);
     }
 
     // View의 content를 먼저 켜고 세션에 조작 허락을 받는다. 열리기 전 View는 초기화·좌표가 준비되지 않는다.
@@ -244,10 +244,10 @@ public sealed class PuzzleStationActionsPresenter : MonoBehaviour
             return;
         }
         Refresh();
-        OfferWorkWait(session.RefiningRemainingMinutes, OpenRefining);
+        OfferWorkWait(session.RefiningRemainingMinutes, OpenRefining, session.RefiningAction()?.id);
     }
 
-    void OfferWorkWait(Func<string, long> _remainingMinutes, Action _openWorkbench)
+    void OfferWorkWait(Func<string, long> _remainingMinutes, Action _openWorkbench, string _actionId)
     {
         if (!workWait || !view.IsOpen || session.RunStatus != PuzzleRunStatus.InProgress)
         {
@@ -270,7 +270,7 @@ public sealed class PuzzleStationActionsPresenter : MonoBehaviour
             }
 
             long remainingMinutes = _remainingMinutes(cityId);
-            if (remainingMinutes > 0 && !session.AdvanceMinutes(remainingMinutes))
+            if (remainingMinutes > 0 && !session.WaitForWorkbench(_actionId, remainingMinutes))
             {
                 return;
             }

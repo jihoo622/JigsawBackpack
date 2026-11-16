@@ -22,8 +22,7 @@ public sealed class TelemetryRecorder : MonoBehaviour
         GameEvents.SceneChanged += OnSceneChanged;
         GameEvents.UpgradeGranted += OnUpgradeGranted;
         GameEvents.PanelVisibility += OnPanelVisibility;
-        GameEvents.ButcheryCommitted += OnButcheryCommitted;
-        GameEvents.ButcheryReady += OnButcheryReady;
+        GameEvents.WorkbenchReady += OnWorkbenchReady;
         GameEvents.PuzzleRunStarted += OnPuzzleRunStarted;
         GameEvents.PuzzleRunEnded += OnPuzzleRunEnded;
         GameEvents.PuzzleActionCommitted += OnPuzzleAction;
@@ -35,6 +34,8 @@ public sealed class TelemetryRecorder : MonoBehaviour
         GameEvents.RoutePlanned += OnRoutePlanned;
         GameEvents.RouteEnded += OnRouteEnded;
         GameEvents.AutoTravelStopped += OnAutoTravelStopped;
+        GameEvents.RouteStopChanged += OnRouteStopChanged;
+        GameEvents.StationScreenChanged += OnStationScreenChanged;
         TelemetryLog.BeforeClose += OnSessionClosing;
     }
 
@@ -44,8 +45,7 @@ public sealed class TelemetryRecorder : MonoBehaviour
         GameEvents.SceneChanged -= OnSceneChanged;
         GameEvents.UpgradeGranted -= OnUpgradeGranted;
         GameEvents.PanelVisibility -= OnPanelVisibility;
-        GameEvents.ButcheryCommitted -= OnButcheryCommitted;
-        GameEvents.ButcheryReady -= OnButcheryReady;
+        GameEvents.WorkbenchReady -= OnWorkbenchReady;
         GameEvents.PuzzleRunStarted -= OnPuzzleRunStarted;
         GameEvents.PuzzleRunEnded -= OnPuzzleRunEnded;
         GameEvents.PuzzleActionCommitted -= OnPuzzleAction;
@@ -57,6 +57,8 @@ public sealed class TelemetryRecorder : MonoBehaviour
         GameEvents.RoutePlanned -= OnRoutePlanned;
         GameEvents.RouteEnded -= OnRouteEnded;
         GameEvents.AutoTravelStopped -= OnAutoTravelStopped;
+        GameEvents.RouteStopChanged -= OnRouteStopChanged;
+        GameEvents.StationScreenChanged -= OnStationScreenChanged;
         TelemetryLog.BeforeClose -= OnSessionClosing;
     }
 
@@ -72,6 +74,11 @@ public sealed class TelemetryRecorder : MonoBehaviour
 
     void OnPanelVisibility(GameEvents.PanelInfo _info)
     {
+        // 호버 툴팁처럼 포인터를 따라 열리고 닫히는 패널은 수집 경계 밖이다.
+        if (_info.transient)
+        {
+            return;
+        }
         TelemetryLog.Write(TelemetryEvents.PANEL_VISIBILITY, TelemetryPayload.Panel(_info));
     }
 
@@ -107,7 +114,8 @@ public sealed class TelemetryRecorder : MonoBehaviour
             && string.IsNullOrEmpty(payload.failure) && payload.moneyDelta == 0
             && payload.introduced.Length == 0 && payload.moved.Length == 0
             && string.IsNullOrEmpty(payload.cityId) && payload.wagonDelta == 0
-            && payload.removed.Length == 0 && payload.values.Length == 0 && payload.durability.Length == 0;
+            && payload.removed.Length == 0 && payload.values.Length == 0 && payload.durability.Length == 0
+            && payload.transformed.Length == 0;
         if (!unchangedPlacement)
         {
             TelemetryLog.Write(TelemetryEvents.PUZZLE_ACTION, payload);
@@ -191,14 +199,25 @@ public sealed class TelemetryRecorder : MonoBehaviour
         }
     }
 
-    void OnButcheryCommitted(GameEvents.ButcheryCommittedInfo _info)
+    void OnWorkbenchReady(GameEvents.WorkbenchReadyInfo _info)
     {
-        TelemetryLog.Write(TelemetryEvents.BUTCHERY_COMMITTED, TelemetryPayload.ButcheryCommitted(_info));
+        if (ReferenceEquals(activeRun, _info.session))
+        {
+            TelemetryLog.Write(TelemetryEvents.WORKBENCH_READY, TelemetryPayload.WorkbenchReady(_info));
+        }
     }
 
-    void OnButcheryReady(GameEvents.ButcheryReadyInfo _info)
+    void OnRouteStopChanged(GameEvents.RouteStopChangedInfo _info)
     {
-        TelemetryLog.Write(TelemetryEvents.BUTCHERY_READY, TelemetryPayload.ButcheryReady(_info));
+        if (ReferenceEquals(activeRun, _info.session))
+        {
+            TelemetryLog.Write(TelemetryEvents.ROUTE_STOP_CHANGED, TelemetryPayload.RouteStopChanged(_info));
+        }
+    }
+
+    void OnStationScreenChanged(GameEvents.StationScreenInfo _info)
+    {
+        TelemetryLog.Write(TelemetryEvents.STATION_SCREEN, TelemetryPayload.StationScreen(_info));
     }
 
     void OnEntityLinkClicked(GameEvents.EntityLinkInfo _info)

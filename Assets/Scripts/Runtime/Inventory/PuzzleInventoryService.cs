@@ -128,30 +128,78 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
 
     internal bool TryInstallWagonRefrigeration()
     {
-        if (!CanInstallWagonRefrigeration ||
-            !TryInstallWagonModification(Train,
-                PuzzleWagonModificationRegistry.Create(PuzzleWagonRefrigeration.ModificationId, tables)))
+        string modificationId = PuzzleWagonRefrigeration.ModificationId;
+        string board = Train != null ? BoardId(Train) : null;
+        string failure = RunStatus != PuzzleRunStatus.InProgress ? "run_finished"
+            : Train == null ? "unavailable"
+            : HasWagonRefrigeration ? "already_installed"
+            : Funds < WagonRefrigerationCost ? "insufficient_funds"
+            : null;
+        if (failure == null && !TryInstallWagonModification(Train,
+                PuzzleWagonModificationRegistry.Create(modificationId, tables)))
         {
+            failure = "install_failed";
+        }
+        if (failure != null)
+        {
+            RecordAction(PuzzleActionKind.InstallWagonModification, failure, _modificationId: modificationId,
+                _board: board);
             return false;
         }
 
         long previousFunds = Funds;
         Funds -= WagonRefrigerationCost;
         GameEvents.RaiseFundsChanged(this, previousFunds);
+        RecordAction(PuzzleActionKind.InstallWagonModification, _modificationId: modificationId, _board: board);
         return true;
     }
 
+    // 분석 로그의 작업대 보드 ID 접두사. 작업대 보드는 workbench:<cityId>:<actionId>다.
+    internal const string WORKBENCH_BOARD_PREFIX = "workbench:";
+
     internal string BoardId(PuzzleInventory _inventory)
     {
-        return IsTrainWagon(_inventory) ? "train:" + (_inventory.WagonNumber - 1)
-            : _inventory == Market ? "market:" + CurrentCityId : null;
+        if (IsTrainWagon(_inventory))
+        {
+            return "train:" + (_inventory.WagonNumber - 1);
+        }
+        if (_inventory == Market)
+        {
+            return "market:" + CurrentCityId;
+        }
+
+        var butchery = ButcheryStateOf(_inventory);
+        if (butchery != null)
+        {
+            return WorkbenchBoardId(butchery.CityId, butchery.Action);
+        }
+        var modification = ModificationStateOf(_inventory);
+        if (modification != null)
+        {
+            return WorkbenchBoardId(modification.CityId, modification.Action);
+        }
+        var refining = RefiningStateOf(_inventory);
+        return refining != null ? WorkbenchBoardId(refining.CityId, refining.Action) : null;
     }
 
+    static string WorkbenchBoardId(string _cityId, PuzzleCityActionData _action)
+    {
+        return WORKBENCH_BOARD_PREFIX + _cityId + ":" + _action.id;
+    }
+
+    // 분석 로그가 관측하는 모든 도시의 작업대 보드. 상태 사전을 읽기만 하므로 완료 판정을 일으키지 않는다.
+    internal IEnumerable<PuzzleInventory> WorkbenchBoards =>
+        butcheries.Values.Select(_state => _state.Board)
+            .Concat(modifications.Values.Select(_state => _state.Board))
+            .Concat(refinings.Values.Select(_state => _state.Board));
+
     void RecordAction(PuzzleActionKind _action, string _failure = null, string _targetCityId = null,
-        long _requestedMinutes = 0)
+        long _requestedMinutes = 0, string _actionId = null, string _modeId = null, string _productId = null,
+        string _modificationId = null, string _board = null, string[] _wagonOrder = null)
     {
         GameEvents.RaisePuzzleActionCommitted(new GameEvents.PuzzleActionInfo(this, _action, _failure,
-            _targetCityId, _requestedMinutes: _requestedMinutes));
+            _targetCityId, _requestedMinutes: _requestedMinutes, _actionId: _actionId, _modeId: _modeId,
+            _productId: _productId, _modificationId: _modificationId, _board: _board, _wagonOrder: _wagonOrder));
     }
 
     void OnDestroy()
@@ -187,10 +235,18 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
 
     internal bool TryMoveWagon(int _sourceIndex, int _destinationIndex)
     {
-        if (RunStatus != PuzzleRunStatus.InProgress || _sourceIndex == _destinationIndex ||
-            _sourceIndex < 0 || _sourceIndex >= trainWagons.Count ||
-            _destinationIndex < 0 || _destinationIndex >= trainWagons.Count)
+        // 제자리 놓기는 상태 변화가 없는 조작이므로 기록하지 않는다.
+        if (_sourceIndex == _destinationIndex)
         {
+            return false;
+        }
+        string failure = RunStatus != PuzzleRunStatus.InProgress ? "run_finished"
+            : _sourceIndex < 0 || _sourceIndex >= trainWagons.Count ||
+                _destinationIndex < 0 || _destinationIndex >= trainWagons.Count ? "invalid_index"
+            : null;
+        if (failure != null)
+        {
+            RecordAction(PuzzleActionKind.ReorderWagon, failure);
             return false;
         }
 
@@ -199,12 +255,13 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         trainWagons.RemoveAt(_sourceIndex);
         trainWagons.Insert(_destinationIndex, wagon);
         CurrentWagonIndex = trainWagons.IndexOf(selected);
+        RecordAction(PuzzleActionKind.ReorderWagon, _wagonOrder: trainWagons.Select(BoardId).ToArray());
         return true;
     }
 
     internal bool TryAddWagon(out string _failureReason)
     {
-        return TryPurchaseWagon(NextWagonCost, null, out _failureReason);
+        return TryPurchaseWagon(NextWagonCost, null, null, out _failureReason);
     }
 
     internal bool TryPurchaseWagon(string _productId, out string _failureReason)
@@ -214,33 +271,36 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         if (product == null)
         {
             _failureReason = BasicData.Text("rules.wagon.unknownProduct");
-            RecordAction(PuzzleActionKind.AddWagon, "unknown_wagon_product");
+            RecordAction(PuzzleActionKind.AddWagon, "unknown_wagon_product", _productId: _productId);
             return false;
         }
 
-        return TryPurchaseWagon(product.price, product.modificationId, out _failureReason);
+        return TryPurchaseWagon(product.price, product.modificationId, product.id, out _failureReason);
     }
 
-    bool TryPurchaseWagon(long _cost, string _modificationId, out string _failureReason)
+    bool TryPurchaseWagon(long _cost, string _modificationId, string _productId, out string _failureReason)
     {
         _failureReason = null;
         if (RunStatus != PuzzleRunStatus.InProgress)
         {
             _failureReason = BasicData.Text("rules.wagon.inProgressOnly");
-            RecordAction(PuzzleActionKind.AddWagon, "run_finished");
+            RecordAction(PuzzleActionKind.AddWagon, "run_finished", _productId: _productId,
+                _modificationId: _modificationId);
             return false;
         }
         int maxWagons = tables.PuzzleTrade.maxWagonCount;
         if (maxWagons > 0 && trainWagons.Count >= maxWagons)
         {
             _failureReason = BasicData.Format("rules.wagon.maxReached", maxWagons);
-            RecordAction(PuzzleActionKind.AddWagon, "max_wagons");
+            RecordAction(PuzzleActionKind.AddWagon, "max_wagons", _productId: _productId,
+                _modificationId: _modificationId);
             return false;
         }
         if (Funds < _cost)
         {
             _failureReason = BasicData.Format("rules.wagon.insufficientFunds", _cost);
-            RecordAction(PuzzleActionKind.AddWagon, "insufficient_funds");
+            RecordAction(PuzzleActionKind.AddWagon, "insufficient_funds", _productId: _productId,
+                _modificationId: _modificationId);
             return false;
         }
 
@@ -253,7 +313,8 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
              !newWagon.TryInstallWagonModification(PuzzleWagonModificationRegistry.Create(_modificationId, tables))))
         {
             _failureReason = BasicData.Text("rules.wagon.modificationFailed");
-            RecordAction(PuzzleActionKind.AddWagon, "wagon_modification_failed");
+            RecordAction(PuzzleActionKind.AddWagon, "wagon_modification_failed", _productId: _productId,
+                _modificationId: _modificationId);
             return false;
         }
 
@@ -264,7 +325,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         lastInstanceId = nextInstanceId;
         CurrentWagonIndex = trainWagons.Count - 1;
         GameEvents.RaiseFundsChanged(this, previousFunds);
-        RecordAction(PuzzleActionKind.AddWagon);
+        RecordAction(PuzzleActionKind.AddWagon, _productId: _productId, _modificationId: _modificationId);
         return true;
     }
     public PuzzleInventory Market => markets[CurrentCityId];
@@ -560,9 +621,20 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
 
     public bool AdvanceMinutes(long _minutes, PuzzleActionKind _action = PuzzleActionKind.AdvanceTime)
     {
+        return AdvanceMinutesFor(_minutes, _action, null);
+    }
+
+    // 작업대 작업이 끝날 때까지 남은 시간을 보낸다. 어느 작업을 기다렸는지 actionId로 남긴다.
+    internal bool WaitForWorkbench(string _actionId, long _minutes)
+    {
+        return AdvanceMinutesFor(_minutes, PuzzleActionKind.WaitForWorkbench, _actionId);
+    }
+
+    bool AdvanceMinutesFor(long _minutes, PuzzleActionKind _action, string _actionId)
+    {
         if (RunStatus != PuzzleRunStatus.InProgress || Time == null)
         {
-            RecordAction(_action, "time_blocked", _requestedMinutes: _minutes);
+            RecordAction(_action, "time_blocked", _requestedMinutes: _minutes, _actionId: _actionId);
             return false;
         }
         if (_minutes == 0)
@@ -578,17 +650,17 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         }
         catch (ArgumentOutOfRangeException)
         {
-            RecordAction(_action, "invalid_duration", _requestedMinutes: _minutes);
+            RecordAction(_action, "invalid_duration", _requestedMinutes: _minutes, _actionId: _actionId);
             throw;
         }
         if (failure != PuzzleTravelFailure.None)
         {
-            RecordAction(_action, "time_overflow", _requestedMinutes: _minutes);
+            RecordAction(_action, "time_overflow", _requestedMinutes: _minutes, _actionId: _actionId);
             return false;
         }
 
         CommitTimeAdvance(_minutes, plan);
-        RecordAction(_action, _requestedMinutes: _minutes);
+        RecordAction(_action, _requestedMinutes: _minutes, _actionId: _actionId);
         return true;
     }
 
@@ -2084,16 +2156,20 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
 
     internal bool ButcheryConfirmable(string _cityId = null)
     {
-        return TryEvaluateButchery(string.IsNullOrEmpty(_cityId) ? CurrentCityId : _cityId, out _, out _);
+        return TryEvaluateButchery(string.IsNullOrEmpty(_cityId) ? CurrentCityId : _cityId, out _, out _, out _);
     }
 
     // 확인 버튼의 조건과 사유를 한 곳에서 정한다. View가 독자적으로 판단하지 않는다.
-    bool TryEvaluateButchery(string _cityId, out IReadOnlyList<string> _outputs, out string _reason)
+    // _failure는 분석 로그용 코드이고 _reason은 화면 문구다.
+    bool TryEvaluateButchery(string _cityId, out IReadOnlyList<string> _outputs, out string _reason,
+        out string _failure)
     {
         _outputs = null;
         _reason = null;
+        _failure = null;
         if (RunStatus != PuzzleRunStatus.InProgress || Time == null)
         {
+            _failure = "blocked";
             _reason = BasicData.Text("rules.butchery.blocked");
             return false;
         }
@@ -2101,21 +2177,25 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         var state = EnsureButchery(_cityId);
         if (state == null)
         {
+            _failure = "unavailable";
             _reason = BasicData.Text("rules.butchery.unavailable");
             return false;
         }
         if (state.Phase == PuzzleButcheryPhase.Working)
         {
+            _failure = "in_progress";
             _reason = BasicData.Text("rules.butchery.inProgress");
             return false;
         }
         if (state.Phase == PuzzleButcheryPhase.Ready)
         {
+            _failure = "awaiting_pickup";
             _reason = BasicData.Text("rules.butchery.awaitingPickup");
             return false;
         }
         if (state.Board.Placements.Count == 0)
         {
+            _failure = "empty";
             _reason = BasicData.Text("rules.butchery.empty");
             return false;
         }
@@ -2125,16 +2205,19 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         {
             if (placement.Definition.IsBaby)
             {
+                _failure = "baby";
                 _reason = Presentation.PuzzleBabyCannotButcher;
                 return false;
             }
             if (!placement.Definition.Tags.Contains(state.Action.inputTag))
             {
+                _failure = "invalid_item";
                 _reason = BasicData.Format("rules.butchery.notAnimal", placement.Definition.DisplayName);
                 return false;
             }
             if (!TryCollectOutputs(state.Action, placement.Definition.Id, outputs))
             {
+                _failure = "no_conversion";
                 _reason = BasicData.Format("rules.butchery.noConversion", placement.Definition.DisplayName);
                 return false;
             }
@@ -2142,12 +2225,14 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
 
         if (!TryFitsOutputs(state.Action, outputs))
         {
+            _failure = "no_space";
             _reason = BasicData.Text("rules.butchery.noSpace");
             return false;
         }
 
         if (Funds < state.Action.cost)
         {
+            _failure = "insufficient_funds";
             _reason = Presentation.PuzzleButcheryInsufficientFunds(state.Action.cost);
             return false;
         }
@@ -2158,12 +2243,20 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
 
     internal bool TryConfirmButchery(out string _reason)
     {
-        if (!TryEvaluateButchery(CurrentCityId, out var outputs, out _reason))
+        bool confirmed = ConfirmButchery(out _reason, out string failure);
+        RecordAction(PuzzleActionKind.WorkbenchConfirm, confirmed ? null : failure, _actionId: ButcheryAction()?.id);
+        return confirmed;
+    }
+
+    bool ConfirmButchery(out string _reason, out string _failure)
+    {
+        if (!TryEvaluateButchery(CurrentCityId, out var outputs, out _reason, out _failure))
         {
             return false;
         }
         if (!IsButcheryOpen)
         {
+            _failure = "blocked";
             _reason = BasicData.Text("rules.butchery.blocked");
             return false;
         }
@@ -2171,6 +2264,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         var state = EnsureButchery(CurrentCityId);
         if (state == null)
         {
+            _failure = "unavailable";
             _reason = BasicData.Text("rules.butchery.unavailable");
             return false;
         }
@@ -2179,6 +2273,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         long cost = state.Action.cost;
         if (Funds < cost)
         {
+            _failure = "insufficient_funds";
             _reason = Presentation.PuzzleButcheryInsufficientFunds(cost);
             return false;
         }
@@ -2190,6 +2285,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         }
         catch (OverflowException)
         {
+            _failure = "time_overflow";
             _reason = BasicData.Text("rules.butchery.timeOverflow");
             return false;
         }
@@ -2209,7 +2305,6 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         state.ReadyAtMinutes = readyAtMinutes;
         state.Phase = PuzzleButcheryPhase.Working;
         NotifyButchery(state);
-        GameEvents.RaiseButcheryCommitted(state.Action.id, state.CityId, inputs.Length, state.ReadyAtMinutes);
         GameEvents.RaiseFundsChanged(this, previousFunds);
         return true;
     }
@@ -2298,7 +2393,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         }
         if (becameReady)
         {
-            GameEvents.RaiseButcheryReady(_state.Action.id, _state.CityId, _state.OutputCount);
+            GameEvents.RaiseWorkbenchReady(this, _state.Action.id, _state.CityId, _state.OutputCount);
         }
         return _state;
     }
@@ -2510,8 +2605,49 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
     internal bool TryConfirmModification(out int _convertedCount, out PuzzleModificationFailure _failure,
         string _cityId = null)
     {
-        _convertedCount = 0;
         var state = EnsureModification(string.IsNullOrEmpty(_cityId) ? CurrentCityId : _cityId);
+        // 확정이 모드 선택을 비우므로 기록할 모드를 먼저 잡는다.
+        string modeId = state?.SelectedModeId;
+        bool confirmed = ConfirmModification(state, out _convertedCount, out _failure);
+        RecordAction(PuzzleActionKind.WorkbenchConfirm, confirmed ? null : ModificationFailureCode(_failure),
+            _actionId: state?.Action.id, _modeId: modeId);
+        return confirmed;
+    }
+
+    static string ModificationFailureCode(PuzzleModificationFailure _failure)
+    {
+        switch (_failure)
+        {
+            case PuzzleModificationFailure.None:
+                return null;
+            case PuzzleModificationFailure.Blocked:
+                return "blocked";
+            case PuzzleModificationFailure.Unavailable:
+                return "unavailable";
+            case PuzzleModificationFailure.NoMode:
+                return "no_mode";
+            case PuzzleModificationFailure.Empty:
+                return "empty";
+            case PuzzleModificationFailure.InvalidItem:
+                return "invalid_item";
+            case PuzzleModificationFailure.NoConversion:
+                return "no_conversion";
+            case PuzzleModificationFailure.AlreadyModified:
+                return "already_modified";
+            case PuzzleModificationFailure.InvalidResult:
+                return "invalid_result";
+            case PuzzleModificationFailure.InsufficientFunds:
+                return "insufficient_funds";
+            default:
+                return _failure.ToString();
+        }
+    }
+
+    bool ConfirmModification(PuzzleModificationState _state, out int _convertedCount,
+        out PuzzleModificationFailure _failure)
+    {
+        _convertedCount = 0;
+        var state = _state;
         if (!TryPlanModificationSwaps(state, out var swaps, out long cost, out _failure))
         {
             return false;
@@ -2558,10 +2694,12 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
             return _state;
         }
 
+        int outputCount = _state.PendingSwaps.Count;
         _state.PendingSwaps = null;
         _state.ReadyAtMinutes = -1;
         _state.Phase = PuzzleModificationPhase.Ready;
         NotifyModification(_state);
+        GameEvents.RaiseWorkbenchReady(this, _state.Action.id, _state.CityId, outputCount);
         return _state;
     }
 
@@ -2862,16 +3000,18 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
 
     internal bool RefiningConfirmable(string _cityId = null)
     {
-        return TryEvaluateRefining(string.IsNullOrEmpty(_cityId) ? CurrentCityId : _cityId, out _);
+        return TryEvaluateRefining(string.IsNullOrEmpty(_cityId) ? CurrentCityId : _cityId, out _, out _);
     }
 
     // 확인 버튼의 조건과 사유를 한 곳에서 정한다. 반복 조회해도 상태·돈은 바뀌지 않는다.
-    // 고정 산출물이 빈 작업 보드에 모두 들어가는지 검사한다.
-    bool TryEvaluateRefining(string _cityId, out string _reason)
+    // 고정 산출물이 빈 작업 보드에 모두 들어가는지 검사한다. _failure는 분석 로그용 코드이고 _reason은 화면 문구다.
+    bool TryEvaluateRefining(string _cityId, out string _reason, out string _failure)
     {
         _reason = null;
+        _failure = null;
         if (RunStatus != PuzzleRunStatus.InProgress || Time == null)
         {
+            _failure = "blocked";
             _reason = BasicData.Text("rules.refining.blocked");
             return false;
         }
@@ -2879,21 +3019,25 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         var state = EnsureRefining(_cityId);
         if (state == null)
         {
+            _failure = "unavailable";
             _reason = BasicData.Text("rules.refining.unavailable");
             return false;
         }
         if (state.Phase == PuzzleRefiningPhase.Working)
         {
+            _failure = "in_progress";
             _reason = BasicData.Text("rules.refining.inProgress");
             return false;
         }
         if (state.Phase == PuzzleRefiningPhase.Ready)
         {
+            _failure = "awaiting_pickup";
             _reason = BasicData.Text("rules.refining.awaitingPickup");
             return false;
         }
         if (state.Board.Placements.Count == 0)
         {
+            _failure = "empty";
             _reason = BasicData.Text("rules.refining.empty");
             return false;
         }
@@ -2905,7 +3049,9 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
             // 금속 주괴는 noConversion으로, 태그 자체가 없는 화물은 notOre로 막는다.
             if (!TryCollectOutputs(state.Action, placement.Definition.Id, outputs))
             {
-                _reason = placement.Definition.Tags.Contains(state.Action.inputTag)
+                bool tagged = placement.Definition.Tags.Contains(state.Action.inputTag);
+                _failure = tagged ? "no_conversion" : "invalid_item";
+                _reason = tagged
                     ? BasicData.Format("rules.refining.noConversion", placement.Definition.DisplayName)
                     : BasicData.Format("rules.refining.notOre", placement.Definition.DisplayName);
                 return false;
@@ -2915,12 +3061,14 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         // 모든 입력의 고정 산출 합이 빈 보드에 모두 들어갈 때만 확인을 허용한다.
         if (!TryFitsOutputs(state.Action, outputs))
         {
+            _failure = "no_space";
             _reason = BasicData.Text("rules.refining.noSpace");
             return false;
         }
 
         if (Funds < state.Action.cost)
         {
+            _failure = "insufficient_funds";
             _reason = BasicData.Format("rules.refining.insufficientFunds", state.Action.cost);
             return false;
         }
@@ -2930,12 +3078,20 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
 
     internal bool TryConfirmRefining(out string _reason)
     {
-        if (!TryEvaluateRefining(CurrentCityId, out _reason))
+        bool confirmed = ConfirmRefining(out _reason, out string failure);
+        RecordAction(PuzzleActionKind.WorkbenchConfirm, confirmed ? null : failure, _actionId: RefiningAction()?.id);
+        return confirmed;
+    }
+
+    bool ConfirmRefining(out string _reason, out string _failure)
+    {
+        if (!TryEvaluateRefining(CurrentCityId, out _reason, out _failure))
         {
             return false;
         }
         if (!IsRefiningOpen)
         {
+            _failure = "blocked";
             _reason = BasicData.Text("rules.refining.blocked");
             return false;
         }
@@ -2943,6 +3099,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         var state = EnsureRefining(CurrentCityId);
         if (state == null)
         {
+            _failure = "unavailable";
             _reason = BasicData.Text("rules.refining.unavailable");
             return false;
         }
@@ -2951,6 +3108,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         long cost = state.Action.cost;
         if (Funds < cost)
         {
+            _failure = "insufficient_funds";
             _reason = BasicData.Format("rules.refining.insufficientFunds", cost);
             return false;
         }
@@ -2962,6 +3120,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         }
         catch (OverflowException)
         {
+            _failure = "time_overflow";
             _reason = BasicData.Text("rules.refining.timeOverflow");
             return false;
         }
@@ -2973,6 +3132,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         {
             if (!TryCollectOutputs(state.Action, placement.Definition.Id, outputs))
             {
+                _failure = "no_conversion";
                 _reason = BasicData.Format("rules.refining.noConversion", placement.Definition.DisplayName);
                 return false;
             }
@@ -3030,15 +3190,20 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
             }
         }
 
+        bool becameReady = false;
         if (_state.PendingOutputs.Count == 0)
         {
             _state.Phase = PuzzleRefiningPhase.Ready;
             _state.ReadyAtMinutes = -1;
-            changed = true;
+            changed = becameReady = true;
         }
         if (changed)
         {
             NotifyRefining(_state);
+        }
+        if (becameReady)
+        {
+            GameEvents.RaiseWorkbenchReady(this, _state.Action.id, _state.CityId, _state.OutputCount);
         }
         return _state;
     }

@@ -90,6 +90,8 @@ public sealed class PuzzleStationActionsView : PanelBase
     int wagonShopPage;
     // 화차 상점은 선택 없음으로 시작하고, 카드를 누르거나 끌기 시작하면 선택된다. 같은 카드를 다시 누르거나 상점을 나가면 해제한다.
     PuzzleWagonProductRow selectedWagonRow;
+    // 마지막으로 기록한 하위 화면 이름. 같은 화면을 다시 그릴 때 station_screen을 중복 기록하지 않는다.
+    string currentScreen;
 
     protected override void Awake()
     {
@@ -186,6 +188,7 @@ public sealed class PuzzleStationActionsView : PanelBase
             wagonShopContent.SetActive(false);
             GameEvents.RaisePanelVisibility(Presentation.PUZZLE_WAGON_SHOP_PANEL_NAME, false);
         }
+        currentScreen = null;
         marketButton.onClick.RemoveListener(OnMarket);
         tavernButton.onClick.RemoveListener(OnTavern);
         restButton.onClick.RemoveListener(OnRest);
@@ -469,6 +472,52 @@ public sealed class PuzzleStationActionsView : PanelBase
         backButton.interactable = true;
         backButton.gameObject.SetActive(_content != actionsList);
         title.text = _title;
+
+        // 하위 화면 전환은 분석 로그(station_screen)로만 흘린다. 같은 화면을 다시 그리는 것은 전환이 아니다.
+        string screen = ScreenName(_content);
+        if (screen != currentScreen)
+        {
+            currentScreen = screen;
+            GameEvents.RaiseStationScreenChanged(screen);
+        }
+    }
+
+    // 분석 로그의 하위 화면 이름. 화면 문구가 아니라 고정 식별자다.
+    string ScreenName(GameObject _content)
+    {
+        if (_content == actionsList)
+        {
+            return "home";
+        }
+        if (_content == marketContent)
+        {
+            return "market";
+        }
+        if (_content == wagonShopContent)
+        {
+            return "wagon_shop";
+        }
+        if (_content == restContent)
+        {
+            return "rest";
+        }
+        if (_content == tavernContent.gameObject)
+        {
+            return "tavern";
+        }
+        if (butcheryContent && _content == butcheryContent)
+        {
+            return "butchery";
+        }
+        if (modificationContent && _content == modificationContent)
+        {
+            return "modification";
+        }
+        if (refiningContent && _content == refiningContent)
+        {
+            return "refining";
+        }
+        return _content ? _content.name : string.Empty;
     }
 
     protected override void OnShow()
@@ -479,6 +528,8 @@ public sealed class PuzzleStationActionsView : PanelBase
     protected override void OnHide()
     {
         ShowHome();
+        // 다시 열 때 첫 화면을 전환으로 기록한다.
+        currentScreen = null;
     }
 
     void OnMarket()

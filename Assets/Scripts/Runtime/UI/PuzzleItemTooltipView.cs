@@ -7,6 +7,15 @@ using UnityEngine.UI;
 [DisallowMultipleComponent]
 public sealed class PuzzleItemTooltipView : PanelBase
 {
+    // 호버마다 열리고 닫히므로 분석 로그의 패널 열림에서 제외한다.
+    protected override bool TransientVisibility
+    {
+        get
+        {
+            return true;
+        }
+    }
+
     [SerializeField] Canvas canvas;
     [SerializeField] RectTransform panelRect;
     [SerializeField] CanvasGroup canvasGroup;
