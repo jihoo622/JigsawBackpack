@@ -948,6 +948,9 @@ public static partial class Presentation
     public static string PuzzleMapFit => BasicData.Text("presentation.map.fit");
     public static string PuzzleWaitDaylight => BasicData.Text("presentation.inventory.waitDaylight");
     public static string StationActionsTitle => BasicData.Text("presentation.station.actionsTitle");
+    public static string TitleGameName => BasicData.Text("presentation.title.gameName");
+    public static string TitleStart => BasicData.Text("presentation.title.start");
+    public static string TitleQuit => BasicData.Text("presentation.title.quit");
     internal static string StationWagonShop => BasicData.Text("presentation.station.wagonShop");
     internal static string StationWagonShopPage(int _page, int _pageCount) =>
         BasicData.Format("presentation.station.wagonShopPage", _page, _pageCount);

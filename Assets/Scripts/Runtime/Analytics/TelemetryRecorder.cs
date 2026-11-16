@@ -5,12 +5,26 @@ using UnityEngine;
 // TelemetryLog가 같은 원본을 로컬에 보관하고 LogKit Data로 전송한다.
 public sealed class TelemetryRecorder : MonoBehaviour
 {
+    static bool initialized;
+
     PuzzleInventoryService activeRun;
     TelemetryPayload.PuzzleState puzzleState;
 
-    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-    static void Bootstrap()
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    static void ResetStaticState()
     {
+        initialized = false;
+    }
+
+    // Preload 씬의 AppBootstrap이 Awake에서 부른다. 씬 진입 이벤트(AfterSceneLoad)보다 먼저 구독을 건다.
+    // 다시 불러도 구독자를 겹쳐 만들지 않는다.
+    public static void Initialize()
+    {
+        if (initialized)
+        {
+            return;
+        }
+        initialized = true;
         var host = new GameObject("Telemetry recorder");
         UnityEngine.Object.DontDestroyOnLoad(host);
         host.AddComponent<TelemetryRecorder>();

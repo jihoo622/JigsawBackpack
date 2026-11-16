@@ -1483,6 +1483,23 @@
       ]
     },
     {
+      "id": "presentation.title",
+      "texts": [
+        {
+          "id": "gameName",
+          "value": "Trainventory"
+        },
+        {
+          "id": "start",
+          "value": "게임 시작"
+        },
+        {
+          "id": "quit",
+          "value": "종료"
+        }
+      ]
+    },
+    {
       "id": "presentation.station",
       "texts": [
         {

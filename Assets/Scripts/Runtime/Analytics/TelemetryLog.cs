@@ -30,6 +30,7 @@ public static class TelemetryLog
     // 값 상수는 UPPER_SNAKE, 재대입이 있는 정적 상태는 camelCase(작업지침 코딩 스타일).
     static Session session;
     static bool warnedUnavailable;
+    static bool initialized;
     public static event Action BeforeClose;
 
     public static bool IsOpen
@@ -333,10 +334,15 @@ public static class TelemetryLog
     }
 
     // LogKitSetup의 종료 훅에 붙어 큐가 닫히기 전에 판 종료 기록을 남긴다.
-    // 씬이 열리기 전에 세션을 열어 GameEvents의 씬 진입 이벤트(AfterSceneLoad)부터 놓치지 않는다.
-    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-    static void Bootstrap()
+    // Preload 씬의 AppBootstrap이 Awake에서 부른다. GameEvents의 씬 진입 이벤트(AfterSceneLoad)보다 먼저 세션을 연다.
+    // 다시 불러도 세션 호스트를 겹쳐 만들지 않는다.
+    public static void Initialize()
     {
+        if (initialized)
+        {
+            return;
+        }
+        initialized = true;
         var host = new GameObject("Telemetry session");
         UnityEngine.Object.DontDestroyOnLoad(host);
         host.AddComponent<TelemetryDriver>();
@@ -352,6 +358,7 @@ public static class TelemetryLog
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     static void ResetStaticState()
     {
+        initialized = false;
         LogKitSetup.BeforeShutdown -= CloseOnShutdown;
         if (session != null && !session.closed)
         {
