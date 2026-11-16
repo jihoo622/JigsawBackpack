@@ -117,6 +117,8 @@ public sealed partial class PuzzleInventoryService
         }
 
         RoutePlan.SetStop(_cityId, _stop);
+        GameEvents.RaiseRouteStopChanged(new GameEvents.RouteStopChangedInfo(this, _cityId, _stop,
+            RoutePlan.DestinationCityId));
         GameEvents.RaiseRoutePlanChanged(new GameEvents.RoutePlanInfo(this));
     }
 

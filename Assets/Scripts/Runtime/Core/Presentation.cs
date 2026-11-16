@@ -68,14 +68,44 @@ public static partial class Presentation
         return BasicData.Format("presentation.station.title", _cityName);
     }
 
-    // 소문 문구는 대상 마을명과 품목명 또는 태그 표시명만 쓴다. 남은 수량과 최종 거래가는 보증하지 않는다.
     internal static string TavernRumor(PuzzleRumorCandidate _candidate)
     {
         var tables = TableManager.Instance;
         string city = CityLink(_candidate.CityId);
-        return _candidate.Kind == PuzzleRumorKind.Specialty
-            ? BasicData.Format("presentation.station.specialtyRumor", city, ItemLink(_candidate.ItemId, tables.Piece(_candidate.ItemId).displayName))
-            : BasicData.Format("presentation.station.rareRumor", city, TagLink(_candidate.Tag));
+        return _candidate.Kind switch
+        {
+            PuzzleRumorKind.Specialty => BasicData.Format("presentation.station.specialtyRumor", city,
+                ItemLink(_candidate.ItemId, tables.Piece(_candidate.ItemId).displayName)),
+            PuzzleRumorKind.RareDemand => BasicData.Format("presentation.station.rareRumor", city,
+                TagLink(_candidate.Tag)),
+            PuzzleRumorKind.Action => TavernActionRumor(city, tables.CityAction(_candidate.ActionId)),
+            _ => throw new ArgumentOutOfRangeException(nameof(_candidate), _candidate.Kind, "지원하지 않는 소문 종류입니다.")
+        };
+    }
+
+    static string TavernActionRumor(string _city, PuzzleCityActionData _cityAction)
+    {
+        const int HANGUL_FIRST_SYLLABLE = 0xAC00;
+        const int HANGUL_LAST_SYLLABLE = 0xD7A3;
+        const int FINAL_CONSONANT_COUNT = 28;
+        string action = _cityAction.type == nameof(PuzzleCityActionType.Refining)
+            ? BasicData.Text("presentation.station.refiningRumorAction")
+            : TavernActionName(_cityAction.title.TrimEnd().Normalize());
+        char last = action[^1];
+        bool hasFinalConsonant = last >= HANGUL_FIRST_SYLLABLE && last <= HANGUL_LAST_SYLLABLE &&
+            (last - HANGUL_FIRST_SYLLABLE) % FINAL_CONSONANT_COUNT != 0;
+        return BasicData.Format("presentation.station.actionRumor", _city, action, hasFinalConsonant ? "이" : "가");
+    }
+
+    static string TavernActionName(string _title)
+    {
+        const string BUTTON_SUFFIX = "하기";
+        if (_title.Length > BUTTON_SUFFIX.Length && _title.EndsWith(BUTTON_SUFFIX, StringComparison.Ordinal))
+        {
+            return _title.Substring(0, _title.Length - BUTTON_SUFFIX.Length);
+        }
+
+        return _title;
     }
 
     public static string RumorLogTitle => BasicData.Text("presentation.rumorLog.title");
@@ -918,6 +948,9 @@ public static partial class Presentation
     public static string PuzzleMapFit => BasicData.Text("presentation.map.fit");
     public static string PuzzleWaitDaylight => BasicData.Text("presentation.inventory.waitDaylight");
     public static string StationActionsTitle => BasicData.Text("presentation.station.actionsTitle");
+    public static string TitleGameName => BasicData.Text("presentation.title.gameName");
+    public static string TitleStart => BasicData.Text("presentation.title.start");
+    public static string TitleQuit => BasicData.Text("presentation.title.quit");
     internal static string StationWagonShop => BasicData.Text("presentation.station.wagonShop");
     internal static string StationWagonShopPage(int _page, int _pageCount) =>
         BasicData.Format("presentation.station.wagonShopPage", _page, _pageCount);
@@ -935,6 +968,11 @@ public static partial class Presentation
         return BasicData.Format("presentation.station.restDuration", PuzzleMapTime(_minutes));
     }
     public static string StationButchery => BasicData.Text("presentation.StationButchery");
+    internal static string StationActionDescription(PuzzleCityActionData _action) =>
+        _action == null ? string.Empty : _action.description;
+    public static string StationWorkWaitQuestion => BasicData.Text("presentation.StationWorkWaitQuestion");
+    public static string StationWorkWaitLater => BasicData.Text("presentation.StationWorkWaitLater");
+    public static string StationWorkWaitNow => BasicData.Text("presentation.StationWorkWaitNow");
     public static string StationButcheryConfirm => BasicData.Text("presentation.StationButcheryConfirm");
     // 확인 버튼 라벨에 표 행동 비용을 붙인다. 비용을 모르면 기본 라벨을 쓴다.
     public static string StationButcheryConfirmCost(long _cost) =>
@@ -984,6 +1022,15 @@ public static partial class Presentation
         {
             return BasicData.Text("rules.modification.unavailable");
         }
+        switch (_session.ModificationPhase())
+        {
+            case PuzzleModificationPhase.Working:
+                return BasicData.Format("presentation.StationModificationCountdown",
+                    PuzzleMapTime(_session.ModificationRemainingMinutes()));
+            case PuzzleModificationPhase.Ready:
+                return BasicData.Text("presentation.StationModificationCollect");
+        }
+
         bool selected = _session.TryGetSelectedModificationMode(out var mode);
         string modeName = selected ? mode.displayName : FirstModificationModeName(_session);
         if (!selected)
@@ -1142,7 +1189,7 @@ public static partial class Presentation
             string rareColor = ColorUtility.ToHtmlStringRGB(PuzzleMapRare);
             trade = BasicData.Format("presentation.map.informationText9", commonColor, (string.IsNullOrEmpty(common) ? BasicData.Text("presentation.map.informationText14") : common)) +
                 BasicData.Format("presentation.map.informationText10", expensiveColor, (string.IsNullOrEmpty(expensive) ? BasicData.Text("presentation.map.informationText15") : expensive)) +
-                BasicData.Format("presentation.map.informationText16", rareColor, (string.IsNullOrEmpty(rare) ? BasicData.Text("presentation.map.informationText15") : rare)) +
+                BasicData.Format("presentation.map.informationText16", rareColor, (string.IsNullOrEmpty(rare) ? BasicData.Text("presentation.map.informationText15") : rare), RareSellPercent()) +
                 FarmWastePurchaseLine("presentation.map.wastePurchase", _region.id);
         }
 
@@ -1484,6 +1531,19 @@ public static partial class Presentation
             _intervalDays, _wasteName, _count));
     }
 
+    static string PuzzleAnimalFeedEffect(string _description, int _intervalHours, int _reductionHours)
+    {
+        return PuzzleTooltipEffectDescription(string.Format(_description,
+            PuzzleMapTime((long)_intervalHours * PuzzleTimeManager.MINUTES_PER_HOUR),
+            PuzzleMapTime((long)_reductionHours * PuzzleTimeManager.MINUTES_PER_HOUR)));
+    }
+
+    internal static string PuzzleCombinationEffect(string _description, long _minutes, string _resultName)
+    {
+        return PuzzleTooltipEffectDescription(string.Format(_description,
+            PuzzleMapTime(_minutes), _resultName));
+    }
+
     internal static string PuzzleFreshnessDot => BasicData.Text("presentation.freshness.dot");
 
     internal static Color PuzzleFreshnessOutline => BasicData.Color("presentation.freshness.outline");
@@ -1611,6 +1671,8 @@ public static partial class Presentation
                 }
                 general.Add(new PuzzleEffectDisplay(PuzzleAnimalBreedingEffect(breeding.description,
                     breedingMinutes, offspring.displayName, breeding.offspringCount), breedingProgress));
+                general.Add(new PuzzleEffectDisplay(PuzzleAnimalFeedEffect(animals.breedingFeedDescription,
+                    animals.feedIntervalHours, animals.breedingFeedReductionHours)));
             }
             if (_item.GrowthMinutes > 0)
             {
@@ -1622,6 +1684,8 @@ public static partial class Presentation
                     : null;
                 general.Add(new PuzzleEffectDisplay(PuzzleAnimalGrowthEffect(_item.GrowthDescription,
                     _item.GrowthMinutes, adult.displayName, _item.GrowthBlockedMinutes), growthProgress));
+                general.Add(new PuzzleEffectDisplay(PuzzleAnimalFeedEffect(animals.growthFeedDescription,
+                    animals.feedIntervalHours, animals.growthFeedReductionHours)));
             }
 
             var waste = tables.Piece(animals.wastePieceId);
@@ -1629,6 +1693,32 @@ public static partial class Presentation
             general.Add(new PuzzleEffectDisplay(PuzzleAnimalWasteEffect(animals.wasteDescription,
                 animals.wasteIntervalDays, waste.displayName, animals.wasteCountPerAnimal)));
         }
+
+        // 인접 조합은 입력으로 등록된 품목 양쪽에 같은 규칙 설명을 보인다. 진행도는 객차에서 실제로
+        // 맺힌 쌍의 설명에만 붙이고, 결과 품목은 입력 목록에 없으므로 설명이 붙지 않는다.
+        foreach (var combination in tables.Combinations)
+        {
+            bool isInput = string.Equals(combination.sourcePieceId, _item.Id, StringComparison.Ordinal) ||
+                string.Equals(combination.partnerPieceId, _item.Id, StringComparison.Ordinal);
+            if (!isInput)
+            {
+                continue;
+            }
+
+            var product = tables.Piece(combination.resultPieceId);
+            long combinationMinutes = (long)combination.requiredHours * PuzzleTimeManager.MINUTES_PER_HOUR;
+            PuzzleProgressDisplay? combinationProgress = null;
+            if (isTrain && _placement != null && _session != null
+                && _session.TryGetCombinationProgress(_placement, out var activeCombination,
+                    out long combinationElapsed) && ReferenceEquals(activeCombination, combination))
+            {
+                combinationProgress = new PuzzleProgressDisplay(combinationElapsed, combinationMinutes, false);
+            }
+
+            general.Add(new PuzzleEffectDisplay(PuzzleCombinationEffect(combination.description,
+                combinationMinutes, product.displayName), combinationProgress));
+        }
+
 
         foreach (var rule in tables.SynergiesFor(_scope))
         {
@@ -1810,7 +1900,7 @@ public static partial class Presentation
                 _color = PuzzleMapCurrent;
                 break;
             case PuzzleCityTradeGrade.Rare:
-                rawTitle = BasicData.Text("presentation.trade.rareResourceTitle");
+                rawTitle = BasicData.Format("presentation.trade.rareResourceTitle", RareSellPercent());
                 _linkId = "rare";
                 _color = PuzzleMapRare;
                 break;
@@ -1851,7 +1941,7 @@ public static partial class Presentation
         string rareColor = ColorUtility.ToHtmlStringRGB(PuzzleMapRare);
         return BasicData.Format("presentation.trade.cityTagPreferences", commonColor, (string.IsNullOrEmpty(commonText) ? BasicData.Text("presentation.trade.cityTagPreferencesText3") : commonText)) +
             BasicData.Format("presentation.trade.cityTagPreferencesText2", expensiveColor, (string.IsNullOrEmpty(expensiveText) ? BasicData.Text("presentation.trade.cityTagPreferencesText4") : expensiveText)) +
-            BasicData.Format("presentation.trade.cityTagPreferencesText5", rareColor, (string.IsNullOrEmpty(rareText) ? BasicData.Text("presentation.trade.cityTagPreferencesText4") : rareText)) +
+            BasicData.Format("presentation.trade.cityTagPreferencesText5", rareColor, (string.IsNullOrEmpty(rareText) ? BasicData.Text("presentation.trade.cityTagPreferencesText4") : rareText), RareSellPercent()) +
             FarmWastePurchaseLine("presentation.trade.wastePurchase", _city?.regionId) +
             BasicData.Format("presentation.trade.regionPrice", _city.buyPercentOfBaseValue, _city.sellPercentOfFinalValue);
 
@@ -1879,8 +1969,8 @@ public static partial class Presentation
                 _description = FormatKeywordTooltipDescription(BasicData.Text("presentation.trade.expensiveResourceTooltip"));
                 return true;
             case "rare":
-                _title = BasicData.Text("presentation.trade.rareResourceTitle");
-                _description = FormatKeywordTooltipDescription(BasicData.Text("presentation.trade.rareResourceTooltip"));
+                _title = BasicData.Format("presentation.trade.rareResourceTitle", RareSellPercent());
+                _description = FormatKeywordTooltipDescription(BasicData.Format("presentation.trade.rareResourceTooltip", RareSellPercent() - PuzzleInventoryValuation.BASE_PERCENT));
                 return true;
             case "waste":
                 _title = BasicData.Text("presentation.trade.wastePurchaseTitle");
@@ -1891,6 +1981,16 @@ public static partial class Presentation
                 _description = null;
                 return false;
         }
+    }
+
+    static int RareSellPercent()
+    {
+        var tables = TableManager.Instance.RequireValid();
+        if (!tables.TryGetSellGrade(TableManager.SELL_GRADE_RARE, out var grade))
+        {
+            throw new InvalidOperationException("희귀 판매 등급이 필요합니다.");
+        }
+        return grade.sellPercent;
     }
 
     static string FormatKeywordTooltipDescription(string _description)

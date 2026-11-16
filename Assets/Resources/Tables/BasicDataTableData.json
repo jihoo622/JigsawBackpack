@@ -952,8 +952,8 @@
         },
         {
           "id": "informationText16",
-          "value": "<color=#{0}><b>희귀 150%</b></color>   {1}",
-          "arguments": 2
+          "value": "<color=#{0}><b>희귀 {2}%</b></color>   {1}",
+          "arguments": 3
         },
         {
           "id": "informationText2",
@@ -1483,8 +1483,34 @@
       ]
     },
     {
+      "id": "presentation.title",
+      "texts": [
+        {
+          "id": "gameName",
+          "value": "Trainventory"
+        },
+        {
+          "id": "start",
+          "value": "게임 시작"
+        },
+        {
+          "id": "quit",
+          "value": "종료"
+        }
+      ]
+    },
+    {
       "id": "presentation.station",
       "texts": [
+        {
+          "id": "actionRumor",
+          "value": "{0}에서 {1}{2} 가능하다던데...",
+          "arguments": 3
+        },
+        {
+          "id": "refiningRumorAction",
+          "value": "광물 정제"
+        },
         {
           "id": "actionsTitle",
           "value": "역에서 할 일"
@@ -2516,8 +2542,8 @@
         },
         {
           "id": "cityTagPreferencesText5",
-          "value": "<color=#{0}><b><link=\"rare\">희귀 150%</link></b></color>   {1}\n",
-          "arguments": 2
+          "value": "<color=#{0}><b><link=\"rare\">희귀 {2}%</link></b></color>   {1}\n",
+          "arguments": 3
         },
         {
           "id": "wastePurchase",
@@ -2542,11 +2568,13 @@
         },
         {
           "id": "rareResourceTitle",
-          "value": "희귀 150%"
+          "value": "희귀 {0}%",
+          "arguments": 1
         },
         {
           "id": "rareResourceTooltip",
-          "value": "해당 태그 물품 거래 시 기본 배율에 +50%가 적용됩니다.\n(구매·판매 모두 적용)"
+          "value": "해당 태그 물품 판매 시 기본 배율에 +{0}%가 적용됩니다.",
+          "arguments": 1
         },
         {
           "id": "wastePurchaseTitle",
@@ -2893,6 +2921,18 @@
           "source": "Assets/Scripts/Runtime/Core/Presentation.cs:PuzzleModificationStatus"
         },
         {
+          "id": "StationModificationCountdown",
+          "value": "개조 완료까지 {0}",
+          "arguments": 1,
+          "source": "Assets/Scripts/Runtime/Core/Presentation.cs:PuzzleModificationStatus"
+        },
+        {
+          "id": "StationModificationCollect",
+          "value": "개조가 끝났습니다. 화물을 회수하세요.",
+          "arguments": 0,
+          "source": "Assets/Scripts/Runtime/Core/Presentation.cs:PuzzleModificationStatus"
+        },
+        {
           "id": "PuzzleButcheryTitle",
           "value": "도축대",
           "arguments": 0,
@@ -2915,6 +2955,24 @@
           "value": "도축",
           "arguments": 0,
           "source": "Assets/Scripts/Runtime/Core/Presentation.cs:105"
+        },
+        {
+          "id": "StationWorkWaitQuestion",
+          "value": "완료될 때까지 기다릴까요?",
+          "arguments": 0,
+          "source": "Assets/Scripts/Runtime/Core/Presentation.cs:StationWorkWaitQuestion"
+        },
+        {
+          "id": "StationWorkWaitLater",
+          "value": "나중에 찾으러 오기",
+          "arguments": 0,
+          "source": "Assets/Scripts/Runtime/Core/Presentation.cs:StationWorkWaitLater"
+        },
+        {
+          "id": "StationWorkWaitNow",
+          "value": "완료까지 시간 보내기",
+          "arguments": 0,
+          "source": "Assets/Scripts/Runtime/Core/Presentation.cs:StationWorkWaitNow"
         },
         {
           "id": "StationButcheryConfirm",

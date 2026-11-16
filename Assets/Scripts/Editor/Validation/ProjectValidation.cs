@@ -61,6 +61,7 @@ public static class ProjectValidation
         {
             info.Add("분석 로그 설정: Resources/LogData.json / 파일 위치 " + TelemetryLog.FolderPath);
         }
+        CheckLogKitScenes(issues, info);
 
         // 4) 빌드 씬 목록과 진행 표 대조(빌드는 EditorBuildSettings를 따라하므로 어긋나면 로드하지 못한다)
         var buildScenes = new List<string>();
@@ -151,6 +152,50 @@ public static class ProjectValidation
     }
 
     // ProjectSettings.asset에서 Active Input Handling 값을 읽는다(공개 API가 없는 항목이라 본문을 파싱한다).
+    // LogKit 설정의 원본은 빌드 씬(Preload)에 둔 GameLogger Inspector다. Inspector 값이 환경 변수·빌드 설정보다 우선한다.
+    // 업로드 키는 씬에 저장되면 저장소에 남으므로 문제로 보고한다. 서버 주소는 비밀이 아니므로 안내만 한다
+    // (Inspector에 주소가 있으면 빌드 설정·환경 변수의 주소를 쓰지 않는다).
+    // 씬을 열지 않고 파일의 직렬화 값을 읽는다.
+    static void CheckLogKitScenes(List<string> _issues, List<string> _info)
+    {
+        var loggerScenes = new List<string>();
+        foreach (var scene in EditorBuildSettings.scenes)
+        {
+            if (!scene.enabled || string.IsNullOrEmpty(scene.path) || !File.Exists(scene.path))
+            {
+                continue;
+            }
+            string text = File.ReadAllText(scene.path);
+            if (!text.Contains("_retryPendingOnStartup:"))
+            {
+                continue;
+            }
+            string name = Path.GetFileNameWithoutExtension(scene.path);
+            loggerScenes.Add(name);
+            foreach (string line in text.Split('\n'))
+            {
+                string trimmed = line.Trim();
+                if (trimmed.StartsWith("_apiKey:") && trimmed.Length > "_apiKey:".Length)
+                {
+                    _issues.Add($"씬 '{name}'의 GameLogger에 업로드 키가 저장돼 있습니다(저장소에 남고 빌드 키보다 우선합니다). 비우고 빌드 단계·에디터 환경 변수로 넣으세요.");
+                }
+                if ((trimmed.StartsWith("_developmentServerUrl:") || trimmed.StartsWith("_releaseServerUrl:")) &&
+                    !trimmed.EndsWith(LogKitSetup.PACKAGE_DEFAULT_SERVER_URL) && !trimmed.EndsWith(":"))
+                {
+                    _info.Add($"씬 '{name}'의 GameLogger 주소 사용: {trimmed}");
+                }
+            }
+        }
+        if (loggerScenes.Count == 0)
+        {
+            _info.Add("LogKit: 빌드 씬에 GameLogger가 없어 패키지 코드 기본값으로 동작합니다(Inspector 설정 없음).");
+        }
+        else
+        {
+            _info.Add("LogKit 수집·전송 설정: " + string.Join(", ", loggerScenes) + " 씬의 GameLogger Inspector");
+        }
+    }
+
     static string ActiveInputHandler()
     {
         string path = System.IO.Path.Combine(Application.dataPath, "..", "ProjectSettings", "ProjectSettings.asset");

@@ -306,8 +306,7 @@
       "displayName": "기계 프레임",
       "description": "가운데 한 칸이 열린 U자형 다섯 칸 화물.",
       "tags": [
-        "Machinery",
-        "Metal"
+        "Machinery"
       ],
       "visualKey": "cargo.machineFrame",
       "slotCount": 5,
@@ -357,16 +356,6 @@
       "baseValue": 55,
       "synergyEffects": [
         {
-          "ruleId": "metalNearFish",
-          "target": true,
-          "source": false
-        },
-        {
-          "ruleId": "metalNearWater",
-          "target": true,
-          "source": false
-        },
-        {
           "ruleId": "sample.machineryNearWood",
           "target": true,
           "source": false
@@ -390,7 +379,6 @@
       "description": "기계 프레임을 냉장 용도로 개조한 화물. 같은 객차에서 상하좌우로 맞닿은 음식의 유통기한 소모를 늦춘다.",
       "tags": [
         "Machinery",
-        "Metal",
         "Fresh"
       ],
       "visualKey": "cargo.machineFrame",
@@ -441,16 +429,6 @@
       "durability": 100,
       "baseValue": 55,
       "synergyEffects": [
-        {
-          "ruleId": "metalNearFish",
-          "target": true,
-          "source": false
-        },
-        {
-          "ruleId": "metalNearWater",
-          "target": true,
-          "source": false
-        },
         {
           "ruleId": "sample.machineryNearWood",
           "target": true,
@@ -818,7 +796,168 @@
           "west": "Flat"
         }
       ],
-      "baseValue": 20,
+      "baseValue": 40,
+      "synergyEffects": [
+        {
+          "ruleId": "foodNearSalt",
+          "target": true,
+          "source": false
+        },
+        {
+          "ruleId": "sample.cargoNearFood",
+          "target": false,
+          "source": true
+        },
+        {
+          "ruleId": "wasteNearbyPenalty",
+          "target": true,
+          "source": false
+        }
+      ],
+      "preservationEffect": {
+        "enabled": false,
+        "reductionPercent": 0
+      }
+    },
+    {
+      "id": "piece.pickledBeef",
+      "displayName": "절인 소고기",
+      "description": "소금에 절여 가치를 올린 소고기.",
+      "tags": [
+        "Food",
+        "Meat"
+      ],
+      "shelfLifeHours": 336,
+      "visualKey": "cargo.beef",
+      "slotCount": 2,
+      "durability": 100,
+      "cells": [
+        {
+          "x": 0,
+          "y": 0,
+          "north": "Flat",
+          "east": "Flat",
+          "south": "Flat",
+          "west": "Flat"
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "north": "Flat",
+          "east": "Flat",
+          "south": "Flat",
+          "west": "Flat"
+        }
+      ],
+      "baseValue": 62,
+      "synergyEffects": [
+        {
+          "ruleId": "foodNearSalt",
+          "target": true,
+          "source": false
+        },
+        {
+          "ruleId": "sample.cargoNearFood",
+          "target": false,
+          "source": true
+        },
+        {
+          "ruleId": "wasteNearbyPenalty",
+          "target": true,
+          "source": false
+        }
+      ],
+      "preservationEffect": {
+        "enabled": false,
+        "reductionPercent": 0
+      }
+    },
+    {
+      "id": "piece.pickledFish",
+      "displayName": "절인 물고기",
+      "description": "소금에 절여 가치를 올린 물고기.",
+      "tags": [
+        "Food",
+        "Fish"
+      ],
+      "shelfLifeHours": 336,
+      "visualKey": "cargo.fish",
+      "slotCount": 2,
+      "cells": [
+        {
+          "x": 0,
+          "y": 0,
+          "north": "Flat",
+          "east": "Flat",
+          "south": "Flat",
+          "west": "Flat"
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "north": "Flat",
+          "east": "Flat",
+          "south": "Flat",
+          "west": "Flat"
+        }
+      ],
+      "durability": 100,
+      "baseValue": 50,
+      "synergyEffects": [
+        {
+          "ruleId": "fishNearWater",
+          "target": true,
+          "source": false
+        },
+        {
+          "ruleId": "foodNearSalt",
+          "target": true,
+          "source": false
+        },
+        {
+          "ruleId": "metalNearFish",
+          "target": false,
+          "source": true
+        },
+        {
+          "ruleId": "wasteNearbyPenalty",
+          "target": true,
+          "source": false
+        },
+        {
+          "ruleId": "woodNearFish",
+          "target": false,
+          "source": true
+        }
+      ],
+      "preservationEffect": {
+        "enabled": false,
+        "reductionPercent": 0
+      }
+    },
+    {
+      "id": "piece.pickledMeat",
+      "displayName": "절인 고기 포장",
+      "description": "소금에 절여 가치를 올린 고기 포장.",
+      "tags": [
+        "Food",
+        "Meat"
+      ],
+      "shelfLifeHours": 336,
+      "visualKey": "cargo.meatPackage",
+      "slotCount": 1,
+      "cells": [
+        {
+          "x": 0,
+          "y": 0,
+          "north": "Flat",
+          "east": "Flat",
+          "south": "Flat",
+          "west": "Flat"
+        }
+      ],
+      "durability": 100,
+      "baseValue": 46,
       "synergyEffects": [
         {
           "ruleId": "foodNearSalt",
@@ -857,7 +996,7 @@
       "growthHours": 48,
       "growthBlockedHours": 1,
       "growthDescription": "{0} 후 {1}(으)로 성장 (공간 부족 시 마지막 {2}에서 대기)",
-      "baseValue": 40,
+      "baseValue": 20,
       "cells": [
         {
           "x": 0,
@@ -943,7 +1082,7 @@
           "west": "Flat"
         }
       ],
-      "baseValue": 65,
+      "baseValue": 60,
       "synergyEffects": [
         {
           "ruleId": "cargoNearAnimal",
@@ -1171,7 +1310,7 @@
           "west": "Flat"
         }
       ],
-      "baseValue": 15,
+      "baseValue": 20,
       "synergyEffects": [
         {
           "ruleId": "metalNearFish",
@@ -3765,7 +3904,7 @@
     },
     {
       "id": "Rare",
-      "sellPercent": 150
+      "sellPercent": 200
     }
   ]
 }

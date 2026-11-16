@@ -7,7 +7,8 @@ using UnityEngine.SceneManagement;
 using Object = UnityEngine.Object;
 
 // 특정 씬을 바로 듣는 디버그 진입.
-//   편집 중: 저장 확인 후 해당 씬을 열고, 그 상태로 Play에 진입한다(playModeStartScene을 임시로 바꿨다가 되돌린다).
+//   편집 중: 저장 확인 후 해당 씬을 열고 Play에 진입한다. Play From Preload가 켜져 있으면 Preload에서 준비를 마친 뒤 그 씬으로 넘어가고,
+//           꺼져 있으면 playModeStartScene을 임시로 바꿨다가 되돌린다.
 //   플레이 중: 현재 실행을 끊지 않고 해당 씬으로 새로 진입한다. 진입용 상태는 일회용이며 빌드에 넣지 않는다.
 // 목록은 FlowTableData(씬 진행 경로)와 EditorBuildSettings의 활성 씬을 합쳐 만든다.
 [InitializeOnLoad]
@@ -157,6 +158,12 @@ public static class SceneDebugTools
         }
 
         SetPending(_target);
+        if (PreloadPlayMode.Enabled)
+        {
+            // Play는 Preload에서 시작하고, 기동 준비를 마친 뒤 방금 연 씬(_target)으로 넘어간다.
+            EditorApplication.EnterPlaymode();
+            return;
+        }
         SessionState.SetString(PREVIOUS_START_KEY, EditorSceneManager.playModeStartScene ? AssetDatabase.GetAssetPath(EditorSceneManager.playModeStartScene) : string.Empty);
         SessionState.SetBool(RESTORE_START_KEY, true);
         EditorSceneManager.playModeStartScene = sceneAsset;

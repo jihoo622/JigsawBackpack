@@ -40,6 +40,19 @@ public sealed partial class ItemEditorWindow : EditorWindow
         minSize = new Vector2(1080f, 660f);
         saveChangesMessage = "아이템 초안을 저장할까요? 품목·번식 테이블과 모든 인벤토리의 Sprite 참조를 함께 반영합니다.";
         Undo.undoRedoPerformed += RestoreDraft;
+        // 원본 읽기는 Game 씬이 열려 있지 않으면 미리보기 씬을 연다. 레이아웃 복원(에디터 시작, Play 종료 시 최대화 해제) 중에
+        // 미리보기 씬을 열면 에디터가 멈추므로 창이 켜지는 순간이 아니라 다음 에디터 틱에 읽는다.
+        EditorApplication.delayCall -= LoadAfterEnable;
+        EditorApplication.delayCall += LoadAfterEnable;
+    }
+
+    void LoadAfterEnable()
+    {
+        // 그사이 창이 닫혔으면 읽지 않는다.
+        if (this == null)
+        {
+            return;
+        }
         if (draft && source != null)
         {
             RestoreDraft();
@@ -48,10 +61,12 @@ public sealed partial class ItemEditorWindow : EditorWindow
         {
             Reload();
         }
+        Repaint();
     }
 
     void OnDisable()
     {
+        EditorApplication.delayCall -= LoadAfterEnable;
         ReleaseCanvasDrag();
         Undo.undoRedoPerformed -= RestoreDraft;
     }
@@ -355,19 +370,16 @@ public sealed partial class ItemEditorWindow : EditorWindow
             Change("품목 기본 가치", () => piece["baseValue"] = nextValue);
         }
         EditorGUILayout.LabelField("음수 가치 허용 · -1은 누락 판정값", EditorStyles.wordWrappedMiniLabel);
-        using (new EditorGUI.DisabledScope(isNew))
+        bool excluded = (bool?)piece["excludeFromMarket"] ?? false;
+        MarkValidationField("excludeFromMarket");
+        bool nextExcluded = EditorGUILayout.Toggle("자동 시장 재고에서 제외", excluded);
+        if (excluded != nextExcluded)
         {
-            bool excluded = (bool?)piece["excludeFromMarket"] ?? false;
-            MarkValidationField("excludeFromMarket");
-            bool nextExcluded = EditorGUILayout.Toggle("자동 시장 재고에서 제외", excluded);
-            if (excluded != nextExcluded)
-            {
-                Change("시장 재고 제외", () => piece["excludeFromMarket"] = nextExcluded);
-            }
+            Change("시장 재고 제외", () => piece["excludeFromMarket"] = nextExcluded);
         }
         if (isNew)
         {
-            EditorGUILayout.HelpBox("새 품목은 미출시 상태로 저장합니다. 시작 객차와 시장 재고에는 자동 추가하지 않습니다.", MessageType.None);
+            EditorGUILayout.HelpBox("새 품목은 시작 객차와 시장 재고에 자동 추가하지 않습니다. 조합 규칙의 결과가 아닌 새 품목은 시장 재고 제외를 켠 상태로 저장하세요.", MessageType.None);
         }
         DrawDefinitionFields(piece);
         EditorGUILayout.Space();

@@ -5,12 +5,26 @@ using UnityEngine;
 // TelemetryLog가 같은 원본을 로컬에 보관하고 LogKit Data로 전송한다.
 public sealed class TelemetryRecorder : MonoBehaviour
 {
+    static bool initialized;
+
     PuzzleInventoryService activeRun;
     TelemetryPayload.PuzzleState puzzleState;
 
-    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-    static void Bootstrap()
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    static void ResetStaticState()
     {
+        initialized = false;
+    }
+
+    // Preload 씬의 AppBootstrap이 Awake에서 부른다. 씬 진입 이벤트(AfterSceneLoad)보다 먼저 구독을 건다.
+    // 다시 불러도 구독자를 겹쳐 만들지 않는다.
+    public static void Initialize()
+    {
+        if (initialized)
+        {
+            return;
+        }
+        initialized = true;
         var host = new GameObject("Telemetry recorder");
         UnityEngine.Object.DontDestroyOnLoad(host);
         host.AddComponent<TelemetryRecorder>();
@@ -22,8 +36,7 @@ public sealed class TelemetryRecorder : MonoBehaviour
         GameEvents.SceneChanged += OnSceneChanged;
         GameEvents.UpgradeGranted += OnUpgradeGranted;
         GameEvents.PanelVisibility += OnPanelVisibility;
-        GameEvents.ButcheryCommitted += OnButcheryCommitted;
-        GameEvents.ButcheryReady += OnButcheryReady;
+        GameEvents.WorkbenchReady += OnWorkbenchReady;
         GameEvents.PuzzleRunStarted += OnPuzzleRunStarted;
         GameEvents.PuzzleRunEnded += OnPuzzleRunEnded;
         GameEvents.PuzzleActionCommitted += OnPuzzleAction;
@@ -35,6 +48,8 @@ public sealed class TelemetryRecorder : MonoBehaviour
         GameEvents.RoutePlanned += OnRoutePlanned;
         GameEvents.RouteEnded += OnRouteEnded;
         GameEvents.AutoTravelStopped += OnAutoTravelStopped;
+        GameEvents.RouteStopChanged += OnRouteStopChanged;
+        GameEvents.StationScreenChanged += OnStationScreenChanged;
         TelemetryLog.BeforeClose += OnSessionClosing;
     }
 
@@ -44,8 +59,7 @@ public sealed class TelemetryRecorder : MonoBehaviour
         GameEvents.SceneChanged -= OnSceneChanged;
         GameEvents.UpgradeGranted -= OnUpgradeGranted;
         GameEvents.PanelVisibility -= OnPanelVisibility;
-        GameEvents.ButcheryCommitted -= OnButcheryCommitted;
-        GameEvents.ButcheryReady -= OnButcheryReady;
+        GameEvents.WorkbenchReady -= OnWorkbenchReady;
         GameEvents.PuzzleRunStarted -= OnPuzzleRunStarted;
         GameEvents.PuzzleRunEnded -= OnPuzzleRunEnded;
         GameEvents.PuzzleActionCommitted -= OnPuzzleAction;
@@ -57,6 +71,8 @@ public sealed class TelemetryRecorder : MonoBehaviour
         GameEvents.RoutePlanned -= OnRoutePlanned;
         GameEvents.RouteEnded -= OnRouteEnded;
         GameEvents.AutoTravelStopped -= OnAutoTravelStopped;
+        GameEvents.RouteStopChanged -= OnRouteStopChanged;
+        GameEvents.StationScreenChanged -= OnStationScreenChanged;
         TelemetryLog.BeforeClose -= OnSessionClosing;
     }
 
@@ -72,6 +88,11 @@ public sealed class TelemetryRecorder : MonoBehaviour
 
     void OnPanelVisibility(GameEvents.PanelInfo _info)
     {
+        // 호버 툴팁처럼 포인터를 따라 열리고 닫히는 패널은 수집 경계 밖이다.
+        if (_info.transient)
+        {
+            return;
+        }
         TelemetryLog.Write(TelemetryEvents.PANEL_VISIBILITY, TelemetryPayload.Panel(_info));
     }
 
@@ -107,7 +128,8 @@ public sealed class TelemetryRecorder : MonoBehaviour
             && string.IsNullOrEmpty(payload.failure) && payload.moneyDelta == 0
             && payload.introduced.Length == 0 && payload.moved.Length == 0
             && string.IsNullOrEmpty(payload.cityId) && payload.wagonDelta == 0
-            && payload.removed.Length == 0 && payload.values.Length == 0 && payload.durability.Length == 0;
+            && payload.removed.Length == 0 && payload.values.Length == 0 && payload.durability.Length == 0
+            && payload.transformed.Length == 0;
         if (!unchangedPlacement)
         {
             TelemetryLog.Write(TelemetryEvents.PUZZLE_ACTION, payload);
@@ -191,14 +213,25 @@ public sealed class TelemetryRecorder : MonoBehaviour
         }
     }
 
-    void OnButcheryCommitted(GameEvents.ButcheryCommittedInfo _info)
+    void OnWorkbenchReady(GameEvents.WorkbenchReadyInfo _info)
     {
-        TelemetryLog.Write(TelemetryEvents.BUTCHERY_COMMITTED, TelemetryPayload.ButcheryCommitted(_info));
+        if (ReferenceEquals(activeRun, _info.session))
+        {
+            TelemetryLog.Write(TelemetryEvents.WORKBENCH_READY, TelemetryPayload.WorkbenchReady(_info));
+        }
     }
 
-    void OnButcheryReady(GameEvents.ButcheryReadyInfo _info)
+    void OnRouteStopChanged(GameEvents.RouteStopChangedInfo _info)
     {
-        TelemetryLog.Write(TelemetryEvents.BUTCHERY_READY, TelemetryPayload.ButcheryReady(_info));
+        if (ReferenceEquals(activeRun, _info.session))
+        {
+            TelemetryLog.Write(TelemetryEvents.ROUTE_STOP_CHANGED, TelemetryPayload.RouteStopChanged(_info));
+        }
+    }
+
+    void OnStationScreenChanged(GameEvents.StationScreenInfo _info)
+    {
+        TelemetryLog.Write(TelemetryEvents.STATION_SCREEN, TelemetryPayload.StationScreen(_info));
     }
 
     void OnEntityLinkClicked(GameEvents.EntityLinkInfo _info)

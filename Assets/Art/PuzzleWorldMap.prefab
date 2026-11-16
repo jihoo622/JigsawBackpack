@@ -2747,7 +2747,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "7\uC2DC\uAC04"
+  m_text: "8\uC2DC\uAC04"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: b2eeb73aa1ee10b48a7fe11797ba93c5, type: 2}
   m_sharedMaterial: {fileID: -3217437318264749832, guid: b2eeb73aa1ee10b48a7fe11797ba93c5, type: 2}
@@ -3411,7 +3411,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "4\uC2DC\uAC04"
+  m_text: "6\uC2DC\uAC04"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: b2eeb73aa1ee10b48a7fe11797ba93c5, type: 2}
   m_sharedMaterial: {fileID: -3217437318264749832, guid: b2eeb73aa1ee10b48a7fe11797ba93c5, type: 2}
@@ -5051,7 +5051,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "5\uC2DC\uAC04"
+  m_text: "6\uC2DC\uAC04"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: b2eeb73aa1ee10b48a7fe11797ba93c5, type: 2}
   m_sharedMaterial: {fileID: -3217437318264749832, guid: b2eeb73aa1ee10b48a7fe11797ba93c5, type: 2}
@@ -7645,7 +7645,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "4\uC2DC\uAC04"
+  m_text: "6\uC2DC\uAC04"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: b2eeb73aa1ee10b48a7fe11797ba93c5, type: 2}
   m_sharedMaterial: {fileID: -3217437318264749832, guid: b2eeb73aa1ee10b48a7fe11797ba93c5, type: 2}
@@ -10963,7 +10963,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &831778146769479566
 RectTransform:
   m_ObjectHideFlags: 0
@@ -11424,7 +11424,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "8\uC2DC\uAC04"
+  m_text: "6\uC2DC\uAC04"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: b2eeb73aa1ee10b48a7fe11797ba93c5, type: 2}
   m_sharedMaterial: {fileID: -3217437318264749832, guid: b2eeb73aa1ee10b48a7fe11797ba93c5, type: 2}
@@ -17254,7 +17254,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.8392157, g: 0.5568628, b: 0.24313726, a: 1}
+  m_Color: {r: 0.89411765, g: 0.9137255, b: 0.9372549, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -19352,7 +19352,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "5\uC2DC\uAC04"
+  m_text: "6\uC2DC\uAC04"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: b2eeb73aa1ee10b48a7fe11797ba93c5, type: 2}
   m_sharedMaterial: {fileID: -3217437318264749832, guid: b2eeb73aa1ee10b48a7fe11797ba93c5, type: 2}
@@ -19701,7 +19701,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "12\uC2DC\uAC04"
+  m_text: "10\uC2DC\uAC04"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: b2eeb73aa1ee10b48a7fe11797ba93c5, type: 2}
   m_sharedMaterial: {fileID: -3217437318264749832, guid: b2eeb73aa1ee10b48a7fe11797ba93c5, type: 2}
@@ -20829,7 +20829,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "7\uC2DC\uAC04"
+  m_text: "5\uC2DC\uAC04"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: b2eeb73aa1ee10b48a7fe11797ba93c5, type: 2}
   m_sharedMaterial: {fileID: -3217437318264749832, guid: b2eeb73aa1ee10b48a7fe11797ba93c5, type: 2}
@@ -21130,7 +21130,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &2914911776398359977
 RectTransform:
   m_ObjectHideFlags: 0
@@ -21465,7 +21465,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "5\uC2DC\uAC04"
+  m_text: "6\uC2DC\uAC04"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: b2eeb73aa1ee10b48a7fe11797ba93c5, type: 2}
   m_sharedMaterial: {fileID: -3217437318264749832, guid: b2eeb73aa1ee10b48a7fe11797ba93c5, type: 2}
@@ -21964,7 +21964,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "5\uC2DC\uAC04"
+  m_text: "6\uC2DC\uAC04"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: b2eeb73aa1ee10b48a7fe11797ba93c5, type: 2}
   m_sharedMaterial: {fileID: -3217437318264749832, guid: b2eeb73aa1ee10b48a7fe11797ba93c5, type: 2}
@@ -22635,7 +22635,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "5\uC2DC\uAC04"
+  m_text: "6\uC2DC\uAC04"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: b2eeb73aa1ee10b48a7fe11797ba93c5, type: 2}
   m_sharedMaterial: {fileID: -3217437318264749832, guid: b2eeb73aa1ee10b48a7fe11797ba93c5, type: 2}
@@ -25455,19 +25455,23 @@ RectTransform:
   - {fileID: 9084614852448205052}
   - {fileID: 1924892498733021369}
   - {fileID: 8085988592374231756}
+  - {fileID: 2914911776398359977}
   - {fileID: 4228028177633221143}
   - {fileID: 1991033843211504838}
   - {fileID: 4747579420880175572}
   - {fileID: 6968395420607265249}
   - {fileID: 520467799657074577}
   - {fileID: 4147224159198571714}
+  - {fileID: 798158191403821297}
   - {fileID: 826716901137778535}
+  - {fileID: 8308531719065850927}
   - {fileID: 2106075031214565714}
   - {fileID: 4038055944885903247}
   - {fileID: 1354633217416536365}
   - {fileID: 5648237544145241544}
   - {fileID: 4379253068740584835}
   - {fileID: 2094860819349946092}
+  - {fileID: 7858389824584341933}
   - {fileID: 182959472975447245}
   - {fileID: 5904847542371337200}
   - {fileID: 4563388181906253893}
@@ -25475,14 +25479,11 @@ RectTransform:
   - {fileID: 3982702666013597990}
   - {fileID: 1721756299189466642}
   - {fileID: 130104276674407298}
-  - {fileID: 2914911776398359977}
   - {fileID: 6007777845201173791}
   - {fileID: 6852494475136067925}
   - {fileID: 3801679830522508728}
-  - {fileID: 798158191403821297}
   - {fileID: 8883540492896629845}
   - {fileID: 6120309295359528737}
-  - {fileID: 8308531719065850927}
   - {fileID: 5490190481385902628}
   - {fileID: 2757165431813068515}
   - {fileID: 2291655895149121546}
@@ -25505,7 +25506,6 @@ RectTransform:
   - {fileID: 582976449993314494}
   - {fileID: 4202265553014246775}
   - {fileID: 4668505967108220027}
-  - {fileID: 7858389824584341933}
   - {fileID: 6513030726140602924}
   - {fileID: 1923269467873716750}
   - {fileID: 4751493385775282761}
@@ -32102,7 +32102,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "7\uC2DC\uAC04"
+  m_text: "6\uC2DC\uAC04"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: b2eeb73aa1ee10b48a7fe11797ba93c5, type: 2}
   m_sharedMaterial: {fileID: -3217437318264749832, guid: b2eeb73aa1ee10b48a7fe11797ba93c5, type: 2}
@@ -33632,7 +33632,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "5\uC2DC\uAC04"
+  m_text: "6\uC2DC\uAC04"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: b2eeb73aa1ee10b48a7fe11797ba93c5, type: 2}
   m_sharedMaterial: {fileID: -3217437318264749832, guid: b2eeb73aa1ee10b48a7fe11797ba93c5, type: 2}
@@ -41764,7 +41764,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "7\uC2DC\uAC04"
+  m_text: "6\uC2DC\uAC04"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: b2eeb73aa1ee10b48a7fe11797ba93c5, type: 2}
   m_sharedMaterial: {fileID: -3217437318264749832, guid: b2eeb73aa1ee10b48a7fe11797ba93c5, type: 2}
@@ -48797,7 +48797,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &9063743600310119608
 RectTransform:
   m_ObjectHideFlags: 0
@@ -49371,7 +49371,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.8392157, g: 0.5568628, b: 0.24313726, a: 1}
+  m_Color: {r: 0.75, g: 0.8, b: 0.86, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -49583,7 +49583,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.8392157, g: 0.5568628, b: 0.24313726, a: 1}
+  m_Color: {r: 0.89411765, g: 0.9137255, b: 0.9372549, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -49877,7 +49877,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "8\uC2DC\uAC04"
+  m_text: "7\uC2DC\uAC04"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: b2eeb73aa1ee10b48a7fe11797ba93c5, type: 2}
   m_sharedMaterial: {fileID: -3217437318264749832, guid: b2eeb73aa1ee10b48a7fe11797ba93c5, type: 2}
@@ -56767,7 +56767,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "5\uC2DC\uAC04"
+  m_text: "8\uC2DC\uAC04"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: b2eeb73aa1ee10b48a7fe11797ba93c5, type: 2}
   m_sharedMaterial: {fileID: -3217437318264749832, guid: b2eeb73aa1ee10b48a7fe11797ba93c5, type: 2}
@@ -57867,7 +57867,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.8392157, g: 0.5568628, b: 0.24313726, a: 1}
+  m_Color: {r: 0.89411765, g: 0.9137255, b: 0.9372549, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -57949,7 +57949,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "5\uC2DC\uAC04"
+  m_text: "6\uC2DC\uAC04"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: b2eeb73aa1ee10b48a7fe11797ba93c5, type: 2}
   m_sharedMaterial: {fileID: -3217437318264749832, guid: b2eeb73aa1ee10b48a7fe11797ba93c5, type: 2}
@@ -63423,7 +63423,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "5\uC2DC\uAC04"
+  m_text: "6\uC2DC\uAC04"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: b2eeb73aa1ee10b48a7fe11797ba93c5, type: 2}
   m_sharedMaterial: {fileID: -3217437318264749832, guid: b2eeb73aa1ee10b48a7fe11797ba93c5, type: 2}
@@ -66471,7 +66471,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "5\uC2DC\uAC04"
+  m_text: "6\uC2DC\uAC04"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: b2eeb73aa1ee10b48a7fe11797ba93c5, type: 2}
   m_sharedMaterial: {fileID: -3217437318264749832, guid: b2eeb73aa1ee10b48a7fe11797ba93c5, type: 2}

@@ -181,7 +181,8 @@ public sealed class PuzzleMapView : PanelBase
     readonly HashSet<PuzzleMapNodeView> requiredLabels = new HashSet<PuzzleMapNodeView>();
     bool requiredMarkersOnly;
     readonly Dictionary<string, int> regionLabelCounts = new Dictionary<string, int>(StringComparer.Ordinal);
-    readonly Dictionary<Image, float> trackThickness = new Dictionary<Image, float>();
+    // 스크립트 재로드 뒤에도 확대가 적용되기 전의 두께를 유지한다.
+    float[] trackThickness;
     PuzzleMapNodeView[] layoutNodes;
     RouteTimeVisual[] layoutRoutes;
     readonly HashSet<RouteTimeVisual> manualTimeLabels = new HashSet<RouteTimeVisual>();
@@ -312,9 +313,39 @@ public sealed class PuzzleMapView : PanelBase
                 region.label.transform.SetAsLastSibling();
             }
         }
-        foreach (var track in routeLines)
+    }
+
+    void UpdateTrackThickness(float _zoom)
+    {
+        if (routeLines == null)
         {
-            trackThickness[track] = track.rectTransform.sizeDelta.y;
+            return;
+        }
+
+        if (trackThickness == null || trackThickness.Length != routeLines.Length)
+        {
+            trackThickness = new float[routeLines.Length];
+            for (int i = 0; i < routeLines.Length; i++)
+            {
+                var track = routeLines[i];
+                if (track)
+                {
+                    trackThickness[i] = track.rectTransform.sizeDelta.y;
+                }
+            }
+        }
+
+        for (int i = 0; i < routeLines.Length; i++)
+        {
+            var track = routeLines[i];
+            if (!track)
+            {
+                continue;
+            }
+
+            Vector2 size = track.rectTransform.sizeDelta;
+            size.y = trackThickness[i] * trackThicknessMultiplier / _zoom;
+            track.rectTransform.sizeDelta = size;
         }
     }
 
@@ -393,12 +424,7 @@ public sealed class PuzzleMapView : PanelBase
         }
         LayoutRegionLabels(regionMode, _zoom, bounds, _viewport);
 
-        foreach (var track in routeLines)
-        {
-            Vector2 size = track.rectTransform.sizeDelta;
-            size.y = trackThickness[track] * trackThicknessMultiplier / _zoom;
-            track.rectTransform.sizeDelta = size;
-        }
+        UpdateTrackThickness(_zoom);
         Array.Sort(layoutRoutes, (_a, _b) =>
         {
             int priority = RoutePriority(_b).CompareTo(RoutePriority(_a));

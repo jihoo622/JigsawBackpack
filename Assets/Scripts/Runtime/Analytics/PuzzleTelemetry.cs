@@ -18,7 +18,11 @@ public enum PuzzleActionKind
     AddWagon,
     Repay,
     AcceptQuest,
-    CompleteQuest
+    CompleteQuest,
+    WorkbenchConfirm,
+    WaitForWorkbench,
+    InstallWagonModification,
+    ReorderWagon
 }
 
 [Serializable]
@@ -52,6 +56,14 @@ public sealed class PuzzleItemDurability
     public int instanceId, durability;
 }
 
+// 같은 instanceId로 품목이 바뀐 화물(성장·식품 만료·개조 완료 등).
+[Serializable]
+public sealed class PuzzleItemTransform
+{
+    public int instanceId;
+    public string itemId;
+}
+
 [Serializable]
 public sealed class PuzzleRunStartPayload
 {
@@ -73,6 +85,10 @@ public sealed class PuzzleActionAttempt
 public sealed class PuzzleActionPayload
 {
     public string action, method, failure, targetCityId, cityId;
+    // 작업대 행동 ID, 개조 모드 ID, 화차 상품 ID, 화차 개조 ID, 대상 화물칸 보드. 해당 행동이 아니면 빈 값이다.
+    public string actionId, modeId, productId, modificationId, board;
+    // reorder_wagon 직후 화물칸 보드 ID의 기차 순서.
+    public string[] wagonOrder;
     public bool passThrough;
     public int instanceId;
     public int wagonDelta;
@@ -83,6 +99,7 @@ public sealed class PuzzleActionPayload
     public PuzzleItemLocation[] moved;
     public PuzzleItemValue[] values;
     public PuzzleItemDurability[] durability;
+    public PuzzleItemTransform[] transformed;
 }
 
 [Serializable]
@@ -110,8 +127,7 @@ public struct PuzzleProficiencyPayload
 [Serializable]
 public struct PuzzleRumorPayload
 {
-    // "specialty"·"rare" 중 하나. 특산은 itemId에 품목 ID가 있고 tag는 대상 마을의 특산 태그다.
-    public string kind, targetCityId, tag, itemId;
+    public string kind, targetCityId, tag, itemId, actionId;
     public long elapsedMinutes;
 }
 
@@ -151,6 +167,12 @@ public static partial class TelemetryPayload
                 failure = _info.failure,
                 targetCityId = _info.targetCityId,
                 cityId = _info.session.CurrentCityId != previousCityId ? _info.session.CurrentCityId : null,
+                actionId = _info.actionId,
+                modeId = _info.modeId,
+                productId = _info.productId,
+                modificationId = _info.modificationId,
+                board = _info.board,
+                wagonOrder = _info.wagonOrder ?? Array.Empty<string>(),
                 passThrough = _info.action == PuzzleActionKind.Travel && _info.session.IsPassingThrough,
                 wagonDelta = _info.session.WagonCount - previousWagonCount,
                 instanceId = _info.instanceId,
@@ -160,7 +182,8 @@ public static partial class TelemetryPayload
                 removed = Array.Empty<int>(),
                 moved = Array.Empty<PuzzleItemLocation>(),
                 values = Array.Empty<PuzzleItemValue>(),
-                durability = Array.Empty<PuzzleItemDurability>()
+                durability = Array.Empty<PuzzleItemDurability>(),
+                transformed = Array.Empty<PuzzleItemTransform>()
             };
             // 성공 이동의 요청 목적지가 실제 도착지와 같으면 같은 ID를 두 번 쓰지 않는다.
             if (_info.action == PuzzleActionKind.Travel && string.IsNullOrEmpty(_info.failure)
@@ -183,7 +206,7 @@ public static partial class TelemetryPayload
                     };
                 }
                 else if (_info.action == PuzzleActionKind.Rest || _info.action == PuzzleActionKind.WaitForDaylight
-                    || _info.action == PuzzleActionKind.AdvanceTime)
+                    || _info.action == PuzzleActionKind.AdvanceTime || _info.action == PuzzleActionKind.WaitForWorkbench)
                 {
                     payload.attempt = new PuzzleActionAttempt
                     {
@@ -197,12 +220,21 @@ public static partial class TelemetryPayload
             var moved = new List<PuzzleItemLocation>();
             var values = new List<PuzzleItemValue>();
             var durability = new List<PuzzleItemDurability>();
+            var transformed = new List<PuzzleItemTransform>();
             foreach (var item in current.Values.OrderBy(_item => _item.instanceId))
             {
                 if (!previous.TryGetValue(item.instanceId, out var old))
                 {
                     introduced.Add(item);
                     continue;
+                }
+                if (item.itemId != old.itemId)
+                {
+                    transformed.Add(new PuzzleItemTransform
+                    {
+                        instanceId = item.instanceId,
+                        itemId = item.itemId
+                    });
                 }
                 if (item.board != old.board || item.x != old.x || item.y != old.y ||
                     item.clockwiseTurns != old.clockwiseTurns)
@@ -243,6 +275,7 @@ public static partial class TelemetryPayload
             payload.moved = moved.ToArray();
             payload.values = values.ToArray();
             payload.durability = durability.ToArray();
+            payload.transformed = transformed.ToArray();
             return payload;
         }
 
@@ -254,6 +287,11 @@ public static partial class TelemetryPayload
                 CaptureBoard(_session.TrainWagons[i], _session.BoardId(_session.TrainWagons[i]), items);
             }
             CaptureBoard(_session.Market, _session.BoardId(_session.Market), items);
+            // 작업대에 맡긴 화물은 도시를 떠나도 플레이어 소유이므로 모든 도시의 작업대를 계속 관측한다.
+            foreach (var board in _session.WorkbenchBoards)
+            {
+                CaptureBoard(board, _session.BoardId(board), items);
+            }
             return items;
         }
 
@@ -283,6 +321,14 @@ public static partial class TelemetryPayload
                 {
                     return "placement";
                 }
+                bool sourceWorkbench = item.board.StartsWith(PuzzleInventoryService.WORKBENCH_BOARD_PREFIX,
+                    StringComparison.Ordinal);
+                bool destinationWorkbench = _info.destination.StartsWith(PuzzleInventoryService.WORKBENCH_BOARD_PREFIX,
+                    StringComparison.Ordinal);
+                if (sourceWorkbench != destinationWorkbench)
+                {
+                    return destinationWorkbench ? "workbench_load" : "workbench_unload";
+                }
                 bool sourceMarket = item.board.StartsWith("market:", StringComparison.Ordinal);
                 bool destinationMarket = _info.destination.StartsWith("market:", StringComparison.Ordinal);
                 return sourceMarket == destinationMarket ? "reposition" : sourceMarket ? "buy" : "sell";
@@ -297,6 +343,10 @@ public static partial class TelemetryPayload
                 PuzzleActionKind.Repay => "repay",
                 PuzzleActionKind.AcceptQuest => "accept_quest",
                 PuzzleActionKind.CompleteQuest => "complete_quest",
+                PuzzleActionKind.WorkbenchConfirm => "workbench_confirm",
+                PuzzleActionKind.WaitForWorkbench => "wait_for_workbench",
+                PuzzleActionKind.InstallWagonModification => "install_wagon_modification",
+                PuzzleActionKind.ReorderWagon => "reorder_wagon",
                 _ => throw new ArgumentOutOfRangeException(nameof(_info))
             };
         }

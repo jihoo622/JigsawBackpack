@@ -7,6 +7,15 @@ using UnityEngine.UI;
 [DisallowMultipleComponent]
 public sealed class PuzzleItemTooltipView : PanelBase
 {
+    // 호버마다 열리고 닫히므로 분석 로그의 패널 열림에서 제외한다.
+    protected override bool TransientVisibility
+    {
+        get
+        {
+            return true;
+        }
+    }
+
     [SerializeField] Canvas canvas;
     [SerializeField] RectTransform panelRect;
     [SerializeField] CanvasGroup canvasGroup;
@@ -105,6 +114,10 @@ public sealed class PuzzleItemTooltipView : PanelBase
     void BeginShow(string _title, Color? _titleColor = null)
     {
         EnsureInitialized();
+        if (synergySection)
+        {
+            synergySection.SetActive(false);
+        }
         needsSnap = true;
         SetOpen(true);
 
@@ -245,7 +258,7 @@ public sealed class PuzzleItemTooltipView : PanelBase
 
         UpdateEffectSection(generalEffectSection, generalEffectHeaderText, generalEffectSlots, _generalEffects,
             Presentation.PuzzleTooltipGeneralEffectHeader(), _showEmpty: (_synergyEffects?.Count ?? 0) == 0);
-        UpdateSynergySection(_synergyEffects);
+        // UpdateSynergySection(_synergyEffects);
 
         if (futureValueLabelText || futureValueValueText)
         {
@@ -313,17 +326,13 @@ public sealed class PuzzleItemTooltipView : PanelBase
         {
             activeEffectsSection.gameObject.SetActive(false);
         }
-        if (synergySection)
-        {
-            synergySection.SetActive(false);
-        }
         PopulatePlainEffectSection(_lines);
         RebuildLayouts();
         SetPointerPosition(_screenPosition);
     }
 
     /// <summary>
-    /// 의뢰·소문의 화물 품목 링크 정보를 기존 아이템 툴팁 레이아웃(태그 배지, 기본 능력치, 일반 효과·가능 인접 효과)으로 표시한다.
+    /// 의뢰·소문의 화물 품목 링크 정보를 기존 아이템 툴팁 레이아웃(태그 배지, 기본 능력치, 일반 효과)으로 표시한다.
     /// </summary>
     internal void ShowPieceInfo(PuzzlePieceData _piece, IReadOnlyList<string> _statLabels,
         IReadOnlyList<string> _statValues, IReadOnlyList<string> _generalEffects,
@@ -353,7 +362,7 @@ public sealed class PuzzleItemTooltipView : PanelBase
 
         UpdateEffectSection(generalEffectSection, generalEffectHeaderText, generalEffectSlots, _generalEffects,
             Presentation.PuzzleTooltipGeneralEffectHeader(), _showEmpty: (_synergies?.Count ?? 0) == 0);
-        UpdateSynergySection(_synergies);
+        // UpdateSynergySection(_synergies);
         RebuildLayouts();
         SetPointerPosition(_screenPosition);
     }

@@ -26,6 +26,7 @@
 | `PuzzleTableData` | 화물 모양·복수 태그·표기 키, 시작 기차, 지역·생산 태그·물가, 도시·시장·특산품·재고·도시 배율 |
 | `PuzzleCityActionTableData` | 마을 역의 추가 행동·진입 도시·작업 보드·소요 분·입력/산출 태그·화물 변환 |
 | `PuzzleSynergyTableData` | 시너지 조건·공간 범위·배율·적용 주기, 동물 배설·번식 설정 |
+| `PuzzleCombinationTableData` | 인접 조합 규칙: 입력 품목 두 개·결과 품목·소요 시간·설명 |
 | `PuzzleTradeTableData` | 시작 자금·증차 비용·최대 객차 수(maxWagonCount)·클리어 비용·상환 조건·이동 연출 시간 |
 | `PuzzleTimeTableData` | 고정 폴라인의 픽셀/시간 비율·시작 및 일출 시각·일출/야간 길이·휴식 분수 |
 | `PuzzleRouteTableData` | 방향별 연결·고정 폴라인 좌표·기본 비용·거리·거리 및 적재 단가 |
@@ -34,11 +35,11 @@
 | `FlowTableData` | 씬 이름·다음 씬·재시작 씬 |
 | `GameplayTableData` | 템플릿의 player·sequence·upgrades 샘플 |
 
-현재 도메인 JSON은 8개다. `GameplayTableData`는 UpgradeManager와 템플릿 SmokeCheck 참조가 있어 유지한다.
+현재 도메인 JSON은 13개다. `GameplayTableData`는 UpgradeManager와 템플릿 SmokeCheck 참조가 있어 유지한다.
 
 ## 화물·보드·시장
 
-- 품목 정의·Sprite·성장과 번식 행은 `Tools/MyJG/Item Editor`에서 초안으로 편집한다. 품목표와 번식표의 변경 파일을 함께 검토·백업·복구하며, 전체 표 검증·외부 변경·미저장 씬/프리팹 검사와 아이콘 반영을 거친다. 참조 현황은 원본 테이블 이름·행 ID·필드 경로를 표시한다. 신규 품목은 시장 제외 상태이며 기존 ID는 읽기 전용이다([사용법](ITEM_EDITOR.md)).
+- 품목 정의·Sprite·성장과 번식 행은 `Tools/MyJG/Item Editor`에서 초안으로 편집한다. 품목표와 번식표의 변경 파일을 함께 검토·백업·복구하며, 전체 표 검증·외부 변경·미저장 씬/프리팹 검사와 아이콘 반영을 거친다. 참조 현황은 원본 테이블 이름·행 ID·필드 경로를 표시한다. 신규 품목은 시장 제외 상태이며 기존 ID는 읽기 전용이다([사용법](ITEM_EDITOR.md)). 조합 결과로 등록한 신규 품목만 시장 제외를 해제해 저장할 수 있다.
 - 저장 후 캐시를 갱신해 유효성을 확인하고, 품목·번식 JSON 전체와 모든 관련 `PuzzleInventoryView`의 키·Sprite를 검토 초안에 대조한다. 사용하지 않는 기존 이미지 키도 View별로 보존한다. 대조 실패는 같은 파일·메타 복구 경로로 처리한다. 실제 실행 확인 항목은 사용 문서에 둔다.
 - `pieces` 항목의 `id`, `displayName`, `description`, `tags`, `visualKey`, `baseValue`, `slotCount`, `cells`가 정의 원본이다. 태그는 대소문자를 구분하고 한 아이템 안에서 중복되지 않아야 한다.
 - 새 태그의 표시 정의는 선택적인 `tagPresentations[]`의 `id`, 한글 `displayName`, 0~1 RGBA(`r/g/b/a`)에 둔다. 생략된 목록은 빈 목록으로 읽으며 기존 기본 태그는 `Presentation`의 기초데이터 매핑을 사용한다. 새 정의는 기본 태그와 이름이 겹치거나 대소문자만 다른 중복 ID·공백/쉼표 ID를 가질 수 없다. 에디터는 새 태그의 표시 정의를 요구하고 기존 데이터의 미등록 태그 표기는 보존한다.
@@ -55,10 +56,18 @@
 - 도시의 `generalStockId`·`regionalStockId`는 `stockProfiles`의 고유 ID를 참조한다. 현재 일반 재고 1개·생산 지역 5개·집산 재고 1개로 7개 프로필을 공유한다. 일반·집산 후보에는 한 칸 사과도 포함한다. 프로필의 `pieceIds`는 중복 없는 후보, `slots`는 예약 영역이다. 후보는 모든 슬롯에 회전 없이 들어가야 하며 고정 배치·두 프로필의 영역이 겹치면 안 된다. 생산 지역의 지역 재고 후보는 대표 특산품 태그 중 하나 이상을 가져야 한다. 슬롯 ID는 프로필 내부에서 고유하며 실제 배치 ID는 `도시 ID.슬롯 ID`다. 슬롯 순서를 결정적으로 정렬하고 중복 허용 추첨한다. 고정 특산품은 `market.startingPlacements`에 둔다.
 - 정의는 공유하고 실제 화물 인스턴스는 씬 로컬 세션이 소유한다. 보드 간 이동 시 인스턴스 ID와 실제 가치를 보존하며 시장 재생성 때는 새 ID를 발급한다.
 
+## 인접 조합
+
+- `PuzzleCombinationTableData.rules`는 같은 객차에서 상하좌우로 인접한 서로 다른 두 품목을 정해진 시간 후 하나로 바꾸는 규칙의 단일 원본이다. 행은 고유 `id`, 등록된 품목 참조 `sourcePieceId`·`partnerPieceId`·`resultPieceId`, 양의 `requiredHours`, 툴팁 설명 문구 `description`을 가진다. `description`은 동물 효과 설명과 같은 검증으로 `{0}`(소요 시간)·`{1}`(결과 품목 이름) 서식 인자를 모두 포함해야 한다.
+- `sourcePieceId`는 결과의 자리·모양·회전·시장 설정을 이어받는 입력, `partnerPieceId`는 함께 소모되는 입력이다. 검증은 두 입력이 서로 다른 품목이고 결과가 두 입력과 다른 품목이며 결과의 `cells`·`slotCount`·`excludeFromMarket`이 `sourcePieceId` 품목과 같아야 함을 요구한다. 결과의 기본 유통기한은 결과 품목의 `shelfLifeHours`에서 읽으며 절인 음식 3종은 336시간(원재료의 2배)이다. 정렬한 입력 ID 쌍이 겹치는 규칙은 하나만 둘 수 있다.
+- 결과를 다른 규칙의 입력으로 등록하지 않아 재조합을 막는다. 태그로만 재절임을 막지 않고 입력 목록에서 결과를 제외하는 것이 계약이다.
+- 품목 조회는 `TableManager.Combinations`(id 오름차순), `TryGetCombination(id)`, `CombinationsWith(pieceId)`, 두 품목 순서와 무관한 `TryGetCombinationBetween(firstId, secondId)`를 쓰고 배열 순서에 의존하지 않는다. 진행 상태는 세션이 가지며 테이블에 두지 않는다.
+- 규칙 설명은 입력으로 등록된 품목 양쪽 툴팁에 같은 문구로 표시되고, 실제로 맺힌 쌍의 두 입력에는 같은 경과·총 시간의 진행도가 붙는다(`TryGetCombinationProgress`). 객차 밖(시장·작업대)과 진행 중이지 않은 품목에는 설명만 보인다.
+
 ## 가치·거래
 
 - 기본 가치는 `pieces[].baseValue`에 통합했다. 기존 음수 가치도 유지하며 누락 센티널 `-1`은 오류다. 별도 가격 표와 중복 참조는 두지 않는다.
-- 도시의 `tagPrices`는 등록된 `tag`, 고유 `priority`, 양의 `buyPercent`를 가진다. 판매는 `sellGradeId`(판매 등급 참조) 또는 `sellPercent`(사용자 지정) 중 하나로만 정하고 둘을 함께 두면 오류다. 등급별 판매 수치는 `PuzzleTableData.sellGrades`가 단일 원본이며 `Common` 70·`Normal` 100·`Expensive` 130·`Rare` 150%를 제공하고 도시 행은 id로 참조한다. 희귀(`Rare`) 행은 구매·판매 대칭 규칙이라 `buyPercent`도 150으로 둔다. 거래 배율은 `buyPercentOfBaseValue`·`sellPercentOfFinalValue`에 일치한 모든 태그 규칙의 (배율 − 100)을 더한 값이며 하한 없이 0 이하도 허용한다. 개별 규칙의 배율은 양수여야 한다. `priority`는 적용 태그 표기 순서다. 수도권 할증은 지역 `pricePercent`(현재 모두 100)가 아니라 도시 기본 배율로 표현한다.
+- 도시의 `tagPrices`는 등록된 `tag`, 고유 `priority`, 양의 `buyPercent`를 가진다. 판매는 `sellGradeId`(판매 등급 참조) 또는 `sellPercent`(사용자 지정) 중 하나로만 정하고 둘을 함께 두면 오류다. 등급별 판매 수치는 `PuzzleTableData.sellGrades`가 단일 원본이며 `Common` 70·`Normal` 100·`Expensive` 130·`Rare` 200%를 제공하고 도시 행은 id로 참조한다. 구매 배율은 도시 행의 `buyPercent`를 사용한다. 거래 배율은 `buyPercentOfBaseValue`·`sellPercentOfFinalValue`에 일치한 모든 태그 규칙의 (배율 − 100)을 더한 값이며 하한 없이 0 이하도 허용한다. 개별 규칙의 배율은 양수여야 한다. `priority`는 적용 태그 표기 순서다. 수도권 할증은 지역 `pricePercent`(현재 모두 100)가 아니라 도시 기본 배율로 표현한다.
 - 거래 모델과 툴팁 견적은 `PuzzleInventoryService.TryQuoteTrade`를 공유하며 기획에 없는 고정 단가 예외는 두지 않는다.
 - 현재 거래가는 구매·판매 모두 인스턴스의 신선도 반영 실제 가치(`FreshnessAdjustedValue` = `ActualValue` × 기초데이터 `rules.freshness.*` 구간 배율)에 선택된 도시 배율을 곱한다. 새 재고는 `ActualValue`가 기본 가치와 같다. 도시 배율과 지역의 `pricePercent`를 중간 반올림 없이 곱한 최종 금액을 `MidpointRounding.AwayFromZero`로 정수화한다. 범위 초과는 거래 실패로 처리한다. 미리보기와 확정 모두 `EvaluateDrop` 경로를 쓰고 확정 직전에 다시 평가한다.
 - `startingFunds`는 0 이상, `wagonAddCostBase`·`gameClearCost`는 양수다. 가격 계산에 사용하지 않던 공통 구매 할증 필드는 제거했다. 현재 구매/판매 배율은 도시와 지역 표에서 읽는다.
@@ -70,7 +79,7 @@
 - Item Editor는 `animals.breeding`만 편집하고 번식·배설 공통 설정과 가치 규칙·배율은 읽기 전용으로 둔다. 마을 재고·도축·개조표는 참조만 표시한다. 새 DTO 필드는 고급 속성에 JSON 값으로 노출하고 원본의 알 수 없는 필드는 읽기 전용으로 보존한다.
 - `TableManager.TryGetAnimalBreeding`은 부모 품목 ID로 조회한다. 현재 `piece.cow` 한 쌍은 `piece.babyCow` 한 마리를 낳는다. 번식 시간은 `animals.breedingHours`, 송아지의 성장 시간과 차단 구간은 `PuzzleTableData.pieces`의 `growthHours`·`growthBlockedHours`가 소유한다.
 - `animals.completionHoldHours`는 번식·출산·배설이 끝나기 직전에 기다리는 공통 시간(시간)이다. 산출물을 놓을 자리가 없으면 진행도를 `주기 − completionHoldHours`에서 멈추고, 자리가 돌아오면 그 시간만큼 더 흘러야 완료한다. 검증은 양수이고 `breedingHours`·`wasteIntervalDays × 24`보다 짧아야 함을 요구한다. 성장은 품목의 `growthBlockedHours`를 같은 방식의 대기·재시도 구간으로 쓴다(진행 정지 지점 = `growthHours − growthBlockedHours`). 대기에 새로 들어간 개체·쌍에는 가치 변동 알림과 독립된 미확인 공간 부족 알림을 남긴다. 옛 `presentation.PuzzleGrowthBlocked` 문구는 이동 실패와 함께 제거했다.
-- 동물 툴팁 원문은 `breeding[].description`(소요 시간, 자식 이름, 수량), `animals.wasteDescription`(주기 일수, 배설물 이름, 수량), `pieces[].growthDescription`(소요 시간, 성체 이름, 대기 시간)에 둔다. 괄호 안의 순서대로 `{0}`~`{2}`를 사용한다. 설명 누락과 잘못된 인자·품목 참조는 표 오류이며 시간 표기와 색은 `Presentation`이 처리한다. 설명 아래 진행도는 `presentation.tooltip.effectProgress`, 공간 부족 표시는 `presentation.tooltip.effectSpaceBlocked`가 원본이고 값은 표가 아니라 세션의 현재 상태에서 읽는다.
+- 동물 툴팁 원문은 `breeding[].description`(소요 시간, 자식 이름, 수량), `animals.wasteDescription`(주기 일수, 배설물 이름, 수량), `pieces[].growthDescription`(소요 시간, 성체 이름, 대기 시간)에 둔다. 괄호 안의 순서대로 `{0}`~`{2}`를 사용한다. 곡물 섭취 설명은 `animals.breedingFeedDescription`·`growthFeedDescription`이며 `{0}`은 섭취 주기, `{1}`은 단축 시간이다. `grainTag`·`feedIntervalHours`가 소비 대상·간격의 원본이고, `breedingFeedReductionHours`·`growthFeedReductionHours`가 각각 번식·성장 가속량의 원본이다. 설명 누락과 잘못된 인자·품목 참조는 표 오류이며 시간 표기와 색은 `Presentation`이 처리한다. 설명 아래 진행도는 `presentation.tooltip.effectProgress`, 공간 부족 표시는 `presentation.tooltip.effectSpaceBlocked`가 원본이고 값은 표가 아니라 세션의 현재 상태에서 읽는다.
 - `freshness`는 신선도 반영 주기(시간)·냉장 태그·객차 냉장 감소율의 공통 원본이다. `refrigerationReductionPercent`·`saltPreservationReductionPercent`는 이전 품목의 명시적 이행 입력으로만 남기며 런타임 품목 수치의 폴백이 아니다. 인접 발생원의 `preservationEffect.reductionPercent`를 인스턴스별로 한 번씩 합산하고 100%로 제한한다. 기존 객차 개조와의 최댓값 적용을 유지한다. 음식의 시작 유통기한은 품목의 `shelfLifeHours`이며, 남은 유통기한이 0이면 배설물 품목으로 교체한다.
 - 인접 시너지는 맞닿은 면(경계)마다 한 번씩 평가하므로 같은 이웃과 여러 면이 닿으면 면 수만큼 더해진다. 냉장 프레임의 유통기한 감소는 프레임 인스턴스당 한 번이다. `excludedTargetTag`·`excludedNeighborTag`는 쉼표로 여러 태그를 지정할 수 있다(똥 패널티는 `Waste,Animal` 제외). 증가·감소를 구분하지 않고 모든 규칙의 (배율 − 100)을 합산해 기본 가치에 곱하며 하한 없이 음수 배율도 허용한다. 인접 정보 갱신과 실제 가치 누적을 분리하며 가치의 누적 경계 정책은 게임 기획서 10장을 따른다.
 
@@ -80,7 +89,7 @@
 - `TableManager.TryGetRoute`·`HasRoute`는 개별 연결을 조회하고 `RoutesFrom(cityId)`는 도착 ID 오름차순 목록을 제공한다. 노출 정렬은 연결 관계가 아니다. 동일 방향의 복수 간선은 지원하지 않는다.
 - 반대 방향이 있으면 거리와 `highSpeed`가 같아야 한다. 방향별 기본요금은 달라도 된다. 같은 지역의 근거리에서는 보장 재고의 복수 태그와 거래 우선순위를 사용해 어느 방향으로든 공급·수요가 맞물리는 연결을 금지한다.
 - `distance`는 비용용 양수 게임 거리다. 시간은 `points`의 고정 폴라인 길이 ÷ `PuzzleTimeTableData.pixelsPerHour`를 `travelRoundingMinutes`(60분) 단위로 올림한다. `points`는 유한한 x,y 쌍이 두 점 이상이며 왕복은 역순이다. 시간 가중치와 기본값 폴백은 제거했다. K=28은 잠정치다.
-- 경과 시간은 `PuzzleInventoryService.Time` 하나가 소유한다. 이동·휴식·아침 대기는 배설·식품 만료·성장·출산 경계별로 보유 시간과 가치를 계산한 뒤 한 번 확정하고 `TimeAdvanced`를 발행한다. 진행 시뮬레이션은 객차 사본과 번식·배설 상태 사본에서 돌고 확정 시에만 본래 상태에 반영하므로 미리보기가 원본을 바꾸지 않는다. 배설은 동물 인스턴스별 진행 상태를 갖고 첫 발생을 이후 처음 맞는 달력 경계에 맞추며, 공간이 부족한 동물만 완료 직전에서 대기한다. 출산도 산출물 전체가 들어갈 때만 주기를 넘긴다. 성장 진행도는 `OwnedMinutes`와 분리한 성장 시계로 계산하고, 성체 자리가 없으면 그 품목의 성장 시계만 `growthHours − growthBlockedHours`에서 멈춘다. 공간 부족은 더 이상 이동·휴식의 실패 사유가 아니다. 같은 시각에는 정산·배설·식품 만료·성장·출산 순서로 처리한다.
+- 경과 시간은 `PuzzleInventoryService.Time` 하나가 소유한다. 이동·휴식·아침 대기는 배설·식품 만료·성장·출산 경계별로 보유 시간과 가치를 계산한 뒤 한 번 확정하고 `TimeAdvanced`를 발행한다. 진행 시뮬레이션은 객차 사본과 번식·배설 상태 사본에서 돌고 확정 시에만 본래 상태에 반영하므로 미리보기가 원본을 바꾸지 않는다. 배설은 동물 인스턴스별 진행 상태를 갖고 첫 발생을 이후 처음 맞는 달력 경계에 맞추며, 공간이 부족한 동물만 완료 직전에서 대기한다. 출산도 산출물 전체가 들어갈 때만 주기를 넘긴다. 성장 진행도는 `OwnedMinutes`와 분리한 성장 시계로 계산하고, 성체 자리가 없으면 그 품목의 성장 시계만 `growthHours − growthBlockedHours`에서 멈춘다. 공간 부족은 더 이상 이동·휴식의 실패 사유가 아니다. 같은 시각에는 정산·배설·식품 만료·조합·곡물 섭취·성장·출산 순서로 처리한다.
 - `planningTargetCityId`는 등록된 도시 ID를 가리키는 선택적 지도 표식이다. 현재 `city.finance`(금융마을)이며 실제 상환 장소 설정인 `PuzzleTradeTableData.debtCityId`와 분리한다. `debtCityId`도 같은 도시를 가리켜 금융마을에서만 상환할 수 있다.
 - `PuzzleTradeTableData.maxWagonCount`는 최대 객차 수 상한(8칸)이며 1 이상의 정수여야 한다. `PuzzleInventoryService`가 상한 도달 시 증차를 거부하고, UI 객차 바 슬롯 수가 이 값보다 적으면 예외를 발생시킨다.
 - `PuzzleTradeTableData.travelEffectSeconds`·`travelArrivalHoldSeconds`는 UI 이동 연출·도착 표시의 실제 초 단위 시간이며 유한한 양수여야 한다. 게임 내 소요 시간·기한과 분리한다.
@@ -94,7 +103,7 @@
 
 - `actions` 행은 고유 `id`, 알려진 `type`(`Butchery`·`Modification`·`Refining`), 비어 있지 않은 `title`·`description`, `Butchery`·`Refining`의 양의 `workMinutes`와 `Modification`의 0, 빈 `board.startingPlacements`와 양수 `width`·`height`, 등록된 `inputTag`·`outputTag` 또는 `modes`를 가진다.
 - `cityIds`는 등록된 도시 참조이며 같은 도시에서 같은 `type`의 행동은 하나만 쓸 수 있다. `TableManager.CityActionsOf(cityId)`는 action id 오름차순 목록을 주고 `TryGetCityAction(cityId, type, out row)`으로 하나를 조회한다. 전체 목록은 `CityActions` 속성(id 오름차순)이다. `modes`의 `id`·`displayName`·`description`·태그·`conversions`도 참조 무결성을 검증한다.
-- `conversions`의 `inputPieceId`는 `inputTag`를, `outputPieceId`는 `outputTag`를 가진 등록된 화물이어야 하고 `inputPieceId`는 고유하다. 도축·개조는 `outputCount` 양수를 쓰고 정제는 `minOutputCount`(양수)·`maxOutputCount`(최솟값 이상)를 쓰며 두 표기를 섞지 않는다. 산출 품목을 정제 입력으로 등록하면 오류다. 현재 `action.butchery`는 `city.darpol`(다르폴)에서 `piece.cow` 1개를 `piece.beef` 2개로 360분간 작업하고, `action.modification`은 `city.erna`의 `mode.refrigeration`으로 `piece.uShape` 1개를 `piece.refrigeratedFrame` 1개로 즉시 바꾼다. `action.refining`은 `city.riobruk`(리오브루크)에서 `piece.oreCross`→`piece.metalIngot` 4~6개, `piece.oreL`→`piece.metalIngot` 2~4개를 360분간 작업하고 시간·비용은 미확정 제안값이다.
+- `conversions`의 `inputPieceId`는 `inputTag`를, `outputPieceId`는 `outputTag`를 가진 등록된 화물이어야 하고 `inputPieceId`는 고유하다. 도축·개조·정제는 입력 하나당 고정 산출 개수를 `outputCount` 양수로 저장한다. 산출 품목을 정제 입력으로 등록하면 오류다. 현재 `action.butchery`는 `city.darpol`(다르폴)에서 `piece.cow` 1개를 `piece.beef` 2개로 360분간 작업하고, `action.modification`은 `city.erna`의 `mode.refrigeration`으로 `piece.uShape` 1개를 `piece.refrigeratedFrame` 1개로 즉시 바꾼다. `action.refining`은 `city.riobruk`(리오브루크)에서 `piece.oreCross`→`piece.metalIngot` 5개, `piece.oreL`→`piece.metalIngot` 3개를 360분간 작업하고 시간·비용은 미확정 제안값이다.
 - 개조는 `InstanceId`, 회전 후 `Pose`, `ActualValue`, `OwnedMinutes`, `Durability`와 유통기한 진행을 보존한다. `BaseValue`와 로컬 점유 셀을 같게 유지해 변환으로 이후 시너지 기준액이 바뀌지 않게 한다. 냉장 프레임의 `Refrigerator` 태그는 `PuzzleSynergyTableData.freshness`에서 참조한다.
 - 도축대·개조대·정제대 버튼·View는 Game 씬의 `Assets/Art/UI/GameplayLayout.prefab`에 연결되어 있으며 배치는 프리팹에서 수정한다. 문구 원본은 `BasicDataTableData`이며 상태·사유는 `rules.butchery.*`·`rules.modification.*`·`rules.refining.*`, 버튼·보드는 `presentation.StationButchery*`·`presentation.PuzzleButcheryTitle`·`presentation.StationModification*`·`presentation.PuzzleModification*`·`presentation.StationRefining*`·`presentation.PuzzleRefiningTitle`을 쓴다.
 
@@ -113,5 +122,5 @@
 
 ## 씬·분석 설정
 
-- `FlowTableData.scenes`의 씬 이름이 진행 경로 키다. 현재 표는 Preload·Title·Game이지만 빌드 활성 씬은 Game 하나이므로 검증에서 불일치를 보고한다. 이를 문서상 완료로 표기하지 않는다.
+- `FlowTableData.scenes`의 씬 이름이 진행 경로 키다. 표와 빌드 활성 씬 모두 Preload·Title·Game이다. 테이블 로드·검증은 Preload의 `AppBootstrap`이 하고, Preload·Title은 `NextSceneOf(자기 씬 이름)`으로 다음 씬을 찾는다.
 - `Assets/Resources/LogData.json`은 분석 운영 설정이며 도메인 테이블이 아니다. `TelemetryLog`가 직접 읽고 `TableManager`에 등록하지 않는다. 기록·전송 계약은 [TELEMETRY](TELEMETRY.md), 이벤트 필드는 [PLAY_LOG](PLAY_LOG.md)를 따른다.

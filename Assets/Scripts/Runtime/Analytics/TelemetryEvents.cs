@@ -11,8 +11,7 @@ public static class TelemetryEvents
     public const string SCENE_CHANGE = "scene_change";
     public const string UPGRADE_GRANTED = "upgrade_granted";
     public const string PANEL_VISIBILITY = "panel_visibility";
-    public const string BUTCHERY_COMMITTED = "butchery_committed";
-    public const string BUTCHERY_READY = "butchery_ready";
+    public const string WORKBENCH_READY = "workbench_ready";
     public const string PUZZLE_ACTION = "puzzle_action";
     public const string RUMOR_LEARNED = "rumor_learned";
     public const string QUEST_UPDATED = "quest_updated";
@@ -22,6 +21,8 @@ public static class TelemetryEvents
     public const string ROUTE_PLANNED = "route_planned";
     public const string ROUTE_ENDED = "route_ended";
     public const string AUTO_TRAVEL_STOPPED = "auto_travel_stopped";
+    public const string ROUTE_STOP_CHANGED = "route_stop_changed";
+    public const string STATION_SCREEN = "station_screen";
 }
 
 // LogKit 전송용 분할 원본. Base64를 조각별 디코딩한 바이트를 chunkIndex 순서로 이어 붙인다.
@@ -73,20 +74,25 @@ public struct PanelPayload
 }
 
 [Serializable]
-public struct ButcheryCommittedPayload
-{
-    public string actionId, cityId;
-    public int inputCount;
-    public long readyAtMinutes;
-    public double time;
-}
-
-[Serializable]
-public struct ButcheryReadyPayload
+public struct WorkbenchReadyPayload
 {
     public string actionId, cityId;
     public int outputCount;
-    public double time;
+    public long elapsedMinutes;
+}
+
+[Serializable]
+public struct RouteStopChangedPayload
+{
+    public string city;
+    public bool stop;
+    public string to;
+}
+
+[Serializable]
+public struct StationScreenPayload
+{
+    public string screen;
 }
 
 [Serializable]
@@ -138,8 +144,8 @@ public static partial class TelemetryPayload
     public static SessionPayload Session(string _reason)
     {
         var payload = new SessionPayload();
-        // 4부터 rumor_learned에 kind·itemId가 추가된다. 이전 레코드는 두 필드가 없다.
-        payload.schemaVersion = 4;
+        // 6부터 작업대·화차 개조·화차 순서 행동, 작업대 보드 관측, transformed를 기록한다.
+        payload.schemaVersion = 6;
         payload.reason = _reason ?? string.Empty;
         payload.appVersion = Application.version;
         payload.unityVersion = Application.unityVersion;
@@ -172,38 +178,50 @@ public static partial class TelemetryPayload
         return payload;
     }
 
-    public static ButcheryCommittedPayload ButcheryCommitted(GameEvents.ButcheryCommittedInfo _info)
+    public static WorkbenchReadyPayload WorkbenchReady(GameEvents.WorkbenchReadyInfo _info)
     {
-        return new ButcheryCommittedPayload
-        {
-            actionId = _info.actionId,
-            cityId = _info.cityId,
-            inputCount = _info.inputCount,
-            readyAtMinutes = _info.readyAtMinutes,
-            time = _info.time
-        };
-    }
-
-    public static ButcheryReadyPayload ButcheryReady(GameEvents.ButcheryReadyInfo _info)
-    {
-        return new ButcheryReadyPayload
+        return new WorkbenchReadyPayload
         {
             actionId = _info.actionId,
             cityId = _info.cityId,
             outputCount = _info.outputCount,
-            time = _info.time
+            elapsedMinutes = _info.elapsedMinutes
         };
     }
 
-    // 소문 종류 ID와 품목 ID의 대응은 여기만 있다. 문서(PLAY_LOG)의 rumor_learned 필드와 같은 값을 쓴다.
+    public static RouteStopChangedPayload RouteStopChanged(GameEvents.RouteStopChangedInfo _info)
+    {
+        return new RouteStopChangedPayload
+        {
+            city = _info.cityId,
+            stop = _info.stop,
+            to = _info.toCityId
+        };
+    }
+
+    public static StationScreenPayload StationScreen(GameEvents.StationScreenInfo _info)
+    {
+        return new StationScreenPayload
+        {
+            screen = _info.screen ?? string.Empty
+        };
+    }
+
     public static PuzzleRumorPayload Rumor(GameEvents.TavernRumorInfo _info)
     {
         return new PuzzleRumorPayload
         {
-            kind = _info.kind == PuzzleRumorKind.Specialty ? "specialty" : "rare",
+            kind = _info.kind switch
+            {
+                PuzzleRumorKind.Specialty => "specialty",
+                PuzzleRumorKind.RareDemand => "rare",
+                PuzzleRumorKind.Action => "action",
+                _ => throw new ArgumentOutOfRangeException(nameof(_info), _info.kind, "알 수 없는 소문 종류입니다.")
+            },
             targetCityId = _info.targetCityId,
             tag = _info.tag,
             itemId = _info.itemId,
+            actionId = _info.actionId,
             elapsedMinutes = _info.recordedMinutes
         };
     }

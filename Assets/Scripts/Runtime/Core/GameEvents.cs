@@ -31,11 +31,15 @@ public static class GameEvents
         public readonly int instanceId, clockwiseTurns;
         public readonly long requestedMinutes;
         public readonly Vector2Int targetCell, grabbedCell;
+        // 작업대 행동 ID·개조 모드·화차 상품·화차 개조·대상 보드·화차 순서. 해당 행동이 아니면 비어 있다.
+        public readonly string actionId, modeId, productId, modificationId, board;
+        public readonly string[] wagonOrder;
 
         public PuzzleActionInfo(PuzzleInventoryService _session, PuzzleActionKind _action, string _failure = null,
             string _targetCityId = null, int _instanceId = 0,
             string _destination = null, Vector2Int _targetCell = default, Vector2Int _grabbedCell = default,
-            int _clockwiseTurns = 0, long _requestedMinutes = 0)
+            int _clockwiseTurns = 0, long _requestedMinutes = 0, string _actionId = null, string _modeId = null,
+            string _productId = null, string _modificationId = null, string _board = null, string[] _wagonOrder = null)
         {
             session = _session;
             action = _action;
@@ -47,6 +51,12 @@ public static class GameEvents
             grabbedCell = _grabbedCell;
             clockwiseTurns = _clockwiseTurns;
             requestedMinutes = _requestedMinutes;
+            actionId = _actionId;
+            modeId = _modeId;
+            productId = _productId;
+            modificationId = _modificationId;
+            board = _board;
+            wagonOrder = _wagonOrder;
         }
     }
 
@@ -111,13 +121,12 @@ public static class GameEvents
     public readonly struct TavernRumorInfo
     {
         public readonly PuzzleInventoryService session;
-        // 특산·희귀 종류와 특산이 언급하는 품목 ID. 문장을 다시 해석해 되추론하지 않는다.
         public readonly PuzzleRumorKind kind;
-        public readonly string sourceCityId, targetCityId, message, tag, itemId;
+        public readonly string sourceCityId, targetCityId, message, tag, itemId, actionId;
         public readonly long recordedMinutes;
 
         public TavernRumorInfo(PuzzleInventoryService _session, string _sourceCityId, string _targetCityId,
-            string _message, long _recordedMinutes, string _tag, PuzzleRumorKind _kind, string _itemId)
+            string _message, long _recordedMinutes, string _tag, PuzzleRumorKind _kind, string _itemId, string _actionId)
         {
             session = _session;
             sourceCityId = _sourceCityId;
@@ -127,6 +136,7 @@ public static class GameEvents
             tag = _tag;
             kind = _kind;
             itemId = _itemId ?? string.Empty;
+            actionId = _actionId ?? string.Empty;
         }
     }
     public static event Action<TavernRumorInfo> TavernRumorRecorded;
@@ -199,10 +209,11 @@ public static class GameEvents
     }
 
     public static void RaiseTavernRumorRecorded(PuzzleInventoryService _session, string _sourceCityId,
-        string _targetCityId, string _message, long _recordedMinutes, string _tag, PuzzleRumorKind _kind, string _itemId)
+        string _targetCityId, string _message, long _recordedMinutes, string _tag, PuzzleRumorKind _kind, string _itemId,
+        string _actionId)
     {
         Emit(TavernRumorRecorded, new TavernRumorInfo(_session, _sourceCityId, _targetCityId, _message,
-            _recordedMinutes, _tag, _kind, _itemId));
+            _recordedMinutes, _tag, _kind, _itemId, _actionId));
     }
 
     public readonly struct MapRequestInfo
@@ -384,6 +395,41 @@ public static class GameEvents
         Emit(AutoTravelStopped, _info);
     }
 
+    // 플레이어가 계획한 경로의 경유역 정차 여부를 바꿨다.
+    public readonly struct RouteStopChangedInfo
+    {
+        public readonly PuzzleInventoryService session;
+        public readonly string cityId, toCityId;
+        public readonly bool stop;
+        public RouteStopChangedInfo(PuzzleInventoryService _session, string _cityId, bool _stop, string _toCityId)
+        {
+            session = _session;
+            cityId = _cityId;
+            stop = _stop;
+            toCityId = _toCityId;
+        }
+    }
+    public static event Action<RouteStopChangedInfo> RouteStopChanged;
+    public static void RaiseRouteStopChanged(RouteStopChangedInfo _info)
+    {
+        Emit(RouteStopChanged, _info);
+    }
+
+    // 역 행동 패널 안의 하위 화면(home·market·wagon_shop·rest·tavern·butchery·modification·refining) 전환.
+    public readonly struct StationScreenInfo
+    {
+        public readonly string screen;
+        public StationScreenInfo(string _screen)
+        {
+            screen = _screen;
+        }
+    }
+    public static event Action<StationScreenInfo> StationScreenChanged;
+    public static void RaiseStationScreenChanged(string _screen)
+    {
+        Emit(StationScreenChanged, new StationScreenInfo(_screen));
+    }
+
     // 지도 밖(검색 결과 등)에서 그 역까지 경로 계획을 만들어 달라는 요청. 지도 경로 계획 Presenter가 받는다.
     public readonly struct RoutePlanRequestInfo
     {
@@ -500,10 +546,13 @@ public static class GameEvents
     {
         public readonly string panel;
         public readonly bool open;
-        public PanelInfo(string _panel, bool _open)
+        // 호버 툴팁처럼 포인터를 따라 자주 열리고 닫히는 패널. 분석 로그는 이 변화를 수집하지 않는다.
+        public readonly bool transient;
+        public PanelInfo(string _panel, bool _open, bool _transient = false)
         {
             this.panel = _panel;
             this.open = _open;
+            this.transient = _transient;
         }
     }
     public readonly struct TradeInfo
@@ -603,37 +652,22 @@ public static class GameEvents
         }
     }
 
-    /// <summary>도축 확정 사건. 입력 화물을 소진하고 작업이 시작된 시점의 스냅샷이다.</summary>
-    public readonly struct ButcheryCommittedInfo
+    /// <summary>작업대(도축·개조·정제) 완료 사건. 산출물이 작업대 보드에 놓이거나 개조가 적용돼 회수 대기가 된 시점이다.</summary>
+    public readonly struct WorkbenchReadyInfo
     {
-        public readonly string actionId, cityId;
-        public readonly int inputCount;
-        public readonly long readyAtMinutes;
-        public readonly double time;
-
-        public ButcheryCommittedInfo(string _actionId, string _cityId, int _inputCount, long _readyAtMinutes, double _time)
-        {
-            actionId = _actionId;
-            cityId = _cityId;
-            inputCount = _inputCount;
-            readyAtMinutes = _readyAtMinutes;
-            time = _time;
-        }
-    }
-
-    /// <summary>도축 완료 사건. 산출물이 보드에 놓여 회수 대기 상태가 된 시점의 스냅샷이다.</summary>
-    public readonly struct ButcheryReadyInfo
-    {
+        public readonly PuzzleInventoryService session;
         public readonly string actionId, cityId;
         public readonly int outputCount;
-        public readonly double time;
+        public readonly long elapsedMinutes;
 
-        public ButcheryReadyInfo(string _actionId, string _cityId, int _outputCount, double _time)
+        public WorkbenchReadyInfo(PuzzleInventoryService _session, string _actionId, string _cityId, int _outputCount,
+            long _elapsedMinutes)
         {
+            session = _session;
             actionId = _actionId;
             cityId = _cityId;
             outputCount = _outputCount;
-            time = _time;
+            elapsedMinutes = _elapsedMinutes;
         }
     }
 
@@ -646,8 +680,7 @@ public static class GameEvents
     public static event Action<ButcheryInfo> ButcheryChanged;
     public static event Action<ModificationInfo> ModificationChanged;
     public static event Action<RefiningInfo> RefiningChanged;
-    public static event Action<ButcheryCommittedInfo> ButcheryCommitted;
-    public static event Action<ButcheryReadyInfo> ButcheryReady;
+    public static event Action<WorkbenchReadyInfo> WorkbenchReady;
 
     // ── 발행 ──
     public static void RaiseUpgradeGranted(UpgradeData _upgrade)
@@ -658,9 +691,9 @@ public static class GameEvents
         }
         Emit(UpgradeGranted, new UpgradeInfo(_upgrade.id, string.IsNullOrEmpty(_upgrade.displayName) ? _upgrade.id : _upgrade.displayName));
     }
-    public static void RaisePanelVisibility(string _panelName, bool _open)
+    public static void RaisePanelVisibility(string _panelName, bool _open, bool _transient = false)
     {
-        Emit(PanelVisibility, new PanelInfo(_panelName, _open));
+        Emit(PanelVisibility, new PanelInfo(_panelName, _open, _transient));
     }
     public static void RaiseTradeCompleted(TradeInfo _info)
     {
@@ -688,13 +721,11 @@ public static class GameEvents
     {
         Emit(RefiningChanged, new RefiningInfo(_session, _cityId, _phase, _open));
     }
-    public static void RaiseButcheryCommitted(string _actionId, string _cityId, int _inputCount, long _readyAtMinutes)
+    public static void RaiseWorkbenchReady(PuzzleInventoryService _session, string _actionId, string _cityId,
+        int _outputCount)
     {
-        Emit(ButcheryCommitted, new ButcheryCommittedInfo(_actionId, _cityId, _inputCount, _readyAtMinutes, TelemetryLog.GameTime));
-    }
-    public static void RaiseButcheryReady(string _actionId, string _cityId, int _outputCount)
-    {
-        Emit(ButcheryReady, new ButcheryReadyInfo(_actionId, _cityId, _outputCount, TelemetryLog.GameTime));
+        Emit(WorkbenchReady, new WorkbenchReadyInfo(_session, _actionId, _cityId, _outputCount,
+            _session.Time != null ? _session.Time.ElapsedMinutes : 0));
     }
 
     // 구독자 하나가 예외를 던져도 나머지 구독자와 게임 진행은 멈추지 않는다.
@@ -753,14 +784,15 @@ public static class GameEvents
         RoutePlanned = null;
         RouteEnded = null;
         AutoTravelStopped = null;
+        RouteStopChanged = null;
+        StationScreenChanged = null;
         RoutePlanRequested = null;
         TextInputFocusChanged = null;
         SynergyHighlightRequested = null;
         ButcheryChanged = null;
         ModificationChanged = null;
         RefiningChanged = null;
-        ButcheryCommitted = null;
-        ButcheryReady = null;
+        WorkbenchReady = null;
         TavernRumorRecorded = null;
         QuestChanged = null;
         ProficiencyChanged = null;

@@ -27,13 +27,16 @@ public sealed class PuzzleStationActionsView : PanelBase
     [SerializeField] TextMeshProUGUI restDurationLabel;
     [SerializeField] TextMeshProUGUI restHint;
     [SerializeField] TextMeshProUGUI butcheryLabel;
+    [SerializeField] TextMeshProUGUI butcheryDescription;
     [SerializeField] TextMeshProUGUI butcheryHint;
     [SerializeField] TextMeshProUGUI butcheryConfirmLabel;
     [SerializeField] TextMeshProUGUI modificationLabel;
+    [SerializeField] TextMeshProUGUI modificationDescription;
     [SerializeField] TextMeshProUGUI modificationHint;
     [SerializeField] TextMeshProUGUI modificationModeLabel;
     [SerializeField] TextMeshProUGUI modificationConfirmLabel;
     [SerializeField] TextMeshProUGUI refiningLabel;
+    [SerializeField] TextMeshProUGUI refiningDescription;
     [SerializeField] TextMeshProUGUI refiningHint;
     [SerializeField] TextMeshProUGUI refiningConfirmLabel;
     [SerializeField] Button marketButton;
@@ -68,12 +71,13 @@ public sealed class PuzzleStationActionsView : PanelBase
     internal event Action ActionBackRequested;
     public RectTransform TavernContent => tavernContent;
     // 도축 UI는 버튼·라벨·content·hint·확인 버튼이 모두 배선됐을 때만 동작한다. 일부만 있으면 기능이 꺼지고 로그만 남긴다.
-    bool ButcheryWired => butcheryButton && butcheryLabel && butcheryContent && butcheryHint &&
+    bool ButcheryWired => butcheryButton && butcheryLabel && butcheryDescription && butcheryContent && butcheryHint &&
         butcheryConfirmButton && butcheryConfirmLabel;
-    bool ModificationWired => modificationButton && modificationLabel && modificationContent && modificationHint &&
+    bool ModificationWired => modificationButton && modificationLabel && modificationDescription &&
+        modificationContent && modificationHint &&
         modificationModeButton && modificationModeLabel && modificationConfirmButton && modificationConfirmLabel;
     // 정제 UI는 버튼·라벨·content·hint·확인 버튼이 모두 배선됐을 때만 동작한다. 일부만 있으면 기능이 꺼지고 로그만 남긴다.
-    bool RefiningWired => refiningButton && refiningLabel && refiningContent && refiningHint &&
+    bool RefiningWired => refiningButton && refiningLabel && refiningDescription && refiningContent && refiningHint &&
         refiningConfirmButton && refiningConfirmLabel;
     public bool HasButcheryButton => ButcheryWired;
     public bool HasModificationButton => ModificationWired;
@@ -86,6 +90,8 @@ public sealed class PuzzleStationActionsView : PanelBase
     int wagonShopPage;
     // 화차 상점은 선택 없음으로 시작하고, 카드를 누르거나 끌기 시작하면 선택된다. 같은 카드를 다시 누르거나 상점을 나가면 해제한다.
     PuzzleWagonProductRow selectedWagonRow;
+    // 마지막으로 기록한 하위 화면 이름. 같은 화면을 다시 그릴 때 station_screen을 중복 기록하지 않는다.
+    string currentScreen;
 
     protected override void Awake()
     {
@@ -98,7 +104,7 @@ public sealed class PuzzleStationActionsView : PanelBase
         tavernContent.gameObject.SetActive(false);
         if (butcheryButton && !ButcheryWired)
         {
-            Debug.LogError("도축 버튼이 있는 View에는 행동 라벨·작업 화면·상태 라벨·확인 버튼과 확인 라벨 참조가 모두 필요합니다.", this);
+            Debug.LogError("도축 버튼이 있는 View에는 행동 라벨·설명·작업 화면·상태 라벨·확인 버튼과 확인 라벨 참조가 모두 필요합니다.", this);
         }
         if (ButcheryWired)
         {
@@ -108,7 +114,7 @@ public sealed class PuzzleStationActionsView : PanelBase
         }
         if (modificationButton && !ModificationWired)
         {
-            Debug.LogError("개조 버튼이 있는 View에는 행동 라벨·작업 화면·상태 라벨·모드 및 확인 버튼과 각 라벨 참조가 모두 필요합니다.", this);
+            Debug.LogError("개조 버튼이 있는 View에는 행동 라벨·설명·작업 화면·상태 라벨·모드 및 확인 버튼과 각 라벨 참조가 모두 필요합니다.", this);
         }
         if (ModificationWired)
         {
@@ -118,7 +124,7 @@ public sealed class PuzzleStationActionsView : PanelBase
         }
         if (refiningButton && !RefiningWired)
         {
-            Debug.LogError("정제 버튼이 있는 View에는 행동 라벨·작업 화면·상태 라벨·확인 버튼과 확인 라벨 참조가 모두 필요합니다.", this);
+            Debug.LogError("정제 버튼이 있는 View에는 행동 라벨·설명·작업 화면·상태 라벨·확인 버튼과 확인 라벨 참조가 모두 필요합니다.", this);
         }
         if (RefiningWired)
         {
@@ -182,6 +188,7 @@ public sealed class PuzzleStationActionsView : PanelBase
             wagonShopContent.SetActive(false);
             GameEvents.RaisePanelVisibility(Presentation.PUZZLE_WAGON_SHOP_PANEL_NAME, false);
         }
+        currentScreen = null;
         marketButton.onClick.RemoveListener(OnMarket);
         tavernButton.onClick.RemoveListener(OnTavern);
         restButton.onClick.RemoveListener(OnRest);
@@ -221,7 +228,8 @@ public sealed class PuzzleStationActionsView : PanelBase
     }
 
     internal void Refresh(bool _marketOpen, bool _inProgress, long _restMinutes, bool _butcheryAvailable,
-        bool _butcheryEnabled, bool _butcheryConfirmEnabled, string _butcheryHint, long _butcheryCost)
+        bool _butcheryEnabled, bool _butcheryConfirmEnabled, string _butcheryHint, long _butcheryCost,
+        string _butcheryDescription)
     {
         marketLabel.text = _marketOpen ? Presentation.StationMarket : Presentation.StationMarketClosed;
         marketButton.interactable = _marketOpen;
@@ -236,6 +244,7 @@ public sealed class PuzzleStationActionsView : PanelBase
         {
             butcheryButton.gameObject.SetActive(_butcheryAvailable && _inProgress);
             butcheryButton.interactable = _butcheryEnabled;
+            butcheryDescription.text = _butcheryDescription;
             butcheryHint.text = _butcheryHint;
             butcheryConfirmLabel.text = _butcheryCost >= 0
                 ? Presentation.StationButcheryConfirmCost(_butcheryCost)
@@ -248,16 +257,17 @@ public sealed class PuzzleStationActionsView : PanelBase
         }
     }
 
-    internal void RefreshModification(bool _inProgress, bool _available, bool _modeSelected,
-        bool _confirmEnabled, string _modeDisplayName, string _hint, long _modificationCost)
+    internal void RefreshModification(bool _inProgress, bool _available, PuzzleModificationPhase _phase, bool _modeSelected,
+        bool _confirmEnabled, string _modeDisplayName, string _hint, long _modificationCost, string _description)
     {
         if (!ModificationWired)
         {
             return;
         }
         modificationButton.gameObject.SetActive(_available && _inProgress);
-        modificationButton.interactable = _available;
-        modificationModeButton.interactable = _available;
+        modificationButton.interactable = _inProgress && _available && _phase != PuzzleModificationPhase.Working;
+        modificationDescription.text = _description;
+        modificationModeButton.interactable = _inProgress && _available && _phase == PuzzleModificationPhase.Idle;
         modificationModeLabel.text = _modeDisplayName;
         modificationModeLabel.color = _modeSelected ? Presentation.PuzzleTimeAccent : Presentation.PuzzleHeading;
         modificationHint.text = _hint;
@@ -268,7 +278,7 @@ public sealed class PuzzleStationActionsView : PanelBase
     }
 
     internal void RefreshRefining(bool _inProgress, bool _available, bool _enabled, bool _confirmEnabled,
-        string _hint, long _refiningCost)
+        string _hint, long _refiningCost, string _description)
     {
         if (!RefiningWired)
         {
@@ -276,6 +286,7 @@ public sealed class PuzzleStationActionsView : PanelBase
         }
         refiningButton.gameObject.SetActive(_available && _inProgress);
         refiningButton.interactable = _enabled;
+        refiningDescription.text = _description;
         refiningHint.text = _hint;
         refiningConfirmLabel.text = _refiningCost >= 0
             ? Presentation.StationRefiningConfirmCost(_refiningCost)
@@ -461,6 +472,52 @@ public sealed class PuzzleStationActionsView : PanelBase
         backButton.interactable = true;
         backButton.gameObject.SetActive(_content != actionsList);
         title.text = _title;
+
+        // 하위 화면 전환은 분석 로그(station_screen)로만 흘린다. 같은 화면을 다시 그리는 것은 전환이 아니다.
+        string screen = ScreenName(_content);
+        if (screen != currentScreen)
+        {
+            currentScreen = screen;
+            GameEvents.RaiseStationScreenChanged(screen);
+        }
+    }
+
+    // 분석 로그의 하위 화면 이름. 화면 문구가 아니라 고정 식별자다.
+    string ScreenName(GameObject _content)
+    {
+        if (_content == actionsList)
+        {
+            return "home";
+        }
+        if (_content == marketContent)
+        {
+            return "market";
+        }
+        if (_content == wagonShopContent)
+        {
+            return "wagon_shop";
+        }
+        if (_content == restContent)
+        {
+            return "rest";
+        }
+        if (_content == tavernContent.gameObject)
+        {
+            return "tavern";
+        }
+        if (butcheryContent && _content == butcheryContent)
+        {
+            return "butchery";
+        }
+        if (modificationContent && _content == modificationContent)
+        {
+            return "modification";
+        }
+        if (refiningContent && _content == refiningContent)
+        {
+            return "refining";
+        }
+        return _content ? _content.name : string.Empty;
     }
 
     protected override void OnShow()
@@ -471,6 +528,8 @@ public sealed class PuzzleStationActionsView : PanelBase
     protected override void OnHide()
     {
         ShowHome();
+        // 다시 열 때 첫 화면을 전환으로 기록한다.
+        currentScreen = null;
     }
 
     void OnMarket()

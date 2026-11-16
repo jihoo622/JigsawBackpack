@@ -1,9 +1,14 @@
+using System.Collections.Generic;
+
 public sealed class PuzzleModificationState
 {
     public string CityId { get; }
     public PuzzleCityActionData Action { get; }
     public PuzzleInventory Board { get; }
     public string SelectedModeId { get; internal set; }
+    public PuzzleModificationPhase Phase { get; internal set; } = PuzzleModificationPhase.Idle;
+    public long ReadyAtMinutes { get; internal set; } = -1;
+    internal IReadOnlyList<PuzzleDefinitionSwap> PendingSwaps { get; set; }
 
     internal PuzzleModificationState(string _cityId, PuzzleCityActionData _action, PuzzleInventory _board)
     {
@@ -12,6 +17,13 @@ public sealed class PuzzleModificationState
         Board = _board;
         SelectedModeId = null;
     }
+}
+
+public enum PuzzleModificationPhase
+{
+    Idle,
+    Working,
+    Ready
 }
 
 public enum PuzzleModificationFailure

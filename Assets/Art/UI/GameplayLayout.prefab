@@ -4509,13 +4509,16 @@ MonoBehaviour:
   restDurationLabel: {fileID: 1878501411914185333}
   restHint: {fileID: 4718228020666192064}
   butcheryLabel: {fileID: 1361946589458786170}
+  butcheryDescription: {fileID: 2208495441107283565}
   butcheryHint: {fileID: 8964197918873104253}
   butcheryConfirmLabel: {fileID: 5323188775279314012}
   modificationLabel: {fileID: 2910054643440176309}
+  modificationDescription: {fileID: 2603690357094892962}
   modificationHint: {fileID: 5544741637665298525}
   modificationModeLabel: {fileID: 7860069338590883107}
   modificationConfirmLabel: {fileID: 8739824810151867260}
   refiningLabel: {fileID: 1621939908781441150}
+  refiningDescription: {fileID: 1928371952524233065}
   refiningHint: {fileID: 3727213633435742054}
   refiningConfirmLabel: {fileID: 432697901107037255}
   marketButton: {fileID: 1255990386467226954}
@@ -4547,6 +4550,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PuzzleStationActionsPresenter
   view: {fileID: 7041788284103280147}
+  workWait: {fileID: 716350000000004003}
 --- !u!1 &3797015171778463433
 GameObject:
   m_ObjectHideFlags: 0
@@ -5073,6 +5077,7 @@ RectTransform:
   - {fileID: 6155321774309655650}
   - {fileID: 1393410718688900740}
   - {fileID: 6675017890109719645}
+  - {fileID: 716350000000004002}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -5080,6 +5085,35 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!1001 &716350000000004001
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 340499794578077680}
+    m_Modifications: []
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 39cf64c9a7bf406e8d9d50521304a226, type: 3}
+--- !u!224 &716350000000004002 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 1001, guid: 39cf64c9a7bf406e8d9d50521304a226, type: 3}
+  m_PrefabInstance: {fileID: 716350000000004001}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &716350000000004003 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1002, guid: 39cf64c9a7bf406e8d9d50521304a226, type: 3}
+  m_PrefabInstance: {fileID: 716350000000004001}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 476a7a4a02ec45d3b2a70ee028d56ed3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PuzzleWorkWaitView
 --- !u!1 &3978558472329306420
 GameObject:
   m_ObjectHideFlags: 0
@@ -13183,6 +13217,39 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &2208495441107283565 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6700319519826679282, guid: e3886f9bb731a834ca0fe35cbe489e0b, type: 3}
+  m_PrefabInstance: {fileID: 4781265884857924511}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
+--- !u!114 &2603690357094892962 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7383754293626945085, guid: e3886f9bb731a834ca0fe35cbe489e0b, type: 3}
+  m_PrefabInstance: {fileID: 4781265884857924511}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
+--- !u!114 &1928371952524233065 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6383997536913257206, guid: e3886f9bb731a834ca0fe35cbe489e0b, type: 3}
+  m_PrefabInstance: {fileID: 4781265884857924511}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
 --- !u!114 &1361946589458786170 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 5817785164408331493, guid: e3886f9bb731a834ca0fe35cbe489e0b, type: 3}
