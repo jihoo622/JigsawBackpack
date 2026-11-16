@@ -55,6 +55,12 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         return tavernRumors.Any(_rumor => string.Equals(_rumor.TargetCityId, _cityId, StringComparison.Ordinal));
     }
 
+    // 지도 배지는 소문 기록이 있고 아직 방문하지 않은 마을에만 보인다. 기록 자체는 수첩·요약·중복 방지용으로 남긴다.
+    internal bool HasUnvisitedRumorForCity(string _cityId)
+    {
+        return HasRumorForCity(_cityId) && !HasVisitedCity(_cityId);
+    }
+
     // 한 방문에 한 번만 남긴다. 문구는 이미 결정된 후보에서 만들어 함께 저장한다.
     internal void RecordTavernRumor(PuzzleRumorCandidate _candidate, string _message)
     {

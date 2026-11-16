@@ -326,7 +326,15 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
 
     string GetTavernRumor()
     {
-        var candidatesByKind = session.CollectRumorCandidates()
+        var candidates = session.CollectRumorCandidates().ToArray();
+        var rareCandidates = candidates.Where(_candidate => _candidate.Kind == PuzzleRumorKind.RareDemand).ToArray();
+        if (rareCandidates.Length > 0)
+        {
+            return PickRumor(rareCandidates);
+        }
+
+        var candidatesByKind = candidates
+            .Where(_candidate => _candidate.Kind != PuzzleRumorKind.RareDemand)
             .GroupBy(_candidate => _candidate.Kind)
             .Select(_group => _group.ToArray())
             .ToArray();
@@ -335,9 +343,12 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             return Presentation.TavernNoRumor;
         }
 
-        var candidates = candidatesByKind[Random.Range(0, candidatesByKind.Length)];
-        var selected = candidates[Random.Range(0, candidates.Length)];
+        return PickRumor(candidatesByKind[Random.Range(0, candidatesByKind.Length)]);
+    }
 
+    string PickRumor(PuzzleRumorCandidate[] _candidates)
+    {
+        var selected = _candidates[Random.Range(0, _candidates.Length)];
         string message = Presentation.TavernRumor(selected);
         session.RecordTavernRumor(selected, message);
         return message;
