@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-// 화차 상점 카드. 누르면 선택을 토글하고, 끌기 시작하면 선택하며 커서 옆에 화차 미리보기를 띄운다.
+// 화차 상점 카드. 누르면 선택을 토글하고, 끌기 시작하면 선택하며 화차 미리보기가 커서를 따라간다.
 public sealed class PuzzleWagonProductRow : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerClickHandler
 {
     [SerializeField] TextMeshProUGUI label;
@@ -122,7 +122,7 @@ public sealed class PuzzleWagonProductRow : MonoBehaviour, IBeginDragHandler, ID
         return new Vector2(width, width / aspect);
     }
 
-    // 미리보기는 커서를 가리지 않게 커서 오른쪽 아래(dragPreviewOffset)에 둔다. 드롭 판정은 커서 위치 기준이다.
+    // 미리보기의 중심은 커서 위치에 오프셋을 더해 배치한다. 드롭 판정은 커서 위치 기준이다.
     public void OnDrag(PointerEventData _eventData)
     {
         var parent = dragPreview.rectTransform.parent as RectTransform;

@@ -376,7 +376,7 @@ MonoBehaviour:
   chipRoot: {fileID: 1585021146621952254}
   chipLabel: {fileID: 8420867432320957962}
   dragPreviewBox: {x: 124, y: 56}
-  dragPreviewOffset: {x: 56, y: -40}
+  dragPreviewOffset: {x: 0, y: 13}
 --- !u!114 &4611770932418247107
 MonoBehaviour:
   m_ObjectHideFlags: 0
