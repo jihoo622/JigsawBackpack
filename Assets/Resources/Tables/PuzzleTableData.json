@@ -796,7 +796,7 @@
           "west": "Flat"
         }
       ],
-      "baseValue": 40,
+      "baseValue": 50,
       "synergyEffects": [
         {
           "ruleId": "foodNearSalt",
@@ -849,7 +849,7 @@
           "west": "Flat"
         }
       ],
-      "baseValue": 62,
+      "baseValue": 72,
       "synergyEffects": [
         {
           "ruleId": "foodNearSalt",
@@ -1082,7 +1082,7 @@
           "west": "Flat"
         }
       ],
-      "baseValue": 60,
+      "baseValue": 70,
       "synergyEffects": [
         {
           "ruleId": "cargoNearAnimal",
@@ -1556,19 +1556,58 @@
     "width": 5,
     "height": 5,
     "blockedCells": [
-      { "x": 3, "y": 0 },
-      { "x": 3, "y": 2 },
-      { "x": 4, "y": 2 },
-      { "x": 0, "y": 3 },
-      { "x": 1, "y": 3 },
-      { "x": 2, "y": 3 },
-      { "x": 3, "y": 3 },
-      { "x": 4, "y": 3 },
-      { "x": 0, "y": 4 },
-      { "x": 1, "y": 4 },
-      { "x": 2, "y": 4 },
-      { "x": 3, "y": 4 },
-      { "x": 4, "y": 4 }
+      {
+        "x": 3,
+        "y": 0
+      },
+      {
+        "x": 3,
+        "y": 2
+      },
+      {
+        "x": 4,
+        "y": 2
+      },
+      {
+        "x": 0,
+        "y": 3
+      },
+      {
+        "x": 1,
+        "y": 3
+      },
+      {
+        "x": 2,
+        "y": 3
+      },
+      {
+        "x": 3,
+        "y": 3
+      },
+      {
+        "x": 4,
+        "y": 3
+      },
+      {
+        "x": 0,
+        "y": 4
+      },
+      {
+        "x": 1,
+        "y": 4
+      },
+      {
+        "x": 2,
+        "y": 4
+      },
+      {
+        "x": 3,
+        "y": 4
+      },
+      {
+        "x": 4,
+        "y": 4
+      }
     ],
     "startingPlacements": [
       {
