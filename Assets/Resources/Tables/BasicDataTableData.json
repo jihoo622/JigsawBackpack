@@ -2966,7 +2966,7 @@
         },
         {
           "id": "StationRefiningConfirmCost",
-          "value": "정제하기 · ${0:N0}",
+          "value": "정제하기 · {0:N0}$",
           "arguments": 1,
           "source": "Assets/Scripts/Runtime/Core/Presentation.cs:StationRefiningConfirmCost"
         },
@@ -3139,7 +3139,7 @@
         },
         {
           "id": "refining.insufficientFunds",
-          "value": "정제 비용이 부족합니다. (필요: ${0})",
+          "value": "정제 비용이 부족합니다. (필요: {0}$)",
           "arguments": 1,
           "source": "Assets/Scripts/Runtime/Inventory/PuzzleInventoryService.cs"
         },

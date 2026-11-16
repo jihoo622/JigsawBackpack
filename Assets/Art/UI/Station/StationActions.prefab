@@ -881,14 +881,6 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 3448559629381426768, guid: 59362c1c507dc49419bb27aacbd4e700, type: 3}
-      propertyPath: m_SizeDelta.x
-      value: -48
-      objectReference: {fileID: 0}
-    - target: {fileID: 3448559629381426768, guid: 59362c1c507dc49419bb27aacbd4e700, type: 3}
-      propertyPath: m_AnchoredPosition.x
-      value: 24
-      objectReference: {fileID: 0}
     - target: {fileID: 4686372074158441754, guid: 59362c1c507dc49419bb27aacbd4e700, type: 3}
       propertyPath: m_Pivot.x
       value: 0
@@ -972,11 +964,7 @@ PrefabInstance:
     - target: {fileID: 6532303827577275007, guid: 59362c1c507dc49419bb27aacbd4e700, type: 3}
       propertyPath: m_Sprite
       value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 6532303827577275007, guid: 59362c1c507dc49419bb27aacbd4e700, type: 3}
-      propertyPath: m_RaycastTarget
-      value: 1
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 21300000, guid: 285e784419afbc147b32225ed423a61d, type: 3}
     - target: {fileID: 7438913114043219628, guid: 59362c1c507dc49419bb27aacbd4e700, type: 3}
       propertyPath: m_text
       value: "\uAC1C\uC870"
@@ -998,21 +986,13 @@ PrefabInstance:
       propertyPath: m_TextStyleHashCode
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 8058706978626869642, guid: 59362c1c507dc49419bb27aacbd4e700, type: 3}
-      propertyPath: m_SizeDelta.x
-      value: -48
-      objectReference: {fileID: 0}
-    - target: {fileID: 8058706978626869642, guid: 59362c1c507dc49419bb27aacbd4e700, type: 3}
-      propertyPath: m_AnchoredPosition.x
-      value: 24
-      objectReference: {fileID: 0}
     - target: {fileID: 8147656322483835297, guid: 59362c1c507dc49419bb27aacbd4e700, type: 3}
       propertyPath: m_TargetGraphic
       value: 
       objectReference: {fileID: 7838265720736604199}
     - target: {fileID: 8337457124668661817, guid: 59362c1c507dc49419bb27aacbd4e700, type: 3}
-      propertyPath: m_IsActive
-      value: 0
+      propertyPath: m_Layer
+      value: 5
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -1765,14 +1745,6 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 3448559629381426768, guid: 59362c1c507dc49419bb27aacbd4e700, type: 3}
-      propertyPath: m_SizeDelta.x
-      value: -48
-      objectReference: {fileID: 0}
-    - target: {fileID: 3448559629381426768, guid: 59362c1c507dc49419bb27aacbd4e700, type: 3}
-      propertyPath: m_AnchoredPosition.x
-      value: 24
-      objectReference: {fileID: 0}
     - target: {fileID: 4686372074158441754, guid: 59362c1c507dc49419bb27aacbd4e700, type: 3}
       propertyPath: m_Pivot.x
       value: 0
@@ -1856,11 +1828,7 @@ PrefabInstance:
     - target: {fileID: 6532303827577275007, guid: 59362c1c507dc49419bb27aacbd4e700, type: 3}
       propertyPath: m_Sprite
       value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 6532303827577275007, guid: 59362c1c507dc49419bb27aacbd4e700, type: 3}
-      propertyPath: m_RaycastTarget
-      value: 1
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 21300000, guid: f426b35ebeb842449bed93aad0a83682, type: 3}
     - target: {fileID: 7438913114043219628, guid: 59362c1c507dc49419bb27aacbd4e700, type: 3}
       propertyPath: m_text
       value: "\uC815\uC81C"
@@ -1885,21 +1853,13 @@ PrefabInstance:
       propertyPath: m_TextStyleHashCode
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 8058706978626869642, guid: 59362c1c507dc49419bb27aacbd4e700, type: 3}
-      propertyPath: m_SizeDelta.x
-      value: -48
-      objectReference: {fileID: 0}
-    - target: {fileID: 8058706978626869642, guid: 59362c1c507dc49419bb27aacbd4e700, type: 3}
-      propertyPath: m_AnchoredPosition.x
-      value: 24
-      objectReference: {fileID: 0}
     - target: {fileID: 8147656322483835297, guid: 59362c1c507dc49419bb27aacbd4e700, type: 3}
       propertyPath: m_TargetGraphic
       value: 
       objectReference: {fileID: 5919915343226645740}
     - target: {fileID: 8337457124668661817, guid: 59362c1c507dc49419bb27aacbd4e700, type: 3}
-      propertyPath: m_IsActive
-      value: 0
+      propertyPath: m_Layer
+      value: 5
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -1938,14 +1898,6 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 3448559629381426768, guid: 59362c1c507dc49419bb27aacbd4e700, type: 3}
-      propertyPath: m_SizeDelta.x
-      value: -48
-      objectReference: {fileID: 0}
-    - target: {fileID: 3448559629381426768, guid: 59362c1c507dc49419bb27aacbd4e700, type: 3}
-      propertyPath: m_AnchoredPosition.x
-      value: 24
-      objectReference: {fileID: 0}
     - target: {fileID: 4686372074158441754, guid: 59362c1c507dc49419bb27aacbd4e700, type: 3}
       propertyPath: m_Pivot.x
       value: 0
@@ -2029,11 +1981,7 @@ PrefabInstance:
     - target: {fileID: 6532303827577275007, guid: 59362c1c507dc49419bb27aacbd4e700, type: 3}
       propertyPath: m_Sprite
       value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 6532303827577275007, guid: 59362c1c507dc49419bb27aacbd4e700, type: 3}
-      propertyPath: m_RaycastTarget
-      value: 1
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 21300000, guid: 73d9623cc0f211c4aacf5a44268f5ff0, type: 3}
     - target: {fileID: 7438913114043219628, guid: 59362c1c507dc49419bb27aacbd4e700, type: 3}
       propertyPath: m_text
       value: "\uB3C4\uCD95"
@@ -2055,21 +2003,13 @@ PrefabInstance:
       propertyPath: m_TextStyleHashCode
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 8058706978626869642, guid: 59362c1c507dc49419bb27aacbd4e700, type: 3}
-      propertyPath: m_SizeDelta.x
-      value: -48
-      objectReference: {fileID: 0}
-    - target: {fileID: 8058706978626869642, guid: 59362c1c507dc49419bb27aacbd4e700, type: 3}
-      propertyPath: m_AnchoredPosition.x
-      value: 24
-      objectReference: {fileID: 0}
     - target: {fileID: 8147656322483835297, guid: 59362c1c507dc49419bb27aacbd4e700, type: 3}
       propertyPath: m_TargetGraphic
       value: 
       objectReference: {fileID: 6215830973295414248}
     - target: {fileID: 8337457124668661817, guid: 59362c1c507dc49419bb27aacbd4e700, type: 3}
-      propertyPath: m_IsActive
-      value: 0
+      propertyPath: m_Layer
+      value: 5
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

@@ -137,7 +137,7 @@ UI 글자는 모두 TextMeshPro(`NotoSansKR-Medium SDF`)를 쓴다(구형 `Unity
 
 | 상태 | 구성 요소 | left | top | width | height | 세부 내용 및 배치 규칙 |
 |---|---|---|---|---|---|---|
-| **행동 목록** | 세로 스크롤 카드 그리드 | 624 | 316 | 1232 | 592 | `ActionsList`(ScrollRect) > `Viewport`(RectMask2D) > `Content`(`FlexibleGridLayoutGroup` + ContentSizeFitter 세로). 열 수는 칸 최소 폭 480·최대 2열로 영역 폭에서 정하고 남는 폭을 칸이 나눈다(1232폭이면 604×184, 열 간격 24, 행 간격 20). 켜진 카드 수만큼 줄이 늘고 3줄을 넘으면 오른쪽 8폭 스크롤바(간격 12)가 나타나 본문 폭이 20 줄어든다. 부품 `ActionCard`: 아이콘 96×96(left +24, top +44) + 제목 20pt(left +136, right −24, top +44, 40) + 설명 16pt(top +92, 48)는 카드 폭을 따라 늘어난다. 아이콘 없는 시설 카드는 글자 left +24. 카드 순서는 `Content` 자식 순서다 |
+| **행동 목록** | 세로 스크롤 카드 그리드 | 624 | 316 | 1232 | 592 | `ActionsList`(ScrollRect) > `Viewport`(RectMask2D) > `Content`(`FlexibleGridLayoutGroup` + ContentSizeFitter 세로). 열 수는 칸 최소 폭 480·최대 2열로 영역 폭에서 정하고 남는 폭을 칸이 나눈다(1232폭이면 604×184, 열 간격 24, 행 간격 20). 켜진 카드 수만큼 줄이 늘고 3줄을 넘으면 오른쪽 8폭 스크롤바(간격 12)가 나타나 본문 폭이 20 줄어든다. 부품 `ActionCard`: 아이콘 96×96(left +24, top +44) + 제목 20pt(left +136, right −24, top +44, 40) + 설명 16pt(top +92, 48)는 카드 폭을 따라 늘어난다. 카드 순서는 `Content` 자식 순서다 |
 | └ 시장 | Market Card | 624 | 316 | 604 | 184 | 화물 구매 및 판매 진입 |
 | └ 화차 구매 | Shop Card | 1252 | 316 | 604 | 184 | 화차 상점 진입 |
 | └ 술집 | Tavern Card | 624 | 520 | 604 | 184 | 소식 청취 및 의뢰 수락 진입 |
