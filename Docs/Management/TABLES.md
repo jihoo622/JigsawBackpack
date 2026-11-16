@@ -122,5 +122,5 @@
 
 ## 씬·분석 설정
 
-- `FlowTableData.scenes`의 씬 이름이 진행 경로 키다. 현재 표는 Preload·Title·Game이지만 빌드 활성 씬은 Game 하나이므로 검증에서 불일치를 보고한다. 이를 문서상 완료로 표기하지 않는다.
+- `FlowTableData.scenes`의 씬 이름이 진행 경로 키다. 표와 빌드 활성 씬 모두 Preload·Title·Game이다. 테이블 로드·검증은 Preload의 `AppBootstrap`이 하고, Preload·Title은 `NextSceneOf(자기 씬 이름)`으로 다음 씬을 찾는다.
 - `Assets/Resources/LogData.json`은 분석 운영 설정이며 도메인 테이블이 아니다. `TelemetryLog`가 직접 읽고 `TableManager`에 등록하지 않는다. 기록·전송 계약은 [TELEMETRY](TELEMETRY.md), 이벤트 필드는 [PLAY_LOG](PLAY_LOG.md)를 따른다.

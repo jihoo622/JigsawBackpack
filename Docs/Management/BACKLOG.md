@@ -4,7 +4,7 @@
 
 ## 기반 구조
 
-- 빌드 활성 씬은 Game 하나지만 `FlowTableData`에는 Preload·Title·Game 경로가 남아 있다. ProjectValidation이 Preload·Title의 빌드 목록 누락을 보고하며 두 씬의 진입·전환 흐름도 미연결이다.
+- Preload → Title → Game 진입 흐름의 플레이 확인: 빌드와 에디터(Play From Preload 켬·끔, 씬 직행 도구)에서 Preload를 한 번만 거치는지, 분석 로그 session_start·scene_change 순서, Title 시작·종료, 테이블 오류 시 Preload에서 멈추는지.
 - 분석 원본과 테이블은 LogKit Data 전송에 연결했다. 서버의 Telemetry/TelemetryRules 추출·조각 복원·대시보드 처리는 외부 작업이다. 도착·시간·경제·상환은 puzzle_action 변화분과 run_end에 통합하며 같은 사건을 별도 분석 이벤트로 중복 기록하지 않는다.
 - 씬 사이 게임 상태 인계와 공용 페이드 씬 로더는 없다. 영구 저장·재개 범위는 기획 결정 후 구현한다.
 - 외부 dope-grid는 현재 구현의 의존성이 아니다. 로컬 격자 모델과 사전 배치 View를 사용하며 이전 패키지 검토는 [과거 작업 계획](<Archive/기차 인벤토리 게임 구현 작업 계획.md>)에 보존한다.

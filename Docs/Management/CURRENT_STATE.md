@@ -62,7 +62,7 @@
 - 거래와 시너지는 복수 태그를 공유한다. 거래 배율은 도시 기본 배율 + Σ(일치한 태그 규칙 − 100%)이며 하한 없이 0 이하도 허용한다(판매 배율이 음수면 팔 때 돈을 낸다). 시너지는 증가·감소를 구분하지 않고 100% + Σ(효과 − 100%)이며 하한 없이 음수 배율도 허용한다. 툴팁의 적용 규칙은 일치한 태그를 모두 표시한다. 구매·판매 모두 신선도 구간(60% 이상 100%·20~59% 80%·1~19% 50%)을 반영한 실제 가치에 배율을 적용한다. 판매한 화물은 실제 가치 그대로 시장에 남아 그 가치로 다시 살 수 있고, 가치가 음수인 화물은 판매(처분) 즉시 시장에서 사라진다. 판매 등급 흔함·일반·귀함·희귀(70/100/130/200%)의 수치는 `PuzzleTableData.sellGrades` 단일 원본이고 도시 태그 행은 `sellGradeId`로 참조하며 등급과 수치를 중복 저장하지 않는다. 구매 배율은 도시 행의 `buyPercent`를 사용하며 Map Editor에서 희귀를 지정해도 그 값을 유지한다.
 - 매일 오전 6시 개장에 모든 시장을 새 화물 ID로 재입고한다. 같은 개장 주기 내에 돌아오면 시장의 구매·판매 후 재고가 유지된다.
 - 생산 지역의 귀함 태그는 공업 음식·금속·목재, 광산 음식·기계·물, 목축 금속·곡물, 농업 기계·금속, 해안 금속·곡물·목재·기계다. 각 마을의 특산 태그는 흔함을 유지한다.
-- 다르폴 도축대·노르노바 정제대·에른아 개조대는 공용 5×5 보드를 사용한다. 작업 접수 후 대기 팝업에서 작업을 남기거나 남은 시간만 진행한다. 도축 확정과 완료는 `butchery_committed`·`butchery_ready`로 기록한다.
+- 다르폴 도축대·노르노바 정제대·에른아 개조대는 공용 5×5 보드를 사용한다. 작업 접수 후 대기 팝업에서 작업을 남기거나 남은 시간만 진행한다. 세 작업대의 반입·반출·확정·완료 대기는 `puzzle_action`(`workbench_load`·`workbench_unload`·`workbench_confirm`·`wait_for_workbench`)으로, 완료는 `workbench_ready`로 기록한다.
 - 개조는 테이블의 작업 시간이 지난 뒤 에른아 작업대에서 회수한다. 같은 객차의 인접 음식은 냉장 프레임 한 개당 유통기한 소모율이 50% 줄며, 두 개부터 소모가 멈춘다. 이동 미리보기는 실제 시간 진행과 같은 냉장·만료 계산을 사용한다.
 - 인접한 냉장 프레임과 음식 사이에는 냉장원에서 음식으로 향하는 녹색 화살표를 기차 객차에만 표시한다. 시간 정산과 같은 `PuzzleRefrigeration` 판정을 읽어 실제 소모율에 기여한 접촉만 보이고, 가치 화살표와 다른 레인을 쓰며 드래그로 숨긴 품목의 화살표는 숨긴다.
 - 효과 품목은 화물 외곽 테두리 색을 따로 쓴다. 신선 보존 효과(`preservationEffect.enabled`)가 있는 품목(냉장 프레임·소금 자루)은 하늘색, 배설물 태그(`animals.wasteTag`) 품목(똥·폐기물)은 갈색이며 기차·시장·작업대 보드와 드래그 고스트에 같이 적용한다. 색은 기초데이터 `presentation.inventory.refrigerationOutline`·`wasteOutline`이다.
@@ -81,7 +81,7 @@
 
 - 분석 로그 schemaVersion 3는 구매·판매·재배치의 의미와 drag/quick_transfer 방식을 분리한다. 시작 상태와 행동별 관측 변화(도시·자금·화물칸 수·위치·가치·내구도), 명시적 실패, 소문, 승패/재시작 경계를 기록한다. introduced는 생성 시각이 아닌 최초 관측이며 숨은 시장은 방문 시 관측한다. 적용 테이블 원본은 해시별 Rules 파일이다. 외부 복원 순서·좌표·결측/실패 해석은 [PLAY_LOG](PLAY_LOG.md), 보관은 [TELEMETRY](TELEMETRY.md)를 따른다. 집계는 외부에서 수행하며 이 변경의 컴파일·플레이 확인은 수행하지 않았다.
 
-- 분석 로그 schemaVersion 5는 `rumor_learned`의 `kind`에 `action`을 추가하고 `actionId`로 행동을 식별한다. 서버 소비자 호환 여부는 미확인이다.
+- 분석 로그 schemaVersion 6: 작업대 보드(`workbench:<cityId>:<actionId>`)를 관측하고 작업대 확정·대기, 화차 냉장 설치(`install_wagon_modification`), 화차 순서 변경(`reorder_wagon`), 증차 상품 ID, 같은 ID 품목 변화(`transformed`), 경유역 정차 토글(`route_stop_changed`), 역 하위 화면(`station_screen`)을 기록한다. `butchery_committed`·`butchery_ready`는 없앴고 호버 툴팁은 `panel_visibility`에서 뺐다. 컴파일만 확인했고 플레이로 로그를 뽑아 보지는 않았다. 서버 소비자 호환 여부는 미확인이다.
 - 거래 예상 금액과 결제는 `PuzzleInventoryService.TryQuoteTrade`를 공유한다. 구매·판매 모두 신선도 반영 실제 가치에 합산한 도시 배율과 지역 물가(현재 모두 100%)를 곱하고 최종 반올림한다. 미사용 `rareValue` DTO·검증 예외·거래 분기는 제거했다.- 앞선 재구매 예상가 조사에는 정정이 있다. 기존 Presenter가 시장 물품을 기본 가치로 보정하므로 항상 잘못 결제되는 상태는 아니었다. 현재는 시장에서도 보존된 실제 가치를 표시하고 구매 예상은 공유 견적의 기본 가치 기준을 쓴다.
 - 툴팁에 기본 가치와 현재 배치의 정산 1회 효과를 추가하고 가능한 효과 설명과 구분했다. 새 행은 프리팹(`Assets/Art/PuzzleItemTooltip.prefab`)에 저장하며 배치는 프리팹에서 수정한다. 런타임에 행을 생성하지 않는다.
 - 일반 효과 행은 기차의 현재 Placement와 세션에서 읽은 진행도를 설명 아래 녹색 한 줄로 덧붙인다. 번식은 붙어 있는 쌍이 있을 때만 그 쌍의 진행도를 쓰고 짝이 없으면 0으로 표시하며, 성장은 성장 품목만 own 시계를 보인다. 시장·도축·개조 보드에는 진행도를 보여주지 않고 배설·가치 정산에는 진행도 행이 없다.
@@ -101,7 +101,8 @@
 K=28 잠정치의 금융마을까지 최단 이동 합은 카르포트 27시간, 테라그라드 30시간, 포르베르 32시간, 에른아 공업역 35시간, 노르노바 36시간, 헤일포드 41시간이다. 대기·거래·자금 및 실제 플레이 가능성은 포함하지 않는다. 단일 레일은 3~26시간이다. 경제·야간 동선 밸런스는 플레이 검증 전 잠정 상태다.
 
 - 로컬 기획서는 시간·지도·UI와 동물 시너지 규칙을 반영한다. 노션 접근이 막혀 지도·시간·UI와 6장의 동물·냉장 규칙이 미동기화 상태다. 공통 기준은 유지한다. [동기화 규칙](NOTION_SYNC.md)
-- Unity CLI로 지도 프리팹과 역 메뉴 씬을 편집·저장했다. 커밋 전 Visual Studio의 Remove and Sort와 ProjectValidation의 검증 본체를 적용했다. 테이블은 정상이며 기존 Preload·Title 빌드 목록 누락과 Input Handling Both 안내가 남아 있다.
+- Unity CLI로 지도 프리팹과 역 메뉴 씬을 편집·저장했다. 커밋 전 Visual Studio의 Remove and Sort와 ProjectValidation의 검증 본체를 적용했다. 테이블은 정상이며 Input Handling Both 안내가 남아 있다.
+- 빌드 씬은 Preload → Title → Game 모두 활성이다. Preload의 `PreloadController`가 `AppBootstrap`으로 LogKit 설정·분석 로그 세션·테이블 로드/검증을 한 번에 하고(LogKit 수집·전송 설정은 Preload `LogKit` 오브젝트의 GameLogger Inspector), 테이블이 올바를 때만 `FlowTableData`의 다음 씬(Title)으로 넘어간다. Title은 시작(→ Game)·종료 버튼만 있다(`Assets/Art/UI/Title/TitleScreen.prefab`, 문구 `presentation.title.*`). 에디터 Play는 `Tools/MyJG/Play From Preload`(기본 켬)로 항상 Preload에서 시작해 Play 직전에 열려 있던 씬으로 돌아간다. 끄거나 빌드 첫 씬이 아닌 씬으로 시작하면 `AppBootstrap`이 첫 씬 Awake 전에 같은 준비를 하고 경고를 남긴다. 컴파일·테이블 검증·씬 참조만 확인했고 플레이 확인은 하지 않았다.
 - 플레이·입력 실험·캡처는 수행하지 않았다. 남은 확인은 [BACKLOG](BACKLOG.md)에서 관리한다.
 - 기술·운영 계약은 [관리 문서 안내](README.md)를 따른다.
 

@@ -57,9 +57,9 @@ Unity 6.3 LTS(6000.3.22f1) URP 기반의 기차 화물 거래 게임. 작업 규
 
 ## 중요한 제약
 
-- 분석 로그는 schemaVersion 5다. `rumor_learned`에 행동 소문의 `kind=action`과 `actionId`를 기록한다. 원본 행과 적용 테이블을 LogKit Data와 로컬 `Telemetry`에 보관하고 외부에서 집계한다. 서버 소비자 호환 여부는 미확인이다. [로그 계약](Docs/Management/PLAY_LOG.md)
+- 분석 로그는 schemaVersion 6이다. 작업대·화차 행동, 작업대 보드 관측, `transformed`를 기록한다. 집계·시각화는 별도 저장소 `logkit-analytics-trainventory`다. 원본 행과 적용 테이블을 LogKit Data와 로컬 `Telemetry`에 보관하고 외부에서 집계한다. 서버 소비자 호환 여부는 미확인이다. [로그 계약](Docs/Management/PLAY_LOG.md)
 
-- `FlowTableData`에는 Preload·Title·Game이 있지만 빌드는 Game만 활성이다. ProjectValidation의 Preload·Title 빌드 목록 누락이 남아 있고 진입·전환 흐름도 미연결이다.
+- 빌드 씬은 Preload → Title → Game 모두 활성이다. Preload의 `PreloadController`가 `AppBootstrap`으로 LogKit 설정·분석 로그 세션·테이블 로드/검증을 한 번에 하고, 테이블이 올바를 때만 `FlowTableData`의 다음 씬(Title)으로 넘어간다. Title은 시작(→ Game)·종료 버튼만 있다(`Assets/Art/UI/Title/TitleScreen.prefab`, 문구 `presentation.title.*`). 에디터 Play는 `Tools/MyJG/Play From Preload`(기본 켬)로 항상 Preload에서 시작해 Play 직전에 열려 있던 씬으로 돌아간다. 끄거나 빌드 첫 씬이 아닌 씬으로 시작하면 `AppBootstrap`이 첫 씬 Awake 전에 같은 준비를 하고 경고를 남긴다. 컴파일·테이블 검증·씬 참조만 확인했고 플레이 확인은 하지 않았다.
 - 테스트·플레이·입력 실험·캡처는 사용자 요청 시에만 실행한다. 임시 지역 맵·시간 소비·거래 경계·클리어 흐름의 남은 사용자 확인은 BACKLOG를 본다.
 - 번식·배설 진행과 공간 부족 대기는 현재 판의 씬 로컬 상태에서만 보관한다. 툴팁 진행도와 공간 부족 알림은 그 상태를 그대로 읽으며, 시간 진행은 객차·상태 사본에서 흘러 미리보기가 원본을 바꾸지 않는다. 배설·성장·출산의 플레이 확인은 [BACKLOG](Docs/Management/BACKLOG.md)에 남겼다.
 - 소·송아지는 소유 시각부터 3시간마다 같은 객차의 곡물 하나를 소비해 소는 번식 쌍에 12시간, 송아지는 자신의 성장에 24시간을 더한다. 섭취마다 성장·출산과 공간 부족을 즉시 처리하며, 두 부모의 섭취는 각각 쌍에 반영된다. 설명·진행도는 툴팁에 표시하고 소모·가속은 시간 진행 사본에서 함께 확정한다. Unity 컴파일·플레이 확인은 남아 있다.
