@@ -892,12 +892,8 @@ public sealed class PuzzleMapView : PanelBase
         }
         tooltipStatRows.Add(("소요시간", Presentation.PuzzleMapTime(_eval.TravelMinutes)));
 
-        string fareText = $"{_eval.Cost:N0}$";
-        if (_eval.Failure == PuzzleTravelFailure.InsufficientFunds)
-        {
-            fareText = $"<color=#{ColorUtility.ToHtmlStringRGB(Presentation.PuzzleTooltipRed)}>{fareText}</color>";
-        }
-        tooltipStatRows.Add(("운임", fareText));
+        string fareText = $"<color=#{ColorUtility.ToHtmlStringRGB(Presentation.PuzzleTooltipRed)}>{_eval.Cost:N0}$</color>";
+        tooltipStatRows.Add(("운임비", fareText));
 
         long arrivalTime = _session.ElapsedTime + _eval.TravelMinutes;
         string arrivalStr = Presentation.GameTimestamp(arrivalTime);
