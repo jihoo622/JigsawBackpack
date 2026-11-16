@@ -24,6 +24,7 @@ public sealed class PuzzleTrainBarView : MonoBehaviour, IBeginDragHandler, IDrag
     [SerializeField] WagonSlotUI[] wagonSlots;
     [SerializeField] bool fitRotatedWagonArtwork;
     [SerializeField] Image wagonDragPreview;
+    [SerializeField] Vector2 wagonDragPreviewOffset;
 
     [Header("Layout Settings")]
     [SerializeField] float wagonWidth = 150f;
@@ -150,11 +151,16 @@ public sealed class PuzzleTrainBarView : MonoBehaviour, IBeginDragHandler, IDrag
 
     public void OnDrag(PointerEventData _eventData)
     {
-        if (draggedWagonIndex.HasValue && _eventData.pointerId == dragPointerId &&
-            RectTransformUtility.ScreenPointToWorldPointInRectangle(wagonDragPreview.rectTransform,
+        if (!draggedWagonIndex.HasValue || _eventData.pointerId != dragPointerId)
+        {
+            return;
+        }
+
+        var parent = wagonDragPreview.rectTransform.parent as RectTransform;
+        if (parent != null && RectTransformUtility.ScreenPointToWorldPointInRectangle(parent,
                 _eventData.position, _eventData.pressEventCamera, out var position))
         {
-            wagonDragPreview.rectTransform.position = position;
+            wagonDragPreview.rectTransform.position = position + parent.TransformVector(wagonDragPreviewOffset);
         }
     }
 

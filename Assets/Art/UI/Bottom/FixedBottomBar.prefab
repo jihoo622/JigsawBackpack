@@ -898,6 +898,7 @@ MonoBehaviour:
     numberText: {fileID: 1159675162450243618}
   fitRotatedWagonArtwork: 1
   wagonDragPreview: {fileID: 4449596381695363578}
+  wagonDragPreviewOffset: {x: 0, y: 13}
   wagonWidth: 124
   wagonHeight: 56
   wagonSpacing: 50
