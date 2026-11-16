@@ -1,6 +1,6 @@
 {
   "status": "sample",
-  "note": "마을별 추가 행동. cityIds에 지정한 마을의 역에서만 버튼이 보인다. 작업 시간·변환 관계·확인 1회당 비용(cost)은 이 표가 원본이다. 개조(Modification)는 작업 시간이 지난 뒤 결과를 수령한다. 모드별로 입력→출력 품목은 1:1이고 비용은 모드별 cost가 원본이다. 정제(Refining)는 변환표에 등록한 품목 ID만 입력이 되고, 입력 하나의 산출을 minOutputCount~maxOutputCount 범위(양 끝 포함)에서 무작위 확정한다. 정제 시간·비용은 미확정 제안값으로 도축과 동일하게 둔다.",
+  "note": "마을별 추가 행동. cityIds에 지정한 마을의 역에서만 버튼이 보인다. 작업 시간·변환 관계·확인 1회당 비용(cost)은 이 표가 원본이다. 개조(Modification)는 작업 시간이 지난 뒤 결과를 수령한다. 모드별로 입력→출력 품목은 1:1이고 비용은 모드별 cost가 원본이다. 정제(Refining)는 변환표에 등록한 품목 ID만 입력이 되고, 입력 하나당 outputCount개의 산출물을 생성한다. 정제 시간·비용은 미확정 제안값으로 도축과 동일하게 둔다.",
   "actions": [
     {
       "id": "action.butchery",
@@ -29,8 +29,8 @@
       "inputTag": "Ore",
       "outputTag": "Metal",
       "conversions": [
-        { "inputPieceId": "piece.oreCross", "outputPieceId": "piece.metalIngot", "minOutputCount": 4, "maxOutputCount": 6 },
-        { "inputPieceId": "piece.oreL", "outputPieceId": "piece.metalIngot", "minOutputCount": 2, "maxOutputCount": 4 }
+        { "inputPieceId": "piece.oreCross", "outputPieceId": "piece.metalIngot", "outputCount": 5 },
+        { "inputPieceId": "piece.oreL", "outputPieceId": "piece.metalIngot", "outputCount": 3 }
       ]
     },
     {

@@ -1123,7 +1123,7 @@ public sealed class GameTableRules
     }
 
     // 정제 변환 규칙. 입력 허용은 태그 단독이 아니라 변환표에 등록한 품목 ID가 기준이고,
-    // 입력 하나의 산출 개수는 minOutputCount~maxOutputCount 범위로 표가 원본이다. outputCount는 쓰지 않는다.
+    // 입력 하나의 고정 산출 개수는 표의 outputCount가 원본이다.
     void ValidateRefiningConversions(TableManager _tables, PuzzleCityActionData _action,
         PuzzleBoardData _board, string _path)
     {
@@ -1152,21 +1152,17 @@ public sealed class GameTableRules
             {
                 outputPieceIds.Add(conversion.outputPieceId);
             }
-            Check(conversion.outputCount < 0, conversionPath + ".outputCount",
-                "정제 변환은 수량을 minOutputCount·maxOutputCount로 표현하므로 outputCount를 두지 않습니다.");
-            Check(conversion.minOutputCount > 0, conversionPath + ".minOutputCount",
-                "정제 최소 산출 개수는 0보다 커야 합니다.");
-            Check(conversion.maxOutputCount >= conversion.minOutputCount, conversionPath + ".maxOutputCount",
-                "정제 최대 산출 개수는 최소 산출 개수 이상이어야 합니다.");
+            Check(conversion.outputCount > 0, conversionPath + ".outputCount",
+                "정제 산출 개수는 0보다 커야 합니다.");
             Check(hasInput && (inputPiece.tags ?? Array.Empty<string>()).Contains(_action.inputTag),
                 conversionPath + ".inputPieceId", "입력 화물은 입력 태그를 가져야 합니다.");
             Check(hasOutput && (outputPiece.tags ?? Array.Empty<string>()).Contains(_action.outputTag),
                 conversionPath + ".outputPieceId", "산출 화물은 산출 태그를 가져야 합니다.");
-            if (hasOutput && conversion.maxOutputCount > 0 && _board != null && _board.width > 0 && _board.height > 0)
+            if (hasOutput && conversion.outputCount > 0 && _board != null && _board.width > 0 && _board.height > 0)
             {
-                long outputSlots = (long)conversion.maxOutputCount * Math.Max(outputPiece.slotCount, 1);
-                Check(outputSlots <= (long)_board.width * _board.height, conversionPath + ".maxOutputCount",
-                    "최대 산출 개수를 빈 작업 보드에 모두 놓을 수 있어야 합니다.");
+                long outputSlots = (long)conversion.outputCount * Math.Max(outputPiece.slotCount, 1);
+                Check(outputSlots <= (long)_board.width * _board.height, conversionPath + ".outputCount",
+                    "산출물을 빈 작업 보드에 모두 놓을 수 있어야 합니다.");
             }
         }
 

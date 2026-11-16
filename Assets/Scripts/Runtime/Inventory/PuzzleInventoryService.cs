@@ -20,8 +20,6 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
     readonly List<TavernRumor> tavernRumors = new List<TavernRumor>();
     int lastRumorVisit = -1;
     System.Random stockRandom = new System.Random();
-    // 정제 산출 수량 전용 난수원. 시장 재고의 stockRandom 순서를 바꾸지 않는다.
-    System.Random refiningRandom = new System.Random();
 
     internal readonly struct TavernRumor
     {
@@ -2201,7 +2199,8 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
     {
         foreach (var conversion in _action.conversions ?? Array.Empty<PuzzleActionConversionData>())
         {
-            if (conversion == null || !string.Equals(conversion.inputPieceId, _pieceId, StringComparison.Ordinal))
+            if (conversion == null || conversion.outputCount <= 0 || string.IsNullOrEmpty(conversion.outputPieceId) ||
+                !string.Equals(conversion.inputPieceId, _pieceId, StringComparison.Ordinal))
             {
                 continue;
             }
@@ -2846,8 +2845,8 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         return TryEvaluateRefining(string.IsNullOrEmpty(_cityId) ? CurrentCityId : _cityId, out _);
     }
 
-    // 확인 버튼의 조건과 사유를 한 곳에서 정한다. 반복 조회해도 상태·돈·난수는 바뀌지 않는다.
-    // 공간 검사는 최대 산출 기준으로 해서 완료 후 산출물을 잃는 상황을 막는다.
+    // 확인 버튼의 조건과 사유를 한 곳에서 정한다. 반복 조회해도 상태·돈은 바뀌지 않는다.
+    // 고정 산출물이 빈 작업 보드에 모두 들어가는지 검사한다.
     bool TryEvaluateRefining(string _cityId, out string _reason)
     {
         _reason = null;
@@ -2879,26 +2878,22 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
             return false;
         }
 
-        var maxOutputs = new List<string>();
+        var outputs = new List<string>();
         foreach (var placement in state.Board.Placements)
         {
             // 입력 허용은 변환표에 등록한 품목 ID가 기준이다. Ore 태그를 갖지만 입력으로 등록되지 않은
             // 금속 주괴는 noConversion으로, 태그 자체가 없는 화물은 notOre로 막는다.
-            if (!TryFindRefiningConversion(state.Action, placement.Definition.Id, out var conversion))
+            if (!TryCollectOutputs(state.Action, placement.Definition.Id, outputs))
             {
                 _reason = placement.Definition.Tags.Contains(state.Action.inputTag)
                     ? BasicData.Format("rules.refining.noConversion", placement.Definition.DisplayName)
                     : BasicData.Format("rules.refining.notOre", placement.Definition.DisplayName);
                 return false;
             }
-            for (int i = 0; i < conversion.maxOutputCount; i++)
-            {
-                maxOutputs.Add(conversion.outputPieceId);
-            }
         }
 
-        // 모든 입력의 최대 산출 합이 빈 보드에 모두 들어갈 때만 확인을 허용한다.
-        if (!TryFitsOutputs(state.Action, maxOutputs))
+        // 모든 입력의 고정 산출 합이 빈 보드에 모두 들어갈 때만 확인을 허용한다.
+        if (!TryFitsOutputs(state.Action, outputs))
         {
             _reason = BasicData.Text("rules.refining.noSpace");
             return false;
@@ -2951,20 +2946,15 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
             return false;
         }
 
-        // 성공 확인 후에만 난수를 쓴다. 인스턴스 ID의 결정적 순서로 품목별 범위에서 독립적으로 한 번씩 추첨한다.
+        // 인스턴스 ID순으로 테이블의 고정 산출물을 예약한다.
         var inputs = state.Board.Placements.OrderBy(_placement => _placement.InstanceId).ToArray();
         var outputs = new List<string>();
         foreach (var placement in inputs)
         {
-            if (!TryFindRefiningConversion(state.Action, placement.Definition.Id, out var conversion))
+            if (!TryCollectOutputs(state.Action, placement.Definition.Id, outputs))
             {
                 _reason = BasicData.Format("rules.refining.noConversion", placement.Definition.DisplayName);
                 return false;
-            }
-            int count = refiningRandom.Next(conversion.minOutputCount, conversion.maxOutputCount + 1);
-            for (int i = 0; i < count; i++)
-            {
-                outputs.Add(conversion.outputPieceId);
             }
         }
 
@@ -2984,26 +2974,6 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         NotifyRefining(state);
         GameEvents.RaiseFundsChanged(this, previousFunds);
         return true;
-    }
-
-    // 입력 품목 ID의 정제 변환. 변환표 등록이 허용 기준이며 산출 금속은 입력으로 등록되지 않는다.
-    static bool TryFindRefiningConversion(PuzzleCityActionData _action, string _pieceId,
-        out PuzzleActionConversionData _conversion)
-    {
-        foreach (var conversion in _action.conversions ?? Array.Empty<PuzzleActionConversionData>())
-        {
-            if (conversion != null && conversion.minOutputCount > 0 &&
-                conversion.maxOutputCount >= conversion.minOutputCount &&
-                !string.IsNullOrEmpty(conversion.outputPieceId) &&
-                string.Equals(conversion.inputPieceId, _pieceId, StringComparison.Ordinal))
-            {
-                _conversion = conversion;
-                return true;
-            }
-        }
-
-        _conversion = null;
-        return false;
     }
 
     // 시간이 흐른 뒤 완료된 정제를 처리한다. 조회 시점에도 같은 판정을 하므로 지연 판정이다.

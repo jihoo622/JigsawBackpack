@@ -1491,6 +1491,10 @@
           "arguments": 3
         },
         {
+          "id": "refiningRumorAction",
+          "value": "광물 정제"
+        },
+        {
           "id": "actionsTitle",
           "value": "역에서 할 일"
         },
