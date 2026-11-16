@@ -321,6 +321,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
     internal long ElapsedTime => Time.ElapsedMinutes;
     internal PuzzleRegionData RegionData => tables.Region(CityData.regionId);
     internal long MarketCapacity { get; private set; }
+    long marketStockCount;
     internal IReadOnlyCollection<PuzzleItemDefinition> ItemDefinitions { get; private set; }
 
     // 경제 분석이 같은 시장 재고를 재현할 때 Initialize 전에 호출한다.
@@ -358,10 +359,12 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         }
         var cityMarkets = new Dictionary<string, PuzzleInventory>(StringComparer.Ordinal);
         long marketCapacity = 0;
+        marketStockCount = 0;
         foreach (var city in validatedTables.Cities)
         {
             var market = CreateMarket(city.id, ref lastInstanceId);
             cityMarkets.Add(city.id, market);
+            marketStockCount += market.Placements.Count;
             marketCapacity = Math.Max(marketCapacity, (long)market.Width * market.Height);
         }
 
@@ -489,10 +492,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
 
         if (failure == PuzzleTravelFailure.None)
         {
-            long replacementStockCount = IsPassingThrough ? 0 : ((long)tables.MarketStartingPlacements(fromCityId).Count +
-                tables.StockProfile(CityData.regionalStockId).slots.Length +
-                tables.StockProfile(CityData.generalStockId).slots.Length);
-            if (CityMoveCount == int.MaxValue || _plan.lastInstanceId + replacementStockCount > int.MaxValue)
+            if (CityMoveCount == int.MaxValue)
             {
                 return new PuzzleTravelResult(PuzzleTravelFailure.TimeOverflow);
             }
@@ -614,6 +614,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         internal Dictionary<(int First, int Second), long> combinationProgress;
         internal Dictionary<int, long> feedingProgress;
         internal int lastInstanceId;
+        internal long marketRestocks;
         internal decimal? cargoValueBeforeSettlement;
         internal decimal? cargoValueBeforeFreshnessLoss;
 
@@ -649,6 +650,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
             var waste = definitions[animals.wastePieceId];
             var expiredFood = definitions[ExpiredFoodPieceId];
             long animalEventsThrough = Time.HasDeadline ? Math.Min(arrival, Time.DeadlineMinutes) : arrival;
+            plan.marketRestocks = Time.DaylightOpeningsThrough(animalEventsThrough);
             long breedingMinutes = (long)animals.breedingHours * PuzzleTimeManager.MINUTES_PER_HOUR;
             long wasteMinutes = (long)animals.wasteIntervalDays * PuzzleTimeManager.MINUTES_PER_DAY;
             long holdMinutes = (long)animals.completionHoldHours * PuzzleTimeManager.MINUTES_PER_HOUR;
@@ -660,6 +662,9 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
             long cursor = Time.ElapsedMinutes;
             var growth = new List<PuzzleGrowth>();
             var selectedWagon = wagons[CurrentWagonIndex];
+            decimal[] initialWagonValues = wagons
+                .Select(_wagon => _wagon.Placements.Sum(_item => _item.FreshnessAdjustedValue))
+                .ToArray();
             bool settledSelectedWagon = false;
             decimal freshnessDelta = 0;
             // 이전 행동으로 공간이 확보된 경우 첫 경계를 기다리지 않고 대기를 푼다. 마지막 대기 시간은 이번 진행부터 다시 흐른다.
@@ -749,6 +754,13 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
                 cursor = boundary;
             }
 
+            for (int i = 0; i < wagons.Length; i++)
+            {
+                if (wagons[i].Placements.Sum(_item => _item.FreshnessAdjustedValue) != initialWagonValues[i])
+                {
+                    wagons[i].HasUnreadEventNotice = true;
+                }
+            }
             if (settledSelectedWagon)
             {
                 plan.cargoValueBeforeSettlement = Train.Placements.Sum(_item => _item.FreshnessAdjustedValue);
@@ -757,6 +769,10 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
             {
                 plan.cargoValueBeforeFreshnessLoss =
                     selectedWagon.Placements.Sum(_item => _item.FreshnessAdjustedValue) - freshnessDelta;
+            }
+            if (marketStockCount > 0 && plan.marketRestocks > (int.MaxValue - plan.lastInstanceId) / marketStockCount)
+            {
+                return PuzzleTravelFailure.TimeOverflow;
             }
             _plan = plan;
             return PuzzleTravelFailure.None;
@@ -904,6 +920,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         {
             first.HasUnreadSpaceNotice = true;
             second.HasUnreadSpaceNotice = true;
+            first.Owner.HasUnreadEventNotice = true;
         }
     }
 
@@ -1059,7 +1076,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         while (_elapsed >= _breedingMinutes)
         {
             if (!_pair.wagon.TryAutoPlaceAll(_pair.offspring, _pair.offspringCount, ref _plan.lastInstanceId,
-                _allowRotation: true))
+                _allowRotation: true, _markUnread: true))
             {
                 _pair.RaiseSpaceNotice();
                 return new BreedingState(_breedingMinutes - _holdMinutes, true);
@@ -1253,7 +1270,8 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
                 bool blocked = false;
                 if (elapsed >= _cycleMinutes)
                 {
-                    if (wagon.TryAutoPlaceAll(_waste, _animals.wasteCountPerAnimal, ref _plan.lastInstanceId))
+                    if (wagon.TryAutoPlaceAll(_waste, _animals.wasteCountPerAnimal, ref _plan.lastInstanceId,
+                        _markUnread: true))
                     {
                         elapsed %= _cycleMinutes;
                     }
@@ -1444,6 +1462,13 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         feedingProgress = _plan.feedingProgress;
         PruneAnimalStates();
         lastInstanceId = _plan.lastInstanceId;
+        for (long opening = 0; opening < _plan.marketRestocks; opening++)
+        {
+            foreach (var city in tables.Cities)
+            {
+                markets[city.id] = CreateMarket(city.id, ref lastInstanceId);
+            }
+        }
         Time.Advance(_minutes);
         if (Time.IsOverdue)
         {
@@ -1497,11 +1522,6 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         }
 
         long duration = evaluation.TravelMinutes;
-        if (!IsPassingThrough)
-        {
-            var replacementMarket = CreateMarket(evaluation.FromCityId, ref plan.lastInstanceId);
-            markets[evaluation.FromCityId] = replacementMarket;
-        }
         long previousFunds = Funds;
         Funds -= evaluation.Cost;
         currentCityId = evaluation.ToCityId;
