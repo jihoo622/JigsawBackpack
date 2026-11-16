@@ -225,8 +225,8 @@ public sealed class PuzzleInventoryView : MonoBehaviour
                 : Presentation.PuzzlePiece;
             index = RenderPose(placementSlots, index, placement.Pose, Vector2.zero, color,
                 iconIndex[placement.Definition.VisualKey].sprite, placement.Definition.IconSize, placement.Definition.IconOffset,
-                // 가치 변동과 공간 부족은 별도 상태지만 같은 알림 아이콘을 쓴다. 읽지 않은 쪽이 남아 있으면 아이콘은 유지한다.
-                placement.FreshnessPercent, placement.HasUnreadSynergySettlement || placement.HasUnreadSpaceNotice,
+                // 가치 변동, 공간 부족, 새로 생성된 산출물은 별도 상태지만 같은 알림 아이콘을 쓴다. 읽지 않은 쪽이 남아 있으면 아이콘은 유지한다.
+                placement.FreshnessPercent, placement.HasUnreadNotice,
                 Presentation.PuzzlePieceAccentOutline(placement.Definition, color.a));
         }
 

@@ -509,6 +509,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             {
                 RefreshFunds();
             }
+            RefreshTrainBar();
         }
     }
 
@@ -1254,11 +1255,13 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
                 previewName, previewActivations, price, isTrain ? PuzzleSynergyBonus.GroupByNeighbor(value.SynergyBonuses) : null,
                 isTrain ? session.AppliedPreservationPercent(_placement) : 0, isActionBoard);
             // 툴팁을 열면 미확인 알림만 지운다. 실제로 대기 중인 진행도와 빨간 표시는 상태가 풀릴 때까지 남는다.
-            if ((_placement.HasUnreadSynergySettlement || _placement.HasUnreadSpaceNotice) && tooltipView.IsOpen)
+            if (_placement.HasUnreadNotice && tooltipView.IsOpen)
             {
                 _placement.HasUnreadSynergySettlement = false;
                 _placement.HasUnreadSpaceNotice = false;
+                _placement.HasUnreadSpawnNotice = false;
                 RenderBoards(_placement.InstanceId);
+                RefreshTrainBar();
             }
         }
 
@@ -1556,6 +1559,10 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
     void RefreshTrainBar()
     {
         RefreshWagonRefrigeration();
+        if (!TrainOperationsBlocked && session?.Train != null)
+        {
+            session.Train.HasUnreadEventNotice = false;
+        }
         if (trainBarView && session != null)
         {
             trainBarView.Refresh(session.TrainWagons, session.CurrentWagonIndex, hoveredWagonIndex);

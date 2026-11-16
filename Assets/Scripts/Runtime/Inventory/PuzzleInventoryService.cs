@@ -645,6 +645,9 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
             long cursor = Time.ElapsedMinutes;
             var growth = new List<PuzzleGrowth>();
             var selectedWagon = wagons[CurrentWagonIndex];
+            decimal[] initialWagonValues = wagons
+                .Select(_wagon => _wagon.Placements.Sum(_item => _item.FreshnessAdjustedValue))
+                .ToArray();
             bool settledSelectedWagon = false;
             decimal freshnessDelta = 0;
             // 이전 행동으로 공간이 확보된 경우 첫 경계를 기다리지 않고 대기를 푼다. 마지막 대기 시간은 이번 진행부터 다시 흐른다.
@@ -711,6 +714,13 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
                 cursor = boundary;
             }
 
+            for (int i = 0; i < wagons.Length; i++)
+            {
+                if (wagons[i].Placements.Sum(_item => _item.FreshnessAdjustedValue) != initialWagonValues[i])
+                {
+                    wagons[i].HasUnreadEventNotice = true;
+                }
+            }
             if (settledSelectedWagon)
             {
                 plan.cargoValueBeforeSettlement = Train.Placements.Sum(_item => _item.FreshnessAdjustedValue);
@@ -870,6 +880,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         {
             first.HasUnreadSpaceNotice = true;
             second.HasUnreadSpaceNotice = true;
+            first.Owner.HasUnreadEventNotice = true;
         }
     }
 
@@ -985,7 +996,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
             {
                 // 같은 시각의 배설·성장이 끝난 배치에 출산하고, 산출물이 전부 들어갈 때만 진행을 넘긴다.
                 if (pair.wagon.TryAutoPlaceAll(pair.offspring, pair.offspringCount, ref _plan.lastInstanceId,
-                    _allowRotation: true))
+                    _allowRotation: true, _markUnread: true))
                 {
                     elapsed %= _breedingMinutes;
                 }
@@ -1067,7 +1078,8 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
                 bool blocked = false;
                 if (elapsed >= _cycleMinutes)
                 {
-                    if (wagon.TryAutoPlaceAll(_waste, _animals.wasteCountPerAnimal, ref _plan.lastInstanceId))
+                    if (wagon.TryAutoPlaceAll(_waste, _animals.wasteCountPerAnimal, ref _plan.lastInstanceId,
+                        _markUnread: true))
                     {
                         elapsed %= _cycleMinutes;
                     }

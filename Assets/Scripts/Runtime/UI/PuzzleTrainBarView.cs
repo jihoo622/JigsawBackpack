@@ -17,6 +17,7 @@ public sealed class PuzzleTrainBarView : MonoBehaviour, IBeginDragHandler, IDrag
         public Image wagonImage;
         public Image highlightBorder;
         public TextMeshProUGUI numberText;
+        public TextMeshProUGUI synergyNotice;
     }
 
     [Header("Slots Pool")]
@@ -274,9 +275,31 @@ public sealed class PuzzleTrainBarView : MonoBehaviour, IBeginDragHandler, IDrag
             }
 
             RefreshSlotHighlight(slot, i, _selectedIndex, _dragHoveredIndex);
+            RefreshSlotSynergyNotice(slot, _wagons[i], i == _selectedIndex);
         }
 
         LayoutButtons();
+    }
+
+    static void RefreshSlotSynergyNotice(WagonSlotUI _slot, PuzzleInventory _wagon, bool _isSelected)
+    {
+        var notice = ResolveSynergyNotice(_slot);
+        if (notice == null)
+        {
+            return;
+        }
+
+        notice.color = Presentation.PuzzleSynergyNotice;
+        notice.enabled = !_isSelected && _wagon.HasUnreadEventNotice;
+    }
+
+    static TextMeshProUGUI ResolveSynergyNotice(WagonSlotUI _slot)
+    {
+        if (!_slot.synergyNotice && _slot.root)
+        {
+            _slot.synergyNotice = _slot.root.transform.Find("SynergyNotice")?.GetComponent<TextMeshProUGUI>();
+        }
+        return _slot.synergyNotice;
     }
 
     // 미보유 칸은 아무것도 보이지 않는다. 화차 카드를 드래그하는 동안 다음 빈 칸 하나만
@@ -301,6 +324,10 @@ public sealed class PuzzleTrainBarView : MonoBehaviour, IBeginDragHandler, IDrag
         if (_slot.wagonImage != null)
         {
             _slot.wagonImage.enabled = false;
+        }
+        if (ResolveSynergyNotice(_slot) is { } notice)
+        {
+            notice.enabled = false;
         }
         if (_slot.numberText != null)
         {

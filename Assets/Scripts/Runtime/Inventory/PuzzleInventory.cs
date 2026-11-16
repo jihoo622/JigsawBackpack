@@ -18,6 +18,7 @@ public sealed class PuzzleInventory
     public IReadOnlyCollection<PuzzlePlacement> Placements => placements.Values;
     internal IReadOnlyCollection<PuzzleWagonModification> WagonModifications => wagonModifications.Values;
     internal PuzzleValue Value => valuation.Total;
+    internal bool HasUnreadEventNotice { get; set; }
 
     internal PuzzleInventory(PuzzleBoardData _board, IReadOnlyList<PuzzleStartingPlacementData> _startingPlacements,
         IReadOnlyDictionary<string, PuzzleItemDefinition> _definitions, IReadOnlyList<PuzzleSynergyRuleData> _synergyRules,
@@ -100,6 +101,7 @@ public sealed class PuzzleInventory
             }
         }
         valuation = _staged.valuation;
+        HasUnreadEventNotice |= _staged.HasUnreadEventNotice;
     }
 
     PuzzlePlacement CopyPlacement(PuzzlePlacement _placement)
@@ -119,6 +121,7 @@ public sealed class PuzzleInventory
         {
             HasUnreadSynergySettlement = _source.HasUnreadSynergySettlement,
             HasUnreadSpaceNotice = keepsSpaceNotice && _source.HasUnreadSpaceNotice,
+            HasUnreadSpawnNotice = _source.HasUnreadSpawnNotice,
             GrowthElapsedMinutes = keepsGrowth ? _source.GrowthElapsedMinutes : (_source.OwnedMinutes < 0 ? -1 : 0),
             GrowthSpaceBlocked = keepsGrowth && _source.GrowthSpaceBlocked
         };
@@ -143,6 +146,10 @@ public sealed class PuzzleInventory
             decimal before = placement.ActualValue;
             placement.ApplySynergySettlement((value.FinalValue - value.BaseValue) * _count);
             changed |= before != placement.ActualValue;
+        }
+        if (changed)
+        {
+            HasUnreadEventNotice = true;
         }
         return changed;
     }
@@ -237,7 +244,8 @@ public sealed class PuzzleInventory
         var grown = new PuzzlePlacement(item.InstanceId, adult, this, _growth.Pose,
             item.ActualValue + (adult.BaseValue - (decimal)item.Definition.BaseValue), item.OwnedMinutes)
         {
-            HasUnreadSynergySettlement = item.HasUnreadSynergySettlement
+            HasUnreadSynergySettlement = item.HasUnreadSynergySettlement,
+            HasUnreadSpawnNotice = item.HasUnreadSpawnNotice
         };
         ClearOccupancy(item);
         StorePlacement(grown);
@@ -307,7 +315,10 @@ public sealed class PuzzleInventory
             }
 
             ClearOccupancy(expired);
-            StorePlacement(new PuzzlePlacement(expired.InstanceId, _waste, this, pose, _waste.BaseValue, 0));
+            StorePlacement(new PuzzlePlacement(expired.InstanceId, _waste, this, pose, _waste.BaseValue, 0)
+            {
+                HasUnreadSpawnNotice = true
+            });
             replaced = true;
         }
 
@@ -412,7 +423,7 @@ public sealed class PuzzleInventory
 
     // 산출물 _count개를 전부 놓을 수 있을 때만 배치한다. 실패하면 보드는 하나도 바뀌지 않는다.
     internal bool TryAutoPlaceAll(PuzzleItemDefinition _definition, int _count, ref int _lastInstanceId,
-        bool _allowRotation = false)
+        bool _allowRotation = false, bool _markUnread = false)
     {
         if (!TryPlanAutoPlacements(_definition, _count, _allowRotation, out var poses))
         {
@@ -421,9 +432,14 @@ public sealed class PuzzleInventory
 
         foreach (var pose in poses)
         {
-            PlaceSpawnedItem(_definition, checked(++_lastInstanceId), pose);
+            var placed = PlaceSpawnedItem(_definition, checked(++_lastInstanceId), pose);
+            placed.HasUnreadSpawnNotice = _markUnread;
         }
 
+        if (_markUnread)
+        {
+            HasUnreadEventNotice = true;
+        }
         return true;
     }
 

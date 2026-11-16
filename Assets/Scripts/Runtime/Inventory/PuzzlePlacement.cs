@@ -98,6 +98,9 @@ public sealed class PuzzlePlacement
     internal bool HasUnreadSynergySettlement { get; set; }
     // 공간 부족 대기에 새로 진입한 뒤 아직 툴팁으로 확인하지 않았는지. 가치 알림과 독립적으로 둔다.
     internal bool HasUnreadSpaceNotice { get; set; }
+    // 번식·배설로 새로 생성된 뒤 아직 툴팁으로 확인하지 않았는지.
+    internal bool HasUnreadSpawnNotice { get; set; }
+    internal bool HasUnreadNotice => HasUnreadSynergySettlement || HasUnreadSpaceNotice || HasUnreadSpawnNotice;
     /// <summary>획득 후 보유 시간. 시작 지급·구매 시 0부터 시작하며 -1은 미소유·판매된 물건이다.</summary>
     public long OwnedMinutes { get; private set; }
     public decimal OwnedHours => OwnedMinutes < 0 ? -1 : OwnedMinutes / (decimal)PuzzleTimeManager.MINUTES_PER_HOUR;
@@ -199,7 +202,11 @@ public sealed class PuzzlePlacement
     // 성체가 들어갈 칸이 없어 성장을 대기한다. 진행은 대기 시작 지점에서 멈추고 시간이 흐르지 않는다.
     internal void WaitForGrowthSpace()
     {
-        HasUnreadSpaceNotice |= !GrowthSpaceBlocked;
+        if (!GrowthSpaceBlocked)
+        {
+            HasUnreadSpaceNotice = true;
+            Owner.HasUnreadEventNotice = true;
+        }
         GrowthSpaceBlocked = true;
         if (GrowthElapsedMinutes > Definition.GrowthFreezeMinutes)
         {
@@ -277,6 +284,7 @@ public sealed class PuzzlePlacement
         GrowthSpaceBlocked = false;
         HasUnreadSynergySettlement = false;
         HasUnreadSpaceNotice = false;
+        HasUnreadSpawnNotice = false;
     }
 
     /// <summary>보유 시간·성장 시계·유통기한에 반영할 경과 분을 누적한다.</summary>
@@ -305,6 +313,7 @@ public sealed class PuzzlePlacement
             }
             if (RemainingShelfLife.HasValue)
             {
+                decimal valueBefore = FreshnessAdjustedValue;
                 var age = ShelfLifeAge;
                 long sinceSettlement = (age.SinceSettlement + _minutes % _settlementInterval) % _settlementInterval;
                 long lastSettlement = _minutes - sinceSettlement;
@@ -313,6 +322,7 @@ public sealed class PuzzlePlacement
                     ? Math.Min(ShelfLifeMinutes, age.Elapsed + lastSettlement * _decayRate)
                     : age.Settled;
                 ShelfLifeAge = (Math.Min(ShelfLifeMinutes, age.Elapsed + _minutes * _decayRate), settled, sinceSettlement);
+                HasUnreadSynergySettlement |= FreshnessAdjustedValue != valueBefore;
             }
         }
     }
@@ -333,6 +343,7 @@ public sealed class PuzzlePlacement
         ShelfLifeAge = _staged.ShelfLifeAge;
         HasUnreadSynergySettlement = _staged.HasUnreadSynergySettlement;
         HasUnreadSpaceNotice = _staged.HasUnreadSpaceNotice;
+        HasUnreadSpawnNotice = _staged.HasUnreadSpawnNotice;
     }
 }
 
