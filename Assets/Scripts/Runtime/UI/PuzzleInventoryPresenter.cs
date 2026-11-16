@@ -31,7 +31,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
     [SerializeField] PuzzleTrainBarView trainBarView;
     [SerializeField] PauseMenu pauseMenu;
 
-    PuzzleInventoryInput input;
+    [SerializeField] PuzzleInventoryInput input;
     PuzzleInventoryService session;
     // 아직 상태 줄에 띄우지 않은 숙련 레벨 상승 알림.
     string pendingProficiencyNotice;
@@ -69,7 +69,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
 
     void OnEnable()
     {
-        if (!TryGetComponent(out input) || !trainView || !marketView || trainView == marketView || !cityView || !pauseMenu ||
+        if (!input || !trainView || !marketView || trainView == marketView || !cityView || !pauseMenu ||
             (butcheryView && (butcheryView == trainView || butcheryView == marketView)) ||
             (modificationView && (modificationView == trainView || modificationView == marketView ||
                 modificationView == butcheryView)) ||
