@@ -6,7 +6,8 @@ using UnityEngine.UI;
 using TMPro;
 
 [DisallowMultipleComponent]
-public sealed class PuzzleTrainBarView : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IDropHandler
+public sealed class PuzzleTrainBarView : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IDropHandler,
+    IPointerEnterHandler, IPointerMoveHandler, IPointerExitHandler
 {
     [Serializable]
     public sealed class WagonSlotUI
@@ -42,6 +43,31 @@ public sealed class PuzzleTrainBarView : MonoBehaviour, IBeginDragHandler, IDrag
     public event Action<int> WagonSelected;
     internal event Action<PuzzleWagonProductData> WagonProductDropped;
     internal event Action<int, int> WagonMoved;
+    internal event Action<int, Vector2> WagonHovered;
+    internal event Action WagonHoverEnded;
+    internal event Action<int, GameObject> OwnedWagonDragged;
+    internal event Action<int, GameObject> OwnedWagonReleased;
+    internal event Action OwnedWagonDragEnded;
+
+    public void OnPointerEnter(PointerEventData _eventData) => OnPointerMove(_eventData);
+
+    public void OnPointerMove(PointerEventData _eventData)
+    {
+        if (!_eventData.dragging && !draggedWagonIndex.HasValue && !PuzzleWagonProductRow.IsDraggingProduct &&
+            TryGetWagonAtScreenPosition(_eventData.position, out int index))
+        {
+            var slot = wagonSlots[index].rectTransform;
+            var topCenter = slot.TransformPoint(new Vector2(slot.rect.center.x, slot.rect.yMax));
+            var anchor = RectTransformUtility.WorldToScreenPoint(_eventData.enterEventCamera, topCenter);
+            WagonHovered?.Invoke(index, anchor);
+        }
+        else
+        {
+            WagonHoverEnded?.Invoke();
+        }
+    }
+
+    public void OnPointerExit(PointerEventData _eventData) => WagonHoverEnded?.Invoke();
 
     void Awake()
     {
@@ -80,6 +106,7 @@ public sealed class PuzzleTrainBarView : MonoBehaviour, IBeginDragHandler, IDrag
 
     void OnDisable()
     {
+        WagonHoverEnded?.Invoke();
         CancelWagonDrag();
     }
 
@@ -113,9 +140,9 @@ public sealed class PuzzleTrainBarView : MonoBehaviour, IBeginDragHandler, IDrag
         if (_eventData.pointerDrag == gameObject && draggedWagonIndex is int source &&
             _eventData.pointerId == dragPointerId)
         {
-            CancelWagonDrag();
-            if (TryGetWagonAtScreenPosition(_eventData.position, out int target))
+            if (TryGetWagonAtScreenPosition(_eventData.position, out int target) && source != target)
             {
+                CancelWagonDrag();
                 WagonMoved?.Invoke(source, target);
             }
             return;
@@ -131,7 +158,8 @@ public sealed class PuzzleTrainBarView : MonoBehaviour, IBeginDragHandler, IDrag
 
     public void OnBeginDrag(PointerEventData _eventData)
     {
-        if (_eventData.button != PointerEventData.InputButton.Left || ownedWagonCount < 2 ||
+        WagonHoverEnded?.Invoke();
+        if (_eventData.button != PointerEventData.InputButton.Left ||
             !wagonDragPreview || wagonDragPreview.gameObject.activeSelf ||
             !TryGetWagonAtScreenPosition(_eventData.pressPosition, out int index))
         {
@@ -162,21 +190,24 @@ public sealed class PuzzleTrainBarView : MonoBehaviour, IBeginDragHandler, IDrag
         {
             wagonDragPreview.rectTransform.position = position + parent.TransformVector(wagonDragPreviewOffset);
         }
+        OwnedWagonDragged?.Invoke(draggedWagonIndex.Value, _eventData.pointerCurrentRaycast.gameObject);
     }
 
     public void OnEndDrag(PointerEventData _eventData)
     {
-        if (_eventData.pointerId == dragPointerId)
+        if (_eventData.pointerId == dragPointerId && draggedWagonIndex is int source)
         {
             CancelWagonDrag();
+            OwnedWagonReleased?.Invoke(source, _eventData.pointerCurrentRaycast.gameObject);
         }
     }
 
     public bool TryConsumeCancel()
     {
-        if (draggedWagonIndex.HasValue)
+        if (draggedWagonIndex is int source)
         {
             CancelWagonDrag();
+            OwnedWagonReleased?.Invoke(source, null);
             return true;
         }
         return false;
@@ -188,6 +219,7 @@ public sealed class PuzzleTrainBarView : MonoBehaviour, IBeginDragHandler, IDrag
         {
             draggedWagonIndex = null;
             wagonDragPreview.gameObject.SetActive(false);
+            OwnedWagonDragEnded?.Invoke();
         }
     }
 
@@ -195,6 +227,7 @@ public sealed class PuzzleTrainBarView : MonoBehaviour, IBeginDragHandler, IDrag
     {
         if (!_focused)
         {
+            WagonHoverEnded?.Invoke();
             CancelWagonDrag();
         }
     }

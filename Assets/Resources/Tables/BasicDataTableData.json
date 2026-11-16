@@ -1526,7 +1526,7 @@
         },
         {
           "id": "wagonProduct",
-          "value": "{0}   {1}$",
+          "value": "{0}   {1:N0} $",
           "arguments": 2
         },
         {
@@ -2750,7 +2750,7 @@
         },
         {
           "id": "wagonPurchaseStatus",
-          "value": "화물칸 구매 완료 · {0:N0}$ · {1}번 칸 추가",
+          "value": "화물칸 구매 완료 · {0:N0} $ · {1}번 칸 추가",
           "arguments": 2
         },
         {
@@ -2822,7 +2822,7 @@
         },
         {
           "id": "insufficientFunds",
-          "value": "자금이 부족합니다. (필요: {0}$)",
+          "value": "자금이 부족합니다. (필요: {0:N0} $)",
           "arguments": 1
         },
         {
@@ -2837,6 +2837,32 @@
         {
           "id": "modificationFailed",
           "value": "화차에 강화를 적용할 수 없어 구매를 취소했습니다."
+        },
+        {
+          "id": "saleUnavailable",
+          "value": "지금은 이 화차를 판매할 수 없습니다."
+        },
+        {
+          "id": "saleLastWagon",
+          "value": "마지막 화차는 판매할 수 없습니다."
+        },
+        {
+          "id": "saleLoaded",
+          "value": "판매하려면 화물을 비워 주세요."
+        },
+        {
+          "id": "saleCanceled",
+          "value": "화차 판매를 취소했습니다."
+        },
+        {
+          "id": "salePreview",
+          "value": "화차 판매가 · {0}",
+          "arguments": 1
+        },
+        {
+          "id": "saleComplete",
+          "value": "{0}번 화차 판매 · {1}",
+          "arguments": 2
         }
       ]
     },

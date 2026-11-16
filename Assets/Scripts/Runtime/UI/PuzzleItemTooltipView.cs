@@ -165,7 +165,6 @@ public sealed class PuzzleItemTooltipView : PanelBase
 
         bool hasLines = _lines != null && _lines.Count > 0;
         generalEffectSection.SetActive(hasLines);
-        SetSectionBottomRuleActive(generalEffectSection, false);
         if (!hasLines)
         {
             return;
@@ -310,7 +309,7 @@ public sealed class PuzzleItemTooltipView : PanelBase
     /// </summary>
     internal void ShowEntityInfo(string _title, Color? _titleColor, IReadOnlyList<string> _lines,
         Vector2 _screenPosition, IReadOnlyList<string> _tags = null,
-        IReadOnlyList<(string label, string value)> _statRows = null)
+        IReadOnlyList<(string label, string value)> _statRows = null, bool _aboveAnchor = false)
     {
         BeginShow(_title, _titleColor);
         UpdateCategoryBadges(_tags);
@@ -328,7 +327,14 @@ public sealed class PuzzleItemTooltipView : PanelBase
         }
         PopulatePlainEffectSection(_lines);
         RebuildLayouts();
-        SetPointerPosition(_screenPosition);
+        if (_aboveAnchor)
+        {
+            SetPositionAboveAnchor(_screenPosition);
+        }
+        else
+        {
+            SetPointerPosition(_screenPosition);
+        }
     }
 
     /// <summary>
@@ -400,17 +406,28 @@ public sealed class PuzzleItemTooltipView : PanelBase
         }
     }
 
-    static void SetSectionBottomRuleActive(GameObject _section, bool _active)
+    void RefreshBottomRules()
     {
-        if (!_section)
+        if (!bodyRect)
         {
             return;
         }
 
-        var bottomRule = _section.transform.Find("Bottom Rule");
-        if (bottomRule)
+        bool hasVisibleContentBelow = false;
+        for (int i = bodyRect.childCount - 1; i >= 0; i--)
         {
-            bottomRule.gameObject.SetActive(_active);
+            var section = bodyRect.GetChild(i);
+            if (!section.gameObject.activeSelf)
+            {
+                continue;
+            }
+
+            var bottomRule = section.Find("Bottom Rule");
+            if (bottomRule)
+            {
+                bottomRule.gameObject.SetActive(hasVisibleContentBelow);
+            }
+            hasVisibleContentBelow = true;
         }
     }
 
@@ -428,7 +445,6 @@ public sealed class PuzzleItemTooltipView : PanelBase
             return false;
         }
 
-        SetSectionBottomRuleActive(_section, true);
         if (_header)
         {
             _header.gameObject.SetActive(true);
@@ -530,6 +546,7 @@ public sealed class PuzzleItemTooltipView : PanelBase
 
     void RebuildLayouts()
     {
+        RefreshBottomRules();
         Canvas.ForceUpdateCanvases();
         categoryBadgeGroup?.RebuildLayout();
         if (activeEffectsListRoot && activeEffectsListRoot.gameObject.activeSelf)
@@ -563,6 +580,39 @@ public sealed class PuzzleItemTooltipView : PanelBase
             LayoutRebuilder.ForceRebuildLayoutImmediate(_list);
             LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)_section.transform);
         }
+    }
+
+    internal void SetPositionAboveAnchor(Vector2 _screenPosition)
+    {
+        EnsureInitialized();
+        Camera cam = canvas && canvas.renderMode != RenderMode.ScreenSpaceOverlay ? canvas.worldCamera : null;
+        if (!canvasRectTransform || !panelRect ||
+            !RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasRectTransform, _screenPosition, cam, out var anchor))
+        {
+            return;
+        }
+
+        const float anchorGap = 8f;
+        Rect bounds = canvasRectTransform.rect;
+        Vector2 size = panelRect.rect.size;
+        float left = bounds.xMin + screenMargin;
+        float top = bounds.yMax - screenMargin;
+        float minTop = Mathf.Min(top, bounds.yMin + screenMargin + size.y);
+        targetCanvasPosition = new Vector2(
+            Mathf.Clamp(anchor.x - size.x * 0.5f, left, Mathf.Max(left, bounds.xMax - screenMargin - size.x)),
+            Mathf.Clamp(anchor.y + anchorGap + size.y, minTop, top));
+        if (pointer)
+        {
+            pointer.gameObject.SetActive(true);
+            pointer.anchorMin = pointer.anchorMax = Vector2.zero;
+            pointer.localScale = Vector3.one;
+            pointer.localRotation = Quaternion.Euler(0f, 0f, 90f);
+            float inset = Mathf.Min(pointerEdgeInset, size.x * 0.5f);
+            pointer.anchoredPosition = new Vector2(
+                Mathf.Clamp(anchor.x - targetCanvasPosition.x, inset, size.x - inset), 0f);
+        }
+        panelRect.anchoredPosition = targetCanvasPosition;
+        needsSnap = false;
     }
 
     public void SetPointerPosition(Vector2 _screenPosition)
@@ -603,11 +653,13 @@ public sealed class PuzzleItemTooltipView : PanelBase
 
         if (pointer)
         {
+            pointer.gameObject.SetActive(true);
             needsSnap |= pointerFlipped != flipped;
             pointerFlipped = flipped;
             float edge = flipped ? 1f : 0f;
             pointer.anchorMin = pointer.anchorMax = new Vector2(edge, 1f);
             pointer.localScale = new Vector3(flipped ? -1f : 1f, 1f, 1f);
+            pointer.localRotation = Quaternion.identity;
             pointer.anchoredPosition = new Vector2(0f,
                 Mathf.Clamp(localPoint.y - posY, -height + pointerEdgeInset, -pointerEdgeInset));
         }

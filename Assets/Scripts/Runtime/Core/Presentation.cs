@@ -956,6 +956,19 @@ public static partial class Presentation
         BasicData.Format("presentation.station.wagonShopPage", _page, _pageCount);
     internal static string WagonProductLabel(string _name, long _price) =>
         BasicData.Format("presentation.station.wagonProduct", _name, _price);
+
+    internal static string WagonSaleAmount(long _price, bool _showPlus = false)
+    {
+        string color = ColorUtility.ToHtmlStringRGB(BasicData.Color("presentation.itemInfo.positive"));
+        string sign = _showPlus && _price > 0 ? "+" : string.Empty;
+        return $"<color=#{color}>{sign}{_price:N0} $</color>";
+    }
+
+    internal static string WagonSaleNotice(string _reason)
+    {
+        string color = ColorUtility.ToHtmlStringRGB(BasicData.Color("presentation.itemInfo.negative"));
+        return $"<color=#{color}>{BasicData.Text("rules.wagon." + _reason)}</color>";
+    }
     public static string StationMarket => BasicData.Text("presentation.station.market");
     public static string StationMarketClosed => BasicData.Text("presentation.station.marketClosed");
     public static string StationTavern => BasicData.Text("presentation.station.tavern");

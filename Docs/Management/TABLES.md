@@ -52,6 +52,7 @@
 - `train`·선택적인 `startingTrain`·각 도시의 `market`은 `width`·`height`·`startingPlacements`를 소유한다. `startingTrain`은 시작 지급 화차, `train`은 구매 화차의 보드다. 기존 데이터에서 `startingTrain`을 생략하면 시작 화차도 `train`을 사용한다. 현재 시작 화차는 5×5 외곽의 12칸이며 구매 상품으로 등록하지 않는다. `startCity`는 등록된 도시 ID를 참조한다. 도시에는 고유 ID·표시 이름·양의 기본 거래 배율·거래 허용 설정이 필요하다.
 - 보드의 `blockedCells`는 왼쪽 아래 원점의 `{x,y}` 사용 불가 칸 목록이다. 생략된 목록은 빈 목록으로 읽는다. 중복·범위 밖 좌표·전체 칸 제거·제거한 칸의 시작 배치를 테이블 오류로 보고한다. 모델과 View가 같은 목록으로 배치 가능 여부·격자 표시·포인터 판정을 처리하고, 시간 진행 사본도 모양을 보존한다. 빈칸 계산은 사용 가능한 칸 수에서 점유 칸 수를 뺀다.
 - 보드의 선택적 `displayName`을 지정하면 `Presentation.PuzzleTrainTitle`이 화차 제목으로 사용한다. 현재 `startingTrain.displayName`은 `고장난 칸`이다. 이름은 화차 인스턴스와 시간 진행 사본이 보관하므로 화차 선택·순서 변경에서도 해당 화차를 따른다.
+- 시작 화차의 소개는 `startingTrain.description`에 둔다. 고장난 칸은 5×5 중 13칸이 막혀 12칸에 적재할 수 있다. 판매가 초안은 `PuzzleTradeTableData.startingWagonSalePrice`(고장난 칸 10)와 `wagonProducts[].salePrice`(일반 25, 냉장 50)에 둔다.
 - `visualKey`는 `PuzzleInventoryUI.itemIcons`의 스프라이트 키다. 새 표시 키를 쓰면 프리팹 참조도 함께 추가한다. View는 초기화 시 모든 정의의 참조와 사전 배치 용량을 확인한다.
 - 각 도시는 등록된 `regionId`를 참조한다. 지역은 고유 ID·표시 이름·양의 `pricePercent`, 대표 특산품 목록 `specialtyTags`와 `productionTags`를 가진다. 생산 지역은 생산 태그 중 하나 이상을 중복 없이 대표 특산품으로 지정한다. `tradeHub` 지역은 생산 특산품 없이 집산품을 사용한다.
 - 생산 도시의 `specialtyTag`는 대표 생산품이다. 고정 특산품이 이 태그를 가져야 하고 해당 태그의 구매·판매 배율이 모두 100 미만이어야 한다. 판매는 등급에서 해결한 실효 배율로 판정하므로 특산 태그는 흔함 등급을 유지해야 하고 희귀·귀함으로 바꿀 수 없다. 같은 대표 특산품의 직결을 허용하되 근거리 공급·수요 일치 연결은 금지한다. 일반 물품이나 공통 분류 태그의 중복을 금지하는 규칙은 아니다.

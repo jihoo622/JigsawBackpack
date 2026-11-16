@@ -42,6 +42,7 @@ RectTransform:
   - {fileID: 8901500000000000071}
   - {fileID: 7779578980145526407}
   - {fileID: 5879900000134522340}
+  - {fileID: 8901500000000000073}
   - {fileID: 6349704599629693737}
   - {fileID: 5729835475404626177}
   - {fileID: 7223456789752744155}
@@ -191,6 +192,7 @@ MonoBehaviour:
   refiningView: {fileID: 4927823686251968170}
   cityView: {fileID: 3630064202348007284}
   tooltipView: {fileID: 5879900000134522345}
+  wagonTooltipView: {fileID: 8901500000000000074}
   keywordTooltipView: {fileID: 0}
   trainBarView: {fileID: 6921625192047656102}
   pauseMenu: {fileID: 0}
@@ -1985,6 +1987,39 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3e4b7c8a9d1f42e5a6b8c9d0e1f2a3b4, type: 3}
   m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PuzzleItemTooltipView
+--- !u!1001 &8901500000000000072
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 3437675962481259490}
+    m_Modifications:
+    - target: {fileID: 1424905556, guid: ba77517462074da6a32b521fb3412efe, type: 3}
+      propertyPath: m_Name
+      value: WagonTooltip
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: ba77517462074da6a32b521fb3412efe, type: 3}
+--- !u!224 &8901500000000000073 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 1424905560, guid: ba77517462074da6a32b521fb3412efe, type: 3}
+  m_PrefabInstance: {fileID: 8901500000000000072}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &8901500000000000074 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1424905557, guid: ba77517462074da6a32b521fb3412efe, type: 3}
+  m_PrefabInstance: {fileID: 8901500000000000072}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3e4b7c8a9d1f42e5a6b8c9d0e1f2a3b4, type: 3}
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::PuzzleItemTooltipView
 --- !u!1001 &6349704597473753016
 PrefabInstance:

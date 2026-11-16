@@ -5,6 +5,10 @@ using UnityEngine;
 
 public sealed class PuzzleStationActionsView : PanelBase
 {
+    internal bool IsWagonShopOpen => IsOpen && wagonShopContent.activeInHierarchy;
+    internal bool IsWagonShopTarget(GameObject _target) =>
+        IsWagonShopOpen && _target &&
+        _target.transform.IsChildOf(wagonShopContent.transform);
     [SerializeField] GameObject actionsList;
     [SerializeField] GameObject marketContent;
     [SerializeField] GameObject restContent;

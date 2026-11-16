@@ -27,6 +27,11 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
     [SerializeField] PuzzleInventoryView refiningView;
     [SerializeField] PuzzleCityView cityView;
     [SerializeField] PuzzleItemTooltipView tooltipView;
+    [SerializeField] PuzzleItemTooltipView wagonTooltipView;
+    readonly List<(string label, string value)> wagonTooltipStats = new();
+    PuzzleInventory hoveredTooltipWagon;
+    PuzzleStationActionsView stationActions;
+    int? wagonSalePreviewIndex;
     [SerializeField] PuzzleItemTooltipView keywordTooltipView;
     [SerializeField] PuzzleTrainBarView trainBarView;
     [SerializeField] PauseMenu pauseMenu;
@@ -149,7 +154,13 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             trainBarView.WagonSelected += OnWagonSelected;
             trainBarView.WagonProductDropped += OnWagonProductDropped;
             trainBarView.WagonMoved += OnWagonMoved;
+            trainBarView.WagonHovered += OnWagonHovered;
+            trainBarView.WagonHoverEnded += HideWagonTooltip;
+            trainBarView.OwnedWagonDragged += PreviewWagonSale;
+            trainBarView.OwnedWagonReleased += FinishWagonSale;
+            trainBarView.OwnedWagonDragEnded += ClearWagonSalePreview;
         }
+        stationActions = GetComponentInChildren<PuzzleStationActionsView>(true);
     }
 
     void OnDisable()
@@ -216,13 +227,20 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             wagonRefrigerationButton.onClick.RemoveListener(OnWagonRefrigerationClicked);
         }
         cityView.WaitRequested -= WaitForDaylight;
+        ClearWagonSalePreview();
         if (trainBarView)
         {
             trainBarView.WagonSelected -= OnWagonSelected;
             trainBarView.WagonProductDropped -= OnWagonProductDropped;
             trainBarView.WagonMoved -= OnWagonMoved;
+            trainBarView.WagonHovered -= OnWagonHovered;
+            trainBarView.WagonHoverEnded -= HideWagonTooltip;
+            trainBarView.OwnedWagonDragged -= PreviewWagonSale;
+            trainBarView.OwnedWagonReleased -= FinishWagonSale;
+            trainBarView.OwnedWagonDragEnded -= ClearWagonSalePreview;
             trainBarView.CancelWagonDrag();
         }
+        HideWagonTooltip();
         OnViewDisabled();
         initialized = false;
     }
@@ -439,6 +457,10 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
 
     void OnPanelVisibility(GameEvents.PanelInfo _info)
     {
+        if (_info.panel == Presentation.PUZZLE_WAGON_SHOP_PANEL_NAME && !_info.open)
+        {
+            ClearWagonSalePreview();
+        }
         if (_info.panel == Presentation.PUZZLE_TRAVEL_PANEL_NAME)
         {
             isTravelOpen = _info.open;
@@ -1641,6 +1663,46 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         return string.IsNullOrEmpty(_status) ? notice : _status + Presentation.ProficiencyNoticeSeparator + notice;
     }
 
+    void OnWagonHovered(int _index, Vector2 _slotAnchor)
+    {
+        if (!wagonTooltipView || TrainOperationsBlocked || drag != null)
+        {
+            HideWagonTooltip();
+            return;
+        }
+
+        var wagon = session.TrainWagons[_index];
+        if (hoveredTooltipWagon == wagon && wagonTooltipView.IsOpen)
+        {
+            wagonTooltipView.SetPositionAboveAnchor(_slotAnchor);
+            return;
+        }
+
+        hoveredTooltipWagon = wagon;
+        string name = wagon.WagonProduct?.displayName ?? wagon.DisplayName ?? "일반 화차";
+        wagonTooltipStats.Clear();
+        wagonTooltipStats.Add(("적재", $"{wagon.OccupiedCells} / {wagon.UsableCellCount}칸"));
+        wagonTooltipStats.Add(("판매가", Presentation.WagonSaleAmount(wagon.WagonSalePrice)));
+        if (wagon.WagonModifications.Count > 0)
+        {
+            wagonTooltipStats.Add(("효과", string.Join(" · ", wagon.WagonModifications.Select(_effect => _effect.TooltipEffect))));
+        }
+
+        string failure = session.WagonSaleFailure(_index);
+        string notice = failure == null ? null : Presentation.WagonSaleNotice(failure);
+        wagonTooltipView.ShowEntityInfo($"{name} · {wagon.WagonNumber}번", null,
+            notice == null ? null : new[] { notice }, _slotAnchor, _statRows: wagonTooltipStats, _aboveAnchor: true);
+    }
+
+    void HideWagonTooltip()
+    {
+        hoveredTooltipWagon = null;
+        if (wagonTooltipView && wagonTooltipView.IsOpen)
+        {
+            wagonTooltipView.Close();
+        }
+    }
+
     void OnWagonSelected(int _index)
     {
         if (TrainOperationsBlocked || session == null || session.RunStatus != PuzzleRunStatus.InProgress)
@@ -1670,6 +1732,60 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         }
     }
 
+    void PreviewWagonSale(int _index, GameObject _target)
+    {
+        if (MarketOperationsBlocked || !stationActions || !stationActions.IsWagonShopTarget(_target))
+        {
+            ClearWagonSalePreview();
+            return;
+        }
+
+        if (wagonSalePreviewIndex == _index)
+        {
+            return;
+        }
+
+        wagonSalePreviewIndex = _index;
+        string failure = session.WagonSaleFailure(_index);
+        cityView.ShowTradeStatus(failure == null
+            ? BasicData.Format("rules.wagon.salePreview", Presentation.WagonSaleAmount(session.TrainWagons[_index].WagonSalePrice))
+            : Presentation.WagonSaleNotice(failure));
+    }
+
+    void ClearWagonSalePreview()
+    {
+        if (wagonSalePreviewIndex.HasValue)
+        {
+            wagonSalePreviewIndex = null;
+            cityView.ShowTradeStatus(string.Empty);
+        }
+    }
+
+    void FinishWagonSale(int _index, GameObject _target)
+    {
+        if (MarketOperationsBlocked || !stationActions || !stationActions.IsWagonShopOpen)
+        {
+            return;
+        }
+        if (!stationActions.IsWagonShopTarget(_target))
+        {
+            cityView.ShowTradeStatus(Presentation.WagonSaleNotice("saleCanceled"));
+            return;
+        }
+
+        var wagon = _index >= 0 && _index < session.WagonCount ? session.TrainWagons[_index] : null;
+        if (!session.TrySellWagon(_index, out string failure))
+        {
+            cityView.ShowTradeStatus(Presentation.WagonSaleNotice(failure));
+            return;
+        }
+
+        HideWagonTooltip();
+        RefreshSelectedWagon();
+        cityView.ShowTradeStatus(BasicData.Format("rules.wagon.saleComplete", wagon.WagonNumber,
+            Presentation.WagonSaleAmount(wagon.WagonSalePrice, _showPlus: true)));
+    }
+
     void OnWagonProductDropped(PuzzleWagonProductData _product)
     {
         if (MarketOperationsBlocked || session == null)
@@ -1686,13 +1802,18 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         }
 
         RefreshFunds();
+        RefreshSelectedWagon();
+        cityView.ShowTradeStatus(Presentation.PuzzleWagonPurchaseStatus(session.Train.WagonNumber, _product.price));
+    }
+
+    void RefreshSelectedWagon()
+    {
         trainView.SetTitle(Presentation.PuzzleTrainTitle(session.Train));
         trainView.SetBoardSize(session.Train.Width, session.Train.Height, session.Train.BlockedCells);
         RenderBoards();
         RenderValues();
         ShowItemDetails(null, null);
         RefreshTrainBar();
-        cityView.ShowTradeStatus(Presentation.PuzzleWagonPurchaseStatus(session.Train.WagonNumber, _product.price));
     }
 
 }

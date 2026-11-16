@@ -19,6 +19,8 @@ public sealed class PuzzleInventory
     internal int UsableCellCount => checked(Width * Height - blockedCells.Count);
     internal IReadOnlyCollection<Vector2Int> BlockedCells => blockedCells;
     internal int WagonNumber { get; set; }
+    internal PuzzleWagonProductData WagonProduct { get; set; }
+    internal long WagonSalePrice { get; set; }
     public IReadOnlyCollection<PuzzlePlacement> Placements => placements.Values;
     internal IReadOnlyCollection<PuzzleWagonModification> WagonModifications => wagonModifications.Values;
     internal PuzzleValue Value => valuation.Total;

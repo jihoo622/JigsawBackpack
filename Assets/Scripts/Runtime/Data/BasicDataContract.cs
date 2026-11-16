@@ -491,6 +491,12 @@ public static class BasicDataContract
         "rules.wagon.maxReached",
         "rules.wagon.modificationFailed",
         "rules.wagon.unknownProduct",
+        "rules.wagon.saleUnavailable",
+        "rules.wagon.saleLastWagon",
+        "rules.wagon.saleLoaded",
+        "rules.wagon.saleCanceled",
+        "rules.wagon.salePreview",
+        "rules.wagon.saleComplete",
     };
     public static readonly string[] Colors =
     {
@@ -1048,5 +1054,11 @@ public static class BasicDataContract
             { "rules.wagon.maxReached", 1 },
             { "rules.wagon.modificationFailed", 0 },
             { "rules.wagon.unknownProduct", 0 },
+            { "rules.wagon.saleUnavailable", 0 },
+            { "rules.wagon.saleLastWagon", 0 },
+            { "rules.wagon.saleLoaded", 0 },
+            { "rules.wagon.saleCanceled", 0 },
+            { "rules.wagon.salePreview", 1 },
+            { "rules.wagon.saleComplete", 2 },
         };
 }

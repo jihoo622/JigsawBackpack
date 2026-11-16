@@ -19,6 +19,7 @@ internal abstract class PuzzleWagonModification
 {
     internal string Id { get; }
     internal abstract string ActiveEffectLabel { get; }
+    internal virtual string TooltipEffect => ActiveEffectLabel;
 
     protected PuzzleWagonModification(string _id)
     {
@@ -40,6 +41,7 @@ internal sealed class PuzzleWagonRefrigeration : PuzzleWagonModification, IPuzzl
     internal const string ModificationId = "refrigeration";
     readonly int reductionPercent;
     internal override string ActiveEffectLabel => Presentation.PuzzleWagonRefrigerationInstalled;
+    internal override string TooltipEffect => $"냉장 · 신선도 감소 {reductionPercent}% 완화";
 
     internal PuzzleWagonRefrigeration(int _reductionPercent) : base(ModificationId)
     {

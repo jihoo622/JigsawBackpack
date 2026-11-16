@@ -50,7 +50,7 @@ public sealed class PuzzleWagonDetailView : MonoBehaviour
         }
         if (priceLabel)
         {
-            priceLabel.text = $"가격: {_product.price:N0}$";
+            priceLabel.text = $"가격: {_product.price:N0} $";
         }
         if (sizeLabel)
         {

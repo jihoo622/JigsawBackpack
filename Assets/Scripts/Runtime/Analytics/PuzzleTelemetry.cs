@@ -22,7 +22,8 @@ public enum PuzzleActionKind
     WorkbenchConfirm,
     WaitForWorkbench,
     InstallWagonModification,
-    ReorderWagon
+    ReorderWagon,
+    SellWagon
 }
 
 [Serializable]
@@ -340,6 +341,7 @@ public static partial class TelemetryPayload
                 PuzzleActionKind.WaitForDaylight => "wait_for_daylight",
                 PuzzleActionKind.AdvanceTime => "advance_time",
                 PuzzleActionKind.AddWagon => "add_wagon",
+                PuzzleActionKind.SellWagon => "sell_wagon",
                 PuzzleActionKind.Repay => "repay",
                 PuzzleActionKind.AcceptQuest => "accept_quest",
                 PuzzleActionKind.CompleteQuest => "complete_quest",

@@ -15,6 +15,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
     Dictionary<string, PuzzleItemDefinition> definitions;
     IReadOnlyList<PuzzleSynergyRuleData> marketRules;
     int lastInstanceId;
+    int lastWagonNumber;
     string currentCityId;
     readonly HashSet<string> visitedCities = new HashSet<string>(StringComparer.Ordinal);
     readonly List<TavernRumor> tavernRumors = new List<TavernRumor>();
@@ -267,7 +268,47 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
 
     internal bool TryAddWagon(out string _failureReason)
     {
-        return TryPurchaseWagon(NextWagonCost, null, null, out _failureReason);
+        return TryPurchaseWagon(NextWagonCost, null, out _failureReason);
+    }
+
+    internal string WagonSaleFailure(int _index)
+    {
+        if (RunStatus != PuzzleRunStatus.InProgress || _index < 0 || _index >= trainWagons.Count)
+        {
+            return "saleUnavailable";
+        }
+        if (trainWagons.Count <= 1)
+        {
+            return "saleLastWagon";
+        }
+        return trainWagons[_index].OccupiedCells > 0 ? "saleLoaded" : null;
+    }
+
+    internal bool TrySellWagon(int _index, out string _failure)
+    {
+        _failure = WagonSaleFailure(_index);
+        if (_failure != null)
+        {
+            RecordAction(PuzzleActionKind.SellWagon, _failure);
+            return false;
+        }
+
+        var wagon = trainWagons[_index];
+        string board = BoardId(wagon);
+        long previousFunds = Funds;
+        long saleFunds = checked(Funds + wagon.WagonSalePrice);
+        trainWagons.RemoveAt(_index);
+        if (CurrentWagonIndex >= _index)
+        {
+            CurrentWagonIndex = CurrentWagonIndex == _index
+                ? Math.Min(_index, trainWagons.Count - 1)
+                : CurrentWagonIndex - 1;
+        }
+        Funds = saleFunds;
+        GameEvents.RaiseFundsChanged(this, previousFunds);
+        RecordAction(PuzzleActionKind.SellWagon, _productId: wagon.WagonProduct?.id, _board: board,
+            _wagonOrder: trainWagons.Select(BoardId).ToArray());
+        return true;
     }
 
     internal bool TryPurchaseWagon(string _productId, out string _failureReason)
@@ -281,11 +322,13 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
             return false;
         }
 
-        return TryPurchaseWagon(product.price, product.modificationId, product.id, out _failureReason);
+        return TryPurchaseWagon(product.price, product, out _failureReason);
     }
 
-    bool TryPurchaseWagon(long _cost, string _modificationId, string _productId, out string _failureReason)
+    bool TryPurchaseWagon(long _cost, PuzzleWagonProductData _product, out string _failureReason)
     {
+        string _productId = _product?.id;
+        string _modificationId = _product?.modificationId;
         _failureReason = null;
         if (RunStatus != PuzzleRunStatus.InProgress)
         {
@@ -325,7 +368,10 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         }
 
         long previousFunds = Funds;
-        newWagon.WagonNumber = trainWagons.Count + 1;
+        newWagon.WagonNumber = ++lastWagonNumber;
+        newWagon.WagonProduct = _product ?? tables.PuzzleTrade.wagonProducts.FirstOrDefault(
+            _entry => string.IsNullOrEmpty(_entry.modificationId) && _entry.price == _cost);
+        newWagon.WagonSalePrice = newWagon.WagonProduct?.salePrice ?? 0;
         trainWagons.Add(newWagon);
         Funds -= _cost;
         lastInstanceId = nextInstanceId;
@@ -451,7 +497,8 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         CityMoveCount = 0;
         RunStatus = PuzzleRunStatus.InProgress;
         trainWagons.Clear();
-        train.WagonNumber = 1;
+        lastWagonNumber = train.WagonNumber = 1;
+        train.WagonSalePrice = validatedTables.PuzzleTrade.startingWagonSalePrice;
         trainWagons.Add(train);
         breedingProgress.Clear();
         wasteProgress.Clear();

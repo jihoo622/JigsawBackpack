@@ -354,14 +354,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\uD558\uB2E8\uC758 \uD654\uCC28 \uC0C1\uD488 \uCE74\uB4DC\uB97C \uD654\uBB3C\uCE78
-    \uBC14\uC758 [\uC7A0\uAE34 \uCE78]\uC73C\uB85C \uB4DC\uB798\uADF8\uD558\uC5EC
-    \uC99D\uCC28\uD560 \uC218 \uC788\uC2B5\uB2C8\uB2E4.\n\n\uC0C8 \uD654\uCC28\uB97C
-    \uAD6C\uB9E4\uD558\uBA74 \uD3B8\uC131 \uAE38\uC774\uAC00 \uB298\uC5B4\uB098\uBA70,
-    \uC801\uC7AC \uACF5\uAC04\uACFC \uD2B9\uC218 \uD6A8\uACFC\uAC00 \uCD94\uAC00\uB429\uB2C8\uB2E4.\n\n\uAD6C\uB9E4
-    \uC804 \uC6B0\uCE21 \uC0C1\uC138 \uD328\uB110\uC5D0\uC11C \uD654\uCC28\uC758
-    \uC0C1\uC138 \uADDC\uACA9\uACFC \uD604\uC7AC \uD3B8\uC131 \uB300\uBE44 \uC99D\uAC10\uCE58\uB97C
-    \uD655\uC778\uD558\uC138\uC694."
+  m_text: "하단의 화차 상품 카드를 화차 바로 끌어 놓으면 구매합니다.\n\n보유 중인 빈 화차를 이 상점에 끌어 놓으면 판매합니다. 화차는 최소 한 대 남겨야 합니다."
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: b2eeb73aa1ee10b48a7fe11797ba93c5, type: 2}
   m_sharedMaterial: {fileID: -3217437318264749832, guid: b2eeb73aa1ee10b48a7fe11797ba93c5, type: 2}
@@ -1051,6 +1044,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5395847916531305647}
+  - component: {fileID: 8901500000000000081}
+  - component: {fileID: 8901500000000000080}
   - component: {fileID: 5631318703530788713}
   m_Layer: 0
   m_Name: WagonShop
@@ -3408,3 +3403,41 @@ MonoBehaviour:
   m_FlexibleWidth: -1
   m_FlexibleHeight: 0
   m_LayoutPriority: 1
+--- !u!222 &8901500000000000081
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5395847916531305644}
+  m_CullTransparentMesh: 0
+--- !u!114 &8901500000000000080
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5395847916531305644}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 0, g: 0, b: 0, a: 0}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 0}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1

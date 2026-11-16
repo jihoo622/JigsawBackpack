@@ -313,6 +313,8 @@ public sealed class GameTableRules
         }
         Check(_tables.PuzzleTrade.wagonRefrigerationCost > 0, PATH + ".wagonRefrigerationCost",
             "객차 냉장 개조 비용은 양수여야 합니다.");
+        Check(_tables.PuzzleTrade.startingWagonSalePrice >= 0, PATH + ".startingWagonSalePrice",
+            "시작 화차 판매가는 0 이상이어야 합니다.");
         Check(_tables.PuzzleTrade.wagonAddCostBase > 0, PATH + ".wagonAddCostBase",
             "화물칸 증차 기본 비용은 0보다 커야 합니다.");
         Check(_tables.PuzzleTrade.maxWagonCount >= 1, PATH + ".maxWagonCount",
@@ -348,6 +350,7 @@ public sealed class GameTableRules
             Check(!string.IsNullOrWhiteSpace(product.displayName), path + ".displayName",
                 "화차 상품 이름이 필요합니다.");
             Check(product.price > 0, path + ".price", "화차 상품 가격은 양수여야 합니다.");
+            Check(product.salePrice >= 0, path + ".salePrice", "화차 판매가는 0 이상이어야 합니다.");
             if (!string.IsNullOrEmpty(product.modificationId))
             {
                 Reference(product.modificationId, path + ".modificationId",
