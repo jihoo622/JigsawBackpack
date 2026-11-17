@@ -1014,7 +1014,7 @@ public static class BasicDataContract
             { "presentation.train.trainTitle2", 1 },
             { "presentation.train.wagonDetailEmpty", 0 },
             { "presentation.train.wagonDetailTitle", 0 },
-            { "presentation.train.wagonFormationDelta", 2 },
+            { "presentation.train.wagonFormationDelta", 1 },
             { "presentation.train.wagonPurchaseStatus", 2 },
             { "presentation.train.wagonSizeLabel", 2 },
             { "rules.PuzzleInventoryService.expiredFoodPieceId", 0 },

@@ -242,15 +242,15 @@ public static partial class Presentation
         return _remainingTurns <= 3 * PuzzleTimeManager.TURNS_PER_DAY;
     }
 
-    // 화차 상세 줄. 칸 규격은 보드 Width×Height, 증감은 현재 편성과의 차이(보유 칸 수·적재 칸 수)를 넣는다.
+    // 구매 전에는 화차의 외곽 규격과 파손 칸 생성 여부를 표시한다.
     public static string WagonSizeLabel(int _width, int _height)
     {
         return BasicData.Format("presentation.train.wagonSizeLabel", _width, _height);
     }
 
-    public static string WagonFormationDelta(int _ownedDelta, int _cellDelta)
+    public static string WagonFormationDelta(int _ownedDelta)
     {
-        return BasicData.Format("presentation.train.wagonFormationDelta", _ownedDelta, _cellDelta);
+        return BasicData.Format("presentation.train.wagonFormationDelta", _ownedDelta);
     }
 
     // 화차 상세 패널 제목과 화차를 고르기 전 안내. 화차 상점은 선택 없음으로 시작한다.

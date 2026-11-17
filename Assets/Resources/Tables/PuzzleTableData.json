@@ -1547,14 +1547,14 @@
   ],
   "train": {
     "width": 7,
-    "height": 7,
+    "height": 5,
     "startingPlacements": []
   },
   "startingTrain": {
     "displayName": "고장난 칸",
     "description": "처음부터 연결된 화차. 파손된 칸에는 화물을 실을 수 없다.",
     "width": 7,
-    "height": 7,
+    "height": 5,
     "blockedCells": [
       {
         "x": 3,

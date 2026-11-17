@@ -59,7 +59,7 @@ public sealed class PuzzleWagonDetailView : MonoBehaviour
         }
         if (formationDeltaLabel)
         {
-            formationDeltaLabel.text = Presentation.WagonFormationDelta(1, board.width * board.height);
+            formationDeltaLabel.text = Presentation.WagonFormationDelta(1);
         }
         if (effectLabel)
         {

@@ -21,6 +21,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
     readonly List<TavernRumor> tavernRumors = new List<TavernRumor>();
     int lastRumorVisit = -1;
     System.Random stockRandom = new System.Random();
+    System.Random wagonDamageRandom = new System.Random();
 
     internal readonly struct TavernRumor
     {
@@ -355,7 +356,9 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
 
         var trainRules = tables.SynergiesFor(PuzzleSynergyScope.Train);
         int nextInstanceId = lastInstanceId;
-        var newWagon = new PuzzleInventory(tables.Puzzle.train, Array.Empty<PuzzleStartingPlacementData>(), definitions, trainRules,
+        var ownedCargo = trainWagons.SelectMany(wagon => wagon.Placements).Select(placement => placement.Definition);
+        var board = PuzzleWagonDamage.Roll(tables.Puzzle.train, definitions.Values, ownedCargo, wagonDamageRandom);
+        var newWagon = new PuzzleInventory(board, Array.Empty<PuzzleStartingPlacementData>(), definitions, trainRules,
             ref nextInstanceId);
         if (!string.IsNullOrEmpty(_modificationId) &&
             (!PuzzleWagonModificationRegistry.Contains(_modificationId) ||
@@ -515,6 +518,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
     {
         stockRandom = new System.Random(_seed);
         questRandom = new System.Random(_seed);
+        wagonDamageRandom = new System.Random(_seed);
     }
 
     internal void Initialize()
