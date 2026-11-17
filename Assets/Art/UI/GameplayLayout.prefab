@@ -14290,7 +14290,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 100014, guid: 94a43f59b6c04922aed62a5b05bf11dd, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -104
+      value: -176
       objectReference: {fileID: 0}
     - target: {fileID: 100018, guid: 94a43f59b6c04922aed62a5b05bf11dd, type: 3}
       propertyPath: m_Color.a
@@ -14988,9 +14988,21 @@ PrefabInstance:
       propertyPath: m_Enabled
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 310000, guid: 94a43f59b6c04922aed62a5b05bf11dd, type: 3}
-      propertyPath: m_IsActive
-      value: 0
+    - target: {fileID: 310001, guid: 94a43f59b6c04922aed62a5b05bf11dd, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 310001, guid: 94a43f59b6c04922aed62a5b05bf11dd, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 310001, guid: 94a43f59b6c04922aed62a5b05bf11dd, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 683.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 310001, guid: 94a43f59b6c04922aed62a5b05bf11dd, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -694
       objectReference: {fileID: 0}
     - target: {fileID: 330001, guid: 94a43f59b6c04922aed62a5b05bf11dd, type: 3}
       propertyPath: m_Pivot.x
