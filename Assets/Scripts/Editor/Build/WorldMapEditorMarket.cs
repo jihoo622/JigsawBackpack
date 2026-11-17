@@ -31,7 +31,7 @@ public sealed partial class WorldMapEditorWindow
                 {
                     [typeof(PuzzleTableData)] = Json(puzzle),
                     [typeof(PuzzleRouteTableData)] = Json(routes),
-                    [typeof(PuzzleCityActionTableData)] = draft.cityActions,
+                    [typeof(TrainventoryWorkshopTableData)] = draft.cityActions,
                     [typeof(PuzzleTradeTableData)] = draft.trade
                 });
                 validationDirty = false;

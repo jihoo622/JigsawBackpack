@@ -29,7 +29,7 @@ public static class GameEvents
         public readonly PuzzleActionKind action;
         public readonly string failure, targetCityId, destination;
         public readonly int instanceId, clockwiseTurns;
-        public readonly long requestedTurns;
+        public readonly long requestedHours;
         public readonly Vector2Int targetCell, grabbedCell;
         // 작업대 행동 ID·개조 모드·화차 상품·화차 개조·대상 보드·화차 순서. 해당 행동이 아니면 비어 있다.
         public readonly string actionId, modeId, productId, modificationId, board;
@@ -38,7 +38,7 @@ public static class GameEvents
         public PuzzleActionInfo(PuzzleInventoryService _session, PuzzleActionKind _action, string _failure = null,
             string _targetCityId = null, int _instanceId = 0,
             string _destination = null, Vector2Int _targetCell = default, Vector2Int _grabbedCell = default,
-            int _clockwiseTurns = 0, long _requestedTurns = 0, string _actionId = null, string _modeId = null,
+            int _clockwiseTurns = 0, long _requestedHours = 0, string _actionId = null, string _modeId = null,
             string _productId = null, string _modificationId = null, string _board = null, string[] _wagonOrder = null)
         {
             session = _session;
@@ -50,7 +50,7 @@ public static class GameEvents
             targetCell = _targetCell;
             grabbedCell = _grabbedCell;
             clockwiseTurns = _clockwiseTurns;
-            requestedTurns = _requestedTurns;
+            requestedHours = _requestedHours;
             actionId = _actionId;
             modeId = _modeId;
             productId = _productId;
@@ -79,28 +79,28 @@ public static class GameEvents
         Emit(PuzzleActionCommitted, _info);
     }
 
-    /// <summary>게임 시간 진행 결과. 누적 값과 차이는 세션 시작 기준 턴 단위다(1턴=3시간).</summary>
+    /// <summary>게임 시간 진행 결과. 누적 값과 차이는 세션 시작 기준 게임 시간(1시간) 단위다.</summary>
     public readonly struct TimeAdvanceInfo
     {
         /// <summary>시간을 진행한 세션. 다른 씬의 이벤트를 구분하는 데 사용한다.</summary>
         public readonly PuzzleInventoryService session;
         /// <summary>진행 전 누적 경과 시간.</summary>
-        public readonly long previousTurns;
+        public readonly long previousHours;
         /// <summary>진행 후 누적 경과 시간.</summary>
-        public readonly long elapsedTurns;
+        public readonly long elapsedHours;
         internal readonly decimal? cargoValueBeforeSettlement;
         internal readonly decimal? cargoValueBeforeFreshnessLoss;
         /// <summary>이번 행동으로 경과한 시간. 신선도·내구도 갱신에 사용한다.</summary>
-        public long DeltaTurns => elapsedTurns - previousTurns;
+        public long DeltaHours => elapsedHours - previousHours;
 
 
         /// <summary>시간 변화 전후의 누적 시간을 보관한다.</summary>
-        public TimeAdvanceInfo(long _previousTurns, long _elapsedTurns, PuzzleInventoryService _session = null,
+        public TimeAdvanceInfo(long _previousHours, long _elapsedHours, PuzzleInventoryService _session = null,
             decimal? _cargoValueBeforeSettlement = null, decimal? _cargoValueBeforeFreshnessLoss = null)
         {
             session = _session;
-            previousTurns = _previousTurns;
-            elapsedTurns = _elapsedTurns;
+            previousHours = _previousHours;
+            elapsedHours = _elapsedHours;
             cargoValueBeforeSettlement = _cargoValueBeforeSettlement;
             cargoValueBeforeFreshnessLoss = _cargoValueBeforeFreshnessLoss;
         }
@@ -117,21 +117,31 @@ public static class GameEvents
         }
     }
     public static event Action<TravelPreviewInfo> TravelPreviewChanged;
+    // 이동 출발·도착 또는 이동 중단. 페이로드는 세션이며 진행 상태는 session.Journey에서 읽는다.
+    public readonly struct JourneyInfo
+    {
+        public readonly PuzzleInventoryService session;
+        public JourneyInfo(PuzzleInventoryService _session)
+        {
+            session = _session;
+        }
+    }
+    public static event Action<JourneyInfo> JourneyChanged;
     public readonly struct TavernRumorInfo
     {
         public readonly PuzzleInventoryService session;
         public readonly PuzzleRumorKind kind;
         public readonly string sourceCityId, targetCityId, message, tag, itemId, actionId;
-        public readonly long recordedTurns;
+        public readonly long recordedHours;
 
         public TavernRumorInfo(PuzzleInventoryService _session, string _sourceCityId, string _targetCityId,
-            string _message, long _recordedTurns, string _tag, PuzzleRumorKind _kind, string _itemId, string _actionId)
+            string _message, long _recordedHours, string _tag, PuzzleRumorKind _kind, string _itemId, string _actionId)
         {
             session = _session;
             sourceCityId = _sourceCityId;
             targetCityId = _targetCityId;
             message = _message;
-            recordedTurns = _recordedTurns;
+            recordedHours = _recordedHours;
             tag = _tag;
             kind = _kind;
             itemId = _itemId ?? string.Empty;
@@ -146,10 +156,10 @@ public static class GameEvents
         public readonly PuzzleInventoryService session;
         public readonly int questId;
         public readonly string templateId, pieceId, sourceCityId, targetCityId, penaltyId, state, failure;
-        public readonly long reward, deposit, payout, deadlineTurns, elapsedTurns;
+        public readonly long reward, deposit, payout, deadlineHours, elapsedHours;
         public readonly int cargoInstanceId;
 
-        internal QuestInfo(PuzzleInventoryService _session, TrainventoryQuest _quest, long _elapsedTurns)
+        internal QuestInfo(PuzzleInventoryService _session, TrainventoryQuest _quest, long _elapsedHours)
         {
             session = _session;
             questId = _quest.Id;
@@ -163,8 +173,8 @@ public static class GameEvents
             reward = _quest.Reward;
             deposit = _quest.Deposit;
             payout = _quest.Payout;
-            deadlineTurns = _quest.DeadlineTurns;
-            elapsedTurns = _elapsedTurns;
+            deadlineHours = _quest.DeadlineHours;
+            elapsedHours = _elapsedHours;
             cargoInstanceId = _quest.CargoInstanceId;
         }
     }
@@ -180,11 +190,11 @@ public static class GameEvents
     {
         public readonly PuzzleInventoryService session;
         public readonly string tag, source;
-        public readonly long gainedXp, xp, elapsedTurns;
+        public readonly long gainedXp, xp, elapsedHours;
         public readonly int previousLevel, level, instanceId, questId;
 
         internal ProficiencyInfo(PuzzleInventoryService _session, string _tag, string _source, long _gainedXp, long _xp,
-            int _previousLevel, int _level, int _instanceId, int _questId, long _elapsedTurns)
+            int _previousLevel, int _level, int _instanceId, int _questId, long _elapsedHours)
         {
             session = _session;
             tag = _tag;
@@ -195,7 +205,7 @@ public static class GameEvents
             level = _level;
             instanceId = _instanceId;
             questId = _questId;
-            elapsedTurns = _elapsedTurns;
+            elapsedHours = _elapsedHours;
         }
 
         public bool LeveledUp => level > previousLevel;
@@ -208,11 +218,11 @@ public static class GameEvents
     }
 
     public static void RaiseTavernRumorRecorded(PuzzleInventoryService _session, string _sourceCityId,
-        string _targetCityId, string _message, long _recordedTurns, string _tag, PuzzleRumorKind _kind, string _itemId,
+        string _targetCityId, string _message, long _recordedHours, string _tag, PuzzleRumorKind _kind, string _itemId,
         string _actionId)
     {
         Emit(TavernRumorRecorded, new TavernRumorInfo(_session, _sourceCityId, _targetCityId, _message,
-            _recordedTurns, _tag, _kind, _itemId, _actionId));
+            _recordedHours, _tag, _kind, _itemId, _actionId));
     }
 
     public readonly struct MapRequestInfo
@@ -341,15 +351,15 @@ public static class GameEvents
         public readonly string fromCityId;
         public readonly string toCityId;
         public readonly int legs;
-        public readonly long totalTurns;
+        public readonly long totalHours;
         public readonly int stops;
-        public RoutePlannedInfo(PuzzleInventoryService _session, string _fromCityId, string _toCityId, int _legs, long _totalTurns, int _stops)
+        public RoutePlannedInfo(PuzzleInventoryService _session, string _fromCityId, string _toCityId, int _legs, long _totalHours, int _stops)
         {
             session = _session;
             fromCityId = _fromCityId;
             toCityId = _toCityId;
             legs = _legs;
-            totalTurns = _totalTurns;
+            totalHours = _totalHours;
             stops = _stops;
         }
     }
@@ -491,15 +501,19 @@ public static class GameEvents
     {
         Emit(TravelPreviewChanged, new TravelPreviewInfo(_session));
     }
+    public static void RaiseJourneyChanged(PuzzleInventoryService _session)
+    {
+        Emit(JourneyChanged, new JourneyInfo(_session));
+    }
 
     /// <summary>확정된 게임 시간 변화를 알린다. 시간을 직접 진행하지 않으며 구독자 예외는 격리한다.</summary>
-    /// <param name="_previousTurns">진행 전 누적 경과 시간.</param>
-    /// <param name="_elapsedTurns">진행 후 누적 경과 시간.</param>
+    /// <param name="_previousHours">진행 전 누적 경과 시간.</param>
+    /// <param name="_elapsedHours">진행 후 누적 경과 시간.</param>
     /// <param name="_session">시간을 확정한 세션. 소비자는 자신이 속한 세션인지 확인한다.</param>
-    public static void RaiseTimeAdvanced(long _previousTurns, long _elapsedTurns, PuzzleInventoryService _session = null,
+    public static void RaiseTimeAdvanced(long _previousHours, long _elapsedHours, PuzzleInventoryService _session = null,
         decimal? _cargoValueBeforeSettlement = null, decimal? _cargoValueBeforeFreshnessLoss = null)
     {
-        Emit(TimeAdvanced, new TimeAdvanceInfo(_previousTurns, _elapsedTurns, _session, _cargoValueBeforeSettlement,
+        Emit(TimeAdvanced, new TimeAdvanceInfo(_previousHours, _elapsedHours, _session, _cargoValueBeforeSettlement,
             _cargoValueBeforeFreshnessLoss));
     }
 
@@ -660,16 +674,16 @@ public static class GameEvents
         public readonly PuzzleInventoryService session;
         public readonly string actionId, cityId;
         public readonly int outputCount;
-        public readonly long elapsedTurns;
+        public readonly long elapsedHours;
 
         public WorkbenchReadyInfo(PuzzleInventoryService _session, string _actionId, string _cityId, int _outputCount,
-            long _elapsedTurns)
+            long _elapsedHours)
         {
             session = _session;
             actionId = _actionId;
             cityId = _cityId;
             outputCount = _outputCount;
-            elapsedTurns = _elapsedTurns;
+            elapsedHours = _elapsedHours;
         }
     }
 
@@ -727,7 +741,7 @@ public static class GameEvents
         int _outputCount)
     {
         Emit(WorkbenchReady, new WorkbenchReadyInfo(_session, _actionId, _cityId, _outputCount,
-            _session.Time != null ? _session.Time.ElapsedTurns : 0));
+            _session.Time != null ? _session.Time.ElapsedHours : 0));
     }
 
     // 구독자 하나가 예외를 던져도 나머지 구독자와 게임 진행은 멈추지 않는다.
@@ -773,6 +787,7 @@ public static class GameEvents
         CityArrived = null;
         TimeAdvanced = null;
         TravelPreviewChanged = null;
+        JourneyChanged = null;
         MapRequested = null;
         MapToggleRequested = null;
         SynergyChartShowRequested = null;

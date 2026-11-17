@@ -54,12 +54,12 @@ public sealed class TrainventoryQuestDetailView : MonoBehaviour
         if (destinationLabel)
         {
             destinationLabel.richText = true;
-            destinationLabel.text = Presentation.QuestDetailDestination(cityName, _offer.TravelTurns);
+            destinationLabel.text = Presentation.QuestDetailDestination(cityName, _offer.TravelHours);
         }
         if (deadlineLabel)
         {
-            long deadlineTurns = _session.ElapsedTime + _offer.DeadlineTurns;
-            deadlineLabel.text = Presentation.QuestDetailDeadline(deadlineTurns);
+            long deadlineHours = _session.ElapsedTime + _offer.DeadlineHours;
+            deadlineLabel.text = Presentation.QuestDetailDeadline(deadlineHours);
         }
         if (rewardLabel)
         {

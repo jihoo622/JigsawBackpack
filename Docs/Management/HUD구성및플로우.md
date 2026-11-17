@@ -17,7 +17,7 @@
 | `PauseMenu` (`PanelBase`) | 일시정지 메뉴 조작 (Esc 계열). 구독자 예외 처리 대칭 OnEnable/OnDisable으로 PanelVisibility 발행 |
 | `PuzzleInventoryView` | 좌측 기차 보드: 5×5 화물칸 격자(`boardCells`)와 사전 배치 슬롯 풀 `placementSlots`/`ghostSlots`/`outlineSlots`; 인접 시너지 화살표(`synergyArrows`, 증가/감소 구분 스프라이트); 아이템 상세·호버용 아이콘 키셋 `PuzzleInventoryUI.itemIcons`. 모델 조회 후 이동 가이드(`moveGuide`, 근거리 N시간·소요 시간 형식), 보드 제목/실제 가치 텍스트 갱신 담당 |
 | `PuzzleInventoryPresenter` | 위 보드의 표시 갱신 Presenter. 패널 열림/닫힘 시 대기 코루틴 중단 등 정리(`Active=false` 경로 포함), OnEnable/OnDisable 대칭 구독 |
-| `PuzzleItemTooltipView` (`PanelBase`) | Cargo 화물 호버 팝업. 기본·실제 가치, 적용 배율·정확한 거래 예상 금액, 현재 적용 효과·일반 효과, 이동 턴 기준 미래 가치(`futureValue*Text`)를 표시한다. 가능 인접 효과 영역은 숨긴 상태다. 폰트 스타일은 툴팁 프리팹이 소유하며 런타임 상하한 보정은 사용하지 않는다. 거래 예상은 실제 거래 모델과 같은 계산을 사용한다. 닫히면 열린 상태를 정리한다. |
+| `PuzzleItemTooltipView` (`PanelBase`) | Cargo 화물 호버 팝업. 기본·실제 가치, 적용 배율·정확한 거래 예상 금액, 현재 적용 효과·일반 효과, 선택한 이동의 도착 시점 미래 가치(`futureValue*Text`)를 표시한다. 가능 인접 효과 영역은 숨긴 상태다. 폰트 스타일은 툴팁 프리팹이 소유하며 런타임 상하한 보정은 사용하지 않는다. 거래 예상은 실제 거래 모델과 같은 계산을 사용한다. 닫히면 열린 상태를 정리한다. |
 | `PuzzleCityView` | 현재 마을의 시장 보드: 재고 고정집산품·수입품·랜덤, 태그 선호·전 품목 구매·판매 배율 표시 |
 | `PuzzleTrainBarView` | 하단 화물칸 바: WagonSlotUI 프리팹 슬롯 풀(button/Image/highlightBorder/numberText) 선택·증차 용도; 드래시 호버 배율(`wagonDragHoverScale`)로 색 보정 — 코드에서만 색·배율 변경 |
 | `PuzzleSlotVisual` | 미리 배치된 HUD 슬롯 비주얼 — 시각·색·표시 타이밍을 코드가 제어, Instantiate 금지 원칙 준수 대상 |
@@ -37,7 +37,7 @@
     [시장 거래]            -> Ctrl+좌클릭 즉시거래 = 현재 회전으로 왼쪽 위부터 빈자리 찾기 없으면 다음 회전 순차 검사
                             같은 보드 내 이동은 무료, 공간/자금 조건 불충족이면 물건·자금 보존
     [노드 연결 확인]       -> 연결된 역 클릭 → 시간·비용 조건 검증(EvaluateTravel 기반: HasRoute+방문 여부+상환 예정지 비교) →
-                              Pass하면 목적지·이동 턴·요금 확인창("이동하시겠습니까?" 확인/취소)
+                              Pass하면 목적지·이동 시간·요금 확인창("이동하시겠습니까?" 확인/취소)
     [이동 확정 경로]       -> Confirm: 이동 연출 → 완료 시 이동 1회 확정 + 도착 표시 + 지도 닫힘 → TimeAdvanced 발생 →
                               실패면 도시·시간·화물·시장·자금 보존 후 지도에 사유 표시
     [완료 패널]           -> 시간 정지 + 인벤토리 입력 비활성화

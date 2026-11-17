@@ -100,12 +100,12 @@ public sealed class PuzzleStationActionsView : PanelBase
 
     protected override void Awake()
     {
-        tavernLabel.text = Presentation.StationTurnCost(Presentation.StationTavern);
+        tavernLabel.text = Presentation.StationTavern;
         restLabel.text = Presentation.StationRest;
         travelLabel.text = Presentation.StationTravel;
         backLabel.text = Presentation.StationBack;
         restHint.text = Presentation.StationRestHint;
-        wagonShopButton.GetComponentInChildren<TextMeshProUGUI>().text = Presentation.StationTurnCost(Presentation.StationWagonShop);
+        wagonShopButton.GetComponentInChildren<TextMeshProUGUI>().text = Presentation.StationWagonShop;
         tavernContent.gameObject.SetActive(false);
         if (butcheryButton && !ButcheryWired)
         {
@@ -232,20 +232,20 @@ public sealed class PuzzleStationActionsView : PanelBase
         base.OnDisable();
     }
 
-    // _marketOpen: 지금 시장에 들어갈 수 있는지(밤이 아니고 턴을 쓸 수 있음). _marketEntered: 이미 시장에 들어가 있는지.
-    // _canSpendTurn: 역 행동 1턴을 쓸 수 있는지(기한). 턴을 쓰는 버튼만 막고 휴식 화면·이동 버튼은 그대로 둔다.
-    internal void Refresh(bool _marketOpen, bool _marketEntered, bool _inProgress, bool _canSpendTurn, long _restTurns,
+    // _marketOpen: 지금 시장에 들어갈 수 있는지(밤이 아니고 역에 있음). _marketEntered: 이미 시장에 들어가 있는지.
+    // _atStation: 이동 중이 아니라 역 시설을 쓸 수 있는지. 시설 진입은 시간을 쓰지 않는다.
+    internal void Refresh(bool _marketOpen, bool _marketEntered, bool _inProgress, bool _atStation, long _restHours,
         bool _butcheryAvailable, bool _butcheryEnabled, bool _butcheryConfirmEnabled, string _butcheryHint,
         long _butcheryCost, string _butcheryDescription)
     {
         marketLabel.text = _marketOpen || _marketEntered
-            ? Presentation.StationTurnCost(Presentation.StationMarket)
+            ? Presentation.StationMarket
             : Presentation.StationMarketClosed;
         marketButton.interactable = _marketOpen || _marketEntered;
         restButton.interactable = travelButton.interactable = _inProgress;
-        tavernButton.interactable = restDurationButton.interactable = _inProgress && _canSpendTurn;
-        restDurationLabel.text = Presentation.StationRestDuration(_restTurns);
-        wagonShopButton.interactable = _inProgress && _canSpendTurn;
+        tavernButton.interactable = restDurationButton.interactable = _inProgress && _atStation;
+        restDurationLabel.text = Presentation.StationRestDuration(_restHours);
+        wagonShopButton.interactable = _inProgress && _atStation;
         if (!_inProgress && wagonShopContent.activeSelf)
         {
             ShowHome();

@@ -1,6 +1,6 @@
 # 외부 행동 복원 계약
 
-이 문서와 schemaVersion 7 구조화 로그, 해당 Rules 테이블만으로 외부 도구가 행동과 관측 상태를 복원한다. Unity 실행·게임 소스·콘솔 문장 해석을 요구하지 않는다. 복원 규칙과 게임의 기대 규칙 검증을 구분한다. 실제 변화는 로그에서 적용하고, 기대 가격·시너지·조건은 테이블과 비교한다.
+이 문서와 schemaVersion 8 구조화 로그, 해당 Rules 테이블만으로 외부 도구가 행동과 관측 상태를 복원한다. Unity 실행·게임 소스·콘솔 문장 해석을 요구하지 않는다. 복원 규칙과 게임의 기대 규칙 검증을 구분한다. 실제 변화는 로그에서 적용하고, 기대 가격·시너지·조건은 테이블과 비교한다.
 
 ## LogKit 서버에서 원본 추출
 
@@ -19,16 +19,16 @@
 - 입력: 세션 JSONL과 각 run_start.rulesHash에 해당하는 `Rules/<hash>.json`. 파일 바이트의 SHA-256이 hash와 같아야 한다. 파일을 재직렬화한 결과가 아니라 전달된 UTF-8 원본 바이트를 해시한다.
 - Rules의 `tables[{name,json}]`에서 name은 확장자 없는 테이블 이름, json은 해당 원본 JSON 문자열이다. 판마다 참조가 고정되며 최신 테이블로 대체하지 않는다.
 - JSONL의 dataJson은 JSON 문자열이므로 한 번 더 파싱한다. sessionId별 sequence 순으로 읽는다. timestampUtc나 디렉터리 나열 순서로 정렬하지 않는다.
-- session_start.schemaVersion은 **7**이다. 없는 버전은 1, 이전 변화분 계약은 2, 구매·판매·재배치의 의미 분리는 3, `rumor_learned`에 `kind`·`itemId`를 더한 것이 4, 행동 종류와 `actionId`를 더한 것이 5, 작업대·화차 행동과 작업대 보드 관측·`transformed`를 더한 것이 6, 게임 시간을 턴(1턴=3시간)으로 바꾸고 역 시설 진입 행동을 더한 것이 7이다. 7부터 `elapsedMinutes`·`requestedMinutes`·`deadlineMinutes`·`totalMinutes`는 `elapsedTurns`·`requestedTurns`·`deadlineTurns`·`totalTurns`(정수 턴)로 바뀐다. 6 이하의 분 값은 180으로 나누면 턴 축에 대략 맞지만 규칙이 달라 같은 집계로 섞지 않는다. 버전에 맞춰 필드를 해석한다.
+- session_start.schemaVersion은 **8**이다. 없는 버전은 1, 이전 변화분 계약은 2, 구매·판매·재배치의 의미 분리는 3, `rumor_learned`에 `kind`·`itemId`를 더한 것이 4, 행동 종류와 `actionId`를 더한 것이 5, 작업대·화차 행동과 작업대 보드 관측·`transformed`를 더한 것이 6, 게임 시간을 턴(1턴=3시간)으로 바꾸고 역 시설 진입 행동을 더한 것이 7이다. 7부터 `elapsedMinutes`·`requestedMinutes`·`deadlineMinutes`·`totalMinutes`는 `elapsedHours`·`requestedHours`·`deadlineHours`·`totalHours`(정수 턴)로 바뀐다. 8에서 게임 시간을 정수 게임 시간(1시간)으로 바꾸고 실시간 시계를 도입했다. 필드는 `elapsedHours`·`requestedHours`·`deadlineHours`·`totalHours`다. 시계가 1시간 흐를 때마다 `advance_time`을 남기고, 이동은 출발 `depart`와 도착 `travel` 두 건으로 나뉜다. 역 시설 진입은 시간을 쓰지 않는다. 6 이하의 분 값과 7의 턴 값은 규칙이 달라 같은 집계로 섞지 않는다. 버전에 맞춰 필드를 해석한다.
 - run_start에서 새 판을 만들고 run_end에서 닫는다. 판 키는 `(sessionId, run_start.sequence)`다. instanceId는 판 안에서만 유일하다. 재시작 후 같은 번호를 이전 판 화물과 연결하지 않는다.
 - 시퀀스 누락·중복·파싱 실패·run_start 부재·Rules 누락은 불완전 입력이다. 누락 부분을 가격·이동 성공 여부 등으로 추측해서 채우지 않는다. 마지막 연속된 원본까지의 복원만 확정한다.
 - run_end/session_end가 없으면 완결된 승패가 아닌 중단된 접두 기록이다. 완전한 마지막 행동까지 복원할 수 있지만 이후 행동·종료 사유는 알 수 없다.
 
 ## 복원하는 상태
 
-판 상태 S는 `cityId`, `funds`, `wagonCount`, `elapsedTurns`, `items[instanceId]`, 소문 목록, 종료 사유다. items는 **모든 기차 화물 + 현재 도시의 시장 화물 + 모든 도시의 작업대 화물**만 포함한다. 작업대에 맡긴 화물은 도시를 떠나도 관측을 유지한다. 미방문/현재 보이지 않는 시장의 무작위 내용은 복원 범위에 포함하지 않는다. UI 픽셀·마우스 궤적·취소된 중간 조작도 재생 대상이 아니다.
+판 상태 S는 `cityId`, `funds`, `wagonCount`, `elapsedHours`, `items[instanceId]`, 소문 목록, 종료 사유다. items는 **모든 기차 화물 + 현재 도시의 시장 화물 + 모든 도시의 작업대 화물**만 포함한다. 작업대에 맡긴 화물은 도시를 떠나도 관측을 유지한다. 미방문/현재 보이지 않는 시장의 무작위 내용은 복원 범위에 포함하지 않는다. UI 픽셀·마우스 궤적·취소된 중간 조작도 재생 대상이 아니다.
 
-run_start의 cityId/funds/wagonCount/items로 S를 초기화하고 elapsedTurns는 0으로 둔다. items는 보드별 일부 표본이 아닌 관측 범위 전체다. train:0부터 wagonCount-1까지 빈 화물칸도 존재한다. train:N의 N은 화물칸을 얻은 순서이며 기차 안 순서가 바뀌어도 그대로다. market:<cityId>는 현재 시장이다. `workbench:<cityId>:<actionId>`는 그 도시의 작업대(도축·개조·정제) 보드이며 actionId는 `PuzzleCityActionTableData.actions[].id`다.
+run_start의 cityId/funds/wagonCount/items로 S를 초기화하고 elapsedHours는 0으로 둔다. items는 보드별 일부 표본이 아닌 관측 범위 전체다. train:0부터 wagonCount-1까지 빈 화물칸도 존재한다. train:N의 N은 화물칸을 얻은 순서이며 기차 안 순서가 바뀌어도 그대로다. market:<cityId>는 현재 시장이다. `workbench:<cityId>:<actionId>`는 그 도시의 작업대(도축·개조·정제) 보드이며 actionId는 `PuzzleCityActionTableData.actions[].id`다.
 
 items/introduced 원소는 `instanceId`, `itemId`, `board`, `x`, `y`, `clockwiseTurns`, `actualValue`, `durability`다. actualValue는 invariant decimal 문자열이므로 이진 float로 바꾸지 않는다. 표시 이름·태그·모양·보드 치수는 테이블에서 결합한다.
 
@@ -37,7 +37,9 @@ items/introduced 원소는 `instanceId`, `itemId`, `board`, `x`, `y`, `clockwise
 | 화물 정의 | PuzzleTableData.pieces[].id = itemId |
 | 기차 치수 | PuzzleTableData.train |
 | 도시/시장 치수·거래 조건 | PuzzleTableData.cities[].id = cityId |
-| 작업대 치수·변환·비용·시간·개조 모드 | PuzzleCityActionTableData.actions[].id = actionId |
+| 작업장 치수·작업 목록·수수료 계수 | TrainventoryWorkshopTableData.workshops[].id = actionId |
+| 작업(입력·시간·산출·비용, 개조 모드) | TrainventoryWorkTableData.works[].id = modeId |
+| 역의 작업장 | PuzzleTableData.cities[].workshopIds |
 | 화차 상품·화차 개조 | PuzzleTradeTableData.wagonProducts[].id = productId |
 | 증차·상환·기한 | PuzzleTradeTableData |
 | 노선 | PuzzleRouteTableData.routes의 fromCityId/toCityId |
@@ -57,13 +59,14 @@ puzzle_action은 모델에 전달된 명시적 조작 한 건의 결과다. 의�
 | workbench_unload | 작업대 보드에서 기차로 꺼내기 시도(산출물 회수 포함) | drag / quick_transfer |
 | placement | 원본 ID나 대상 보드가 유효하지 않아 위 분류로 나눌 수 없는 배치 시도 | drag / quick_transfer |
 | workbench_confirm | 작업대 작업 확정 시도. `actionId`, 개조면 `modeId`. 성공하면 비용이 moneyDelta, 도축·정제 입력이 removed로 나온다. 개조 입력은 완료까지 작업대에 남는다 | 비어 있음 |
-| wait_for_workbench | 작업대 작업에 턴 보내기 시도. 확정 직후 역 행동 1턴을 이 행동으로 쓴다. `actionId` | 비어 있음 |
-| enter_market | 시장 진입 시도(역 행동 1턴). 밤이면 market_closed, 기한을 넘기면 deadline으로 실패한다 | 비어 있음 |
-| enter_tavern | 술집 진입 시도(역 행동 1턴). 기한을 넘기면 deadline | 비어 있음 |
-| enter_wagon_facility | 화차 시설 진입 시도(역 행동 1턴). 기한을 넘기면 deadline | 비어 있음 |
+| wait_for_workbench | 작업대 작업에 시간 보내기 시도(8부터 쓰지 않음). `actionId` | 비어 있음 |
+| enter_market | 시장 진입(시간을 쓰지 않음). 밤이면 market_closed로 실패한다. 같은 시설에 다시 들어가면 기록하지 않는다 | 비어 있음 |
+| enter_tavern | 술집 진입(시간을 쓰지 않음) | 비어 있음 |
+| enter_wagon_facility | 화차 시설 진입(시간을 쓰지 않음) | 비어 있음 |
 | install_wagon_modification | 기존 화물칸 개조 설치 시도(현재 냉장). `modificationId`, 대상 `board` | 비어 있음 |
 | reorder_wagon | 기차 안 화물칸 순서 바꾸기 시도. 성공하면 `wagonOrder` | 비어 있음 |
-| travel | 목적지 이동 확정 시도 | 비어 있음 |
+| depart | 출발 시도. 성공하면 운임이 moneyDelta로 나오고 `targetCityId`가 목적지다. 실패 사유는 `failure` | 비어 있음 |
+| travel | 도착. 시계가 이동 시간만큼 흐른 뒤 기록하며 `cityId`가 바뀐다. 턴은 travel 건수다 | 비어 있음 |
 | rest | 휴식 시도 | 비어 있음 |
 | wait_for_daylight | 아침 대기 시도 | 비어 있음 |
 | advance_time | 그 외 명시적 시간 진행 시도 | 비어 있음 |
@@ -86,7 +89,7 @@ failure가 null/빈 문자열이면 성공이고 그 외는 거부/오류다. bu
 | board | install_wagon_modification의 대상 화물칸 보드. 그 외 빈 값 |
 | wagonOrder | 성공한 reorder_wagon 직후 기차 앞부터의 화물칸 보드 ID 순서. 그 외 빈 배열 |
 | instanceId | buy/sell/reposition/placement의 대상 화물. 그 외 0 |
-| elapsedTurns | 행동 직후 실제 게임 누적 턴. 항상 필요. 이전 값과 차이가 실제 소비 턴 |
+| elapsedHours | 행동 직후 실제 게임 누적 시간. 항상 필요. 이전 값과 차이가 실제 경과 시간 |
 | moneyDelta | 관측한 자금 증감. S.funds에 더함. 실패라도 실제 변화가 있으면 적용 |
 | wagonDelta | 관측한 화물칸 수 증감. S.wagonCount에 더함. add_wagon 성공만 보고 +1을 추가하지 않음 |
 | cityId | 실제 도시가 바뀐 경우의 새 도시. null/빈 값이면 도시 유지 |
@@ -105,7 +108,7 @@ introduced는 생성 이벤트가 아니다. market 보드의 introduced는 처�
 
 - 실패 배치: attempt.destination은 대상 보드, x/y는 놓으려 한 보드 셀, grabbedX/grabbedY는 잡은 원본 화물 셀, clockwiseTurns는 요청 회전이다.
 - 실패 quick_transfer: 고정 목표 셀이 없으므로 destination과 clockwiseTurns(선호 회전)만 해석한다. x/y/grabbedX/grabbedY는 무시한다. 후보 탐색은 여러 행동이 아니다.
-- 실패 rest/wait_for_daylight/advance_time/wait_for_workbench: attempt.requestedTurns는 요청한 소비 턴이다. 실제 소비는 elapsedTurns 차이로 얻는다. unavailable인 아침 대기는 유효한 대기 시간이 없어 0이다.
+- 실패 rest/wait_for_daylight/advance_time/wait_for_workbench: attempt.requestedHours는 요청한 소비 시간이다. 실제 소비는 elapsedHours 차이로 얻는다. unavailable인 아침 대기는 유효한 대기 시간이 없어 0이다.
 - 무관한 문자열은 null 또는 빈 값, 숫자는 0, 변화 배열은 빈 배열이다. 직렬화기가 비어 있는 attempt 객체를 출력해도 action/failure 분기에 맞는 필드만 읽는다. 누락된 필수 원본 필드를 기본값으로 보충하지 않는다.
 
 ## 상태 적용 순서
@@ -115,7 +118,7 @@ introduced는 생성 이벤트가 아니다. market 보드의 introduced는 처�
 1. 적용 전 S를 보존한다. action/method/failure, 대상 instanceId와 원래 위치를 여기서 읽어 행동 레코드를 만든다. 요청 목적지는 targetCityId가 있으면 그것, 성공 travel에서 생략됐으면 cityId다.
 2. cityId가 비어 있지 않으면 이전 `market:<S.cityId>`에 있는 항목을 관측 상태에서 모두 빼고 S.cityId를 갱신한다. 이는 소멸이 아닌 관측 종료다. removed에 같은 시장 ID들을 다시 열거하지 않는다.
 3. removed의 항목을 지운다. introduced를 새 ID로 삽입한다. 이어서 moved, transformed, values, durability로 해당 필드만 덮어쓴다. 배열에 없는 필드는 유지한다.
-4. funds += moneyDelta, wagonCount += wagonDelta, elapsedTurns = 레코드의 elapsedTurns를 적용한다. action의 기대 효과를 추가로 실행하지 않는다.
+4. funds += moneyDelta, wagonCount += wagonDelta, elapsedHours = 레코드의 elapsedHours를 적용한다. action의 기대 효과를 추가로 실행하지 않는다.
 5. 성공 여부와 무관하게 적용 후 상태를 관측 결과로 보관한다. 정상 실패라면 moneyDelta/wagonDelta/도시/시간/화물 변화가 모두 없어야 한다. 변화가 있으면 실패 시 원상 보존 위반으로 표시한다.
 
 introduced의 ID는 적용 중인 S에 없어야 한다. moved/transformed/values/durability의 ID는 기존 항목이어야 한다. introduced와 removed/변경 배열은 같은 ID를 중복 사용하지 않는다. moved와 values처럼 다른 필드 변경끼리는 같은 ID가 나올 수 있다. 이러한 참조 규칙이 깨지면 임의의 새 화물을 만들지 말고 불완전/계약 위반으로 표시한다.
@@ -124,7 +127,7 @@ introduced의 ID는 적용 중인 S에 없어야 한다. moved/transformed/value
 
 시간 행동의 values는 행동 끝에 관측한 실제 가치다. 행동 도중 생성되거나 변환된 화물은 이후 정산에 참여할 수 있다. 외부 복원은 기록된 values를 적용한다. 동일 ID로 품목이 바뀌는 성장·식품 만료·개조 완료는 transformed로 복원한다. 작업대의 예약 산출물·남은 시간 같은 내부 진행 상태는 화물이 아니므로 복원하지 않고 테이블의 `workTurns`와 확정 시각으로 계산한다.
 
-작업대 완료는 보통 시간 행동 안에서 일어나 그 행동의 introduced(도축·정제 산출물)나 transformed(개조)에 나온다. 완료 판정은 작업대를 조회할 때도 늦게 일어날 수 있어 그 경우 변화는 다음 `puzzle_action`에 실린다. 완료 시점은 보조 기록 `workbench_ready`(`actionId`, `cityId`, `outputCount`, `elapsedTurns`)로 확인한다. 상태 적용에는 쓰지 않는다.
+작업대 완료는 보통 시간 행동 안에서 일어나 그 행동의 introduced(도축·정제 산출물)나 transformed(개조)에 나온다. 완료 판정은 작업대를 조회할 때도 늦게 일어날 수 있어 그 경우 변화는 다음 `puzzle_action`에 실린다. 완료 시점은 보조 기록 `workbench_ready`(`actionId`, `cityId`, `outputCount`, `elapsedHours`)로 확인한다. 상태 적용에는 쓰지 않는다.
 
 ## 격자·회전
 
@@ -135,18 +138,18 @@ introduced의 ID는 적용 중인 S에 없어야 한다. moved/transformed/value
 
 ## 다른 이벤트와 시간
 
-- quest_updated는 의뢰 하나의 상태가 바뀔 때(Active=수락, Completed, Failed) questId/cargoInstanceId/templateId/pieceId/sourceCityId/targetCityId/penaltyId/state/failure(CargoLost·Overdue, 판매한 의뢰 화물은 그 역 시장 보드에서 사라질 때 CargoLost)/reward/deposit/payout/deadlineTurns/elapsedTurns를 기록한다. 기한 초과 실패 시 남아 있던 의뢰 화물은 회수되며 자금은 바꾸지 않는다. 지역 거래 불이익은 이후 거래 가격에만 반영된다.
-- proficiency_gained는 태그 하나의 숙련 경험치가 늘 때 tag/source(Sale·Quest)/gainedXp/xp(누적)/previousLevel/level/instanceId/questId(판매면 0)/elapsedTurns를 기록한다. 판매는 그 판매의 puzzle_action보다 먼저, 의뢰는 complete_quest보다 먼저 나온다. 판매 moneyDelta에는 숙련 이득이 이미 반영되어 있다.
-- `rumor_learned`는 `kind`·`targetCityId`·`tag`·`itemId`·`actionId`·`elapsedTurns`를 기록한다. `specialty`의 `itemId`는 특산 품목 ID, `tag`는 대상 마을의 `specialtyTag`다. `rare`의 `tag`는 수요 태그다. `preference`의 `tag`는 대상 마을에서 판매 등급이 선호(Expensive)인 태그다. `action`의 `actionId`는 `PuzzleCityActionTableData.actions[].id`다. 종류에 해당하지 않는 `tag`·`itemId`·`actionId`는 빈 문자열이다. schemaVersion 4의 종류는 `specialty`·`rare`이며 `actionId` 필드는 5부터 있다. `preference`는 6부터 있다. schemaVersion 3 이하에는 `kind`·`itemId`가 없다. 출처는 그 시점의 S.cityId이며 소문 한 건을 목록에 추가한다.
+- quest_updated는 의뢰 하나의 상태가 바뀔 때(Active=수락, Completed, Failed) questId/cargoInstanceId/templateId/pieceId/sourceCityId/targetCityId/penaltyId/state/failure(CargoLost·Overdue, 판매한 의뢰 화물은 그 역 시장 보드에서 사라질 때 CargoLost)/reward/deposit/payout/deadlineHours/elapsedHours를 기록한다. 기한 초과 실패 시 남아 있던 의뢰 화물은 회수되며 자금은 바꾸지 않는다. 지역 거래 불이익은 이후 거래 가격에만 반영된다.
+- proficiency_gained는 태그 하나의 숙련 경험치가 늘 때 tag/source(Sale·Quest)/gainedXp/xp(누적)/previousLevel/level/instanceId/questId(판매면 0)/elapsedHours를 기록한다. 판매는 그 판매의 puzzle_action보다 먼저, 의뢰는 complete_quest보다 먼저 나온다. 판매 moneyDelta에는 숙련 이득이 이미 반영되어 있다.
+- `rumor_learned`는 `kind`·`targetCityId`·`tag`·`itemId`·`actionId`·`elapsedHours`를 기록한다. `specialty`의 `itemId`는 특산 품목 ID, `tag`는 대상 마을의 `specialtyTag`다. `rare`의 `tag`는 수요 태그다. `preference`의 `tag`는 대상 마을에서 판매 등급이 선호(Expensive)인 태그다. `action`의 `actionId`는 `PuzzleCityActionTableData.actions[].id`다. 종류에 해당하지 않는 `tag`·`itemId`·`actionId`는 빈 문자열이다. schemaVersion 4의 종류는 `specialty`·`rare`이며 `actionId` 필드는 5부터 있다. `preference`는 6부터 있다. schemaVersion 3 이하에는 `kind`·`itemId`가 없다. 출처는 그 시점의 S.cityId이며 소문 한 건을 목록에 추가한다.
 - run_end.reason은 won/deadline/restart/scene_unloaded/shutdown/recorder_disabled/replaced다. 승패와 중단을 구분하고 S를 닫는다. 결과 패널/씬 이벤트가 뒤에 있어도 새 run_start 전까지 이전 판 행동으로 추가하지 않는다.
 - session_start는 schemaVersion/reason/appVersion/unityVersion/platform/isEditor/scene, session_end는 reason이다. scene_change는 scene/loaded, panel_visibility는 panel/open, upgrade_granted는 id, entity_link_clicked는 kind(city·item·tag·quest·region 소문자)/id/action(click·context)이다. 원본 시각은 공통 봉투에서 읽는다.
 - entity_link_clicked는 플레이어가 고유명사 하이퍼링크를 클릭하거나 컨텍스트(우클릭 등)를 요청했을 때 kind/id/action을 기록한다. 호버는 고빈도이므로 수집 경계에 따라 기록하지 않는다.
-- route_planned는 경로 계획이 생성되었을 때 from/to/legs/totalTurns/stops를 기록한다. legs는 구간 수, totalTurns는 계획 구간들의 노선 이동 턴 합계, stops는 목적지를 포함한 계획 상의 정차역 수다.
+- route_planned는 경로 계획이 생성되었을 때 from/to/legs/totalHours/stops를 기록한다. legs는 구간 수, totalHours는 계획 구간들의 이동 시간 합계, stops는 목적지를 포함한 계획 상의 정차역 수다.
 - route_stop_changed는 계획 경로의 경유역 정차 여부를 바꿨을 때 city/stop/to를 기록한다. to는 계획 목적지 역 ID다.
 - station_screen은 역 행동 패널 안의 하위 화면이 바뀔 때 screen(home/market/wagon_shop/rest/tavern/butchery/modification/refining)을 기록한다. 패널 자체의 열림·닫힘은 panel_visibility다.
 - route_ended는 경로 계획이 종료되었을 때 reason(completed/canceled/deviated/run_ended)/to를 기록한다. to는 계획했던 목적지 역 ID다.
 - auto_travel_stopped는 자동 이동 루프가 정지되었을 때 reason(stop_reached/insufficient_funds/run_ended/user_stopped/failed)/city를 기록한다. city는 정지 시점의 현재 역 ID다.
-- 공통 time은 일시정지를 반영하는 실제 플레이 누적 초, timestampUtc는 UTC, elapsedTurns는 게임 달력(턴)이다. 실제 체류 시간과 게임 소비 시간을 섞지 않는다.
+- 공통 time은 일시정지를 반영하는 실제 플레이 누적 초, timestampUtc는 UTC, elapsedHours는 게임 달력(시간)이다. 실제 체류 시간과 게임 소비 시간을 섞지 않는다.
 - 기본 기차 화물의 보유 시간은 0에서 시작하고 시장 화물은 미소유다. 성공 buy에서 0, sell에서 미소유로 바뀐다. 새 기차 화물은 해당 행동 끝에 보유를 시작한다. 이후 게임 소비 분을 합해 보유 기간을 계산한다.
 
 ## 외부 해석 예
@@ -154,12 +157,12 @@ introduced의 ID는 적용 중인 S에 없어야 한다. moved/transformed/value
 아래 숫자는 형식 설명용이다. dataJson을 파싱한 후이며 무관한 빈 필드는 생략했다. 적용 전 화물 17이 현재 시장에 있고 자금은 200이라고 가정한다.
 
 ```json
-{"action":"buy","method":"quick_transfer","instanceId":17,"failure":"","elapsedTurns":0,"moneyDelta":-30,"wagonDelta":0,"moved":[{"instanceId":17,"board":"train:0","x":1,"y":3,"clockwiseTurns":1}]}
+{"action":"buy","method":"quick_transfer","instanceId":17,"failure":"","elapsedHours":0,"moneyDelta":-30,"wagonDelta":0,"moved":[{"instanceId":17,"board":"train:0","x":1,"y":3,"clockwiseTurns":1}]}
 ```
 즉시 구매 성공이다. 기존 시장 화물 17을 지정 위치로 옮기고 자금은 170이다. itemId/태그/기본 가치는 기존 17의 상태와 Rules에서 얻는다. 별도 거래 로그나 fundsAfter가 필요하지 않다.
 
 ```json
-{"action":"sell","method":"drag","instanceId":17,"failure":"trade.InsufficientFunds","elapsedTurns":0,"moneyDelta":0,"wagonDelta":0,"attempt":{"destination":"market:city.example","x":2,"y":4,"grabbedX":0,"grabbedY":0,"clockwiseTurns":1}}
+{"action":"sell","method":"drag","instanceId":17,"failure":"trade.InsufficientFunds","elapsedHours":0,"moneyDelta":0,"wagonDelta":0,"attempt":{"destination":"market:city.example","x":2,"y":4,"grabbedX":0,"grabbedY":0,"clockwiseTurns":1}}
 ```
 판매 시도 거부다. 변화 배열이 모두 비었으면 기차·자금은 유지된다. 거부가 구매였는지 판매였는지 돈의 부호로 추측하지 않는다. 요청 위치는 attempt로 재구성한다. 예제는 빈 배열 필드를 생략했지만 실제 로그는 빈 배열로 출력한다.
 
@@ -177,7 +180,7 @@ introduced의 ID는 적용 중인 S에 없어야 한다. moved/transformed/value
 
 ## 수집 경계와 버전 변경
 
-매 프레임 호버·견적·고스트·후보 탐색·선택 화물칸 변경, 호버 툴팁의 열림·닫힘, 드래그 중간 회전/취소, 이동 확인창 취소, 같은 위치·회전의 무변화 성공, 화물칸을 제자리에 놓기, 0턴 진행, 개조 모드 선택 토글(확정의 modeId로 남음)은 수집하지 않는다. 로그에 없다고 해당 마우스 조작이 없었다고 판단할 수 없다. 미구현 사건과 숨은 시장 RNG 전체도 복원하지 않는다. 현재 summary 집계는 발행하지 않는다.
+매 프레임 호버·견적·고스트·후보 탐색·선택 화물칸 변경, 호버 툴팁의 열림·닫힘, 드래그 중간 회전/취소, 이동 확인창 취소, 같은 위치·회전의 무변화 성공, 화물칸을 제자리에 놓기, 0시간 진행, 개조 모드 선택 토글(확정의 modeId로 남음)은 수집하지 않는다. 로그에 없다고 해당 마우스 조작이 없었다고 판단할 수 없다. 미구현 사건과 숨은 시장 RNG 전체도 복원하지 않는다. 현재 summary 집계는 발행하지 않는다.
 
 버전 6은 `butchery_committed`를 `workbench_confirm` 행동으로, `butchery_ready`를 `workbench_ready`로 바꿨다. 작업대 보드를 관측 범위에 넣어 맡긴 화물이 removed로 사라지지 않고, 기차↔작업대 이동은 placement 대신 workbench_load/workbench_unload다. 작업 비용은 확정 행동의 moneyDelta에 나온다.
 

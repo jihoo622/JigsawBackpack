@@ -52,7 +52,7 @@ public sealed class PuzzleTableData
 public sealed class PuzzleSynergyTableData
 {
     public string status, note;
-    public int activationIntervalTurns = -1;
+    public int activationIntervalHours = -1;
     public PuzzleSynergyRuleData[] rules = Array.Empty<PuzzleSynergyRuleData>();
     public PuzzleAnimalSynergyData animals;
     public PuzzleFreshnessData freshness;
@@ -77,12 +77,20 @@ public sealed class PuzzleRumorTableData
     public string[] excludedItemIds = Array.Empty<string>();
 }
 
-// 마을별 추가 행동(도축 등)의 원본. 도시 id·작업 시간·변환 관계를 이 표만 안다.
+// 작업(WorksData)의 원본. 입력·작업 시간·산출·비용을 이 표만 안다.
 [Serializable]
-public sealed class PuzzleCityActionTableData
+public sealed class TrainventoryWorkTableData
 {
     public string status, note;
-    public PuzzleCityActionData[] actions = Array.Empty<PuzzleCityActionData>();
+    public TrainventoryWorkData[] works = Array.Empty<TrainventoryWorkData>();
+}
+
+// 작업장의 원본. 작업장 종류·보드·처리할 작업·수수료 계수를 이 표만 안다. 역 배치는 PuzzleTableData.cities[].workshopIds다.
+[Serializable]
+public sealed class TrainventoryWorkshopTableData
+{
+    public string status, note;
+    public TrainventoryWorkshopData[] workshops = Array.Empty<TrainventoryWorkshopData>();
 }
 
 [Serializable]
@@ -99,7 +107,7 @@ public sealed class PuzzleTradeTableData
     public PuzzleWagonProductData[] wagonProducts = Array.Empty<PuzzleWagonProductData>();
     public long gameClearCost = -1;
     // 0이면 무기한. 목표 도시가 비어 있으면 상환 장소를 제한하지 않는다.
-    public int deadlineTurns = -1;
+    public int deadlineHours = -1;
     public string debtCityId;
     public float travelEffectSeconds = -1f;
     public float travelArrivalHoldSeconds = -1f;
@@ -120,10 +128,10 @@ public sealed class PuzzleRouteTableData
     public string status, note;
     // 맵 제작 도구의 새 노선/일괄 적용 기준. 실행 요금은 각 routes[].cost를 읽는다.
     public int defaultBaseCost = -1;
-    public double pixelsPerTurn = -1;
+    public double pixelsPerDistance = -1;
     // 기차의 점유 칸 1칸에 더해지는 단가. 0이면 보유량과 무관한 정액 노선이다.
     public int costPerCell = -1;
-    public int costPerTurn = -1;
+    public int costPerDistance = -1;
     public PuzzleRouteData[] routes = Array.Empty<PuzzleRouteData>();
 }
 
@@ -164,11 +172,12 @@ public sealed class TrainventoryProficiencyTableData
 public sealed class PuzzleTimeTableData
 {
     public string status, note;
-    // 하루 8턴 중 낮 턴 수. 하루의 첫 턴부터 이만큼이 낮이고 나머지가 밤(시장 진입 불가)이다.
-    public int daylightTurns = -1;
-    // 하루의 첫 턴이 시작하는 시각(0~23시). 시작 시각이자 날짜 변경·재입고 시각이다.
+    // 하루 24시간 중 낮 시간. 낮 시작(startHour)부터 이만큼이 낮이고 나머지가 밤(시장 진입 불가)이다.
+    public int daylightHours = -1;
+    // 낮이 시작하는 시각(0~23시). 게임 시작 시각이자 날짜 변경·재입고 시각이다.
     public int startHour = -1;
-    public long restTurns = -1;
-    // 역 시설 진입(시장·술집·화차 시설)과 작업대 확정이 쓰는 턴.
-    public long stationActionTurns = -1;
+    // 휴식이 보내는 게임 시간.
+    public long restHours = -1;
+    // 노선 거리 1당 이동 시간(게임 시간). 이동 시간 = 노선 거리 × hoursPerDistance.
+    public int hoursPerDistance = -1;
 }

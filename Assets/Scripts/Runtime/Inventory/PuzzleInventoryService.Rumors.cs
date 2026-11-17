@@ -74,7 +74,7 @@ public sealed partial class PuzzleInventoryService
     {
         foreach (var city in tables.Cities)
         {
-            foreach (var action in tables.CityActionsOf(city.id))
+            foreach (var action in tables.WorkshopsOf(city.id))
             {
                 _candidates.Add(new PuzzleRumorCandidate(PuzzleRumorKind.Action, city.id, _actionId: action.id));
             }

@@ -133,9 +133,9 @@ public sealed class PuzzleCityView : MonoBehaviour
         dayNightBar.color = Presentation.TimeDayBar;
         nightSegmentA.color = Presentation.TimeNightBar;
         nightSegmentB.color = Presentation.TimeNightBar;
-        float day = PuzzleTimeManager.TURNS_PER_DAY;
-        float start = _time.NightStartTurnOfDay / day;
-        float end = start + _time.NightLengthTurns / day;
+        float day = PuzzleTimeManager.HOURS_PER_DAY;
+        float start = _time.NightStartHourOfDay / day;
+        float end = start + _time.NightLengthHours / day;
         // 자정을 넘는 밤은 [시작, 1)과 [0, 끝-1) 두 칸으로 나눈다.
         SetSpan(nightSegmentA, start, Mathf.Min(end, 1f));
         nightSegmentB.gameObject.SetActive(end > 1f);
@@ -143,7 +143,7 @@ public sealed class PuzzleCityView : MonoBehaviour
         {
             SetSpan(nightSegmentB, 0f, end - 1f);
         }
-        float now = _time.TurnOfDay / day;
+        float now = (_time.HourOfDay + _time.HourFraction) / day;
         clockMarker.anchorMin = new Vector2(now, clockMarker.anchorMin.y);
         clockMarker.anchorMax = new Vector2(now, clockMarker.anchorMax.y);
         clockMarker.anchoredPosition = new Vector2(0f, clockMarker.anchoredPosition.y);
@@ -162,9 +162,9 @@ public sealed class PuzzleCityView : MonoBehaviour
         rect.offsetMax = Vector2.zero;
     }
 
-    internal void ShowTime(PuzzleTimeManager _time)
+    internal void ShowTime(PuzzleTimeManager _time, int _turns)
     {
-        timeLabel.text = Presentation.PuzzleTime(_time);
+        timeLabel.text = Presentation.PuzzleTime(_time, _turns);
         ShowDayNight(_time);
         if (deadlineTitle)
         {
@@ -189,8 +189,8 @@ public sealed class PuzzleCityView : MonoBehaviour
             deadlineTitle.gameObject.SetActive(true);
             deadlineTitle.color = Presentation.PuzzleHeading;
         }
-        deadlineLabel.text = Presentation.TimeDeadlineValue(_time.RemainingTurns);
-        deadlineLabel.color = Presentation.TimeDeadlineWarning(_time.RemainingTurns)
+        deadlineLabel.text = Presentation.TimeDeadlineValue(_time.RemainingHours);
+        deadlineLabel.color = Presentation.TimeDeadlineWarning(_time.RemainingHours)
             ? Presentation.PuzzleTooltipRed : Presentation.PuzzleHeading;
     }
 

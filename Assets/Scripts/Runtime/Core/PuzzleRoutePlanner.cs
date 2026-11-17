@@ -20,7 +20,7 @@ public static class PuzzleRoutePlanner
             return new List<string> { _fromCityId };
         }
 
-        var turns = new Dictionary<string, long>(StringComparer.Ordinal) { [_fromCityId] = 0 };
+        var hours = new Dictionary<string, long>(StringComparer.Ordinal) { [_fromCityId] = 0 };
         var previous = new Dictionary<string, string>(StringComparer.Ordinal);
         var done = new HashSet<string>(StringComparer.Ordinal);
 
@@ -28,7 +28,7 @@ public static class PuzzleRoutePlanner
         {
             string current = null;
             long best = long.MaxValue;
-            foreach (var pair in turns)
+            foreach (var pair in hours)
             {
                 if (!done.Contains(pair.Key) && (pair.Value < best ||
                     (pair.Value == best && (current == null || StringComparer.Ordinal.Compare(pair.Key, current) < 0))))
@@ -59,11 +59,11 @@ public static class PuzzleRoutePlanner
                     continue;
                 }
 
-                long travelTime = PuzzleTimeManager.TravelTurns(route, _tables.PuzzleTime);
+                long travelTime = PuzzleTimeManager.TravelHours(route, _tables.PuzzleTime);
                 long arrival = checked(best + travelTime);
-                if (!turns.TryGetValue(route.toCityId, out long known) || arrival < known)
+                if (!hours.TryGetValue(route.toCityId, out long known) || arrival < known)
                 {
-                    turns[route.toCityId] = arrival;
+                    hours[route.toCityId] = arrival;
                     previous[route.toCityId] = current;
                 }
                 else if (arrival == known && previous.TryGetValue(route.toCityId, out var existingPrev))
@@ -76,7 +76,7 @@ public static class PuzzleRoutePlanner
             }
         }
 
-        if (!turns.ContainsKey(_toCityId) || !previous.ContainsKey(_toCityId))
+        if (!hours.ContainsKey(_toCityId) || !previous.ContainsKey(_toCityId))
         {
             return null;
         }

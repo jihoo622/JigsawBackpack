@@ -42,7 +42,7 @@ internal static class PuzzleRefrigeration
     internal static int AdjacentReductionPercent(IEnumerable<PuzzlePlacement> _sources, PuzzlePlacement _item,
         PuzzleFreshnessData _freshness, ICollection<PuzzleRefrigerationContact> _contacts = null)
     {
-        if (_item.RemainingShelfLifeTurns is not > 0)
+        if (_item.RemainingShelfLifeHours is not > 0)
         {
             return 0;
         }

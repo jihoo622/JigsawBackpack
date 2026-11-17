@@ -1,0 +1,58 @@
+{
+  "status": "sample",
+  "note": "작업장 원본. 역은 PuzzleTableData.cities[].workshopIds로 작업장을 가진다. type(Butchery·Refining·Modification)이 동작 방식이고 workIds의 작업만 받는다. 입력 화물 하나당 수수료 = 올림(작업 cost × costPercent / 100) + 작업 workHours × feePerHour + extraCost. 한 번에 맡긴 화물은 함께 시작해 가장 긴 작업 시간이 지나면 모두 나온다. 계수는 기존 비용을 그대로 내도록 잡은 잠정치다.",
+  "workshops": [
+    {
+      "id": "workshop.darpolButchery",
+      "type": "Butchery",
+      "title": "도축하기",
+      "description": "동물 화물을 맡기면 작업 시간이 지난 뒤 고기를 받습니다.",
+      "board": {
+        "width": 5,
+        "height": 5,
+        "startingPlacements": []
+      },
+      "workIds": [
+        "work.butcherCow"
+      ],
+      "costPercent": 100,
+      "feePerHour": 0,
+      "extraCost": 0
+    },
+    {
+      "id": "workshop.nornovaRefinery",
+      "type": "Refining",
+      "title": "정제하기",
+      "description": "광석 화물을 맡기면 작업 시간이 지난 뒤 금속 주괴로 정제됩니다.",
+      "board": {
+        "width": 5,
+        "height": 5,
+        "startingPlacements": []
+      },
+      "workIds": [
+        "work.refineOreCross",
+        "work.refineOreL"
+      ],
+      "costPercent": 100,
+      "feePerHour": 0,
+      "extraCost": 0
+    },
+    {
+      "id": "workshop.ernaModification",
+      "type": "Modification",
+      "title": "개조하기",
+      "description": "기계 화물을 맡기면 작업 시간이 지난 뒤 선택한 작업으로 개조된 화물을 받습니다.",
+      "board": {
+        "width": 5,
+        "height": 5,
+        "startingPlacements": []
+      },
+      "workIds": [
+        "work.refrigerateUShape"
+      ],
+      "costPercent": 100,
+      "feePerHour": 0,
+      "extraCost": 0
+    }
+  ]
+}

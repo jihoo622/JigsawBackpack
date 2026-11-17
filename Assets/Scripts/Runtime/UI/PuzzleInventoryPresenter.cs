@@ -141,6 +141,8 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         }
         GameEvents.CityArrived += OnCityArrived;
         GameEvents.TimeAdvanced += OnTimeAdvanced;
+        GameEvents.JourneyChanged += OnJourneyChanged;
+        GameEvents.PuzzleActionCommitted += OnPuzzleActionCommitted;
         GameEvents.PanelVisibility += OnPanelVisibility;
         GameEvents.TravelPreviewChanged += OnTravelPreviewChanged;
         GameEvents.ButcheryChanged += OnButcheryChanged;
@@ -219,6 +221,8 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         pendingFundsRefresh = false;
         GameEvents.CityArrived -= OnCityArrived;
         GameEvents.TimeAdvanced -= OnTimeAdvanced;
+        GameEvents.JourneyChanged -= OnJourneyChanged;
+        GameEvents.PuzzleActionCommitted -= OnPuzzleActionCommitted;
         GameEvents.PanelVisibility -= OnPanelVisibility;
         GameEvents.TravelPreviewChanged -= OnTravelPreviewChanged;
         GameEvents.ButcheryChanged -= OnButcheryChanged;
@@ -262,6 +266,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             }
             return;
         }
+        AdvanceClock();
 
         if (drag == null)
         {
@@ -385,6 +390,44 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
     }
 
     #endregion
+
+    // 게임 시계를 실시간으로 흘린다. 일시정지 메뉴가 timeScale을 0으로 두면 멈춘다.
+    // 화물을 끄는 동안은 보드가 바뀌지 않게 정시 확정을 미룬다. 분이 바뀌면 시계 표시만 갱신한다.
+    void AdvanceClock()
+    {
+        if (session.Time == null)
+        {
+            return;
+        }
+        long hour = session.Time.ElapsedHours;
+        int minute = session.Time.Minute;
+        session.AdvanceRealTime(UnityEngine.Time.deltaTime, drag != null);
+        if (session.Time.ElapsedHours == hour && session.Time.Minute != minute)
+        {
+            cityView.ShowTime(session.Time, session.CityMoveCount);
+        }
+    }
+
+    // 역 시설 진입은 시간을 쓰지 않아 TimeAdvanced가 오지 않는다. 진입이 확정되면 시장 보드의 거래 가능 여부만 바로 다시 그린다.
+    void OnPuzzleActionCommitted(GameEvents.PuzzleActionInfo _info)
+    {
+        if (_info.session != session || !initialized ||
+            (_info.action != PuzzleActionKind.EnterMarket && _info.action != PuzzleActionKind.EnterTavern &&
+            _info.action != PuzzleActionKind.EnterWagonFacility))
+        {
+            return;
+        }
+        marketView.SetMarketOpen(session.CanTradeInMarket);
+    }
+
+    // 출발·도착 때 시장 거래 가능 여부와 시계를 바로 다시 그린다.
+    void OnJourneyChanged(GameEvents.JourneyInfo _info)
+    {
+        if (_info.session == session && initialized)
+        {
+            ShowCurrentCity();
+        }
+    }
 
     void OnTimeAdvanced(GameEvents.TimeAdvanceInfo _info)
     {
@@ -558,7 +601,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
     {
         bool inProgress = session.RunStatus == PuzzleRunStatus.InProgress;
         cityView.ShowCity(Presentation.PuzzleCityTitle(session.CityData, session.RegionData));
-        cityView.ShowTime(session.Time);
+        cityView.ShowTime(session.Time, session.CityMoveCount);
         RefreshFunds();
         cityView.ShowTradeStatus(inProgress
             ? session.IsMarketOpen ? string.Empty : Presentation.PuzzleNightMarket
@@ -1232,15 +1275,15 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         var rate = item == null ? default : session.RateFor(item);
         (IReadOnlyList<string> General, IReadOnlyList<PuzzleTooltipEffectEntry> Synergies) effects =
             BuildEffectDescriptions(_placement, isTrain, isActionBoard);
-        long? previewTurns = session.PreviewTurns;
+        long? previewHours = session.PreviewHours;
         long? previewActivations = null;
         decimal? futureValue = null;
-        if (isTrain && previewTurns.HasValue)
+        if (isTrain && previewHours.HasValue)
         {
             try
             {
-                previewActivations = session.SynergyActivationsFor(previewTurns.Value);
-                futureValue = session.PreviewValueAfter(_placement, previewTurns.Value);
+                previewActivations = session.SynergyActivationsFor(previewHours.Value);
+                futureValue = session.PreviewValueAfter(_placement, previewHours.Value);
             }
             catch (System.OverflowException)
             {
@@ -1255,7 +1298,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             var direction = isTrain || isActionBoard ? PuzzleTradeDirection.Sell : PuzzleTradeDirection.Buy;
             long? price = session.TryQuoteTrade(_placement, direction, out long quote) ? quote : (long?)null;
             tooltipView.Show(item, actualValue, rate, effects.General, effects.Synergies, futureValue, pos, isTrain, _placement.FreshnessPercent,
-                session.TurnsUntilNextFreshnessBand(_placement), previewTurns,
+                session.HoursUntilNextFreshnessBand(_placement), previewHours,
                 previewName, previewActivations, price, isTrain ? PuzzleSynergyBonus.GroupByNeighbor(value.SynergyBonuses) : null,
                 isTrain ? session.AppliedPreservationPercent(_placement) : 0, isActionBoard);
             // 툴팁을 열면 미확인 알림만 지운다. 실제로 대기 중인 진행도와 빨간 표시는 상태가 풀릴 때까지 남는다.

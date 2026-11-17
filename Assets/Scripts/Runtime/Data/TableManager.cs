@@ -33,7 +33,8 @@ public sealed class TableManager
     public PuzzleTableData Puzzle { get; }
     public PuzzleSynergyTableData PuzzleSynergy { get; }
     public PuzzleCombinationTableData PuzzleCombination { get; }
-    public PuzzleCityActionTableData PuzzleCityAction { get; }
+    public TrainventoryWorkTableData Work { get; }
+    public TrainventoryWorkshopTableData Workshop { get; }
     public PuzzleTradeTableData PuzzleTrade { get; }
     public PuzzleRumorTableData PuzzleRumor { get; }
     public PuzzleRouteTableData PuzzleRoute { get; }
@@ -46,7 +47,9 @@ public sealed class TableManager
     public IReadOnlyList<PuzzleSynergyRuleData> SynergyRules { get; }
     // 인접 조합 규칙. id 오름차순이라 배열 순서에 의존하지 않는다.
     public IReadOnlyList<PuzzleCombinationRuleData> Combinations { get; }
-    public IReadOnlyList<PuzzleCityActionData> CityActions { get; }
+    // 작업·작업장. id 오름차순이라 배열 순서에 의존하지 않는다.
+    public IReadOnlyList<TrainventoryWorkData> Works { get; }
+    public IReadOnlyList<TrainventoryWorkshopData> Workshops { get; }
     public IReadOnlyList<PuzzlePieceData> Pieces { get; }
     public IReadOnlyList<PuzzleCityData> Cities { get; }
     public IReadOnlyList<PuzzleStartingPlacementData> TrainStartingPlacements { get; }
@@ -71,9 +74,8 @@ public sealed class TableManager
     readonly Dictionary<string, PuzzleMarketStockData> stockProfiles;
     readonly Dictionary<string, PuzzleSellGradeData> sellGrades;
     readonly Dictionary<string, Dictionary<string, PuzzleCityTagPriceData>> cityTagPrices;
-    readonly Dictionary<string, PuzzleCityActionData> cityActions;
-    readonly Dictionary<string, List<PuzzleCityActionData>> actionsByCity;
-    readonly Dictionary<string, PuzzleActionModeData> actionModes;
+    readonly Dictionary<string, TrainventoryWorkData> works;
+    readonly Dictionary<string, TrainventoryWorkshopData> workshops;
     readonly Dictionary<string, Dictionary<string, PuzzleRouteData>> routes;
     readonly Dictionary<string, IReadOnlyList<PuzzleRouteData>> routesFrom;
     readonly Dictionary<string, TrainventoryQuestPenaltyData> questPenalties;
@@ -92,7 +94,8 @@ public sealed class TableManager
         Puzzle = Load<PuzzleTableData>(ref loaded, _sources);
         PuzzleSynergy = Load<PuzzleSynergyTableData>(ref loaded, _sources);
         PuzzleCombination = Load<PuzzleCombinationTableData>(ref loaded, _sources);
-        PuzzleCityAction = Load<PuzzleCityActionTableData>(ref loaded, _sources);
+        Work = Load<TrainventoryWorkTableData>(ref loaded, _sources);
+        Workshop = Load<TrainventoryWorkshopTableData>(ref loaded, _sources);
         PuzzleTrade = Load<PuzzleTradeTableData>(ref loaded, _sources);
         PuzzleRumor = Load<PuzzleRumorTableData>(ref loaded, _sources);
         PuzzleRoute = Load<PuzzleRouteTableData>(ref loaded, _sources);
@@ -134,10 +137,10 @@ public sealed class TableManager
             .Where(_id => !string.IsNullOrEmpty(_id)), StringComparer.Ordinal);
         Combinations = Array.AsReadOnly(combinations.Values.OrderBy(_rule => _rule.id, StringComparer.Ordinal).ToArray());
         SynergyRules = Array.AsReadOnly(synergyRules.Values.OrderBy(entry => entry.id, StringComparer.Ordinal).ToArray());
-        cityActions = rules.Index(PuzzleCityAction.actions, e => e.id, "PuzzleCityActionTableData.actions");
-        actionsByCity = IndexActionsByCity(cityActions);
-        actionModes = IndexActionModes(cityActions, rules);
-        CityActions = Array.AsReadOnly(cityActions.Values.OrderBy(entry => entry.id, StringComparer.Ordinal).ToArray());
+        works = rules.Index(Work.works, _row => _row.id, "TrainventoryWorkTableData.works");
+        workshops = rules.Index(Workshop.workshops, _row => _row.id, "TrainventoryWorkshopTableData.workshops");
+        Works = Array.AsReadOnly(works.Values.OrderBy(_row => _row.id, StringComparer.Ordinal).ToArray());
+        Workshops = Array.AsReadOnly(workshops.Values.OrderBy(_row => _row.id, StringComparer.Ordinal).ToArray());
         Pieces = Array.AsReadOnly(pieces.Values.OrderBy(entry => entry.id, StringComparer.Ordinal).ToArray());
         TrainStartingPlacements = SortStartingPlacements(StartingTrainBoard);
         Cities = Array.AsReadOnly(cities.Values.OrderBy(entry => entry.id == Puzzle.startCity ? 0 : 1)
@@ -283,110 +286,100 @@ public sealed class TableManager
         return false;
     }
 
-    // cityIds 역방향 색인. 한 도시 같은 타입의 중복 행은 GameTableRules가 오류로 보고하고 색인은 첫 항목만 남긴다.
-    static Dictionary<string, List<PuzzleCityActionData>> IndexActionsByCity(
-        Dictionary<string, PuzzleCityActionData> _actions)
+    // 역이 가진 작업장. 역 행의 workshopIds 순서와 무관하게 id 오름차순이다. 모르는 id는 검증이 보고하고 여기서는 건너뛴다.
+    internal IReadOnlyList<TrainventoryWorkshopData> WorkshopsOf(string _cityId)
     {
-        var result = new Dictionary<string, List<PuzzleCityActionData>>(StringComparer.Ordinal);
-        foreach (var action in _actions.Values.OrderBy(entry => entry.id, StringComparer.Ordinal))
+        if (string.IsNullOrEmpty(_cityId) || !cities.TryGetValue(_cityId, out var city))
         {
-            foreach (string cityId in action.cityIds ?? Array.Empty<string>())
-            {
-                if (string.IsNullOrEmpty(cityId))
-                {
-                    continue;
-                }
-                if (!result.TryGetValue(cityId, out var list))
-                {
-                    list = new List<PuzzleCityActionData>();
-                    result.Add(cityId, list);
-                }
-                list.Add(action);
-            }
+            return Array.Empty<TrainventoryWorkshopData>();
         }
-        return result;
+        return Array.AsReadOnly((city.workshopIds ?? Array.Empty<string>())
+            .Where(_id => !string.IsNullOrEmpty(_id) && workshops.ContainsKey(_id))
+            .Distinct(StringComparer.Ordinal)
+            .OrderBy(_id => _id, StringComparer.Ordinal)
+            .Select(_id => workshops[_id])
+            .ToArray());
     }
 
-    // 행동 모드의 id 색인. 행동 안 배열이 아니라 id로 조회하므로 배열 순서에 의존하지 않는다.
-    static Dictionary<string, PuzzleActionModeData> IndexActionModes(
-        Dictionary<string, PuzzleCityActionData> _actions, GameTableRules _rules)
+    internal bool TryGetWorkshop(string _cityId, TrainventoryWorkshopType _type, out TrainventoryWorkshopData _workshop)
     {
-        var modes = _actions.Values.SelectMany(_action => _action.modes ?? Array.Empty<PuzzleActionModeData>())
-            .Where(_mode => _mode != null).ToArray();
-        return _rules.Index(modes, _mode => _mode.id, "PuzzleCityActionTableData.modes");
-    }
-
-    // 특정 도시의 역에서 사용할 수 있는 행동. id 오름차순이라 배열 순서에 의존하지 않는다.
-    internal IReadOnlyList<PuzzleCityActionData> CityActionsOf(string _cityId)
-    {
-        if (!string.IsNullOrEmpty(_cityId) && actionsByCity.TryGetValue(_cityId, out var list))
+        foreach (var workshop in WorkshopsOf(_cityId))
         {
-            return list;
-        }
-
-        return Array.Empty<PuzzleCityActionData>();
-    }
-
-    internal bool TryGetCityAction(string _cityId, PuzzleCityActionType _type, out PuzzleCityActionData _action)
-    {
-        foreach (var action in CityActionsOf(_cityId))
-        {
-            if (TryGetActionType(action, out var type) && type == _type)
+            if (TryGetWorkshopType(workshop, out var type) && type == _type)
             {
-                _action = action;
+                _workshop = workshop;
                 return true;
             }
         }
 
-        _action = null;
+        _workshop = null;
         return false;
     }
 
-    internal bool HasCityAction(string _cityId, PuzzleCityActionType _type)
+    internal bool HasWorkshop(string _cityId, TrainventoryWorkshopType _type)
     {
-        return TryGetCityAction(_cityId, _type, out _);
+        return TryGetWorkshop(_cityId, _type, out _);
     }
 
-    internal PuzzleCityActionData CityAction(string _id)
+    internal TrainventoryWorkshopData WorkshopById(string _id)
     {
-        return Find(cityActions, _id, "마을 행동");
+        return Find(workshops, _id, "작업장");
     }
 
-    // id로 찾는 행동 모드. 행동 안 배열 순서에 의존하지 않는다.
-    internal bool TryGetActionMode(string _id, out PuzzleActionModeData _mode)
+    internal bool TryGetWork(string _id, out TrainventoryWorkData _work)
     {
-        if (!string.IsNullOrEmpty(_id) && actionModes.TryGetValue(_id, out _mode))
+        _work = null;
+        return !string.IsNullOrEmpty(_id) && works.TryGetValue(_id, out _work);
+    }
+
+    // 작업장이 처리하는 작업. id 오름차순이라 배열 순서에 의존하지 않는다.
+    internal IReadOnlyList<TrainventoryWorkData> WorksOf(TrainventoryWorkshopData _workshop)
+    {
+        if (_workshop == null)
         {
-            return true;
+            return Array.Empty<TrainventoryWorkData>();
+        }
+        return Array.AsReadOnly((_workshop.workIds ?? Array.Empty<string>())
+            .Where(_id => !string.IsNullOrEmpty(_id) && works.ContainsKey(_id))
+            .Distinct(StringComparer.Ordinal)
+            .OrderBy(_id => _id, StringComparer.Ordinal)
+            .Select(_id => works[_id])
+            .ToArray());
+    }
+
+    // 작업장에서 이 입력 화물을 처리하는 작업. 한 작업장 안에서 입력 화물은 작업 하나에만 대응한다(검증).
+    internal bool TryGetWorkFor(TrainventoryWorkshopData _workshop, string _inputPieceId, out TrainventoryWorkData _work)
+    {
+        foreach (var work in WorksOf(_workshop))
+        {
+            if (string.Equals(work.inputPieceId, _inputPieceId, StringComparison.Ordinal))
+            {
+                _work = work;
+                return true;
+            }
         }
 
-        _mode = null;
+        _work = null;
         return false;
     }
 
-    // 행동 안의 모드 목록. id 오름차순이라 배열 순서에 의존하지 않는다.
-    internal IReadOnlyList<PuzzleActionModeData> ActionModesOf(PuzzleCityActionData _action)
+    // 입력 화물 하나의 작업장 수수료 = 올림(작업 비용 × costPercent / 100) + 작업 시간 × feePerHour + extraCost.
+    internal static long WorkFee(TrainventoryWorkshopData _workshop, TrainventoryWorkData _work)
     {
-        if (_action == null)
-        {
-            return Array.Empty<PuzzleActionModeData>();
-        }
-
-        return Array.AsReadOnly((_action.modes ?? Array.Empty<PuzzleActionModeData>())
-            .Where(_mode => _mode != null)
-            .OrderBy(_mode => _mode.id, StringComparer.Ordinal).ToArray());
+        long scaled = checked((_work.cost * _workshop.costPercent + 99) / 100);
+        return checked(scaled + _work.workHours * _workshop.feePerHour + _workshop.extraCost);
     }
 
     // type 문자열과 enum 이름을 대조한다. 숫자 문자열·알 수 없는 값은 false이고 검증에서 오류로 보고된다.
-    internal static bool TryGetActionType(PuzzleCityActionData _action, out PuzzleCityActionType _type)
+    internal static bool TryGetWorkshopType(TrainventoryWorkshopData _workshop, out TrainventoryWorkshopType _type)
     {
         _type = default;
-        if (_action == null || string.IsNullOrEmpty(_action.type))
+        if (_workshop == null || string.IsNullOrEmpty(_workshop.type) || char.IsDigit(_workshop.type[0]))
         {
             return false;
         }
 
-        return Enum.TryParse(_action.type, out _type) && Enum.IsDefined(typeof(PuzzleCityActionType), _type);
+        return Enum.TryParse(_workshop.type, out _type) && Enum.IsDefined(typeof(TrainventoryWorkshopType), _type);
     }
 
     internal IReadOnlyList<PuzzleSynergyRuleData> SynergiesFor(PuzzleSynergyScope _scope)

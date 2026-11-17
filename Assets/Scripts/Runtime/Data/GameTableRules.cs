@@ -199,7 +199,7 @@ public sealed class GameTableRules
         ValidatePuzzle(_tables);
         ValidatePuzzleSynergy(_tables);
         ValidateCombinations(_tables);
-        ValidateCityActions(_tables);
+        ValidateWorkshops(_tables);
         ValidatePuzzleTrade(_tables);
         ValidateRumor(_tables);
         ValidateTime(_tables.PuzzleTime);
@@ -306,7 +306,7 @@ public sealed class GameTableRules
         const string PATH = nameof(PuzzleTradeTableData);
         Check(_tables.PuzzleTrade.startingFunds >= 0, PATH + ".startingFunds", "시작 자금은 0 이상이어야 합니다.");
         Check(_tables.PuzzleTrade.gameClearCost > 0, PATH + ".gameClearCost", "클리어 비용은 0보다 커야 합니다.");
-        Check(_tables.PuzzleTrade.deadlineTurns >= 0, PATH + ".deadlineTurns", "기한은 시간 단위 0 이상이어야 합니다. 0이면 무기한입니다.");
+        Check(_tables.PuzzleTrade.deadlineHours >= 0, PATH + ".deadlineHours", "기한은 시간 단위 0 이상이어야 합니다. 0이면 무기한입니다.");
         if (!string.IsNullOrEmpty(_tables.PuzzleTrade.debtCityId))
         {
             Reference(_tables.PuzzleTrade.debtCityId, PATH + ".debtCityId", _tables.HasCity(_tables.PuzzleTrade.debtCityId), "상환 도시");
@@ -467,7 +467,7 @@ public sealed class GameTableRules
                 Check(penalty.buyPercentDelta >= 0 && penalty.sellPercentDelta <= 0 &&
                     (penalty.buyPercentDelta != 0 || penalty.sellPercentDelta != 0), path,
                     "지역 거래 불이익은 구매 배율을 올리거나 판매 배율을 내려야 합니다.");
-                Check(penalty.durationTurns > 0, path + ".durationTurns", "지역 거래 불이익 시간은 양수여야 합니다.");
+                Check(penalty.durationHours > 0, path + ".durationHours", "지역 거래 불이익 시간은 양수여야 합니다.");
             }
         }
 
@@ -477,12 +477,12 @@ public sealed class GameTableRules
             string path = $"{PATH}.courierQuests.{courier.id}";
             Reference(courier.penaltyId, path + ".penaltyId", _tables.TryGetQuestPenalty(courier.penaltyId, out _), "의뢰 패널티");
             Check(courier.weight > 0, path + ".weight", "출현 가중치는 양수여야 합니다.");
-            Check(courier.minTravelTurns > 0 && courier.maxTravelTurns >= courier.minTravelTurns, path,
+            Check(courier.minTravelDistance > 0 && courier.maxTravelDistance >= courier.minTravelDistance, path,
                 "최단 이동 시간 범위는 양수이고 최소가 최대 이하여야 합니다.");
-            Check(courier.baseReward >= 0 && courier.rewardPerCellTurn >= 0 &&
-                courier.baseReward + courier.rewardPerCellTurn > 0, path, "보상 계수는 0 이상이고 둘 다 0일 수 없습니다.");
+            Check(courier.baseReward >= 0 && courier.rewardPerCellDistance >= 0 &&
+                courier.baseReward + courier.rewardPerCellDistance > 0, path, "보상 계수는 0 이상이고 둘 다 0일 수 없습니다.");
             Check(courier.deadlinePercent >= 100, path + ".deadlinePercent", "기한 배율은 100% 이상이어야 합니다.");
-            Check(courier.deadlineExtraTurns >= 0, path + ".deadlineExtraTurns", "기한 여유 시간은 0 이상이어야 합니다.");
+            Check(courier.deadlineExtraHours >= 0, path + ".deadlineExtraHours", "기한 여유 시간은 0 이상이어야 합니다.");
             foreach (string tag in courier.fallbackProficiencyTags ?? Array.Empty<string>())
             {
                 Check(_tables.ProficiencyTags.Contains(tag), path + ".fallbackProficiencyTags",
@@ -522,11 +522,11 @@ public sealed class GameTableRules
         {
             return;
         }
-        Check(_time.daylightTurns > 0 && _time.daylightTurns < PuzzleTimeManager.TURNS_PER_DAY, PATH + ".daylightTurns",
-            "낮 턴 수는 1 이상, 하루 턴 수(" + PuzzleTimeManager.TURNS_PER_DAY + ") 미만이어야 합니다.");
+        Check(_time.daylightHours > 0 && _time.daylightHours < PuzzleTimeManager.HOURS_PER_DAY, PATH + ".daylightHours",
+            "낮 시간은 1 이상, 하루(" + PuzzleTimeManager.HOURS_PER_DAY + "시간) 미만이어야 합니다.");
         Check(_time.startHour >= 0 && _time.startHour < PuzzleTimeManager.HOURS_PER_DAY, PATH + ".startHour", "시작 시각이 범위를 벗어났습니다.");
-        Check(_time.restTurns > 0, PATH + ".restTurns", "휴식 턴은 양수여야 합니다.");
-        Check(_time.stationActionTurns > 0, PATH + ".stationActionTurns", "역 행동 턴은 양수여야 합니다.");
+        Check(_time.restHours > 0, PATH + ".restHours", "휴식 시간은 양수여야 합니다.");
+        Check(_time.hoursPerDistance > 0, PATH + ".hoursPerDistance", "거리당 이동 시간은 양수여야 합니다.");
     }
 
     void ValidateRoutes(TableManager _tables)
@@ -534,10 +534,10 @@ public sealed class GameTableRules
         const string PATH = nameof(PuzzleRouteTableData);
         const string ROUTES_PATH = PATH + ".routes";
         Check(_tables.PuzzleRoute.defaultBaseCost >= 0, PATH + ".defaultBaseCost", "기준 기본요금은 0 이상이어야 합니다.");
-        Check(!double.IsNaN(_tables.PuzzleRoute.pixelsPerTurn) && !double.IsInfinity(_tables.PuzzleRoute.pixelsPerTurn) && _tables.PuzzleRoute.pixelsPerTurn > 0,
-            PATH + ".pixelsPerTurn", "이동 턴 1당 지도 길이는 유한한 양수여야 합니다.");
+        Check(!double.IsNaN(_tables.PuzzleRoute.pixelsPerDistance) && !double.IsInfinity(_tables.PuzzleRoute.pixelsPerDistance) && _tables.PuzzleRoute.pixelsPerDistance > 0,
+            PATH + ".pixelsPerDistance", "노선 거리 1당 지도 길이는 유한한 양수여야 합니다.");
         Check(_tables.PuzzleRoute.costPerCell >= 0, PATH + ".costPerCell", "칸당 이동 단가는 0 이상이어야 합니다.");
-        Check(_tables.PuzzleRoute.costPerTurn >= 0, PATH + ".costPerTurn", "턴당 이동 단가는 0 이상이어야 합니다.");
+        Check(_tables.PuzzleRoute.costPerDistance >= 0, PATH + ".costPerDistance", "거리당 이동 단가는 0 이상이어야 합니다.");
         var routes = _tables.PuzzleRoute.routes ?? Array.Empty<PuzzleRouteData>();
         var seen = new HashSet<(string From, string To)>();
         for (int i = 0; i < routes.Length; i++)
@@ -554,7 +554,7 @@ public sealed class GameTableRules
             Reference(route.toCityId, path + ".toCityId", _tables.HasCity(route.toCityId), "도착 도시");
             Check(route.fromCityId != route.toCityId, path, "출발 도시와 도착 도시는 달라야 합니다.");
             Check(route.cost >= 0, path + ".cost", "이동 비용은 0 이상이어야 합니다.");
-            Check(route.turns > 0, path + ".turns", "노선 이동 턴은 0보다 커야 합니다.");
+            Check(route.distance > 0, path + ".distance", "노선 거리는 0보다 커야 합니다.");
             bool validPoints = route.points != null && route.points.Length >= 4 && route.points.Length % 2 == 0 &&
                 route.points.All(_value => !float.IsNaN(_value) && !float.IsInfinity(_value));
             Check(validPoints, path + ".points", "유한한 좌표의 폴라인 x,y 쌍이 두 점 이상 필요합니다.");
@@ -565,7 +565,7 @@ public sealed class GameTableRules
                 {
                     if (_tables.PuzzleTime != null)
                     {
-                        PuzzleTimeManager.TravelTurns(route, _tables.PuzzleTime);
+                        PuzzleTimeManager.TravelHours(route, _tables.PuzzleTime);
                     }
                 }
                 catch (OverflowException)
@@ -585,7 +585,7 @@ public sealed class GameTableRules
             }
             if (_tables.TryGetRoute(route.toCityId, route.fromCityId, out var reverse))
             {
-                Check(route.turns == reverse.turns, path + ".turns", "같은 철도의 왕복 이동 턴은 같아야 합니다.");
+                Check(route.distance == reverse.distance, path + ".distance", "같은 철도의 왕복 거리는 같아야 합니다.");
                 Check(route.highSpeed == reverse.highSpeed, path + ".highSpeed", "같은 철도의 왕복 고속선 구분은 같아야 합니다.");
                 Check(route.points != null && reverse.points != null &&
                     route.points.Length % 2 == 0 && route.points.Length == reverse.points.Length &&
@@ -694,7 +694,7 @@ public sealed class GameTableRules
 
     void ValidatePuzzleSynergy(TableManager _tables)
     {
-        Check(_tables.PuzzleSynergy.activationIntervalTurns > 0, "PuzzleSynergyTableData.activationIntervalTurns",
+        Check(_tables.PuzzleSynergy.activationIntervalHours > 0, "PuzzleSynergyTableData.activationIntervalHours",
             "시너지 적용 주기는 양의 정수 시간이어야 합니다.");
         var tags = new HashSet<string>(_tables.Pieces.SelectMany(_item => _item.tags ?? Array.Empty<string>()),
             StringComparer.Ordinal);
@@ -820,27 +820,27 @@ public sealed class GameTableRules
             Check(wasteTags.Contains(animals.wasteTag) && !wasteTags.Contains(animals.animalTag),
                 PATH + ".wastePieceId", "배설물 화물은 배설물 태그를 가져야 하며 동물 태그를 가질 수 없습니다.");
         }
-        Check(animals.wasteIntervalTurns > 0, PATH + ".wasteIntervalTurns", "배설 주기는 양의 정수 일수여야 합니다.");
+        Check(animals.wasteIntervalHours > 0, PATH + ".wasteIntervalHours", "배설 주기는 양의 정수 일수여야 합니다.");
         Check(animals.wasteCountPerAnimal > 0, PATH + ".wasteCountPerAnimal", "배설물 수량은 양수여야 합니다.");
         ValidateEffectDescription(animals.wasteDescription, PATH + ".wasteDescription",
-            animals.wasteIntervalTurns, string.Empty, animals.wasteCountPerAnimal);
-        Check(animals.breedingTurns > 0, PATH + ".breedingTurns", "번식 시간은 양의 정수 시간이어야 합니다.");
-        Check(animals.completionHoldTurns > 0, PATH + ".completionHoldTurns",
+            animals.wasteIntervalHours, string.Empty, animals.wasteCountPerAnimal);
+        Check(animals.breedingHours > 0, PATH + ".breedingHours", "번식 시간은 양의 정수 시간이어야 합니다.");
+        Check(animals.completionHoldHours > 0, PATH + ".completionHoldHours",
             "완료 전 대기 시간은 양의 정수 시간이어야 합니다.");
-        Check(animals.completionHoldTurns > 0 && animals.breedingTurns > 0 &&
-                animals.completionHoldTurns < animals.breedingTurns,
-            PATH + ".completionHoldTurns", "완료 전 대기 시간은 번식 시간보다 짧아야 합니다.");
-        Check(animals.completionHoldTurns > 0 && animals.wasteIntervalTurns > 0 &&
-                (long)animals.completionHoldTurns < (long)animals.wasteIntervalTurns,
-            PATH + ".completionHoldTurns", "완료 전 대기 시간은 배설 주기보다 짧아야 합니다.");
+        Check(animals.completionHoldHours > 0 && animals.breedingHours > 0 &&
+                animals.completionHoldHours < animals.breedingHours,
+            PATH + ".completionHoldHours", "완료 전 대기 시간은 번식 시간보다 짧아야 합니다.");
+        Check(animals.completionHoldHours > 0 && animals.wasteIntervalHours > 0 &&
+                (long)animals.completionHoldHours < (long)animals.wasteIntervalHours,
+            PATH + ".completionHoldHours", "완료 전 대기 시간은 배설 주기보다 짧아야 합니다.");
 
         Reference(animals.grainTag, PATH + ".grainTag", _tags.Contains(animals.grainTag), "곡물 태그");
         Check(animals.grainTag != animals.animalTag && animals.grainTag != animals.wasteTag, PATH + ".grainTag",
             "곡물 태그는 동물·배설물 태그와 서로 달라야 합니다.");
-        Check(animals.feedIntervalTurns > 0, PATH + ".feedIntervalTurns", "곡물 섭취 주기는 양의 정수 시간이어야 합니다.");
-        Check(animals.breedingFeedReductionTurns > 0, PATH + ".breedingFeedReductionTurns",
+        Check(animals.feedIntervalHours > 0, PATH + ".feedIntervalHours", "곡물 섭취 주기는 양의 정수 시간이어야 합니다.");
+        Check(animals.breedingFeedReductionHours > 0, PATH + ".breedingFeedReductionHours",
             "섭취 1회 번식 시간 단축은 양의 정수 시간이어야 합니다.");
-        Check(animals.growthFeedReductionTurns > 0, PATH + ".growthFeedReductionTurns",
+        Check(animals.growthFeedReductionHours > 0, PATH + ".growthFeedReductionHours",
             "섭취 1회 성장 시간 단축은 양의 정수 시간이어야 합니다.");
         ValidateEffectDescription(animals.breedingFeedDescription, PATH + ".breedingFeedDescription",
             string.Empty, string.Empty);
@@ -939,7 +939,7 @@ public sealed class GameTableRules
             Check(!string.IsNullOrWhiteSpace(rule.sourcePieceId) && !string.IsNullOrWhiteSpace(rule.partnerPieceId) &&
                 !string.Equals(rule.sourcePieceId, rule.partnerPieceId, StringComparison.Ordinal), path + ".partnerPieceId",
                 "두 입력은 비어 있지 않고 서로 다른 품목이어야 합니다.");
-            Check(rule.requiredTurns > 0, path + ".requiredTurns", "조합 시간은 양의 정수 시간이어야 합니다.");
+            Check(rule.requiredHours > 0, path + ".requiredHours", "조합 시간은 양의 정수 시간이어야 합니다.");
             ValidateEffectDescription(rule.description, path + ".description", string.Empty, string.Empty);
             Check(pairs.Add(PairKey(rule.sourcePieceId, rule.partnerPieceId)), path,
                 "같은 입력 쌍의 조합 규칙은 하나만 둘 수 있습니다.");
@@ -992,66 +992,32 @@ public sealed class GameTableRules
 
     // 마을별 추가 행동. 도시·조각·태그 참조와 같은 도시 같은 종류의 중복 등록을 검사하고,
     // 도축·개조·정제는 완성 방식과 변환 규칙이 다르므로 유형별로 분리해 검증한다.
-    void ValidateCityActions(TableManager _tables)
+    void ValidateWorkshops(TableManager _tables)
     {
-        const string PATH = nameof(PuzzleCityActionTableData);
-        var actions = _tables.PuzzleCityAction.actions ?? Array.Empty<PuzzleCityActionData>();
-        var knownTags = new HashSet<string>(
-            _tables.Pieces.SelectMany(item => item.tags ?? Array.Empty<string>()), StringComparer.Ordinal);
-        var typesByCity = new Dictionary<string, HashSet<string>>(StringComparer.Ordinal);
-        var mappedInputs = new Dictionary<string, HashSet<string>>(StringComparer.Ordinal);
-        var outputTags = new HashSet<string>(StringComparer.Ordinal);
-        var outputIds = new HashSet<string>(StringComparer.Ordinal);
-        for (int i = 0; i < actions.Length; i++)
+        ValidateWorks(_tables);
+        const string PATH = nameof(TrainventoryWorkshopTableData);
+        var workshops = _tables.Workshop.workshops ?? Array.Empty<TrainventoryWorkshopData>();
+        var modificationOutputs = new HashSet<string>(StringComparer.Ordinal);
+        for (int i = 0; i < workshops.Length; i++)
         {
-            var action = actions[i];
-            if (action == null)
+            var workshop = workshops[i];
+            if (workshop == null)
             {
+                Check(false, $"{PATH}.workshops[{i}]", "작업장 항목이 필요합니다.");
                 continue;
             }
 
-            string path = $"{PATH}.actions[{i}]";
-            bool knownType = TableManager.TryGetActionType(action, out var type);
+            string path = $"{PATH}.workshops[{i}]";
+            bool knownType = TableManager.TryGetWorkshopType(workshop, out var type);
             Check(knownType, path + ".type",
-                $"행동 종류는 {string.Join(", ", Enum.GetNames(typeof(PuzzleCityActionType)))} 중 하나여야 합니다.");
-            Check(!string.IsNullOrWhiteSpace(action.title), path + ".title", "행동 이름이 필요합니다.");
-            Check(!string.IsNullOrWhiteSpace(action.description), path + ".description", "행동 설명이 필요합니다.");
-            Check(action.workTurns > 0, path + ".workTurns", "작업 시간은 0보다 큰 분 단위여야 합니다.");
-            Check(!knownType || type != PuzzleCityActionType.Butchery || action.cost >= 0,
-                path + ".cost", "도축 확인 1회당 비용은 0 이상의 정수여야 합니다.");
-            Check(!knownType || type != PuzzleCityActionType.Butchery ||
-                (!string.IsNullOrWhiteSpace(action.inputTag) && !string.IsNullOrWhiteSpace(action.outputTag) &&
-                (action.conversions ?? Array.Empty<PuzzleActionConversionData>()).Length > 0),
-                path, "도축은 행동 차원의 입력·산출 태그와 변환 규칙이 필요합니다.");
-            Check(!knownType || type != PuzzleCityActionType.Refining || action.cost >= 0,
-                path + ".cost", "정제 확인 1회당 비용은 0 이상의 정수여야 합니다.");
-            Check(!knownType || type != PuzzleCityActionType.Refining ||
-                (!string.IsNullOrWhiteSpace(action.inputTag) && !string.IsNullOrWhiteSpace(action.outputTag) &&
-                (action.conversions ?? Array.Empty<PuzzleActionConversionData>()).Length > 0),
-                path, "정제는 행동 차원의 입력·산출 태그와 변환 규칙이 필요합니다.");
-            Check(!knownType || type == PuzzleCityActionType.Modification ||
-                (action.modes ?? Array.Empty<PuzzleActionModeData>()).Length == 0,
-                path, "모드는 개조 행동만 가질 수 있습니다.");
+                $"작업장 종류는 {string.Join(", ", Enum.GetNames(typeof(TrainventoryWorkshopType)))} 중 하나여야 합니다.");
+            Check(!string.IsNullOrWhiteSpace(workshop.title), path + ".title", "작업장 이름이 필요합니다.");
+            Check(!string.IsNullOrWhiteSpace(workshop.description), path + ".description", "작업장 설명이 필요합니다.");
+            Check(workshop.costPercent >= 0, path + ".costPercent", "작업 비용 계수는 0 이상이어야 합니다.");
+            Check(workshop.feePerHour >= 0, path + ".feePerHour", "시간당 수수료는 0 이상이어야 합니다.");
+            Check(workshop.extraCost >= 0, path + ".extraCost", "추가 비용은 0 이상이어야 합니다.");
 
-            var cityIds = action.cityIds ?? Array.Empty<string>();
-            Check(cityIds.Length > 0, path + ".cityIds", "행동을 여는 도시가 하나 이상 필요합니다.");
-            for (int c = 0; c < cityIds.Length; c++)
-            {
-                string cityPath = $"{path}.cityIds[{c}]";
-                Reference(cityIds[c], cityPath, _tables.HasCity(cityIds[c]), "도시");
-                if (string.IsNullOrEmpty(cityIds[c]) || !knownType)
-                {
-                    continue;
-                }
-                if (!typesByCity.TryGetValue(cityIds[c], out var types))
-                {
-                    types = new HashSet<string>(StringComparer.Ordinal);
-                    typesByCity.Add(cityIds[c], types);
-                }
-                Check(types.Add(type.ToString()), cityPath, "같은 도시에서 같은 종류의 행동은 하나만 쓸 수 있습니다.");
-            }
-
-            var board = action.board;
+            var board = workshop.board;
             Check(board != null, path + ".board", "작업 보드 설정이 필요합니다.");
             if (board != null)
             {
@@ -1062,208 +1028,76 @@ public sealed class GameTableRules
                     path + ".board.startingPlacements", "작업 보드는 빈 판으로 시작해야 합니다.");
             }
 
-            if (knownType && type == PuzzleCityActionType.Butchery)
+            var workIds = workshop.workIds ?? Array.Empty<string>();
+            Check(workIds.Length > 0, path + ".workIds", "작업장은 작업이 하나 이상 필요합니다.");
+            var inputs = new HashSet<string>(StringComparer.Ordinal);
+            var outputs = new HashSet<string>(StringComparer.Ordinal);
+            var seen = new HashSet<string>(StringComparer.Ordinal);
+            for (int w = 0; w < workIds.Length; w++)
             {
-                ValidateActionConversions(_tables, type, action.inputTag, action.outputTag,
-                    action.conversions, path, false);
-            }
-            else if (knownType && type == PuzzleCityActionType.Refining)
-            {
-                ValidateRefiningConversions(_tables, action, action.board, path);
-            }
-            ValidateModificationModes(_tables, type, knownType, action, knownTags, path,
-                mappedInputs, outputTags, outputIds);
-        }
-
-        ValidateModificationCoverage(_tables, mappedInputs, outputTags, outputIds);
-    }
-
-    void ValidateModificationModes(TableManager _tables, PuzzleCityActionType _type, bool _knownType,
-        PuzzleCityActionData _action, HashSet<string> _knownTags, string _path,
-        Dictionary<string, HashSet<string>> _mappedInputsByTag, HashSet<string> _outputTags, HashSet<string> _outputIds)
-    {
-        bool isModification = _knownType && _type == PuzzleCityActionType.Modification;
-        var modes = _action.modes ?? Array.Empty<PuzzleActionModeData>();
-        Check(!isModification || modes.Length > 0, _path + ".modes", "개조는 모드가 하나 이상 필요합니다.");
-        Check(!isModification || (string.IsNullOrWhiteSpace(_action.inputTag) &&
-            string.IsNullOrWhiteSpace(_action.outputTag) &&
-            (_action.conversions ?? Array.Empty<PuzzleActionConversionData>()).Length == 0),
-            _path, "개조는 입력·산출 태그와 변환을 모드별로만 가질 수 있습니다.");
-        if (modes.Length == 0)
-        {
-            return;
-        }
-
-        var modeIds = new HashSet<string>(StringComparer.Ordinal);
-        for (int i = 0; i < modes.Length; i++)
-        {
-            var mode = modes[i];
-            if (mode == null)
-            {
-                Check(false, $"{_path}.modes[{i}]", "모드 항목이 필요합니다.");
-                continue;
-            }
-            string path = _path + ".modes." + (string.IsNullOrWhiteSpace(mode.id) ? i.ToString() : mode.id);
-            Check(!string.IsNullOrWhiteSpace(mode.id) && modeIds.Add(mode.id), $"{_path}.modes[{i}].id",
-                "행동 안에서 고유한 모드 ID가 필요합니다.");
-            Check(!string.IsNullOrWhiteSpace(mode.displayName), path + ".displayName", "모드 이름이 필요합니다.");
-            Check(!string.IsNullOrWhiteSpace(mode.description), path + ".description", "모드 설명이 필요합니다.");
-            Check(mode.cost >= 0, path + ".cost", "개조 모드 확인 1회당 비용은 0 이상의 정수여야 합니다.");
-            Reference(mode.inputTag, path + ".inputTag", _knownTags.Contains(mode.inputTag ?? string.Empty), "입력 태그");
-            Reference(mode.outputTag, path + ".outputTag", _knownTags.Contains(mode.outputTag ?? string.Empty), "산출 태그");
-            bool sameTag = !string.IsNullOrEmpty(mode.inputTag) && mode.inputTag == mode.outputTag;
-            Check(!sameTag, path + ".outputTag", "입력 태그와 산출 태그는 달라야 합니다.");
-            ValidateActionConversions(_tables, _type, mode.inputTag, mode.outputTag, mode.conversions,
-                path, isModification);
-            if (!string.IsNullOrEmpty(mode.inputTag) && !string.IsNullOrEmpty(mode.outputTag))
-            {
-                if (!_mappedInputsByTag.TryGetValue(mode.inputTag, out var mapped))
+                string workPath = $"{path}.workIds[{w}]";
+                bool hasWork = _tables.TryGetWork(workIds[w], out var work);
+                Reference(workIds[w], workPath, hasWork, "작업");
+                Check(seen.Add(workIds[w] ?? string.Empty), workPath, "같은 작업을 두 번 둘 수 없습니다.");
+                if (!hasWork)
                 {
-                    mapped = new HashSet<string>(StringComparer.Ordinal);
-                    _mappedInputsByTag.Add(mode.inputTag, mapped);
+                    continue;
                 }
-                foreach (var conversion in mode.conversions ?? Array.Empty<PuzzleActionConversionData>())
+                Check(inputs.Add(work.inputPieceId ?? string.Empty), workPath,
+                    "한 작업장 안에서 같은 입력 화물의 작업은 하나만 둘 수 있습니다.");
+                if (!string.IsNullOrEmpty(work.outputPieceId))
                 {
-                    if (conversion != null && !string.IsNullOrEmpty(conversion.inputPieceId))
-                    {
-                        mapped.Add(conversion.inputPieceId);
-                    }
-                    if (conversion != null && !string.IsNullOrEmpty(conversion.outputPieceId))
-                    {
-                        _outputIds.Add(conversion.outputPieceId);
-                    }
+                    outputs.Add(work.outputPieceId);
                 }
-                _outputTags.Add(mode.outputTag);
-            }
-        }
-    }
-
-    // 정제 변환 규칙. 입력 허용은 태그 단독이 아니라 변환표에 등록한 품목 ID가 기준이고,
-    // 입력 하나의 고정 산출 개수는 표의 outputCount가 원본이다.
-    void ValidateRefiningConversions(TableManager _tables, PuzzleCityActionData _action,
-        PuzzleBoardData _board, string _path)
-    {
-        var conversions = _action.conversions ?? Array.Empty<PuzzleActionConversionData>();
-        string path = _path + ".conversions";
-        Check(conversions.Length > 0, path, "변환 규칙이 하나 이상 필요합니다.");
-        var inputPieceIds = new HashSet<string>(StringComparer.Ordinal);
-        var outputPieceIds = new HashSet<string>(StringComparer.Ordinal);
-        for (int c = 0; c < conversions.Length; c++)
-        {
-            var conversion = conversions[c];
-            if (conversion == null)
-            {
-                Check(false, $"{path}[{c}]", "변환 규칙이 누락되었습니다.");
-                continue;
-            }
-
-            string conversionPath = $"{path}[{c}]";
-            bool hasInput = _tables.TryGetPiece(conversion.inputPieceId, out var inputPiece);
-            bool hasOutput = _tables.TryGetPiece(conversion.outputPieceId, out var outputPiece);
-            Reference(conversion.inputPieceId, conversionPath + ".inputPieceId", hasInput, "입력 화물");
-            Reference(conversion.outputPieceId, conversionPath + ".outputPieceId", hasOutput, "산출 화물");
-            Check(inputPieceIds.Add(conversion.inputPieceId ?? string.Empty), conversionPath + ".inputPieceId",
-                "같은 입력 화물의 변환 규칙은 하나만 둘 수 있습니다.");
-            if (hasOutput && !string.IsNullOrEmpty(conversion.outputPieceId))
-            {
-                outputPieceIds.Add(conversion.outputPieceId);
-            }
-            Check(conversion.outputCount > 0, conversionPath + ".outputCount",
-                "정제 산출 개수는 0보다 커야 합니다.");
-            Check(hasInput && (inputPiece.tags ?? Array.Empty<string>()).Contains(_action.inputTag),
-                conversionPath + ".inputPieceId", "입력 화물은 입력 태그를 가져야 합니다.");
-            Check(hasOutput && (outputPiece.tags ?? Array.Empty<string>()).Contains(_action.outputTag),
-                conversionPath + ".outputPieceId", "산출 화물은 산출 태그를 가져야 합니다.");
-            if (hasOutput && conversion.outputCount > 0 && _board != null && _board.width > 0 && _board.height > 0)
-            {
-                long outputSlots = (long)conversion.outputCount * Math.Max(outputPiece.slotCount, 1);
-                Check(outputSlots <= (long)_board.width * _board.height, conversionPath + ".outputCount",
-                    "산출물을 빈 작업 보드에 모두 놓을 수 있어야 합니다.");
-            }
-        }
-
-        // 산출 품목을 입력으로 등록하면 재정제가 된다. 예: piece.metalIngot은 Ore/Metal 태그를 갖지만 입력일 수 없다.
-        foreach (string inputId in inputPieceIds)
-        {
-            Check(!outputPieceIds.Contains(inputId), path + ".inputPieceId",
-                $"정제 산출 품목 '{inputId}'을 정제 입력으로 등록할 수 없습니다.");
-        }
-    }
-
-    // 개조 변환 규칙. 입력과 출력은 같은 모양·같은 기본 가치의 1:1 정의 교체이며 결과 품목은 시장 재고 후보가 아니어야 한다.
-    void ValidateActionConversions(TableManager _tables, PuzzleCityActionType _type, string _inputTag,
-        string _outputTag, PuzzleActionConversionData[] _conversions, string _path, bool _definitionSwap)
-    {
-        var conversions = _conversions ?? Array.Empty<PuzzleActionConversionData>();
-        Check(conversions.Length > 0, _path + ".conversions", "변환 규칙이 하나 이상 필요합니다.");
-        var inputPieceIds = new HashSet<string>(StringComparer.Ordinal);
-        for (int c = 0; c < conversions.Length; c++)
-        {
-            var conversion = conversions[c];
-            if (conversion == null)
-            {
-                Check(false, $"{_path}.conversions[{c}]", "변환 규칙이 누락되었습니다.");
-                continue;
-            }
-
-            string conversionPath = $"{_path}.conversions[{c}]";
-            bool hasInput = _tables.TryGetPiece(conversion.inputPieceId, out var inputPiece);
-            bool hasOutput = _tables.TryGetPiece(conversion.outputPieceId, out var outputPiece);
-            Reference(conversion.inputPieceId, conversionPath + ".inputPieceId", hasInput, "입력 화물");
-            Reference(conversion.outputPieceId, conversionPath + ".outputPieceId", hasOutput, "산출 화물");
-            Check(inputPieceIds.Add(conversion.inputPieceId ?? string.Empty), conversionPath + ".inputPieceId",
-                "같은 입력 화물의 변환 규칙은 하나만 둘 수 있습니다.");
-            Check(!_definitionSwap || conversion.outputCount == 1, conversionPath + ".outputCount",
-                "개조 변환의 산출 개수는 입력 하나당 하나여야 합니다.");
-            Check(_type != PuzzleCityActionType.Butchery || conversion.outputCount > 0,
-                conversionPath + ".outputCount", "산출 개수는 0보다 커야 합니다.");
-            Check(hasInput && (inputPiece.tags ?? Array.Empty<string>()).Contains(_inputTag),
-                conversionPath + ".inputPieceId", "입력 화물은 입력 태그를 가져야 합니다.");
-            if (_type == PuzzleCityActionType.Butchery && hasInput)
-            {
-                Check(!(inputPiece.tags ?? Array.Empty<string>()).Contains(PuzzleItemDefinition.BABY_TAG),
-                    conversionPath + ".inputPieceId", "Baby 태그가 있는 화물은 도축할 수 없습니다.");
-            }
-            if (_definitionSwap && hasInput && hasOutput)
-            {
-                Check(!(inputPiece.tags ?? Array.Empty<string>()).Contains(_outputTag),
-                    conversionPath + ".inputPieceId", "입력 화물은 이미 산출 태그를 가진 품목일 수 없습니다.");
-                Check(!string.Equals(outputPiece.id, inputPiece.id, StringComparison.Ordinal),
-                    conversionPath + ".outputPieceId", "입력과 산출은 서로 다른 품목이어야 합니다.");
-            }
-            Check(hasOutput && (outputPiece.tags ?? Array.Empty<string>()).Contains(_outputTag),
-                conversionPath + ".outputPieceId", "산출 화물은 산출 태그를 가져야 합니다.");
-            if (_definitionSwap && hasInput && hasOutput)
-            {
-                Check(HoldsAllTags(outputPiece, inputPiece), conversionPath + ".outputPieceId",
-                    "산출 화물은 입력 화물의 모든 태그를 유지해야 합니다.");
-                Check(SamePieceGeometry(inputPiece, outputPiece), conversionPath + ".outputPieceId",
-                    "산출 화물은 입력 화물과 같은 셀 좌표와 slotCount를 가져야 합니다.");
-                Check(inputPiece.baseValue == outputPiece.baseValue, conversionPath + ".outputPieceId",
-                    "산출 화물의 기본 가치는 입력 화물과 같아야 합니다.");
-            }
-        }
-    }
-
-    // 모든 개조 입력 품목이 모드 매핑을 갖는지 검사한다. 제외하려면 품목에 exemptFromModification을 명시해야 한다.
-    // 결과 태그를 이미 가진 품목(개조 결과)은 입력 후보가 아니라서 매핑이 필요 없다.
-    void ValidateModificationCoverage(TableManager _tables, Dictionary<string, HashSet<string>> _mappedInputsByTag,
-        HashSet<string> _outputTags, HashSet<string> _outputIds)
-    {
-        foreach (var piece in _tables.Pieces)
-        {
-            var tags = piece.tags ?? Array.Empty<string>();
-            bool isOutput = tags.Any(_tag => _outputTags.Contains(_tag));
-            if (isOutput || piece.exemptFromModification)
-            {
-                continue;
-            }
-            foreach (var pair in _mappedInputsByTag)
-            {
-                if (tags.Contains(pair.Key) && !pair.Value.Contains(piece.id))
+                bool hasInput = _tables.TryGetPiece(work.inputPieceId, out var inputPiece);
+                bool hasOutput = _tables.TryGetPiece(work.outputPieceId, out var outputPiece);
+                if (!knownType || !hasInput || !hasOutput)
                 {
-                    Check(false, "PuzzleCityActionTableData.modes.conversions",
-                        $"'{pair.Key}' 태그 품목 '{piece.id}'의 개조 변환 매핑이 없습니다. 제외하려면 exemptFromModification을 설정하세요.", piece.id, "exemptFromModification");
+                    continue;
+                }
+                if (type == TrainventoryWorkshopType.Butchery)
+                {
+                    Check(!(inputPiece.tags ?? Array.Empty<string>()).Contains(PuzzleItemDefinition.BABY_TAG),
+                        workPath, "Baby 태그가 있는 화물은 도축할 수 없습니다.");
+                }
+                if (type == TrainventoryWorkshopType.Modification)
+                {
+                    Check(work.outputCount == 1, workPath, "개조 작업의 산출 개수는 입력 하나당 하나여야 합니다.");
+                    Check(HoldsAllTags(outputPiece, inputPiece), workPath, "개조 산출 화물은 입력 화물의 모든 태그를 유지해야 합니다.");
+                    Check(SamePieceGeometry(inputPiece, outputPiece), workPath,
+                        "개조 산출 화물은 입력 화물과 같은 셀 좌표와 slotCount를 가져야 합니다.");
+                    Check(inputPiece.baseValue == outputPiece.baseValue, workPath,
+                        "개조 산출 화물의 기본 가치는 입력 화물과 같아야 합니다.");
+                    modificationOutputs.Add(outputPiece.id);
+                }
+                else if (board != null && board.width > 0 && board.height > 0 && work.outputCount > 0)
+                {
+                    long outputSlots = (long)work.outputCount * Math.Max(outputPiece.slotCount, 1);
+                    Check(outputSlots <= (long)board.width * board.height, workPath,
+                        "산출물을 빈 작업 보드에 모두 놓을 수 있어야 합니다.");
+                }
+            }
+            // 산출 품목을 입력으로도 받으면 같은 작업장에서 다시 처리된다.
+            foreach (string input in inputs)
+            {
+                Check(!outputs.Contains(input), path + ".workIds", $"산출 품목 '{input}'을 같은 작업장의 입력으로 둘 수 없습니다.");
+            }
+        }
+
+        // 역 배치. 같은 역에 같은 종류의 작업장은 하나만 둔다.
+        foreach (var city in _tables.Cities)
+        {
+            var ids = city.workshopIds ?? Array.Empty<string>();
+            var types = new HashSet<TrainventoryWorkshopType>();
+            for (int i = 0; i < ids.Length; i++)
+            {
+                string path = $"PuzzleTableData.cities.{city.id}.workshopIds[{i}]";
+                bool known = !string.IsNullOrEmpty(ids[i]) &&
+                    (_tables.Workshop.workshops ?? Array.Empty<TrainventoryWorkshopData>()).Any(_row => _row != null && _row.id == ids[i]);
+                Reference(ids[i], path, known, "작업장");
+                if (known && TableManager.TryGetWorkshopType(_tables.WorkshopById(ids[i]), out var type))
+                {
+                    Check(types.Add(type), path, "같은 역에 같은 종류의 작업장은 하나만 둘 수 있습니다.");
                 }
             }
         }
@@ -1273,7 +1107,7 @@ public sealed class GameTableRules
         {
             foreach (string id in profile?.pieceIds ?? Array.Empty<string>())
             {
-                Check(!_outputIds.Contains(id), "PuzzleTableData.stockProfiles." + profile.id + ".pieceIds",
+                Check(!modificationOutputs.Contains(id), "PuzzleTableData.stockProfiles." + profile.id + ".pieceIds",
                     "개조 결과 품목 '" + id + "'는 시장 재고 후보에 둘 수 없습니다.");
             }
         }
@@ -1281,10 +1115,35 @@ public sealed class GameTableRules
         {
             foreach (var placement in city.market?.startingPlacements ?? Array.Empty<PuzzleStartingPlacementData>())
             {
-                Check(placement == null || !_outputIds.Contains(placement.pieceId ?? string.Empty),
+                Check(placement == null || !modificationOutputs.Contains(placement.pieceId ?? string.Empty),
                     "PuzzleTableData.cities." + city.id + ".market.startingPlacements",
                     "개조 결과 품목 '" + placement.pieceId + "'는 시장 고정 재고에 둘 수 없습니다.");
             }
+        }
+    }
+
+    void ValidateWorks(TableManager _tables)
+    {
+        const string PATH = nameof(TrainventoryWorkTableData);
+        var works = _tables.Work.works ?? Array.Empty<TrainventoryWorkData>();
+        for (int i = 0; i < works.Length; i++)
+        {
+            var work = works[i];
+            if (work == null)
+            {
+                Check(false, $"{PATH}.works[{i}]", "작업 항목이 필요합니다.");
+                continue;
+            }
+            string path = $"{PATH}.works[{i}]";
+            Check(!string.IsNullOrWhiteSpace(work.displayName), path + ".displayName", "작업 이름이 필요합니다.");
+            Check(!string.IsNullOrWhiteSpace(work.description), path + ".description", "작업 설명이 필요합니다.");
+            Reference(work.inputPieceId, path + ".inputPieceId", _tables.TryGetPiece(work.inputPieceId, out _), "입력 화물");
+            Reference(work.outputPieceId, path + ".outputPieceId", _tables.TryGetPiece(work.outputPieceId, out _), "산출 화물");
+            Check(!string.Equals(work.inputPieceId, work.outputPieceId, StringComparison.Ordinal), path + ".outputPieceId",
+                "입력과 산출은 서로 다른 품목이어야 합니다.");
+            Check(work.workHours > 0, path + ".workHours", "작업 시간은 0보다 큰 게임 시간이어야 합니다.");
+            Check(work.outputCount > 0, path + ".outputCount", "산출 개수는 0보다 커야 합니다.");
+            Check(work.cost >= 0, path + ".cost", "작업 비용은 0 이상이어야 합니다.");
         }
     }
 
@@ -1466,16 +1325,16 @@ public sealed class GameTableRules
     void ValidateGrowth(TableManager _tables, PuzzlePieceData _piece, string _path)
     {
         if (string.IsNullOrEmpty(_piece.adultPieceId) && string.IsNullOrEmpty(_piece.growthDescription) &&
-            _piece.growthTurns == 0 && _piece.growthBlockedTurns == 0)
+            _piece.growthHours == 0 && _piece.growthBlockedHours == 0)
         {
             return;
         }
 
         Check((_piece.tags ?? Array.Empty<string>()).Contains(PuzzleItemDefinition.BABY_TAG),
             _path + ".tags", "성장하는 화물에는 Baby 태그가 필요합니다.");
-        Check(_piece.growthTurns > 0, _path + ".growthTurns", "성장 시간은 양수여야 합니다.");
-        Check(_piece.growthBlockedTurns > 0 && _piece.growthBlockedTurns <= _piece.growthTurns,
-            _path + ".growthBlockedTurns", "성장 전 공간을 확인하는 시간은 1시간 이상이며 성장 시간 이하여야 합니다.");
+        Check(_piece.growthHours > 0, _path + ".growthHours", "성장 시간은 양수여야 합니다.");
+        Check(_piece.growthBlockedHours > 0 && _piece.growthBlockedHours <= _piece.growthHours,
+            _path + ".growthBlockedHours", "성장 전 공간을 확인하는 시간은 1시간 이상이며 성장 시간 이하여야 합니다.");
         ValidateEffectDescription(_piece.growthDescription, _path + ".growthDescription",
             string.Empty, string.Empty, string.Empty);
         bool hasAdult = _tables.TryGetPiece(_piece.adultPieceId, out var adult);
@@ -1748,7 +1607,7 @@ public sealed class GameTableRules
         Check(!string.IsNullOrWhiteSpace(_piece.description), _path + ".description", "조각 설명이 필요합니다.");
         Check(!string.IsNullOrWhiteSpace(_piece.visualKey), _path + ".visualKey", "표시 에셋 키가 필요합니다.");
         ValidateItemTags(_piece.tags, _path + ".tags");
-        Check(_piece.shelfLifeTurns >= 0, _path + ".shelfLifeTurns", "유통기한은 0(시간 소모 없음) 이상의 시간이어야 합니다.");
+        Check(_piece.shelfLifeHours >= 0, _path + ".shelfLifeHours", "유통기한은 0(시간 소모 없음) 이상의 시간이어야 합니다.");
         const string DURABILITY_MAX = "rules.durability.maximum";
         if (_tables.HasBasicNumber(DURABILITY_MAX))
         {

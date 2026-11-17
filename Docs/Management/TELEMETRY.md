@@ -8,7 +8,7 @@
 
 게임 사건은 GameEvents에서 발행하고 TelemetryRecorder가 TelemetryLog에 넘긴다. TelemetryLog는 원본 행을 한 번 직렬화해 LogKit Data로 보내고 같은 내용을 로컬에 보관한다. Debug.Log로 게임 사건을 다시 출력하지 않으므로 콘솔 자동 수집과 이중 전송되지 않는다.
 
-**콘솔·게임 분석·적용 테이블을 모두 LogKit으로 전송한다.** 기존 수신 API/주소/키를 사용한다. 게임 원본 계약은 schemaVersion 7이다. 6에서 작업대·화차 행동, 작업대 보드 관측, `transformed`, `workbench_ready`·`route_stop_changed`·`station_screen`을 더했고, 7에서 게임 시간을 턴(`elapsedTurns` 등)으로 바꾸고 역 시설 진입 행동(`enter_market`·`enter_tavern`·`enter_wagon_facility`)을 더했다. 분석 가공·집계·대시보드는 별도 저장소 `logkit-analytics-trainventory`(`/trainventory`)가 수행하며 schemaVersion 3~6을 읽는다. 수신 서버 CSV는 DataJson을 4000자에서 잘라 `rules_chunk`는 서버 미러에서 복원되지 않는다. [PLAY_LOG](PLAY_LOG.md)
+**콘솔·게임 분석·적용 테이블을 모두 LogKit으로 전송한다.** 기존 수신 API/주소/키를 사용한다. 게임 원본 계약은 schemaVersion 8이다. 6에서 작업대·화차 행동, 작업대 보드 관측, `transformed`, `workbench_ready`·`route_stop_changed`·`station_screen`을 더했고, 7에서 게임 시간을 턴(`elapsedTurns` 등)으로 바꾸고 역 시설 진입 행동(`enter_market`·`enter_tavern`·`enter_wagon_facility`)을 더했으며, 8에서 정수 게임 시간(`elapsedHours` 등)과 실시간 시계(1시간마다 `advance_time`), 출발 `depart`를 더했다. 분석 가공·집계·대시보드는 별도 저장소 `logkit-analytics-trainventory`(`/trainventory`)가 수행하며 schemaVersion 3~6을 읽는다. 수신 서버 CSV는 DataJson을 4000자에서 잘라 `rules_chunk`는 서버 미러에서 복원되지 않는다. [PLAY_LOG](PLAY_LOG.md)
 
 ## 전송 계약
 
@@ -23,7 +23,7 @@
 ## 세션과 시간
 
 - TelemetryLog가 분석 sessionId, sequence, FixedUpdate 누적 초 time을 소유한다. timestampUtc는 실제 UTC다. LogKit 업로드 봉투의 sessionId는 패키지의 별도 ID이므로 게임 판 식별에 사용하지 않는다.
-- 게임 달력은 PuzzleTimeManager.ElapsedTurns(1턴=3시간)가 소유한다. 분석기는 elapsedTurns로 관측하며 별도 게임 시계를 만들지 않는다. schemaVersion 6 이하 로그는 분 단위(elapsedMinutes)다.
+- 게임 달력은 PuzzleTimeManager.ElapsedHours(정수 게임 시간)가 소유한다. 분석기는 elapsedHours로 관측하며 별도 게임 시계를 만들지 않는다. schemaVersion 7은 턴 단위(elapsedTurns, 1턴=3시간), 6 이하는 분 단위(elapsedMinutes)다.
 - 앱/플레이 시작에 세션 하나를 연다. 재시작은 같은 세션에서 판만 닫고 다시 연다. 외부 판 키는 `(sessionId, run_start.sequence)`다.
 - BeforeClose에서 남은 판의 run_end를 기록한 뒤 session_end를 쓴다. closing으로 Close 재진입을 막고 closed 이후 Write는 경고 한 번 후 무시한다. 강제 종료는 끝 레코드를 보장하지 않는다.
 - 한 줄마다 sequence를 증가시킨다. dataJson은 payload JSON 문자열이다. JsonUtility가 지원하는 Serializable 클래스/구조체를 사용하며 decimal은 invariant 문자열로 남긴다.

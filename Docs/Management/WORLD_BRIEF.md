@@ -113,7 +113,7 @@
 | 술집 의뢰 | 방문당 2개. 의뢰 틀(신선 식품 / 소포·공구 상자)을 가중치로 뽑고, 최단 시간 범위 안의 목적지를 무작위로 고른다. 목적지 도착 시 자동 완료 | 규칙·수치 `TrainventoryQuestTableData`, 문구 `presentation.quest.*`, 화물 `PuzzleTableData` 의뢰 품목 | 문구 변경, 의뢰 틀 추가(기존 운송 규칙 안에서), 의뢰 화물 추가 | 의뢰인·세력·사연 필드, 이어지는 의뢰(퀘스트라인), 특정 마을·날짜에만 나오는 의뢰, 납품 의뢰 |
 | 의뢰 실패 패널티 | 보증금 몰수 또는 의뢰 지역 72시간 거래 불이익 | `TrainventoryQuestTableData.penalties` | 이름·설명·수치 변경 | 새 패널티 종류("보상이 문제를 일으킴" 등) |
 | 거래 숙련·평판 | 생산 태그 10종별 경험치·레벨. 평판 = 레벨 합. 평판이 오르면 동시 의뢰 수가 는다 | `TrainventoryProficiencyTableData`, 문구 `presentation.proficiency.*` | 문구 변경 | 칭호, 세력별 평판, 평판으로 열리는 이야기 |
-| 마을 작업대 | 도축·정제·개조 | `PuzzleCityActionTableData`(title·description) | 이름·설명 변경 | 새 종류의 작업대 |
+| 작업장 | 도축·정제·개조 | `TrainventoryWorkshopTableData`(title·description), 작업은 `TrainventoryWorkTableData`(displayName·description) | 이름·설명 변경 | 새 종류의 작업장 |
 | 화차 상품 | 일반 화차·냉장 화차 | `PuzzleTradeTableData.wagonProducts` | 이름 변경 | |
 | 마을·지역 이름 | 지도와 화면 전체에 표시 | `PuzzleTableData.cities[].displayName`(Map Editor로 편집) | 표시 이름 변경. ID(`city.*`)는 유지한다 | |
 | 승패 | 상환 버튼, 패배 결과 패널 | `presentation.inventory.clearButton`·`runStatusText`·`lossSummary` | 문구 변경 | 결말 분기, 후일담, 신문 1면 연출 |

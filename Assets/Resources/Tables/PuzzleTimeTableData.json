@@ -1,8 +1,8 @@
 {
   "status": "provisional",
-  "note": "1턴=3시간, 하루 8턴(PuzzleTimeManager 상수). 하루의 첫 턴이 startHour(06:00)이며 그 턴에 날짜가 바뀌고 시장을 재입고한다. daylightTurns(6)는 낮 턴 수이고 나머지 2턴(00:00·03:00)은 밤이라 시장에 들어갈 수 없다. 휴식은 restTurns, 시장·술집·화차 시설 진입과 작업대 확정은 stationActionTurns를 쓴다. 노선 이동 턴은 PuzzleRouteTableData.routes[].turns가 원본이다.",
-  "daylightTurns": 6,
+  "note": "게임 시계는 실시간으로 흐른다(배율은 기초데이터 rules.time.gameHoursPerRealMinute). 시뮬레이션 단위는 1게임시간이다. 경과 0시간이 startHour(06:00)이며 그 시각마다 날짜가 바뀌고 시장을 재입고한다. daylightHours(18) 동안 낮이고 나머지 6시간(00:00~06:00)은 밤이라 시장에 들어갈 수 없다. 휴식은 restHours만큼 시간을 보낸다. 이동 시간 = 노선 거리(PuzzleRouteTableData.routes[].distance) × hoursPerDistance이며 이동 1회가 1턴이다. 역 시설 진입·작업대 확정은 시간을 쓰지 않는다.",
+  "daylightHours": 18,
   "startHour": 6,
-  "restTurns": 1,
-  "stationActionTurns": 1
+  "restHours": 3,
+  "hoursPerDistance": 3
 }

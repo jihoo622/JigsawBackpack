@@ -53,7 +53,7 @@ public static class RailMapLayoutTool
         public string toCityId;
         public string regionId;
         public string corridorType;
-        public int turns;
+        public int distance;
         public long cost;
         public float labelX;
         public float labelY;
@@ -572,7 +572,7 @@ public static class RailMapLayoutTool
                     {
                         throw new InvalidOperationException("노선 시간의 원본이 없습니다: " + rail.sourceId);
                     }
-                    text.text = Presentation.PuzzleMapTime(PuzzleTimeManager.TravelTurns(route, TableManager.Instance.PuzzleTime));
+                    text.text = Presentation.PuzzleMapTime(PuzzleTimeManager.TravelHours(route, TableManager.Instance.PuzzleTime));
                     text.color = Presentation.PuzzleHeading;
                 }
                 if (!label.objectReferenceValue)

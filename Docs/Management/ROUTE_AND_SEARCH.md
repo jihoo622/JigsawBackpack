@@ -4,7 +4,7 @@
 
 ## 경로 계획(모델)
 
-- 경로 계산: `PuzzleRoutePlanner.FindFastestPath(TableManager, from, to)` — 노선 이동 턴(`PuzzleTimeManager.TravelTurns`) 합이 최소인 역 목록(출발 포함). 동률은 역 ID 서수 비교로 결정. 도달 불가면 null. 순수 함수로 두고 의뢰의 최단 턴 계산과 같은 노선 턴을 쓴다.
+- 경로 계산: `PuzzleRoutePlanner.FindFastestPath(TableManager, from, to)` — 노선 이동 시간(`PuzzleTimeManager.TravelHours`) 합이 최소인 역 목록(출발 포함). 동률은 역 ID 서수 비교로 결정. 도달 불가면 null. 순수 함수로 두고 의뢰의 최단 턴 계산과 같은 노선 턴을 쓴다.
 - 상태: `PuzzleInventoryService.RoutePlan`(`PuzzleRoutePlan`, 한 판에 하나, 없으면 null)과 `IsPassingThrough`. API는 `PuzzleInventoryService.Routes.cs`(`PlanRoute`·`SetRouteStop`·`CancelRoutePlan`·`QuoteRoutePlan`·`EvaluateNextRouteLeg`·`TravelNextRouteLeg`·`StopAtCurrentCity`).
 - 수동 이동 연동: `Travel(city)`는 항상 정차다. 계획의 다음 역으로 가면 계획을 한 구간 진행하고(목적지면 `Completed`로 종료), 다른 역으로 가면 `Deviated`로 취소한다. 판이 끝나면(승패) `RunEnded`로 취소한다.
 - 통과역: 도착 시 방문 기록(`visitedCities`)·의뢰 완료·`CityArrived`·도착 기록을 하지 않는다. 시간 진행(정산·배설·만료·성장·오전 6시 시장 재입고)과 운임은 수동 이동과 같다.
