@@ -298,6 +298,8 @@ public sealed partial class PuzzleInventoryService
     }
 
     // 기한이 지났거나 화물을 잃은(판매·만료·변환) 진행 중 의뢰를 실패 처리한다.
+    // 판매한 의뢰 화물이 지금 역 시장 보드에 남아 있으면 되살 수 있으므로 실패를 미룬다.
+    // 역을 떠나거나 시장이 재입고되어 보드에서 사라지면 다음 판정에서 실패한다.
     void CheckQuestFailures()
     {
         if (Time == null)
@@ -310,7 +312,7 @@ public sealed partial class PuzzleInventoryService
             {
                 FailQuest(quest, TrainventoryQuestFailure.Overdue);
             }
-            else if (!TryFindQuestCargo(quest, out _))
+            else if (!TryFindQuestCargo(quest, out _) && !IsQuestCargoOnSaleHere(quest))
             {
                 FailQuest(quest, TrainventoryQuestFailure.CargoLost);
             }
@@ -336,6 +338,16 @@ public sealed partial class PuzzleInventoryService
             }
         }
         GameEvents.RaiseQuestChanged(this, _quest);
+    }
+
+    bool IsQuestCargoOnSaleHere(TrainventoryQuest _quest)
+    {
+        if (IsPassingThrough || !markets.TryGetValue(CurrentCityId, out var market))
+        {
+            return false;
+        }
+        return market.Placements.Any(_placement => _placement.InstanceId == _quest.CargoInstanceId &&
+            string.Equals(_placement.Definition.Id, _quest.PieceId, StringComparison.Ordinal));
     }
 
     // 기차와 작업대 어디에든 같은 인스턴스·같은 품목으로 남아 있어야 의뢰 화물이다. 만료로 똥이 되면 품목이 바뀐다.

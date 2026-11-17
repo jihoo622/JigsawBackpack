@@ -135,7 +135,7 @@ introduced의 ID는 적용 중인 S에 없어야 한다. moved/transformed/value
 
 ## 다른 이벤트와 시간
 
-- quest_updated는 의뢰 하나의 상태가 바뀔 때(Active=수락, Completed, Failed) questId/cargoInstanceId/templateId/pieceId/sourceCityId/targetCityId/penaltyId/state/failure(CargoLost·Overdue)/reward/deposit/payout/deadlineTurns/elapsedTurns를 기록한다. 기한 초과 실패 시 남아 있던 의뢰 화물은 회수되며 자금은 바꾸지 않는다. 지역 거래 불이익은 이후 거래 가격에만 반영된다.
+- quest_updated는 의뢰 하나의 상태가 바뀔 때(Active=수락, Completed, Failed) questId/cargoInstanceId/templateId/pieceId/sourceCityId/targetCityId/penaltyId/state/failure(CargoLost·Overdue, 판매한 의뢰 화물은 그 역 시장 보드에서 사라질 때 CargoLost)/reward/deposit/payout/deadlineTurns/elapsedTurns를 기록한다. 기한 초과 실패 시 남아 있던 의뢰 화물은 회수되며 자금은 바꾸지 않는다. 지역 거래 불이익은 이후 거래 가격에만 반영된다.
 - proficiency_gained는 태그 하나의 숙련 경험치가 늘 때 tag/source(Sale·Quest)/gainedXp/xp(누적)/previousLevel/level/instanceId/questId(판매면 0)/elapsedTurns를 기록한다. 판매는 그 판매의 puzzle_action보다 먼저, 의뢰는 complete_quest보다 먼저 나온다. 판매 moneyDelta에는 숙련 이득이 이미 반영되어 있다.
 - `rumor_learned`는 `kind`·`targetCityId`·`tag`·`itemId`·`actionId`·`elapsedTurns`를 기록한다. `specialty`의 `itemId`는 특산 품목 ID, `tag`는 대상 마을의 `specialtyTag`다. `rare`의 `tag`는 수요 태그다. `preference`의 `tag`는 대상 마을에서 판매 등급이 선호(Expensive)인 태그다. `action`의 `actionId`는 `PuzzleCityActionTableData.actions[].id`다. 종류에 해당하지 않는 `tag`·`itemId`·`actionId`는 빈 문자열이다. schemaVersion 4의 종류는 `specialty`·`rare`이며 `actionId` 필드는 5부터 있다. `preference`는 6부터 있다. schemaVersion 3 이하에는 `kind`·`itemId`가 없다. 출처는 그 시점의 S.cityId이며 소문 한 건을 목록에 추가한다.
 - run_end.reason은 won/deadline/restart/scene_unloaded/shutdown/recorder_disabled/replaced다. 승패와 중단을 구분하고 S를 닫는다. 결과 패널/씬 이벤트가 뒤에 있어도 새 run_start 전까지 이전 판 행동으로 추가하지 않는다.
