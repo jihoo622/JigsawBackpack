@@ -88,7 +88,7 @@ public static class EconomyProbe
     internal static long RouteCost(PuzzleRouteData _route, int _cells)
     {
         var routeTable = Tables.PuzzleRoute;
-        return PuzzleInventoryService.TryTravelCost(_route.cost, _route.distance, routeTable.costPerDistance,
+        return PuzzleInventoryService.TryTravelCost(_route.cost, _route.turns, routeTable.costPerTurn,
             _cells, routeTable.costPerCell, out long cost, out _) ? cost : long.MaxValue;
     }
 
@@ -205,12 +205,12 @@ public static class EconomyProbe
                 foreach (var route in tables.RoutesFrom(from.id))
                 {
                     var to = tables.CityPrice(route.toCityId);
-                    long minutes = PuzzleTimeManager.TravelMinutes(route, tables.PuzzleTime);
+                    long turns = PuzzleTimeManager.TravelTurns(route, tables.PuzzleTime);
                     var row = new EconomyRouteRow
                     {
                         FromCityId = from.id,
                         ToCityId = to.id,
-                        TravelMinutes = minutes,
+                        TravelTurns = turns,
                         EmptyCost = RouteCost(route, 0),
                         FullWagonCost = RouteCost(route, wagonCells),
                         BestProfitPerCell = float.NegativeInfinity
@@ -240,8 +240,8 @@ public static class EconomyProbe
                     {
                         row.BestProfitPerCell = 0;
                     }
-                    float hours = minutes / (float)PuzzleTimeManager.MINUTES_PER_HOUR;
-                    row.WagonProfitPerHour = (row.BestProfitPerCell * wagonCells - row.FullWagonCost) / Mathf.Max(hours, 1f / 60f);
+                    float hours = turns;
+                    row.WagonProfitPerTurn = (row.BestProfitPerCell * wagonCells - row.FullWagonCost) / Mathf.Max(hours, 1f / 60f);
                     rows.Add(row);
                 }
             }
@@ -275,7 +275,7 @@ public sealed class EconomyItemRow
 public sealed class EconomyRouteRow
 {
     public string FromCityId, ToCityId, BestItemId;
-    public long TravelMinutes, EmptyCost, FullWagonCost, BestBuy, BestSell;
+    public long TravelTurns, EmptyCost, FullWagonCost, BestBuy, BestSell;
     public bool BestItemFixed;
-    public float BestProfitPerCell, WagonProfitPerHour;
+    public float BestProfitPerCell, WagonProfitPerTurn;
 }

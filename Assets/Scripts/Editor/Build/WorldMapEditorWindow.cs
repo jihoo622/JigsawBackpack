@@ -576,14 +576,14 @@ public sealed partial class WorldMapEditorWindow : EditorWindow
             Change("노선 연결 역 변경", () => Reconnect(rail, from, to));
             GUIUtility.ExitGUI();
         }
-        int distance = EditorGUILayout.DelayedIntField("요금용 거리 (왕복)", (int)rail["distance"]);
-        if (distance != (int)rail["distance"])
+        int distance = EditorGUILayout.DelayedIntField("이동 턴 (왕복)", (int)rail["turns"]);
+        if (distance != (int)rail["turns"])
         {
             Change("노선 거리", () =>
             {
-                rail["distance"] = distance;
-                forward["distance"] = distance;
-                reverse["distance"] = distance;
+                rail["turns"] = distance;
+                forward["turns"] = distance;
+                reverse["turns"] = distance;
             });
         }
         DrawFarePreview(rail);
@@ -794,7 +794,7 @@ public sealed partial class WorldMapEditorWindow : EditorWindow
         }
         EditorGUILayout.HelpBox("지도 목표 표식과 상환 장소는 별도 설정입니다. 상환 장소는 PuzzleTradeTableData.debtCityId를 사용합니다.", MessageType.Info);
         IntField(routes, "costPerCell", "적재 칸당 단가");
-        IntField(routes, "costPerDistance", "거리당 단가");
+        IntField(routes, "costPerTurn", "턴당 운임");
         DrawFareTools();
         DrawTimeLabelTools();
     }

@@ -4,7 +4,6 @@ using UnityEngine;
 public sealed class PuzzleStationActionsPresenter : MonoBehaviour
 {
     [SerializeField] PuzzleStationActionsView view;
-    [SerializeField] PuzzleWorkWaitView workWait;
     PuzzleInventoryService session;
 
     void OnEnable()
@@ -12,6 +11,7 @@ public sealed class PuzzleStationActionsPresenter : MonoBehaviour
         session = SceneServices.For<PuzzleInventoryService>(gameObject.scene);
         session.Initialize();
         view.MarketRequested += OpenMarket;
+        view.WagonShopRequested += OpenWagonShop;
         view.TavernRequested += OpenTavern;
         view.RestRequested += OpenRest;
         view.TravelRequested += OpenMap;
@@ -38,6 +38,7 @@ public sealed class PuzzleStationActionsPresenter : MonoBehaviour
     void OnDisable()
     {
         view.MarketRequested -= OpenMarket;
+        view.WagonShopRequested -= OpenWagonShop;
         view.TavernRequested -= OpenTavern;
         view.RestRequested -= OpenRest;
         view.TravelRequested -= OpenMap;
@@ -58,10 +59,6 @@ public sealed class PuzzleStationActionsPresenter : MonoBehaviour
         GameEvents.RefiningChanged -= OnRefiningChanged;
         GameEvents.FundsChanged -= OnFundsChanged;
         GameEvents.PuzzleRunEnded -= OnRunEnded;
-        if (workWait)
-        {
-            workWait.Close();
-        }
     }
 
     void Refresh()
@@ -78,7 +75,7 @@ public sealed class PuzzleStationActionsPresenter : MonoBehaviour
             ? string.Empty
             : butcheryNoFunds
                 ? Presentation.PuzzleButcheryInsufficientFunds(butcheryCost)
-                : Presentation.StationButcheryStatus(phase, session.ButcheryRemainingMinutes());
+                : Presentation.StationButcheryStatus(phase, session.ButcheryRemainingTurns());
         if (!view.ShowingButchery)
         {
             session.CloseButchery();
@@ -90,7 +87,9 @@ public sealed class PuzzleStationActionsPresenter : MonoBehaviour
             : PuzzleModificationPhase.Idle;
         PuzzleActionModeData selectedMode = null;
         bool modificationModeSelected = modificationAvailable && session.TryGetSelectedModificationMode(out selectedMode);
-        bool modificationConfirmable = modificationAvailable && session.ModificationConfirmable();
+        // 작업대 확정은 역 행동 1턴을 쓴다. 기한을 넘기면 확정할 수 없다.
+        bool canSpendTurn = session.CanSpendStationTurn;
+        bool modificationConfirmable = modificationAvailable && session.ModificationConfirmable() && canSpendTurn;
         long modificationCost = modificationModeSelected ? selectedMode.cost : -1;
         bool modificationNoFunds = modificationAvailable && modificationPhase == PuzzleModificationPhase.Idle &&
             modificationModeSelected && modificationCost >= 0 && session.Funds < modificationCost;
@@ -117,21 +116,22 @@ public sealed class PuzzleStationActionsPresenter : MonoBehaviour
             ? string.Empty
             : refiningNoFunds
                 ? Presentation.PuzzleRefiningInsufficientFunds(refiningCost)
-                : Presentation.StationRefiningStatus(refiningPhase, session.RefiningRemainingMinutes());
+                : Presentation.StationRefiningStatus(refiningPhase, session.RefiningRemainingTurns());
         if (!view.ShowingRefining)
         {
             session.CloseRefining();
         }
-        view.Refresh(session.IsMarketOpen, inProgress, TableManager.Instance.PuzzleTime.restMinutes,
+        view.Refresh(session.IsMarketOpen && canSpendTurn, session.MarketEntered, inProgress, canSpendTurn,
+            TableManager.Instance.PuzzleTime.restTurns,
             available, available && phase != PuzzleButcheryPhase.Working,
-            available && session.ButcheryConfirmable(), hint, butcheryCost,
+            available && session.ButcheryConfirmable() && canSpendTurn, hint, butcheryCost,
             Presentation.StationActionDescription(butchery));
         view.RefreshModification(inProgress, modificationAvailable, modificationPhase, modificationModeSelected,
             modificationConfirmable, modificationModeName, modificationHint, modificationCost,
             Presentation.StationActionDescription(modification));
         view.RefreshRefining(inProgress, refiningAvailable,
             refiningAvailable && refiningPhase != PuzzleRefiningPhase.Working,
-            refiningAvailable && session.RefiningConfirmable(), refiningHint, refiningCost,
+            refiningAvailable && session.RefiningConfirmable() && canSpendTurn, refiningHint, refiningCost,
             Presentation.StationActionDescription(refining));
         bool hasAnyFacility = available || modificationAvailable || refiningAvailable;
         view.UpdateFacilityCard(hasAnyFacility && inProgress);
@@ -143,22 +143,33 @@ public sealed class PuzzleStationActionsPresenter : MonoBehaviour
         return modes.Count > 0 ? modes[0].displayName : string.Empty;
     }
 
+    // 시장·술집·화차 시설은 들어갈 때 역 행동 1턴을 쓴다. 턴을 쓰지 못하면 화면을 열지 않는다.
+    // 뒤로 갔다가 같은 시설에 다시 들어가면 턴을 다시 쓰지 않는다. 다른 역 행동을 고르면 다시 쓴다.
     void OpenMarket()
     {
-        if (session.IsMarketOpen)
+        if (session.TryEnterMarket())
         {
             view.ShowMarket();
         }
     }
 
+    void OpenWagonShop()
+    {
+        if (session.RunStatus == PuzzleRunStatus.InProgress && session.TryEnterWagonFacility())
+        {
+            view.ShowWagonShop();
+        }
+    }
+
     void OpenRest()
     {
+        session.ForgetPaidFacility();
         view.ShowRest();
     }
 
     void OpenTavern()
     {
-        if (session.RunStatus == PuzzleRunStatus.InProgress)
+        if (session.RunStatus == PuzzleRunStatus.InProgress && session.TryEnterTavern())
         {
             view.ShowTavern();
         }
@@ -167,6 +178,7 @@ public sealed class PuzzleStationActionsPresenter : MonoBehaviour
     // View의 content를 먼저 켜고 세션에 조작 허락을 받는다. 열리기 전 View는 초기화·좌표가 준비되지 않는다.
     void OpenButchery()
     {
+        session.ForgetPaidFacility();
         view.ShowButchery();
         if (!session.OpenButchery())
         {
@@ -184,11 +196,12 @@ public sealed class PuzzleStationActionsPresenter : MonoBehaviour
             return;
         }
         Refresh();
-        OfferWorkWait(session.ButcheryRemainingMinutes, OpenButchery, session.ButcheryAction()?.id);
+        SpendWorkTurn(OpenButchery, session.ButcheryAction()?.id);
     }
 
     void OpenModification()
     {
+        session.ForgetPaidFacility();
         view.ShowModification();
         if (!session.OpenModification())
         {
@@ -221,12 +234,13 @@ public sealed class PuzzleStationActionsPresenter : MonoBehaviour
         }
         session.CloseModification();
         Refresh();
-        OfferWorkWait(session.ModificationRemainingMinutes, OpenModification, session.ModificationAction()?.id);
+        SpendWorkTurn(OpenModification, session.ModificationAction()?.id);
     }
 
     // View의 content를 먼저 켜고 세션에 조작 허락을 받는다. 열리기 전 View는 초기화·좌표가 준비되지 않는다.
     void OpenRefining()
     {
+        session.ForgetPaidFacility();
         view.ShowRefining();
         if (!session.OpenRefining())
         {
@@ -244,50 +258,31 @@ public sealed class PuzzleStationActionsPresenter : MonoBehaviour
             return;
         }
         Refresh();
-        OfferWorkWait(session.RefiningRemainingMinutes, OpenRefining, session.RefiningAction()?.id);
+        SpendWorkTurn(OpenRefining, session.RefiningAction()?.id);
     }
 
-    void OfferWorkWait(Func<string, long> _remainingMinutes, Action _openWorkbench, string _actionId)
+    // 작업을 확정하면 역 행동 1턴을 쓴다. 작업대를 닫고 턴을 보낸 뒤, 같은 역에 그대로 있으면 결과를 수령할 작업대를 다시 연다.
+    void SpendWorkTurn(Action _openWorkbench, string _actionId)
     {
-        if (!workWait || !view.IsOpen || session.RunStatus != PuzzleRunStatus.InProgress)
+        if (!view.IsOpen || session.RunStatus != PuzzleRunStatus.InProgress)
         {
             return;
         }
-
         string cityId = session.CurrentCityId;
-        workWait.Ask(_wait =>
+        ShowHome();
+        if (!session.WaitForWorkbench(_actionId, session.StationActionTurns))
         {
-            if (!isActiveAndEnabled || !view.IsOpen || session.RunStatus != PuzzleRunStatus.InProgress ||
-                session.CurrentCityId != cityId)
-            {
-                return;
-            }
-
-            ShowHome();
-            if (!_wait)
-            {
-                return;
-            }
-
-            long remainingMinutes = _remainingMinutes(cityId);
-            if (remainingMinutes > 0 && !session.WaitForWorkbench(_actionId, remainingMinutes))
-            {
-                return;
-            }
-            if (isActiveAndEnabled && view.IsOpen && session.RunStatus == PuzzleRunStatus.InProgress &&
-                session.CurrentCityId == cityId)
-            {
-                _openWorkbench();
-            }
-        });
+            return;
+        }
+        if (isActiveAndEnabled && view.IsOpen && session.RunStatus == PuzzleRunStatus.InProgress &&
+            session.CurrentCityId == cityId)
+        {
+            _openWorkbench();
+        }
     }
 
     public bool TryConsumeCancel()
     {
-        if (workWait && workWait.TryChooseLater())
-        {
-            return true;
-        }
         if (view && view.ShowingSubscreen)
         {
             OnBack();
@@ -336,11 +331,6 @@ public sealed class PuzzleStationActionsPresenter : MonoBehaviour
     {
         if (_info.panel == Presentation.PUZZLE_MAP_PANEL_NAME)
         {
-            if (_info.open && workWait && workWait.IsOpen)
-            {
-                workWait.Close();
-                ShowHome();
-            }
             view.SetInteraction(!_info.open);
             return;
         }
@@ -348,10 +338,6 @@ public sealed class PuzzleStationActionsPresenter : MonoBehaviour
         {
             if (!_info.open)
             {
-                if (workWait)
-                {
-                    workWait.Close();
-                }
                 session.CloseButchery();
                 session.CloseModification();
                 session.CloseRefining();
@@ -399,28 +385,23 @@ public sealed class PuzzleStationActionsPresenter : MonoBehaviour
 
     void Rest()
     {
-        if (session.RunStatus == PuzzleRunStatus.InProgress)
+        if (session.RunStatus == PuzzleRunStatus.InProgress && session.CanSpendStationTurn)
         {
-            bool advanced = session.AdvanceMinutes(TableManager.Instance.PuzzleTime.restMinutes, PuzzleActionKind.Rest);
+            bool advanced = session.AdvanceTurns(TableManager.Instance.PuzzleTime.restTurns, PuzzleActionKind.Rest);
             view.ShowRestNotice(advanced ? Presentation.StationRestHint : Presentation.PuzzleTimeOverflow);
         }
     }
 
     void OnArrived(GameEvents.CityArrivalInfo _info)
     {
-        if (workWait)
-        {
-            workWait.Close();
-        }
         view.ShowHome();
         Refresh();
     }
 
     void OnRunEnded(GameEvents.PuzzleRunInfo _info)
     {
-        if (_info.session == session && workWait && workWait.IsOpen)
+        if (_info.session == session)
         {
-            workWait.Close();
             ShowHome();
         }
     }

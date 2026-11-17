@@ -162,7 +162,7 @@ public sealed class TelemetryRecorder : MonoBehaviour
                 level = _info.level,
                 instanceId = _info.instanceId,
                 questId = _info.questId,
-                elapsedMinutes = _info.elapsedMinutes
+                elapsedTurns = _info.elapsedTurns
             });
         }
     }
@@ -185,8 +185,8 @@ public sealed class TelemetryRecorder : MonoBehaviour
                 reward = _info.reward,
                 deposit = _info.deposit,
                 payout = _info.payout,
-                deadlineMinutes = _info.deadlineMinutes,
-                elapsedMinutes = _info.elapsedMinutes
+                deadlineTurns = _info.deadlineTurns,
+                elapsedTurns = _info.elapsedTurns
             });
         }
     }

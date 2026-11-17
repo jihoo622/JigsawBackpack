@@ -77,7 +77,7 @@ public sealed partial class PuzzleInventoryService
             return;
         }
 
-        var hours = ShortestTravelHours(CurrentCityId);
+        var hours = ShortestTravelTurns(CurrentCityId);
         for (int i = 0; i < tables.Quest.offersPerTavern; i++)
         {
             if (TryCreateCourierOffer(hours, out var offer))
@@ -95,7 +95,7 @@ public sealed partial class PuzzleInventoryService
         foreach (var template in tables.CourierQuests)
         {
             var cities = _hours
-                .Where(_pair => _pair.Value >= template.minTravelHours && _pair.Value <= template.maxTravelHours)
+                .Where(_pair => _pair.Value >= template.minTravelTurns && _pair.Value <= template.maxTravelTurns)
                 .Select(_pair => _pair.Key)
                 .OrderBy(_id => _id, StringComparer.Ordinal)
                 .ToList();
@@ -126,28 +126,28 @@ public sealed partial class PuzzleInventoryService
         var piece = definitions[pieceIds[questRandom.Next(pieceIds.Length)]];
 
         // 3. 보상·기한·보증금을 테이블 계수로 계산한다.
-        long travelHours = _hours[targetCityId];
-        long reward = checked(selected.Template.baseReward + (long)selected.Template.rewardPerCellHour * piece.Cells.Count * travelHours);
-        long deadlineHours = checked((travelHours * selected.Template.deadlinePercent + 99) / 100 + selected.Template.deadlineExtraHours);
+        long travelTurns = _hours[targetCityId];
+        long reward = checked(selected.Template.baseReward + (long)selected.Template.rewardPerCellTurn * piece.Cells.Count * travelTurns);
+        long deadlineTurns = checked((travelTurns * selected.Template.deadlinePercent + 99) / 100 + selected.Template.deadlineExtraTurns);
         var penalty = tables.QuestPenalty(selected.Template.penaltyId);
         long deposit = PenaltyType(penalty) == TrainventoryQuestPenaltyType.Deposit
             ? checked((reward * penalty.depositPercentOfReward + 99) / 100)
             : 0;
         _offer = new TrainventoryQuestOffer(selected.Template.id, piece.Id, CurrentCityId, targetCityId, penalty.id,
-            travelHours, reward, deposit, deadlineHours);
+            travelTurns, reward, deposit, deadlineTurns);
         return true;
     }
 
     // 현재 도시에서 다른 도시까지의 최단 이동 시간(시간). 노선 소요 시간은 이동과 같은 TravelMinutes를 쓴다.
-    Dictionary<string, long> ShortestTravelHours(string _fromCityId)
+    Dictionary<string, long> ShortestTravelTurns(string _fromCityId)
     {
-        var minutes = new Dictionary<string, long>(StringComparer.Ordinal) { [_fromCityId] = 0 };
+        var turns = new Dictionary<string, long>(StringComparer.Ordinal) { [_fromCityId] = 0 };
         var done = new HashSet<string>(StringComparer.Ordinal);
         while (true)
         {
             string current = null;
             long best = long.MaxValue;
-            foreach (var pair in minutes)
+            foreach (var pair in turns)
             {
                 if (!done.Contains(pair.Key) && (pair.Value < best ||
                     (pair.Value == best && StringComparer.Ordinal.Compare(pair.Key, current) < 0)))
@@ -163,20 +163,20 @@ public sealed partial class PuzzleInventoryService
             done.Add(current);
             foreach (var route in tables.RoutesFrom(current))
             {
-                long arrival = best + PuzzleTimeManager.TravelMinutes(route, tables.PuzzleTime);
-                if (!minutes.TryGetValue(route.toCityId, out long known) || arrival < known)
+                long arrival = best + PuzzleTimeManager.TravelTurns(route, tables.PuzzleTime);
+                if (!turns.TryGetValue(route.toCityId, out long known) || arrival < known)
                 {
-                    minutes[route.toCityId] = arrival;
+                    turns[route.toCityId] = arrival;
                 }
             }
         }
 
         var hours = new Dictionary<string, long>(StringComparer.Ordinal);
-        foreach (var pair in minutes)
+        foreach (var pair in turns)
         {
             if (!string.Equals(pair.Key, _fromCityId, StringComparison.Ordinal))
             {
-                hours.Add(pair.Key, (pair.Value + PuzzleTimeManager.MINUTES_PER_HOUR - 1) / PuzzleTimeManager.MINUTES_PER_HOUR);
+                hours.Add(pair.Key, pair.Value);
             }
         }
         return hours;
@@ -242,8 +242,8 @@ public sealed partial class PuzzleInventoryService
         long previousFunds = Funds;
         Funds -= _offer.Deposit;
         questOffers.Remove(_offer);
-        var quest = new TrainventoryQuest(++lastQuestId, _offer, instanceId, Time.ElapsedMinutes,
-            checked(Time.ElapsedMinutes + _offer.DeadlineHours * PuzzleTimeManager.MINUTES_PER_HOUR));
+        var quest = new TrainventoryQuest(++lastQuestId, _offer, instanceId, Time.ElapsedTurns,
+            checked(Time.ElapsedTurns + _offer.DeadlineTurns));
         quests.Add(quest);
         RecordAction(PuzzleActionKind.AcceptQuest);
         GameEvents.RaiseFundsChanged(this, previousFunds);
@@ -279,7 +279,7 @@ public sealed partial class PuzzleInventoryService
             long payout = checked(quest.Reward + cargoValue + quest.Deposit);
             cargo.Owner.Remove(cargo);
             Funds = checked(Funds + payout);
-            quest.Finish(TrainventoryQuestState.Completed, TrainventoryQuestFailure.None, payout, Time.ElapsedMinutes);
+            quest.Finish(TrainventoryQuestState.Completed, TrainventoryQuestFailure.None, payout, Time.ElapsedTurns);
             GrantQuestProficiency(quest);
             completed.Add(quest);
         }
@@ -306,7 +306,7 @@ public sealed partial class PuzzleInventoryService
         }
         foreach (var quest in quests.Where(_quest => _quest.State == TrainventoryQuestState.Active).ToList())
         {
-            if (Time.ElapsedMinutes > quest.DeadlineMinutes)
+            if (Time.ElapsedTurns > quest.DeadlineTurns)
             {
                 FailQuest(quest, TrainventoryQuestFailure.Overdue);
             }
@@ -324,13 +324,13 @@ public sealed partial class PuzzleInventoryService
             cargo.Owner.Remove(cargo);
             PruneAnimalStates();
         }
-        _quest.Finish(TrainventoryQuestState.Failed, _failure, 0, Time.ElapsedMinutes);
+        _quest.Finish(TrainventoryQuestState.Failed, _failure, 0, Time.ElapsedTurns);
         var penalty = tables.QuestPenalty(_quest.PenaltyId);
         if (PenaltyType(penalty) == TrainventoryQuestPenaltyType.RegionTrade)
         {
             string regionId = tables.CityPrice(_quest.SourceCityId).regionId;
-            long until = checked(Time.ElapsedMinutes + (long)penalty.durationHours * PuzzleTimeManager.MINUTES_PER_HOUR);
-            if (!regionPenalties.TryGetValue(regionId, out var current) || current.UntilMinutes < until)
+            long until = checked(Time.ElapsedTurns + (long)penalty.durationTurns);
+            if (!regionPenalties.TryGetValue(regionId, out var current) || current.UntilTurns < until)
             {
                 regionPenalties[regionId] = new TrainventoryRegionPenalty(penalty.buyPercentDelta, penalty.sellPercentDelta, until);
             }
@@ -374,7 +374,7 @@ public sealed partial class PuzzleInventoryService
     internal bool TryGetRegionPenalty(string _regionId, out TrainventoryRegionPenalty _penalty)
     {
         if (Time != null && !string.IsNullOrEmpty(_regionId) && regionPenalties.TryGetValue(_regionId, out _penalty) &&
-            Time.ElapsedMinutes < _penalty.UntilMinutes)
+            Time.ElapsedTurns < _penalty.UntilTurns)
         {
             return true;
         }
@@ -428,23 +428,23 @@ internal sealed class TrainventoryQuestOffer
     internal string SourceCityId { get; }
     internal string TargetCityId { get; }
     internal string PenaltyId { get; }
-    internal long TravelHours { get; }
+    internal long TravelTurns { get; }
     internal long Reward { get; }
     internal long Deposit { get; }
-    internal long DeadlineHours { get; }
+    internal long DeadlineTurns { get; }
 
     internal TrainventoryQuestOffer(string _templateId, string _pieceId, string _sourceCityId, string _targetCityId,
-        string _penaltyId, long _travelHours, long _reward, long _deposit, long _deadlineHours)
+        string _penaltyId, long _travelTurns, long _reward, long _deposit, long _deadlineTurns)
     {
         TemplateId = _templateId;
         PieceId = _pieceId;
         SourceCityId = _sourceCityId;
         TargetCityId = _targetCityId;
         PenaltyId = _penaltyId;
-        TravelHours = _travelHours;
+        TravelTurns = _travelTurns;
         Reward = _reward;
         Deposit = _deposit;
-        DeadlineHours = _deadlineHours;
+        DeadlineTurns = _deadlineTurns;
     }
 }
 
@@ -459,15 +459,15 @@ internal sealed class TrainventoryQuest
     internal long Reward { get; }
     internal long Deposit { get; }
     internal int CargoInstanceId { get; }
-    internal long AcceptedMinutes { get; }
-    internal long DeadlineMinutes { get; }
+    internal long AcceptedTurns { get; }
+    internal long DeadlineTurns { get; }
     internal TrainventoryQuestState State { get; private set; }
     internal TrainventoryQuestFailure Failure { get; private set; }
     internal long Payout { get; private set; }
-    internal long FinishedMinutes { get; private set; }
+    internal long FinishedTurns { get; private set; }
 
-    internal TrainventoryQuest(int _id, TrainventoryQuestOffer _offer, int _cargoInstanceId, long _acceptedMinutes,
-        long _deadlineMinutes)
+    internal TrainventoryQuest(int _id, TrainventoryQuestOffer _offer, int _cargoInstanceId, long _acceptedTurns,
+        long _deadlineTurns)
     {
         Id = _id;
         TemplateId = _offer.TemplateId;
@@ -478,18 +478,18 @@ internal sealed class TrainventoryQuest
         Reward = _offer.Reward;
         Deposit = _offer.Deposit;
         CargoInstanceId = _cargoInstanceId;
-        AcceptedMinutes = _acceptedMinutes;
-        DeadlineMinutes = _deadlineMinutes;
+        AcceptedTurns = _acceptedTurns;
+        DeadlineTurns = _deadlineTurns;
         State = TrainventoryQuestState.Active;
-        FinishedMinutes = -1;
+        FinishedTurns = -1;
     }
 
-    internal void Finish(TrainventoryQuestState _state, TrainventoryQuestFailure _failure, long _payout, long _finishedMinutes)
+    internal void Finish(TrainventoryQuestState _state, TrainventoryQuestFailure _failure, long _payout, long _finishedTurns)
     {
         State = _state;
         Failure = _failure;
         Payout = _payout;
-        FinishedMinutes = _finishedMinutes;
+        FinishedTurns = _finishedTurns;
     }
 }
 
@@ -497,12 +497,12 @@ internal readonly struct TrainventoryRegionPenalty
 {
     internal int BuyPercentDelta { get; }
     internal int SellPercentDelta { get; }
-    internal long UntilMinutes { get; }
+    internal long UntilTurns { get; }
 
-    internal TrainventoryRegionPenalty(int _buyPercentDelta, int _sellPercentDelta, long _untilMinutes)
+    internal TrainventoryRegionPenalty(int _buyPercentDelta, int _sellPercentDelta, long _untilTurns)
     {
         BuyPercentDelta = _buyPercentDelta;
         SellPercentDelta = _sellPercentDelta;
-        UntilMinutes = _untilMinutes;
+        UntilTurns = _untilTurns;
     }
 }

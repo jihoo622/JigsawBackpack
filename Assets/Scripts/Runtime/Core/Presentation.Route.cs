@@ -13,15 +13,13 @@ public static partial class Presentation
 
     internal static string RoutePlanSummary(PuzzleRouteQuote _quote)
     {
-        int hour = _quote.ArrivalClockMinutes / PuzzleTimeManager.MINUTES_PER_HOUR;
-        int minute = _quote.ArrivalClockMinutes % PuzzleTimeManager.MINUTES_PER_HOUR;
         string nightText = _quote.ArrivalIsNight ? RoutePlanArrivalNight : RoutePlanArrivalDay;
         return BasicData.Format(
             "presentation.route.summary",
             _quote.Legs,
-            PuzzleMapTime(_quote.TotalMinutes),
-            hour,
-            minute,
+            PuzzleMapTime(_quote.TotalTurns),
+            _quote.ArrivalClockTurns + 1,
+            HourOfTurn(_quote.ArrivalClockTurns),
             nightText,
             _quote.EstimatedCost);
     }

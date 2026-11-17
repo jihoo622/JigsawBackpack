@@ -1,93 +1,87 @@
 using System;
 
-// 세션의 유일한 게임 시계. 분을 정수로 보관하며 소요 시간은 고정 폴라인에서 계산한다.
+// 세션의 유일한 게임 시계. 경과 턴을 정수로 보관한다. 1턴은 3시간이고 하루는 8턴이며 턴 안의 일부 시간은 없다.
+// 하루의 첫 턴(TurnOfDay 0)은 시간 테이블의 startHour(06:00) 시각이고, 그 턴이 시작될 때 날짜가 바뀌고 시장을 재입고한다.
 public sealed class PuzzleTimeManager
 {
-    public const int MINUTES_PER_HOUR = 60;
+    public const int HOURS_PER_TURN = 3;
     public const int HOURS_PER_DAY = 24;
-    public const int MINUTES_PER_DAY = HOURS_PER_DAY * MINUTES_PER_HOUR;
+    public const int TURNS_PER_DAY = HOURS_PER_DAY / HOURS_PER_TURN;
     readonly PuzzleTimeTableData rules;
-    public long ElapsedMinutes { get; private set; }
-    public decimal ElapsedHours => ElapsedMinutes / (decimal)MINUTES_PER_HOUR;
-    public long DeadlineMinutes { get; }
-    public bool HasDeadline => DeadlineMinutes > 0;
-    public bool IsOverdue => HasDeadline && ElapsedMinutes > DeadlineMinutes;
-    public long RemainingMinutes => HasDeadline ? Math.Max(0, DeadlineMinutes - ElapsedMinutes) : long.MaxValue;
-    public decimal RemainingHours => RemainingMinutes / (decimal)MINUTES_PER_HOUR;
-    public long Day => DayAt(ElapsedMinutes);
-    public int MinuteOfDay => MinuteOfDayAt(ElapsedMinutes);
-    public int Hour => MinuteOfDay / MINUTES_PER_HOUR;
-    public int Minute => MinuteOfDay % MINUTES_PER_HOUR;
-    public bool IsNight => IsNightAt(ElapsedMinutes);
-    public long MinutesUntilDaylight => IsNight ? MINUTES_PER_DAY - DaylightOffset(ElapsedMinutes) : 0;
-    // 하루(0~24시) 안에서 밤이 시작하는 분과 길이. 낮·밤 게이지 표시에 쓴다.
-    public int NightStartMinuteOfDay => (rules.daylightStartHour + rules.daylightHours) * MINUTES_PER_HOUR % MINUTES_PER_DAY;
-    public int NightLengthMinutes => MINUTES_PER_DAY - rules.daylightHours * MINUTES_PER_HOUR;
+    public long ElapsedTurns { get; private set; }
+    public long DeadlineTurns { get; }
+    public bool HasDeadline => DeadlineTurns > 0;
+    public bool IsOverdue => HasDeadline && ElapsedTurns > DeadlineTurns;
+    public long RemainingTurns => HasDeadline ? Math.Max(0, DeadlineTurns - ElapsedTurns) : long.MaxValue;
+    // 0부터 센 날짜. 화면에는 1을 더해 표시한다.
+    public long Day => DayAt(ElapsedTurns);
+    // 하루 안의 턴(0부터). 화면에는 1을 더해 "N턴"으로 표시한다.
+    public int TurnOfDay => TurnOfDayAt(ElapsedTurns);
+    // 현재 턴이 시작하는 시각(0~23시).
+    public int Hour => HourAt(ElapsedTurns);
+    public bool IsNight => IsNightAt(ElapsedTurns);
+    public long TurnsUntilDaylight => IsNight ? TURNS_PER_DAY - TurnOfDay : 0;
+    // 하루(TurnOfDay 0~7) 안에서 밤이 시작하는 턴과 길이. 낮·밤 게이지 표시에 쓴다.
+    public int NightStartTurnOfDay => rules.daylightTurns;
+    public int NightLengthTurns => TURNS_PER_DAY - rules.daylightTurns;
 
-    public PuzzleTimeManager(long _deadlineHours, PuzzleTimeTableData _rules)
+    public PuzzleTimeManager(long _deadlineTurns, PuzzleTimeTableData _rules)
     {
-        if (_deadlineHours < 0 || _rules == null)
+        if (_deadlineTurns < 0 || _rules == null)
         {
-            throw new ArgumentOutOfRangeException(nameof(_deadlineHours));
+            throw new ArgumentOutOfRangeException(nameof(_deadlineTurns));
         }
         rules = _rules;
-        DeadlineMinutes = checked(_deadlineHours * MINUTES_PER_HOUR);
+        DeadlineTurns = _deadlineTurns;
     }
 
-    int DaylightOffset(long _elapsedMinutes)
+    // 현재 이후 _elapsedTurns까지 하루의 첫 턴이 시작된 횟수(시장 재입고 횟수).
+    internal long DaylightOpeningsThrough(long _elapsedTurns)
     {
-        long clock = _elapsedMinutes % MINUTES_PER_DAY + (rules.startHour - rules.daylightStartHour) * MINUTES_PER_HOUR;
-        return (int)((clock % MINUTES_PER_DAY + MINUTES_PER_DAY) % MINUTES_PER_DAY);
+        return Math.Max(0, _elapsedTurns / TURNS_PER_DAY - ElapsedTurns / TURNS_PER_DAY);
     }
 
-    internal long DaylightOpeningsThrough(long _elapsedMinutes)
+    public bool IsNightAt(long _elapsedTurns)
     {
-        long minutesUntilNextOpening = MINUTES_PER_DAY - DaylightOffset(ElapsedMinutes);
-        long minutesAfterFirstOpening = _elapsedMinutes - ElapsedMinutes - minutesUntilNextOpening;
-        return minutesAfterFirstOpening < 0 ? 0 : 1 + minutesAfterFirstOpening / MINUTES_PER_DAY;
+        return TurnOfDayAt(_elapsedTurns) >= rules.daylightTurns;
     }
 
-    public bool IsNightAt(long _elapsedMinutes)
+    public long DayAt(long _elapsedTurns)
     {
-        return DaylightOffset(_elapsedMinutes) >= rules.daylightHours * MINUTES_PER_HOUR;
+        return _elapsedTurns / TURNS_PER_DAY;
     }
 
-    public long DayAt(long _elapsedMinutes)
+    public int TurnOfDayAt(long _elapsedTurns)
     {
-        return _elapsedMinutes / MINUTES_PER_DAY +
-            (_elapsedMinutes % MINUTES_PER_DAY + rules.startHour * MINUTES_PER_HOUR) / MINUTES_PER_DAY;
+        return (int)(_elapsedTurns % TURNS_PER_DAY);
     }
 
-    int MinuteOfDayAt(long _elapsedMinutes)
+    public int HourAt(long _elapsedTurns)
     {
-        return (int)((_elapsedMinutes % MINUTES_PER_DAY + rules.startHour * MINUTES_PER_HOUR) % MINUTES_PER_DAY);
+        return (rules.startHour + TurnOfDayAt(_elapsedTurns) * HOURS_PER_TURN) % HOURS_PER_DAY;
     }
 
-    internal long MinutesUntilDayInterval(long _elapsedMinutes, int _intervalDays)
+    // _elapsedTurns 이후 처음 맞는 주기 경계(경과 턴이 주기의 배수인 시점)의 절대 턴. 배설 주기의 기준이다.
+    internal long NextIntervalAt(long _elapsedTurns, long _intervalTurns)
     {
-        long days = _intervalDays - DayAt(_elapsedMinutes) % _intervalDays;
-        return days * MINUTES_PER_DAY - MinuteOfDayAt(_elapsedMinutes);
-    }
-
-    // _elapsedMinutes 이후 처음 맞는 배설 달력 경계의 절대 분. 새 동물의 첫 발생 기준을 삼는다.
-    internal long NextDayIntervalAt(long _elapsedMinutes, int _intervalDays)
-    {
-        return checked(_elapsedMinutes + MinutesUntilDayInterval(_elapsedMinutes, _intervalDays));
-    }
-
-    // 이동 시간을 시간 테이블의 올림 단위(분)로 올림하고, 같은 분수를 표시·가치·보유 시간에 사용한다.
-    public static long TravelMinutes(PuzzleRouteData _route, PuzzleTimeTableData _rules)
-    {
-        double pixels = PolylineLength(_route.points);
-        double step = _rules.travelRoundingMinutes;
-        double minutes = Math.Ceiling(pixels / _rules.pixelsPerHour * MINUTES_PER_HOUR / step) * step;
-        if (double.IsNaN(minutes) || double.IsInfinity(minutes) || minutes < 1 || minutes >= long.MaxValue)
+        if (_intervalTurns <= 0)
         {
-            throw new OverflowException("노선의 소요 분을 계산할 수 없습니다.");
+            throw new ArgumentOutOfRangeException(nameof(_intervalTurns));
         }
-        return checked((long)minutes);
+        return checked(_elapsedTurns + (_intervalTurns - _elapsedTurns % _intervalTurns));
     }
 
+    // 노선의 이동 턴. 노선 표의 turns가 원본이며 지도 선 모양과 무관하다.
+    public static long TravelTurns(PuzzleRouteData _route, PuzzleTimeTableData _rules)
+    {
+        if (_route.turns <= 0)
+        {
+            throw new OverflowException("노선의 이동 턴이 없습니다.");
+        }
+        return _route.turns;
+    }
+
+    // 지도 선의 전체 길이. Map Editor가 이동 턴을 자동 계산할 때만 쓴다.
     public static double PolylineLength(float[] _points)
     {
         double length = 0;
@@ -100,32 +94,32 @@ public sealed class PuzzleTimeManager
         return length;
     }
 
-    public long ArrivalAt(long _durationMinutes)
+    public long ArrivalAt(long _durationTurns)
     {
-        if (_durationMinutes < 0)
+        if (_durationTurns < 0)
         {
-            throw new ArgumentOutOfRangeException(nameof(_durationMinutes));
+            throw new ArgumentOutOfRangeException(nameof(_durationTurns));
         }
-        return checked(ElapsedMinutes + _durationMinutes);
+        return checked(ElapsedTurns + _durationTurns);
     }
 
-    public bool CanArriveBeforeDeadline(long _durationMinutes)
+    public bool CanArriveBeforeDeadline(long _durationTurns)
     {
-        long arrival = ArrivalAt(_durationMinutes);
-        return !HasDeadline || arrival <= DeadlineMinutes;
+        long arrival = ArrivalAt(_durationTurns);
+        return !HasDeadline || arrival <= DeadlineTurns;
     }
 
-    public long IntervalCountAfter(long _durationMinutes, long _intervalMinutes)
+    public long IntervalCountAfter(long _durationTurns, long _intervalTurns)
     {
-        if (_intervalMinutes <= 0)
+        if (_intervalTurns <= 0)
         {
-            throw new ArgumentOutOfRangeException(nameof(_intervalMinutes));
+            throw new ArgumentOutOfRangeException(nameof(_intervalTurns));
         }
-        return ArrivalAt(_durationMinutes) / _intervalMinutes - ElapsedMinutes / _intervalMinutes;
+        return ArrivalAt(_durationTurns) / _intervalTurns - ElapsedTurns / _intervalTurns;
     }
 
-    internal void Advance(long _minutes)
+    internal void Advance(long _turns)
     {
-        ElapsedMinutes = ArrivalAt(_minutes);
+        ElapsedTurns = ArrivalAt(_turns);
     }
 }

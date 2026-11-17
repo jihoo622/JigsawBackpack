@@ -11,7 +11,7 @@
     { "id": "refrigerated", "displayName": "냉장 화차", "price": 100, "salePrice": 50, "modificationId": "refrigeration" }
   ],
   "gameClearCost": 1500,
-  "deadlineHours": 336,
+  "deadlineTurns": 112,
   "debtCityId": "city.finance",
   "travelEffectSeconds": 1.25,
   "travelArrivalHoldSeconds": 0.35

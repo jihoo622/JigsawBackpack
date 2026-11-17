@@ -7,8 +7,8 @@ public sealed class PuzzleRefiningState
     public PuzzleCityActionData Action { get; }
     public PuzzleInventory Board { get; }
     public PuzzleRefiningPhase Phase { get; internal set; }
-    // 완성 시점(누적 경과 분). Idle이면 -1.
-    public long ReadyAtMinutes { get; internal set; }
+    // 완성 시점(누적 경과 턴). Idle이면 -1.
+    public long ReadyAtTurns { get; internal set; }
     // 확인 시점에 수량이 확정된 산출물. 완료 때 보드에 올리고, 공간이 없어 남으면 도시 상태에 보존해 다시 배치한다.
     internal List<string> PendingOutputs { get; } = new List<string>();
     // 이번 정제로 확정된 산출물 총개수.
@@ -20,7 +20,7 @@ public sealed class PuzzleRefiningState
         Action = _action;
         Board = _board;
         Phase = PuzzleRefiningPhase.Idle;
-        ReadyAtMinutes = -1;
+        ReadyAtTurns = -1;
     }
 }
 

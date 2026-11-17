@@ -133,9 +133,9 @@ public sealed class PuzzleCityView : MonoBehaviour
         dayNightBar.color = Presentation.TimeDayBar;
         nightSegmentA.color = Presentation.TimeNightBar;
         nightSegmentB.color = Presentation.TimeNightBar;
-        float day = PuzzleTimeManager.MINUTES_PER_DAY;
-        float start = _time.NightStartMinuteOfDay / day;
-        float end = start + _time.NightLengthMinutes / day;
+        float day = PuzzleTimeManager.TURNS_PER_DAY;
+        float start = _time.NightStartTurnOfDay / day;
+        float end = start + _time.NightLengthTurns / day;
         // 자정을 넘는 밤은 [시작, 1)과 [0, 끝-1) 두 칸으로 나눈다.
         SetSpan(nightSegmentA, start, Mathf.Min(end, 1f));
         nightSegmentB.gameObject.SetActive(end > 1f);
@@ -143,7 +143,7 @@ public sealed class PuzzleCityView : MonoBehaviour
         {
             SetSpan(nightSegmentB, 0f, end - 1f);
         }
-        float now = _time.MinuteOfDay / day;
+        float now = _time.TurnOfDay / day;
         clockMarker.anchorMin = new Vector2(now, clockMarker.anchorMin.y);
         clockMarker.anchorMax = new Vector2(now, clockMarker.anchorMax.y);
         clockMarker.anchoredPosition = new Vector2(0f, clockMarker.anchoredPosition.y);
@@ -189,8 +189,8 @@ public sealed class PuzzleCityView : MonoBehaviour
             deadlineTitle.gameObject.SetActive(true);
             deadlineTitle.color = Presentation.PuzzleHeading;
         }
-        deadlineLabel.text = Presentation.TimeDeadlineValue(_time.RemainingMinutes);
-        deadlineLabel.color = Presentation.TimeDeadlineWarning(_time.RemainingMinutes)
+        deadlineLabel.text = Presentation.TimeDeadlineValue(_time.RemainingTurns);
+        deadlineLabel.color = Presentation.TimeDeadlineWarning(_time.RemainingTurns)
             ? Presentation.PuzzleTooltipRed : Presentation.PuzzleHeading;
     }
 

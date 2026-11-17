@@ -32,7 +32,7 @@ internal sealed class PuzzleShelfLifePreservation
 
     internal decimal DecayRate(PuzzleInventory _wagon, PuzzlePlacement _item)
     {
-        if (_item.RemainingShelfLifeMinutes is not > 0)
+        if (_item.RemainingShelfLifeTurns is not > 0)
         {
             return 1m;
         }

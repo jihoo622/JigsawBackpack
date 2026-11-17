@@ -162,7 +162,7 @@ public sealed class RailRouteEditorWindow : EditorWindow
         {
             WorldMapEditorWindow.Open();
         }
-        EditorGUILayout.HelpBox("경로를 바꾸면 표시 선 길이에 비례해 이동 시간이 갱신됩니다. 역 연결과 요금 거리는 유지합니다.", MessageType.Info);
+        EditorGUILayout.HelpBox("경로를 바꿔도 이동 턴은 바뀌지 않습니다. 이동 턴은 Map Editor의 노선 속성에서 정합니다.", MessageType.Info);
         using (new EditorGUI.DisabledScope(Application.isPlaying))
         {
             if (GUILayout.Button("파일 다시 읽기") && CanDiscard())

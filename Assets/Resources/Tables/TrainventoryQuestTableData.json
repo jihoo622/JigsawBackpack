@@ -1,6 +1,6 @@
 {
   "status": "provisional",
-  "note": "술집 운송 의뢰 잠정값. 보상 = baseReward + rewardPerCellHour × 화물 칸 수 × 최단 이동 시간이며 도착 시 화물의 실제 가치와 보증금을 함께 지급한다. 기한 = 최단 이동 시간 × deadlinePercent(올림) + deadlineExtraHours. 평판은 TrainventoryProficiencyTableData의 숙련 레벨 합이다. 완료하면 보상 × proficiencyXpPercentOfReward / 100만큼 의뢰 화물의 생산 태그에 숙련 경험치를 주고, 화물에 생산 태그가 없으면 의뢰 틀의 fallbackProficiencyTags에 준다. 실패해도 평판·숙련은 줄지 않고 패널티만 적용한다. 플레이 검증 전 수치다.",
+  "note": "술집 운송 의뢰 잠정값. 보상 = baseReward + rewardPerCellTurn × 화물 칸 수 × 최단 이동 턴이며 도착 시 화물의 실제 가치와 보증금을 함께 지급한다. 기한 = 최단 이동 턴 × deadlinePercent(올림) + deadlineExtraTurns. 평판은 TrainventoryProficiencyTableData의 숙련 레벨 합이다. 완료하면 보상 × proficiencyXpPercentOfReward / 100만큼 의뢰 화물의 생산 태그에 숙련 경험치를 주고, 화물에 생산 태그가 없으면 의뢰 틀의 fallbackProficiencyTags에 준다. 실패해도 평판·숙련은 줄지 않고 패널티만 적용한다. 플레이 검증 전 수치다.",
   "cargoTag": "Quest",
   "offersPerTavern": 2,
   "proficiencyXpPercentOfReward": 100,
@@ -27,17 +27,17 @@
       "depositPercentOfReward": 50,
       "buyPercentDelta": 0,
       "sellPercentDelta": 0,
-      "durationHours": 0
+      "durationTurns": 0
     },
     {
       "id": "penalty.regionTrade",
       "type": "RegionTrade",
       "displayName": "지역 거래 불이익",
-      "description": "실패하면 의뢰를 준 지역에서 72시간 동안 구매가가 20%p 오르고 판매가가 20%p 내린다.",
+      "description": "실패하면 의뢰를 준 지역에서 24턴 동안 구매가가 20%p 오르고 판매가가 20%p 내린다.",
       "depositPercentOfReward": 0,
       "buyPercentDelta": 20,
       "sellPercentDelta": -20,
-      "durationHours": 72
+      "durationTurns": 24
     }
   ],
   "courierQuests": [
@@ -48,12 +48,12 @@
         "piece.questFreshCrate"
       ],
       "weight": 1,
-      "minTravelHours": 6,
-      "maxTravelHours": 24,
+      "minTravelTurns": 2,
+      "maxTravelTurns": 8,
       "baseReward": 25,
-      "rewardPerCellHour": 2,
+      "rewardPerCellTurn": 2,
       "deadlinePercent": 130,
-      "deadlineExtraHours": 6,
+      "deadlineExtraTurns": 2,
       "fallbackProficiencyTags": []
     },
     {
@@ -64,12 +64,12 @@
         "piece.questToolCrate"
       ],
       "weight": 2,
-      "minTravelHours": 6,
-      "maxTravelHours": 36,
+      "minTravelTurns": 2,
+      "maxTravelTurns": 12,
       "baseReward": 30,
-      "rewardPerCellHour": 1,
+      "rewardPerCellTurn": 1,
       "deadlinePercent": 150,
-      "deadlineExtraHours": 12,
+      "deadlineExtraTurns": 4,
       "fallbackProficiencyTags": [
         "Wood"
       ]

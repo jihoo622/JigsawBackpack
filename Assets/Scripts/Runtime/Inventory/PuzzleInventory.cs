@@ -138,16 +138,16 @@ public sealed class PuzzleInventory
     PuzzlePlacement CopyPlacement(PuzzlePlacement _source, PuzzleItemDefinition _definition, PuzzleInventory _owner,
         PuzzlePose _pose, decimal _actualValue)
     {
-        bool keepsGrowth = _definition.GrowthMinutes > 0 && _source.Definition.GrowthMinutes > 0;
+        bool keepsGrowth = _definition.GrowthTurns > 0 && _source.Definition.GrowthTurns > 0;
         // 성장 품목이 성체로 바뀌면 대기가 끝나므로 공간 부족 알림도 넘기지 않는다. 번식 대기는 그대로 옮긴다.
-        bool keepsSpaceNotice = _source.Definition.GrowthMinutes <= 0 || keepsGrowth;
+        bool keepsSpaceNotice = _source.Definition.GrowthTurns <= 0 || keepsGrowth;
         return new PuzzlePlacement(_source.InstanceId, _definition, _owner, _pose, _actualValue,
-            _source.OwnedMinutes, _source.Durability, _source.ShelfLifeAge)
+            _source.OwnedTurns, _source.Durability, _source.ShelfLifeAge)
         {
             HasUnreadSynergySettlement = _source.HasUnreadSynergySettlement,
             HasUnreadSpaceNotice = keepsSpaceNotice && _source.HasUnreadSpaceNotice,
             HasUnreadSpawnNotice = _source.HasUnreadSpawnNotice,
-            GrowthElapsedMinutes = keepsGrowth ? _source.GrowthElapsedMinutes : (_source.OwnedMinutes < 0 ? -1 : 0),
+            GrowthElapsedTurns = keepsGrowth ? _source.GrowthElapsedTurns : (_source.OwnedTurns < 0 ? -1 : 0),
             GrowthSpaceBlocked = keepsGrowth && _source.GrowthSpaceBlocked
         };
     }
@@ -201,10 +201,10 @@ public sealed class PuzzleInventory
     internal void PlanGrowth(List<PuzzleGrowth> _growth)
     {
         var approachingGrowth = placements.Values
-            .Where(_item => _item.GrowthElapsedMinutes >= 0 && _item.Definition.GrowthMinutes > 0 &&
+            .Where(_item => _item.GrowthElapsedTurns >= 0 && _item.Definition.GrowthTurns > 0 &&
                 (_item.GrowthSpaceBlocked ||
-                    _item.GrowthElapsedMinutes >= _item.Definition.GrowthFreezeMinutes))
-            .OrderBy(_item => _item.Definition.GrowthMinutes - _item.GrowthElapsedMinutes)
+                    _item.GrowthElapsedTurns >= _item.Definition.GrowthFreezeTurns))
+            .OrderBy(_item => _item.Definition.GrowthTurns - _item.GrowthElapsedTurns)
             .ThenBy(_item => _item.InstanceId);
         HashSet<Vector2Int> occupied = null;
         foreach (var item in approachingGrowth)
@@ -221,7 +221,7 @@ public sealed class PuzzleInventory
             // 미리 확보한 자리는 같은 계획의 다른 송아지가 차지하지 못한다.
             occupied.UnionWith(pose.Cells.Select(_cell => _cell.Position));
             item.ResumeGrowth();
-            if (item.GrowthElapsedMinutes >= item.Definition.GrowthMinutes)
+            if (item.GrowthElapsedTurns >= item.Definition.GrowthTurns)
             {
                 _growth.Add(new PuzzleGrowth(item, adult, pose));
             }
@@ -267,7 +267,7 @@ public sealed class PuzzleInventory
         var item = _growth.Item;
         var adult = _growth.Adult;
         var grown = new PuzzlePlacement(item.InstanceId, adult, this, _growth.Pose,
-            item.ActualValue + (adult.BaseValue - (decimal)item.Definition.BaseValue), item.OwnedMinutes)
+            item.ActualValue + (adult.BaseValue - (decimal)item.Definition.BaseValue), item.OwnedTurns)
         {
             HasUnreadSynergySettlement = item.HasUnreadSynergySettlement,
             HasUnreadSpawnNotice = item.HasUnreadSpawnNotice
@@ -329,7 +329,7 @@ public sealed class PuzzleInventory
     internal void ReplaceExpiredFood(PuzzleItemDefinition _waste)
     {
         bool replaced = false;
-        foreach (var expired in placements.Values.Where(item => item.RemainingShelfLifeMinutes == 0).ToArray())
+        foreach (var expired in placements.Values.Where(item => item.RemainingShelfLifeTurns == 0).ToArray())
         {
             // 기존 식품이 실제로 점유하던 칸에서 교체한다. 회전된 모양의 원점은 빈 칸일 수 있다.
             var target = expired.Pose.Cells[0].Position;

@@ -2,14 +2,14 @@
   "status": "sample",
   "note": "Route points mirror displayed rail geometry, reversed for the opposite direction. Travel minutes = ceil(displayed polyline length / PuzzleTimeTableData.pixelsPerHour * 60). Integer fare distance is calculated from the same line length with fareDistancePixelsPerUnit through the map editor.",
   "defaultBaseCost": 3,
-  "fareDistancePixelsPerUnit": 100,
+  "pixelsPerTurn": 100,
   "costPerCell": 1,
   "routes": [
     {
       "fromCityId": "city.aiport",
       "toCityId": "city.finance",
       "cost": 3,
-      "distance": 2,
+      "turns": 2,
       "highSpeed": false,
       "points": [
         220.0,
@@ -22,7 +22,7 @@
       "fromCityId": "city.aiport",
       "toCityId": "city.diaan",
       "cost": 3,
-      "distance": 1,
+      "turns": 1,
       "highSpeed": false,
       "points": [
         220.0,
@@ -35,7 +35,7 @@
       "fromCityId": "city.aiport",
       "toCityId": "city.trenford",
       "cost": 3,
-      "distance": 2,
+      "turns": 2,
       "highSpeed": false,
       "points": [
         220.0,
@@ -48,7 +48,7 @@
       "fromCityId": "city.aiport",
       "toCityId": "city.mert",
       "cost": 3,
-      "distance": 2,
+      "turns": 2,
       "highSpeed": false,
       "points": [
         220.0,
@@ -61,7 +61,7 @@
       "fromCityId": "city.finance",
       "toCityId": "city.aiport",
       "cost": 3,
-      "distance": 2,
+      "turns": 2,
       "highSpeed": false,
       "points": [
         290.0,
@@ -74,7 +74,7 @@
       "fromCityId": "city.finance",
       "toCityId": "city.diaan",
       "cost": 3,
-      "distance": 2,
+      "turns": 2,
       "highSpeed": false,
       "points": [
         290.0,
@@ -87,7 +87,7 @@
       "fromCityId": "city.finance",
       "toCityId": "city.mert",
       "cost": 3,
-      "distance": 2,
+      "turns": 2,
       "highSpeed": false,
       "points": [
         290.0,
@@ -100,7 +100,7 @@
       "fromCityId": "city.sergrad",
       "toCityId": "city.trenford",
       "cost": 3,
-      "distance": 1,
+      "turns": 1,
       "highSpeed": false,
       "points": [
         110.0,
@@ -113,7 +113,7 @@
       "fromCityId": "city.diaan",
       "toCityId": "city.aiport",
       "cost": 3,
-      "distance": 1,
+      "turns": 1,
       "highSpeed": false,
       "points": [
         350.0,
@@ -126,7 +126,7 @@
       "fromCityId": "city.diaan",
       "toCityId": "city.finance",
       "cost": 3,
-      "distance": 2,
+      "turns": 2,
       "highSpeed": false,
       "points": [
         350.0,
@@ -139,7 +139,7 @@
       "fromCityId": "city.diaan",
       "toCityId": "city.trenford",
       "cost": 3,
-      "distance": 2,
+      "turns": 2,
       "highSpeed": false,
       "points": [
         350.0,
@@ -152,7 +152,7 @@
       "fromCityId": "city.diaan",
       "toCityId": "city.pioa",
       "cost": 3,
-      "distance": 1,
+      "turns": 1,
       "highSpeed": false,
       "points": [
         350.0,
@@ -165,7 +165,7 @@
       "fromCityId": "city.trenford",
       "toCityId": "city.aiport",
       "cost": 3,
-      "distance": 2,
+      "turns": 2,
       "highSpeed": false,
       "points": [
         230.0,
@@ -178,7 +178,7 @@
       "fromCityId": "city.trenford",
       "toCityId": "city.sergrad",
       "cost": 3,
-      "distance": 1,
+      "turns": 1,
       "highSpeed": false,
       "points": [
         230.0,
@@ -191,7 +191,7 @@
       "fromCityId": "city.trenford",
       "toCityId": "city.diaan",
       "cost": 3,
-      "distance": 2,
+      "turns": 2,
       "highSpeed": false,
       "points": [
         230.0,
@@ -204,7 +204,7 @@
       "fromCityId": "city.teratia",
       "toCityId": "city.pioa",
       "cost": 3,
-      "distance": 1,
+      "turns": 1,
       "highSpeed": false,
       "points": [
         530.0,
@@ -219,7 +219,7 @@
       "fromCityId": "city.teratia",
       "toCityId": "city.teraka",
       "cost": 3,
-      "distance": 1,
+      "turns": 1,
       "highSpeed": false,
       "points": [
         530.0,
@@ -234,7 +234,7 @@
       "fromCityId": "city.pioa",
       "toCityId": "city.diaan",
       "cost": 3,
-      "distance": 1,
+      "turns": 1,
       "highSpeed": false,
       "points": [
         480.0,
@@ -247,7 +247,7 @@
       "fromCityId": "city.pioa",
       "toCityId": "city.teratia",
       "cost": 3,
-      "distance": 1,
+      "turns": 1,
       "highSpeed": false,
       "points": [
         480.0,
@@ -262,7 +262,7 @@
       "fromCityId": "city.pioa",
       "toCityId": "city.valenrie",
       "cost": 3,
-      "distance": 2,
+      "turns": 2,
       "highSpeed": false,
       "points": [
         480.0,
@@ -277,7 +277,7 @@
       "fromCityId": "city.valenrie",
       "toCityId": "city.dart",
       "cost": 3,
-      "distance": 6,
+      "turns": 6,
       "highSpeed": false,
       "points": [
         610.0,
@@ -294,7 +294,7 @@
       "fromCityId": "city.osber",
       "toCityId": "city.riobruk",
       "cost": 3,
-      "distance": 2,
+      "turns": 2,
       "highSpeed": false,
       "points": [
         -140.0,
@@ -307,7 +307,7 @@
       "fromCityId": "city.valenrie",
       "toCityId": "city.pioa",
       "cost": 3,
-      "distance": 2,
+      "turns": 2,
       "highSpeed": false,
       "points": [
         610.0,
@@ -322,7 +322,7 @@
       "fromCityId": "city.teraka",
       "toCityId": "city.teratia",
       "cost": 3,
-      "distance": 1,
+      "turns": 1,
       "highSpeed": false,
       "points": [
         600.0,
@@ -337,7 +337,7 @@
       "fromCityId": "city.teragrad",
       "toCityId": "city.heilheim",
       "cost": 3,
-      "distance": 2,
+      "turns": 2,
       "highSpeed": false,
       "points": [
         -430.0,
@@ -350,7 +350,7 @@
       "fromCityId": "city.teragrad",
       "toCityId": "city.erna",
       "cost": 3,
-      "distance": 1,
+      "turns": 1,
       "highSpeed": false,
       "points": [
         -430.0,
@@ -363,7 +363,7 @@
       "fromCityId": "city.rasburk",
       "toCityId": "city.daran",
       "cost": 3,
-      "distance": 1,
+      "turns": 1,
       "highSpeed": false,
       "points": [
         -50.0,
@@ -376,7 +376,7 @@
       "fromCityId": "city.rasenpol",
       "toCityId": "city.sera",
       "cost": 3,
-      "distance": 2,
+      "turns": 2,
       "highSpeed": false,
       "points": [
         -310.0,
@@ -389,7 +389,7 @@
       "fromCityId": "city.sergrad",
       "toCityId": "city.berska",
       "cost": 3,
-      "distance": 2,
+      "turns": 2,
       "highSpeed": false,
       "points": [
         110.0,
@@ -402,7 +402,7 @@
       "fromCityId": "city.trenford",
       "toCityId": "city.rasburk",
       "cost": 3,
-      "distance": 3,
+      "turns": 3,
       "highSpeed": false,
       "points": [
         230.0,
@@ -415,7 +415,7 @@
       "fromCityId": "city.mert",
       "toCityId": "city.finance",
       "cost": 3,
-      "distance": 2,
+      "turns": 2,
       "highSpeed": false,
       "points": [
         160.0,
@@ -428,7 +428,7 @@
       "fromCityId": "city.daran",
       "toCityId": "city.rasburk",
       "cost": 3,
-      "distance": 1,
+      "turns": 1,
       "highSpeed": false,
       "points": [
         -180.0,
@@ -441,7 +441,7 @@
       "fromCityId": "city.mert",
       "toCityId": "city.ibt",
       "cost": 3,
-      "distance": 1,
+      "turns": 1,
       "highSpeed": false,
       "points": [
         160.0,
@@ -456,7 +456,7 @@
       "fromCityId": "city.heilheim",
       "toCityId": "city.teragrad",
       "cost": 3,
-      "distance": 2,
+      "turns": 2,
       "highSpeed": false,
       "points": [
         -220.0,
@@ -469,7 +469,7 @@
       "fromCityId": "city.sera",
       "toCityId": "city.rasenpol",
       "cost": 3,
-      "distance": 2,
+      "turns": 2,
       "highSpeed": false,
       "points": [
         -180.0,
@@ -482,7 +482,7 @@
       "fromCityId": "city.sera",
       "toCityId": "city.terapol",
       "cost": 3,
-      "distance": 1,
+      "turns": 1,
       "highSpeed": false,
       "points": [
         -180.0,
@@ -495,7 +495,7 @@
       "fromCityId": "city.sera",
       "toCityId": "city.heilheim",
       "cost": 3,
-      "distance": 1,
+      "turns": 1,
       "highSpeed": false,
       "points": [
         -180.0,
@@ -508,7 +508,7 @@
       "fromCityId": "city.rasenpol",
       "toCityId": "city.darpol",
       "cost": 3,
-      "distance": 1,
+      "turns": 1,
       "highSpeed": false,
       "points": [
         -310.0,
@@ -521,7 +521,7 @@
       "fromCityId": "city.dart",
       "toCityId": "city.ibt",
       "cost": 3,
-      "distance": 1,
+      "turns": 1,
       "highSpeed": false,
       "points": [
         120.0,
@@ -534,7 +534,7 @@
       "fromCityId": "city.mert",
       "toCityId": "city.aiport",
       "cost": 3,
-      "distance": 2,
+      "turns": 2,
       "highSpeed": false,
       "points": [
         160.0,
@@ -547,7 +547,7 @@
       "fromCityId": "city.dart",
       "toCityId": "city.valenrie",
       "cost": 3,
-      "distance": 6,
+      "turns": 6,
       "highSpeed": false,
       "points": [
         120.0,
@@ -564,7 +564,7 @@
       "fromCityId": "city.ibt",
       "toCityId": "city.mert",
       "cost": 3,
-      "distance": 1,
+      "turns": 1,
       "highSpeed": false,
       "points": [
         40.0,
@@ -579,7 +579,7 @@
       "fromCityId": "city.ibt",
       "toCityId": "city.dart",
       "cost": 3,
-      "distance": 1,
+      "turns": 1,
       "highSpeed": false,
       "points": [
         40.0,
@@ -592,7 +592,7 @@
       "fromCityId": "city.ibt",
       "toCityId": "city.terapol",
       "cost": 3,
-      "distance": 1,
+      "turns": 1,
       "highSpeed": false,
       "points": [
         40.0,
@@ -605,7 +605,7 @@
       "fromCityId": "city.sera",
       "toCityId": "city.osgrad",
       "cost": 3,
-      "distance": 3,
+      "turns": 3,
       "highSpeed": false,
       "points": [
         -180.0,
@@ -618,7 +618,7 @@
       "fromCityId": "city.berska",
       "toCityId": "city.sergrad",
       "cost": 3,
-      "distance": 2,
+      "turns": 2,
       "highSpeed": false,
       "points": [
         -70.0,
@@ -631,7 +631,7 @@
       "fromCityId": "city.berska",
       "toCityId": "city.terapol",
       "cost": 3,
-      "distance": 1,
+      "turns": 1,
       "highSpeed": false,
       "points": [
         -70.0,
@@ -644,7 +644,7 @@
       "fromCityId": "city.teragrad",
       "toCityId": "city.karport",
       "cost": 3,
-      "distance": 1,
+      "turns": 1,
       "highSpeed": false,
       "points": [
         -430.0,
@@ -657,7 +657,7 @@
       "fromCityId": "city.berska",
       "toCityId": "city.daran",
       "cost": 3,
-      "distance": 2,
+      "turns": 2,
       "highSpeed": false,
       "points": [
         -70.0,
@@ -670,7 +670,7 @@
       "fromCityId": "city.berska",
       "toCityId": "city.heilheim",
       "cost": 3,
-      "distance": 1,
+      "turns": 1,
       "highSpeed": false,
       "points": [
         -70.0,
@@ -683,7 +683,7 @@
       "fromCityId": "city.terapol",
       "toCityId": "city.sera",
       "cost": 3,
-      "distance": 1,
+      "turns": 1,
       "highSpeed": false,
       "points": [
         -20.0,
@@ -696,7 +696,7 @@
       "fromCityId": "city.terapol",
       "toCityId": "city.ibt",
       "cost": 3,
-      "distance": 1,
+      "turns": 1,
       "highSpeed": false,
       "points": [
         -20.0,
@@ -709,7 +709,7 @@
       "fromCityId": "city.terapol",
       "toCityId": "city.berska",
       "cost": 3,
-      "distance": 1,
+      "turns": 1,
       "highSpeed": false,
       "points": [
         -20.0,
@@ -722,7 +722,7 @@
       "fromCityId": "city.terapol",
       "toCityId": "city.heilheim",
       "cost": 3,
-      "distance": 2,
+      "turns": 2,
       "highSpeed": false,
       "points": [
         -20.0,
@@ -735,7 +735,7 @@
       "fromCityId": "city.porber",
       "toCityId": "city.karport",
       "cost": 3,
-      "distance": 1,
+      "turns": 1,
       "highSpeed": false,
       "points": [
         -430.0,
@@ -748,7 +748,7 @@
       "fromCityId": "city.nornova",
       "toCityId": "city.erna",
       "cost": 3,
-      "distance": 1,
+      "turns": 1,
       "highSpeed": false,
       "points": [
         -550.0,
@@ -761,7 +761,7 @@
       "fromCityId": "city.nornova",
       "toCityId": "city.darpol",
       "cost": 3,
-      "distance": 3,
+      "turns": 3,
       "highSpeed": false,
       "points": [
         -550.0,
@@ -774,7 +774,7 @@
       "fromCityId": "city.erna",
       "toCityId": "city.teragrad",
       "cost": 3,
-      "distance": 1,
+      "turns": 1,
       "highSpeed": false,
       "points": [
         -540.0,
@@ -787,7 +787,7 @@
       "fromCityId": "city.erna",
       "toCityId": "city.nornova",
       "cost": 3,
-      "distance": 1,
+      "turns": 1,
       "highSpeed": false,
       "points": [
         -540.0,
@@ -800,7 +800,7 @@
       "fromCityId": "city.erna",
       "toCityId": "city.heilford",
       "cost": 3,
-      "distance": 2,
+      "turns": 2,
       "highSpeed": false,
       "points": [
         -540.0,
@@ -813,7 +813,7 @@
       "fromCityId": "city.porber",
       "toCityId": "city.rasenton",
       "cost": 3,
-      "distance": 2,
+      "turns": 2,
       "highSpeed": false,
       "points": [
         -430.0,
@@ -826,7 +826,7 @@
       "fromCityId": "city.teragrad",
       "toCityId": "city.nornova",
       "cost": 3,
-      "distance": 2,
+      "turns": 2,
       "highSpeed": false,
       "points": [
         -430.0,
@@ -839,7 +839,7 @@
       "fromCityId": "city.heilford",
       "toCityId": "city.erna",
       "cost": 3,
-      "distance": 2,
+      "turns": 2,
       "highSpeed": false,
       "points": [
         -660.0,
@@ -852,7 +852,7 @@
       "fromCityId": "city.karport",
       "toCityId": "city.teragrad",
       "cost": 3,
-      "distance": 1,
+      "turns": 1,
       "highSpeed": false,
       "points": [
         -320.0,
@@ -865,7 +865,7 @@
       "fromCityId": "city.karport",
       "toCityId": "city.porber",
       "cost": 3,
-      "distance": 1,
+      "turns": 1,
       "highSpeed": false,
       "points": [
         -320.0,
@@ -878,7 +878,7 @@
       "fromCityId": "city.karport",
       "toCityId": "city.heilheim",
       "cost": 3,
-      "distance": 1,
+      "turns": 1,
       "highSpeed": false,
       "points": [
         -320.0,
@@ -891,7 +891,7 @@
       "fromCityId": "city.karka",
       "toCityId": "city.rasenton",
       "cost": 3,
-      "distance": 2,
+      "turns": 2,
       "highSpeed": false,
       "points": [
         -410.0,
@@ -906,7 +906,7 @@
       "fromCityId": "city.riobruk",
       "toCityId": "city.osber",
       "cost": 3,
-      "distance": 2,
+      "turns": 2,
       "highSpeed": false,
       "points": [
         -270.0,
@@ -919,7 +919,7 @@
       "fromCityId": "city.rasenton",
       "toCityId": "city.porber",
       "cost": 3,
-      "distance": 2,
+      "turns": 2,
       "highSpeed": false,
       "points": [
         -320.0,
@@ -932,7 +932,7 @@
       "fromCityId": "city.rasenton",
       "toCityId": "city.karka",
       "cost": 3,
-      "distance": 2,
+      "turns": 2,
       "highSpeed": false,
       "points": [
         -320.0,
@@ -947,7 +947,7 @@
       "fromCityId": "city.karka",
       "toCityId": "city.riobruk",
       "cost": 3,
-      "distance": 1,
+      "turns": 1,
       "highSpeed": false,
       "points": [
         -410.0,
@@ -960,7 +960,7 @@
       "fromCityId": "city.riobruk",
       "toCityId": "city.karka",
       "cost": 3,
-      "distance": 1,
+      "turns": 1,
       "highSpeed": false,
       "points": [
         -270.0,
@@ -973,7 +973,7 @@
       "fromCityId": "city.rasburk",
       "toCityId": "city.trenford",
       "cost": 3,
-      "distance": 3,
+      "turns": 3,
       "highSpeed": false,
       "points": [
         -50.0,
@@ -986,7 +986,7 @@
       "fromCityId": "city.daran",
       "toCityId": "city.berska",
       "cost": 3,
-      "distance": 2,
+      "turns": 2,
       "highSpeed": false,
       "points": [
         -180.0,
@@ -999,7 +999,7 @@
       "fromCityId": "city.heilheim",
       "toCityId": "city.sera",
       "cost": 3,
-      "distance": 1,
+      "turns": 1,
       "highSpeed": false,
       "points": [
         -220.0,
@@ -1012,7 +1012,7 @@
       "fromCityId": "city.heilheim",
       "toCityId": "city.berska",
       "cost": 3,
-      "distance": 1,
+      "turns": 1,
       "highSpeed": false,
       "points": [
         -220.0,
@@ -1025,7 +1025,7 @@
       "fromCityId": "city.heilheim",
       "toCityId": "city.terapol",
       "cost": 3,
-      "distance": 2,
+      "turns": 2,
       "highSpeed": false,
       "points": [
         -220.0,
@@ -1038,7 +1038,7 @@
       "fromCityId": "city.heilheim",
       "toCityId": "city.karport",
       "cost": 3,
-      "distance": 1,
+      "turns": 1,
       "highSpeed": false,
       "points": [
         -220.0,
@@ -1051,7 +1051,7 @@
       "fromCityId": "city.heilheim",
       "toCityId": "city.rasenpol",
       "cost": 3,
-      "distance": 1,
+      "turns": 1,
       "highSpeed": false,
       "points": [
         -220.0,
@@ -1064,7 +1064,7 @@
       "fromCityId": "city.darpol",
       "toCityId": "city.rasenpol",
       "cost": 3,
-      "distance": 1,
+      "turns": 1,
       "highSpeed": false,
       "points": [
         -290.0,
@@ -1077,7 +1077,7 @@
       "fromCityId": "city.osgrad",
       "toCityId": "city.sera",
       "cost": 3,
-      "distance": 3,
+      "turns": 3,
       "highSpeed": false,
       "points": [
         -200.0,
@@ -1090,7 +1090,7 @@
       "fromCityId": "city.nornova",
       "toCityId": "city.teragrad",
       "cost": 3,
-      "distance": 2,
+      "turns": 2,
       "highSpeed": false,
       "points": [
         -550.0,
@@ -1103,7 +1103,7 @@
       "fromCityId": "city.darpol",
       "toCityId": "city.osgrad",
       "cost": 3,
-      "distance": 1,
+      "turns": 1,
       "highSpeed": false,
       "points": [
         -290.0,
@@ -1116,7 +1116,7 @@
       "fromCityId": "city.osgrad",
       "toCityId": "city.darpol",
       "cost": 3,
-      "distance": 1,
+      "turns": 1,
       "highSpeed": false,
       "points": [
         -200.0,
@@ -1129,7 +1129,7 @@
       "fromCityId": "city.darpol",
       "toCityId": "city.nornova",
       "cost": 3,
-      "distance": 3,
+      "turns": 3,
       "highSpeed": false,
       "points": [
         -290.0,
@@ -1142,7 +1142,7 @@
       "fromCityId": "city.rasenpol",
       "toCityId": "city.heilheim",
       "cost": 3,
-      "distance": 1,
+      "turns": 1,
       "highSpeed": false,
       "points": [
         -310.0,
@@ -1155,7 +1155,7 @@
       "fromCityId": "city.erna",
       "toCityId": "city.porber",
       "cost": 3,
-      "distance": 1,
+      "turns": 1,
       "highSpeed": false,
       "points": [
         -540.0,
@@ -1168,7 +1168,7 @@
       "fromCityId": "city.porber",
       "toCityId": "city.erna",
       "cost": 3,
-      "distance": 1,
+      "turns": 1,
       "highSpeed": false,
       "points": [
         -430.0,
@@ -1181,7 +1181,7 @@
       "fromCityId": "city.rasenton",
       "toCityId": "city.daran",
       "cost": 3,
-      "distance": 2,
+      "turns": 2,
       "highSpeed": false,
       "points": [
         -320.0,
@@ -1194,7 +1194,7 @@
       "fromCityId": "city.daran",
       "toCityId": "city.rasenton",
       "cost": 3,
-      "distance": 2,
+      "turns": 2,
       "highSpeed": false,
       "points": [
         -180.0,
@@ -1207,7 +1207,7 @@
       "fromCityId": "city.sergrad",
       "toCityId": "city.aiport",
       "cost": 3,
-      "distance": 1,
+      "turns": 1,
       "highSpeed": false,
       "points": [
         110.0,
@@ -1220,7 +1220,7 @@
       "fromCityId": "city.aiport",
       "toCityId": "city.sergrad",
       "cost": 3,
-      "distance": 1,
+      "turns": 1,
       "highSpeed": false,
       "points": [
         220.0,
@@ -1233,7 +1233,7 @@
       "fromCityId": "city.osber",
       "toCityId": "city.teraka",
       "cost": 3,
-      "distance": 7,
+      "turns": 7,
       "highSpeed": false,
       "points": [
         -140.0,
@@ -1246,7 +1246,7 @@
       "fromCityId": "city.teraka",
       "toCityId": "city.osber",
       "cost": 3,
-      "distance": 7,
+      "turns": 7,
       "highSpeed": false,
       "points": [
         600.0,
@@ -1259,7 +1259,7 @@
       "fromCityId": "city.osber",
       "toCityId": "city.rasburk",
       "cost": 3,
-      "distance": 1,
+      "turns": 1,
       "highSpeed": false,
       "points": [
         -140.0,
@@ -1272,7 +1272,7 @@
       "fromCityId": "city.rasburk",
       "toCityId": "city.osber",
       "cost": 3,
-      "distance": 1,
+      "turns": 1,
       "highSpeed": false,
       "points": [
         -50.0,
@@ -1285,7 +1285,7 @@
       "fromCityId": "city.osgrad",
       "toCityId": "city.dart",
       "cost": 3,
-      "distance": 3,
+      "turns": 3,
       "highSpeed": false,
       "points": [
         -200.0,
@@ -1298,7 +1298,7 @@
       "fromCityId": "city.dart",
       "toCityId": "city.osgrad",
       "cost": 3,
-      "distance": 3,
+      "turns": 3,
       "highSpeed": false,
       "points": [
         120.0,
@@ -1311,7 +1311,7 @@
       "fromCityId": "city.heilford",
       "toCityId": "city.nornova",
       "cost": 3,
-      "distance": 2,
+      "turns": 2,
       "highSpeed": false,
       "points": [
         -660.0,
@@ -1324,7 +1324,7 @@
       "fromCityId": "city.nornova",
       "toCityId": "city.heilford",
       "cost": 3,
-      "distance": 2,
+      "turns": 2,
       "highSpeed": false,
       "points": [
         -550.0,
@@ -1337,7 +1337,7 @@
       "fromCityId": "city.mert",
       "toCityId": "city.sergrad",
       "cost": 3,
-      "distance": 1,
+      "turns": 1,
       "highSpeed": false,
       "points": [
         160.0,
@@ -1350,7 +1350,7 @@
       "fromCityId": "city.sergrad",
       "toCityId": "city.mert",
       "cost": 3,
-      "distance": 1,
+      "turns": 1,
       "highSpeed": false,
       "points": [
         110.0,
@@ -1360,5 +1360,5 @@
       ]
     }
   ],
-  "costPerDistance": 1
+  "costPerTurn": 1
 }

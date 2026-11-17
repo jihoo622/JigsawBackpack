@@ -815,7 +815,7 @@ public sealed class PuzzleMapView : PanelBase
         {
             if (tables.TryGetRoute(routeTime.fromCityId, routeTime.toCityId, out var route))
             {
-                routeTime.label.text = Presentation.PuzzleMapTime(PuzzleTimeManager.TravelMinutes(route, tables.PuzzleTime));
+                routeTime.label.text = Presentation.PuzzleMapTime(PuzzleTimeManager.TravelTurns(route, tables.PuzzleTime));
             }
             routeTime.label.color = Presentation.PuzzleHeading;
         }
@@ -890,12 +890,12 @@ public sealed class PuzzleMapView : PanelBase
         {
             tooltipStatRows.Add(regionRow);
         }
-        tooltipStatRows.Add(("소요시간", Presentation.PuzzleMapTime(_eval.TravelMinutes)));
+        tooltipStatRows.Add(("소요시간", Presentation.PuzzleMapTime(_eval.TravelTurns)));
 
         string fareText = $"<color=#{ColorUtility.ToHtmlStringRGB(Presentation.PuzzleTooltipRed)}>{_eval.Cost:N0}$</color>";
         tooltipStatRows.Add(("운임비", fareText));
 
-        long arrivalTime = _session.ElapsedTime + _eval.TravelMinutes;
+        long arrivalTime = _session.ElapsedTime + _eval.TravelTurns;
         string arrivalStr = Presentation.GameTimestamp(arrivalTime);
         if (_eval.ArrivalIsNight)
         {
@@ -909,8 +909,8 @@ public sealed class PuzzleMapView : PanelBase
         tooltipInfoLines.Clear();
         if (_session.Time != null && _session.Time.HasDeadline)
         {
-            long arrivalTime = _session.ElapsedTime + _eval.TravelMinutes;
-            long remaining = _session.Time.DeadlineMinutes - arrivalTime;
+            long arrivalTime = _session.ElapsedTime + _eval.TravelTurns;
+            long remaining = _session.Time.DeadlineTurns - arrivalTime;
             string deadlineStr;
             if (remaining > 0)
             {

@@ -87,7 +87,8 @@ internal enum PuzzleFreshnessBand { Empty, Low, Medium, High }
 
 public sealed class PuzzlePlacement
 {
-    internal (decimal Elapsed, decimal Settled, long SinceSettlement) ShelfLifeAge { get; private set; }
+    // 소모한 유통기한 턴과 아직 1턴에 못 미친 소모율 누적(%). 보존 효과로 소모율이 100% 미만이면 누적이 100이 될 때마다 1턴 준다.
+    internal (long Elapsed, int CarryPercent) ShelfLifeAge { get; private set; }
 
     public int InstanceId { get; }
     public PuzzleItemDefinition Definition { get; }
@@ -102,19 +103,17 @@ public sealed class PuzzlePlacement
     internal bool HasUnreadSpawnNotice { get; set; }
     internal bool HasUnreadNotice => HasUnreadSynergySettlement || HasUnreadSpaceNotice || HasUnreadSpawnNotice;
     /// <summary>획득 후 보유 시간. 시작 지급·구매 시 0부터 시작하며 -1은 미소유·판매된 물건이다.</summary>
-    public long OwnedMinutes { get; private set; }
-    public decimal OwnedHours => OwnedMinutes < 0 ? -1 : OwnedMinutes / (decimal)PuzzleTimeManager.MINUTES_PER_HOUR;
-    /// <summary>성장에 쌓은 게임 시간의 분. 보유 시간과 따로 가며 대기 중에는 멈춘다. 미소유면 -1이다.</summary>
-    internal long GrowthElapsedMinutes { get; set; }
+    public long OwnedTurns { get; private set; }
+    /// <summary>성장에 쌓은 게임 시간의 턴. 보유 시간과 따로 가며 대기 중에는 멈춘다. 미소유면 -1이다.</summary>
+    internal long GrowthElapsedTurns { get; set; }
     // 성체가 들어갈 칸이 없어 성장을 대기 중인지. 사본·커밋에서 성장 진행도와 함께 옮긴다.
     internal bool GrowthSpaceBlocked { get; set; }
     // 현재 내구도. 생성 시 정의의 시작값으로 초기화하고, 이동 시 보존한다. 감소는 외부 Manager가 담당한다.
     public int Durability { get; private set; }
-    long ShelfLifeMinutes => (long)Definition.ShelfLifeHours * PuzzleTimeManager.MINUTES_PER_HOUR;
-    decimal? RemainingShelfLife => Definition.HasDurability && ShelfLifeMinutes > 0
-        ? ShelfLifeMinutes - ShelfLifeAge.Elapsed : null;
-    internal long? RemainingShelfLifeMinutes => RemainingShelfLife is decimal remaining
-        ? (long)decimal.Ceiling(remaining) : null;
+    long ShelfLifeTurns => Definition.ShelfLifeTurns;
+    // 남은 유통기한 턴. 유통기한이 없는 품목은 null이다.
+    internal long? RemainingShelfLifeTurns => Definition.HasDurability && ShelfLifeTurns > 0
+        ? ShelfLifeTurns - ShelfLifeAge.Elapsed : null;
 
     internal int? FreshnessPercent
     {
@@ -124,27 +123,37 @@ public sealed class PuzzlePlacement
             {
                 return null;
             }
-            if (RemainingShelfLife is not decimal remaining)
+            if (RemainingShelfLifeTurns is not long remaining)
             {
                 return Durability;
             }
-            return remaining == 0
-                ? 0
-                : (int)Math.Max(1, (ShelfLifeMinutes - ShelfLifeAge.Settled) * 100 / ShelfLifeMinutes);
+            return remaining <= 0 ? 0 : (int)Math.Max(1, remaining * 100 / ShelfLifeTurns);
         }
     }
     internal decimal FreshnessAdjustedValue => ApplyFreshnessToValue(ActualValue, FreshnessPercent);
 
-    internal long MinutesUntilShelfLifeExpires(decimal _decayRate)
+    // 보존율을 반영한 턴당 유통기한 소모율(%). 0이면 소모하지 않는다.
+    internal static int DecayPercent(decimal _decayRate)
     {
-        return _decayRate > 0 && RemainingShelfLife is decimal remaining && remaining > 0
-            ? (long)decimal.Ceiling(remaining / _decayRate)
-            : long.MaxValue;
+        return (int)Math.Max(0, Math.Round(_decayRate * 100m, MidpointRounding.AwayFromZero));
     }
 
-    internal long? MinutesUntilNextFreshnessBand(decimal _decayRate, long _settlementInterval)
+    // 유통기한을 모두 소모할 때까지 남은 턴. 소모하지 않거나 이미 만료됐으면 경계가 없다.
+    internal long TurnsUntilShelfLifeExpires(decimal _decayRate)
     {
-        if (RemainingShelfLife is not decimal remaining)
+        int percent = DecayPercent(_decayRate);
+        if (percent <= 0 || RemainingShelfLifeTurns is not long remaining || remaining <= 0)
+        {
+            return long.MaxValue;
+        }
+        long needed = remaining * 100 - ShelfLifeAge.CarryPercent;
+        return (needed + percent - 1) / percent;
+    }
+
+    // 신선도 등급(가치 배율)이 바뀌거나 만료될 때까지 남은 턴. 유통기한이 없으면 null이다.
+    internal long? TurnsUntilNextFreshnessBand(decimal _decayRate)
+    {
+        if (RemainingShelfLifeTurns is not long remaining)
         {
             return null;
         }
@@ -152,50 +161,40 @@ public sealed class PuzzlePlacement
         {
             return 0;
         }
-
-        long untilExpiry = MinutesUntilShelfLifeExpires(_decayRate);
-        int threshold = FreshnessBand(FreshnessPercent.Value) switch
-        {
-            PuzzleFreshnessBand.High => BasicData.Int("rules.freshness.mediumThreshold"),
-            PuzzleFreshnessBand.Medium => BasicData.Int("rules.freshness.lowThreshold"),
-            _ => 0
-        };
-        if (threshold <= 1)
+        int percent = DecayPercent(_decayRate);
+        long untilExpiry = TurnsUntilShelfLifeExpires(_decayRate);
+        if (percent <= 0)
         {
             return untilExpiry;
         }
-
-        // 등급 경계에 정확히 닿았을 때는 기존 등급을 유지한다.
-        decimal ageAtThreshold = ShelfLifeMinutes * (100 - threshold) / 100m;
-        long untilSettlement = _settlementInterval - ShelfLifeAge.SinceSettlement;
-        decimal ageAtSettlement = ShelfLifeAge.Elapsed + untilSettlement * _decayRate;
-        if (ageAtSettlement > ageAtThreshold)
+        var band = FreshnessBand(FreshnessPercent.Value);
+        // 유통기한은 최대 수백 턴이라 턴마다 등급을 확인해도 충분하다.
+        for (long turns = 1; turns < untilExpiry; turns++)
         {
-            return Math.Min(untilExpiry, untilSettlement);
+            long elapsed = ShelfLifeAge.Elapsed + (ShelfLifeAge.CarryPercent + turns * percent) / 100;
+            long left = ShelfLifeTurns - elapsed;
+            int freshness = left <= 0 ? 0 : (int)Math.Max(1, left * 100 / ShelfLifeTurns);
+            if (FreshnessBand(freshness) != band)
+            {
+                return turns;
+            }
         }
-        if (_decayRate == 0)
-        {
-            return untilExpiry;
-        }
-
-        decimal extraSettlements = decimal.Floor(
-            (ageAtThreshold - ageAtSettlement) / (_settlementInterval * _decayRate)) + 1;
-        return (long)Math.Min(untilExpiry, untilSettlement + extraSettlements * _settlementInterval);
+        return untilExpiry;
     }
 
-    // 성장 완료까지 남은 분. 성장하지 않는 품목과 미소유 물건은 경계가 없다.
+    // 성장 완료까지 남은 턴. 성장하지 않는 품목과 미소유 물건은 경계가 없다.
     // 대기 중에는 다음 완료 시각이 아니라 자리를 다시 확인하는 재시도 시각을 경계로 제시한다.
-    internal long MinutesUntilGrowthCompletion
+    internal long TurnsUntilGrowthCompletion
     {
         get
         {
-            if (Definition.GrowthMinutes <= 0 || OwnedMinutes < 0)
+            if (Definition.GrowthTurns <= 0 || OwnedTurns < 0)
             {
                 return long.MaxValue;
             }
             return GrowthSpaceBlocked
-                ? Definition.GrowthBlockedMinutes
-                : Math.Max(0, Definition.GrowthMinutes - GrowthElapsedMinutes);
+                ? Definition.GrowthBlockedTurns
+                : Math.Max(0, Definition.GrowthTurns - GrowthElapsedTurns);
         }
     }
 
@@ -208,9 +207,9 @@ public sealed class PuzzlePlacement
             Owner.HasUnreadEventNotice = true;
         }
         GrowthSpaceBlocked = true;
-        if (GrowthElapsedMinutes > Definition.GrowthFreezeMinutes)
+        if (GrowthElapsedTurns > Definition.GrowthFreezeTurns)
         {
-            GrowthElapsedMinutes = Definition.GrowthFreezeMinutes;
+            GrowthElapsedTurns = Definition.GrowthFreezeTurns;
         }
     }
 
@@ -251,17 +250,17 @@ public sealed class PuzzlePlacement
     }
 
     internal PuzzlePlacement(int _instanceId, PuzzleItemDefinition _definition, PuzzleInventory _owner, PuzzlePose _pose,
-        decimal _actualValue, long _ownedMinutes = -1, int _durability = -1,
-        (decimal Elapsed, decimal Settled, long SinceSettlement) _shelfLifeAge = default)
+        decimal _actualValue, long _ownedTurns = -1, int _durability = -1,
+        (long Elapsed, int CarryPercent) _shelfLifeAge = default)
     {
         InstanceId = _instanceId;
         Definition = _definition;
         Owner = _owner;
         Pose = _pose;
         ActualValue = _actualValue;
-        OwnedMinutes = _ownedMinutes;
+        OwnedTurns = _ownedTurns;
         // 새로 세상에 나온 화물은 성장 시계를 0부터 시작하고, 미소유 물건은 성장 추적 자체가 없다.
-        GrowthElapsedMinutes = _ownedMinutes < 0 ? -1 : 0;
+        GrowthElapsedTurns = _ownedTurns < 0 ? -1 : 0;
         Durability = _durability >= 0 ? _durability : _definition.Durability;
         ShelfLifeAge = _shelfLifeAge;
     }
@@ -279,49 +278,44 @@ public sealed class PuzzlePlacement
     /// <summary>시작 지급·구매 시 보유 시간과 성장 시계를 0부터 시작하고 판매 시 추적을 종료한다.</summary>
     internal void SetOwned(bool _owned)
     {
-        OwnedMinutes = _owned ? 0 : -1;
-        GrowthElapsedMinutes = _owned ? 0 : -1;
+        OwnedTurns = _owned ? 0 : -1;
+        GrowthElapsedTurns = _owned ? 0 : -1;
         GrowthSpaceBlocked = false;
         HasUnreadSynergySettlement = false;
         HasUnreadSpaceNotice = false;
         HasUnreadSpawnNotice = false;
     }
 
-    /// <summary>보유 시간·성장 시계·유통기한에 반영할 경과 분을 누적한다.</summary>
+    /// <summary>보유 시간·성장 시계·유통기한에 반영할 경과 턴을 누적한다.</summary>
     /// <remarks>
-    /// 유통기한 소모량 = 경과한 게임 시간 × (1 − 최종 보존율).
-    /// 최종 보존율은 0~1로 환산한다. 100% 보존이 유지되는 동안 소모량은 0이며, 남은 유통기한이 그대로 유지된다.
+    /// 유통기한은 정수 턴으로 소모한다. 턴마다 소모율(%)을 누적하고 100이 찰 때마다 1턴 줄인다.
+    /// 소모율 100%면 턴당 1턴, 냉장 50%면 2턴마다 1턴이며 0%면 줄지 않는다.
     /// </remarks>
-    /// <param name="_minutes">이번 행동으로 경과한 분. 0은 무변화이며 미소유 물건은 무시한다.</param>
+    /// <param name="_turns">이번 행동으로 경과한 턴. 0은 무변화이며 미소유 물건은 무시한다.</param>
     /// <param name="_decayRate">유통기한 소모율. 0이면 소모하지 않는다.</param>
-    /// <param name="_settlementInterval">신선도 표시를 갱신하는 경과 분 주기.</param>
-    /// <exception cref="ArgumentOutOfRangeException">시간이 음수일 때 발생한다.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">턴이 음수일 때 발생한다.</exception>
     /// <exception cref="OverflowException">보유 시간이 long 범위를 초과할 때 발생한다.</exception>
-    internal void ApplyElapsedMinutes(long _minutes, decimal _decayRate, long _settlementInterval)
+    internal void ApplyElapsedTurns(long _turns, decimal _decayRate)
     {
-        if (_minutes < 0)
+        if (_turns < 0)
         {
-            throw new ArgumentOutOfRangeException(nameof(_minutes));
+            throw new ArgumentOutOfRangeException(nameof(_turns));
         }
-        if (OwnedMinutes >= 0 && _minutes > 0)
+        if (OwnedTurns >= 0 && _turns > 0)
         {
-            OwnedMinutes = checked(OwnedMinutes + _minutes);
+            OwnedTurns = checked(OwnedTurns + _turns);
             // 성장 시계는 보유 시간과 따로 간다. 대기 상태를 기록하면 성장만 멈추고 보유 시간은 흐른다.
-            if (Definition.GrowthMinutes > 0 && !GrowthSpaceBlocked)
+            if (Definition.GrowthTurns > 0 && !GrowthSpaceBlocked)
             {
-                GrowthElapsedMinutes = checked(GrowthElapsedMinutes + _minutes);
+                GrowthElapsedTurns = checked(GrowthElapsedTurns + _turns);
             }
-            if (RemainingShelfLife.HasValue)
+            if (RemainingShelfLifeTurns.HasValue)
             {
                 decimal valueBefore = FreshnessAdjustedValue;
                 var age = ShelfLifeAge;
-                long sinceSettlement = (age.SinceSettlement + _minutes % _settlementInterval) % _settlementInterval;
-                long lastSettlement = _minutes - sinceSettlement;
-                // 냉장 중에도 신선도 표시는 실제 경과 시간의 주기를 따른다.
-                decimal settled = lastSettlement > 0
-                    ? Math.Min(ShelfLifeMinutes, age.Elapsed + lastSettlement * _decayRate)
-                    : age.Settled;
-                ShelfLifeAge = (Math.Min(ShelfLifeMinutes, age.Elapsed + _minutes * _decayRate), settled, sinceSettlement);
+                long total = checked(age.CarryPercent + _turns * DecayPercent(_decayRate));
+                long elapsed = Math.Min(ShelfLifeTurns, age.Elapsed + total / 100);
+                ShelfLifeAge = (elapsed, elapsed >= ShelfLifeTurns ? 0 : (int)(total % 100));
                 HasUnreadSynergySettlement |= FreshnessAdjustedValue != valueBefore;
             }
         }
@@ -337,8 +331,8 @@ public sealed class PuzzlePlacement
     internal void CopyTimeState(PuzzlePlacement _staged)
     {
         ActualValue = _staged.ActualValue;
-        OwnedMinutes = _staged.OwnedMinutes;
-        GrowthElapsedMinutes = _staged.GrowthElapsedMinutes;
+        OwnedTurns = _staged.OwnedTurns;
+        GrowthElapsedTurns = _staged.GrowthElapsedTurns;
         GrowthSpaceBlocked = _staged.GrowthSpaceBlocked;
         ShelfLifeAge = _staged.ShelfLifeAge;
         HasUnreadSynergySettlement = _staged.HasUnreadSynergySettlement;

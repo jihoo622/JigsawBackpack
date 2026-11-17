@@ -52,7 +52,7 @@ public sealed class PuzzleTableData
 public sealed class PuzzleSynergyTableData
 {
     public string status, note;
-    public int activationIntervalHours = -1;
+    public int activationIntervalTurns = -1;
     public PuzzleSynergyRuleData[] rules = Array.Empty<PuzzleSynergyRuleData>();
     public PuzzleAnimalSynergyData animals;
     public PuzzleFreshnessData freshness;
@@ -99,7 +99,7 @@ public sealed class PuzzleTradeTableData
     public PuzzleWagonProductData[] wagonProducts = Array.Empty<PuzzleWagonProductData>();
     public long gameClearCost = -1;
     // 0이면 무기한. 목표 도시가 비어 있으면 상환 장소를 제한하지 않는다.
-    public int deadlineHours = -1;
+    public int deadlineTurns = -1;
     public string debtCityId;
     public float travelEffectSeconds = -1f;
     public float travelArrivalHoldSeconds = -1f;
@@ -120,10 +120,10 @@ public sealed class PuzzleRouteTableData
     public string status, note;
     // 맵 제작 도구의 새 노선/일괄 적용 기준. 실행 요금은 각 routes[].cost를 읽는다.
     public int defaultBaseCost = -1;
-    public double fareDistancePixelsPerUnit = -1;
+    public double pixelsPerTurn = -1;
     // 기차의 점유 칸 1칸에 더해지는 단가. 0이면 보유량과 무관한 정액 노선이다.
     public int costPerCell = -1;
-    public int costPerDistance = -1;
+    public int costPerTurn = -1;
     public PuzzleRouteData[] routes = Array.Empty<PuzzleRouteData>();
 }
 
@@ -164,12 +164,11 @@ public sealed class TrainventoryProficiencyTableData
 public sealed class PuzzleTimeTableData
 {
     public string status, note;
-    public double pixelsPerHour = -1;
-    // 노선 소요 시간의 올림 단위(분). 60이면 25시간 44분 → 26시간.
-    public int travelRoundingMinutes = -1;
-    public int daylightHours = -1;
-    public int nightHours = -1;
-    public int daylightStartHour = -1;
+    // 하루 8턴 중 낮 턴 수. 하루의 첫 턴부터 이만큼이 낮이고 나머지가 밤(시장 진입 불가)이다.
+    public int daylightTurns = -1;
+    // 하루의 첫 턴이 시작하는 시각(0~23시). 시작 시각이자 날짜 변경·재입고 시각이다.
     public int startHour = -1;
-    public long restMinutes = -1;
+    public long restTurns = -1;
+    // 역 시설 진입(시장·술집·화차 시설)과 작업대 확정이 쓰는 턴.
+    public long stationActionTurns = -1;
 }

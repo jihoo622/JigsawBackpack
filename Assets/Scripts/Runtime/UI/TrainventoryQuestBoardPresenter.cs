@@ -22,6 +22,7 @@ public sealed class TrainventoryQuestBoardPresenter : MonoBehaviour
         GameEvents.ProficiencyChanged += OnProficiencyChanged;
         GameEvents.FundsChanged += OnFundsChanged;
         GameEvents.TimeAdvanced += OnTimeAdvanced;
+        GameEvents.PuzzleActionCommitted += OnPuzzleActionCommitted;
         Refresh();
     }
 
@@ -33,6 +34,7 @@ public sealed class TrainventoryQuestBoardPresenter : MonoBehaviour
         GameEvents.ProficiencyChanged -= OnProficiencyChanged;
         GameEvents.FundsChanged -= OnFundsChanged;
         GameEvents.TimeAdvanced -= OnTimeAdvanced;
+        GameEvents.PuzzleActionCommitted -= OnPuzzleActionCommitted;
     }
 
     void OnQuestChanged(GameEvents.QuestInfo _info)
@@ -66,6 +68,18 @@ public sealed class TrainventoryQuestBoardPresenter : MonoBehaviour
         {
             Refresh();
         }
+    }
+
+    // 화물 재배치·판매·증차처럼 기차가 바뀌는 행동이 성공하면 수락 가능 여부(빈 칸)를 다시 판정한다.
+    // 앞선 수락 실패 문구는 이제 맞지 않을 수 있으므로 지운다. 실패한 행동은 기차를 바꾸지 않아 무시한다.
+    void OnPuzzleActionCommitted(GameEvents.PuzzleActionInfo _info)
+    {
+        if (_info.session != session || !string.IsNullOrEmpty(_info.failure))
+        {
+            return;
+        }
+        acceptMessage = null;
+        Refresh();
     }
 
     void OnOfferAccepted(int _index)

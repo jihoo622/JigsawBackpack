@@ -64,7 +64,7 @@ public sealed class PuzzleSynergyChartPresenter : MonoBehaviour
             Presentation.SynergyChartToggle,
             Presentation.SynergyChartClose,
             Presentation.SynergyChartCorner,
-            Presentation.SynergyChartNotes(footnotes, tables.Pieces, tables.PuzzleSynergy.activationIntervalHours),
+            Presentation.SynergyChartNotes(footnotes, tables.Pieces, tables.PuzzleSynergy.activationIntervalTurns),
             Presentation.SynergyChartItemTitle,
             defaultItemTags);
 

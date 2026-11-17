@@ -33,14 +33,14 @@ public static class EconomySimulation
 {
     const int PERCENT_NEUTRAL = 100;
     // 기한(336시간)보다 충분히 길어 한 판 안에 출산이 일어나지 않는 주기.
-    const int NO_BREEDING_HOURS = 100000;
+    const int NO_BREEDING_TURNS = 100000;
 
     public static EconomySimulationReport Run(EconomySimulationSettings _settings, Func<int, bool> _onRunFinished = null)
     {
         var tables = EconomyProbe.Tables;
         var report = new EconomySimulationReport { Settings = _settings };
         var graph = new EconomyRouteGraph(tables);
-        int dayCount = (int)(tables.PuzzleTrade.deadlineHours / PuzzleTimeManager.HOURS_PER_DAY);
+        int dayCount = (int)(tables.PuzzleTrade.deadlineTurns / PuzzleTimeManager.TURNS_PER_DAY);
         var restore = ApplyExperiments(tables, _settings);
         try
         {
@@ -63,9 +63,9 @@ public static class EconomySimulation
         {
             foreach (var piece in _tables.Pieces)
             {
-                int shelfLife = piece.shelfLifeHours;
-                undo.Add(() => piece.shelfLifeHours = shelfLife);
-                piece.shelfLifeHours = 0;
+                int shelfLife = piece.shelfLifeTurns;
+                undo.Add(() => piece.shelfLifeTurns = shelfLife);
+                piece.shelfLifeTurns = 0;
             }
         }
         if (_settings.disableSynergy)
@@ -78,14 +78,14 @@ public static class EconomySimulation
             }
             var animals = _tables.PuzzleSynergy.animals;
             int wasteCount = animals.wasteCountPerAnimal;
-            int breedingHours = animals.breedingHours;
+            int breedingTurns = animals.breedingTurns;
             undo.Add(() =>
             {
                 animals.wasteCountPerAnimal = wasteCount;
-                animals.breedingHours = breedingHours;
+                animals.breedingTurns = breedingTurns;
             });
             animals.wasteCountPerAnimal = 0;
-            animals.breedingHours = NO_BREEDING_HOURS;
+            animals.breedingTurns = NO_BREEDING_TURNS;
         }
         return () =>
         {
@@ -124,7 +124,7 @@ internal sealed class EconomyRouteGraph
 {
     const long UNREACHABLE = long.MaxValue / 4;
 
-    readonly Dictionary<string, Dictionary<string, long>> minutes = new Dictionary<string, Dictionary<string, long>>(StringComparer.Ordinal);
+    readonly Dictionary<string, Dictionary<string, long>> turns = new Dictionary<string, Dictionary<string, long>>(StringComparer.Ordinal);
     readonly Dictionary<string, Dictionary<string, string>> firstHops = new Dictionary<string, Dictionary<string, string>>(StringComparer.Ordinal);
 
     internal string DebtCityId { get; }
@@ -133,7 +133,7 @@ internal sealed class EconomyRouteGraph
     {
         DebtCityId = string.IsNullOrEmpty(_tables.PuzzleTrade.debtCityId) ? _tables.Puzzle.startCity : _tables.PuzzleTrade.debtCityId;
         var outgoing = _tables.Cities.ToDictionary(_city => _city.id,
-            _city => _tables.RoutesFrom(_city.id).Select(_route => (To: _route.toCityId, Minutes: PuzzleTimeManager.TravelMinutes(_route, _tables.PuzzleTime))).ToList(),
+            _city => _tables.RoutesFrom(_city.id).Select(_route => (To: _route.toCityId, Turns: PuzzleTimeManager.TravelTurns(_route, _tables.PuzzleTime))).ToList(),
             StringComparer.Ordinal);
 
         // 출발 도시마다 다익스트라. 도시 수가 작아 단순 선택 방식을 쓴다.
@@ -148,7 +148,7 @@ internal sealed class EconomyRouteGraph
                 open.Remove(current);
                 foreach (var edge in outgoing[current])
                 {
-                    long candidate = distance[current] + edge.Minutes;
+                    long candidate = distance[current] + edge.Turns;
                     if (!distance.TryGetValue(edge.To, out long known) || candidate < known)
                     {
                         distance[edge.To] = candidate;
@@ -157,14 +157,14 @@ internal sealed class EconomyRouteGraph
                     }
                 }
             }
-            minutes.Add(source, distance);
+            turns.Add(source, distance);
             firstHops.Add(source, first);
         }
     }
 
-    internal long MinutesBetween(string _from, string _to)
+    internal long TurnsBetween(string _from, string _to)
     {
-        return minutes.TryGetValue(_from, out var targets) && targets.TryGetValue(_to, out long value) ? value : UNREACHABLE;
+        return turns.TryGetValue(_from, out var targets) && targets.TryGetValue(_to, out long value) ? value : UNREACHABLE;
     }
 
     internal string NextHop(string _from, string _to)
@@ -172,9 +172,9 @@ internal sealed class EconomyRouteGraph
         return firstHops.TryGetValue(_from, out var targets) && targets.TryGetValue(_to, out string next) ? next : null;
     }
 
-    internal long MinutesToDebt(string _cityId)
+    internal long TurnsToDebt(string _cityId)
     {
-        return MinutesBetween(_cityId, DebtCityId);
+        return TurnsBetween(_cityId, DebtCityId);
     }
 
     internal string NextHopToDebt(string _cityId)
@@ -188,9 +188,9 @@ internal sealed class EconomyLoop
 {
     internal string A { get; private set; }
     internal string B { get; private set; }
-    internal long CycleMinutes { get; private set; }
+    internal long CycleTurns { get; private set; }
     internal long CycleProfit { get; private set; }
-    internal double ProfitPerHour => CycleMinutes <= 0 ? 0 : CycleProfit / (CycleMinutes / (double)PuzzleTimeManager.MINUTES_PER_HOUR);
+    internal double ProfitPerTurn => CycleTurns <= 0 ? 0 : CycleProfit / (CycleTurns);
 
     internal static IReadOnlyList<EconomyLoop> BuildAll(TableManager _tables)
     {
@@ -207,15 +207,15 @@ internal sealed class EconomyLoop
                         continue;
                     }
                     long profit = LegProfit(session, _tables, forward) + LegProfit(session, _tables, backward);
-                    long cycle = PuzzleTimeManager.TravelMinutes(forward, _tables.PuzzleTime) + PuzzleTimeManager.TravelMinutes(backward, _tables.PuzzleTime);
+                    long cycle = PuzzleTimeManager.TravelTurns(forward, _tables.PuzzleTime) + PuzzleTimeManager.TravelTurns(backward, _tables.PuzzleTime);
                     if (profit > 0)
                     {
-                        loops.Add(new EconomyLoop { A = from.id, B = forward.toCityId, CycleMinutes = cycle, CycleProfit = profit });
+                        loops.Add(new EconomyLoop { A = from.id, B = forward.toCityId, CycleTurns = cycle, CycleProfit = profit });
                     }
                 }
             }
         }
-        return loops.OrderByDescending(_loop => _loop.ProfitPerHour).ToList();
+        return loops.OrderByDescending(_loop => _loop.ProfitPerTurn).ToList();
     }
 
     // 출발 도시 고정 재고를 도착 도시에서 팔 때의 차익 합 − 그 화물을 실은 운임.
@@ -245,9 +245,9 @@ internal sealed class EconomyBot
 {
     const int MAX_STEPS = 5000;
     // 아침 대기(최대 6시간)와 도착 후 거래 여유를 포함한 귀환 여유.
-    const long RETURN_BUFFER_MINUTES = 7 * PuzzleTimeManager.MINUTES_PER_HOUR;
+    const long RETURN_BUFFER_TURNS = 7;
     const long RETURN_FUNDS_MARGIN = 30;
-    const long WAGON_MIN_REMAINING_MINUTES = 72 * PuzzleTimeManager.MINUTES_PER_HOUR;
+    const long WAGON_MIN_REMAINING_TURNS = 72;
     const int WAGON_FUNDS_MULTIPLIER = 3;
     const float WAGON_FREE_RATIO = 0.25f;
     const double RANDOM_TRADE_CHANCE = 0.5;
@@ -301,7 +301,7 @@ internal sealed class EconomyBot
                 (settings.repayEarly && EstimatedWealthAtDebt() - CostToDebt() >= service.GameClearCost + RETURN_FUNDS_MARGIN);
             if (returning && AtDebtCity)
             {
-                if (!service.IsMarketOpen && service.CanWaitForDaylight && service.Time.MinutesUntilDaylight <= service.Time.RemainingMinutes)
+                if (!service.IsMarketOpen && service.CanWaitForDaylight && service.Time.TurnsUntilDaylight <= service.Time.RemainingTurns)
                 {
                     Wait();
                 }
@@ -332,6 +332,7 @@ internal sealed class EconomyBot
             }
             else
             {
+                MarketReady();
                 SellCargo(returning);
                 if (service.CanClearGame && (settings.repayEarly || options.Count == 0))
                 {
@@ -358,7 +359,7 @@ internal sealed class EconomyBot
                 : service.RunStatus == PuzzleRunStatus.Lost ? EconomyRunOutcome.Lost
                 : EconomyRunOutcome.Stuck;
         }
-        result.EndMinutes = service.Time.ElapsedMinutes;
+        result.EndTurns = service.Time.ElapsedTurns;
         result.FinalFunds = service.Funds;
         result.Wagons = service.WagonCount;
         return result;
@@ -367,15 +368,15 @@ internal sealed class EconomyBot
     // 다녀와도 기한 안에 상환 도시에 닿을 수 있는 노선.
     List<PuzzleRouteData> TimelyRoutes()
     {
-        long remaining = service.Time.RemainingMinutes;
+        long remaining = service.Time.RemainingTurns;
         return tables.RoutesFrom(CurrentCityId)
-            .Where(_route => TravelMinutes(_route) + graph.MinutesToDebt(_route.toCityId) + RETURN_BUFFER_MINUTES <= remaining)
+            .Where(_route => TravelTurns(_route) + graph.TurnsToDebt(_route.toCityId) + RETURN_BUFFER_TURNS <= remaining)
             .ToList();
     }
 
-    long TravelMinutes(PuzzleRouteData _route)
+    long TravelTurns(PuzzleRouteData _route)
     {
-        return PuzzleTimeManager.TravelMinutes(_route, tables.PuzzleTime);
+        return PuzzleTimeManager.TravelTurns(_route, tables.PuzzleTime);
     }
 
     IEnumerable<PuzzlePlacement> Cargo()
@@ -483,9 +484,15 @@ internal sealed class EconomyBot
         result.Flow(itemId).AddSale(delta);
     }
 
+    // 이번 역 방문에서 아직 시장에 들어가지 않았으면 역 행동 1턴을 쓰고 들어간다. 밤이거나 기한을 넘기면 false.
+    bool MarketReady()
+    {
+        return service.CanTradeInMarket || (service.IsMarketOpen && service.TryEnterMarket());
+    }
+
     void LiquidateCargo()
     {
-        if (!service.IsMarketOpen)
+        if (!MarketReady())
         {
             return;
         }
@@ -501,7 +508,7 @@ internal sealed class EconomyBot
     void TryAddWagon()
     {
         long cost = service.NextWagonCost;
-        if (service.Funds < cost * WAGON_FUNDS_MULTIPLIER || service.Time.RemainingMinutes < WAGON_MIN_REMAINING_MINUTES)
+        if (service.Funds < cost * WAGON_FUNDS_MULTIPLIER || service.Time.RemainingTurns < WAGON_MIN_REMAINING_TURNS)
         {
             return;
         }
@@ -538,7 +545,7 @@ internal sealed class EconomyBot
         if (settings.policy == EconomyBotPolicy.Random)
         {
             var route = _options[random.Next(_options.Count)];
-            if (service.IsMarketOpen)
+            if (MarketReady())
             {
                 var shuffled = service.Market.Placements.OrderBy(_ => random.Next()).ToList();
                 Buy(shuffled.Where(_ => random.NextDouble() < RANDOM_TRADE_CHANCE), route);
@@ -566,12 +573,12 @@ internal sealed class EconomyBot
             long planProfit = 0;
             int planCells = 0;
             var plan = new List<PuzzlePlacement>();
-            if (service.IsMarketOpen)
+            if (MarketReady())
             {
                 plan = PlanPurchases(stops, path[0], out planProfit, out planCells);
             }
             long cost = path.Sum(_route => EconomyProbe.RouteCost(_route, service.TotalTrainOccupiedCells + planCells));
-            double hours = Math.Max(path.Sum(TravelMinutes) / (double)PuzzleTimeManager.MINUTES_PER_HOUR, 1.0 / 60);
+            double hours = Math.Max(path.Sum(TravelTurns), 1.0);
             double score = (cargoGain + planProfit - cost) / hours;
             if (score > bestScore)
             {
@@ -590,19 +597,19 @@ internal sealed class EconomyBot
     // 남은 시간 안에서 (시간당 수익 × 왕복에 쓸 수 있는 시간)이 가장 큰 왕복. 접근·귀환 시간을 뺀다.
     EconomyLoop PickLoop()
     {
-        long remaining = service.Time.RemainingMinutes;
+        long remaining = service.Time.RemainingTurns;
         EconomyLoop best = null;
         double bestValue = 0;
         foreach (var loop in loops)
         {
-            long approach = Math.Min(graph.MinutesBetween(CurrentCityId, loop.A), graph.MinutesBetween(CurrentCityId, loop.B));
-            long exit = Math.Min(graph.MinutesToDebt(loop.A), graph.MinutesToDebt(loop.B));
-            double usable = remaining - approach - exit - RETURN_BUFFER_MINUTES;
-            if (usable < loop.CycleMinutes)
+            long approach = Math.Min(graph.TurnsBetween(CurrentCityId, loop.A), graph.TurnsBetween(CurrentCityId, loop.B));
+            long exit = Math.Min(graph.TurnsToDebt(loop.A), graph.TurnsToDebt(loop.B));
+            double usable = remaining - approach - exit - RETURN_BUFFER_TURNS;
+            if (usable < loop.CycleTurns)
             {
                 continue;
             }
-            double value = loop.ProfitPerHour * usable / PuzzleTimeManager.MINUTES_PER_HOUR;
+            double value = loop.ProfitPerTurn * usable;
             if (value > bestValue)
             {
                 bestValue = value;
@@ -626,7 +633,7 @@ internal sealed class EconomyBot
         {
             return targetLoop.A;
         }
-        string nearer = graph.MinutesBetween(CurrentCityId, targetLoop.A) <= graph.MinutesBetween(CurrentCityId, targetLoop.B)
+        string nearer = graph.TurnsBetween(CurrentCityId, targetLoop.A) <= graph.TurnsBetween(CurrentCityId, targetLoop.B)
             ? targetLoop.A : targetLoop.B;
         return graph.NextHop(CurrentCityId, nearer);
     }
@@ -652,7 +659,7 @@ internal sealed class EconomyBot
         {
             return null;
         }
-        if (service.IsMarketOpen)
+        if (MarketReady())
         {
             Buy(PlanPurchases(SaleHorizon(), route, out _, out _), route);
         }
@@ -663,17 +670,17 @@ internal sealed class EconomyBot
     List<List<PuzzleRouteData>> CandidatePaths(List<PuzzleRouteData> _options)
     {
         var paths = _options.Select(_route => new List<PuzzleRouteData> { _route }).ToList();
-        long remaining = service.Time.RemainingMinutes;
+        long remaining = service.Time.RemainingTurns;
         for (int depth = 1; depth < LookaheadDepth; depth++)
         {
             var extended = new List<List<PuzzleRouteData>>();
             foreach (var path in paths.Where(_path => _path.Count == depth))
             {
-                long elapsed = path.Sum(TravelMinutes);
+                long elapsed = path.Sum(TravelTurns);
                 foreach (var next in tables.RoutesFrom(path[path.Count - 1].toCityId))
                 {
                     if (next.toCityId == CurrentCityId ||
-                        elapsed + TravelMinutes(next) + graph.MinutesToDebt(next.toCityId) + RETURN_BUFFER_MINUTES > remaining)
+                        elapsed + TravelTurns(next) + graph.TurnsToDebt(next.toCityId) + RETURN_BUFFER_TURNS > remaining)
                     {
                         continue;
                     }
@@ -839,13 +846,13 @@ internal sealed class EconomyBot
 
     void Record(EconomyRunEventKind _kind, string _itemId, long _amount)
     {
-        result.Events.Add(new EconomyRunEvent(service.Time.ElapsedMinutes, service.CurrentCityId, _kind, _itemId, _amount, service.Funds));
+        result.Events.Add(new EconomyRunEvent(service.Time.ElapsedTurns, service.CurrentCityId, _kind, _itemId, _amount, service.Funds));
     }
 
     void Snapshot()
     {
         decimal cargo = Cargo().Sum(_item => _item.FreshnessAdjustedValue);
-        result.Snapshots.Add((service.Time.ElapsedMinutes, service.Funds, service.Funds + (long)Math.Round(cargo)));
+        result.Snapshots.Add((service.Time.ElapsedTurns, service.Funds, service.Funds + (long)Math.Round(cargo)));
     }
 }
 
@@ -873,13 +880,13 @@ public enum EconomyRunEventKind
 // 봇이 확정한 행동 한 건. Amount는 자금 증감(지출은 음수), Travel의 도시는 도착 도시다.
 public readonly struct EconomyRunEvent
 {
-    public readonly long Minutes, Amount, FundsAfter;
+    public readonly long Turns, Amount, FundsAfter;
     public readonly string CityId, ItemId;
     public readonly EconomyRunEventKind Kind;
 
-    public EconomyRunEvent(long _minutes, string _cityId, EconomyRunEventKind _kind, string _itemId, long _amount, long _fundsAfter)
+    public EconomyRunEvent(long _turns, string _cityId, EconomyRunEventKind _kind, string _itemId, long _amount, long _fundsAfter)
     {
-        Minutes = _minutes;
+        Turns = _turns;
         CityId = _cityId;
         Kind = _kind;
         ItemId = _itemId;
@@ -910,7 +917,7 @@ public sealed class EconomyRunResult
 {
     public int Index, StockSeed, Wagons, Travels;
     public EconomyRunOutcome Outcome;
-    public long EndMinutes, FinalFunds;
+    public long EndTurns, FinalFunds;
     // 지출·수입 항목. Disposed는 음수 가치 화물 처분 비용이다.
     public long Bought, Sold, Disposed, TravelCost, WagonCost, Repaid;
     public readonly List<string> Path = new List<string>();
@@ -919,9 +926,8 @@ public sealed class EconomyRunResult
     // 24시간×d 시점의 자금·자산(자금+화물 가치). ValidDays까지만 유효하다(조기 상환 판은 상환 시점 이후 제외).
     public long[] DayFunds = Array.Empty<long>(), DayAssets = Array.Empty<long>();
     public int ValidDays;
-    internal readonly List<(long Minutes, long Funds, long Assets)> Snapshots = new List<(long Minutes, long Funds, long Assets)>();
+    internal readonly List<(long Turns, long Funds, long Assets)> Snapshots = new List<(long Turns, long Funds, long Assets)>();
 
-    public float EndHours => EndMinutes / (float)PuzzleTimeManager.MINUTES_PER_HOUR;
 
     internal EconomyItemFlow Flow(string _itemId)
     {
@@ -941,12 +947,12 @@ public sealed class EconomyRunResult
         int cursor = 0;
         for (int day = 0; day <= _dayCount; day++)
         {
-            long at = (long)day * PuzzleTimeManager.MINUTES_PER_DAY;
-            if (Outcome == EconomyRunOutcome.Won && at > EndMinutes)
+            long at = (long)day * PuzzleTimeManager.TURNS_PER_DAY;
+            if (Outcome == EconomyRunOutcome.Won && at > EndTurns)
             {
                 break;
             }
-            while (cursor + 1 < Snapshots.Count && Snapshots[cursor + 1].Minutes <= at)
+            while (cursor + 1 < Snapshots.Count && Snapshots[cursor + 1].Turns <= at)
             {
                 cursor++;
             }
@@ -969,7 +975,7 @@ public sealed class EconomySimulationReport
     public readonly List<EconomyRunResult> Runs = new List<EconomyRunResult>();
     public EconomyDayStat[] Days = Array.Empty<EconomyDayStat>();
     public readonly Dictionary<EconomyRunOutcome, int> Outcomes = new Dictionary<EconomyRunOutcome, int>();
-    public float ClearHoursP10 = float.NaN, ClearHoursP50 = float.NaN, ClearHoursP90 = float.NaN;
+    public float ClearTurnsP10 = float.NaN, ClearTurnsP50 = float.NaN, ClearTurnsP90 = float.NaN;
     public readonly Dictionary<string, EconomyItemFlow> ItemFlows = new Dictionary<string, EconomyItemFlow>(StringComparer.Ordinal);
     public readonly Dictionary<string, int> CityVisits = new Dictionary<string, int>(StringComparer.Ordinal);
 
@@ -1007,12 +1013,12 @@ public sealed class EconomySimulationReport
             }
         }
 
-        var clearHours = Runs.Where(_run => _run.Outcome == EconomyRunOutcome.Won).Select(_run => (long)_run.EndMinutes).ToList();
-        if (clearHours.Count > 0)
+        var clearTurns = Runs.Where(_run => _run.Outcome == EconomyRunOutcome.Won).Select(_run => (long)_run.EndTurns).ToList();
+        if (clearTurns.Count > 0)
         {
-            ClearHoursP10 = Percentile(clearHours, 0.1f) / (float)PuzzleTimeManager.MINUTES_PER_HOUR;
-            ClearHoursP50 = Percentile(clearHours, 0.5f) / (float)PuzzleTimeManager.MINUTES_PER_HOUR;
-            ClearHoursP90 = Percentile(clearHours, 0.9f) / (float)PuzzleTimeManager.MINUTES_PER_HOUR;
+            ClearTurnsP10 = Percentile(clearTurns, 0.1f);
+            ClearTurnsP50 = Percentile(clearTurns, 0.5f);
+            ClearTurnsP90 = Percentile(clearTurns, 0.9f);
         }
 
         Days = new EconomyDayStat[_dayCount + 1];

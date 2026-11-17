@@ -563,7 +563,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         cityView.ShowTradeStatus(inProgress
             ? session.IsMarketOpen ? string.Empty : Presentation.PuzzleNightMarket
             : Presentation.PuzzleRunStatusText(session.RunStatus));
-        marketView.SetMarketOpen(session.IsMarketOpen);
+        marketView.SetMarketOpen(session.CanTradeInMarket);
         RefreshWaitAction();
         marketView.SetBoardSize(session.Market.Width, session.Market.Height, session.Market.BlockedCells);
         trainView.SetBoardSize(session.Train.Width, session.Train.Height, session.Train.BlockedCells);
@@ -983,7 +983,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             }
             if (!isMapOpen)
             {
-                if (session.IsMarketOpen && marketView && marketView.isActiveAndEnabled && marketView.TryGetBoardCell(_position, out _cell))
+                if (session.CanTradeInMarket && marketView && marketView.isActiveAndEnabled && marketView.TryGetBoardCell(_position, out _cell))
                 {
                     _view = marketView;
                     _inventory = session.Market;
@@ -1232,15 +1232,15 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         var rate = item == null ? default : session.RateFor(item);
         (IReadOnlyList<string> General, IReadOnlyList<PuzzleTooltipEffectEntry> Synergies) effects =
             BuildEffectDescriptions(_placement, isTrain, isActionBoard);
-        long? previewMinutes = session.PreviewMinutes;
+        long? previewTurns = session.PreviewTurns;
         long? previewActivations = null;
         decimal? futureValue = null;
-        if (isTrain && previewMinutes.HasValue)
+        if (isTrain && previewTurns.HasValue)
         {
             try
             {
-                previewActivations = session.SynergyActivationsFor(previewMinutes.Value);
-                futureValue = session.PreviewValueAfter(_placement, previewMinutes.Value);
+                previewActivations = session.SynergyActivationsFor(previewTurns.Value);
+                futureValue = session.PreviewValueAfter(_placement, previewTurns.Value);
             }
             catch (System.OverflowException)
             {
@@ -1255,7 +1255,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             var direction = isTrain || isActionBoard ? PuzzleTradeDirection.Sell : PuzzleTradeDirection.Buy;
             long? price = session.TryQuoteTrade(_placement, direction, out long quote) ? quote : (long?)null;
             tooltipView.Show(item, actualValue, rate, effects.General, effects.Synergies, futureValue, pos, isTrain, _placement.FreshnessPercent,
-                session.MinutesUntilNextFreshnessBand(_placement), previewMinutes,
+                session.TurnsUntilNextFreshnessBand(_placement), previewTurns,
                 previewName, previewActivations, price, isTrain ? PuzzleSynergyBonus.GroupByNeighbor(value.SynergyBonuses) : null,
                 isTrain ? session.AppliedPreservationPercent(_placement) : 0, isActionBoard);
             // 툴팁을 열면 미확인 알림만 지운다. 실제로 대기 중인 진행도와 빨간 표시는 상태가 풀릴 때까지 남는다.

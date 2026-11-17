@@ -67,18 +67,18 @@ public sealed partial class PuzzleInventoryService
 
         RoutePlan = new PuzzleRoutePlan(path, stops);
 
-        long totalMinutes = 0;
+        long totalTurns = 0;
         for (int i = 0; i < path.Count - 1; i++)
         {
             if (tables.TryGetRoute(path[i], path[i + 1], out var legRoute))
             {
-                totalMinutes += PuzzleTimeManager.TravelMinutes(legRoute, tables.PuzzleTime);
+                totalTurns += PuzzleTimeManager.TravelTurns(legRoute, tables.PuzzleTime);
             }
         }
 
         int stopsCount = 1 + stops.Count;
         GameEvents.RaiseRoutePlanned(new GameEvents.RoutePlannedInfo(this, CurrentCityId, _destinationCityId,
-            path.Count - 1, totalMinutes, stopsCount));
+            path.Count - 1, totalTurns, stopsCount));
         GameEvents.RaiseRoutePlanChanged(new GameEvents.RoutePlanInfo(this));
         return PuzzleRoutePlanFailure.None;
     }
@@ -163,7 +163,7 @@ public sealed partial class PuzzleInventoryService
         }
 
         int legs = RoutePlan.RemainingLegs;
-        long totalMinutes = 0;
+        long totalTurns = 0;
         long estimatedCost = 0;
         long firstLegCost = 0;
         int cells = TotalTrainOccupiedCells;
@@ -174,9 +174,9 @@ public sealed partial class PuzzleInventoryService
             string v = RoutePlan.Cities[i + 1];
             if (tables.TryGetRoute(u, v, out var route))
             {
-                long legMinutes = PuzzleTimeManager.TravelMinutes(route, tables.PuzzleTime);
-                totalMinutes += legMinutes;
-                if (TryTravelCost(route.cost, route.distance, tables.PuzzleRoute.costPerDistance,
+                long legTurns = PuzzleTimeManager.TravelTurns(route, tables.PuzzleTime);
+                totalTurns += legTurns;
+                if (TryTravelCost(route.cost, route.turns, tables.PuzzleRoute.costPerTurn,
                     cells, tables.PuzzleRoute.costPerCell, out long cost, out _))
                 {
                     estimatedCost += cost;
@@ -188,11 +188,11 @@ public sealed partial class PuzzleInventoryService
             }
         }
 
-        int arrivalClockMinutes = (int)((Time.MinuteOfDay + totalMinutes % PuzzleTimeManager.MINUTES_PER_DAY) % PuzzleTimeManager.MINUTES_PER_DAY);
-        bool arrivalIsNight = Time.IsNightAt(Time.ArrivalAt(totalMinutes));
+        int arrivalClockTurns = (int)((Time.TurnOfDay + totalTurns % PuzzleTimeManager.TURNS_PER_DAY) % PuzzleTimeManager.TURNS_PER_DAY);
+        bool arrivalIsNight = Time.IsNightAt(Time.ArrivalAt(totalTurns));
         bool affordableNow = Funds >= firstLegCost;
 
-        return new PuzzleRouteQuote(legs, totalMinutes, estimatedCost, arrivalClockMinutes, arrivalIsNight, affordableNow);
+        return new PuzzleRouteQuote(legs, totalTurns, estimatedCost, arrivalClockTurns, arrivalIsNight, affordableNow);
     }
 
     // 계획의 다음 구간을 지금 이동한다면의 평가(EvaluateTravel과 같은 결과). 계획이 없으면 NotAvailable.
@@ -327,19 +327,19 @@ internal enum PuzzleRouteEndReason
 internal readonly struct PuzzleRouteQuote
 {
     internal int Legs { get; }
-    internal long TotalMinutes { get; }
+    internal long TotalTurns { get; }
     // 지금 기차 점유 칸 수로 계산한 운임 합계(경유역 거래로 달라지는 추정치).
     internal long EstimatedCost { get; }
-    internal int ArrivalClockMinutes { get; }
+    internal int ArrivalClockTurns { get; }
     internal bool ArrivalIsNight { get; }
     internal bool AffordableNow { get; }
 
-    internal PuzzleRouteQuote(int _legs, long _totalMinutes, long _estimatedCost, int _arrivalClockMinutes, bool _arrivalIsNight, bool _affordableNow)
+    internal PuzzleRouteQuote(int _legs, long _totalTurns, long _estimatedCost, int _arrivalClockTurns, bool _arrivalIsNight, bool _affordableNow)
     {
         Legs = _legs;
-        TotalMinutes = _totalMinutes;
+        TotalTurns = _totalTurns;
         EstimatedCost = _estimatedCost;
-        ArrivalClockMinutes = _arrivalClockMinutes;
+        ArrivalClockTurns = _arrivalClockTurns;
         ArrivalIsNight = _arrivalIsNight;
         AffordableNow = _affordableNow;
     }

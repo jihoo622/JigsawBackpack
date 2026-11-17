@@ -89,8 +89,8 @@ public sealed class PuzzlePieceData
     // 개조 커버리지 검사에서 명시적으로 제외하는 기계 품목. 예외는 반드시 이 플래그로 선언한다.
     public bool exemptFromModification;
     public string adultPieceId, growthDescription;
-    public int growthHours, growthBlockedHours;
-    public int shelfLifeHours;
+    public int growthTurns, growthBlockedTurns;
+    public int shelfLifeTurns;
     public PuzzleCellData[] cells = Array.Empty<PuzzleCellData>();
 }
 
@@ -233,7 +233,6 @@ public sealed class PuzzleSynergyRuleData
 [Serializable]
 public sealed class PuzzleFreshnessData
 {
-    public int settlementIntervalHours;
     public string refrigerationTag;
     // 기존 품목의 명시적 이행에만 쓰는 원본 값. 런타임은 품목의 preservationEffect만 읽는다.
     public int refrigerationReductionPercent = -1;
@@ -245,12 +244,12 @@ public sealed class PuzzleFreshnessData
 public sealed class PuzzleAnimalSynergyData
 {
     public string animalTag, wasteTag, grainTag, wastePieceId, wasteDescription;
-    public int wasteIntervalDays, wasteCountPerAnimal, breedingHours;
+    public int wasteIntervalTurns, wasteCountPerAnimal, breedingTurns;
     // 출산·배설이 끝나기 직전 산출물을 놓을 자리가 없을 때 대기하는 시간. 동물 규칙 전체가 공유하는 값이다.
-    public int completionHoldHours;
+    public int completionHoldTurns;
     // 소·송아지가 같은 객차의 곡물을 섭취하는 규칙의 공통 원본. 곡물 태그(grainTag)로 대상 품목을 찾고,
     // feedIntervalHours마다 하나를 소비한다. breedingFeedReductionHours는 번식, growthFeedReductionHours는 성장 단축량이다.
-    public int feedIntervalHours, breedingFeedReductionHours, growthFeedReductionHours;
+    public int feedIntervalTurns, breedingFeedReductionTurns, growthFeedReductionTurns;
     public string breedingFeedDescription, growthFeedDescription;
     public PuzzleAnimalBreedingData[] breeding = Array.Empty<PuzzleAnimalBreedingData>();
 }
@@ -270,7 +269,7 @@ public sealed class PuzzleCombinationRuleData
 {
     public string id, sourcePieceId, partnerPieceId, resultPieceId, description;
     // 누락이 0이라는 정상값으로 위장되지 않도록 하는 검증용 값이다.
-    public int requiredHours = -1;
+    public int requiredTurns = -1;
 }
 
 [Serializable]
@@ -311,8 +310,8 @@ public sealed class PuzzleCityActionData
     public string id, type, title, description, inputTag, outputTag;
     public string[] cityIds = Array.Empty<string>();
     public PuzzleBoardData board;
-    // 확인 버튼을 누른 시점부터 완성에 걸리는 분. 도축·정제 등 시간 기반 행동이 쓰고 개조는 0이다. 누락이 0으로 위장되지 않도록 검증용 값으로 둔다.
-    public long workMinutes = -1;
+    // 확인 버튼을 누른 시점부터 완성에 걸리는 턴. 도축·정제 등 시간 기반 행동이 쓰고 개조는 0이다. 누락이 0으로 위장되지 않도록 검증용 값으로 둔다.
+    public long workTurns = -1;
     // 도축·정제 확인 1회당 차감하는 비용. 개조는 모드별 cost를 쓰므로 이 값을 쓰지 않는다. 누락과 무료(0)를 구별하기 위한 검증용 값.
     public long cost = -1;
     public PuzzleActionConversionData[] conversions = Array.Empty<PuzzleActionConversionData>();
@@ -345,8 +344,9 @@ public sealed class PuzzleActionModeData
 public sealed class PuzzleRouteData
 {
     public string fromCityId, toCityId;
-    public int distance = -1;
-    // 고정 지도 좌표의 폴라인. x,y 쌍이며 화면 줌·요금용 distance와 무관하다.
+    // 이동 턴. 운임의 거리 항(턴 × costPerTurn)에도 같은 값을 쓴다.
+    public int turns = -1;
+    // 고정 지도 좌표의 폴라인. x,y 쌍이며 그리기 전용이다. 이동 턴과 무관하다.
     public float[] points = Array.Empty<float>();
     public bool highSpeed;
     // 누락된 값이 0이라는 정상값으로 위장되지 않도록 하는 검증용 값이다.
@@ -377,21 +377,21 @@ public sealed class TrainventoryQuestPenaltyData
     public int depositPercentOfReward = -1;
     // RegionTrade: 구매·판매 배율에 더하는 값(%p)과 지속 시간.
     public int buyPercentDelta, sellPercentDelta;
-    public int durationHours = -1;
+    public int durationTurns = -1;
 }
 
 // 운송 의뢰 틀. 화물 하나를 받아 최단 이동 시간이 범위 안인 마을로 전달한다.
-// 보상 = baseReward + rewardPerCellHour × 화물 칸 수 × 최단 이동 시간. 도착 시 화물의 실제 가치와 보증금을 함께 지급한다.
-// 기한 = 최단 이동 시간 × deadlinePercent / 100(올림) + deadlineExtraHours.
+// 보상 = baseReward + rewardPerCellTurn × 화물 칸 수 × 최단 이동 시간. 도착 시 화물의 실제 가치와 보증금을 함께 지급한다.
+// 기한 = 최단 이동 시간 × deadlinePercent / 100(올림) + deadlineExtraTurns.
 [Serializable]
 public sealed class TrainventoryCourierQuestData
 {
     public string id, penaltyId;
     public string[] pieceIds = Array.Empty<string>();
     public int weight = -1;
-    public int minTravelHours = -1, maxTravelHours = -1;
-    public int baseReward = -1, rewardPerCellHour = -1;
-    public int deadlinePercent = -1, deadlineExtraHours = -1;
+    public int minTravelTurns = -1, maxTravelTurns = -1;
+    public int baseReward = -1, rewardPerCellTurn = -1;
+    public int deadlinePercent = -1, deadlineExtraTurns = -1;
     // 의뢰 화물에 생산 태그가 없을 때 완료 숙련 경험치를 받을 태그. 화물에 생산 태그가 있으면 쓰지 않는다.
     public string[] fallbackProficiencyTags = Array.Empty<string>();
 }

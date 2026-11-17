@@ -7,11 +7,11 @@ using UnityEngine;
 
 public sealed partial class WorldMapEditorWindow
 {
-    bool HasFareSettings => routes["defaultBaseCost"] != null && routes["fareDistancePixelsPerUnit"] != null;
+    bool HasFareSettings => routes["defaultBaseCost"] != null && routes["pixelsPerTurn"] != null;
 
     int CalculatedFareDistance(JObject _rail)
     {
-        double unit = (double)routes["fareDistancePixelsPerUnit"];
+        double unit = (double)routes["pixelsPerTurn"];
         if (double.IsNaN(unit) || double.IsInfinity(unit) || unit <= 0)
         {
             throw new InvalidDataException("거리 1당 지도 길이는 유한한 양수여야 합니다.");
@@ -37,9 +37,9 @@ public sealed partial class WorldMapEditorWindow
     void SetFareDistance(JObject _rail)
     {
         int distance = CalculatedFareDistance(_rail);
-        _rail["distance"] = distance;
-        Forward(_rail)["distance"] = distance;
-        Reverse(_rail)["distance"] = distance;
+        _rail["turns"] = distance;
+        Forward(_rail)["turns"] = distance;
+        Reverse(_rail)["turns"] = distance;
     }
 
     void SetBaseFare(JObject _rail)
@@ -67,7 +67,7 @@ public sealed partial class WorldMapEditorWindow
             EditorGUILayout.LabelField("표시 선 길이", FareLineLength(_rail).ToString("0.##") + " 지도 단위");
             if (GUILayout.Button("선 길이로 거리 계산 → " + proposed))
             {
-                Change("선택 노선 요금 거리 자동 계산", () => SetFareDistance(_rail));
+                Change("선택 노선 이동 턴 자동 계산", () => SetFareDistance(_rail));
             }
         }
         catch (Exception exception) when (exception is InvalidDataException || exception is OverflowException)
@@ -99,20 +99,20 @@ public sealed partial class WorldMapEditorWindow
                 });
             }
         }
-        double before = (double)routes["fareDistancePixelsPerUnit"];
+        double before = (double)routes["pixelsPerTurn"];
         double unit = EditorGUILayout.DelayedDoubleField("거리 1당 지도 길이", before);
         if (unit != before)
         {
-            Change("요금 거리 환산 기준", () => routes["fareDistancePixelsPerUnit"] = unit);
+            Change("이동 턴 환산 기준", () => routes["pixelsPerTurn"] = unit);
         }
         EditorGUILayout.HelpBox("현재 표시 선의 모든 구간 길이를 합산합니다. 거리 = 선 길이 ÷ 기준 길이를 반올림한 정수(최소 1). 화면 확대율과 무관하며 왕복에 같은 값을 적용합니다. 아래 적용 버튼을 누를 때 초안을 갱신합니다.", MessageType.Info);
         try
         {
             var proposals = Rails.OrderBy(_rail => (string)_rail["sourceId"], StringComparer.Ordinal)
                 .Select(_rail => new { Rail = _rail, Distance = CalculatedFareDistance(_rail) }).ToArray();
-            if (GUILayout.Button("전체 요금용 거리 자동 계산"))
+            if (GUILayout.Button("전체 이동 턴 자동 계산"))
             {
-                Change("전체 노선 요금 거리 자동 계산", () =>
+                Change("전체 노선 이동 턴 자동 계산", () =>
                 {
                     foreach (var proposal in proposals)
                     {
@@ -125,7 +125,7 @@ public sealed partial class WorldMapEditorWindow
             {
                 var rail = proposal.Rail;
                 EditorGUILayout.LabelField((string)rail["sourceId"] + " " + CityName((string)rail["fromCityId"]) + " ↔ " + CityName((string)rail["toCityId"]), EditorStyles.miniLabel);
-                EditorGUILayout.LabelField(FareLineLength(rail).ToString("0.##") + " 지도 단위", (int)rail["distance"] + " → " + proposal.Distance);
+                EditorGUILayout.LabelField(FareLineLength(rail).ToString("0.##") + " 지도 단위", (int)rail["turns"] + " → " + proposal.Distance);
             }
         }
         catch (Exception exception) when (exception is InvalidDataException || exception is OverflowException)

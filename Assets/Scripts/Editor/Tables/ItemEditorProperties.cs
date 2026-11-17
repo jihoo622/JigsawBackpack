@@ -95,9 +95,9 @@ public sealed partial class ItemEditorWindow
             EditorStyles.wordWrappedMiniLabel);
         using (new EditorGUI.DisabledScope(!food))
         {
-            DrawIntProperty(_piece, "shelfLifeHours", "유통기한 (시간)");
+            DrawIntProperty(_piece, "shelfLifeTurns", "유통기한 (턴)");
         }
-        EditorGUILayout.HelpBox(food ? "0시간은 시간에 따른 유통기한 소모가 없습니다. 양수이면 품목별 신선 유지 수치가 적용됩니다."
+        EditorGUILayout.HelpBox(food ? "0턴은 시간에 따른 유통기한 소모가 없습니다. 양수이면 품목별 신선 유지 수치가 적용됩니다."
             : foodTag + " 태그가 없어 유통기한 소모·신선도 표시가 적용되지 않습니다. 저장된 수치는 유지됩니다.", MessageType.None);
     }
 
@@ -112,15 +112,15 @@ public sealed partial class ItemEditorWindow
         bool baby = _piece["tags"].Values<string>().Contains(PuzzleItemDefinition.BABY_TAG);
         bool configured = !string.IsNullOrEmpty((string)_piece["adultPieceId"]) ||
             !string.IsNullOrEmpty((string)_piece["growthDescription"]) ||
-            ((int?)_piece["growthHours"] ?? 0) != 0 || ((int?)_piece["growthBlockedHours"] ?? 0) != 0;
+            ((int?)_piece["growthTurns"] ?? 0) != 0 || ((int?)_piece["growthBlockedTurns"] ?? 0) != 0;
         using (new EditorGUI.DisabledScope(!baby && !configured))
         {
             DrawPieceSelector(_piece, "adultPieceId", "성체 품목");
-            DrawIntProperty(_piece, "growthHours", "성장 완료 (시간)");
-            DrawIntProperty(_piece, "growthBlockedHours", "완료 전 공간 확인 (시간)");
+            DrawIntProperty(_piece, "growthTurns", "성장 완료 (턴)");
+            DrawIntProperty(_piece, "growthBlockedTurns", "완료 전 공간 확인 (턴)");
             DrawDescriptionProperty(_piece, "growthDescription", "성장 설명");
         }
-        EditorGUILayout.HelpBox("성장 설정에는 Baby 태그와 Baby가 없는 성체가 필요합니다. 성장 시간 > 0, 공간 확인 시간은 1~성장 시간입니다. 설명에 {0} 성장 시간, {1} 성체 이름, {2} 대기 시간 인자를 모두 넣으세요.", MessageType.None);
+        EditorGUILayout.HelpBox("성장 설정에는 Baby 태그와 Baby가 없는 성체가 필요합니다. 성장 턴 > 0, 공간 확인 턴은 1~성장 턴입니다. 설명에 {0} 성장 턴, {1} 성체 이름, {2} 대기 턴 인자를 모두 넣으세요.", MessageType.None);
         if (!baby)
         {
             EditorGUILayout.HelpBox(configured ? "Baby 태그 없이 성장 설정이 있습니다. 태그를 추가하거나 성장 필드를 비워주세요."
@@ -183,12 +183,12 @@ public sealed partial class ItemEditorWindow
                 GUIUtility.ExitGUI();
             }
         }
-        EditorGUILayout.HelpBox("부모는 Baby가 없는 " + (string)animals["animalTag"] + " 품목이며 부모 ID당 한 규칙이 필요합니다. 자식도 동물 태그가 필요하고 수량은 양수입니다. 설명에는 {0} 번식 시간, {1} 자식 이름, {2} 수량을 넣으세요.", MessageType.None);
+        EditorGUILayout.HelpBox("부모는 Baby가 없는 " + (string)animals["animalTag"] + " 품목이며 부모 ID당 한 규칙이 필요합니다. 자식도 동물 태그가 필요하고 수량은 양수입니다. 설명에는 {0} 번식 턴, {1} 자식 이름, {2} 수량을 넣으세요.", MessageType.None);
         using (new EditorGUI.DisabledScope(true))
         {
-            EditorGUILayout.IntField("공통 번식 시간 (시간)", (int)animals["breedingHours"]);
-            EditorGUILayout.IntField("공통 완료 전 대기 (시간)", (int)animals["completionHoldHours"]);
-            EditorGUILayout.IntField("공통 배설 주기 (일)", (int)animals["wasteIntervalDays"]);
+            EditorGUILayout.IntField("공통 번식 (턴)", (int)animals["breedingTurns"]);
+            EditorGUILayout.IntField("공통 완료 전 대기 (턴)", (int)animals["completionHoldTurns"]);
+            EditorGUILayout.IntField("공통 배설 주기 (일)", (int)animals["wasteIntervalTurns"]);
             EditorGUILayout.IntField("공통 배설 수량", (int)animals["wasteCountPerAnimal"]);
             EditorGUILayout.TextField("공통 배설 품목", (string)animals["wastePieceId"]);
             EditorGUILayout.LabelField("공통 배설 설명 (읽기 전용)");
@@ -282,9 +282,9 @@ public sealed partial class ItemEditorWindow
         EditorGUILayout.LabelField("slotCount는 셀 수에서 자동 산출합니다. cells·아이콘 크기/오프셋은 모양 도구에서 편집합니다.", EditorStyles.wordWrappedLabel);
         var handled = new HashSet<string>(new[]
         {
-            "id", "displayName", "description", "baseValue", "visualKey", "tags", "durability", "shelfLifeHours",
-            "excludeFromMarket", "exemptFromModification", "adultPieceId", "growthDescription", "growthHours",
-            "growthBlockedHours", "synergyEffects", "preservationEffect", "slotCount", "cells",
+            "id", "displayName", "description", "baseValue", "visualKey", "tags", "durability", "shelfLifeTurns",
+            "excludeFromMarket", "exemptFromModification", "adultPieceId", "growthDescription", "growthTurns",
+            "growthBlockedTurns", "synergyEffects", "preservationEffect", "slotCount", "cells",
             "iconWidth", "iconHeight", "iconOffsetX", "iconOffsetY"
         }, StringComparer.Ordinal);
         var defaults = JObject.FromObject(new PuzzlePieceData());

@@ -207,7 +207,7 @@ public sealed class PuzzleItemTooltipView : PanelBase
 
     internal void Show(PuzzleItemDefinition _item, decimal _actualValue, PuzzleTradeRate _rate,
         IReadOnlyList<string> _generalEffects, IReadOnlyList<PuzzleTooltipEffectEntry> _synergyEffects, decimal? _futureValue, Vector2 _screenPosition,
-        bool _isTrainInventory, int? _freshness, long? _minutesUntilNextFreshnessBand, long? _previewMinutes, string _previewCityName,
+        bool _isTrainInventory, int? _freshness, long? _minutesUntilNextFreshnessBand, long? _previewTurns, string _previewCityName,
         long? _previewActivations, long? _tradePrice, IReadOnlyList<PuzzleSynergyBonus> _activeEffects, int _appliedPreservation,
         bool _isActionBoard = false)
     {
@@ -261,10 +261,10 @@ public sealed class PuzzleItemTooltipView : PanelBase
 
         if (futureValueLabelText || futureValueValueText)
         {
-            if (_isTrainInventory && _futureValue.HasValue && _previewMinutes.HasValue && _previewActivations.HasValue)
+            if (_isTrainInventory && _futureValue.HasValue && _previewTurns.HasValue && _previewActivations.HasValue)
             {
                 SetRow(futureValueLabelText, futureValueValueText,
-                    Presentation.PuzzleTooltipFutureValueLabel(_previewMinutes.Value, _previewCityName, _previewActivations.Value),
+                    Presentation.PuzzleTooltipFutureValueLabel(_previewTurns.Value, _previewCityName, _previewActivations.Value),
                     Presentation.PuzzleTooltipFutureValueValue(_futureValue.Value, _actualValue));
                 SetRowActive(futureValueLabelText, futureValueValueText, true);
             }

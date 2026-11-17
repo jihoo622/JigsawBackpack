@@ -13,7 +13,7 @@ public sealed class PuzzleItemDefinition
     public int BaseValue { get; }
     public string VisualKey { get; }
     public int Durability { get; }
-    public int ShelfLifeHours { get; }
+    public int ShelfLifeTurns { get; }
     // 아이콘 표시 크기(칸 단위). 미지정이면 Vector2.zero로, 렌더 시 외접 사각형 크기를 쓴다.
     public Vector2 IconSize { get; }
     // 외접 사각형 중심에서 아이콘 중심을 옮기는 오프셋(칸 단위).
@@ -38,10 +38,10 @@ public sealed class PuzzleItemDefinition
     internal bool ExcludeFromMarket { get; }
     internal string AdultPieceId { get; }
     internal string GrowthDescription { get; }
-    internal long GrowthMinutes { get; }
-    internal long GrowthBlockedMinutes { get; }
+    internal long GrowthTurns { get; }
+    internal long GrowthBlockedTurns { get; }
     // 성체 자리를 확인하기 시작하는 진행. 이 시각 이후 자리가 없으면 성장은 여기에서 대기한다.
-    internal long GrowthFreezeMinutes => GrowthMinutes - GrowthBlockedMinutes;
+    internal long GrowthFreezeTurns => GrowthTurns - GrowthBlockedTurns;
 
     // Food 태그 아이템만 신선도를 표시·관리 대상으로 본다.
     public bool HasDurability { get; }
@@ -54,7 +54,7 @@ public sealed class PuzzleItemDefinition
         BaseValue = _item.baseValue;
         VisualKey = _item.visualKey;
         Durability = _item.durability;
-        ShelfLifeHours = _item.shelfLifeHours;
+        ShelfLifeTurns = _item.shelfLifeTurns;
         IconSize = _item.iconWidth > 0f && _item.iconHeight > 0f
             ? new Vector2(_item.iconWidth, _item.iconHeight)
             : Vector2.zero;
@@ -70,8 +70,8 @@ public sealed class PuzzleItemDefinition
         ExcludeFromMarket = _item.excludeFromMarket;
         AdultPieceId = _item.adultPieceId;
         GrowthDescription = _item.growthDescription;
-        GrowthMinutes = (long)_item.growthHours * PuzzleTimeManager.MINUTES_PER_HOUR;
-        GrowthBlockedMinutes = (long)_item.growthBlockedHours * PuzzleTimeManager.MINUTES_PER_HOUR;
+        GrowthTurns = (long)_item.growthTurns;
+        GrowthBlockedTurns = (long)_item.growthBlockedTurns;
         HasDurability = Tags.Contains(BasicData.Text("rules.items.durabilityTag"));
         Cells = Array.AsReadOnly(_item.cells.OrderBy(_cell => _cell.y).ThenBy(_cell => _cell.x)
             .Select(_cell => new Vector2Int(_cell.x, _cell.y)).ToArray());

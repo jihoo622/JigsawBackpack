@@ -14,7 +14,7 @@ public sealed class EconomyAnalyzerWindow : EditorWindow
     const string EXPORT_FOLDER = "Logs/Economy";
     const float CHART_HEIGHT = 220f;
     static readonly string[] TABS = { "품목", "노선", "태그 판정", "시뮬레이션" };
-    static readonly string[] ROUTE_SORTS = { "1량 시간당 이익", "칸당 차익", "출발 도시" };
+    static readonly string[] ROUTE_SORTS = { "1량 턴당 이익", "칸당 차익", "출발 도시" };
 
     int tab;
     int routeSort;
@@ -163,37 +163,37 @@ public sealed class EconomyAnalyzerWindow : EditorWindow
             GUILayout.Label("정렬", GUILayout.Width(30));
             routeSort = EditorGUILayout.Popup(routeSort, ROUTE_SORTS, GUILayout.Width(120));
         }
-        EditorGUILayout.HelpBox("출발 시장 후보 중 칸당 차익이 가장 큰 품목 하나로 객차 1량을 채운다고 가정한다(* 고정 입고). 1량 시간당 이익 = (칸당 차익 × 객차 칸 수 − 만차 운임) ÷ 이동 시간.", MessageType.None);
+        EditorGUILayout.HelpBox("출발 시장 후보 중 칸당 차익이 가장 큰 품목 하나로 객차 1량을 채운다고 가정한다(* 고정 입고). 1량 턴당 이익 = (칸당 차익 × 객차 칸 수 − 만차 운임) ÷ 이동 턴.", MessageType.None);
         if (routeRows == null)
         {
             return;
         }
 
-        IEnumerable<EconomyRouteRow> rows = routeSort == 0 ? routeRows.OrderByDescending(_row => _row.WagonProfitPerHour)
+        IEnumerable<EconomyRouteRow> rows = routeSort == 0 ? routeRows.OrderByDescending(_row => _row.WagonProfitPerTurn)
             : routeSort == 1 ? routeRows.OrderByDescending(_row => _row.BestProfitPerCell)
             : routeRows.OrderBy(_row => _row.FromCityId, StringComparer.Ordinal).ThenBy(_row => _row.ToCityId, StringComparer.Ordinal);
-        Row(true, ("노선", 220), ("시간", 50), ("운임 빈/만", 70), ("최적 품목", 130), ("매입→매도", 80), ("칸당", 50), ("1량/시간", 60));
+        Row(true, ("노선", 220), ("턴", 50), ("운임 빈/만", 70), ("최적 품목", 130), ("매입→매도", 80), ("칸당", 50), ("1량/턴", 60));
         foreach (var row in rows)
         {
             Row(false,
                 ($"{EconomyProbe.CityName(row.FromCityId)} → {EconomyProbe.CityName(row.ToCityId)}", 220),
-                (Hours(row.TravelMinutes), 50),
+                (Hours(row.TravelTurns), 50),
                 ($"{row.EmptyCost}/{row.FullWagonCost}", 70),
                 (row.BestItemId == null ? "-" : EconomyProbe.ItemName(row.BestItemId) + (row.BestItemFixed ? " *" : ""), 130),
                 (row.BestItemId == null ? "-" : $"{row.BestBuy}→{row.BestSell}", 80),
                 (row.BestProfitPerCell.ToString("0.0"), 50),
-                (row.WagonProfitPerHour.ToString("0.0"), 60));
+                (row.WagonProfitPerTurn.ToString("0.0"), 60));
         }
     }
 
     void ExportRoutes()
     {
-        var csv = new StringBuilder("fromCity,toCity,travelMinutes,emptyCost,fullWagonCost,bestItem,bestItemFixed,buy,sell,profitPerCell,wagonProfitPerHour\n");
+        var csv = new StringBuilder("fromCity,toCity,travelTurns,emptyCost,fullWagonCost,bestItem,bestItemFixed,buy,sell,profitPerCell,wagonProfitPerTurn\n");
         foreach (var row in routeRows)
         {
-            csv.AppendLine(string.Join(",", row.FromCityId, row.ToCityId, row.TravelMinutes, row.EmptyCost, row.FullWagonCost,
+            csv.AppendLine(string.Join(",", row.FromCityId, row.ToCityId, row.TravelTurns, row.EmptyCost, row.FullWagonCost,
                 row.BestItemId, row.BestItemFixed, row.BestBuy, row.BestSell,
-                row.BestProfitPerCell.ToString("0.###"), row.WagonProfitPerHour.ToString("0.###")));
+                row.BestProfitPerCell.ToString("0.###"), row.WagonProfitPerTurn.ToString("0.###")));
         }
         Reveal(WriteExport("routes", ("routes.csv", csv.ToString())));
     }
@@ -316,7 +316,7 @@ public sealed class EconomyAnalyzerWindow : EditorWindow
                 }
             }
         }
-        EditorGUILayout.HelpBox("Loop: 고정 재고 기준 시간당 수익이 가장 큰 인접 왕복을 골라 그곳으로 가서 오간다(기본). Planner: 2구간 앞까지의 경로 중 (보유 화물 차익 + 살 화물 차익 − 운임) ÷ 시간이 가장 큰 경로의 첫 구간으로 간다. Greedy: 같은 기준으로 바로 옆 도시만 본다. Random: 무작위 거래·이동(하한 기준). 모두 기한 안에 상환 도시로 돌아가며 배치 최적화·도축·개조는 쓰지 않는다.", MessageType.None);
+        EditorGUILayout.HelpBox("Loop: 고정 재고 기준 턴당 수익이 가장 큰 인접 왕복을 골라 그곳으로 가서 오간다(기본). Planner: 2구간 앞까지의 경로 중 (보유 화물 차익 + 살 화물 차익 − 운임) ÷ 턴이 가장 큰 경로의 첫 구간으로 간다. Greedy: 같은 기준으로 바로 옆 도시만 본다. Random: 무작위 거래·이동(하한 기준). 모두 기한 안에 상환 도시로 돌아가며 배치 최적화·도축·개조는 쓰지 않는다.", MessageType.None);
         if (report == null)
         {
             return;
@@ -350,7 +350,7 @@ public sealed class EconomyAnalyzerWindow : EditorWindow
         EditorGUILayout.LabelField("상환 도시에서 자금 부족", Rate(report.Count(EconomyRunOutcome.ShortOfFunds), total));
         EditorGUILayout.LabelField("이동 불가", Rate(report.Count(EconomyRunOutcome.Stuck) + report.Count(EconomyRunOutcome.StepLimit), total));
         EditorGUILayout.LabelField("상환 시점 p10/p50/p90",
-            float.IsNaN(report.ClearHoursP50) ? "-" : $"{report.ClearHoursP10:0}h / {report.ClearHoursP50:0}h / {report.ClearHoursP90:0}h");
+            float.IsNaN(report.ClearTurnsP50) ? "-" : $"{report.ClearTurnsP10:0}h / {report.ClearTurnsP50:0}h / {report.ClearTurnsP90:0}h");
         EditorGUILayout.LabelField("판당 평균 매입 / 매출 / 처분", $"{report.Average(_run => _run.Bought):0} / {report.Average(_run => _run.Sold):0} / {report.Average(_run => _run.Disposed):0}");
         EditorGUILayout.LabelField("판당 평균 운임 / 증차 / 상환", $"{report.Average(_run => _run.TravelCost):0} / {report.Average(_run => _run.WagonCost):0} / {report.Average(_run => _run.Repaid):0}");
         EditorGUILayout.LabelField("판당 평균 이동 / 최종 객차", $"{report.Average(_run => _run.Travels):0.0} / {report.Average(_run => _run.Wagons):0.0}");
@@ -412,7 +412,7 @@ public sealed class EconomyAnalyzerWindow : EditorWindow
     void DrawDays()
     {
         EditorGUILayout.Space();
-        EditorGUILayout.LabelField("일자별 (24시간 × 일 시점, 조기 상환한 판은 상환 후 제외)", EditorStyles.boldLabel);
+        EditorGUILayout.LabelField("일자별 (8턴 × 일 시점, 조기 상환한 판은 상환 후 제외)", EditorStyles.boldLabel);
         Row(true, ("일", 30), ("진행 판", 50), ("자금 p10", 70), ("자금 p50", 70), ("자금 p90", 70), ("자산 p50", 70));
         foreach (var day in report.Days)
         {
@@ -445,16 +445,16 @@ public sealed class EconomyAnalyzerWindow : EditorWindow
 
     void ExportSimulation()
     {
-        var runs = new StringBuilder("run,stockSeed,outcome,endHours,finalFunds,wagons,travels,bought,sold,disposed,travelCost,wagonCost,repaid,path\n");
+        var runs = new StringBuilder("run,stockSeed,outcome,endTurns,finalFunds,wagons,travels,bought,sold,disposed,travelCost,wagonCost,repaid,path\n");
         var days = new StringBuilder("run,day,funds,assets\n");
-        var events = new StringBuilder("run,minutes,city,kind,itemId,amount,fundsAfter\n");
+        var events = new StringBuilder("run,turns,city,kind,itemId,amount,fundsAfter\n");
         foreach (var run in report.Runs)
         {
             foreach (var entry in run.Events)
             {
-                events.AppendLine(string.Join(",", run.Index, entry.Minutes, entry.CityId, entry.Kind, entry.ItemId, entry.Amount, entry.FundsAfter));
+                events.AppendLine(string.Join(",", run.Index, entry.Turns, entry.CityId, entry.Kind, entry.ItemId, entry.Amount, entry.FundsAfter));
             }
-            runs.AppendLine(string.Join(",", run.Index, run.StockSeed, run.Outcome, run.EndHours.ToString("0.##"), run.FinalFunds, run.Wagons,
+            runs.AppendLine(string.Join(",", run.Index, run.StockSeed, run.Outcome, run.EndTurns.ToString("0.##"), run.FinalFunds, run.Wagons,
                 run.Travels, run.Bought, run.Sold, run.Disposed, run.TravelCost, run.WagonCost, run.Repaid, string.Join(">", run.Path)));
             for (int day = 0; day < run.ValidDays; day++)
             {
@@ -490,9 +490,9 @@ public sealed class EconomyAnalyzerWindow : EditorWindow
         }
     }
 
-    static string Hours(long _minutes)
+    static string Hours(long _turns)
     {
-        return $"{_minutes / PuzzleTimeManager.MINUTES_PER_HOUR}:{_minutes % PuzzleTimeManager.MINUTES_PER_HOUR:00}";
+        return $"{_turns / PuzzleTimeManager.TURNS_PER_DAY + 1}일 {_turns % PuzzleTimeManager.TURNS_PER_DAY + 1}턴";
     }
 
     static string Rate(int _count, int _total)

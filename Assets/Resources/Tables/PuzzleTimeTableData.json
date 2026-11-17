@@ -1,11 +1,8 @@
 {
   "status": "provisional",
-  "note": "고정 좌표 폴라인 길이 기준. K=28픽셀/시간은 플레이 검증 전 잠정치. 이동 시간은 travelRoundingMinutes(60분) 단위로 올림. 시작·일출 06:00, 야간 00:00~06:00.",
-  "pixelsPerHour": 28,
-  "travelRoundingMinutes": 60,
-  "daylightHours": 18,
-  "nightHours": 6,
-  "daylightStartHour": 6,
+  "note": "1턴=3시간, 하루 8턴(PuzzleTimeManager 상수). 하루의 첫 턴이 startHour(06:00)이며 그 턴에 날짜가 바뀌고 시장을 재입고한다. daylightTurns(6)는 낮 턴 수이고 나머지 2턴(00:00·03:00)은 밤이라 시장에 들어갈 수 없다. 휴식은 restTurns, 시장·술집·화차 시설 진입과 작업대 확정은 stationActionTurns를 쓴다. 노선 이동 턴은 PuzzleRouteTableData.routes[].turns가 원본이다.",
+  "daylightTurns": 6,
   "startHour": 6,
-  "restMinutes": 60
+  "restTurns": 1,
+  "stationActionTurns": 1
 }

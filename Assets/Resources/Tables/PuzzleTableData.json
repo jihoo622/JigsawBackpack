@@ -151,7 +151,7 @@
         "Supply",
         "Grain"
       ],
-      "shelfLifeHours": 168,
+      "shelfLifeTurns": 56,
       "visualKey": "cargo.grainSack",
       "slotCount": 1,
       "cells": [
@@ -525,7 +525,7 @@
         "Food",
         "Fish"
       ],
-      "shelfLifeHours": 168,
+      "shelfLifeTurns": 56,
       "visualKey": "cargo.fish",
       "slotCount": 2,
       "cells": [
@@ -631,7 +631,7 @@
         "Food",
         "Fruit"
       ],
-      "shelfLifeHours": 168,
+      "shelfLifeTurns": 56,
       "visualKey": "cargo.fruitCrate",
       "slotCount": 1,
       "cells": [
@@ -729,7 +729,7 @@
         "Food",
         "Meat"
       ],
-      "shelfLifeHours": 168,
+      "shelfLifeTurns": 56,
       "visualKey": "cargo.meatPackage",
       "slotCount": 1,
       "cells": [
@@ -774,7 +774,7 @@
         "Food",
         "Meat"
       ],
-      "shelfLifeHours": 168,
+      "shelfLifeTurns": 56,
       "visualKey": "cargo.beef",
       "slotCount": 2,
       "durability": 100,
@@ -827,7 +827,7 @@
         "Food",
         "Meat"
       ],
-      "shelfLifeHours": 336,
+      "shelfLifeTurns": 112,
       "visualKey": "cargo.beef",
       "slotCount": 2,
       "durability": 100,
@@ -880,7 +880,7 @@
         "Food",
         "Fish"
       ],
-      "shelfLifeHours": 336,
+      "shelfLifeTurns": 112,
       "visualKey": "cargo.fish",
       "slotCount": 2,
       "cells": [
@@ -943,7 +943,7 @@
         "Food",
         "Meat"
       ],
-      "shelfLifeHours": 336,
+      "shelfLifeTurns": 112,
       "visualKey": "cargo.meatPackage",
       "slotCount": 1,
       "cells": [
@@ -993,8 +993,8 @@
       "durability": 100,
       "excludeFromMarket": true,
       "adultPieceId": "piece.cow",
-      "growthHours": 24,
-      "growthBlockedHours": 1,
+      "growthTurns": 8,
+      "growthBlockedTurns": 1,
       "growthDescription": "{0} 후 {1}(으)로 성장 (공간 부족 시 마지막 {2}에서 대기)",
       "baseValue": 20,
       "cells": [
@@ -1103,7 +1103,7 @@
         "Food",
         "Fruit"
       ],
-      "shelfLifeHours": 168,
+      "shelfLifeTurns": 56,
       "visualKey": "cargo.apple",
       "slotCount": 1,
       "durability": 100,
@@ -1504,7 +1504,7 @@
         "Food",
         "Fruit"
       ],
-      "shelfLifeHours": 72,
+      "shelfLifeTurns": 24,
       "visualKey": "cargo.smallCrate",
       "slotCount": 1,
       "cells": [

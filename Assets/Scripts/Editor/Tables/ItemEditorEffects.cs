@@ -187,8 +187,7 @@ public sealed partial class ItemEditorWindow
         using (new EditorGUI.DisabledScope(true))
         {
             EditorGUILayout.IntField("공통 객차 냉장 감소율 (%)", catalog.freshness.wagonRefrigerationReductionPercent);
-            EditorGUILayout.IntField("공통 신선 정산 주기 (시간)", catalog.freshness.settlementIntervalHours);
-            EditorGUILayout.IntField("공통 가치 정산 주기 (시간)", catalog.activationIntervalHours);
+            EditorGUILayout.IntField("공통 가치 정산 주기 (턴)", catalog.activationIntervalTurns);
         }
         var errors = new List<string>();
         new GameTableRules(errors).ValidatePieceEffects(_piece.ToObject<PuzzlePieceData>(), catalog.rules,
