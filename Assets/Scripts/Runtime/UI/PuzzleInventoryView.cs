@@ -129,12 +129,17 @@ public sealed class PuzzleInventoryView : MonoBehaviour
             throw new InvalidOperationException("화물 슬롯의 스프라이트 참조·크기 또는 슬롯 구성이 올바르지 않습니다.");
         }
 
-        if (_boardCapacity > boardCells.Length || _boardCapacity > placementSlots.Length ||
-            _dragCapacity > ghostSlots.Length || _dragCapacity > outlineSlots.Length ||
-            _boardCapacity * synergyArrowsCapacityMultiplier > synergyArrows.Length)
+        if (boardCells.Length == 0 || placementSlots.Length == 0 || ghostSlots.Length == 0 ||
+            outlineSlots.Length == 0 || synergyArrows.Length == 0)
         {
-            throw new InvalidOperationException("화물 테이블과 인벤토리 프리팹의 표시 용량이 맞지 않습니다.");
+            throw new InvalidOperationException("인벤토리 프리팹에 복제할 표시 슬롯이 없습니다.");
         }
+
+        EnsureCapacity(ref boardCells, checked((int)_boardCapacity));
+        EnsureCapacity(ref placementSlots, checked((int)_boardCapacity));
+        EnsureCapacity(ref ghostSlots, checked((int)_dragCapacity));
+        EnsureCapacity(ref outlineSlots, checked((int)_dragCapacity));
+        EnsureCapacity(ref synergyArrows, checked((int)(_boardCapacity * synergyArrowsCapacityMultiplier)));
 
         canvas = parentCanvas.rootCanvas;
         if (canvas.renderMode == RenderMode.WorldSpace && !canvas.worldCamera)
@@ -792,6 +797,25 @@ public sealed class PuzzleInventoryView : MonoBehaviour
     {
         return _slots != null && _slots.Distinct().Count() == _slots.Length &&
             _slots.All(slot => slot && slot.transform.parent == _parent && slot.IsConfigured(_reference));
+    }
+
+    static void EnsureCapacity<T>(ref T[] _pool, int _capacity) where T : Component
+    {
+        int previousCapacity = _pool.Length;
+        if (_capacity <= previousCapacity)
+        {
+            return;
+        }
+
+        T template = _pool[previousCapacity - 1];
+        int siblingIndex = template.transform.GetSiblingIndex() + 1;
+        Array.Resize(ref _pool, _capacity);
+        for (int i = previousCapacity; i < _capacity; i++)
+        {
+            T instance = Instantiate(template, template.transform.parent, false);
+            instance.transform.SetSiblingIndex(siblingIndex++);
+            _pool[i] = instance;
+        }
     }
 
     static void ConfigureSlots(PuzzleSlotVisual[] _slots, Sprite _outlineSprite, Sprite[] _fillSprites = null)

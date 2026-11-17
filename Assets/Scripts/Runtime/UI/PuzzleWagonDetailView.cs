@@ -52,13 +52,14 @@ public sealed class PuzzleWagonDetailView : MonoBehaviour
         {
             priceLabel.text = $"가격: {_product.price:N0} $";
         }
+        var board = TableManager.Instance.RequireValid().Puzzle.train;
         if (sizeLabel)
         {
-            sizeLabel.text = Presentation.WagonSizeLabel(5, 5);
+            sizeLabel.text = Presentation.WagonSizeLabel(board.width, board.height);
         }
         if (formationDeltaLabel)
         {
-            formationDeltaLabel.text = Presentation.WagonFormationDelta(1, 25);
+            formationDeltaLabel.text = Presentation.WagonFormationDelta(1, board.width * board.height);
         }
         if (effectLabel)
         {
