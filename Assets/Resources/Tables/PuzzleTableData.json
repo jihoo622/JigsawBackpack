@@ -1664,7 +1664,7 @@
         }
       ],
       "market": {
-        "width": 7,
+        "width": 10,
         "height": 6,
         "startingPlacements": [
           {
@@ -1737,7 +1737,7 @@
         }
       ],
       "market": {
-        "width": 7,
+        "width": 10,
         "height": 6,
         "startingPlacements": [
           {
@@ -1803,7 +1803,7 @@
         }
       ],
       "market": {
-        "width": 7,
+        "width": 10,
         "height": 6,
         "startingPlacements": [
           {
@@ -1875,7 +1875,7 @@
         }
       ],
       "market": {
-        "width": 7,
+        "width": 10,
         "height": 6,
         "startingPlacements": [
           {
@@ -1935,7 +1935,7 @@
         }
       ],
       "market": {
-        "width": 7,
+        "width": 10,
         "height": 6,
         "startingPlacements": [
           {
@@ -1995,7 +1995,7 @@
         }
       ],
       "market": {
-        "width": 7,
+        "width": 10,
         "height": 6,
         "startingPlacements": [
           {
@@ -2061,7 +2061,7 @@
         }
       ],
       "market": {
-        "width": 7,
+        "width": 10,
         "height": 6,
         "startingPlacements": [
           {
@@ -2121,7 +2121,7 @@
         }
       ],
       "market": {
-        "width": 7,
+        "width": 10,
         "height": 6,
         "startingPlacements": [
           {
@@ -2208,7 +2208,7 @@
         }
       ],
       "market": {
-        "width": 7,
+        "width": 10,
         "height": 6,
         "startingPlacements": [
           {
@@ -2274,7 +2274,7 @@
         }
       ],
       "market": {
-        "width": 7,
+        "width": 10,
         "height": 6,
         "startingPlacements": [
           {
@@ -2340,7 +2340,7 @@
         }
       ],
       "market": {
-        "width": 7,
+        "width": 10,
         "height": 6,
         "startingPlacements": [
           {
@@ -2406,7 +2406,7 @@
         }
       ],
       "market": {
-        "width": 7,
+        "width": 10,
         "height": 6,
         "startingPlacements": [
           {
@@ -2478,7 +2478,7 @@
         }
       ],
       "market": {
-        "width": 7,
+        "width": 10,
         "height": 6,
         "startingPlacements": [
           {
@@ -2550,7 +2550,7 @@
         }
       ],
       "market": {
-        "width": 7,
+        "width": 10,
         "height": 6,
         "startingPlacements": [
           {
@@ -2622,7 +2622,7 @@
         }
       ],
       "market": {
-        "width": 7,
+        "width": 10,
         "height": 6,
         "startingPlacements": [
           {
@@ -2694,7 +2694,7 @@
         }
       ],
       "market": {
-        "width": 7,
+        "width": 10,
         "height": 6,
         "startingPlacements": [
           {
@@ -2766,7 +2766,7 @@
         }
       ],
       "market": {
-        "width": 7,
+        "width": 10,
         "height": 6,
         "startingPlacements": [
           {
@@ -2844,7 +2844,7 @@
         }
       ],
       "market": {
-        "width": 7,
+        "width": 10,
         "height": 6,
         "startingPlacements": [
           {
@@ -2916,7 +2916,7 @@
         }
       ],
       "market": {
-        "width": 7,
+        "width": 10,
         "height": 6,
         "startingPlacements": [
           {
@@ -2994,7 +2994,7 @@
         }
       ],
       "market": {
-        "width": 7,
+        "width": 10,
         "height": 6,
         "startingPlacements": [
           {
@@ -3054,7 +3054,7 @@
         }
       ],
       "market": {
-        "width": 7,
+        "width": 10,
         "height": 6,
         "startingPlacements": [
           {
@@ -3114,7 +3114,7 @@
         }
       ],
       "market": {
-        "width": 7,
+        "width": 10,
         "height": 6,
         "startingPlacements": [
           {
@@ -3174,7 +3174,7 @@
         }
       ],
       "market": {
-        "width": 7,
+        "width": 10,
         "height": 6,
         "startingPlacements": [
           {
@@ -3234,7 +3234,7 @@
         }
       ],
       "market": {
-        "width": 7,
+        "width": 10,
         "height": 6,
         "startingPlacements": [
           {
@@ -3306,7 +3306,7 @@
         }
       ],
       "market": {
-        "width": 7,
+        "width": 10,
         "height": 6,
         "startingPlacements": [
           {
@@ -3378,7 +3378,7 @@
         }
       ],
       "market": {
-        "width": 7,
+        "width": 10,
         "height": 6,
         "startingPlacements": [
           {
@@ -3444,7 +3444,7 @@
         }
       ],
       "market": {
-        "width": 7,
+        "width": 10,
         "height": 6,
         "startingPlacements": [
           {
@@ -3510,7 +3510,7 @@
         }
       ],
       "market": {
-        "width": 7,
+        "width": 10,
         "height": 6,
         "startingPlacements": [
           {
@@ -3576,7 +3576,7 @@
         }
       ],
       "market": {
-        "width": 7,
+        "width": 10,
         "height": 6,
         "startingPlacements": [
           {
@@ -3617,7 +3617,7 @@
       "sellPercentOfFinalValue": 100,
       "tagPrices": [],
       "market": {
-        "width": 7,
+        "width": 10,
         "height": 6,
         "startingPlacements": [
           {
@@ -3683,7 +3683,7 @@
         }
       ],
       "market": {
-        "width": 7,
+        "width": 10,
         "height": 6,
         "startingPlacements": [
           {
@@ -3898,6 +3898,20 @@
           "id": "random.1",
           "x": 4,
           "y": 5,
+          "width": 3,
+          "height": 2
+        },
+        {
+          "id": "random.2",
+          "x": 7,
+          "y": 5,
+          "width": 3,
+          "height": 2
+        },
+        {
+          "id": "random.3",
+          "x": 7,
+          "y": 3,
           "width": 3,
           "height": 2
         }

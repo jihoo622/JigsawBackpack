@@ -1016,22 +1016,6 @@ PrefabInstance:
       propertyPath: m_fontSize
       value: 16.55
       objectReference: {fileID: 0}
-    - target: {fileID: 3311483417254657786, guid: 526d8ecf65598914ea58a4cfd7eaa5c7, type: 3}
-      propertyPath: m_AnchorMax.x
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 3311483417254657786, guid: 526d8ecf65598914ea58a4cfd7eaa5c7, type: 3}
-      propertyPath: m_AnchorMin.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3311483417254657786, guid: 526d8ecf65598914ea58a4cfd7eaa5c7, type: 3}
-      propertyPath: m_SizeDelta.x
-      value: -48
-      objectReference: {fileID: 0}
-    - target: {fileID: 3311483417254657786, guid: 526d8ecf65598914ea58a4cfd7eaa5c7, type: 3}
-      propertyPath: m_SizeDelta.y
-      value: -200
-      objectReference: {fileID: 0}
     - target: {fileID: 3632962587009573123, guid: 526d8ecf65598914ea58a4cfd7eaa5c7, type: 3}
       propertyPath: m_AnchorMax.y
       value: 1
