@@ -2142,7 +2142,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
             if (result.Direction == PuzzleTradeDirection.Sell)
             {
                 GrantSaleProficiency(_original, result.Price);
-                // 판매한 의뢰 화물은 기차에서 사라지므로 그 의뢰는 실패한다.
+                // 판매한 의뢰 화물은 이 역 시장 보드에 남는 동안 되살 수 있고, 처분(음수 가치)으로 사라졌으면 실패한다.
                 CheckQuestFailures();
             }
         }
