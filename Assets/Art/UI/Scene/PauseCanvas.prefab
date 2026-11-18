@@ -121,6 +121,8 @@ MonoBehaviour:
   restartButton: {fileID: 4017546953428213944}
   panelTitle: {fileID: 5194603132674944345}
   panelHint: {fileID: 6139833009433138891}
+  endlessButton: {fileID: 6012698890285892508}
+  endlessLabel: {fileID: 5798005228944575978}
 --- !u!1001 &5567013896940411511
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -221,6 +223,10 @@ PrefabInstance:
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 9178174195902158084}
+    - target: {fileID: 2176193461616351723, guid: 34dcae906fcc1084489159b5f8c06c52, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value:
+      objectReference: {fileID: 9178174195902158084}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -269,3 +275,25 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 2320516697985278152, guid: 34dcae906fcc1084489159b5f8c06c52, type: 3}
   m_PrefabInstance: {fileID: 5567013896940411511}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &6012698890285892508 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2176193461616351723, guid: 34dcae906fcc1084489159b5f8c06c52, type: 3}
+  m_PrefabInstance: {fileID: 5567013896940411511}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
+--- !u!114 &5798005228944575978 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2104490190127142813, guid: 34dcae906fcc1084489159b5f8c06c52, type: 3}
+  m_PrefabInstance: {fileID: 5567013896940411511}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI

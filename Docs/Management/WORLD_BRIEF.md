@@ -14,7 +14,7 @@
 ## 2. 한 판의 구조 (세계관이 지켜야 할 틀)
 
 - 플레이어는 기차 한 대로 마을을 오가며 화물을 사고판다. 화물은 격자 칸에 모양대로 끼워 싣는다.
-- 빚 1,500, 시작 자금 200. 14일(336시간) 안에 **금융마을**에서 직접 '상환'을 누르면 승리, 기한을 넘기면 패배다.
+- 금융마을에서 시작 자금 200으로 출발한다. 14일(56턴) 뒤 결산 잔액이 점수이며 목표 잔액 1,500 이상이면 승리, 미만이면 패배다.
 - 출발은 에른아 공업역 고정이다. 재시작하면 모든 상태가 초기화되고 판 사이 연속성은 없다.
 - 하루는 06:00 시작, 낮 18시간·밤 6시간(00:00~06:00). 밤에는 시장이 닫힌다.
 - 이동은 직접 연결된 역으로만 하며 시간과 운임이 든다. 이동 중 사건은 아직 없다.
@@ -113,10 +113,10 @@
 | 술집 의뢰 | 방문당 2개. 의뢰 틀(신선 식품 / 소포·공구 상자)을 가중치로 뽑고, 최단 시간 범위 안의 목적지를 무작위로 고른다. 목적지 도착 시 자동 완료 | 규칙·수치 `TrainventoryQuestTableData`, 문구 `presentation.quest.*`, 화물 `PuzzleTableData` 의뢰 품목 | 문구 변경, 의뢰 틀 추가(기존 운송 규칙 안에서), 의뢰 화물 추가 | 의뢰인·세력·사연 필드, 이어지는 의뢰(퀘스트라인), 특정 마을·날짜에만 나오는 의뢰, 납품 의뢰 |
 | 의뢰 실패 패널티 | 보증금 몰수 또는 의뢰 지역 72시간 거래 불이익 | `TrainventoryQuestTableData.penalties` | 이름·설명·수치 변경 | 새 패널티 종류("보상이 문제를 일으킴" 등) |
 | 거래 숙련·평판 | 생산 태그 10종별 경험치·레벨. 평판 = 레벨 합. 평판이 오르면 동시 의뢰 수가 는다 | `TrainventoryProficiencyTableData`, 문구 `presentation.proficiency.*` | 문구 변경 | 칭호, 세력별 평판, 평판으로 열리는 이야기 |
-| 마을 작업대 | 도축·정제·개조 | `PuzzleCityActionTableData`(title·description) | 이름·설명 변경 | 새 종류의 작업대 |
+| 작업장 | 도축·정제·개조 | `TrainventoryWorkshopTableData`(title·description), 작업은 `TrainventoryWorkTableData`(displayName·description) | 이름·설명 변경 | 새 종류의 작업장 |
 | 화차 상품 | 일반 화차·냉장 화차 | `PuzzleTradeTableData.wagonProducts` | 이름 변경 | |
 | 마을·지역 이름 | 지도와 화면 전체에 표시 | `PuzzleTableData.cities[].displayName`(Map Editor로 편집) | 표시 이름 변경. ID(`city.*`)는 유지한다 | |
-| 승패 | 상환 버튼, 패배 결과 패널 | `presentation.inventory.clearButton`·`runStatusText`·`lossSummary` | 문구 변경 | 결말 분기, 후일담, 신문 1면 연출 |
+| 승패 | 결산 버튼, 결과 패널 | `presentation.inventory.clearButton`·`runStatusText`·`lossSummary` | 문구 변경 | 결말 분기, 후일담, 신문 1면 연출 |
 
 **아직 없는 것** (세계관이 필요로 하면 구현 과제가 된다)
 
@@ -148,6 +148,6 @@
 ## 8. 작업 절차
 
 1. 세계관 결정은 [세계관 기획서](<../세계관 기획서.md>)에 쓴다. 초안을 확정하면 해당 항목을 '확정'으로 옮긴다.
-2. 게임 규칙이 바뀌면(예: 세력 기운이 가격을 바꿈) [게임 기획서](<../게임 기획서.md>)를 함께 고치고 노션 동기화 규칙([NOTION_SYNC](NOTION_SYNC.md))을 따른다.
+2. 게임 규칙이 바뀌면(예: 세력 기운이 가격을 바꿈) [게임 기획서](<../게임 기획서.md>)를 함께 고친다.
 3. 문구만 바꾸는 작업은 테이블 JSON을 고치고 `Tools/MyJG/Tables/Reload Tables`로 검증한다.
 4. 구현이 필요한 항목은 [BACKLOG](BACKLOG.md)에 과제로 남긴다.

@@ -38,7 +38,13 @@ public sealed partial class PuzzleInventoryService
             return PuzzleRoutePlanFailure.SameCity;
         }
 
-        var path = PuzzleRoutePlanner.FindFastestPath(tables, CurrentCityId, _destinationCityId);
+        // 전장의 안개: 지도에 없는 역은 고를 수 없고, 경로는 아는 노선만 잇는다.
+        if (CityVisibility(_destinationCityId) == PuzzleMapVisibility.Hidden)
+        {
+            return PuzzleRoutePlanFailure.InvalidCity;
+        }
+        var path = PuzzleRoutePlanner.FindFastestPath(tables, CurrentCityId, _destinationCityId,
+            _route => IsRouteKnown(_route.fromCityId, _route.toCityId));
         if (path == null || path.Count < 2)
         {
             return PuzzleRoutePlanFailure.Unreachable;
@@ -67,15 +73,7 @@ public sealed partial class PuzzleInventoryService
 
         RoutePlan = new PuzzleRoutePlan(path, stops);
 
-        long totalTurns = 0;
-        for (int i = 0; i < path.Count - 1; i++)
-        {
-            if (tables.TryGetRoute(path[i], path[i + 1], out var legRoute))
-            {
-                totalTurns += PuzzleTimeManager.TravelTurns(legRoute, tables.PuzzleTime);
-            }
-        }
-
+        long totalTurns = (path.Count - 1) * (long)tables.PuzzleTime.travelTurns;
         int stopsCount = 1 + stops.Count;
         GameEvents.RaiseRoutePlanned(new GameEvents.RoutePlannedInfo(this, CurrentCityId, _destinationCityId,
             path.Count - 1, totalTurns, stopsCount));
@@ -163,7 +161,6 @@ public sealed partial class PuzzleInventoryService
         }
 
         int legs = RoutePlan.RemainingLegs;
-        long totalTurns = 0;
         long estimatedCost = 0;
         long firstLegCost = 0;
         int cells = TotalTrainOccupiedCells;
@@ -174,9 +171,7 @@ public sealed partial class PuzzleInventoryService
             string v = RoutePlan.Cities[i + 1];
             if (tables.TryGetRoute(u, v, out var route))
             {
-                long legTurns = PuzzleTimeManager.TravelTurns(route, tables.PuzzleTime);
-                totalTurns += legTurns;
-                if (TryTravelCost(route.cost, route.turns, tables.PuzzleRoute.costPerTurn,
+                if (TryTravelCost(route.cost, route.distance, tables.PuzzleRoute.costPerDistance,
                     cells, tables.PuzzleRoute.costPerCell, out long cost, out _))
                 {
                     estimatedCost += cost;
@@ -188,11 +183,12 @@ public sealed partial class PuzzleInventoryService
             }
         }
 
-        int arrivalClockTurns = (int)((Time.TurnOfDay + totalTurns % PuzzleTimeManager.TURNS_PER_DAY) % PuzzleTimeManager.TURNS_PER_DAY);
-        bool arrivalIsNight = Time.IsNightAt(Time.ArrivalAt(totalTurns));
+        long totalTurns = legs * (long)tables.PuzzleTime.travelTurns;
+        long arrival = Time.ElapsedHours + PuzzleTimeManager.HoursOf(totalTurns);
         bool affordableNow = Funds >= firstLegCost;
 
-        return new PuzzleRouteQuote(legs, totalTurns, estimatedCost, arrivalClockTurns, arrivalIsNight, affordableNow);
+        return new PuzzleRouteQuote(legs, totalTurns, estimatedCost, Time.TurnSlotAt(arrival), Time.IsNightAt(arrival),
+            affordableNow);
     }
 
     // 계획의 다음 구간을 지금 이동한다면의 평가(EvaluateTravel과 같은 결과). 계획이 없으면 NotAvailable.
@@ -221,29 +217,9 @@ public sealed partial class PuzzleInventoryService
         bool isStop = RoutePlan.IsStop(nextCityId);
         bool passThrough = !isStop;
 
+        // 경로 계획 진행(구간 전진·완료)은 TravelLeg가 한다.
         var result = TravelLeg(nextCityId, passThrough);
-        if (!result.IsSuccess)
-        {
-            return result;
-        }
-
-        _stopped = !passThrough;
-        // 구간 중 기한이 지나 판이 끝나면 계획은 이미 지워졌다(HandleRunStatusChanged).
-        if (RoutePlan == null)
-        {
-            return result;
-        }
-        RoutePlan.Advance();
-
-        if (_stopped && string.Equals(nextCityId, RoutePlan.DestinationCityId, StringComparison.Ordinal))
-        {
-            EndRoutePlan(PuzzleRouteEndReason.Completed);
-        }
-        else
-        {
-            GameEvents.RaiseRoutePlanChanged(new GameEvents.RoutePlanInfo(this));
-        }
-
+        _stopped = result.IsSuccess && !passThrough;
         return result;
     }
 
@@ -327,19 +303,22 @@ internal enum PuzzleRouteEndReason
 internal readonly struct PuzzleRouteQuote
 {
     internal int Legs { get; }
+    // 남은 계획 구간의 이동 턴 합.
     internal long TotalTurns { get; }
     // 지금 기차 점유 칸 수로 계산한 운임 합계(경유역 거래로 달라지는 추정치).
     internal long EstimatedCost { get; }
-    internal int ArrivalClockTurns { get; }
+    // 도착 턴의 시간대(0 새벽, 1 오전, 2 오후, 3 저녁).
+    internal int ArrivalTurnSlot { get; }
     internal bool ArrivalIsNight { get; }
     internal bool AffordableNow { get; }
 
-    internal PuzzleRouteQuote(int _legs, long _totalTurns, long _estimatedCost, int _arrivalClockTurns, bool _arrivalIsNight, bool _affordableNow)
+    internal PuzzleRouteQuote(int _legs, long _totalTurns, long _estimatedCost, int _arrivalTurnSlot,
+        bool _arrivalIsNight, bool _affordableNow)
     {
         Legs = _legs;
         TotalTurns = _totalTurns;
         EstimatedCost = _estimatedCost;
-        ArrivalClockTurns = _arrivalClockTurns;
+        ArrivalTurnSlot = _arrivalTurnSlot;
         ArrivalIsNight = _arrivalIsNight;
         AffordableNow = _affordableNow;
     }

@@ -12,8 +12,14 @@ public sealed class PauseMenu : PanelBase
     [SerializeField] Button restartButton;
     [SerializeField] TextMeshProUGUI panelTitle;
     [SerializeField] TextMeshProUGUI panelHint;
+    // 승리 결산 패널에서만 켜는 무한 모드 버튼.
+    [SerializeField] Button endlessButton;
+    [SerializeField] TextMeshProUGUI endlessLabel;
 
     float previousTimeScale;
+    bool offerEndless;
+    string pauseTitle;
+    string pauseHint;
     bool paused;
     bool restoreInventoryInput;
     bool showingCompletion;
@@ -47,6 +53,9 @@ public sealed class PauseMenu : PanelBase
 
     protected override void Awake()
     {
+        // 일시정지 제목·안내는 프리팹 문구다. 결산 패널이 덮어쓴 뒤 무한 모드로 돌아오면 되살린다.
+        pauseTitle = panelTitle ? panelTitle.text : string.Empty;
+        pauseHint = panelHint ? panelHint.text : string.Empty;
         var input = inventoryInput ? inventoryInput : SceneServices.Find<PuzzleInventoryInput>(gameObject.scene);
         if (input && input.ActionsAsset)
         {
@@ -307,6 +316,11 @@ public sealed class PauseMenu : PanelBase
             return;
         }
         showingCompletion = true;
+        offerEndless = _status == PuzzleRunStatus.Won && endlessButton;
+        if (offerEndless && endlessLabel)
+        {
+            endlessLabel.text = Presentation.PuzzleEndlessContinue;
+        }
         panelTitle.text = Presentation.PuzzleRunStatusText(_status);
         panelHint.text = _status == PuzzleRunStatus.Won
             ? Presentation.PuzzleClearSummary(_funds)
@@ -323,6 +337,10 @@ public sealed class PauseMenu : PanelBase
         paused = true;
         previousTimeScale = Time.timeScale;
         Time.timeScale = 0f;
+        if (endlessButton)
+        {
+            endlessButton.gameObject.SetActive(showingCompletion && offerEndless);
+        }
         restoreInventoryInput = inventoryInput && inventoryInput.enabled;
         if (restoreInventoryInput)
         {
@@ -332,7 +350,9 @@ public sealed class PauseMenu : PanelBase
         if (EventSystem.current)
         {
             previousSelection = EventSystem.current.currentSelectedGameObject;
-            EventSystem.current.SetSelectedGameObject(restartButton.gameObject);
+            EventSystem.current.SetSelectedGameObject(showingCompletion && offerEndless
+                ? endlessButton.gameObject
+                : restartButton.gameObject);
         }
     }
 
@@ -354,6 +374,21 @@ public sealed class PauseMenu : PanelBase
                 ? previousSelection : null);
         }
         previousSelection = null;
+    }
+
+    // 승리 결산 패널의 무한 모드 버튼. 마감을 없애고 같은 판을 이어 간다.
+    public void ContinueEndless()
+    {
+        var session = SceneServices.For<PuzzleInventoryService>(gameObject.scene);
+        if (!showingCompletion || !offerEndless || session == null || !session.TryContinueEndless())
+        {
+            return;
+        }
+        showingCompletion = false;
+        offerEndless = false;
+        panelTitle.text = pauseTitle;
+        panelHint.text = pauseHint;
+        Close();
     }
 
     public void RestartGame()

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 [DisallowMultipleComponent]
@@ -82,7 +83,13 @@ public sealed class MapSearchPresenter : MonoBehaviour
         }
 
         EnsureSearchEntries();
-        currentMatches = KoreanSearch.Search(searchEntries, _query, MapSearchView.SLOT_COUNT, out int total);
+        // 전장의 안개: 지도에 없는 역은 찾지 않는다. 지역 이름은 처음부터 안다.
+        var service = SceneServices.For<PuzzleInventoryService>(gameObject.scene);
+        var entries = service == null ? searchEntries : searchEntries
+            .Where(_entry => _entry.kind != EntityLinkKind.City ||
+                service.CityVisibility(_entry.id) != PuzzleMapVisibility.Hidden)
+            .ToList();
+        currentMatches = KoreanSearch.Search(entries, _query, MapSearchView.SLOT_COUNT, out int total);
 
         string currentCityId = GetCurrentCityId();
         if (view != null)

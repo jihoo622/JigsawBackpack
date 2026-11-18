@@ -36,6 +36,7 @@ public sealed class PuzzleTrainBarView : MonoBehaviour, IBeginDragHandler, IDrag
     [SerializeField] float originY = 0f;
 
     int ownedWagonCount = -1;
+    int currentMaxWagonCount;
     bool dropHintVisible;
     int? draggedWagonIndex;
     int dragPointerId;
@@ -71,7 +72,7 @@ public sealed class PuzzleTrainBarView : MonoBehaviour, IBeginDragHandler, IDrag
 
     void Awake()
     {
-        int maxWagonCount = TableManager.Instance?.PuzzleTrade?.maxWagonCount ?? 0;
+        int maxWagonCount = TableManager.Instance?.MaxWagonCountCeiling ?? 0;
         if (maxWagonCount > 0 && (wagonSlots == null || wagonSlots.Length < maxWagonCount))
         {
             throw new InvalidOperationException($"객차 바 슬롯 수({wagonSlots?.Length ?? 0})가 최대 객차 수({maxWagonCount})보다 적습니다.");
@@ -260,18 +261,21 @@ public sealed class PuzzleTrainBarView : MonoBehaviour, IBeginDragHandler, IDrag
         return false;
     }
 
-    internal void Refresh(IReadOnlyList<PuzzleInventory> _wagons, int _selectedIndex, int? _dragHoveredIndex = null)
+    // _maxWagonCount: 지금 평판에서 허용하는 증차 상한(세션 계산값). 빈 슬롯의 구매 안내 표시에 쓴다.
+    internal void Refresh(IReadOnlyList<PuzzleInventory> _wagons, int _selectedIndex, int _maxWagonCount,
+        int? _dragHoveredIndex = null)
     {
         if (wagonSlots == null)
         {
             return;
         }
 
-        int maxWagonCount = TableManager.Instance?.PuzzleTrade?.maxWagonCount ?? 0;
+        int maxWagonCount = TableManager.Instance?.MaxWagonCountCeiling ?? 0;
         if (maxWagonCount > 0 && wagonSlots.Length < maxWagonCount)
         {
             throw new InvalidOperationException($"객차 바 슬롯 수({wagonSlots.Length})가 최대 객차 수({maxWagonCount})보다 적습니다.");
         }
+        currentMaxWagonCount = _maxWagonCount;
 
         ownedWagonCount = Mathf.Min(_wagons.Count, wagonSlots.Length);
         dropHintVisible = PuzzleWagonProductRow.IsDraggingProduct;
@@ -385,8 +389,7 @@ public sealed class PuzzleTrainBarView : MonoBehaviour, IBeginDragHandler, IDrag
         {
             return false;
         }
-        int maxWagonCount = TableManager.Instance?.PuzzleTrade?.maxWagonCount ?? 0;
-        return maxWagonCount <= 0 || ownedWagonCount < maxWagonCount;
+        return ownedWagonCount < currentMaxWagonCount;
     }
 
     void RefreshSlotHighlight(WagonSlotUI _slot, int _index, int _selectedIndex, int? _dragHoveredIndex)

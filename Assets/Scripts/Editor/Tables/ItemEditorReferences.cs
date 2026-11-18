@@ -52,9 +52,9 @@ public sealed partial class ItemEditorWindow
             EditorGUILayout.HelpBox("시장 제외 품목에 기존 시장 참조가 있습니다. 아래 참조처의 원본 테이블에서 정합성을 맞춰주세요.", MessageType.Error);
         }
         if ((bool?)_piece["exemptFromModification"] == true && directPieceReferences.Any(_reference =>
-            _reference.StartsWith(nameof(PuzzleCityActionTableData), StringComparison.Ordinal)))
+            _reference.StartsWith(nameof(TrainventoryWorkTableData), StringComparison.Ordinal)))
         {
-            EditorGUILayout.HelpBox("개조 매핑 검사 제외를 켜도 기존 마을 행동의 입력·산출 참조가 남습니다. 등록된 변환은 아래에서 확인하세요.", MessageType.Warning);
+            EditorGUILayout.HelpBox("개조 매핑 검사 제외를 켜도 기존 작업(WorksData)의 입력·산출 참조가 남습니다. 등록된 변환은 아래에서 확인하세요.", MessageType.Warning);
         }
         MarkValidationField("references");
         showReferences = EditorGUILayout.Foldout(showReferences,

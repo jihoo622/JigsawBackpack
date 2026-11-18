@@ -3,13 +3,13 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-// 상단 시간 칸 아랫줄의 정산 표시. 24시간 낮·밤 막대 위에 정산 시각 눈금을 긋고(다음 정산은 강조색),
-// 막대 아래 띠로 이번 정산 주기의 진행을 채운다. 오른쪽 글자는 남은 시간·예상치다.
+// 상단 시간 칸 아랫줄의 정산 표시. 지금을 가운데 고정한 24시간 낮·밤 막대 위에 정산 시각 눈금을 긋고(다음 정산은 강조색),
+// 막대 아래 띠로 지금부터 다음 정산까지를 칠한다. 오른쪽 글자는 남은 시간·예상치다.
 // 눈금은 프리팹에 미리 배치한 Image를 켜고 끈다(런타임 생성 금지). 값은 PuzzleSettlementGaugePresenter가 넣는다.
 public sealed class PuzzleSettlementGaugeView : MonoBehaviour
 {
     [SerializeField] TextMeshProUGUI label;
-    // 진행 띠. 자정을 넘는 주기는 두 칸으로 나눈다.
+    // 진행 띠. 지금(가운데)에서 다음 정산까지라 창 끝을 넘지 않으므로 progressA만 쓴다. progressB는 꺼 둔다.
     [SerializeField] Image progressA;
     [SerializeField] Image progressB;
     [SerializeField] RectTransform[] ticks;
@@ -28,15 +28,19 @@ public sealed class PuzzleSettlementGaugeView : MonoBehaviour
         progressB.color = Presentation.PuzzleTimeAccent;
     }
 
-    // _start·_now: 하루(0~1) 위 이번 주기 시작과 지금. _ticks: 다음 정산부터 차례로 하루 위 위치(개수는 _tickCount).
-    internal void Render(string _text, float _start, float _now, float[] _ticks, int _tickCount)
+    // _from·_to: 창(0~1) 위 진행 띠 범위(지금 → 다음 정산). _ticks: 창 위 눈금 위치(개수 _tickCount), _accent: 다음 정산 눈금.
+    internal void Render(float _from, float _to, float[] _ticks, int _tickCount, int _accent)
     {
-        label.text = _text;
-        ShowProgress(_start, _now);
+        progressA.gameObject.SetActive(true);
+        SetSpan(progressA, _from, Mathf.Min(_to, 1f));
+        progressB.gameObject.SetActive(false);
         for (int i = 0; i < ticks.Length; i++)
         {
             bool used = i < _tickCount;
-            ticks[i].gameObject.SetActive(used);
+            if (ticks[i].gameObject.activeSelf != used)
+            {
+                ticks[i].gameObject.SetActive(used);
+            }
             if (!used)
             {
                 continue;
@@ -46,9 +50,14 @@ public sealed class PuzzleSettlementGaugeView : MonoBehaviour
             ticks[i].anchoredPosition = new Vector2(0f, ticks[i].anchoredPosition.y);
             if (ticks[i].TryGetComponent<Graphic>(out var graphic))
             {
-                graphic.color = i == 0 ? Presentation.PuzzleTimeAccent : Presentation.GaugeTick;
+                graphic.color = i == _accent ? Presentation.PuzzleTimeAccent : Presentation.GaugeTick;
             }
         }
+    }
+
+    internal void SetLabel(string _text)
+    {
+        label.text = _text;
     }
 
     internal void Clear(string _text)
@@ -59,18 +68,6 @@ public sealed class PuzzleSettlementGaugeView : MonoBehaviour
         for (int i = 0; i < ticks.Length; i++)
         {
             ticks[i].gameObject.SetActive(false);
-        }
-    }
-
-    void ShowProgress(float _start, float _now)
-    {
-        bool wraps = _now < _start;
-        progressA.gameObject.SetActive(true);
-        SetSpan(progressA, _start, wraps ? 1f : _now);
-        progressB.gameObject.SetActive(wraps);
-        if (wraps)
-        {
-            SetSpan(progressB, 0f, _now);
         }
     }
 

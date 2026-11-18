@@ -62,19 +62,19 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
     decimal? pendingFreshnessLossValue;
     bool pendingFundsRefresh;
     bool isTravelOpen;
+    // 시장 보드가 마지막으로 그린 시장. 도시를 옮기거나 개장으로 새로 채워지면 객체가 바뀐다.
+    PuzzleInventory shownMarket;
     bool TrainOperationsBlocked => isTravelOpen;
     bool MarketOperationsBlocked => isMapOpen || isTravelOpen;
 
     void Start()
     {
-        if (!initialized || !objectiveView || session.RunStatus != PuzzleRunStatus.InProgress ||
-            string.IsNullOrEmpty(session.DebtCityId))
+        if (!initialized || !objectiveView || session.RunStatus != PuzzleRunStatus.InProgress)
         {
             return;
         }
 
-        var destination = TableManager.Instance.CityPrice(session.DebtCityId);
-        objectiveView.ShowObjective(session.GameClearCost, destination.displayName);
+        objectiveView.ShowObjective(session.TargetFunds, session.Time.DeadlineHours);
     }
 
     void OnEnable()
@@ -111,7 +111,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         ConfigureButcheryView();
         ConfigureModificationView();
         ConfigureRefiningView();
-        cityView.Initialize(session.GameClearCost);
+        cityView.Initialize(session.TargetFunds);
         cityView.InitializeTown(GetTavernRumor);
         ShowCurrentCity();
         cityView.SetTown(session.CityData.displayName, session.RunStatus == PuzzleRunStatus.InProgress);
@@ -141,6 +141,9 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         }
         GameEvents.CityArrived += OnCityArrived;
         GameEvents.TimeAdvanced += OnTimeAdvanced;
+        GameEvents.PuzzleRunSettled += OnRunSettled;
+        GameEvents.PuzzleRunContinued += OnRunContinued;
+        GameEvents.PuzzleActionCommitted += OnPuzzleActionCommitted;
         GameEvents.PanelVisibility += OnPanelVisibility;
         GameEvents.TravelPreviewChanged += OnTravelPreviewChanged;
         GameEvents.ButcheryChanged += OnButcheryChanged;
@@ -219,6 +222,9 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         pendingFundsRefresh = false;
         GameEvents.CityArrived -= OnCityArrived;
         GameEvents.TimeAdvanced -= OnTimeAdvanced;
+        GameEvents.PuzzleRunSettled -= OnRunSettled;
+        GameEvents.PuzzleRunContinued -= OnRunContinued;
+        GameEvents.PuzzleActionCommitted -= OnPuzzleActionCommitted;
         GameEvents.PanelVisibility -= OnPanelVisibility;
         GameEvents.TravelPreviewChanged -= OnTravelPreviewChanged;
         GameEvents.ButcheryChanged -= OnButcheryChanged;
@@ -262,7 +268,6 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             }
             return;
         }
-
         if (drag == null)
         {
             if (hoveredWagonIndex.HasValue)
@@ -332,7 +337,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
 
         SetDragView(null);
         trainView.SetTitle(Presentation.PuzzleTrainTitle(session.Train));
-        trainView.SetBoardSize(session.Train.Width, session.Train.Height, session.Train.BlockedCells);
+        trainView.SetBoard(session.Train);
         RenderBoards();
         RenderValues();
         RefreshTrainBar();
@@ -386,20 +391,111 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
 
     #endregion
 
+    // 시계가 흐른 뒤의 가벼운 갱신. 도시·보드 크기는 그대로이므로 다시 잡지 않고, 화물 표시·가치·상태 글자만 맞춘다.
+    // 떠 있는 툴팁과 상세 정보는 닫지 않고 RefreshHover가 새 진행도로 다시 그린다.
+    void RefreshAfterTimeAdvance()
+    {
+        bool inProgress = session.RunStatus == PuzzleRunStatus.InProgress;
+        cityView.ShowTime(session.Time);
+        RefreshFunds();
+        cityView.ShowTradeStatus(inProgress
+            ? session.IsMarketOpen ? string.Empty : Presentation.PuzzleNightMarket
+            : Presentation.PuzzleRunStatusText(session.RunStatus));
+        marketView.SetMarketOpen(session.CanTradeInMarket);
+        RefreshWaitAction();
+        SyncMarketBoard();
+        RenderValues();
+        RefreshTrainBar();
+    }
+
+    // 이동(통과 포함)·개장 보충으로 시장이 바뀌면 보드 크기·화물·도시 제목을 새 시장으로 다시 잡는다.
+    // 이동 연출 중에는 RefreshHover가 보드를 그리지 않으므로 여기서 직접 그려야 이전 시장이 남지 않는다.
+    void SyncMarketBoard()
+    {
+        if (shownMarket == session.Market)
+        {
+            return;
+        }
+
+        shownMarket = session.Market;
+        cityView.ShowCity(Presentation.PuzzleCityTitle(session.CityData, session.RegionData));
+        marketView.SetBoardSize(session.Market.Width, session.Market.Height, session.Market.BlockedCells);
+        if (currentHoveredInstanceId.HasValue && !session.Train.Placements.Any(_item => _item.InstanceId == currentHoveredInstanceId.Value))
+        {
+            currentHoveredInstanceId = null;
+            if (tooltipView)
+            {
+                tooltipView.Close();
+            }
+        }
+        marketView.ShowItemDetails(null, default, default, default);
+        RenderBoards(currentHoveredInstanceId);
+    }
+
+    // 역 시설 진입은 시간을 쓰지 않아 TimeAdvanced가 오지 않는다. 진입이 확정되면 시장 보드의 거래 가능 여부만 바로 다시 그린다.
+    void OnPuzzleActionCommitted(GameEvents.PuzzleActionInfo _info)
+    {
+        if (_info.session != session || !initialized ||
+            (_info.action != PuzzleActionKind.EnterMarket && _info.action != PuzzleActionKind.EnterTavern &&
+            _info.action != PuzzleActionKind.EnterWagonFacility))
+        {
+            return;
+        }
+        marketView.SetMarketOpen(session.CanTradeInMarket);
+    }
+
+    // 영업 기간이 끝나 자동 결산되면 결과 패널을 연다(승리·패배 모두).
+    void OnRunSettled(GameEvents.PuzzleRunInfo _info)
+    {
+        if (_info.session != session || !initialized)
+        {
+            return;
+        }
+        if (drag != null)
+        {
+            input.CancelCapture();
+            ClearDrag();
+        }
+        RenderBoards();
+        cityView.SetTown(session.CityData.displayName, false);
+        RefreshFunds();
+        cityView.ShowTradeStatus(Presentation.PuzzleRunStatusText(session.RunStatus));
+        RefreshTrainBar();
+        pauseMenu.ShowCompletion(session.RunStatus, session.Funds);
+    }
+
+    // 무한 모드로 이어 가면 진행 중 표시로 되돌린다. 마감이 사라져 시계의 남은 기간 표시는 숨는다.
+    void OnRunContinued(GameEvents.PuzzleRunInfo _info)
+    {
+        if (_info.session != session || !initialized)
+        {
+            return;
+        }
+        cityView.SetTown(session.CityData.displayName, true);
+        cityView.ShowEndless();
+        RefreshAfterTimeAdvance();
+        RenderBoards();
+    }
+
     void OnTimeAdvanced(GameEvents.TimeAdvanceInfo _info)
     {
         if (_info.session != session)
         {
             return;
         }
-        input.CancelCapture();
-        ClearDrag();
-        ShowCurrentCity();
+        // 시간은 이동·휴식·작업 확정으로만 흐르므로 보통 드래그가 없다. 남아 있으면 안전하게 정리한다.
+        if (drag != null)
+        {
+            input.CancelCapture();
+            ClearDrag();
+        }
+        RefreshAfterTimeAdvance();
         pendingSettlementValue = _info.cargoValueBeforeSettlement;
         pendingFreshnessLossValue = _info.cargoValueBeforeFreshnessLoss;
         PlayPendingSettlement();
         if (session.RunStatus != PuzzleRunStatus.InProgress)
         {
+            RenderBoards();
             cityView.SetTown(session.CityData.displayName, false);
             cityView.ShowTradeStatus(Presentation.PuzzleRunStatusText(session.RunStatus));
             if (session.RunStatus == PuzzleRunStatus.Lost)
@@ -432,9 +528,8 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
     {
         if (!MarketOperationsBlocked && session.CanWaitForDaylight)
         {
-            input.CancelCapture();
-            ClearDrag();
-            if (!session.WaitForDaylight())
+            // 아침(낮이 시작하는 턴)까지 쉰다.
+            if (!session.Rest((int)session.Time.TurnsUntilDaylight))
             {
                 cityView.ShowTradeStatus(Presentation.PuzzleTimeOverflow);
             }
@@ -444,15 +539,15 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
     public void ClearGame()
     {
         if (!initialized || !isActiveAndEnabled || MarketOperationsBlocked || !pauseMenu || !pauseMenu.CanShowCompletion ||
-            !session.TryClearGame())
+            !session.TryFinishRun())
         {
             return;
         }
 
-        pauseMenu.ShowCompletion(PuzzleRunStatus.Won, session.Funds);
+        pauseMenu.ShowCompletion(session.RunStatus, session.Funds);
         cityView.SetTown(session.CityData.displayName, false);
         RefreshFunds();
-        cityView.ShowTradeStatus(Presentation.PuzzleClearTitle);
+        cityView.ShowTradeStatus(Presentation.PuzzleRunStatusText(session.RunStatus));
         RefreshTrainBar();
     }
 
@@ -464,7 +559,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             return;
         }
         pendingFundsRefresh = false;
-        cityView.ShowFunds(session.Funds, session.CanClearGame);
+        cityView.ShowFunds(session.Funds, session.CanFinishRun);
     }
 
     void OnPanelVisibility(GameEvents.PanelInfo _info)
@@ -557,6 +652,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
     void ShowCurrentCity()
     {
         bool inProgress = session.RunStatus == PuzzleRunStatus.InProgress;
+        shownMarket = session.Market;
         cityView.ShowCity(Presentation.PuzzleCityTitle(session.CityData, session.RegionData));
         cityView.ShowTime(session.Time);
         RefreshFunds();
@@ -566,7 +662,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         marketView.SetMarketOpen(session.CanTradeInMarket);
         RefreshWaitAction();
         marketView.SetBoardSize(session.Market.Width, session.Market.Height, session.Market.BlockedCells);
-        trainView.SetBoardSize(session.Train.Width, session.Train.Height, session.Train.BlockedCells);
+        trainView.SetBoard(session.Train);
         RenderBoards();
         RenderValues();
         ShowItemDetails(null, null);
@@ -727,8 +823,6 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         }
     }
 
-    static readonly bool ADJACENT_SYNERGY_PREVIEW_ENABLED = false;
-
     static readonly Vector2Int[] ADJACENT_OFFSETS =
     {
         Vector2Int.up, Vector2Int.right, Vector2Int.down, Vector2Int.left
@@ -826,7 +920,8 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
                             if (PuzzlePieceEffects.IsTarget(neighbor.Definition, rule, wasteTag) &&
                                 PuzzlePieceEffects.IsSource(_drag.Definition, rule))
                             {
-                                newPercent += (rule.multiplierPercent - PuzzleInventoryValuation.BASE_PERCENT);
+                                newPercent += rule.multiplierPercent - PuzzleInventoryValuation.BASE_PERCENT +
+                                    session.SynergyComboBonusPercent(rule);
                             }
                         }
                     }
@@ -848,7 +943,8 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
                                 if (PuzzlePieceEffects.IsTarget(neighbor.Definition, rule, wasteTag) &&
                                     PuzzlePieceEffects.IsSource(_drag.Definition, rule))
                                 {
-                                    oldPercent += (rule.multiplierPercent - PuzzleInventoryValuation.BASE_PERCENT);
+                                    oldPercent += rule.multiplierPercent - PuzzleInventoryValuation.BASE_PERCENT +
+                                        session.SynergyComboBonusPercent(rule);
                                 }
                             }
                         }
@@ -920,7 +1016,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
                 targetView.HideDragBeam();
             }
 
-            if (ADJACENT_SYNERGY_PREVIEW_ENABLED && preview.CanDrop && candidate != null)
+            if (preview.CanDrop && candidate != null)
             {
                 if (destination != lastSynergyPreviewDestination || targetCell != lastSynergyPreviewCell || drag.ClockwiseTurns != lastSynergyPreviewRotation)
                 {
@@ -1232,15 +1328,15 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         var rate = item == null ? default : session.RateFor(item);
         (IReadOnlyList<string> General, IReadOnlyList<PuzzleTooltipEffectEntry> Synergies) effects =
             BuildEffectDescriptions(_placement, isTrain, isActionBoard);
-        long? previewTurns = session.PreviewTurns;
+        long? previewHours = session.PreviewHours;
         long? previewActivations = null;
         decimal? futureValue = null;
-        if (isTrain && previewTurns.HasValue)
+        if (isTrain && previewHours.HasValue)
         {
             try
             {
-                previewActivations = session.SynergyActivationsFor(previewTurns.Value);
-                futureValue = session.PreviewValueAfter(_placement, previewTurns.Value);
+                previewActivations = session.SynergyActivationsFor(previewHours.Value);
+                futureValue = session.PreviewValueAfter(_placement, previewHours.Value);
             }
             catch (System.OverflowException)
             {
@@ -1255,7 +1351,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             var direction = isTrain || isActionBoard ? PuzzleTradeDirection.Sell : PuzzleTradeDirection.Buy;
             long? price = session.TryQuoteTrade(_placement, direction, out long quote) ? quote : (long?)null;
             tooltipView.Show(item, actualValue, rate, effects.General, effects.Synergies, futureValue, pos, isTrain, _placement.FreshnessPercent,
-                session.TurnsUntilNextFreshnessBand(_placement), previewTurns,
+                session.HoursUntilNextFreshnessBand(_placement), previewHours,
                 previewName, previewActivations, price, isTrain ? PuzzleSynergyBonus.GroupByNeighbor(value.SynergyBonuses) : null,
                 isTrain ? session.AppliedPreservationPercent(_placement) : 0, isActionBoard);
             // 툴팁을 열면 미확인 알림만 지운다. 실제로 대기 중인 진행도와 빨간 표시는 상태가 풀릴 때까지 남는다.
@@ -1569,7 +1665,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         }
         if (trainBarView && session != null)
         {
-            trainBarView.Refresh(session.TrainWagons, session.CurrentWagonIndex, hoveredWagonIndex);
+            trainBarView.Refresh(session.TrainWagons, session.CurrentWagonIndex, session.MaxWagonCount, hoveredWagonIndex);
         }
     }
 
@@ -1577,8 +1673,14 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
     {
         if (wagonEffectsLabel && session?.Train is { } wagon)
         {
-            wagonEffectsLabel.text = string.Join(" · ", wagon.WagonModifications.Select(_effect => _effect.ActiveEffectLabel));
-            wagonEffectsLabel.gameObject.SetActive(wagon.WagonModifications.Count > 0);
+            var effects = wagon.WagonModifications.Select(_effect => _effect.ActiveEffectLabel).ToList();
+            var process = session.WagonProcessOf(wagon);
+            if (process != null)
+            {
+                effects.Add(Presentation.WagonProcessStatus(process, session.CurrentWagonProcess(wagon)));
+            }
+            wagonEffectsLabel.text = string.Join(" · ", effects);
+            wagonEffectsLabel.gameObject.SetActive(effects.Count > 0);
         }
 
         if (!wagonRefrigerationButton || !wagonRefrigerationLabel || session == null)
@@ -1617,7 +1719,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         input.CancelCapture();
         ClearDrag();
         trainView.SetTitle(Presentation.PuzzleTrainTitle(session.Train));
-        trainView.SetBoardSize(session.Train.Width, session.Train.Height, session.Train.BlockedCells);
+        trainView.SetBoard(session.Train);
         RenderBoards();
         RenderValues();
         RefreshTrainBar();
@@ -1669,9 +1771,17 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         wagonTooltipStats.Clear();
         wagonTooltipStats.Add(("적재", $"{wagon.OccupiedCells} / {wagon.UsableCellCount}칸"));
         wagonTooltipStats.Add(("판매가", Presentation.WagonSaleAmount(wagon.WagonSalePrice)));
-        if (wagon.WagonModifications.Count > 0)
+        if (wagon.WagonProduct != null)
+        {
+            wagonTooltipStats.Add(("효과", wagon.WagonProduct.description));
+        }
+        else if (wagon.WagonModifications.Count > 0)
         {
             wagonTooltipStats.Add(("효과", string.Join(" · ", wagon.WagonModifications.Select(_effect => _effect.TooltipEffect))));
+        }
+        if (session.WagonProcessOf(wagon) is { } process)
+        {
+            wagonTooltipStats.Add(("가공", Presentation.WagonProcessStatus(process, session.CurrentWagonProcess(wagon))));
         }
 
         string failure = session.WagonSaleFailure(_index);
@@ -1703,7 +1813,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             return;
         }
         trainView.SetTitle(Presentation.PuzzleTrainTitle(session.Train));
-        trainView.SetBoardSize(session.Train.Width, session.Train.Height, session.Train.BlockedCells);
+        trainView.SetBoard(session.Train);
         RenderBoards();
         RenderValues();
         ShowItemDetails(null, null);
@@ -1795,7 +1905,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
     void RefreshSelectedWagon()
     {
         trainView.SetTitle(Presentation.PuzzleTrainTitle(session.Train));
-        trainView.SetBoardSize(session.Train.Width, session.Train.Height, session.Train.BlockedCells);
+        trainView.SetBoard(session.Train);
         RenderBoards();
         RenderValues();
         ShowItemDetails(null, null);

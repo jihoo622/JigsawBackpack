@@ -242,6 +242,69 @@ public sealed class WorldMapGeography
         return pixels;
     }
 
+    // 고지도(전장의 안개) 픽셀. 칸당 1픽셀이며 아래쪽 행부터다. 물(바다·강)은 밝은 양피지색이고 먼 바다일수록 조금 어둡다.
+    // 땅은 채도가 낮은 갈색이며 높을수록 어둡다. 칸마다 고정된 얼룩(종이 결)과 가장자리 그을림을 더한다.
+    public Color32[] RenderOldMap(Color _water, Color _land, Color _high, Color _burn)
+    {
+        var water = WaterDistance();
+        var pixels = new Color32[Width * Height];
+        for (int y = 0; y < Height; y++)
+        {
+            int row = Height - 1 - y;
+            for (int x = 0; x < Width; x++)
+            {
+                int index = y * Width + x;
+                char kind = Terrain[index];
+                Color color;
+                if (kind == SEA || kind == 'r')
+                {
+                    float depth = kind == SEA ? Mathf.SmoothStep(0f, 1f, water[index] / WATER_GRADIENT_CELLS) : 0f;
+                    color = Color.Lerp(_water, _land, depth * 0.18f);
+                }
+                else
+                {
+                    color = Color.Lerp(_land, _high, OldMapElevation(kind));
+                }
+                // 종이 결: 칸 좌표로 정한 얼룩이라 다시 만들어도 같다.
+                float grain = (Hash(x, y) - 0.5f) * 0.08f + (Hash(x / 6, y / 6) - 0.5f) * 0.06f;
+                color = new Color(color.r + grain, color.g + grain, color.b + grain, 1f);
+                // 가장자리 그을림.
+                float edge = Mathf.Min(Mathf.Min(x, Width - 1 - x) / (float)Width, Mathf.Min(y, Height - 1 - y) / (float)Height);
+                color = Color.Lerp(_burn, color, Mathf.SmoothStep(0f, 1f, edge / 0.08f));
+                color.a = 1f;
+                pixels[row * Width + x] = color;
+            }
+        }
+        return pixels;
+    }
+
+    static float OldMapElevation(char _kind)
+    {
+        switch (_kind)
+        {
+            case 'p':
+                return 0f;
+            case 'g':
+                return 0.15f;
+            case 'h':
+                return 0.4f;
+            case 'm':
+                return 0.7f;
+            default:
+                return 1f;
+        }
+    }
+
+    static float Hash(int _x, int _y)
+    {
+        unchecked
+        {
+            uint h = (uint)(_x * 374761393 + _y * 668265263);
+            h = (h ^ (h >> 13)) * 1274126177u;
+            return ((h ^ (h >> 16)) & 0xFFFF) / 65535f;
+        }
+    }
+
     // 두 칸이 모두 육지이고 지역이 다르면 경계를 그린다(지역 밖 육지와의 경계 포함).
     bool RegionBorder(int _a, int _b)
     {

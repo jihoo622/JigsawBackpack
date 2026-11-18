@@ -9,8 +9,8 @@ public sealed class PuzzleCityView : MonoBehaviour
 {
     [SerializeField] TextMeshProUGUI cityName;
     [SerializeField] TextMeshProUGUI timeLabel;
-    // 시계 아래 하루(0~24시) 막대: 바탕은 낮, 밤 구간 두 칸(자정을 넘는 밤을 위해 둘), 현재 시각 표시선.
-    // 위치는 가로 앵커 비율로만 정하며 밤 구간은 시간 테이블이 원본이다.
+    // 시계 아래 24시간 막대: 지금을 가운데 고정하고 앞뒤 12시간을 보인다. 바탕은 낮, 밤 구간 두 칸(창 끝을 넘는 밤을 위해 둘),
+    // 가운데 고정 현재 시각 표시선. 위치는 가로 앵커 비율로만 정하며 밤 구간은 시간 테이블이 원본이다.
     [SerializeField] Image dayNightBar;
     [SerializeField] Image nightSegmentA;
     [SerializeField] Image nightSegmentB;
@@ -124,7 +124,8 @@ public sealed class PuzzleCityView : MonoBehaviour
         cityName.text = _name;
     }
 
-    void ShowDayNight(PuzzleTimeManager _time)
+    // 지금 턴의 한가운데를 가운데 고정한 24시간 창(앞뒤 12시간)이다. 표시선은 움직이지 않고 턴이 지나면 낮·밤 구간이 한 칸 밀린다.
+    internal void ShowDayNight(PuzzleTimeManager _time)
     {
         if (!dayNightBar || !nightSegmentA || !nightSegmentB || !clockMarker)
         {
@@ -133,19 +134,19 @@ public sealed class PuzzleCityView : MonoBehaviour
         dayNightBar.color = Presentation.TimeDayBar;
         nightSegmentA.color = Presentation.TimeNightBar;
         nightSegmentB.color = Presentation.TimeNightBar;
-        float day = PuzzleTimeManager.TURNS_PER_DAY;
-        float start = _time.NightStartTurnOfDay / day;
-        float end = start + _time.NightLengthTurns / day;
-        // 자정을 넘는 밤은 [시작, 1)과 [0, 끝-1) 두 칸으로 나눈다.
+        float day = PuzzleTimeManager.HOURS_PER_DAY;
+        float now = _time.HourOfDay + PuzzleTimeManager.HOURS_PER_TURN / 2f;
+        float start = Mathf.Repeat(_time.NightStartHourOfDay - now + day / 2f, day) / day;
+        float end = start + _time.NightLengthHours / day;
+        // 창 끝을 넘는 밤은 [시작, 1)과 [0, 끝-1) 두 칸으로 나눈다.
         SetSpan(nightSegmentA, start, Mathf.Min(end, 1f));
         nightSegmentB.gameObject.SetActive(end > 1f);
         if (end > 1f)
         {
             SetSpan(nightSegmentB, 0f, end - 1f);
         }
-        float now = _time.TurnOfDay / day;
-        clockMarker.anchorMin = new Vector2(now, clockMarker.anchorMin.y);
-        clockMarker.anchorMax = new Vector2(now, clockMarker.anchorMax.y);
+        clockMarker.anchorMin = new Vector2(0.5f, clockMarker.anchorMin.y);
+        clockMarker.anchorMax = new Vector2(0.5f, clockMarker.anchorMax.y);
         clockMarker.anchoredPosition = new Vector2(0f, clockMarker.anchoredPosition.y);
         if (clockMarker.TryGetComponent<Graphic>(out var markerGraphic))
         {
@@ -189,9 +190,15 @@ public sealed class PuzzleCityView : MonoBehaviour
             deadlineTitle.gameObject.SetActive(true);
             deadlineTitle.color = Presentation.PuzzleHeading;
         }
-        deadlineLabel.text = Presentation.TimeDeadlineValue(_time.RemainingTurns);
-        deadlineLabel.color = Presentation.TimeDeadlineWarning(_time.RemainingTurns)
+        deadlineLabel.text = Presentation.TimeDeadlineValue(_time.RemainingHours);
+        deadlineLabel.color = Presentation.TimeDeadlineWarning(_time.RemainingHours)
             ? Presentation.PuzzleTooltipRed : Presentation.PuzzleHeading;
+    }
+
+    // 무한 모드에는 결산이 없으므로 결산 버튼 자리에 모드 이름만 남긴다.
+    internal void ShowEndless()
+    {
+        clearLabel.text = Presentation.PuzzleEndlessLabel;
     }
 
     internal void ShowFunds(long _funds, bool _canClear)

@@ -52,7 +52,7 @@ public sealed class PuzzleWagonDetailView : MonoBehaviour
         {
             priceLabel.text = $"가격: {_product.price:N0} $";
         }
-        var board = TableManager.Instance.RequireValid().Puzzle.train;
+        var board = TableManager.Instance.RequireValid().WagonBoardOf(_product);
         if (sizeLabel)
         {
             sizeLabel.text = Presentation.WagonSizeLabel(board.width, board.height);
@@ -63,18 +63,7 @@ public sealed class PuzzleWagonDetailView : MonoBehaviour
         }
         if (effectLabel)
         {
-            if (string.IsNullOrEmpty(_product.modificationId))
-            {
-                effectLabel.text = "특수 효과: 없음";
-            }
-            else if (string.Equals(_product.modificationId, PuzzleWagonRefrigeration.ModificationId, System.StringComparison.Ordinal))
-            {
-                effectLabel.text = $"특수 효과: {Presentation.PuzzleWagonRefrigerationInstalled}";
-            }
-            else
-            {
-                effectLabel.text = $"특수 효과: {_product.modificationId}";
-            }
+            effectLabel.text = Presentation.WagonProductEffect(_product);
         }
         if (artworkImage)
         {

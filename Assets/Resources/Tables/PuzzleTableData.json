@@ -151,7 +151,7 @@
         "Supply",
         "Grain"
       ],
-      "shelfLifeTurns": 56,
+      "shelfLifeHours": 168,
       "visualKey": "cargo.grainSack",
       "slotCount": 1,
       "cells": [
@@ -525,7 +525,7 @@
         "Food",
         "Fish"
       ],
-      "shelfLifeTurns": 56,
+      "shelfLifeHours": 168,
       "visualKey": "cargo.fish",
       "slotCount": 2,
       "cells": [
@@ -631,7 +631,7 @@
         "Food",
         "Fruit"
       ],
-      "shelfLifeTurns": 56,
+      "shelfLifeHours": 168,
       "visualKey": "cargo.fruitCrate",
       "slotCount": 1,
       "cells": [
@@ -729,7 +729,7 @@
         "Food",
         "Meat"
       ],
-      "shelfLifeTurns": 56,
+      "shelfLifeHours": 168,
       "visualKey": "cargo.meatPackage",
       "slotCount": 1,
       "cells": [
@@ -774,7 +774,7 @@
         "Food",
         "Meat"
       ],
-      "shelfLifeTurns": 56,
+      "shelfLifeHours": 168,
       "visualKey": "cargo.beef",
       "slotCount": 2,
       "durability": 100,
@@ -827,7 +827,7 @@
         "Food",
         "Meat"
       ],
-      "shelfLifeTurns": 112,
+      "shelfLifeHours": 336,
       "visualKey": "cargo.beef",
       "slotCount": 2,
       "durability": 100,
@@ -880,7 +880,7 @@
         "Food",
         "Fish"
       ],
-      "shelfLifeTurns": 112,
+      "shelfLifeHours": 336,
       "visualKey": "cargo.fish",
       "slotCount": 2,
       "cells": [
@@ -943,7 +943,7 @@
         "Food",
         "Meat"
       ],
-      "shelfLifeTurns": 112,
+      "shelfLifeHours": 336,
       "visualKey": "cargo.meatPackage",
       "slotCount": 1,
       "cells": [
@@ -993,8 +993,8 @@
       "durability": 100,
       "excludeFromMarket": true,
       "adultPieceId": "piece.cow",
-      "growthTurns": 8,
-      "growthBlockedTurns": 1,
+      "growthHours": 24,
+      "growthBlockedHours": 6,
       "growthDescription": "{0} 후 {1}(으)로 성장 (공간 부족 시 마지막 {2}에서 대기)",
       "baseValue": 20,
       "cells": [
@@ -1103,7 +1103,7 @@
         "Food",
         "Fruit"
       ],
-      "shelfLifeTurns": 56,
+      "shelfLifeHours": 168,
       "visualKey": "cargo.apple",
       "slotCount": 1,
       "durability": 100,
@@ -1223,6 +1223,40 @@
       },
       "iconOffsetX": -0.06,
       "iconOffsetY": -0.03
+    },
+    {
+      "id": "piece.oreChunk",
+      "displayName": "광석 조각",
+      "description": "분쇄 화차에서 나온 한 칸 광석. 제련 화차의 재료다.",
+      "tags": [
+        "Ore"
+      ],
+      "visualKey": "cargo.oreCross",
+      "slotCount": 1,
+      "cells": [
+        {
+          "x": 0,
+          "y": 0,
+          "north": "Flat",
+          "east": "Flat",
+          "south": "Flat",
+          "west": "Flat"
+        }
+      ],
+      "durability": 100,
+      "baseValue": 11,
+      "synergyEffects": [
+        {
+          "ruleId": "wasteNearbyPenalty",
+          "target": true,
+          "source": false
+        }
+      ],
+      "preservationEffect": {
+        "enabled": false,
+        "reductionPercent": 0
+      },
+      "excludeFromMarket": true
     },
     {
       "id": "piece.oreCross",
@@ -1504,7 +1538,7 @@
         "Food",
         "Fruit"
       ],
-      "shelfLifeTurns": 24,
+      "shelfLifeHours": 72,
       "visualKey": "cargo.smallCrate",
       "slotCount": 1,
       "cells": [
@@ -1626,10 +1660,12 @@
       }
     ]
   },
-  "startCity": "city.erna",
+  "startCity": "city.finance",
   "cities": [
     {
       "id": "city.riobruk",
+      "workshopIds": [],
+      "wagonProductIds": ["hopper", "crusher"],
       "displayName": "리오브루크",
       "regionId": "region.mine",
       "specialtyTag": "Ore",
@@ -1703,6 +1739,8 @@
     },
     {
       "id": "city.daran",
+      "workshopIds": [],
+      "wagonProductIds": ["hopper", "flatbed"],
       "displayName": "다르안",
       "regionId": "region.mine",
       "specialtyTag": "Salt",
@@ -1769,6 +1807,9 @@
     },
     {
       "id": "city.rasenton",
+      "workshopIds": [],
+      "wagonProductIds": ["flatbed"],
+      "landmark": true,
       "displayName": "라센턴",
       "regionId": "region.mine",
       "specialtyTag": "Metal",
@@ -1835,6 +1876,8 @@
     },
     {
       "id": "city.karka",
+      "workshopIds": [],
+      "wagonProductIds": ["hopper", "crusher"],
       "displayName": "카르카",
       "regionId": "region.mine",
       "specialtyTag": "Salt",
@@ -1907,6 +1950,8 @@
     },
     {
       "id": "city.rasenpol",
+      "workshopIds": [],
+      "wagonProductIds": ["livestock"],
       "displayName": "라센폴",
       "regionId": "region.ranch",
       "specialtyTag": "Animal",
@@ -1967,6 +2012,9 @@
     },
     {
       "id": "city.heilheim",
+      "workshopIds": [],
+      "wagonProductIds": ["livestock", "standard"],
+      "landmark": true,
       "displayName": "헤일하임",
       "regionId": "region.ranch",
       "specialtyTag": "Meat",
@@ -2027,6 +2075,8 @@
     },
     {
       "id": "city.darpol",
+      "workshopIds": ["workshop.darpolButchery"],
+      "wagonProductIds": ["livestock", "coldbox"],
       "displayName": "다르폴",
       "regionId": "region.ranch",
       "specialtyTag": "Animal",
@@ -2093,6 +2143,8 @@
     },
     {
       "id": "city.osgrad",
+      "workshopIds": [],
+      "wagonProductIds": ["standard"],
       "displayName": "오스그라드",
       "regionId": "region.ranch",
       "specialtyTag": "Meat",
@@ -2174,6 +2226,9 @@
     },
     {
       "id": "city.erna",
+      "workshopIds": ["workshop.ernaModification"],
+      "wagonProductIds": ["flatbed", "standard"],
+      "landmark": true,
       "displayName": "에른아 공업역",
       "regionId": "region.industry",
       "specialtyTag": "Machinery",
@@ -2240,6 +2295,8 @@
     },
     {
       "id": "city.porber",
+      "workshopIds": [],
+      "wagonProductIds": ["flatbed", "smelter"],
       "displayName": "포르베르",
       "regionId": "region.industry",
       "specialtyTag": "Machinery",
@@ -2306,6 +2363,8 @@
     },
     {
       "id": "city.karport",
+      "workshopIds": [],
+      "wagonProductIds": ["standard"],
       "displayName": "카르포트",
       "regionId": "region.industry",
       "specialtyTag": "Machinery",
@@ -2372,6 +2431,8 @@
     },
     {
       "id": "city.nornova",
+      "workshopIds": ["workshop.nornovaRefinery"],
+      "wagonProductIds": ["flatbed", "boxcar", "smelter"],
       "displayName": "노르노바",
       "regionId": "region.industry",
       "specialtyTag": "Machinery",
@@ -2438,6 +2499,9 @@
     },
     {
       "id": "city.aiport",
+      "workshopIds": [],
+      "wagonProductIds": ["standard", "boxcar"],
+      "landmark": true,
       "displayName": "아이포트 중앙",
       "regionId": "region.capital",
       "specialtyTag": "",
@@ -2510,6 +2574,8 @@
     },
     {
       "id": "city.trenford",
+      "workshopIds": [],
+      "wagonProductIds": ["standard"],
       "displayName": "트렌포드",
       "regionId": "region.capital",
       "specialtyTag": "",
@@ -2582,6 +2648,8 @@
     },
     {
       "id": "city.sergrad",
+      "workshopIds": [],
+      "wagonProductIds": ["boxcar"],
       "displayName": "세르그라드",
       "regionId": "region.capital",
       "specialtyTag": "",
@@ -2654,6 +2722,8 @@
     },
     {
       "id": "city.diaan",
+      "workshopIds": [],
+      "wagonProductIds": ["standard", "refrigerated"],
       "displayName": "디아안",
       "regionId": "region.capital",
       "specialtyTag": "",
@@ -2726,6 +2796,8 @@
     },
     {
       "id": "city.teratia",
+      "workshopIds": [],
+      "wagonProductIds": ["refrigerated"],
       "displayName": "테라티아",
       "regionId": "region.coast",
       "specialtyTag": "Fish",
@@ -2798,6 +2870,8 @@
     },
     {
       "id": "city.teraka",
+      "workshopIds": [],
+      "wagonProductIds": ["coldbox"],
       "displayName": "테라카",
       "regionId": "region.coast",
       "specialtyTag": "Water",
@@ -2876,6 +2950,9 @@
     },
     {
       "id": "city.pioa",
+      "workshopIds": [],
+      "wagonProductIds": ["refrigerated", "coldbox"],
+      "landmark": true,
       "displayName": "피오아 항",
       "regionId": "region.coast",
       "specialtyTag": "Fish",
@@ -2948,6 +3025,8 @@
     },
     {
       "id": "city.valenrie",
+      "workshopIds": [],
+      "wagonProductIds": ["coldbox"],
       "displayName": "발렌리에",
       "regionId": "region.coast",
       "specialtyTag": "Water",
@@ -3026,6 +3105,9 @@
     },
     {
       "id": "city.ibt",
+      "workshopIds": [],
+      "wagonProductIds": ["granary", "garden"],
+      "landmark": true,
       "displayName": "이브트",
       "regionId": "region.farm",
       "specialtyTag": "Grain",
@@ -3086,6 +3168,8 @@
     },
     {
       "id": "city.terapol",
+      "workshopIds": [],
+      "wagonProductIds": ["granary", "coldbox"],
       "displayName": "테라폴",
       "regionId": "region.farm",
       "specialtyTag": "Fruit",
@@ -3146,6 +3230,8 @@
     },
     {
       "id": "city.berska",
+      "workshopIds": [],
+      "wagonProductIds": ["granary", "standard"],
       "displayName": "베르스카",
       "regionId": "region.farm",
       "specialtyTag": "Wood",
@@ -3206,6 +3292,8 @@
     },
     {
       "id": "city.dart",
+      "workshopIds": [],
+      "wagonProductIds": ["granary", "garden"],
       "displayName": "다르트",
       "regionId": "region.farm",
       "specialtyTag": "Grain",
@@ -3266,6 +3354,8 @@
     },
     {
       "id": "city.heilford",
+      "workshopIds": [],
+      "wagonProductIds": ["standard"],
       "displayName": "헤일포드",
       "regionId": "region.industry",
       "specialtyTag": "Machinery",
@@ -3338,6 +3428,9 @@
     },
     {
       "id": "city.finance",
+      "workshopIds": [],
+      "wagonProductIds": ["standard"],
+      "landmark": true,
       "displayName": "금융마을",
       "regionId": "region.capital",
       "specialtyTag": "",
@@ -3410,6 +3503,8 @@
     },
     {
       "id": "city.teragrad",
+      "workshopIds": [],
+      "wagonProductIds": ["flatbed"],
       "displayName": "테라그라드",
       "regionId": "region.industry",
       "specialtyTag": "Machinery",
@@ -3476,6 +3571,9 @@
     },
     {
       "id": "city.sera",
+      "workshopIds": [],
+      "wagonProductIds": ["livestock"],
+      "landmark": true,
       "displayName": "세르아",
       "regionId": "region.ranch",
       "specialtyTag": "Animal",
@@ -3542,6 +3640,8 @@
     },
     {
       "id": "city.osber",
+      "workshopIds": [],
+      "wagonProductIds": ["hopper", "standard"],
       "displayName": "오스베르",
       "regionId": "region.mine",
       "specialtyTag": "Salt",
@@ -3608,6 +3708,8 @@
     },
     {
       "id": "city.mert",
+      "workshopIds": [],
+      "wagonProductIds": ["standard", "hopper"],
       "displayName": "메르트",
       "regionId": "region.common",
       "specialtyTag": "",
@@ -3649,6 +3751,8 @@
     },
     {
       "id": "city.rasburk",
+      "workshopIds": [],
+      "wagonProductIds": ["flatbed"],
       "displayName": "라스부르크",
       "regionId": "region.mine",
       "specialtyTag": "Salt",
@@ -3806,7 +3910,7 @@
       "mapLabelPriority": 10
     }
   ],
-  "planningTargetCityId": "city.finance",
+  "planningTargetCityId": "",
   "stockProfiles": [
     {
       "id": "stock.hub",

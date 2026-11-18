@@ -7,7 +7,7 @@
       "sourcePieceId": "piece.fish",
       "partnerPieceId": "piece.saltSack",
       "resultPieceId": "piece.pickledFish",
-      "requiredTurns": 4,
+      "requiredHours": 12,
       "description": "소금과 {0} 동안 인접 시 {1} 생성"
     },
     {
@@ -15,7 +15,7 @@
       "sourcePieceId": "piece.beef",
       "partnerPieceId": "piece.saltSack",
       "resultPieceId": "piece.pickledBeef",
-      "requiredTurns": 4,
+      "requiredHours": 12,
       "description": "소금과 {0} 동안 인접 시 {1} 생성"
     },
     {
@@ -23,7 +23,7 @@
       "sourcePieceId": "piece.meat",
       "partnerPieceId": "piece.saltSack",
       "resultPieceId": "piece.pickledMeat",
-      "requiredTurns": 4,
+      "requiredHours": 12,
       "description": "소금과 {0} 동안 인접 시 {1} 생성"
     }
   ]

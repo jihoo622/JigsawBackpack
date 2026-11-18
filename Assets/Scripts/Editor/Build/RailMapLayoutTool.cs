@@ -18,6 +18,10 @@ public static class RailMapLayoutTool
     public const string LAYOUT_PATH = "Docs/Management/rail_map_layout_seed_20265146.json";
     const string MENU = "Tools/MyJG/Apply Rail Map Layout (seed 20265146)";
     const string TRACK_PARENT_NAME = "SubwayMapTracks";
+    // 노선 외곽선 층. 노선 층 바로 아래 형제로 두고, 노선 조각(Track_i_j)마다 같은 자리의 TrackOutline_i_j를 둔다.
+    // 외곽선을 한 층에 모아 노선 아래에 그려야 조각이 이어지는 마디에 외곽선 자국이 생기지 않는다.
+    public const string TRACK_OUTLINE_PARENT_NAME = "SubwayMapTrackOutlines";
+    public const string TRACK_OUTLINE_PREFIX = "TrackOutline_";
     const string TERRAIN_NAME = "TerrainBackground";
     static float BackboneThickness => BasicData.Float("editor.RailMapLayoutTool.backbonethickness");
     static float SideThickness => BasicData.Float("editor.RailMapLayoutTool.sidethickness");
@@ -53,7 +57,7 @@ public static class RailMapLayoutTool
         public string toCityId;
         public string regionId;
         public string corridorType;
-        public int turns;
+        public int distance;
         public long cost;
         public float labelX;
         public float labelY;
@@ -355,6 +359,8 @@ public static class RailMapLayoutTool
             }
         }
 
+        SyncTrackOutlines(trackParent);
+
         var usedIndices = new HashSet<int>(_layout.rails.Select(_rail => _rail.railIndex));
         foreach (var pair in timeByIndex)
         {
@@ -572,7 +578,7 @@ public static class RailMapLayoutTool
                     {
                         throw new InvalidOperationException("노선 시간의 원본이 없습니다: " + rail.sourceId);
                     }
-                    text.text = Presentation.PuzzleMapTime(PuzzleTimeManager.TravelTurns(route, TableManager.Instance.PuzzleTime));
+                    text.text = Presentation.PuzzleMapRouteFare(route, TableManager.Instance.PuzzleRoute);
                     text.color = Presentation.PuzzleHeading;
                 }
                 if (!label.objectReferenceValue)
@@ -617,6 +623,67 @@ public static class RailMapLayoutTool
             }
         }
         serialized.ApplyModifiedPropertiesWithoutUndo();
+    }
+
+    // 노선 조각마다 같은 위치·회전·크기의 외곽선 조각을 외곽선 층에 맞춘다. 두께·색·표시는 실행 중 지도 View가 정한다.
+    public static void SyncTrackOutlines(Transform _trackParent)
+    {
+        var mapContent = _trackParent.parent;
+        var outlineParent = mapContent.Find(TRACK_OUTLINE_PARENT_NAME) as RectTransform;
+        if (!outlineParent)
+        {
+            outlineParent = new GameObject(TRACK_OUTLINE_PARENT_NAME, typeof(RectTransform)).GetComponent<RectTransform>();
+            outlineParent.SetParent(mapContent, false);
+        }
+        var trackRect = (RectTransform)_trackParent;
+        outlineParent.gameObject.layer = _trackParent.gameObject.layer;
+        outlineParent.anchorMin = trackRect.anchorMin;
+        outlineParent.anchorMax = trackRect.anchorMax;
+        outlineParent.pivot = trackRect.pivot;
+        outlineParent.sizeDelta = trackRect.sizeDelta;
+        outlineParent.anchoredPosition = trackRect.anchoredPosition;
+        outlineParent.localScale = trackRect.localScale;
+        outlineParent.SetSiblingIndex(_trackParent.GetSiblingIndex());
+
+        var existing = new Dictionary<string, RectTransform>();
+        foreach (RectTransform child in outlineParent)
+        {
+            existing[child.name] = child;
+        }
+        var used = new HashSet<string>();
+        foreach (RectTransform track in _trackParent)
+        {
+            if (!track.name.StartsWith("Track_", StringComparison.Ordinal))
+            {
+                continue;
+            }
+            string name = TRACK_OUTLINE_PREFIX + track.name.Substring("Track_".Length);
+            if (!existing.TryGetValue(name, out var outline))
+            {
+                outline = new GameObject(name, typeof(RectTransform), typeof(CanvasRenderer), typeof(Image)).GetComponent<RectTransform>();
+                outline.SetParent(outlineParent, false);
+            }
+            used.Add(name);
+            outline.gameObject.layer = track.gameObject.layer;
+            outline.anchorMin = track.anchorMin;
+            outline.anchorMax = track.anchorMax;
+            outline.pivot = track.pivot;
+            outline.anchoredPosition = track.anchoredPosition;
+            outline.localRotation = track.localRotation;
+            outline.localScale = track.localScale;
+            outline.sizeDelta = track.sizeDelta;
+            outline.gameObject.SetActive(track.gameObject.activeSelf);
+            var image = outline.GetComponent<Image>();
+            image.raycastTarget = false;
+            image.color = Presentation.PuzzleMapTrackOutline;
+        }
+        foreach (var pair in existing)
+        {
+            if (!used.Contains(pair.Key))
+            {
+                UnityEngine.Object.DestroyImmediate(pair.Value.gameObject);
+            }
+        }
     }
 
     static float[] DrawingPoints(LayoutRail _rail)

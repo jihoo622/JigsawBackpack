@@ -4,23 +4,23 @@ using System.Collections.Generic;
 public sealed class PuzzleButcheryState
 {
     public string CityId { get; }
-    public PuzzleCityActionData Action { get; }
+    public TrainventoryWorkshopData Workshop { get; }
     public PuzzleInventory Board { get; }
     public PuzzleButcheryPhase Phase { get; internal set; }
-    // 완성 시점(누적 경과 턴). Idle이면 -1.
-    public long ReadyAtTurns { get; internal set; }
+    // 완성 시점(누적 경과 시간). Idle이면 -1.
+    public long ReadyAtHours { get; internal set; }
     // 완료 때 보드에 올릴 산출물. 공간 부족 등으로 남으면 다음 판정 때 다시 배치한다.
     internal List<string> PendingOutputs { get; } = new List<string>();
     // 이번 도축으로 확정된 산출물 총개수. 완료 사건에 그대로 쓴다.
     internal int OutputCount { get; set; }
 
-    internal PuzzleButcheryState(string _cityId, PuzzleCityActionData _action, PuzzleInventory _board)
+    internal PuzzleButcheryState(string _cityId, TrainventoryWorkshopData _workshop, PuzzleInventory _board)
     {
         CityId = _cityId;
-        Action = _action;
+        Workshop = _workshop;
         Board = _board;
         Phase = PuzzleButcheryPhase.Idle;
-        ReadyAtTurns = -1;
+        ReadyAtHours = -1;
     }
 }
 

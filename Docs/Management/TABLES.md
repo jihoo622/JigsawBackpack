@@ -24,11 +24,13 @@
 |---|---|
 | `BasicDataTableData` (기초데이터) | 공통 표시 문구·서식·색·UI 조정값·제작 치수·규칙 참조 ID·레이어 번호. [편집 계약](BASIC_DATA.md) |
 | `PuzzleTableData` | 화물 모양·복수 태그·표기 키, 시작 기차, 지역·생산 태그·물가, 도시·시장·특산품·재고·도시 배율 |
-| `PuzzleCityActionTableData` | 마을 역의 추가 행동·진입 도시·작업 보드·소요 분·입력/산출 태그·화물 변환 |
-| `PuzzleSynergyTableData` | 시너지 조건·공간 범위·배율·적용 주기, 동물 배설·번식 설정 |
-| `PuzzleCombinationTableData` | 인접 조합 규칙: 입력 품목 두 개·결과 품목·소요 턴·설명 |
-| `PuzzleTradeTableData` | 시작 자금·증차 비용·최대 객차 수(maxWagonCount)·클리어 비용·상환 조건·이동 연출 시간 |
-| `PuzzleTimeTableData` | 고정 폴라인의 픽셀/시간 비율·시작 및 일출 시각·일출/야간 길이·휴식 분수 |
+| `TrainventoryWorkTableData` | 작업(WorksData): 입력 화물·작업 시간·산출 화물과 개수·비용·이름·설명 |
+| `TrainventoryWagonProcessTableData` | 화차 가공: 종류(`Convert`·`Crush`)·주재료 태그·부재료(1칸 화물 태그·단위당 수)·산출 품목·단위당 산출 수·시간(`hours`, 분쇄는 `hoursPerCell`). 화차 상품 `processId`가 참조 |
+| `TrainventoryWorkshopTableData` | 작업장: 종류(도축·정제·개조)·작업 보드·처리할 작업 ID·수수료 계수(비용 %·시간당 수수료·추가 비용). 역 배치는 `PuzzleTableData.cities[].workshopIds` |
+| `PuzzleSynergyTableData` | 시너지 조건·공간 범위·배율·적용 주기·숙련 콤보 보강 계수(`proficiencyComboPercentPerLevel`), 동물 배설·번식 설정 |
+| `PuzzleCombinationTableData` | 인접 조합 규칙: 입력 품목 두 개·결과 품목·소요 시간·설명 |
+| `PuzzleTradeTableData` | 시작 자금·화차 상품(보드 모양·냉장)·냉장 설치비·최대 객차 수(maxWagonCount)·목표 잔액(`targetFunds`)·영업 기간(`deadlineHours`)·이동 연출 시간 |
+| `PuzzleTimeTableData` | 낮 길이·시작(낮 시작) 시각·이동 턴(`travelTurns`)·기본 휴식 턴(`restTurns`)·시장 재입고 주기(`restockTurns`, 현재 매 턴). 턴 길이(6시간)는 `PuzzleTimeManager` 상수이며 모든 표의 시간 값은 6의 배수여야 한다 |
 | `PuzzleRouteTableData` | 방향별 연결·고정 폴라인 좌표·기본 비용·거리·거리 및 적재 단가 |
 | `TrainventoryQuestTableData` | 술집 의뢰 전용 태그·방문당 의뢰 수·완료 숙련 경험치 비율·평판 단계별 동시 진행 수·실패 패널티(`Deposit`·`RegionTrade`)·운송 의뢰 틀(화물·거리 범위·보상·기한 계수·가중치) |
 | `TrainventoryProficiencyTableData` | 거래 숙련 판매 경험치 비율·레벨 기준(누적)·마지막 기준 이후 레벨당 경험치·레벨당 거래 이득(%) |
@@ -43,7 +45,7 @@
 - 저장 후 캐시를 갱신해 유효성을 확인하고, 품목·번식 JSON 전체와 모든 관련 `PuzzleInventoryView`의 키·Sprite를 검토 초안에 대조한다. 사용하지 않는 기존 이미지 키도 View별로 보존한다. 대조 실패는 같은 파일·메타 복구 경로로 처리한다. 실제 실행 확인 항목은 사용 문서에 둔다.
 - `pieces` 항목의 `id`, `displayName`, `description`, `tags`, `visualKey`, `baseValue`, `slotCount`, `cells`가 정의 원본이다. 태그는 대소문자를 구분하고 한 아이템 안에서 중복되지 않아야 한다.
 - 새 태그의 표시 정의는 선택적인 `tagPresentations[]`의 `id`, 한글 `displayName`, 0~1 RGBA(`r/g/b/a`)에 둔다. 생략된 목록은 빈 목록으로 읽으며 기존 기본 태그는 `Presentation`의 기초데이터 매핑을 사용한다. 새 정의는 기본 태그와 이름이 겹치거나 대소문자만 다른 중복 ID·공백/쉼표 ID를 가질 수 없다. 에디터는 새 태그의 표시 정의를 요구하고 기존 데이터의 미등록 태그 표기는 보존한다.
-- `durability`는 모든 품목에서 1~기초데이터 상한의 값이다. 신선도 표시는 기초데이터의 `rules.items.durabilityTag` 품목에 적용된다. `shelfLifeTurns`는 0 이상의 턴이며 0은 시간에 따른 유통기한 소모 없음이다. 비적용 품목의 기존 값도 보존한다. `baseValue`는 음수를 허용하며 -1은 누락 판정값으로 거부한다.
+- `durability`는 모든 품목에서 1~기초데이터 상한의 값이다. 신선도 표시는 기초데이터의 `rules.items.durabilityTag` 품목에 적용된다. `shelfLifeHours`는 0 이상의 게임 시간이며 0은 시간에 따른 유통기한 소모 없음이다. 비적용 품목의 기존 값도 보존한다. `baseValue`는 음수를 허용하며 -1은 누락 판정값으로 거부한다.
 - `excludeFromMarket: true` 품목은 `stockProfiles` 후보와 시장 고정 재고에 둘 수 없고 검증이 막는다. 다만 플레이어가 판매한 품목은 그 도시 시장이 다시 만들어지기(재방문) 전까지 시장 보드에 남아 다시 살 수 있다. 미출시 품목은 정의와 아이콘만 두고 이 플래그와 재고 후보에서 제외된 상태로 유지한다.
 - `slotCount`는 `cells` 길이와 같고 슬롯은 상하좌우로 연결되어야 한다. 현재 화물의 네 방향 상태는 모두 `Flat`이다. 셀 배열 순서에는 의미가 없다.
 - Item Editor의 격자 편집은 셀 수로 `slotCount`를 갱신하며 `GameTableRules.ValidatePieceCells`로 런타임과 같은 오류를 표시한다. 회전 미리보기는 저장하지 않는다. 이미지의 `iconWidth/Height`는 회전 전 칸 단위 크기이고 둘 다 양수일 때만 사용하며, 나머지는 원본 모양의 외접 사각형을 쓴다. `iconOffsetX/Y`는 그 중심에서 오른쪽·위 방향 오프셋이다. `PuzzleIconLayout`이 게임과 에디터의 중심·회전·크기 계산을 공유한다.
@@ -52,11 +54,11 @@
 - `train`·선택적인 `startingTrain`·각 도시의 `market`은 `width`·`height`·`startingPlacements`를 소유한다. `startingTrain`은 시작 지급 화차, `train`은 구매 화차의 보드다. 기존 데이터에서 `startingTrain`을 생략하면 시작 화차도 `train`을 사용한다. `startCity`는 등록된 도시 ID를 참조한다. 도시에는 고유 ID·표시 이름·양의 기본 거래 배율·거래 허용 설정이 필요하다.
 - 보드의 `blockedCells`는 왼쪽 아래 원점의 `{x,y}` 사용 불가 칸 목록이다. 생략된 목록은 빈 목록으로 읽는다. 중복·범위 밖 좌표·전체 칸 제거·제거한 칸의 시작 배치를 테이블 오류로 보고한다. 모델과 View가 같은 목록으로 배치 가능 여부·격자 표시·포인터 판정을 처리하고, 시간 진행 사본도 모양을 보존한다. 빈칸 계산은 사용 가능한 칸 수에서 점유 칸 수를 뺀다.
 - 보드의 선택적 `displayName`을 지정하면 `Presentation.PuzzleTrainTitle`이 화차 제목으로 사용한다. 현재 `startingTrain.displayName`은 `고장난 칸`이다. 이름은 화차 인스턴스와 시간 진행 사본이 보관하므로 화차 선택·순서 변경에서도 해당 화차를 따른다.
-- 시작 화차의 소개는 `startingTrain.description`에 둔다. 고장난 칸은 7×5 중 13칸이 막혀 22칸에 적재할 수 있다. 판매가는 `PuzzleTradeTableData.startingWagonSalePrice`(고장난 칸 10)와 `wagonProducts[].salePrice`(일반 25, 냉장 50)에 둔다.
+- 시작 화차의 소개는 `startingTrain.description`에 둔다. 고장난 칸은 7×5 중 13칸이 막혀 22칸에 적재할 수 있다. 판매가는 가치 × `PuzzleTradeTableData.wagonSalePercent`(40%, 내림)이며 가치는 상품 `price`, 시작 화차는 `startingWagonValue`(80)다(`TableManager.WagonSalePrice`).
 
 ### 구매 화차의 랜덤 파손
 
-- `PuzzleWagonDamage`가 구매 경로에서 새 화차에 한 번 적용된다. 7×5 일반·냉장 화차에 추가 파손 3칸, 4칸, 5칸을 각각 55%, 30%, 15%로 먼저 추첨한다. 시작 화차는 테이블에 있는 기존 파손 칸을 사용한다.
+- `PuzzleWagonDamage`가 구매 경로에서 새 화차에 한 번 적용된다. 구매한 상품 보드(`TableManager.WagonBoardOf`, 구역 유지)에 추가 파손 3칸, 4칸, 5칸을 각각 55%, 30%, 15%로 먼저 추첨한다. 시작 화차는 테이블에 있는 기존 파손 칸을 사용한다.
 - 현재 편성에 실린 3칸 이상 화물을 모양별로 검사한다. 한 칸으로 이 화물들의 배치 후보를 평균 10~25% 줄일 수 있으면, 시도의 절반은 그런 위치에서 시작한다. 나머지 파손 칸은 무작위로 선택하고, 전체 파손으로 배치 후보가 평균 20~40% 줄어드는 결과를 우선한다. 보유 중인 대상 화물이 없으면 위치 편향 없이 추첨한다.
 - 파손 전 보드에 들어가던 모든 아이템은 회전까지 고려해 개별 배치가 하나 이상 남아야 하며, 남은 칸은 상하좌우로 이어져야 한다. 같은 셀을 쓰는 회전은 한 번만 센다. 여러 화물의 동시 적재와 시너지 배치는 보장 범위 밖이다.
 - 개수마다 최대 64번 시도한다. 선호 범위에 맞는 패턴이 없으면 같은 개수의 유효 후보를 쓰고, 유효 후보도 없으면 한 칸 줄여 재시도한다. 끝까지 실패하면 기본 보드를 쓴다. 현재 구현은 최대 64칸 보드에 적용한다. 생성된 위치는 구매 화차 인스턴스에 보존되며 새 모양은 이후 구매부터 반영된다.
@@ -68,7 +70,7 @@
 
 ## 술집 소문
 
-- 선호 소문은 `firstPreference`에 지정한 라센턴·기계 한 건이다. 시작 마을의 첫 대화에서만 후보로 생성하고, 이후에는 희귀 수요·특산/행동 순으로 후보를 고른다. 현재 마을·방문 마을·이미 소문에 나온 대상 마을을 제외한다.
+- 선호 소문은 `firstPreference`에 지정한 라센턴·기계 한 건이다. 시작 마을의 첫 대화에서만 후보로 생성하고, 이후에는 희귀 수요·특산/행동 순으로 후보를 고른다. 현재 마을·방문 마을, 그리고 소문에 나온 지 `refreshHours`(48시간 = 8턴, 6의 배수)가 안 된 대상 마을을 제외한다.
 - `PuzzleRumorTableData.firstPreference`는 시작 마을에서 제공할 `{cityId,tag}`다. 현재 라센턴(`city.rasenton`)의 기계(`Machinery`)이며 마을 참조·유통 가능한 태그·해당 마을의 Expensive 판매 등급을 검증한다. 설정 생략·대상 방문·이동 후에는 희귀 수요·특산·행동에서 선택한다. 시작 마을에서 대화를 건너뛰어도 다음 마을에서 선호 소문을 생성하지 않는다.
 - 선호 문구는 `presentation.station.preferenceRumor`의 `{0}` 마을 링크·`{1}` 태그 링크·`{2}` 목적격 조사로 구성한다. `Presentation`이 태그 이름의 받침에 맞춰 `을/를`을 고른다. 수첩·지도 배지·분석 기록은 같은 선호 후보의 마을·태그를 사용한다.
 - 희귀 수요 종류(`RareDemand`)와 현재 판매 등급이 `Rare`인 수요 소문은 `presentation.station.rareRumor`의 "비싸게 거래된데요." 문구를 사용한다. 술집의 새 소문과 수첩·지도·역 상단 요약의 기록 표시는 같은 수요 문구 경로를 사용한다. 기록의 표시는 `TavernRumorMessage`가 종류·대상 마을·태그로 다시 구성한다.
@@ -88,49 +90,55 @@
 - 도시의 `tagPrices`는 등록된 `tag`, 고유 `priority`, 양의 `buyPercent`를 가진다. 판매는 `sellGradeId`(판매 등급 참조) 또는 `sellPercent`(사용자 지정) 중 하나로만 정하고 둘을 함께 두면 오류다. 등급별 판매 수치는 `PuzzleTableData.sellGrades`가 단일 원본이며 `Common` 70·`Normal` 100·`Expensive` 130·`Rare` 200%를 제공하고 도시 행은 id로 참조한다. 구매 배율은 도시 행의 `buyPercent`를 사용한다. 거래 배율은 `buyPercentOfBaseValue`·`sellPercentOfFinalValue`에 일치한 모든 태그 규칙의 (배율 − 100)을 더한 값이며 하한 없이 0 이하도 허용한다. 개별 규칙의 배율은 양수여야 한다. `priority`는 적용 태그 표기 순서다. 수도권 할증은 지역 `pricePercent`(현재 모두 100)가 아니라 도시 기본 배율로 표현한다.
 - 거래 모델과 툴팁 견적은 `PuzzleInventoryService.TryQuoteTrade`를 공유하며 기획에 없는 고정 단가 예외는 두지 않는다.
 - 현재 거래가는 구매·판매 모두 인스턴스의 신선도 반영 실제 가치(`FreshnessAdjustedValue` = `ActualValue` × 기초데이터 `rules.freshness.*` 구간 배율)에 선택된 도시 배율을 곱한다. 새 재고는 `ActualValue`가 기본 가치와 같다. 도시 배율과 지역의 `pricePercent`를 중간 반올림 없이 곱한 최종 금액을 `MidpointRounding.AwayFromZero`로 정수화한다. 범위 초과는 거래 실패로 처리한다. 미리보기와 확정 모두 `EvaluateDrop` 경로를 쓰고 확정 직전에 다시 평가한다.
-- `startingFunds`는 0 이상, `wagonAddCostBase`·`gameClearCost`는 양수다. 가격 계산에 사용하지 않던 공통 구매 할증 필드는 제거했다. 현재 구매/판매 배율은 도시와 지역 표에서 읽는다.
+- `startingFunds`는 0 이상, `targetFunds`·`deadlineHours`는 양수다. 화차 상품은 id 고유·가격 양수이고 `wagonSalePercent`는 0~100, `startingWagonValue`는 0 이상이며, `board`를 두면 너비·높이 양수, 42칸(7×6, 화물칸 화면 슬롯 수) 이하, 쓸 칸 1개 이상, 시작 배치 없음이어야 한다. `cities[].wagonProductIds`는 등록된 상품만 가리키고 역 안에서 중복되지 않는다. 가격 계산에 사용하지 않던 공통 구매 할증 필드는 제거했다. 현재 구매/판매 배율은 도시와 지역 표에서 읽는다.
 - 시너지 규칙은 고유 `id`, 등록된 `neighborTag`, 보드 종류 `scope`(`Train`, `Market`, `Both`), 공간 범위 `spatialRange`(`Adjacent`, `Board`), 양의 `multiplierPercent`, 비어 있지 않은 `description`·`targetDescription`·`sourceDescription`과 대상 조건을 가진다. `targetTag` 또는 `excludedTargetTag` 중 하나로 대상을 정한다. `descriptionTag`는 이전 작성 데이터를 보존하는 메타데이터이며, 툴팁은 선택 역할에 맞는 설명을 읽는다. `Adjacent`는 상하좌우 접촉 쌍, `Board`는 같은 보드의 모든 화물 쌍을 평가한다. 인접 효과의 화살표는 접촉 칸에 표시하고, 보드 효과는 상세 수치에 표시한다.
 - `pieces[].synergyEffects`는 `{ruleId,target,source}` 목록이다. 빈 배열은 가치 효과 없음이고 누락·null·중복 ID·없는 규칙·양쪽 모두 false·태그 조건과 맞지 않는 역할은 오류다. 계산은 대상의 `target`과 이웃의 `source`를 모두 요구하고 상대 태그·제외 조건·범위·면별 합산·배설물 면역도 유지한다. 가능 효과 설명과 접촉 화살표는 같은 선택 판정을 사용한다.
 - `pieces[].preservationEffect`는 `{enabled,reductionPercent}`이며 모든 품목에 필수다. 감소율은 0~100%, 비활성은 0%이며 활성과 공통 냉장 태그가 일치해야 한다. 시간 진행·냉장 접촉·툴팁은 이 값만 읽는다. 기존 소금 10%·냉장 프레임 50%를 포함해 21개 품목을 명시적 값으로 이행했다.
 - `ItemEditorEffectMigration`은 기존 태그 판정을 동결한 비교 경로로 역할별 적격 여부와 모든 품목 쌍/규칙의 변화율·품목별 신선 감소율을 대조한다. 이행은 초안에서만 수행하고 검토·Undo·기존 저장 트랜잭션을 거친다. 이미 명시한 선택을 덮어쓰거나 런타임에서 태그 폴백으로 복구하지 않는다.
 - `animals`에 배설물 품목·태그, 배설 주기(일)·동물당 수량, 번식 시간(시간)과 `breeding`을 둔다. 번식 행은 같은 품목의 성체 쌍에 대해 `parentPieceId`, `offspringPieceId`, 양의 `offspringCount`를 지정한다. 검증은 `Baby` 태그가 없는 동물 품목마다 고유한 부모 행을 요구하고, `Baby` 태그의 부모 등록을 오류로 처리한다.
 - Item Editor는 `animals.breeding`만 편집하고 번식·배설 공통 설정과 가치 규칙·배율은 읽기 전용으로 둔다. 마을 재고·도축·개조표는 참조만 표시한다. 새 DTO 필드는 고급 속성에 JSON 값으로 노출하고 원본의 알 수 없는 필드는 읽기 전용으로 보존한다.
-- `TableManager.TryGetAnimalBreeding`은 부모 품목 ID로 조회한다. 현재 `piece.cow` 한 쌍은 `piece.babyCow` 한 마리를 낳는다. 번식 턴은 `animals.breedingTurns`, 송아지의 성장 턴과 차단 구간은 `PuzzleTableData.pieces`의 `growthTurns`·`growthBlockedTurns`가 소유한다.
-- `animals.completionHoldTurns`(1)는 번식·출산·배설이 끝나기 직전에 기다리는 공통 턴이다. 산출물을 놓을 자리가 없으면 진행도를 `주기 − completionHoldTurns`에서 멈추고, 자리가 돌아오면 그 턴만큼(다음 턴) 더 흘러야 완료한다. 검증은 양수이고 `breedingTurns`·`wasteIntervalTurns`보다 짧아야 함을 요구한다. 성장은 품목의 `growthBlockedTurns`를 같은 방식의 대기·재시도 구간으로 쓴다(진행 정지 지점 = `growthTurns − growthBlockedTurns`). 대기에 새로 들어간 개체·쌍에는 가치 변동 알림과 독립된 미확인 공간 부족 알림을 남긴다. 옛 `presentation.PuzzleGrowthBlocked` 문구는 이동 실패와 함께 제거했다.
-- 동물 툴팁 원문은 `breeding[].description`(소요 턴, 자식 이름, 수량), `animals.wasteDescription`(주기 턴, 배설물 이름, 수량), `pieces[].growthDescription`(소요 턴, 성체 이름, 대기 턴)에 둔다. 괄호 안의 순서대로 `{0}`~`{2}`를 사용한다. 곡물 섭취 설명은 `animals.breedingFeedDescription`·`growthFeedDescription`이며 `{0}`은 섭취 주기, `{1}`은 단축 시간이다. `grainTag`·`feedIntervalHours`가 소비 대상·간격의 원본이고, `breedingFeedReductionHours`·`growthFeedReductionHours`가 각각 번식·성장 가속량의 원본이다. 설명 누락과 잘못된 인자·품목 참조는 표 오류이며 시간 표기와 색은 `Presentation`이 처리한다. 설명 아래 진행도는 `presentation.tooltip.effectProgress`, 공간 부족 표시는 `presentation.tooltip.effectSpaceBlocked`가 원본이고 값은 표가 아니라 세션의 현재 상태에서 읽는다.
-- `freshness`는 냉장 태그·객차 냉장 감소율의 공통 원본이다. 신선도는 매 턴 정수로 소모하므로 별도 반영 주기가 없다. `refrigerationReductionPercent`·`saltPreservationReductionPercent`는 이전 품목의 명시적 이행 입력으로만 남기며 런타임 품목 수치의 폴백이 아니다. 인접 발생원의 `preservationEffect.reductionPercent`를 인스턴스별로 한 번씩 합산하고 100%로 제한한다. 기존 객차 개조와의 최댓값 적용을 유지한다. 음식의 시작 유통기한은 품목의 `shelfLifeTurns`이며 보존 효과는 턴당 소모율(%)을 누적해 100마다 1턴을 줄이고, 남은 유통기한이 0이면 배설물 품목으로 교체한다.
+- `TableManager.TryGetAnimalBreeding`은 부모 품목 ID로 조회한다. 현재 `piece.cow` 한 쌍은 `piece.babyCow` 한 마리를 낳는다. 번식 시간은 `animals.breedingHours`, 송아지의 성장 시간과 차단 구간은 `PuzzleTableData.pieces`의 `growthTurns`·`growthBlockedTurns`가 소유한다.
+- `animals.completionHoldHours`(3)는 번식·출산·배설이 끝나기 직전에 기다리는 공통 시간이다. 산출물을 놓을 자리가 없으면 진행도를 `주기 − completionHoldHours`에서 멈추고, 자리가 돌아오면 그 턴만큼(다음 턴) 더 흘러야 완료한다. 검증은 양수이고 `breedingTurns`·`wasteIntervalTurns`보다 짧아야 함을 요구한다. 성장은 품목의 `growthBlockedTurns`를 같은 방식의 대기·재시도 구간으로 쓴다(진행 정지 지점 = `growthTurns − growthBlockedTurns`). 대기에 새로 들어간 개체·쌍에는 가치 변동 알림과 독립된 미확인 공간 부족 알림을 남긴다. 옛 `presentation.PuzzleGrowthBlocked` 문구는 이동 실패와 함께 제거했다.
+- 동물 툴팁 원문은 `breeding[].description`(소요 시간, 자식 이름, 수량), `animals.wasteDescription`(주기 시간, 배설물 이름, 수량), `pieces[].growthDescription`(소요 시간, 성체 이름, 대기 시간)에 둔다. 괄호 안의 순서대로 `{0}`~`{2}`를 사용한다. 곡물 섭취 설명은 `animals.breedingFeedDescription`·`growthFeedDescription`이며 `{0}`은 섭취 주기, `{1}`은 단축 시간이다. `grainTag`·`feedIntervalHours`가 소비 대상·간격의 원본이고, `breedingFeedReductionHours`·`growthFeedReductionHours`가 각각 번식·성장 가속량의 원본이다. 설명 누락과 잘못된 인자·품목 참조는 표 오류이며 시간 표기와 색은 `Presentation`이 처리한다. 설명 아래 진행도는 `presentation.tooltip.effectProgress`, 공간 부족 표시는 `presentation.tooltip.effectSpaceBlocked`가 원본이고 값은 표가 아니라 세션의 현재 상태에서 읽는다.
+- `freshness`는 냉장 태그·객차 냉장 감소율의 공통 원본이다. 신선도는 매시간 정수로 소모하므로 별도 반영 주기가 없다. `refrigerationReductionPercent`·`saltPreservationReductionPercent`는 이전 품목의 명시적 이행 입력으로만 남기며 런타임 품목 수치의 폴백이 아니다. 인접 발생원의 `preservationEffect.reductionPercent`를 인스턴스별로 한 번씩 합산하고 100%로 제한한다. 기존 객차 개조와의 최댓값 적용을 유지한다. 음식의 시작 유통기한은 품목의 `shelfLifeTurns`이며 보존 효과는 턴당 소모율(%)을 누적해 100마다 1턴을 줄이고, 남은 유통기한이 0이면 배설물 품목으로 교체한다.
 - 인접 시너지는 맞닿은 면(경계)마다 한 번씩 평가하므로 같은 이웃과 여러 면이 닿으면 면 수만큼 더해진다. 냉장 프레임의 유통기한 감소는 프레임 인스턴스당 한 번이다. `excludedTargetTag`·`excludedNeighborTag`는 쉼표로 여러 태그를 지정할 수 있다(똥 패널티는 `Waste,Animal` 제외). 증가·감소를 구분하지 않고 모든 규칙의 (배율 − 100)을 합산해 기본 가치에 곱하며 하한 없이 음수 배율도 허용한다. 인접 정보 갱신과 실제 가치 누적을 분리하며 가치의 누적 경계 정책은 게임 기획서 10장을 따른다.
 
-## 노선·턴
+## 노선·시간
 
-- `routes`는 `(fromCityId, toCityId)`를 키로 하는 방향 그래프다. 자기 자신·중복 방향·미등록 도시 참조를 금지한다. `cost`는 0 이상, `turns`는 양수다. 현재 표는 레일 생성 seed 20265146의 `projectMapData.rails` 연결에 프로젝트 보완 노선을 더한 양방향 연결 50개(마을 31)이며 시작 도시에서 모든 도시에 도달할 수 있어야 한다. 역 ID는 `city.<역 이름 로마자>`로 지역과 무관하다.
+- `routes`는 `(fromCityId, toCityId)`를 키로 하는 방향 그래프다. 자기 자신·중복 방향·미등록 도시 참조를 금지한다. `cost`는 0 이상, `distance`는 양수다. 현재 표는 레일 생성 seed 20265146의 `projectMapData.rails` 연결에 프로젝트 보완 노선을 더한 양방향 연결 50개(마을 31)이며 시작 도시에서 모든 도시에 도달할 수 있어야 한다. 역 ID는 `city.<역 이름 로마자>`로 지역과 무관하다.
 - `TableManager.TryGetRoute`·`HasRoute`는 개별 연결을 조회하고 `RoutesFrom(cityId)`는 도착 ID 오름차순 목록을 제공한다. 노출 정렬은 연결 관계가 아니다. 동일 방향의 복수 간선은 지원하지 않는다.
 - 반대 방향이 있으면 거리와 `highSpeed`가 같아야 한다. 방향별 기본요금은 달라도 된다. 같은 지역의 근거리에서는 보장 재고의 복수 태그와 거래 우선순위를 사용해 어느 방향으로든 공급·수요가 맞물리는 연결을 금지한다.
-- `turns`는 노선의 이동 턴이자 운임의 거리 항이다(양수, 왕복 동일). `points`는 그리기 전용 폴라인으로 유한한 x,y 쌍이 두 점 이상이며 왕복은 역순이다. Map Editor의 이동 턴 자동 계산만 선 길이 ÷ `pixelsPerTurn`을 반올림해 `turns`를 채운다.
-- 경과 턴은 `PuzzleInventoryService.Time` 하나가 소유한다. 이동·휴식·아침 대기·역 시설 진입·작업대 작업은 배설·식품 만료·성장·출산 경계별로 보유 시간과 가치를 계산한 뒤 한 번 확정하고 `TimeAdvanced`를 발행한다. 진행 시뮬레이션은 객차 사본과 번식·배설 상태 사본에서 돌고 확정 시에만 본래 상태에 반영하므로 미리보기가 원본을 바꾸지 않는다. 배설은 동물 인스턴스별 진행 상태를 갖고 첫 발생을 이후 처음 맞는 주기 경계(경과 턴이 `wasteIntervalTurns`의 배수)에 맞추며, 공간이 부족한 동물만 완료 직전에서 대기한다. 출산도 산출물 전체가 들어갈 때만 주기를 넘긴다. 성장 진행도는 `OwnedTurns`와 분리한 성장 시계로 계산하고, 성체 자리가 없으면 그 품목의 성장 시계만 `growthTurns − growthBlockedTurns`에서 멈춘다. 공간 부족은 더 이상 이동·휴식의 실패 사유가 아니다. 같은 시각에는 정산·배설·식품 만료·조합·곡물 섭취·성장·출산 순서로 처리한다.
-- `planningTargetCityId`는 등록된 도시 ID를 가리키는 선택적 지도 표식이다. 현재 `city.finance`(금융마을)이며 실제 상환 장소 설정인 `PuzzleTradeTableData.debtCityId`와 분리한다. `debtCityId`도 같은 도시를 가리켜 금융마을에서만 상환할 수 있다.
-- `PuzzleTradeTableData.maxWagonCount`는 최대 객차 수 상한(8칸)이며 1 이상의 정수여야 한다. `PuzzleInventoryService`가 상한 도달 시 증차를 거부하고, UI 객차 바 슬롯 수가 이 값보다 적으면 예외를 발생시킨다.
-- `PuzzleTradeTableData.travelEffectSeconds`·`travelArrivalHoldSeconds`는 UI 이동 연출·도착 표시의 실제 초 단위 시간이며 유한한 양수여야 한다. 게임 내 소요 시간·기한과 분리한다.
-- 비용은 `cost + turns × costPerTurn + TotalTrainOccupiedCells × costPerCell`이다. 보유 시간·견적·표시는 같은 이동 턴을 사용한다. 가치 배수는 `floor(행동 후 경과 턴 / 주기 턴) − floor(행동 전 경과 턴 / 주기 턴)`이다. `PuzzleSynergyTableData.activationIntervalTurns`는 양의 정수이며 현재 2(6시간, 하루 4회)다. 현재 배율의 증감량을 정산 1회당 한 번 적용한다.
+- `distance`는 노선 거리다(양수, 왕복 동일). 운임의 거리 항(`distance × costPerDistance`)과 의뢰 보상·후보 범위, 최단 경로 동률 판정에 쓴다. `points`는 유한한 x,y 쌍이 두 점 이상이며 왕복은 역순이고 그리기 전용이다. Map Editor의 노선 거리 자동 계산만 선 길이 ÷ `pixelsPerDistance`를 반올림해 `distance`를 채운다. 이동은 노선과 관계없이 `travelTurns`(1턴)다.
+- 경과 시간(정수 게임 시간)은 `PuzzleInventoryService.Time` 하나가 소유한다. 턴제(1턴 = 6시간)라 이동·휴식·아침 대기·작업장 확정이 턴 단위로 같은 진행을 여러 시간 묶어 한 번에 확정한다. 자세한 흐름은 [게임 시간 시스템](<게임 시간 시스템.md>)에 있다. 진행 시뮬레이션은 객차 사본과 번식·배설 상태 사본에서 돌고 확정 시에만 본래 상태에 반영하므로 미리보기가 원본을 바꾸지 않는다. 배설은 동물 인스턴스별 진행 상태를 갖고 첫 발생을 이후 처음 맞는 주기 경계(경과 시간이 `wasteIntervalHours`의 배수)에 맞추며, 공간이 부족한 동물만 완료 직전에서 대기한다. 출산도 산출물 전체가 들어갈 때만 주기를 넘긴다. 성장 진행도는 `OwnedHours`와 분리한 성장 시계로 계산하고, 성체 자리가 없으면 그 품목의 성장 시계만 `growthHours − growthBlockedHours`에서 멈춘다. 같은 시각에는 정산·배설·식품 만료·조합·곡물 섭취·성장·출산 순서로 처리한다.
+- `cities[].landmark`(bool)는 핵심 도시다. 전장의 안개 위에서도 처음부터 위치·이름이 보인다. 지금 금융마을·아이포트 중앙·에른아 공업역·라센턴·헤일하임·세르아·피오아 항·이브트다.
+- `planningTargetCityId`는 등록된 도시 ID를 가리키는 선택적 지도 표식(★)이다. 지금은 비어 있다. `startCity`는 금융마을이다.
+- 화차 상품은 `description`(필수), `freightExemptTags`(등록된 태그), `processId`(가공 참조)를 가진다. `board.zones[]`는 id·이름·직사각형(`x`·`y`·`width`·`height`, 보드 안)·`allowedTags`(등록된 태그 1개 이상)·`maxPieceCells`(0이면 제한 없음)이며 구역끼리 겹칠 수 없다.
+- 가공 `Convert`는 `hours`(양수, 6의 배수)·`outputPerUnit`(양수)·부재료 `countPerUnit`(양수), `Crush`는 `hoursPerCell`(양수, 6의 배수)와 주재료 태그를 가진 1칸 산출 품목이 필요하다.
+- `PuzzleTradeTableData.maxWagonCount`는 기본 증차 상한(4칸)이며 1 이상의 정수여야 한다. 실제 상한은 기본 + 평판(1당 1칸)이고 `maxWagonCountCap`(8, 기본 이상)을 넘지 않는다. `PuzzleInventoryService`가 상한 도달 시 증차를 거부하고, UI 객차 바 슬롯 수가 `maxWagonCountCap`보다 적으면 예외를 발생시킨다.
+- `PuzzleTradeTableData.travelArrivalHoldSeconds`는 도착 표시의 실제 초 단위 시간이다. 이동 자체의 길이는 게임 시계를 따른다. `travelEffectSeconds`는 검증만 남고 더 이상 쓰지 않는다.
+- 비용은 `cost + distance × costPerDistance + TotalTrainOccupiedCells × costPerCell`이다. 이동 1회가 1턴(`CityMoveCount`)이다. 가치 배수는 `floor(진행 후 경과 시간 / 주기) − floor(진행 전 경과 시간 / 주기)`이다. `PuzzleSynergyTableData.activationIntervalHours`는 양의 정수이며 현재 6(하루 4회)이다. 현재 배율의 증감량을 정산 1회당 한 번 적용한다.
 - `highSpeed`는 이전 철도망 호환 필드이며 현 초안은 모두 false다. 노선도는 지역별 색·일반 길 회색·역 표식과 시간·일수 숫자를 사용한다.
-- 이동은 `EvaluateTravel(toCityId)`·`Travel(toCityId)`로 평가·확정한다. 자금 부족·연결 없음·종료 상태 등 실패 시 이동 상태를 보존한다.
+- 이동은 `EvaluateTravel(toCityId)`로 평가하고 `Travel`/`TravelLeg`로 즉시 처리한다(운임 차감 → 도시 변경 → 1턴 진행 → 도착 처리). 자금 부족·연결 없음·종료 상태 등 실패 시 상태를 보존한다.
 - 시장·노드·연결선은 프리팹에 사전 배치하므로 도시·노선을 수정하면 관련 프리팹·씬 참조도 함께 맞춘다. 표시·조작 계약은 게임 기획서를 따른다.
-- 옛 이동 횟수 기반 빚 일정 DTO·JSON·조회·비활성 코드는 제거했다. 상환은 거래 표의 `deadlineTurns`·`debtCityId`·`gameClearCost`를 사용한다. 현재 기한은 112턴(14일)이며 금융마을에서 상환한다.
+- 옛 이동 횟수 기반 빚 일정과 상환(`debtCityId`·`gameClearCost`)은 제거했다. 판은 `deadlineHours`(336시간, 14일)가 지난 뒤 결산하고 잔액을 `targetFunds`와 비교한다.
 
-## 마을별 행동
+## 작업장
 
-- `actions` 행은 고유 `id`, 알려진 `type`(`Butchery`·`Modification`·`Refining`), 비어 있지 않은 `title`·`description`, `Butchery`·`Refining`의 양의 `workTurns`와 `Modification`의 0, 빈 `board.startingPlacements`와 양수 `width`·`height`, 등록된 `inputTag`·`outputTag` 또는 `modes`를 가진다.
-- `cityIds`는 등록된 도시 참조이며 같은 도시에서 같은 `type`의 행동은 하나만 쓸 수 있다. `TableManager.CityActionsOf(cityId)`는 action id 오름차순 목록을 주고 `TryGetCityAction(cityId, type, out row)`으로 하나를 조회한다. 전체 목록은 `CityActions` 속성(id 오름차순)이다. `modes`의 `id`·`displayName`·`description`·태그·`conversions`도 참조 무결성을 검증한다.
-- `conversions`의 `inputPieceId`는 `inputTag`를, `outputPieceId`는 `outputTag`를 가진 등록된 화물이어야 하고 `inputPieceId`는 고유하다. 도축·개조·정제는 입력 하나당 고정 산출 개수를 `outputCount` 양수로 저장한다. 산출 품목을 정제 입력으로 등록하면 오류다. 현재 `action.butchery`는 `city.darpol`(다르폴)에서 `piece.cow` 1개를 `piece.beef` 2개로 360분간 작업하고, `action.modification`은 `city.erna`의 `mode.refrigeration`으로 `piece.uShape` 1개를 `piece.refrigeratedFrame` 1개로 즉시 바꾼다. `action.refining`은 `city.riobruk`(리오브루크)에서 `piece.oreCross`→`piece.metalIngot` 5개, `piece.oreL`→`piece.metalIngot` 3개를 360분간 작업하고 시간·비용은 미확정 제안값이다.
-- 개조는 `InstanceId`, 회전 후 `Pose`, `ActualValue`, `OwnedTurns`, `Durability`와 유통기한 진행을 보존한다. `BaseValue`와 로컬 점유 셀을 같게 유지해 변환으로 이후 시너지 기준액이 바뀌지 않게 한다. 냉장 프레임의 `Refrigerator` 태그는 `PuzzleSynergyTableData.freshness`에서 참조한다.
+- `TrainventoryWorkTableData.works[]`(WorksData) 행은 고유 `id`, 비어 있지 않은 `displayName`·`description`, 등록된 서로 다른 `inputPieceId`·`outputPieceId`, 양수 `workHours`·`outputCount`, 0 이상 `cost`를 가진다.
+- `TrainventoryWorkshopTableData.workshops[]` 행은 고유 `id`, 알려진 `type`(`Butchery`·`Modification`·`Refining`), 비어 있지 않은 `title`·`description`, 양수 `width`·`height`와 빈 `startingPlacements`의 `board`, 하나 이상의 등록된 `workIds`, 0 이상 `costPercent`·`feePerHour`·`extraCost`를 가진다. 한 작업장 안에서 입력 화물은 작업 하나에만 대응하고, 산출 품목을 같은 작업장의 입력으로 둘 수 없다.
+- 역 배치는 `PuzzleTableData.cities[].workshopIds`다. 등록된 작업장만 참조하고 같은 역에 같은 `type`은 하나만 둔다. `TableManager.WorkshopsOf(cityId)`(id 오름차순)·`TryGetWorkshop(cityId, type, out row)`·`WorksOf(workshop)`·`TryGetWorkFor(workshop, inputPieceId, out work)`로 조회한다.
+- 수수료 = `⌈cost × costPercent / 100⌉ + workHours × feePerHour + extraCost`(`TableManager.WorkFee`, 화물 하나당). 맡긴 화물 전체의 합을 내고, 가장 긴 `workHours`가 지나면 모두 나온다.
+- 도축은 `Baby` 태그 입력을 금지한다. 도축·정제 산출물은 빈 작업 보드에 모두 들어가야 한다. 개조는 `outputCount` 1, 같은 셀 좌표·`slotCount`·`baseValue`, 입력 태그 유지가 필요하고 결과 품목은 시장 재고 후보·고정 재고에 둘 수 없다.
+- 현재 배치: `city.darpol`의 `workshop.darpolButchery`(`work.butcherCow`: 소 → 소고기 2), `city.nornova`의 `workshop.nornovaRefinery`(`work.refineOreCross` → 금속 주괴 5, `work.refineOreL` → 3), `city.erna`의 `workshop.ernaModification`(`work.refrigerateUShape`: U자 기계 → 냉장 프레임, 비용 150). 작업 시간은 모두 3시간, 계수는 `costPercent` 100·`feePerHour` 0·`extraCost` 0이다.
+- 개조는 `InstanceId`, 회전 후 `Pose`, `ActualValue`, `OwnedHours`, `Durability`와 유통기한 진행을 보존한다. `BaseValue`와 로컬 점유 셀을 같게 유지해 변환으로 이후 시너지 기준액이 바뀌지 않게 한다. 냉장 프레임의 `Refrigerator` 태그는 `PuzzleSynergyTableData.freshness`에서 참조한다.
 - 도축대·개조대·정제대 버튼·View는 Game 씬의 `Assets/Art/UI/GameplayLayout.prefab`에 연결되어 있으며 배치는 프리팹에서 수정한다. 문구 원본은 `BasicDataTableData`이며 상태·사유는 `rules.butchery.*`·`rules.modification.*`·`rules.refining.*`, 버튼·보드는 `presentation.StationButchery*`·`presentation.PuzzleButcheryTitle`·`presentation.StationModification*`·`presentation.PuzzleModification*`·`presentation.StationRefining*`·`presentation.PuzzleRefiningTitle`을 쓴다.
 
 ## 술집 의뢰
 
 - 새 테이블은 `Trainventory` 접두사를 쓴다. `TrainventoryQuestTableData`의 `cargoTag`가 의뢰 화물 판별 태그이며 `courierQuests[].pieceIds`는 이 태그와 `excludeFromMarket`을 가진 등록 화물이어야 한다.
-- 평판은 저장하지 않고 숙련 레벨 합으로 계산한다. `proficiencyXpPercentOfReward`(0 이상)는 완료 시 보상 대비 숙련 경험치 비율이며, `courierQuests[].pieceIds` 화물에 숙련 대상 생산 태그가 없으면 그 의뢰 틀의 `fallbackProficiencyTags`(숙련 대상 태그만 허용)가 비어 있으면 안 된다. 이 태그는 화물에 생산 태그가 없을 때만 완료 경험치를 받는다.
+- 평판은 저장하지 않고 숙련 레벨 합으로 계산한다. `proficiencyXpPercentOfReward`(0 이상)는 완료 시 보상 대비 숙련 경험치 비율이다. 의뢰마다 숙련 태그 하나를 정하며, `courierQuests[].proficiencyTags`(숙련 대상 태그만 허용, 비워도 됨)가 후보이고 비면 화물 생산 태그 → 목적지 지역 생산 태그 → 전체 숙련 태그 순으로 고른다.
 - `reputationLevels`에는 평판 0 단계가 있어야 하고 기준은 중복되지 않으며 평판이 높을수록 동시 진행 수가 줄지 않는다. `penalties[].type`은 `Deposit`(보증금 비율 1~1000%) 또는 `RegionTrade`(구매 +·판매 −, 양의 지속 시간)다.
-- 운송 의뢰는 `penaltyId`가 등록된 패널티이고 가중치·거리 범위가 양수, 기한 배율 100% 이상이어야 한다. 보상 = `baseReward + rewardPerCellTurn × 칸 수 × 최단 이동 턴`, 기한 = `⌈최단 턴 × deadlinePercent / 100⌉ + deadlineExtraTurns`. 최단 턴은 이동과 같은 `TravelTurns`로 구한다.
+- 운송 의뢰는 `penaltyId`가 등록된 패널티이고 가중치·거리 범위가 양수, 기한 배율 100% 이상이어야 한다. 최단 노선 거리 합이 `minTravelDistance`~`maxTravelDistance`인 역이 목적지 후보다. 보상 = `baseReward + rewardPerCellDistance × 칸 수 × 최단 거리`, 기한(시간) = `⌈최단 이동 턴 × deadlinePercent / 100⌉ × 6 + deadlineExtraHours`.
 
 ## 거래 숙련
 

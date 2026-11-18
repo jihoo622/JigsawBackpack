@@ -78,7 +78,7 @@ public struct WorkbenchReadyPayload
 {
     public string actionId, cityId;
     public int outputCount;
-    public long elapsedTurns;
+    public long elapsedHours;
 }
 
 [Serializable]
@@ -145,7 +145,7 @@ public static partial class TelemetryPayload
     {
         var payload = new SessionPayload();
         // 6부터 작업대·화차 개조·화차 순서 행동, 작업대 보드 관측, transformed를 기록한다.
-        payload.schemaVersion = 7;
+        payload.schemaVersion = 9;
         payload.reason = _reason ?? string.Empty;
         payload.appVersion = Application.version;
         payload.unityVersion = Application.unityVersion;
@@ -185,7 +185,7 @@ public static partial class TelemetryPayload
             actionId = _info.actionId,
             cityId = _info.cityId,
             outputCount = _info.outputCount,
-            elapsedTurns = _info.elapsedTurns
+            elapsedHours = _info.elapsedHours
         };
     }
 
@@ -223,7 +223,7 @@ public static partial class TelemetryPayload
             tag = _info.tag,
             itemId = _info.itemId,
             actionId = _info.actionId,
-            elapsedTurns = _info.recordedTurns
+            elapsedHours = _info.recordedHours
         };
     }
 

@@ -146,6 +146,7 @@ internal static class PuzzleWagonDamage
         displayName = _board.displayName,
         description = _board.description,
         startingPlacements = _board.startingPlacements,
+        zones = _board.zones,
         blockedCells = Enumerable.Range(0, _board.width * _board.height)
             .Where(index => (_blocked & (1UL << index)) != 0)
             .Select(index => new PuzzleBoardCellData { x = index % _board.width, y = index / _board.width }).ToArray()

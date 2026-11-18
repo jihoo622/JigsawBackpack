@@ -1,14 +1,14 @@
-/// <summary>툴팁 일반 효과에 덧붙이는 진행도. 값은 턴 단위 원본이며 표시 서식은 Presentation이 만든다.</summary>
+/// <summary>툴팁 일반 효과에 덧붙이는 진행도. 값은 시간 단위 원본이며 표시 서식은 Presentation이 만든다.</summary>
 public readonly struct PuzzleProgressDisplay
 {
-    public long ElapsedTurns { get; }
-    public long TotalTurns { get; }
+    public long ElapsedHours { get; }
+    public long TotalHours { get; }
     public bool SpaceBlocked { get; }
 
-    public PuzzleProgressDisplay(long _elapsedTurns, long _totalTurns, bool _spaceBlocked)
+    public PuzzleProgressDisplay(long _elapsedHours, long _totalHours, bool _spaceBlocked)
     {
-        ElapsedTurns = _elapsedTurns;
-        TotalTurns = _totalTurns;
+        ElapsedHours = _elapsedHours;
+        TotalHours = _totalHours;
         SpaceBlocked = _spaceBlocked;
     }
 }

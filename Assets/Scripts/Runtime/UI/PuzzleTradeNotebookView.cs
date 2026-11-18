@@ -143,9 +143,9 @@ public sealed class PuzzleTradeNotebookView : PanelBase
 
     // 숙련 탭 패널 내용. 숙련 탭일 때 Render 직후 같은 갱신에서 호출한다.
     internal void RenderProficiency(int _reputation, int _maxActiveQuests, bool _hasNextStage, int _nextReputation,
-        IReadOnlyList<TrainventoryProficiencyStanding> _standings)
+        IReadOnlyList<TrainventoryProficiencyStanding> _standings, string _wagonGates)
     {
-        proficiencyPanel.Render(_reputation, _maxActiveQuests, _hasNextStage, _nextReputation, _standings);
+        proficiencyPanel.Render(_reputation, _maxActiveQuests, _hasNextStage, _nextReputation, _standings, _wagonGates);
     }
 
     // _unseenCount: 수첩을 마지막으로 연 뒤 생긴 소문·의뢰 변화·숙련 레벨 상승 수. 0이면 접힌 탭의 배지를 숨긴다.
@@ -163,10 +163,11 @@ public sealed class PuzzleTradeNotebookView : PanelBase
         bool proficiency = _tab == PuzzleNotebookTab.Proficiency;
         bool synergy = _tab == PuzzleNotebookTab.Synergy;
         ApplyPanelWidth(synergy);
-        scroll.gameObject.SetActive(!proficiency && !synergy);
+        // 상성표 탭 본문은 빌드 요약. 상성표 패널이 열려 있으면 불투명 배경으로 덮인다.
+        scroll.gameObject.SetActive(!proficiency);
         proficiencyPanel.gameObject.SetActive(proficiency);
         logText.richText = true;
-        logText.text = proficiency || synergy ? string.Empty : _text;
+        logText.text = proficiency ? string.Empty : _text;
         titleLabel.text = Presentation.RumorLogTitle;
         countLabel.gameObject.SetActive(!proficiency && !synergy);
         countLabel.text = Presentation.RumorLogCount(_tab == PuzzleNotebookTab.Rumors ? _rumorCount : _questCount);

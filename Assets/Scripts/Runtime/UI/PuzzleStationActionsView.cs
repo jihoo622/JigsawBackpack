@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine.UI;
 using UnityEngine;
@@ -49,6 +51,9 @@ public sealed class PuzzleStationActionsView : PanelBase
     [SerializeField] Button travelButton;
     [SerializeField] Button backButton;
     [SerializeField] Button restDurationButton;
+    // 휴식 목표 시각을 1시간씩 앞뒤로 옮긴다.
+    [SerializeField] Button restEarlierButton;
+    [SerializeField] Button restLaterButton;
     [SerializeField] Button butcheryButton;
     [SerializeField] Button butcheryConfirmButton;
     [SerializeField] Button modificationButton;
@@ -66,6 +71,8 @@ public sealed class PuzzleStationActionsView : PanelBase
     internal event Action RestRequested;
     internal event Action TravelRequested;
     internal event Action RestTimeRequested;
+    internal event Action RestEarlierRequested;
+    internal event Action RestLaterRequested;
     internal event Action ButcheryRequested;
     internal event Action ButcheryConfirmed;
     internal event Action ModificationRequested;
@@ -90,6 +97,16 @@ public sealed class PuzzleStationActionsView : PanelBase
     internal bool ShowingButchery => butcheryContent && butcheryContent.activeSelf;
     internal bool ShowingModification => modificationContent && modificationContent.activeSelf;
     internal bool ShowingRefining => refiningContent && refiningContent.activeSelf;
+    internal bool ShowingRest => restContent && restContent.activeSelf;
+
+    // 휴식 조작: 확인 버튼 글자(목표 시각·남은 시간 또는 멈추기), 목표 조정 가능 여부, 확인 가능 여부.
+    internal void RefreshRest(string _label, bool _canAdjust, bool _canPress)
+    {
+        restDurationLabel.text = _label;
+        restDurationButton.interactable = _canPress;
+        restEarlierButton.interactable = _canAdjust;
+        restLaterButton.interactable = _canAdjust;
+    }
     public bool ShowingSubscreen => isActiveAndEnabled && actionsList && !actionsList.activeSelf;
     PuzzleWagonProductData[] wagonProducts;
     int wagonShopPage;
@@ -100,12 +117,12 @@ public sealed class PuzzleStationActionsView : PanelBase
 
     protected override void Awake()
     {
-        tavernLabel.text = Presentation.StationTurnCost(Presentation.StationTavern);
+        tavernLabel.text = Presentation.StationTavern;
         restLabel.text = Presentation.StationRest;
         travelLabel.text = Presentation.StationTravel;
         backLabel.text = Presentation.StationBack;
         restHint.text = Presentation.StationRestHint;
-        wagonShopButton.GetComponentInChildren<TextMeshProUGUI>().text = Presentation.StationTurnCost(Presentation.StationWagonShop);
+        wagonShopButton.GetComponentInChildren<TextMeshProUGUI>().text = Presentation.StationWagonShop;
         tavernContent.gameObject.SetActive(false);
         if (butcheryButton && !ButcheryWired)
         {
@@ -153,6 +170,10 @@ public sealed class PuzzleStationActionsView : PanelBase
         travelButton.onClick.AddListener(OnTravel);
         backButton.onClick.AddListener(OnBack);
         restDurationButton.onClick.AddListener(OnRestTime);
+        restEarlierButton.onClick.AddListener(OnRestEarlier);
+        restLaterButton.onClick.AddListener(OnRestLater);
+        restEarlierButton.GetComponentInChildren<TextMeshProUGUI>().text = Presentation.StationRestEarlier;
+        restLaterButton.GetComponentInChildren<TextMeshProUGUI>().text = Presentation.StationRestLater;
         wagonShopButton.onClick.AddListener(OnWagonShop);
         wagonShopNextPage.onClick.AddListener(NextWagonShopPage);
         if (wagonProductRows != null)
@@ -200,6 +221,8 @@ public sealed class PuzzleStationActionsView : PanelBase
         travelButton.onClick.RemoveListener(OnTravel);
         backButton.onClick.RemoveListener(OnBack);
         restDurationButton.onClick.RemoveListener(OnRestTime);
+        restEarlierButton.onClick.RemoveListener(OnRestEarlier);
+        restLaterButton.onClick.RemoveListener(OnRestLater);
         wagonShopButton.onClick.RemoveListener(OnWagonShop);
         wagonShopNextPage.onClick.RemoveListener(NextWagonShopPage);
         if (wagonProductRows != null)
@@ -232,20 +255,19 @@ public sealed class PuzzleStationActionsView : PanelBase
         base.OnDisable();
     }
 
-    // _marketOpen: 지금 시장에 들어갈 수 있는지(밤이 아니고 턴을 쓸 수 있음). _marketEntered: 이미 시장에 들어가 있는지.
-    // _canSpendTurn: 역 행동 1턴을 쓸 수 있는지(기한). 턴을 쓰는 버튼만 막고 휴식 화면·이동 버튼은 그대로 둔다.
-    internal void Refresh(bool _marketOpen, bool _marketEntered, bool _inProgress, bool _canSpendTurn, long _restTurns,
+    // _marketOpen: 지금 시장에 들어갈 수 있는지(밤이 아니고 역에 있음). _marketEntered: 이미 시장에 들어가 있는지.
+    // _atStation: 이동 중이 아니라 역 시설을 쓸 수 있는지. 시설 진입은 시간을 쓰지 않는다.
+    internal void Refresh(bool _marketOpen, bool _marketEntered, bool _inProgress, bool _atStation,
         bool _butcheryAvailable, bool _butcheryEnabled, bool _butcheryConfirmEnabled, string _butcheryHint,
-        long _butcheryCost, string _butcheryDescription)
+        long _butcheryCost, long _butcheryHours, string _butcheryDescription)
     {
         marketLabel.text = _marketOpen || _marketEntered
-            ? Presentation.StationTurnCost(Presentation.StationMarket)
+            ? Presentation.StationMarket
             : Presentation.StationMarketClosed;
         marketButton.interactable = _marketOpen || _marketEntered;
         restButton.interactable = travelButton.interactable = _inProgress;
-        tavernButton.interactable = restDurationButton.interactable = _inProgress && _canSpendTurn;
-        restDurationLabel.text = Presentation.StationRestDuration(_restTurns);
-        wagonShopButton.interactable = _inProgress && _canSpendTurn;
+        tavernButton.interactable = _inProgress && _atStation;
+        wagonShopButton.interactable = _inProgress && _atStation;
         if (!_inProgress && wagonShopContent.activeSelf)
         {
             ShowHome();
@@ -257,7 +279,7 @@ public sealed class PuzzleStationActionsView : PanelBase
             butcheryDescription.text = _butcheryDescription;
             butcheryHint.text = _butcheryHint;
             butcheryConfirmLabel.text = _butcheryCost >= 0
-                ? Presentation.StationButcheryConfirmCost(_butcheryCost)
+                ? Presentation.StationButcheryConfirmCost(_butcheryCost, _butcheryHours)
                 : Presentation.StationButcheryConfirm;
             butcheryConfirmButton.interactable = _butcheryConfirmEnabled;
         }
@@ -268,7 +290,8 @@ public sealed class PuzzleStationActionsView : PanelBase
     }
 
     internal void RefreshModification(bool _inProgress, bool _available, PuzzleModificationPhase _phase, bool _modeSelected,
-        bool _confirmEnabled, string _modeDisplayName, string _hint, long _modificationCost, string _description)
+        bool _confirmEnabled, string _modeDisplayName, string _hint, long _modificationCost, long _modificationHours,
+        string _description)
     {
         if (!ModificationWired)
         {
@@ -282,13 +305,13 @@ public sealed class PuzzleStationActionsView : PanelBase
         modificationModeLabel.color = _modeSelected ? Presentation.PuzzleTimeAccent : Presentation.PuzzleHeading;
         modificationHint.text = _hint;
         modificationConfirmLabel.text = _modificationCost >= 0
-            ? Presentation.StationModificationConfirmCost(_modificationCost)
+            ? Presentation.StationModificationConfirmCost(_modificationCost, _modificationHours)
             : Presentation.StationModificationConfirm;
         modificationConfirmButton.interactable = _confirmEnabled;
     }
 
     internal void RefreshRefining(bool _inProgress, bool _available, bool _enabled, bool _confirmEnabled,
-        string _hint, long _refiningCost, string _description)
+        string _hint, long _refiningCost, long _refiningHours, string _description)
     {
         if (!RefiningWired)
         {
@@ -299,7 +322,7 @@ public sealed class PuzzleStationActionsView : PanelBase
         refiningDescription.text = _description;
         refiningHint.text = _hint;
         refiningConfirmLabel.text = _refiningCost >= 0
-            ? Presentation.StationRefiningConfirmCost(_refiningCost)
+            ? Presentation.StationRefiningConfirmCost(_refiningCost, _refiningHours)
             : Presentation.StationRefiningConfirm;
         refiningConfirmButton.interactable = _confirmEnabled;
     }
@@ -331,9 +354,10 @@ public sealed class PuzzleStationActionsView : PanelBase
         ShowMode(marketContent, Presentation.StationMarket);
     }
 
-    internal void ShowWagonShop()
+    // 이 역의 화차 시설이 파는 화차만 보인다.
+    internal void ShowWagonShop(IReadOnlyList<PuzzleWagonProductData> _products)
     {
-        wagonProducts = TableManager.Instance.PuzzleTrade.wagonProducts;
+        wagonProducts = _products.ToArray();
         wagonShopPage = 0;
         ShowMode(wagonShopContent, Presentation.StationWagonShop);
         RefreshWagonShopPage();
@@ -341,7 +365,7 @@ public sealed class PuzzleStationActionsView : PanelBase
 
     void NextWagonShopPage()
     {
-        int pageCount = (wagonProducts.Length + wagonProductRows.Length - 1) / wagonProductRows.Length;
+        int pageCount = Math.Max(1, (wagonProducts.Length + wagonProductRows.Length - 1) / wagonProductRows.Length);
         wagonShopPage = (wagonShopPage + 1) % pageCount;
         RefreshWagonShopPage();
     }
@@ -379,7 +403,7 @@ public sealed class PuzzleStationActionsView : PanelBase
     // 쪽을 넘기면 카드 내용이 바뀌므로 선택을 해제한다.
     void RefreshWagonShopPage()
     {
-        int pageCount = (wagonProducts.Length + wagonProductRows.Length - 1) / wagonProductRows.Length;
+        int pageCount = Math.Max(1, (wagonProducts.Length + wagonProductRows.Length - 1) / wagonProductRows.Length);
         int firstIndex = wagonShopPage * wagonProductRows.Length;
         for (int i = 0; i < wagonProductRows.Length; i++)
         {
@@ -565,6 +589,16 @@ public sealed class PuzzleStationActionsView : PanelBase
     void OnRestTime()
     {
         RestTimeRequested?.Invoke();
+    }
+
+    void OnRestEarlier()
+    {
+        RestEarlierRequested?.Invoke();
+    }
+
+    void OnRestLater()
+    {
+        RestLaterRequested?.Invoke();
     }
 
     void OnButchery()

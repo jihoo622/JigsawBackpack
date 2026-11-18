@@ -16,7 +16,7 @@ public enum PuzzleActionKind
     Place,
     QuickTransfer,
     AddWagon,
-    Repay,
+    FinishRun,
     AcceptQuest,
     CompleteQuest,
     WorkbenchConfirm,
@@ -82,7 +82,7 @@ public sealed class PuzzleActionAttempt
 {
     public string destination;
     public int x, y, grabbedX, grabbedY, clockwiseTurns;
-    public long requestedTurns;
+    public long requestedHours;
 }
 
 [Serializable]
@@ -96,7 +96,7 @@ public sealed class PuzzleActionPayload
     public bool passThrough;
     public int instanceId;
     public int wagonDelta;
-    public long elapsedTurns, moneyDelta;
+    public long elapsedHours, moneyDelta;
     public PuzzleActionAttempt attempt;
     public PuzzleItemObservation[] introduced;
     public int[] removed;
@@ -117,14 +117,14 @@ public struct PuzzleQuestPayload
 {
     public int questId, cargoInstanceId;
     public string templateId, pieceId, sourceCityId, targetCityId, penaltyId, state, failure;
-    public long reward, deposit, payout, deadlineTurns, elapsedTurns;
+    public long reward, deposit, payout, deadlineHours, elapsedHours;
 }
 
 [Serializable]
 public struct PuzzleProficiencyPayload
 {
     public string tag, source;
-    public long gainedXp, xp, elapsedTurns;
+    public long gainedXp, xp, elapsedHours;
     public int previousLevel, level, instanceId, questId;
 }
 
@@ -132,7 +132,7 @@ public struct PuzzleProficiencyPayload
 public struct PuzzleRumorPayload
 {
     public string kind, targetCityId, tag, itemId, actionId;
-    public long elapsedTurns;
+    public long elapsedHours;
 }
 
 // 원본 관측값의 차이만 직렬화한다. 수익률·점유율·시너지 횟수 등 집계는 외부에서 계산한다.
@@ -180,7 +180,7 @@ public static partial class TelemetryPayload
                 passThrough = _info.action == PuzzleActionKind.Travel && _info.session.IsPassingThrough,
                 wagonDelta = _info.session.WagonCount - previousWagonCount,
                 instanceId = _info.instanceId,
-                elapsedTurns = _info.session.ElapsedTime,
+                elapsedHours = _info.session.ElapsedTime,
                 moneyDelta = _info.session.Funds - previousFunds,
                 introduced = Array.Empty<PuzzleItemObservation>(),
                 removed = Array.Empty<int>(),
@@ -214,7 +214,7 @@ public static partial class TelemetryPayload
                 {
                     payload.attempt = new PuzzleActionAttempt
                     {
-                        requestedTurns = _info.requestedTurns
+                        requestedHours = _info.requestedHours
                     };
                 }
             }
@@ -345,7 +345,7 @@ public static partial class TelemetryPayload
                 PuzzleActionKind.AdvanceTime => "advance_time",
                 PuzzleActionKind.AddWagon => "add_wagon",
                 PuzzleActionKind.SellWagon => "sell_wagon",
-                PuzzleActionKind.Repay => "repay",
+                PuzzleActionKind.FinishRun => "finish_run",
                 PuzzleActionKind.AcceptQuest => "accept_quest",
                 PuzzleActionKind.CompleteQuest => "complete_quest",
                 PuzzleActionKind.WorkbenchConfirm => "workbench_confirm",

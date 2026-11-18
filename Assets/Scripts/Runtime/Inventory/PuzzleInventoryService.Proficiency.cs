@@ -93,6 +93,48 @@ public sealed partial class PuzzleInventoryService
         return (decimal)tables.Proficiency.bonusPercentPerLevel * _level;
     }
 
+    // 시너지 규칙의 숙련 보강치(%p). 규칙의 대상·발생원 중 숙련 대상 태그의 레벨 합에 테이블 계수를 곱한다.
+    // 보드에는 이 조회자만 훅으로 넘기고 세션 상태는 보드에 저장하지 않는다.
+    internal decimal SynergyComboBonusPercent(PuzzleSynergyRuleData _rule)
+    {
+        float coefficient = tables.PuzzleSynergy.proficiencyComboPercentPerLevel;
+        if (coefficient <= 0)
+        {
+            return 0m;
+        }
+        int levels = 0;
+        if (!string.IsNullOrEmpty(_rule.targetTag) && tables.ProficiencyTags.Contains(_rule.targetTag))
+        {
+            levels += ProficiencyLevel(_rule.targetTag);
+        }
+        if (tables.ProficiencyTags.Contains(_rule.neighborTag))
+        {
+            levels += ProficiencyLevel(_rule.neighborTag);
+        }
+        return levels * (decimal)coefficient;
+    }
+
+    // 숙련 레벨 변화를 현재 평가에 반영한다. 누적 가치는 그대로 두고 현재 배치의 시너지 합만 다시 계산한다.
+    void RefreshValuations()
+    {
+        foreach (var wagon in trainWagons)
+        {
+            wagon.RecalculateValue();
+        }
+        foreach (var market in markets.Values)
+        {
+            market.RecalculateValue();
+        }
+        foreach (var state in butcheries.Values)
+        {
+            state.Board?.RecalculateValue();
+        }
+        foreach (var state in refinings.Values)
+        {
+            state.Board?.RecalculateValue();
+        }
+    }
+
     // 화물에 붙은 숙련 대상(생산) 태그. id 오름차순이다.
     IReadOnlyList<string> ProficiencyTagsOf(PuzzleItemDefinition _definition)
     {
@@ -190,23 +232,15 @@ public sealed partial class PuzzleInventoryService
         GrantProficiency(ProficiencyTagsOf(_item.Definition), xp, TrainventoryProficiencySource.Sale, _item.InstanceId, 0);
     }
 
-    // 의뢰 완료 경험치. 의뢰 보상 금액에 비례해 의뢰 화물의 생산 태그에 준다.
-    // 화물에 생산 태그가 없으면 의뢰 틀의 fallbackProficiencyTags에 준다.
+    // 의뢰 완료 경험치. 의뢰를 만들 때 정한 숙련 태그 하나에 정한 경험치를 준다.
     void GrantQuestProficiency(TrainventoryQuest _quest)
     {
-        long xp = (long)Math.Min(long.MaxValue, (decimal)_quest.Reward * tables.Quest.proficiencyXpPercentOfReward / 100m);
-        var tags = ProficiencyTagsOf(definitions[_quest.PieceId]);
-        if (tags.Count == 0)
+        if (string.IsNullOrEmpty(_quest.ProficiencyTag))
         {
-            var template = tables.CourierQuests.FirstOrDefault(_template =>
-                string.Equals(_template.id, _quest.TemplateId, StringComparison.Ordinal));
-            tags = (template?.fallbackProficiencyTags ?? Array.Empty<string>())
-                .Where(_tag => tables.ProficiencyTags.Contains(_tag))
-                .Distinct(StringComparer.Ordinal)
-                .OrderBy(_tag => _tag, StringComparer.Ordinal)
-                .ToArray();
+            return;
         }
-        GrantProficiency(tags, xp, TrainventoryProficiencySource.Quest, _quest.CargoInstanceId, _quest.Id);
+        GrantProficiency(new[] { _quest.ProficiencyTag }, _quest.ProficiencyXp, TrainventoryProficiencySource.Quest,
+            _quest.CargoInstanceId, _quest.Id);
     }
 
     // 경험치를 태그 수로 나눠 준다. 나머지는 id 오름차순 앞 태그부터 1씩 더한다.
@@ -231,6 +265,8 @@ public sealed partial class PuzzleInventoryService
             int previousLevel = LevelForXp(before);
             long after = before > long.MaxValue - gained ? long.MaxValue : before + gained;
             proficiencyXp[tag] = after;
+            // 레벨이 바뀐 뒤 이벤트 구독자가 보강치가 반영된 평가를 읽도록 먼저 다시 계산한다.
+            RefreshValuations();
             GameEvents.RaiseProficiencyChanged(new GameEvents.ProficiencyInfo(this, tag, _source.ToString(), gained, after,
                 previousLevel, LevelForXp(after), _instanceId, _questId, ElapsedTime));
         }

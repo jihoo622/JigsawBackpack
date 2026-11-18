@@ -6,8 +6,6 @@ using UnityEngine;
 public sealed class PuzzleTradeNotebookPresenter : MonoBehaviour
 {
     [SerializeField] PuzzleTradeNotebookView view;
-    // 상성표 패널 이름(PanelVisibility 이벤트로 닫힘을 알아챈다). 프리팹 값이 원본.
-    [SerializeField] string synergyPanelName = "PuzzleSynergyChart";
     PuzzleInventoryService session;
     PuzzleNotebookTab tab = PuzzleNotebookTab.Rumors;
     int unseenCount;
@@ -59,7 +57,7 @@ public sealed class PuzzleTradeNotebookPresenter : MonoBehaviour
         SyncSynergyChart();
     }
 
-    // 수첩이 접히면 상성표도 숨기고, 상성표가 따로 닫히면(Esc) 상성표 탭을 보던 수첩도 접는다.
+    // 수첩이 접히면 상성표도 숨긴다. 상성표가 따로 닫히면(Esc) 접지 않고 그 탭 본문의 빌드 요약이 남는다.
     void OnPanelVisibility(GameEvents.PanelInfo _info)
     {
         if (_info.open)
@@ -69,10 +67,6 @@ public sealed class PuzzleTradeNotebookPresenter : MonoBehaviour
         if (_info.panel == view.PanelName)
         {
             GameEvents.RaiseSynergyChartShowRequested(gameObject.scene.handle, false);
-        }
-        else if (_info.panel == synergyPanelName && tab == PuzzleNotebookTab.Synergy && view.IsOpen)
-        {
-            view.Close();
         }
     }
 
@@ -143,6 +137,7 @@ public sealed class PuzzleTradeNotebookPresenter : MonoBehaviour
         {
             PuzzleNotebookTab.Rumors => Presentation.RumorLogEntries(session.TavernRumors),
             PuzzleNotebookTab.Quests => Presentation.QuestLogEntries(session),
+            PuzzleNotebookTab.Synergy => Presentation.TrainBuildSummary(session),
             _ => string.Empty
         };
         view.Render(tab, text, session.TavernRumors.Count, session.Quests.Count, unseenCount);
@@ -150,7 +145,13 @@ public sealed class PuzzleTradeNotebookPresenter : MonoBehaviour
         {
             bool hasNext = session.TryGetNextQuestReputationLevel(out int nextReputation, out _);
             view.RenderProficiency(session.Reputation, session.MaxActiveQuests, hasNext, nextReputation,
-                session.RankedProficiencyTags.Select(session.ProficiencyStanding).ToArray());
+                session.RankedProficiencyTags.Select(session.ProficiencyStanding).ToArray(), WagonGateLine());
         }
+    }
+
+    // 평판으로 늘어나는 지금 증차 상한과 최댓값 한 줄.
+    string WagonGateLine()
+    {
+        return Presentation.ProficiencyPanelWagonLimit(session.MaxWagonCount, TableManager.Instance.MaxWagonCountCeiling);
     }
 }

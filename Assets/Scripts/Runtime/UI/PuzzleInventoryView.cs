@@ -202,6 +202,23 @@ public sealed class PuzzleInventoryView : MonoBehaviour
         ClearDrag();
     }
 
+    // 보드 크기·막힌 칸에 더해 전용 구역 칸을 구역 태그 색으로 물들인다.
+    internal void SetBoard(PuzzleInventory _board)
+    {
+        SetBoardSize(_board.Width, _board.Height, _board.BlockedCells);
+        foreach (var zone in _board.Zones)
+        {
+            foreach (var position in zone.Cells)
+            {
+                long index = (long)position.y * _board.Width + position.x;
+                if (index >= 0 && index < boardCells.Length && boardCells[index].enabled)
+                {
+                    boardCells[index].color = Presentation.PuzzleZoneCellColor(zone);
+                }
+            }
+        }
+    }
+
     public bool TryGetBoardCell(Vector2 _screenPosition, out Vector2Int _cell)
     {
         if (RectTransformUtility.ScreenPointToLocalPointInRectangle(

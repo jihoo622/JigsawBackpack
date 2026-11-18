@@ -89,8 +89,8 @@ public sealed class PuzzlePieceData
     // 개조 커버리지 검사에서 명시적으로 제외하는 기계 품목. 예외는 반드시 이 플래그로 선언한다.
     public bool exemptFromModification;
     public string adultPieceId, growthDescription;
-    public int growthTurns, growthBlockedTurns;
-    public int shelfLifeTurns;
+    public int growthHours, growthBlockedHours;
+    public int shelfLifeHours;
     public PuzzleCellData[] cells = Array.Empty<PuzzleCellData>();
 }
 
@@ -148,6 +148,12 @@ public sealed class PuzzleCityData
     public PuzzleCityTagPriceData[] tagPrices = Array.Empty<PuzzleCityTagPriceData>();
     public PuzzleBoardData market;
     public string generalStockId, regionalStockId;
+    // 이 역에 있는 작업장(TrainventoryWorkshopTableData.workshops[].id). 같은 종류는 하나만 둔다.
+    public string[] workshopIds = Array.Empty<string>();
+    // 이 역의 화차 시설이 파는 화차 상품(PuzzleTradeTableData.wagonProducts의 id). 역마다 다르다. 비면 화차를 팔지 않는다.
+    public string[] wagonProductIds = Array.Empty<string>();
+    // 핵심 도시. 전장의 안개 위에서도 처음부터 위치·이름이 보인다(연결 노선은 보이지 않는다).
+    public bool landmark;
 }
 
 [Serializable]
@@ -181,7 +187,51 @@ public sealed class PuzzleBoardData
     public int width, height;
     // 사용할 수 없는 칸. 빈 목록은 직사각형 전체를 사용한다.
     public PuzzleBoardCellData[] blockedCells = Array.Empty<PuzzleBoardCellData>();
+    // 전용 구역. 구역 안 칸에는 그 구역이 받는 화물만 놓인다. 구역 밖 칸은 제한이 없다.
+    public PuzzleBoardZoneData[] zones = Array.Empty<PuzzleBoardZoneData>();
     public PuzzleStartingPlacementData[] startingPlacements = Array.Empty<PuzzleStartingPlacementData>();
+}
+
+// 보드의 전용 구역(직사각형). allowedTags 중 하나를 가진 화물만 구역 칸에 놓이고, maxPieceCells가 양수면
+// 그 칸 수 이하인 화물만 놓인다. 자동 배치(배설·가공 산출물)는 그 화물을 받는 구역을 먼저 채운다.
+[Serializable]
+public sealed class PuzzleBoardZoneData
+{
+    public string id, displayName;
+    public int x = -1, y = -1, width = -1, height = -1;
+    public string[] allowedTags = Array.Empty<string>();
+    public int maxPieceCells;
+}
+
+// 화차 가공 종류. Convert는 주재료 화물 하나(칸 수 = 단위 수)와 1칸 부재료를 단위마다 정한 수만큼 써서
+// 산출물을 단위마다 outputPerUnit개 만든다. Crush는 주재료 태그의 여러 칸 화물 하나를 칸 수만큼의 1칸 산출물로 나눈다.
+public enum TrainventoryWagonProcessType
+{
+    Convert,
+    Crush
+}
+
+// 화차 가공 하나. 재료가 차면 자동으로 시작하고, 시간이 지나면 재료를 없애고 산출물을 같은 객차에 놓는다.
+[Serializable]
+public sealed class TrainventoryWagonProcessData
+{
+    public string id, type, displayName, description;
+    public string primaryTag;
+    public TrainventoryWagonProcessInputData[] inputs = Array.Empty<TrainventoryWagonProcessInputData>();
+    public string outputPieceId;
+    // Convert: 단위당 산출 개수와 한 묶음 시간.
+    public int outputPerUnit = -1;
+    public long hours = -1;
+    // Crush: 주재료 한 칸당 시간.
+    public long hoursPerCell = -1;
+}
+
+// 가공 부재료. tag를 가진 1칸 화물을 단위마다 countPerUnit개 쓴다.
+[Serializable]
+public sealed class TrainventoryWagonProcessInputData
+{
+    public string tag;
+    public int countPerUnit = -1;
 }
 
 [Serializable]
@@ -244,12 +294,12 @@ public sealed class PuzzleFreshnessData
 public sealed class PuzzleAnimalSynergyData
 {
     public string animalTag, wasteTag, grainTag, wastePieceId, wasteDescription;
-    public int wasteIntervalTurns, wasteCountPerAnimal, breedingTurns;
+    public int wasteIntervalHours, wasteCountPerAnimal, breedingHours;
     // 출산·배설이 끝나기 직전 산출물을 놓을 자리가 없을 때 대기하는 시간. 동물 규칙 전체가 공유하는 값이다.
-    public int completionHoldTurns;
+    public int completionHoldHours;
     // 소·송아지가 같은 객차의 곡물을 섭취하는 규칙의 공통 원본. 곡물 태그(grainTag)로 대상 품목을 찾고,
     // feedIntervalHours마다 하나를 소비한다. breedingFeedReductionHours는 번식, growthFeedReductionHours는 성장 단축량이다.
-    public int feedIntervalTurns, breedingFeedReductionTurns, growthFeedReductionTurns;
+    public int feedIntervalHours, breedingFeedReductionHours, growthFeedReductionHours;
     public string breedingFeedDescription, growthFeedDescription;
     public PuzzleAnimalBreedingData[] breeding = Array.Empty<PuzzleAnimalBreedingData>();
 }
@@ -269,7 +319,7 @@ public sealed class PuzzleCombinationRuleData
 {
     public string id, sourcePieceId, partnerPieceId, resultPieceId, description;
     // 누락이 0이라는 정상값으로 위장되지 않도록 하는 검증용 값이다.
-    public int requiredTurns = -1;
+    public int requiredHours = -1;
 }
 
 [Serializable]
@@ -295,48 +345,39 @@ public sealed class PuzzleSellGradeData
     public int sellPercent = -1;
 }
 
-// 마을 역에서 추가 동작으로 진입하는 행동의 종류. 테이블의 type 문자열과 이름이 같아야 한다.
-public enum PuzzleCityActionType
+// 작업장의 동작 방식. 테이블의 type 문자열과 이름이 같아야 한다.
+// Butchery·Refining: 입력을 없애고 산출물을 새로 만든다. Modification: 같은 모양의 품목으로 정의만 바꾼다(모드 선택).
+public enum TrainventoryWorkshopType
 {
     Butchery,
     Modification,
     Refining
 }
 
-// 도시별 추가 행동. cityIds에 지정한 마을의 역에서만 버튼이 보인다.
+// 작업 하나(WorksData). 입력 화물 하나를 workHours 뒤 산출물 outputCount개로 바꾸고 cost를 받는다.
+// 실제 수수료와 시간은 작업장 계수를 거친다(TableManager.WorkFee).
 [Serializable]
-public sealed class PuzzleCityActionData
+public sealed class TrainventoryWorkData
 {
-    public string id, type, title, description, inputTag, outputTag;
-    public string[] cityIds = Array.Empty<string>();
-    public PuzzleBoardData board;
-    // 확인 버튼을 누른 시점부터 완성에 걸리는 턴. 도축·정제 등 시간 기반 행동이 쓰고 개조는 0이다. 누락이 0으로 위장되지 않도록 검증용 값으로 둔다.
-    public long workTurns = -1;
-    // 도축·정제 확인 1회당 차감하는 비용. 개조는 모드별 cost를 쓰므로 이 값을 쓰지 않는다. 누락과 무료(0)를 구별하기 위한 검증용 값.
-    public long cost = -1;
-    public PuzzleActionConversionData[] conversions = Array.Empty<PuzzleActionConversionData>();
-    // 개조(Modification) 전용 모드 목록. 도축은 모드 대신 행동 자체의 inputTag·conversions을 쓴다.
-    public PuzzleActionModeData[] modes = Array.Empty<PuzzleActionModeData>();
-}
-
-// 행동의 입력 아이템 하나를 산출물로 바꾸는 대응. inputPieceId 기준 고유하다.
-// outputCount는 입력 하나당 생성하는 고정 산출 개수다.
-[Serializable]
-public sealed class PuzzleActionConversionData
-{
-    public string inputPieceId, outputPieceId;
+    public string id, displayName, description;
+    public string inputPieceId;
+    public long workHours = -1;
+    public string outputPieceId;
     public int outputCount = -1;
+    public long cost = -1;
 }
 
-// 개조 행동의 선택 모드. 입력 태그의 화물을 결과 태그가 붙은 품목으로 즉시 바꾼다.
-// 정의 교체 방식이므로 변환은 1:1이며 모양·칸 수·기본 가치는 입력과 결과가 같다.
+// 작업장. 역은 PuzzleCityData.workshopIds로 작업장을 가진다. 작업장은 type 동작으로 workIds의 작업을 처리한다.
+// 수수료 = 올림(작업 비용 × costPercent / 100) + 작업 시간 × feePerHour + extraCost (입력 화물 하나당).
 [Serializable]
-public sealed class PuzzleActionModeData
+public sealed class TrainventoryWorkshopData
 {
-    public string id, displayName, description, inputTag, outputTag;
-    // 개조 확인 1회당 차감하는 비용. 개조 행동 자체의 cost 대신 모드별 값이 원본이다. 누락과 무료(0)를 구별하기 위한 검증용 값.
-    public long cost = -1;
-    public PuzzleActionConversionData[] conversions = Array.Empty<PuzzleActionConversionData>();
+    public string id, type, title, description;
+    public PuzzleBoardData board;
+    public string[] workIds = Array.Empty<string>();
+    public int costPercent = -1;
+    public long feePerHour = -1;
+    public long extraCost = -1;
 }
 
 // 한 방향 노선. fromCityId에서 toCityId로 떠날 때의 비용이고 반대 방향은 별개 행이다.
@@ -344,9 +385,9 @@ public sealed class PuzzleActionModeData
 public sealed class PuzzleRouteData
 {
     public string fromCityId, toCityId;
-    // 이동 턴. 운임의 거리 항(턴 × costPerTurn)에도 같은 값을 쓴다.
-    public int turns = -1;
-    // 고정 지도 좌표의 폴라인. x,y 쌍이며 그리기 전용이다. 이동 턴과 무관하다.
+    // 노선 거리. 운임의 거리 항(거리 × costPerDistance)과 의뢰 보상·후보 범위, 최단 경로 동률 판정에 쓴다. 이동은 노선과 무관하게 1턴이다.
+    public int distance = -1;
+    // 고정 지도 좌표의 폴라인. x,y 쌍이며 그리기 전용이다. Map Editor의 노선 거리 자동 계산만 선 길이를 쓴다.
     public float[] points = Array.Empty<float>();
     public bool highSpeed;
     // 누락된 값이 0이라는 정상값으로 위장되지 않도록 하는 검증용 값이다.
@@ -377,21 +418,22 @@ public sealed class TrainventoryQuestPenaltyData
     public int depositPercentOfReward = -1;
     // RegionTrade: 구매·판매 배율에 더하는 값(%p)과 지속 시간.
     public int buyPercentDelta, sellPercentDelta;
-    public int durationTurns = -1;
+    public int durationHours = -1;
 }
 
 // 운송 의뢰 틀. 화물 하나를 받아 최단 이동 시간이 범위 안인 마을로 전달한다.
-// 보상 = baseReward + rewardPerCellTurn × 화물 칸 수 × 최단 이동 시간. 도착 시 화물의 실제 가치와 보증금을 함께 지급한다.
-// 기한 = 최단 이동 시간 × deadlinePercent / 100(올림) + deadlineExtraTurns.
+// 보상 = baseReward + rewardPerCellDistance × 화물 칸 수 × 최단 이동 시간. 도착 시 화물의 실제 가치와 보증금을 함께 지급한다.
+// 기한 = 최단 이동 시간 × deadlinePercent / 100(올림) + deadlineExtraHours.
 [Serializable]
 public sealed class TrainventoryCourierQuestData
 {
     public string id, penaltyId;
     public string[] pieceIds = Array.Empty<string>();
     public int weight = -1;
-    public int minTravelTurns = -1, maxTravelTurns = -1;
-    public int baseReward = -1, rewardPerCellTurn = -1;
-    public int deadlinePercent = -1, deadlineExtraTurns = -1;
-    // 의뢰 화물에 생산 태그가 없을 때 완료 숙련 경험치를 받을 태그. 화물에 생산 태그가 있으면 쓰지 않는다.
-    public string[] fallbackProficiencyTags = Array.Empty<string>();
+    public int minTravelDistance = -1, maxTravelDistance = -1;
+    public int baseReward = -1, rewardPerCellDistance = -1;
+    public int deadlinePercent = -1, deadlineExtraHours = -1;
+    // 완료 숙련 경험치를 받을 태그 후보. 의뢰마다 이 중 하나를 골라 보여 준다. 비우면 화물의 생산 태그,
+    // 그것도 없으면 목적지 지역의 생산 태그, 그것도 없으면 전체 숙련 태그에서 고른다.
+    public string[] proficiencyTags = Array.Empty<string>();
 }

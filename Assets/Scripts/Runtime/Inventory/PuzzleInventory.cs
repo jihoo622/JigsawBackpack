@@ -7,10 +7,14 @@ public sealed class PuzzleInventory
 {
     readonly IReadOnlyDictionary<string, PuzzleItemDefinition> definitions;
     readonly IReadOnlyList<PuzzleSynergyRuleData> synergyRules;
+    // 규칙별 숙련 보강치(%p) 조회 훅. 세션 상태는 저장하지 않고 계산 시점에 세션이 준 조회자를 빌려 쓴다.
+    internal Func<PuzzleSynergyRuleData, decimal> SynergyComboBonusPercent { get; set; }
     PuzzleInventoryValuation valuation = new();
     readonly SortedDictionary<int, PuzzlePlacement> placements = new();
     readonly Dictionary<Vector2Int, (int InstanceId, PuzzleCell Cell)> occupancy = new();
     readonly HashSet<Vector2Int> blockedCells = new();
+    readonly List<PuzzleBoardZone> zones = new();
+    readonly Dictionary<Vector2Int, PuzzleBoardZone> zoneByCell = new();
     readonly Dictionary<string, PuzzleWagonModification> wagonModifications = new(StringComparer.Ordinal);
 
     public int Width { get; }
@@ -18,6 +22,9 @@ public sealed class PuzzleInventory
     internal string DisplayName { get; }
     internal int UsableCellCount => checked(Width * Height - blockedCells.Count);
     internal IReadOnlyCollection<Vector2Int> BlockedCells => blockedCells;
+    internal IReadOnlyList<PuzzleBoardZone> Zones => zones;
+    // 진행 중인 화차 가공 묶음. 없으면 null이다. 시간 진행 사본과 함께 옮긴다.
+    internal PuzzleWagonProcessState ProcessState { get; set; }
     internal int WagonNumber { get; set; }
     internal PuzzleWagonProductData WagonProduct { get; set; }
     internal long WagonSalePrice { get; set; }
@@ -37,6 +44,10 @@ public sealed class PuzzleInventory
         {
             blockedCells.Add(new Vector2Int(cell.x, cell.y));
         }
+        foreach (var zone in _board.zones ?? Array.Empty<PuzzleBoardZoneData>())
+        {
+            AddZone(new PuzzleBoardZone(zone));
+        }
         definitions = _definitions;
         synergyRules = _synergyRules;
         foreach (var placement in _startingPlacements)
@@ -45,7 +56,7 @@ public sealed class PuzzleInventory
             var rotation = new PuzzleRotation(definition.Cells, placement.clockwiseTurns);
             var origin = new Vector2Int(placement.x, placement.y);
             if (!TryCreatePose(definition.Cells, origin, rotation, out var pose) ||
-                CheckPlacement(pose.Cells, null) != PuzzlePlacementFailure.None)
+                CheckPlacement(pose.Cells, null, definition) != PuzzlePlacementFailure.None)
             {
                 throw new InvalidOperationException($"'{placement.id}' 시작 배치의 좌표를 만들 수 없습니다.");
             }
@@ -53,6 +64,39 @@ public sealed class PuzzleInventory
             StorePlacement(new PuzzlePlacement(checked(++_lastInstanceId), definition, this, pose, definition.BaseValue));
         }
         RecalculateValue();
+    }
+
+    void AddZone(PuzzleBoardZone _zone)
+    {
+        zones.Add(_zone);
+        foreach (var cell in _zone.Cells)
+        {
+            zoneByCell[cell] = _zone;
+        }
+    }
+
+    // 칸이 속한 전용 구역. 구역 밖이면 null이다.
+    internal PuzzleBoardZone ZoneAt(Vector2Int _position)
+    {
+        return zoneByCell.TryGetValue(_position, out var zone) ? zone : null;
+    }
+
+    // 포즈의 모든 칸이 그 화물을 받는지. 구역 밖 칸은 제한이 없다.
+    bool ZonesAccept(IReadOnlyList<PuzzleCell> _cells, PuzzleItemDefinition _definition)
+    {
+        foreach (var cell in _cells)
+        {
+            if (zoneByCell.TryGetValue(cell.Position, out var zone) && !zone.Accepts(_definition))
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    internal bool TryGetPlacement(int _instanceId, out PuzzlePlacement _placement)
+    {
+        return placements.TryGetValue(_instanceId, out _placement);
     }
 
     internal PuzzleValue ValueOf(int _instanceId)
@@ -99,8 +143,17 @@ public sealed class PuzzleInventory
         Height = _source.Height;
         DisplayName = _source.DisplayName;
         blockedCells.UnionWith(_source.blockedCells);
+        foreach (var zone in _source.zones)
+        {
+            AddZone(zone);
+        }
+        WagonNumber = _source.WagonNumber;
+        WagonProduct = _source.WagonProduct;
+        WagonSalePrice = _source.WagonSalePrice;
+        ProcessState = _source.ProcessState;
         definitions = _source.definitions;
         synergyRules = _source.synergyRules;
+        SynergyComboBonusPercent = _source.SynergyComboBonusPercent;
         wagonModifications = new Dictionary<string, PuzzleWagonModification>(_source.wagonModifications, StringComparer.Ordinal);
     }
 
@@ -126,6 +179,7 @@ public sealed class PuzzleInventory
             }
         }
         valuation = _staged.valuation;
+        ProcessState = _staged.ProcessState;
         HasUnreadEventNotice |= _staged.HasUnreadEventNotice;
     }
 
@@ -138,23 +192,23 @@ public sealed class PuzzleInventory
     PuzzlePlacement CopyPlacement(PuzzlePlacement _source, PuzzleItemDefinition _definition, PuzzleInventory _owner,
         PuzzlePose _pose, decimal _actualValue)
     {
-        bool keepsGrowth = _definition.GrowthTurns > 0 && _source.Definition.GrowthTurns > 0;
+        bool keepsGrowth = _definition.GrowthHours > 0 && _source.Definition.GrowthHours > 0;
         // 성장 품목이 성체로 바뀌면 대기가 끝나므로 공간 부족 알림도 넘기지 않는다. 번식 대기는 그대로 옮긴다.
-        bool keepsSpaceNotice = _source.Definition.GrowthTurns <= 0 || keepsGrowth;
+        bool keepsSpaceNotice = _source.Definition.GrowthHours <= 0 || keepsGrowth;
         return new PuzzlePlacement(_source.InstanceId, _definition, _owner, _pose, _actualValue,
-            _source.OwnedTurns, _source.Durability, _source.ShelfLifeAge)
+            _source.OwnedHours, _source.Durability, _source.ShelfLifeAge)
         {
             HasUnreadSynergySettlement = _source.HasUnreadSynergySettlement,
             HasUnreadSpaceNotice = keepsSpaceNotice && _source.HasUnreadSpaceNotice,
             HasUnreadSpawnNotice = _source.HasUnreadSpawnNotice,
-            GrowthElapsedTurns = keepsGrowth ? _source.GrowthElapsedTurns : (_source.OwnedTurns < 0 ? -1 : 0),
+            GrowthElapsedHours = keepsGrowth ? _source.GrowthElapsedHours : (_source.OwnedHours < 0 ? -1 : 0),
             GrowthSpaceBlocked = keepsGrowth && _source.GrowthSpaceBlocked
         };
     }
 
     internal void RecalculateValue()
     {
-        valuation.Recalculate(this, synergyRules);
+        valuation.Recalculate(this, synergyRules, SynergyComboBonusPercent);
     }
 
     // 정산 계획의 작업 사본에 현재 배치의 시너지를 적용한다.
@@ -201,10 +255,10 @@ public sealed class PuzzleInventory
     internal void PlanGrowth(List<PuzzleGrowth> _growth)
     {
         var approachingGrowth = placements.Values
-            .Where(_item => _item.GrowthElapsedTurns >= 0 && _item.Definition.GrowthTurns > 0 &&
+            .Where(_item => _item.GrowthElapsedHours >= 0 && _item.Definition.GrowthHours > 0 &&
                 (_item.GrowthSpaceBlocked ||
-                    _item.GrowthElapsedTurns >= _item.Definition.GrowthFreezeTurns))
-            .OrderBy(_item => _item.Definition.GrowthTurns - _item.GrowthElapsedTurns)
+                    _item.GrowthElapsedHours >= _item.Definition.GrowthFreezeHours))
+            .OrderBy(_item => _item.Definition.GrowthHours - _item.GrowthElapsedHours)
             .ThenBy(_item => _item.InstanceId);
         HashSet<Vector2Int> occupied = null;
         foreach (var item in approachingGrowth)
@@ -221,7 +275,7 @@ public sealed class PuzzleInventory
             // 미리 확보한 자리는 같은 계획의 다른 송아지가 차지하지 못한다.
             occupied.UnionWith(pose.Cells.Select(_cell => _cell.Position));
             item.ResumeGrowth();
-            if (item.GrowthElapsedTurns >= item.Definition.GrowthTurns)
+            if (item.GrowthElapsedHours >= item.Definition.GrowthHours)
             {
                 _growth.Add(new PuzzleGrowth(item, adult, pose));
             }
@@ -232,7 +286,7 @@ public sealed class PuzzleInventory
         out PuzzlePose _pose)
     {
         var currentRotation = new PuzzleRotation(_adult.Cells, _current.ClockwiseTurns);
-        if (TryCreateGrowthPose(_adult.Cells, _current.Origin, currentRotation, _occupied, out _pose))
+        if (TryCreateGrowthPose(_adult.Cells, _current.Origin, currentRotation, _occupied, _adult, out _pose))
         {
             return true;
         }
@@ -244,7 +298,7 @@ public sealed class PuzzleInventory
             {
                 for (int x = 0; x < Width; x++)
                 {
-                    if (TryCreateGrowthPose(_adult.Cells, new Vector2Int(x, y), rotation, _occupied, out _pose))
+                    if (TryCreateGrowthPose(_adult.Cells, new Vector2Int(x, y), rotation, _occupied, _adult, out _pose))
                     {
                         return true;
                     }
@@ -256,10 +310,11 @@ public sealed class PuzzleInventory
     }
 
     bool TryCreateGrowthPose(IReadOnlyList<Vector2Int> _cells, Vector2Int _origin, PuzzleRotation _rotation,
-        HashSet<Vector2Int> _occupied, out PuzzlePose _pose)
+        HashSet<Vector2Int> _occupied, PuzzleItemDefinition _adult, out PuzzlePose _pose)
     {
         return TryCreatePose(_cells, _origin, _rotation, out _pose) &&
-            _pose.Cells.All(_cell => InBounds(_cell.Position) && !_occupied.Contains(_cell.Position));
+            _pose.Cells.All(_cell => InBounds(_cell.Position) && !_occupied.Contains(_cell.Position)) &&
+            ZonesAccept(_pose.Cells, _adult);
     }
 
     internal void ApplyGrowth(PuzzleGrowth _growth)
@@ -267,7 +322,7 @@ public sealed class PuzzleInventory
         var item = _growth.Item;
         var adult = _growth.Adult;
         var grown = new PuzzlePlacement(item.InstanceId, adult, this, _growth.Pose,
-            item.ActualValue + (adult.BaseValue - (decimal)item.Definition.BaseValue), item.OwnedTurns)
+            item.ActualValue + (adult.BaseValue - (decimal)item.Definition.BaseValue), item.OwnedHours)
         {
             HasUnreadSynergySettlement = item.HasUnreadSynergySettlement,
             HasUnreadSpawnNotice = item.HasUnreadSpawnNotice
@@ -301,7 +356,8 @@ public sealed class PuzzleInventory
         }
 
         int? ignoredInstanceId = sameBoard ? _original.InstanceId : null;
-        return new PuzzlePlacementResult(_destination.CheckPlacement(candidate.Cells, ignoredInstanceId), candidate);
+        return new PuzzlePlacementResult(_destination.CheckPlacement(candidate.Cells, ignoredInstanceId, _original.Definition),
+            candidate);
     }
 
     internal PuzzlePlacementResult Move(PuzzlePlacement _original, PuzzleInventory _destination, Vector2Int _grabbedCell,
@@ -329,12 +385,14 @@ public sealed class PuzzleInventory
     internal void ReplaceExpiredFood(PuzzleItemDefinition _waste)
     {
         bool replaced = false;
-        foreach (var expired in placements.Values.Where(item => item.RemainingShelfLifeTurns == 0).ToArray())
+        foreach (var expired in placements.Values.Where(item => item.RemainingShelfLifeHours == 0).ToArray())
         {
             // 기존 식품이 실제로 점유하던 칸에서 교체한다. 회전된 모양의 원점은 빈 칸일 수 있다.
+            // 썩는 일은 그 자리에서 일어나므로 전용 구역 제한은 보지 않는다.
             var target = expired.Pose.Cells[0].Position;
             if (CreatePoseAtSlot(_waste.Cells, _waste.Cells[0], target, 0, out var pose) != PuzzlePlacementFailure.None ||
-                CheckPlacement(pose.Cells, expired.InstanceId) != PuzzlePlacementFailure.None)
+                CheckPlacement(pose.Cells, expired.InstanceId, _waste) is not (PuzzlePlacementFailure.None or
+                    PuzzlePlacementFailure.ZoneRestricted))
             {
                 continue;
             }
@@ -368,7 +426,7 @@ public sealed class PuzzleInventory
             if (original == null || result == null || original.Owner != this ||
                 !placements.TryGetValue(original.InstanceId, out var current) ||
                 !ReferenceEquals(current, original) || !claimed.Add(original.InstanceId) ||
-                ReferenceEquals(current.Definition, result) ||
+                ReferenceEquals(current.Definition, result) || !ZonesAccept(current.Pose.Cells, result) ||
                 current.Definition.BaseValue != result.BaseValue ||
                 !SameLocalCells(current.Definition.Cells, result.Cells))
             {
@@ -482,23 +540,29 @@ public sealed class PuzzleInventory
         return placement;
     }
 
+    // 그 화물을 받는 전용 구역 안 자리를 먼저 찾고, 없으면 나머지 자리에서 찾는다(배설물은 똥 전용칸부터).
     bool TryFindAutoPlacement(PuzzleItemDefinition _definition, out PuzzlePose _pose, bool _allowRotation = false,
         ICollection<Vector2Int> _claimed = null)
     {
-        int turns = _allowRotation ? PuzzleRotation.TURN_COUNT : 1;
-        for (int turn = 0; turn < turns; turn++)
+        for (int pass = zones.Count > 0 ? 0 : 1; pass < 2; pass++)
         {
-            var rotation = new PuzzleRotation(_definition.Cells, turn);
-            for (int y = 0; y < Height; y++)
+            bool zoneOnly = pass == 0;
+            int turns = _allowRotation ? PuzzleRotation.TURN_COUNT : 1;
+            for (int turn = 0; turn < turns; turn++)
             {
-                for (int x = 0; x < Width; x++)
+                var rotation = new PuzzleRotation(_definition.Cells, turn);
+                for (int y = 0; y < Height; y++)
                 {
-                    if (TryCreatePose(_definition.Cells, new Vector2Int(x, y), rotation, out var pose) &&
-                        CheckPlacement(pose.Cells, null) == PuzzlePlacementFailure.None &&
-                        (_claimed == null || pose.Cells.All(_cell => !_claimed.Contains(_cell.Position))))
+                    for (int x = 0; x < Width; x++)
                     {
-                        _pose = pose;
-                        return true;
+                        if (TryCreatePose(_definition.Cells, new Vector2Int(x, y), rotation, out var pose) &&
+                            CheckPlacement(pose.Cells, null, _definition) == PuzzlePlacementFailure.None &&
+                            (!zoneOnly || pose.Cells.All(_cell => zoneByCell.ContainsKey(_cell.Position))) &&
+                            (_claimed == null || pose.Cells.All(_cell => !_claimed.Contains(_cell.Position))))
+                        {
+                            _pose = pose;
+                            return true;
+                        }
                     }
                 }
             }
@@ -536,6 +600,61 @@ public sealed class PuzzleInventory
         return true;
     }
 
+    // 화차 가공 완료. 입력을 모두 없애고 산출물 _count개를 놓는다. _fixedCells가 있으면 그 칸에 하나씩(1칸 산출물),
+    // 없으면 자동 배치(전용 구역 우선)로 놓는다. 전부 놓을 수 없으면 보드는 하나도 바뀌지 않는다.
+    internal bool TryReplaceWithOutputs(IReadOnlyList<PuzzlePlacement> _inputs, PuzzleItemDefinition _output, int _count,
+        IReadOnlyList<Vector2Int> _fixedCells, ref int _lastInstanceId)
+    {
+        if (_inputs == null || _inputs.Count == 0 || _output == null || _count <= 0 ||
+            _inputs.Any(_input => _input == null || !IsCurrentPlacement(_input)))
+        {
+            return false;
+        }
+
+        foreach (var input in _inputs)
+        {
+            ClearOccupancy(input);
+        }
+        List<PuzzlePose> poses;
+        bool planned;
+        if (_fixedCells != null)
+        {
+            planned = _fixedCells.Count == _count && _output.Cells.Count == 1;
+            poses = new List<PuzzlePose>(_count);
+            for (int i = 0; planned && i < _fixedCells.Count; i++)
+            {
+                planned = CreatePoseAtSlot(_output.Cells, _output.Cells[0], _fixedCells[i], 0, out var pose) ==
+                    PuzzlePlacementFailure.None && CheckPlacement(pose.Cells, null, _output) == PuzzlePlacementFailure.None;
+                poses.Add(pose);
+            }
+        }
+        else
+        {
+            planned = TryPlanAutoPlacements(_output, _count, false, out poses);
+        }
+
+        if (!planned)
+        {
+            foreach (var input in _inputs)
+            {
+                StorePlacement(input);
+            }
+            return false;
+        }
+
+        foreach (var input in _inputs)
+        {
+            placements.Remove(input.InstanceId);
+        }
+        foreach (var pose in poses)
+        {
+            var placed = PlaceSpawnedItem(_output, checked(++_lastInstanceId), pose);
+            placed.HasUnreadSpawnNotice = true;
+        }
+        HasUnreadEventNotice = true;
+        return true;
+    }
+
     // 이 보드에서 배치 하나를 완전히 제거한다. 도축처럼 소멸시키는 행동만 사용하고, 반환값은 소속이 맞는 경우에만 true다.
     internal bool Remove(PuzzlePlacement _placement)
     {
@@ -558,7 +677,7 @@ public sealed class PuzzleInventory
         if (_source == null || _partner == null || _result == null || ReferenceEquals(_source, _partner) ||
             !ReferenceEquals(_source.Owner, this) || !ReferenceEquals(_partner.Owner, this) ||
             !IsCurrentPlacement(_source) || !IsCurrentPlacement(_partner) ||
-            !SameLocalCells(_source.Definition.Cells, _result.Cells) ||
+            !SameLocalCells(_source.Definition.Cells, _result.Cells) || !ZonesAccept(_source.Pose.Cells, _result) ||
             !PuzzleRefrigeration.TryGetContact(_source, _partner, out _))
         {
             return false;
@@ -652,7 +771,8 @@ public sealed class PuzzleInventory
         return true;
     }
 
-    PuzzlePlacementFailure CheckPlacement(IReadOnlyList<PuzzleCell> _cells, int? _ignoredInstanceId)
+    PuzzlePlacementFailure CheckPlacement(IReadOnlyList<PuzzleCell> _cells, int? _ignoredInstanceId,
+        PuzzleItemDefinition _definition)
     {
         foreach (var cell in _cells)
         {
@@ -670,7 +790,7 @@ public sealed class PuzzleInventory
             }
         }
 
-        return PuzzlePlacementFailure.None;
+        return ZonesAccept(_cells, _definition) ? PuzzlePlacementFailure.None : PuzzlePlacementFailure.ZoneRestricted;
     }
 
     void StorePlacement(PuzzlePlacement _placement)
@@ -734,5 +854,66 @@ internal readonly struct PuzzleGrowth
         Item = _item;
         Adult = _adult;
         Pose = _pose;
+    }
+}
+
+// 보드 전용 구역의 실행 형태. 테이블 행에서 한 번 만들고 바뀌지 않으므로 시간 진행 사본이 같은 인스턴스를 공유한다.
+internal sealed class PuzzleBoardZone
+{
+    readonly HashSet<string> allowedTags;
+    internal string Id { get; }
+    internal string DisplayName { get; }
+    internal IReadOnlyList<string> AllowedTags { get; }
+    internal int MaxPieceCells { get; }
+    internal IReadOnlyList<Vector2Int> Cells { get; }
+
+    internal PuzzleBoardZone(PuzzleBoardZoneData _data)
+    {
+        Id = _data.id;
+        DisplayName = _data.displayName;
+        AllowedTags = Array.AsReadOnly((_data.allowedTags ?? Array.Empty<string>()).ToArray());
+        allowedTags = new HashSet<string>(AllowedTags, StringComparer.Ordinal);
+        MaxPieceCells = _data.maxPieceCells;
+        var cells = new List<Vector2Int>();
+        for (int y = _data.y; y < _data.y + _data.height; y++)
+        {
+            for (int x = _data.x; x < _data.x + _data.width; x++)
+            {
+                cells.Add(new Vector2Int(x, y));
+            }
+        }
+        Cells = cells.AsReadOnly();
+    }
+
+    internal bool Accepts(PuzzleItemDefinition _definition)
+    {
+        return _definition != null && _definition.Tags.Any(allowedTags.Contains) &&
+            (MaxPieceCells <= 0 || _definition.Cells.Count <= MaxPieceCells);
+    }
+}
+
+// 진행 중인 화차 가공 묶음. 재료는 인스턴스 ID와 품목 ID로 기억해 빠지거나 바뀌면 묶음을 버린다.
+internal sealed class PuzzleWagonProcessState
+{
+    internal IReadOnlyList<(int InstanceId, string PieceId)> Inputs { get; }
+    internal int Units { get; }
+    internal long RequiredHours { get; }
+    internal long ElapsedHours { get; }
+    // 시간이 다 됐지만 산출물 자리가 없어 기다리는 중.
+    internal bool WaitingForSpace { get; }
+
+    internal PuzzleWagonProcessState(IReadOnlyList<(int InstanceId, string PieceId)> _inputs, int _units,
+        long _requiredHours, long _elapsedHours, bool _waitingForSpace)
+    {
+        Inputs = _inputs;
+        Units = _units;
+        RequiredHours = _requiredHours;
+        ElapsedHours = _elapsedHours;
+        WaitingForSpace = _waitingForSpace;
+    }
+
+    internal PuzzleWagonProcessState With(long _elapsedHours, bool _waitingForSpace)
+    {
+        return new PuzzleWagonProcessState(Inputs, Units, RequiredHours, _elapsedHours, _waitingForSpace);
     }
 }

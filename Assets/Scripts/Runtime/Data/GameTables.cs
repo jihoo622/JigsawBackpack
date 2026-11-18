@@ -39,7 +39,7 @@ public sealed class PuzzleTableData
     // 시작 전용 화차. 생략한 기존 데이터는 train을 시작 화차로 사용한다.
     public PuzzleBoardData startingTrain;
     public string startCity;
-    // 지도상 예정 목적지. 실제 상환 장소 판정인 debtCityId와 별개다.
+    // 지도에 ★로 표시하는 예정 목적지. 비우면 표시하지 않는다. 규칙에는 쓰지 않는다.
     public string planningTargetCityId;
     public PuzzleCityData[] cities = Array.Empty<PuzzleCityData>();
     public PuzzleRegionData[] regions = Array.Empty<PuzzleRegionData>();
@@ -52,7 +52,9 @@ public sealed class PuzzleTableData
 public sealed class PuzzleSynergyTableData
 {
     public string status, note;
-    public int activationIntervalTurns = -1;
+    public int activationIntervalHours = -1;
+    // 규칙이 적용될 때 대상·발생원 중 숙련 대상 태그의 레벨 합에 곱해 multiplierPercent에 더하는 보강 계수(%p).
+    public float proficiencyComboPercentPerLevel;
     public PuzzleSynergyRuleData[] rules = Array.Empty<PuzzleSynergyRuleData>();
     public PuzzleAnimalSynergyData animals;
     public PuzzleFreshnessData freshness;
@@ -75,14 +77,32 @@ public sealed class PuzzleRumorTableData
     public PuzzleRumorPreferenceData firstPreference;
     // 소문에서 빼는 품목 ID. 특산 후보만 막고 품목의 시장 유통은 그대로 둔다.
     public string[] excludedItemIds = Array.Empty<string>();
+    // 소문 재생 주기(게임 시간). 마을 소문을 들은 지 이 시간이 지나면 같은 마을 소문을 다시 들을 수 있다.
+    public long refreshHours = -1;
 }
 
-// 마을별 추가 행동(도축 등)의 원본. 도시 id·작업 시간·변환 관계를 이 표만 안다.
+// 작업(WorksData)의 원본. 입력·작업 시간·산출·비용을 이 표만 안다.
 [Serializable]
-public sealed class PuzzleCityActionTableData
+public sealed class TrainventoryWorkTableData
 {
     public string status, note;
-    public PuzzleCityActionData[] actions = Array.Empty<PuzzleCityActionData>();
+    public TrainventoryWorkData[] works = Array.Empty<TrainventoryWorkData>();
+}
+
+// 화차 가공의 원본. 화차 상품(PuzzleTradeTableData.wagonProducts[].processId)이 가공 하나를 가진다.
+[Serializable]
+public sealed class TrainventoryWagonProcessTableData
+{
+    public string status, note;
+    public TrainventoryWagonProcessData[] processes = Array.Empty<TrainventoryWagonProcessData>();
+}
+
+// 작업장의 원본. 작업장 종류·보드·처리할 작업·수수료 계수를 이 표만 안다. 역 배치는 PuzzleTableData.cities[].workshopIds다.
+[Serializable]
+public sealed class TrainventoryWorkshopTableData
+{
+    public string status, note;
+    public TrainventoryWorkshopData[] workshops = Array.Empty<TrainventoryWorkshopData>();
 }
 
 [Serializable]
@@ -90,17 +110,20 @@ public sealed class PuzzleTradeTableData
 {
     public string status, note;
     public long startingFunds = -1;
-    // 화물칸 증차 시 기본 단위 비용 (예: 50원씩 누적 증가)
-    public int wagonAddCostBase = -1;
-    // 화물칸 최대 증차 상한 (8칸)
+    // 화물칸 기본 증차 상한. 평판 1당 1칸씩 더해지고 maxWagonCountCap을 넘지 않는다.
     public int maxWagonCount = -1;
+    // 평판으로 늘어나는 증차 상한의 최댓값. 객차 바 슬롯 수 이하여야 한다.
+    public int maxWagonCountCap = -1;
     public int wagonRefrigerationCost = -1;
-    public long startingWagonSalePrice = -1;
+    // 시작 화차의 가치. 판매가는 다른 화차와 같이 가치 × wagonSalePercent / 100이다.
+    public long startingWagonValue = -1;
+    // 화차 판매가 비율(%). 상품은 price, 시작 화차는 startingWagonValue에 곱하고 내림한다.
+    public int wagonSalePercent = -1;
     public PuzzleWagonProductData[] wagonProducts = Array.Empty<PuzzleWagonProductData>();
-    public long gameClearCost = -1;
-    // 0이면 무기한. 목표 도시가 비어 있으면 상환 장소를 제한하지 않는다.
-    public int deadlineTurns = -1;
-    public string debtCityId;
+    // 목표 잔액(점수 기준). 영업 기간이 끝나 결산할 때 잔액이 이 값 이상이면 승리한다.
+    public long targetFunds = -1;
+    // 영업 기간(게임 시간). 0이면 무기한이다.
+    public int deadlineHours = -1;
     public float travelEffectSeconds = -1f;
     public float travelArrivalHoldSeconds = -1f;
 }
@@ -110,8 +133,15 @@ public sealed class PuzzleWagonProductData
 {
     public string id, displayName;
     public long price = -1;
-    public long salePrice = -1;
+    // 화차 효과 설명. 상세·툴팁에 그대로 보인다.
+    public string description;
     public string modificationId;
+    // 이 태그를 가진 화물은 운임의 적재 칸 수에 넣지 않는다.
+    public string[] freightExemptTags = Array.Empty<string>();
+    // 화차 가공(TrainventoryWagonProcessTableData.processes의 id). 비어 있으면 가공하지 않는다.
+    public string processId;
+    // 이 화차의 화물칸 보드(크기·막힌 칸). 화차마다 모양이 달라 적재 공간이 다르다. 시작 배치는 쓰지 않는다.
+    public PuzzleBoardData board;
 }
 
 [Serializable]
@@ -120,10 +150,10 @@ public sealed class PuzzleRouteTableData
     public string status, note;
     // 맵 제작 도구의 새 노선/일괄 적용 기준. 실행 요금은 각 routes[].cost를 읽는다.
     public int defaultBaseCost = -1;
-    public double pixelsPerTurn = -1;
+    public double pixelsPerDistance = -1;
     // 기차의 점유 칸 1칸에 더해지는 단가. 0이면 보유량과 무관한 정액 노선이다.
     public int costPerCell = -1;
-    public int costPerTurn = -1;
+    public int costPerDistance = -1;
     public PuzzleRouteData[] routes = Array.Empty<PuzzleRouteData>();
 }
 
@@ -164,11 +194,14 @@ public sealed class TrainventoryProficiencyTableData
 public sealed class PuzzleTimeTableData
 {
     public string status, note;
-    // 하루 8턴 중 낮 턴 수. 하루의 첫 턴부터 이만큼이 낮이고 나머지가 밤(시장 진입 불가)이다.
-    public int daylightTurns = -1;
-    // 하루의 첫 턴이 시작하는 시각(0~23시). 시작 시각이자 날짜 변경·재입고 시각이다.
+    // 하루 24시간 중 낮 시간. 낮 시작(startHour)부터 이만큼이 낮이고 나머지가 밤(시장 진입 불가)이다.
+    public int daylightHours = -1;
+    // 낮이 시작하는 시각(0~23시). 게임 시작 시각이자 날짜 변경 시각이다.
     public int startHour = -1;
-    public long restTurns = -1;
-    // 역 시설 진입(시장·술집·화차 시설)과 작업대 확정이 쓰는 턴.
-    public long stationActionTurns = -1;
+    // 이동 1회가 쓰는 턴. 노선 거리와 무관하게 모든 노선이 같다.
+    public int travelTurns = -1;
+    // 휴식 화면을 열 때 고른 기본 휴식 턴. 휴식은 1턴부터 하루(4턴)까지 고를 수 있다.
+    public int restTurns = -1;
+    // 시장 재입고 주기(턴). 경과 0시간부터 이 턴 수의 경계를 지날 때마다 모든 마을 시장을 새로 채운다.
+    public int restockTurns = -1;
 }

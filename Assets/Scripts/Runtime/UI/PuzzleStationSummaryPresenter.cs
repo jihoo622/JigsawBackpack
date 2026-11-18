@@ -192,7 +192,7 @@ public sealed class PuzzleStationSummaryPresenter : MonoBehaviour
     {
         var activeQuests = session.Quests
             .Where(_q => _q.State == TrainventoryQuestState.Active)
-            .OrderBy(_q => _q.DeadlineTurns)
+            .OrderBy(_q => _q.DeadlineHours)
             .ToList();
 
         var chosenQuests = new List<string>();
@@ -200,9 +200,9 @@ public sealed class PuzzleStationSummaryPresenter : MonoBehaviour
         {
             var q = activeQuests[i];
             string cityName = Presentation.QuestCityName(q.TargetCityId);
-            long remainingTurns = Math.Max(0, q.DeadlineTurns - session.ElapsedTime);
-            string timeStr = Presentation.PuzzleMapTime(remainingTurns);
-            string timestamp = Presentation.GameTimestamp(q.DeadlineTurns);
+            long remainingHours = Math.Max(0, q.DeadlineHours - session.ElapsedTime);
+            string timeStr = Presentation.TurnSpan(remainingHours);
+            string timestamp = Presentation.GameTimestamp(q.DeadlineHours);
             chosenQuests.Add($"{cityName} · {timestamp} (남은 {timeStr})");
         }
 

@@ -17,7 +17,7 @@
 | `PauseMenu` (`PanelBase`) | 일시정지 메뉴 조작 (Esc 계열). 구독자 예외 처리 대칭 OnEnable/OnDisable으로 PanelVisibility 발행 |
 | `PuzzleInventoryView` | 좌측 기차 보드: 5×5 화물칸 격자(`boardCells`)와 사전 배치 슬롯 풀 `placementSlots`/`ghostSlots`/`outlineSlots`; 인접 시너지 화살표(`synergyArrows`, 증가/감소 구분 스프라이트); 아이템 상세·호버용 아이콘 키셋 `PuzzleInventoryUI.itemIcons`. 모델 조회 후 이동 가이드(`moveGuide`, 근거리 N시간·소요 시간 형식), 보드 제목/실제 가치 텍스트 갱신 담당 |
 | `PuzzleInventoryPresenter` | 위 보드의 표시 갱신 Presenter. 패널 열림/닫힘 시 대기 코루틴 중단 등 정리(`Active=false` 경로 포함), OnEnable/OnDisable 대칭 구독 |
-| `PuzzleItemTooltipView` (`PanelBase`) | Cargo 화물 호버 팝업. 기본·실제 가치, 적용 배율·정확한 거래 예상 금액, 현재 적용 효과·일반 효과, 이동 턴 기준 미래 가치(`futureValue*Text`)를 표시한다. 가능 인접 효과 영역은 숨긴 상태다. 폰트 스타일은 툴팁 프리팹이 소유하며 런타임 상하한 보정은 사용하지 않는다. 거래 예상은 실제 거래 모델과 같은 계산을 사용한다. 닫히면 열린 상태를 정리한다. |
+| `PuzzleItemTooltipView` (`PanelBase`) | Cargo 화물 호버 팝업. 기본·실제 가치, 적용 배율·정확한 거래 예상 금액, 현재 적용 효과·일반 효과, 선택한 이동의 도착 시점 미래 가치(`futureValue*Text`)를 표시한다. 가능 인접 효과 영역은 숨긴 상태다. 폰트 스타일은 툴팁 프리팹이 소유하며 런타임 상하한 보정은 사용하지 않는다. 거래 예상은 실제 거래 모델과 같은 계산을 사용한다. 닫히면 열린 상태를 정리한다. |
 | `PuzzleCityView` | 현재 마을의 시장 보드: 재고 고정집산품·수입품·랜덤, 태그 선호·전 품목 구매·판매 배율 표시 |
 | `PuzzleTrainBarView` | 하단 화물칸 바: WagonSlotUI 프리팹 슬롯 풀(button/Image/highlightBorder/numberText) 선택·증차 용도; 드래시 호버 배율(`wagonDragHoverScale`)로 색 보정 — 코드에서만 색·배율 변경 |
 | `PuzzleSlotVisual` | 미리 배치된 HUD 슬롯 비주얼 — 시각·색·표시 타이밍을 코드가 제어, Instantiate 금지 원칙 준수 대상 |
@@ -27,7 +27,7 @@
 | `PuzzleMapNavigation` | 지도 줌 레벨 상수(`ui.PuzzleMapNavigation.*`) 보유 |
 | `PuzzleMapNodeView` | 원형 노드 표식·현재 역 하이라이팅(_current 여부·planningTargetCityId 비교로 강조색 결정)·라벨 위치 프리팹 값(`ui.PuzzleMapNodeView.*`)으로 노드·환승 표기 |
 | `PuzzleMapPresenter` | 지도 열림·마을 정보·이동 확인/연출과 모델 이동을 중계 |
-| `PuzzleMapTravelView` | 확인창+이동 연출(확인 카드·이동 카드·기차·진행 막대), MapPanel 아래 `MapTravelPanel`. 취소 선택 기본값이며 `UI/Cancel` 액션도 취소로 반영. 진행률 코루틴은 비활성화 시 중단; 이동 확정 전 중단은 도시·시간·자금 유지; 확인 중·연출 중에는 중복 이동과 지도 조작 차단; 지도 열림 중 배경 드래그·즉시 거래 차단; 도착 표시 후 지도 닫기 |
+| `PuzzleMapTravelView` | 확인창+이동 연출(확인 카드·이동 카드·기차·출발/도착역 이름·흐르는 게임 시계, 카드 마스크), MapPanel 아래 `MapTravelPanel`. 취소 선택 기본값이며 `UI/Cancel` 액션도 취소로 반영. 진행률 코루틴은 비활성화 시 중단; 이동 확정 전 중단은 도시·시간·자금 유지; 확인 중·연출 중에는 중복 이동과 지도 조작 차단; 지도 열림 중 배경 드래그·즉시 거래 차단; 도착 표시 후 지도 닫기 |
 | `PuzzleStationActionsView / PuzzleStationActionsPresenter` | 역 행동 패널(빌더가 `startOpen = true`로 열어 놓음) |
 
 ## C. 핵심 UI 이벤트 흐름

@@ -17,9 +17,8 @@ public static partial class Presentation
         return BasicData.Format(
             "presentation.route.summary",
             _quote.Legs,
-            PuzzleMapTime(_quote.TotalTurns),
-            _quote.ArrivalClockTurns + 1,
-            HourOfTurn(_quote.ArrivalClockTurns),
+            TurnSpan(PuzzleTimeManager.HoursOf(_quote.TotalTurns)),
+            TurnSlotName(_quote.ArrivalTurnSlot),
             nightText,
             _quote.EstimatedCost);
     }

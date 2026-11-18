@@ -1,18 +1,281 @@
 {
   "status": "sample",
-  "note": "시작 자금·증차 비용·상환 목표·기한 및 이동 연출 설정. 도시별 거래 설정은 PuzzleTableData.cities가 원본이다.",
+  "note": "시작 자금·화차 상품(역마다 PuzzleTableData.cities[].wagonProductIds로 판다, 보드 모양이 다름)·목표 잔액·영업 기간 및 이동 연출 설정. 점수는 결산 잔액이다. 증차 상한은 maxWagonCount + 평판(1당 1칸)이고 maxWagonCountCap(객차 바 슬롯 수)을 넘지 않는다. 화차 판매가는 가치(상품 price, 시작 화차 startingWagonValue) × wagonSalePercent / 100(내림)이다. deadlineHours(336, 14일 = 56턴)가 지나면 이동·휴식·작업은 막히고 거래만 할 수 있으며, 결산하면 잔액이 targetFunds 이상일 때 승리한다. 상환·상환 도시는 없다. 도시별 거래 설정은 PuzzleTableData.cities가 원본이다. 화차 효과는 description(설명), board.zones(전용 구역: 구역 칸에는 받는 태그 화물만), freightExemptTags(운임 적재 칸 제외 태그), processId(TrainventoryWagonProcessTableData 가공)로 정한다.",
   "startingFunds": 200,
-  "wagonAddCostBase": 50,
-  "maxWagonCount": 8,
-  "wagonRefrigerationCost": 50,
-  "startingWagonSalePrice": 10,
+  "maxWagonCount": 4,
+  "maxWagonCountCap": 8,
+  "wagonRefrigerationCost": 120,
+  "startingWagonValue": 80,
+  "wagonSalePercent": 40,
   "wagonProducts": [
-    { "id": "standard", "displayName": "일반 화차", "price": 50, "salePrice": 25 },
-    { "id": "refrigerated", "displayName": "냉장 화차", "price": 100, "salePrice": 50, "modificationId": "refrigeration" }
+    {
+      "id": "hopper",
+      "displayName": "광석 호퍼",
+      "price": 180,
+      "board": {
+        "width": 7,
+        "height": 6,
+        "blockedCells": [],
+        "zones": [
+          {
+            "id": "ore",
+            "displayName": "광석·금속 칸",
+            "x": 0,
+            "y": 0,
+            "width": 7,
+            "height": 6,
+            "allowedTags": [
+              "Ore",
+              "Metal"
+            ]
+          }
+        ],
+        "startingPlacements": []
+      },
+      "description": "광석·금속 전용. 넓은 대신 광석·금속 화물만 실을 수 있다."
+    },
+    {
+      "id": "flatbed",
+      "displayName": "장물 평판 화차",
+      "price": 270,
+      "board": {
+        "width": 7,
+        "height": 3,
+        "blockedCells": [],
+        "startingPlacements": []
+      },
+      "description": "목재·기계 화물은 운임의 적재 칸 수에 넣지 않는다.",
+      "freightExemptTags": [
+        "Wood",
+        "Machinery"
+      ]
+    },
+    {
+      "id": "standard",
+      "displayName": "일반 화차",
+      "price": 300,
+      "board": {
+        "width": 5,
+        "height": 5,
+        "blockedCells": [],
+        "startingPlacements": []
+      },
+      "description": "특수 효과 없음."
+    },
+    {
+      "id": "coldbox",
+      "displayName": "소형 냉장 화차",
+      "price": 300,
+      "modificationId": "refrigeration",
+      "board": {
+        "width": 4,
+        "height": 4,
+        "blockedCells": [],
+        "startingPlacements": []
+      },
+      "description": "냉장: 같은 객차 신선 화물의 유통기한 소모를 줄인다."
+    },
+    {
+      "id": "livestock",
+      "displayName": "가축 화차",
+      "price": 330,
+      "board": {
+        "width": 7,
+        "height": 4,
+        "blockedCells": [],
+        "zones": [
+          {
+            "id": "waste",
+            "displayName": "똥 전용칸",
+            "x": 6,
+            "y": 0,
+            "width": 1,
+            "height": 4,
+            "allowedTags": [
+              "Waste"
+            ]
+          }
+        ],
+        "startingPlacements": []
+      },
+      "description": "오른쪽 1열 4칸은 똥 전용칸이다. 배설된 똥은 전용칸부터 채운다."
+    },
+    {
+      "id": "granary",
+      "displayName": "곡물 화차",
+      "price": 360,
+      "board": {
+        "width": 7,
+        "height": 6,
+        "blockedCells": [],
+        "zones": [
+          {
+            "id": "grain",
+            "displayName": "곡물 칸",
+            "x": 0,
+            "y": 0,
+            "width": 7,
+            "height": 6,
+            "allowedTags": [
+              "Grain"
+            ]
+          }
+        ],
+        "startingPlacements": []
+      },
+      "description": "곡물 전용. 넓은 대신 곡물만 실을 수 있다."
+    },
+    {
+      "id": "refrigerated",
+      "displayName": "냉장 화차",
+      "price": 480,
+      "modificationId": "refrigeration",
+      "board": {
+        "width": 5,
+        "height": 5,
+        "blockedCells": [],
+        "startingPlacements": []
+      },
+      "description": "냉장: 같은 객차 신선 화물의 유통기한 소모를 줄인다."
+    },
+    {
+      "id": "boxcar",
+      "displayName": "대형 유개 화차",
+      "price": 675,
+      "board": {
+        "width": 7,
+        "height": 5,
+        "blockedCells": [],
+        "startingPlacements": []
+      },
+      "description": "특수 효과 없음. 칸이 가장 많다."
+    },
+    {
+      "id": "garden",
+      "displayName": "텃밭 화차",
+      "price": 360,
+      "description": "텃밭: 곡물 1 + 똥 1 → 곡물 3(10턴, 자동 반복). 곡물 4×4칸·똥 1열 전용.",
+      "processId": "process.garden",
+      "board": {
+        "width": 5,
+        "height": 4,
+        "blockedCells": [],
+        "zones": [
+          {
+            "id": "grain",
+            "displayName": "곡물 칸",
+            "x": 0,
+            "y": 0,
+            "width": 4,
+            "height": 4,
+            "allowedTags": [
+              "Grain"
+            ]
+          },
+          {
+            "id": "waste",
+            "displayName": "똥 칸",
+            "x": 4,
+            "y": 0,
+            "width": 1,
+            "height": 4,
+            "allowedTags": [
+              "Waste"
+            ]
+          }
+        ],
+        "startingPlacements": []
+      }
+    },
+    {
+      "id": "smelter",
+      "displayName": "제련 화차",
+      "price": 450,
+      "description": "제련: 나무 1칸 + 광석 조각 2 → 금속 주괴 3(15턴, 자동 반복). 나무 5×2·광석 조각 3×3·금속 전용칸.",
+      "processId": "process.smelt",
+      "board": {
+        "width": 7,
+        "height": 5,
+        "blockedCells": [],
+        "zones": [
+          {
+            "id": "wood",
+            "displayName": "나무 칸",
+            "x": 0,
+            "y": 0,
+            "width": 5,
+            "height": 2,
+            "allowedTags": [
+              "Wood"
+            ]
+          },
+          {
+            "id": "ore",
+            "displayName": "광석 조각 칸",
+            "x": 0,
+            "y": 2,
+            "width": 3,
+            "height": 3,
+            "allowedTags": [
+              "Ore"
+            ],
+            "maxPieceCells": 1
+          },
+          {
+            "id": "metalSide",
+            "displayName": "금속 칸",
+            "x": 5,
+            "y": 0,
+            "width": 2,
+            "height": 2,
+            "allowedTags": [
+              "Metal"
+            ]
+          },
+          {
+            "id": "metal",
+            "displayName": "금속 칸",
+            "x": 3,
+            "y": 2,
+            "width": 4,
+            "height": 3,
+            "allowedTags": [
+              "Metal"
+            ]
+          }
+        ],
+        "startingPlacements": []
+      }
+    },
+    {
+      "id": "crusher",
+      "displayName": "분쇄 화차",
+      "price": 300,
+      "description": "분쇄: 여러 칸 광석을 1칸 광석 조각으로 나눈다(칸당 2턴, 자동 반복). 광석 전용.",
+      "processId": "process.crush",
+      "board": {
+        "width": 5,
+        "height": 4,
+        "blockedCells": [],
+        "zones": [
+          {
+            "id": "ore",
+            "displayName": "광석 칸",
+            "x": 0,
+            "y": 0,
+            "width": 5,
+            "height": 4,
+            "allowedTags": [
+              "Ore"
+            ]
+          }
+        ],
+        "startingPlacements": []
+      }
+    }
   ],
-  "gameClearCost": 1500,
-  "deadlineTurns": 112,
-  "debtCityId": "city.finance",
+  "targetFunds": 1500,
+  "deadlineHours": 336,
   "travelEffectSeconds": 1.25,
   "travelArrivalHoldSeconds": 0.35
 }

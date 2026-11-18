@@ -1,13 +1,19 @@
+using System;
 using UnityEngine;
 
-// 시간 칸 정산 표시의 값 계산. 남은 시간·눈금·진행 띠는 시간 시스템의 실제 정산 주기(테이블 activationIntervalTurns)에서,
-// 예상치는 실제 정산이 쓰는 평가(TrainSynergyDelta)를 재사용한다.
+// 시간 칸 정산 표시의 값 계산. 낮·밤 막대와 같은 창(지금 턴의 가운데를 고정한 앞뒤 12시간)에 정산 시각 눈금을 놓는다.
+// 표시선은 움직이지 않고 턴이 지나면 눈금이 한 칸씩 밀린다. 진행 띠는 지금부터 다음 정산까지다.
+// 주기는 시간 시스템의 실제 정산 주기(테이블 activationIntervalHours), 예상치는 실제 정산이 쓰는 평가(TrainSynergyDelta)다.
+// 턴이 바뀌거나 예상치가 바뀔 때만 다시 그린다.
 public sealed class PuzzleSettlementGaugePresenter : MonoBehaviour
 {
     [SerializeField] PuzzleSettlementGaugeView view;
 
     PuzzleInventoryService session;
     float[] tickPositions;
+    long renderedStep = long.MinValue;
+    decimal renderedEstimate = decimal.MinValue;
+    string label;
 
     void OnEnable()
     {
@@ -21,25 +27,21 @@ public sealed class PuzzleSettlementGaugePresenter : MonoBehaviour
         session.Initialize();
         view.Initialize();
         tickPositions = new float[view.TickCount];
-        GameEvents.TimeAdvanced += OnTimeAdvanced;
         GameEvents.PuzzleActionCommitted += OnActionCommitted;
         GameEvents.PuzzleRunStarted += OnRunStarted;
-        Refresh();
+        Invalidate();
+        Render();
     }
 
     void OnDisable()
     {
-        GameEvents.TimeAdvanced -= OnTimeAdvanced;
         GameEvents.PuzzleActionCommitted -= OnActionCommitted;
         GameEvents.PuzzleRunStarted -= OnRunStarted;
     }
 
-    void OnTimeAdvanced(GameEvents.TimeAdvanceInfo _info)
+    void Update()
     {
-        if (_info.session == session)
-        {
-            Refresh();
-        }
+        Render();
     }
 
     // 배치·구매·판매 등 확정 조작마다 열차 시너지 합이 바뀐다.
@@ -47,7 +49,7 @@ public sealed class PuzzleSettlementGaugePresenter : MonoBehaviour
     {
         if (_info.session == session)
         {
-            Refresh();
+            Invalidate();
         }
     }
 
@@ -55,32 +57,59 @@ public sealed class PuzzleSettlementGaugePresenter : MonoBehaviour
     {
         if (_info.session == session)
         {
-            Refresh();
+            Invalidate();
         }
     }
 
-    void Refresh()
+    void Invalidate()
     {
-        long interval = (long)TableManager.Instance.RequireValid().PuzzleSynergy.activationIntervalTurns;
-        if (interval <= 0)
+        renderedStep = long.MinValue;
+    }
+
+    void Render()
+    {
+        if (session == null || session.Time == null)
+        {
+            return;
+        }
+        double interval = TableManager.Instance.RequireValid().PuzzleSynergy.activationIntervalHours;
+        if (interval <= 0d)
         {
             view.Clear(Presentation.GaugeInline(0, 0m));
             return;
         }
-
-        long elapsed = session.ElapsedTime;
-        long elapsedInCycle = elapsed % interval;
-        long remaining = interval - elapsedInCycle;
-        // 막대는 하루(0~1)다. 정산 시각은 경과 시간 기준 주기라 지금 위치에서 거꾸로·앞으로 잰다.
-        const float DAY = PuzzleTimeManager.TURNS_PER_DAY;
-        float now = session.Time.TurnOfDay / DAY;
-        float start = Mathf.Repeat(now - elapsedInCycle / DAY, 1f);
-        int count = 0;
-        for (long offset = remaining; offset <= PuzzleTimeManager.TURNS_PER_DAY && count < view.TickCount; offset += interval)
+        decimal estimate = session.TrainSynergyDelta;
+        long step = session.Time.ElapsedHours;
+        if (step == renderedStep && estimate == renderedEstimate)
         {
-            tickPositions[count] = Mathf.Repeat(now + offset / DAY, 1f);
+            return;
+        }
+        renderedStep = step;
+        renderedEstimate = estimate;
+
+        const double DAY = PuzzleTimeManager.HOURS_PER_DAY;
+        const double HALF = DAY / 2d;
+        double now = session.Time.ElapsedHours + PuzzleTimeManager.HOURS_PER_TURN / 2d;
+        // 정산은 경과 시간이 주기의 배수인 시각이다. 창 안의 경계를 지난 것부터 차례로 놓고 다음 정산을 강조한다.
+        double next = (Math.Floor(now / interval) + 1d) * interval;
+        int count = 0;
+        int nextIndex = -1;
+        for (double at = Math.Ceiling((now - HALF) / interval) * interval;
+            at <= now + HALF && count < tickPositions.Length; at += interval)
+        {
+            if (at <= 0d)
+            {
+                continue;
+            }
+            if (nextIndex < 0 && at >= next)
+            {
+                nextIndex = count;
+            }
+            tickPositions[count] = (float)(0.5d + (at - now) / DAY);
             count++;
         }
-        view.Render(Presentation.GaugeInline(remaining, session.TrainSynergyDelta), start, now, tickPositions, count);
+        view.Render(0.5f, (float)(0.5d + (next - now) / DAY), tickPositions, count, nextIndex);
+        label = Presentation.GaugeInline((long)(next - session.Time.ElapsedHours), estimate);
+        view.SetLabel(label);
     }
 }
