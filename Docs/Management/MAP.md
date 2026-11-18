@@ -10,10 +10,10 @@
 |---|---|---|
 | 노드 테이블 | `Assets/Resources/Tables/PuzzleTableData.json` | 마을 31·지역 7·`startCity`·`planningTargetCityId`, 각 마을의 시장 격자와 재고 |
 | 노선 테이블 | `Assets/Resources/Tables/PuzzleRouteTableData.json` | 방향 노선 100항목의 표시 선과 같은 `points`·요금용 `distance`·`cost`·`highSpeed`, 거리·적재 단가 |
-| 시간 테이블 | `Assets/Resources/Tables/PuzzleTimeTableData.json` | 낮 길이·시작 시각·휴식·거리당 이동 시간(`hoursPerDistance`) |
+| 시간 테이블 | `Assets/Resources/Tables/PuzzleTimeTableData.json` | 낮 길이·시작 시각·휴식·시간당 지도 길이(`pixelsPerHour`)·이동 시간 올림 단위 |
 | 시간·판정 테이블 | `Assets/Resources/Tables/PuzzleTradeTableData.json` | `deadlineHours` 336(14일)·`debtCityId` |
 | 지도 프리팹 | `Assets/Art/PuzzleWorldMap.prefab`<br>guid `ab2441b70b1c4490988e4eb2ca06784a` | 화면 좌표·선분·라벨 등 모든 시각 요소, 그리고 Presenter/View/NodeView 컴포넌트 자체 |
-| 시간 계산 | `Assets/Scripts/Runtime/Core/PuzzleTimeManager.cs` | 실시간 시계의 정수 게임 시간·야간 판정·노선 이동 시간(거리 × `hoursPerDistance`). 밸런스는 시간·노선 테이블이 원본 |
+| 시간 계산 | `Assets/Scripts/Runtime/Core/PuzzleTimeManager.cs` | 실시간 시계의 정수 게임 시간·야간 판정·노선 이동 시간(선 길이 ÷ `pixelsPerHour`, 분 단위 올림). 밸런스는 시간·노선 테이블이 원본 |
 
 - 맵 UI 스크립트(PuzzleMapPresenter 1·PuzzleMapView 1·PuzzleMapNavigation 1·PuzzleMapTravelView 1·PuzzleMapNodeView 31)는 **전부 프리팹 안에 자기 완결로 들어 있다.** `Assets/Scenes/Game.unity`는 프리팹 인스턴스 하나를 사용한다.
 - `Game.unity`의 인스턴스는 루트 RectTransform(fileID 700011)에 프로퍼티 오버라이드 11개(pivot·anchor·sizeDelta·localScale)를 저장한다. 노드·선분·라벨 좌표는 전부 프리팹에 있고 씬 오버라이드는 없다.
@@ -139,7 +139,7 @@
 
 ## 3. 노선과 이동 시간
 
-- `PuzzleRouteTableData.routes[].distance`가 노선 거리의 원본이다. 방향 100개(왕복 50철도)를 기록하며 왕복 값은 같아야 한다. 운임 = 기본요금 + 거리 × `costPerDistance` + 점유 칸 × `costPerCell`이다. 이동 시간 = 거리 × `PuzzleTimeTableData.hoursPerDistance`(3시간)이고 이동 1회가 1턴이다.
+- `PuzzleRouteTableData.routes[].distance`가 노선 거리의 원본이다. 방향 100개(왕복 50철도)를 기록하며 왕복 값은 같아야 한다. 운임 = 기본요금 + 거리 × `costPerDistance` + 점유 칸 × `costPerCell`이다. 이동 시간은 선 길이 ÷ `PuzzleTimeTableData.pixelsPerHour`(28)를 10분 단위로 올린 값이고 이동 1회가 1턴이다.
 - `routes[].points`는 표시 선과 동기화된 그리기 전용 좌표이며 역방향은 같은 점의 역순이다. 선 길이는 Map Editor의 노선 거리 자동 계산(`pixelsPerDistance` 100당 1)에만 쓴다.
 - 노선 거리는 1~7(1 26 · 2 19 · 3 4 · 6 1 · 7 1)이다. 값은 턴제 전환 전의 요금 거리를 그대로 옮겼다. 거리·적재 단가 1과 기본요금 3은 바꾸지 않았다.
 - `PuzzleTimeManager`가 실시간 시계의 정수 게임 시간을 보유하고 표시·이동·물품 보유 시간·가치 누적이 같은 시계를 쓴다. 06:00 시작, 낮 06:00~24:00, 밤 00:00~06:00이다([게임 시간 시스템](<게임 시간 시스템.md>)).
@@ -164,7 +164,7 @@
 ## 6. 세션 시간
 
 - `PuzzleInventoryService.Time.ElapsedHours`가 단일 게임 시간이다. 실시간 시계가 1시간씩 확정하고 UI 시계는 `D일 HH:MM · 낮/밤 · N턴`으로 표시한다. 날짜는 06:00에 바뀐다. 기한은 시작부터의 경과 시간으로 비교한다.
-- 이동 시간은 `PuzzleTimeManager.TravelHours(route, timeRules)`로 노선 거리 × `hoursPerDistance`를 계산한다. `Time.ArrivalAt`은 누적 범위를 먼저 검사한다.
+- 이동 시간(분)은 `PuzzleTimeManager.TravelMinutes(route, timeRules)`가 노선 `points` 선 길이 ÷ `pixelsPerHour`를 `travelRoundingMinutes` 단위로 올려 계산한다. `Time.ArrivalAt`은 누적 범위를 먼저 검사한다.
 - 출발(`DepartLeg`)은 운임을 내고 `Journey`를 만든다. 시계가 이동 시간만큼 흐르면 도착(`CompleteJourney`)해 도시와 턴을 바꾼다. 가치 변화는 이동 중 통과한 6시간 정산 횟수만큼이며 호버 예측도 같은 횟수를 사용한다.
 - 보유 시간은 상태 확정 중 갱신하고, 날짜 변경 부산물을 생성한 뒤 `TimeAdvanced`를 발행한다. 새 부산물의 보유 시간은 0에서 시작한다. 이벤트는 `previousHours`·`elapsedHours`·`DeltaHours`를 제공한다.
 
@@ -180,7 +180,7 @@
 |---|---|
 | 마을 위치·노선 모양 | 레이아웃 JSON과 노선 표 `points`를 함께 갱신한 뒤 레이아웃 적용 |
 | 노선 거리 | `PuzzleRouteTableData.routes[].distance` (자동 계산 기준 `pixelsPerDistance`) |
-| 시작 시각·낮 길이·휴식·거리당 이동 시간 | `PuzzleTimeTableData.startHour`·`daylightHours`·`restHours`·`hoursPerDistance` |
+| 시작 시각·낮 길이·휴식·이동 시간 기준 | `PuzzleTimeTableData.startHour`·`daylightHours`·`restHours`·`pixelsPerHour`·`travelRoundingMinutes` |
 | 실시간 배율 | 기초데이터 `rules.time.gameHoursPerRealMinute` |
 | 운임 단가 | `PuzzleRouteTableData`의 `cost`·`costPerDistance`·`costPerCell` |
 | 기한 | `PuzzleTradeTableData.deadlineHours` |

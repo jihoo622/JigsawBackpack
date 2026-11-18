@@ -16,6 +16,9 @@ public sealed class PuzzleStationActionsPresenter : MonoBehaviour
         view.RestRequested += OpenRest;
         view.TravelRequested += OpenMap;
         view.RestTimeRequested += Rest;
+        view.RestEarlierRequested += ShowEarlierRest;
+        view.RestLaterRequested += ShowLaterRest;
+        GameEvents.RestChanged += OnRestChanged;
         view.ButcheryRequested += OpenButchery;
         view.ButcheryConfirmed += ConfirmButchery;
         view.ModificationRequested += OpenModification;
@@ -44,6 +47,9 @@ public sealed class PuzzleStationActionsPresenter : MonoBehaviour
         view.RestRequested -= OpenRest;
         view.TravelRequested -= OpenMap;
         view.RestTimeRequested -= Rest;
+        view.RestEarlierRequested -= ShowEarlierRest;
+        view.RestLaterRequested -= ShowLaterRest;
+        GameEvents.RestChanged -= OnRestChanged;
         view.ButcheryRequested -= OpenButchery;
         view.ButcheryConfirmed -= ConfirmButchery;
         view.ModificationRequested -= OpenModification;
@@ -63,6 +69,9 @@ public sealed class PuzzleStationActionsPresenter : MonoBehaviour
         GameEvents.PuzzleRunEnded -= OnRunEnded;
     }
 
+    int restTargetHour;
+    long shownRestStep = long.MinValue;
+
     void Refresh()
     {
         bool inProgress = session.RunStatus == PuzzleRunStatus.InProgress;
@@ -70,9 +79,15 @@ public sealed class PuzzleStationActionsPresenter : MonoBehaviour
         var butchery = view.HasButcheryButton ? session.ButcheryAction() : null;
         bool available = butchery != null;
         PuzzleButcheryPhase phase = available ? session.ButcheryPhase() : PuzzleButcheryPhase.Idle;
-        long butcheryCost = available ? session.ButcheryCost() : -1;
-        bool butcheryNoFunds = available && phase == PuzzleButcheryPhase.Idle && butcheryCost >= 0 &&
-            session.Funds < butcheryCost;
+        // 확인 버튼 견적은 맡기기 전(대기·화물 있음)에만 보인다. 맡긴 뒤에는 상태 문구가 남은 시간을 보인다.
+        long butcheryCost = -1;
+        long butcheryHours = 0;
+        if (available && session.TryQuoteButchery(out long quotedButcheryFee, out long quotedButcheryHours))
+        {
+            butcheryCost = quotedButcheryFee;
+            butcheryHours = quotedButcheryHours;
+        }
+        bool butcheryNoFunds = butcheryCost >= 0 && session.Funds < butcheryCost;
         string hint = !available
             ? string.Empty
             : butcheryNoFunds
@@ -92,9 +107,14 @@ public sealed class PuzzleStationActionsPresenter : MonoBehaviour
         // 역 시설·작업장은 시간을 쓰지 않는다. 이동 중에는 쓸 수 없다.
         bool canSpendHour = !session.IsTraveling;
         bool modificationConfirmable = modificationAvailable && session.ModificationConfirmable() && canSpendHour;
-        long modificationCost = modificationModeSelected ? session.ModificationFee() : -1;
-        bool modificationNoFunds = modificationAvailable && modificationPhase == PuzzleModificationPhase.Idle &&
-            modificationModeSelected && modificationCost >= 0 && session.Funds < modificationCost;
+        long modificationCost = -1;
+        long modificationHours = 0;
+        if (modificationAvailable && session.TryQuoteModification(out long quotedModificationFee, out long quotedModificationHours))
+        {
+            modificationCost = quotedModificationFee;
+            modificationHours = quotedModificationHours;
+        }
+        bool modificationNoFunds = modificationCost >= 0 && session.Funds < modificationCost;
         string modificationModeName = modificationModeSelected
             ? selectedMode.displayName
             : FirstModificationModeName();
@@ -111,9 +131,14 @@ public sealed class PuzzleStationActionsPresenter : MonoBehaviour
         var refining = view.HasRefiningButton ? session.RefiningAction() : null;
         bool refiningAvailable = refining != null;
         PuzzleRefiningPhase refiningPhase = refiningAvailable ? session.RefiningPhase() : PuzzleRefiningPhase.Idle;
-        long refiningCost = refiningAvailable ? session.RefiningCost() : -1;
-        bool refiningNoFunds = refiningAvailable && refiningPhase == PuzzleRefiningPhase.Idle && refiningCost >= 0 &&
-            session.Funds < refiningCost;
+        long refiningCost = -1;
+        long refiningHours = 0;
+        if (refiningAvailable && session.TryQuoteRefining(out long quotedRefiningFee, out long quotedRefiningHours))
+        {
+            refiningCost = quotedRefiningFee;
+            refiningHours = quotedRefiningHours;
+        }
+        bool refiningNoFunds = refiningCost >= 0 && session.Funds < refiningCost;
         string refiningHint = !refiningAvailable
             ? string.Empty
             : refiningNoFunds
@@ -124,19 +149,19 @@ public sealed class PuzzleStationActionsPresenter : MonoBehaviour
             session.CloseRefining();
         }
         view.Refresh(session.IsMarketOpen && canSpendHour, session.MarketEntered, inProgress, canSpendHour,
-            TableManager.Instance.PuzzleTime.restHours,
             available, available && phase != PuzzleButcheryPhase.Working,
-            available && session.ButcheryConfirmable() && canSpendHour, hint, butcheryCost,
+            available && session.ButcheryConfirmable() && canSpendHour, hint, butcheryCost, butcheryHours,
             Presentation.StationActionDescription(butchery));
         view.RefreshModification(inProgress, modificationAvailable, modificationPhase, modificationModeSelected,
-            modificationConfirmable, modificationModeName, modificationHint, modificationCost,
+            modificationConfirmable, modificationModeName, modificationHint, modificationCost, modificationHours,
             Presentation.StationActionDescription(modification));
         view.RefreshRefining(inProgress, refiningAvailable,
             refiningAvailable && refiningPhase != PuzzleRefiningPhase.Working,
-            refiningAvailable && session.RefiningConfirmable() && canSpendHour, refiningHint, refiningCost,
+            refiningAvailable && session.RefiningConfirmable() && canSpendHour, refiningHint, refiningCost, refiningHours,
             Presentation.StationActionDescription(refining));
         bool hasAnyFacility = available || modificationAvailable || refiningAvailable;
         view.UpdateFacilityCard(hasAnyFacility && inProgress);
+        RefreshRest();
     }
 
     string FirstModificationModeName()
@@ -163,10 +188,76 @@ public sealed class PuzzleStationActionsPresenter : MonoBehaviour
         }
     }
 
+    // 휴식 화면을 열 때마다 목표 시각을 지금 + restHours로 다시 잡는다. 쉬는 중이면 그 목표를 그대로 보인다.
     void OpenRest()
     {
         session.LeaveFacility();
+        if (!session.IsResting && session.Time != null)
+        {
+            restTargetHour = (session.Time.Hour + (int)TableManager.Instance.RequireValid().PuzzleTime.restHours) %
+                PuzzleTimeManager.HOURS_PER_DAY;
+        }
         view.ShowRest();
+        RefreshRest();
+    }
+
+    void ShiftRestTarget(int _hours)
+    {
+        if (session.IsResting)
+        {
+            return;
+        }
+        restTargetHour = ((restTargetHour + _hours) % PuzzleTimeManager.HOURS_PER_DAY + PuzzleTimeManager.HOURS_PER_DAY) %
+            PuzzleTimeManager.HOURS_PER_DAY;
+        RefreshRest();
+    }
+
+    void ShowEarlierRest()
+    {
+        ShiftRestTarget(-1);
+    }
+
+    void ShowLaterRest()
+    {
+        ShiftRestTarget(1);
+    }
+
+    // 쉬는 동안 남은 시간 글자를 화면 시계 단위(10분)로 갱신한다.
+    void Update()
+    {
+        if (session != null && session.Time != null && view && view.ShowingRest &&
+            session.Time.DisplayStep != shownRestStep)
+        {
+            RefreshRest();
+        }
+    }
+
+    void RefreshRest()
+    {
+        if (session == null || session.Time == null)
+        {
+            return;
+        }
+        shownRestStep = session.Time.DisplayStep;
+        if (session.IsResting)
+        {
+            long target = session.RestTargetHours.Value;
+            view.RefreshRest(Presentation.StationRestStop(session.Time.HourAt(target),
+                Presentation.ClockDuration(target - session.Time.ContinuousHours)), false, true);
+            return;
+        }
+        view.RefreshRest(Presentation.StationRestUntil(restTargetHour,
+                Presentation.ClockDuration(session.RestRemainingHoursFor(restTargetHour))),
+            session.RunStatus == PuzzleRunStatus.InProgress && !session.IsTraveling,
+            session.CanRestUntil(restTargetHour));
+    }
+
+    void OnRestChanged(GameEvents.RestInfo _info)
+    {
+        if (_info.session == session)
+        {
+            RefreshRest();
+        }
     }
 
     void OpenTavern()
@@ -361,13 +452,18 @@ public sealed class PuzzleStationActionsPresenter : MonoBehaviour
         GameEvents.RaiseMapRequested(gameObject.scene.handle);
     }
 
+    // 쉬는 중이면 멈추고, 아니면 고른 시각까지 빨리 감기를 시작한다.
     void Rest()
     {
-        if (session.CanRest)
+        if (session.IsResting)
         {
-            bool advanced = session.AdvanceHours(TableManager.Instance.PuzzleTime.restHours, PuzzleActionKind.Rest);
-            view.ShowRestNotice(advanced ? Presentation.StationRestHint : Presentation.PuzzleTimeOverflow);
+            session.StopRest();
         }
+        else if (!session.StartRest(restTargetHour))
+        {
+            view.ShowRestNotice(Presentation.PuzzleTimeOverflow);
+        }
+        RefreshRest();
     }
 
     void OnArrived(GameEvents.CityArrivalInfo _info)

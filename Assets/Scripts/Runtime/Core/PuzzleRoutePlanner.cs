@@ -59,7 +59,7 @@ public static class PuzzleRoutePlanner
                     continue;
                 }
 
-                long travelTime = PuzzleTimeManager.TravelHours(route, _tables.PuzzleTime);
+                long travelTime = PuzzleTimeManager.TravelMinutes(route, _tables.PuzzleTime);
                 long arrival = checked(best + travelTime);
                 if (!hours.TryGetValue(route.toCityId, out long known) || arrival < known)
                 {

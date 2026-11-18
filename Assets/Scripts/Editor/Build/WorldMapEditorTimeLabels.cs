@@ -60,7 +60,7 @@ public sealed partial class WorldMapEditorWindow
         string text = (string)_rail["sourceId"];
         try
         {
-            text += " · " + Presentation.PuzzleMapTime(PuzzleTimeManager.TravelHours(Forward(_rail).ToObject<PuzzleRouteData>(), TableManager.Instance.PuzzleTime));
+            text += " · " + Presentation.PuzzleTravelTime(PuzzleTimeManager.TravelMinutes(Forward(_rail).ToObject<PuzzleRouteData>(), TableManager.Instance.PuzzleTime));
         }
         catch (OverflowException)
         {

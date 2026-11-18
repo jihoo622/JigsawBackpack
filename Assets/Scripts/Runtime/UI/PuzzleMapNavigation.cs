@@ -151,22 +151,46 @@ public sealed class PuzzleMapNavigation : MonoBehaviour, IBeginDragHandler, IDra
                 return;
             }
         }
-        RectTransformUtility.ScreenPointToLocalPointInRectangle(viewport, position, EventCamera(), out var local);
         float value = _context.ReadValue<float>();
         if (Mathf.Abs(value) > 0f)
         {
-            SetZoom(scale * (value > 0f ? ZoomStep : 1f / ZoomStep), local);
+            ZoomAt(scale * (value > 0f ? ZoomStep : 1f / ZoomStep), position);
         }
     }
 
+    // 버튼 확대·축소는 뷰포트 가운데를 기준으로 한다.
     void ZoomIn()
     {
-        SetZoom(scale * ZoomStep, Vector2.zero);
+        ZoomAt(scale * ZoomStep, ViewportCenterOnScreen());
     }
 
     void ZoomOut()
     {
-        SetZoom(scale / ZoomStep, Vector2.zero);
+        ZoomAt(scale / ZoomStep, ViewportCenterOnScreen());
+    }
+
+    Vector2 ViewportCenterOnScreen()
+    {
+        return RectTransformUtility.WorldToScreenPoint(EventCamera(), viewport.TransformPoint(viewport.rect.center));
+    }
+
+    // 화면 위치 _screen 아래에 있던 지도 지점이 확대·축소 뒤에도 같은 화면 위치에 남도록 지도를 옮긴다.
+    // 뷰포트·지도의 앵커·피벗 배치와 무관하게 화면 좌표로 보정한다. 지도 끝에서는 Clamp가 위치를 다시 제한한다.
+    void ZoomAt(float _scale, Vector2 _screen)
+    {
+        var camera = EventCamera();
+        var parent = content.parent as RectTransform;
+        if (!parent || !RectTransformUtility.ScreenPointToLocalPointInRectangle(content, _screen, camera, out var pinned))
+        {
+            SetZoom(_scale, Vector2.zero);
+            return;
+        }
+        ApplyScale(Mathf.Clamp(_scale, MinZoom, MaxZoom));
+        Vector2 moved = RectTransformUtility.WorldToScreenPoint(camera, content.TransformPoint(pinned));
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(parent, _screen, camera, out var target);
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(parent, moved, camera, out var current);
+        content.anchoredPosition += target - current;
+        Clamp();
     }
 
     void Fit()
@@ -265,16 +289,22 @@ public sealed class PuzzleMapNavigation : MonoBehaviour, IBeginDragHandler, IDra
         }
     }
 
+    // 위치를 바로 다시 잡는 호출(전체 보기·현재 위치·역 이동)용. 기준점 보정은 ZoomAt이 한다.
     void SetZoom(float _scale, Vector2 _anchor)
     {
         float next = Mathf.Clamp(_scale, MinZoom, MaxZoom);
         content.anchoredPosition = _anchor - (_anchor - content.anchoredPosition) * (next / scale);
-        scale = next;
+        ApplyScale(next);
+        Clamp();
+    }
+
+    void ApplyScale(float _scale)
+    {
+        scale = _scale;
         content.localScale = Vector3.one * scale;
         zoomLabel.text = Presentation.PuzzleMapZoom(scale * zoomDisplayMultiplier);
         zoomIn.interactable = scale < MaxZoom;
         zoomOut.interactable = scale > MinZoom;
-        Clamp();
     }
 
     void Clamp()

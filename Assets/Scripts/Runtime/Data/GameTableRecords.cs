@@ -337,9 +337,9 @@ public sealed class TrainventoryWorkshopData
 public sealed class PuzzleRouteData
 {
     public string fromCityId, toCityId;
-    // 노선 거리. 운임의 거리 항(거리 × costPerDistance)과 이동 시간(거리 × hoursPerDistance)에 쓴다.
+    // 노선 거리. 운임의 거리 항(거리 × costPerDistance)과 의뢰 보상·후보 범위에 쓴다. 이동 시간은 선 길이(points)가 정한다.
     public int distance = -1;
-    // 고정 지도 좌표의 폴라인. x,y 쌍이며 그리기 전용이다. 노선 거리와 무관하다.
+    // 고정 지도 좌표의 폴라인. x,y 쌍이며 이동 시간(선 길이 ÷ pixelsPerHour)의 원본이다. 노선 거리와 무관하다.
     public float[] points = Array.Empty<float>();
     public bool highSpeed;
     // 누락된 값이 0이라는 정상값으로 위장되지 않도록 하는 검증용 값이다.

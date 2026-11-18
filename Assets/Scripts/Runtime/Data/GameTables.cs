@@ -176,8 +176,10 @@ public sealed class PuzzleTimeTableData
     public int daylightHours = -1;
     // 낮이 시작하는 시각(0~23시). 게임 시작 시각이자 날짜 변경·재입고 시각이다.
     public int startHour = -1;
-    // 휴식이 보내는 게임 시간.
+    // 휴식 화면을 열 때의 기본 목표 시각 = 지금 + restHours(게임 시간). 휴식 자체는 고른 시각까지 빨리 감기다.
     public long restHours = -1;
-    // 노선 거리 1당 이동 시간(게임 시간). 이동 시간 = 노선 거리 × hoursPerDistance.
-    public int hoursPerDistance = -1;
+    // 지도 선 길이 몇 픽셀이 게임 1시간인지. 이동 시간 = 선 길이 ÷ pixelsPerHour.
+    public float pixelsPerHour = -1f;
+    // 이동 시간 올림 단위(분). 60의 약수여야 한다.
+    public int travelRoundingMinutes = -1;
 }

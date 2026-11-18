@@ -32,4 +32,50 @@ public sealed partial class PuzzleInventoryService
         }
         return hours;
     }
+
+    // 맡기기 전 견적. 비어 있지 않은 대기(Idle) 보드에서 처리할 수 있는 화물의 수수료 합과 걸리는 시간이다.
+    // 맡긴 뒤(작업 중·수령 대기)나 처리할 화물이 없으면 false다.
+    bool TryQuoteIdleBoard(TrainventoryWorkshopData _workshop, PuzzleInventory _board, bool _idle,
+        out long _fee, out long _hours)
+    {
+        _fee = 0;
+        _hours = 0;
+        if (!_idle || _workshop == null || _board == null || _board.Placements.Count == 0)
+        {
+            return false;
+        }
+        _fee = WorkshopFeeOf(_workshop, _board.Placements);
+        _hours = WorkshopHoursOf(_workshop, _board.Placements);
+        return _hours > 0;
+    }
+
+    internal bool TryQuoteButchery(out long _fee, out long _hours)
+    {
+        var state = EnsureButchery(CurrentCityId);
+        return TryQuoteIdleBoard(state?.Workshop, state?.Board, state != null && state.Phase == PuzzleButcheryPhase.Idle,
+            out _fee, out _hours);
+    }
+
+    internal bool TryQuoteRefining(out long _fee, out long _hours)
+    {
+        var state = EnsureRefining(CurrentCityId);
+        return TryQuoteIdleBoard(state?.Workshop, state?.Board, state != null && state.Phase == PuzzleRefiningPhase.Idle,
+            out _fee, out _hours);
+    }
+
+    // 개조는 고른 작업 하나를 보드의 화물 전체에 적용한다.
+    internal bool TryQuoteModification(out long _fee, out long _hours)
+    {
+        _fee = 0;
+        _hours = 0;
+        var state = EnsureModification(CurrentCityId);
+        if (state == null || state.Phase != PuzzleModificationPhase.Idle || state.Board.Placements.Count == 0 ||
+            !TryGetSelectedModificationMode(out var work))
+        {
+            return false;
+        }
+        _fee = checked(TableManager.WorkFee(state.Workshop, work) * state.Board.Placements.Count);
+        _hours = work.workHours;
+        return true;
+    }
 }

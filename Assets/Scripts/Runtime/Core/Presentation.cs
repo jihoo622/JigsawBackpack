@@ -204,9 +204,18 @@ public static partial class Presentation
     #region E3 고정 UI·요약·상세 표시
 
     // 시간 칸 정산 표시. 남은 시간은 PuzzleMapTime, 예상치는 열차 전체 시너지 합(정산 계산 재사용 값)을 넣는다.
-    public static string GaugeInline(long _remainingHours, decimal _estimate)
+    public static string GaugeInline(double _remainingHours, decimal _estimate)
     {
-        return BasicData.Format("presentation.gauge.inline", PuzzleMapTime(_remainingHours), _estimate);
+        return BasicData.Format("presentation.gauge.inline", ClockDuration(_remainingHours), _estimate);
+    }
+
+    // 남은 시간을 "H:MM"으로 표기한다. 분은 화면 시계와 같은 10분 단위로 올린다.
+    internal static string ClockDuration(double _hours)
+    {
+        int step = PuzzleTimeManager.DISPLAY_MINUTE_STEP;
+        long minutes = (long)Math.Ceiling(Math.Max(0d, _hours) * PuzzleTimeManager.MINUTES_PER_HOUR / step) * step;
+        return BasicData.Format("presentation.time.duration", minutes / PuzzleTimeManager.MINUTES_PER_HOUR,
+            minutes % PuzzleTimeManager.MINUTES_PER_HOUR);
     }
 
     // 다음 정산이 아닌 정산 시각 눈금(다음 정산은 PuzzleTimeAccent).
@@ -532,7 +541,7 @@ public static partial class Presentation
                 var travel = _session.EvaluateTravel(_cityId);
                 if (travel.Failure == PuzzleTravelFailure.None || travel.Failure == PuzzleTravelFailure.InsufficientFunds)
                 {
-                    _lines.Add(BasicData.Format("presentation.link.previewTravel", PuzzleMapTime(travel.TravelHours), travel.Cost));
+                    _lines.Add(BasicData.Format("presentation.link.previewTravel", PuzzleTravelTime(travel.TravelMinutes), travel.Cost));
                 }
                 _lines.Add(BasicData.Text(visited ? "presentation.link.previewVisited" : "presentation.link.previewUnvisited"));
             }
@@ -668,9 +677,9 @@ public static partial class Presentation
     public static Color MapLabelPlate => BasicData.Color("presentation.map.labelPlate");
 
     // 술집 의뢰 상세 패널 줄. 기한 표기는 rumorLog와 같은 GameTimestamp를 쓴다.
-    public static string QuestDetailDestination(string _cityName, long _travelHours)
+    public static string QuestDetailDestination(string _cityName, long _travelMinutes)
     {
-        return BasicData.Format("presentation.quest.detailDestination", _cityName, PuzzleMapTime(_travelHours));
+        return BasicData.Format("presentation.quest.detailDestination", _cityName, PuzzleTravelTime(_travelMinutes));
     }
 
     public static string QuestDetailDeadline(long _deadlineHours)
@@ -738,7 +747,7 @@ public static partial class Presentation
     internal static string QuestOffer(TrainventoryQuestOffer _offer)
     {
         return BasicData.Format("presentation.quest.offer", QuestCargoName(_offer.PieceId), QuestCityName(_offer.TargetCityId),
-            _offer.TravelHours, _offer.DeadlineHours, _offer.Reward,
+            PuzzleTravelTime(_offer.TravelMinutes), _offer.DeadlineHours, _offer.Reward,
             QuestPenaltyText(_offer.PenaltyId, _offer.Deposit, _offer.SourceCityId));
     }
 
@@ -929,7 +938,7 @@ public static partial class Presentation
     // 시계: 날짜·시:분·낮밤·턴(이동 횟수).
     public static string PuzzleTime(PuzzleTimeManager _time, int _turns)
     {
-        return BasicData.Format("presentation.time.clock", _time.Day + 1, _time.Hour, _time.Minute,
+        return BasicData.Format("presentation.time.clock", _time.Day + 1, _time.Hour, _time.DisplayMinute,
             _time.IsNight ? BasicData.Text("presentation.time.clockText2") : BasicData.Text("presentation.time.clockText3"), _turns);
     }
 
@@ -966,7 +975,7 @@ public static partial class Presentation
 
     internal static string PuzzleTravelConfirmation(string _fromName, string _toName, PuzzleTravelResult _quote)
     {
-        return BasicData.Format("presentation.inventory.travelConfirmation", _fromName, _toName, PuzzleMapTime(_quote.TravelHours), _quote.ArrivalHourOfDay, (_quote.ArrivalIsNight ? BasicData.Text("presentation.inventory.travelConfirmationText2") : BasicData.Text("presentation.inventory.travelConfirmationText3")), _quote.Cost, _quote.FundsAfter);
+        return BasicData.Format("presentation.inventory.travelConfirmation", _fromName, _toName, PuzzleTravelTime(_quote.TravelMinutes), _quote.ArrivalHourOfDay, _quote.ArrivalMinute, (_quote.ArrivalIsNight ? BasicData.Text("presentation.inventory.travelConfirmationText2") : BasicData.Text("presentation.inventory.travelConfirmationText3")), _quote.Cost, _quote.FundsAfter);
     }
 
     internal static string PuzzleTravelJourney(string _fromName, string _toName)
@@ -1012,12 +1021,18 @@ public static partial class Presentation
     public static string StationTravel => BasicData.Text("presentation.station.travel");
     public static string StationBack => BasicData.Text("presentation.station.back");
     public static string StationRestHint => BasicData.Format("presentation.station.restHint",
-        PuzzleMapTime(TableManager.Instance.RequireValid().PuzzleTime.restHours),
         PuzzleMapTime((long)TableManager.Instance.RequireValid().PuzzleSynergy.activationIntervalHours));
-    public static string StationRestDuration(long _hours)
+    // 휴식 확인 버튼: "HH:00까지 휴식 · 남은 H:MM" / 쉬는 중 "휴식 멈추기 · HH:00까지 H:MM".
+    public static string StationRestUntil(int _clockHour, string _remaining)
     {
-        return BasicData.Format("presentation.station.restDuration", PuzzleMapTime(_hours));
+        return BasicData.Format("presentation.station.restUntil", _clockHour, _remaining);
     }
+    public static string StationRestStop(int _clockHour, string _remaining)
+    {
+        return BasicData.Format("presentation.station.restStop", _clockHour, _remaining);
+    }
+    public static string StationRestEarlier => BasicData.Text("presentation.station.restEarlier");
+    public static string StationRestLater => BasicData.Text("presentation.station.restLater");
     public static string StationButchery => BasicData.Text("presentation.StationButchery");
     internal static string StationActionDescription(TrainventoryWorkshopData _action) =>
         _action == null ? string.Empty : _action.description;
@@ -1026,8 +1041,9 @@ public static partial class Presentation
     public static string StationWorkWaitNow => BasicData.Text("presentation.StationWorkWaitNow");
     public static string StationButcheryConfirm => BasicData.Text("presentation.StationButcheryConfirm");
     // 확인 버튼 라벨에 표 행동 비용을 붙인다. 비용을 모르면 기본 라벨을 쓴다.
-    public static string StationButcheryConfirmCost(long _cost) =>
-        BasicData.Format("presentation.StationButcheryConfirmCost", _cost);
+    // 맡기기 전 확인 버튼: 수수료 합 · 작업 시간.
+    public static string StationButcheryConfirmCost(long _cost, long _hours) =>
+        BasicData.Format("presentation.StationButcheryConfirmCost", _cost, PuzzleMapTime(_hours));
     public static string PuzzleButcheryInsufficientFunds(long _cost) =>
         BasicData.Format("rules.butchery.insufficientFunds", _cost);
     public static string PuzzleButcheryTitle => BasicData.Text("presentation.PuzzleButcheryTitle");
@@ -1044,8 +1060,8 @@ public static partial class Presentation
     public static string StationRefining => BasicData.Text("presentation.StationRefining");
     public static string StationRefiningConfirm => BasicData.Text("presentation.StationRefiningConfirm");
     // 확인 버튼 라벨에 표 행동 비용을 붙인다. 비용을 모르면 기본 라벨을 쓴다.
-    public static string StationRefiningConfirmCost(long _cost) =>
-        BasicData.Format("presentation.StationRefiningConfirmCost", _cost);
+    public static string StationRefiningConfirmCost(long _cost, long _hours) =>
+        BasicData.Format("presentation.StationRefiningConfirmCost", _cost, PuzzleMapTime(_hours));
     public static string PuzzleRefiningInsufficientFunds(long _cost) =>
         BasicData.Format("rules.refining.insufficientFunds", _cost);
     public static string PuzzleRefiningTitle => BasicData.Text("presentation.PuzzleRefiningTitle");
@@ -1062,8 +1078,8 @@ public static partial class Presentation
     public static string StationModification => BasicData.Text("presentation.StationModification");
     public static string StationModificationConfirm => BasicData.Text("presentation.StationModificationConfirm");
     // 확인 버튼 라벨에 선택 모드의 비용을 붙인다. 모드를 고르지 않았으면 기본 라벨을 쓴다.
-    public static string StationModificationConfirmCost(long _cost) =>
-        BasicData.Format("presentation.StationModificationConfirmCost", _cost);
+    public static string StationModificationConfirmCost(long _cost, long _hours) =>
+        BasicData.Format("presentation.StationModificationConfirmCost", _cost, PuzzleMapTime(_hours));
     public static string PuzzleModificationInsufficientFunds(long _cost) =>
         BasicData.Format("rules.modification.insufficientFunds", _cost);
     public static string PuzzleModificationTitle => BasicData.Text("presentation.PuzzleModificationTitle");
@@ -1204,7 +1220,7 @@ public static partial class Presentation
         }
         else
         {
-            status = BasicData.Format("presentation.map.informationText7", ColorUtility.ToHtmlStringRGB(PuzzleMapConnectedDisabled), PuzzleTravelStatus(_evaluation), PuzzleMapTime(_evaluation.TravelHours));
+            status = BasicData.Format("presentation.map.informationText7", ColorUtility.ToHtmlStringRGB(PuzzleMapConnectedDisabled), PuzzleTravelStatus(_evaluation), PuzzleTravelTime(_evaluation.TravelMinutes));
         }
         return (heading, status);
     }
@@ -1255,7 +1271,7 @@ public static partial class Presentation
 
     static string PuzzleTravelQuote(PuzzleTravelResult _result)
     {
-        return BasicData.Format("presentation.inventory.travelQuote", _result.Distance, PuzzleMapTime(_result.TravelHours), PuzzleTravelCost, _result.Cost, PuzzleTravelBreakdown(_result));
+        return BasicData.Format("presentation.inventory.travelQuote", _result.Distance, PuzzleTravelTime(_result.TravelMinutes), PuzzleTravelCost, _result.Cost, PuzzleTravelBreakdown(_result));
     }
 
     public static string PuzzleMapRegionLabel(PuzzleRegionData _region)
@@ -1281,6 +1297,31 @@ public static partial class Presentation
     public static string PuzzleMapTime(long _hours)
     {
         return BasicData.Format("presentation.map.time", _hours);
+    }
+
+    // 이동 시간 표기: "N시간", "N시간 M분", "M분". 노선 라벨·견적·확인창·경로 계획·의뢰가 같은 표기를 쓴다.
+    public static string PuzzleTravelTime(long _minutes)
+    {
+        long hours = _minutes / PuzzleTimeManager.MINUTES_PER_HOUR;
+        long minutes = _minutes % PuzzleTimeManager.MINUTES_PER_HOUR;
+        if (minutes == 0)
+        {
+            return PuzzleMapTime(hours);
+        }
+        return hours == 0
+            ? BasicData.Format("presentation.map.timeMinutes", minutes)
+            : BasicData.Format("presentation.map.timeHoursMinutes", hours, minutes);
+    }
+
+    // 연속 경과 시간을 "D일 HH:MM"으로 표기한다. 도착 예정처럼 정시가 아닌 시각에 쓴다.
+    internal static string GameTimestampAt(double _elapsedHours)
+    {
+        long hour = (long)Math.Floor(_elapsedHours);
+        int minute = Math.Min(PuzzleTimeManager.MINUTES_PER_HOUR - 1,
+            (int)Math.Round((_elapsedHours - hour) * PuzzleTimeManager.MINUTES_PER_HOUR));
+        int clock = (int)((TableManager.Instance.PuzzleTime.startHour + hour % PuzzleTimeManager.HOURS_PER_DAY)
+            % PuzzleTimeManager.HOURS_PER_DAY);
+        return BasicData.Format("presentation.time.timestamp", hour / PuzzleTimeManager.HOURS_PER_DAY + 1, clock, minute);
     }
 
     public static Color PuzzleMapRegionColor(string _regionId)

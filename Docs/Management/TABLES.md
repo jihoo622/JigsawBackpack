@@ -29,7 +29,7 @@
 | `PuzzleSynergyTableData` | 시너지 조건·공간 범위·배율·적용 주기, 동물 배설·번식 설정 |
 | `PuzzleCombinationTableData` | 인접 조합 규칙: 입력 품목 두 개·결과 품목·소요 시간·설명 |
 | `PuzzleTradeTableData` | 시작 자금·증차 비용·최대 객차 수(maxWagonCount)·클리어 비용·상환 조건·이동 연출 시간 |
-| `PuzzleTimeTableData` | 낮 길이·시작(낮 시작) 시각·휴식 시간·거리당 이동 시간. 실시간 배율은 기초데이터 `rules.time.gameHoursPerRealMinute` |
+| `PuzzleTimeTableData` | 낮 길이·시작(낮 시작) 시각·휴식 기본 목표·시간당 지도 길이(`pixelsPerHour`)·이동 시간 올림 단위(분). 실시간 배율은 기초데이터 `rules.time.*` |
 | `PuzzleRouteTableData` | 방향별 연결·고정 폴라인 좌표·기본 비용·거리·거리 및 적재 단가 |
 | `TrainventoryQuestTableData` | 술집 의뢰 전용 태그·방문당 의뢰 수·완료 숙련 경험치 비율·평판 단계별 동시 진행 수·실패 패널티(`Deposit`·`RegionTrade`)·운송 의뢰 틀(화물·거리 범위·보상·기한 계수·가중치) |
 | `TrainventoryProficiencyTableData` | 거래 숙련 판매 경험치 비율·레벨 기준(누적)·마지막 기준 이후 레벨당 경험치·레벨당 거래 이득(%) |
@@ -100,7 +100,7 @@
 - `routes`는 `(fromCityId, toCityId)`를 키로 하는 방향 그래프다. 자기 자신·중복 방향·미등록 도시 참조를 금지한다. `cost`는 0 이상, `distance`는 양수다. 현재 표는 레일 생성 seed 20265146의 `projectMapData.rails` 연결에 프로젝트 보완 노선을 더한 양방향 연결 50개(마을 31)이며 시작 도시에서 모든 도시에 도달할 수 있어야 한다. 역 ID는 `city.<역 이름 로마자>`로 지역과 무관하다.
 - `TableManager.TryGetRoute`·`HasRoute`는 개별 연결을 조회하고 `RoutesFrom(cityId)`는 도착 ID 오름차순 목록을 제공한다. 노출 정렬은 연결 관계가 아니다. 동일 방향의 복수 간선은 지원하지 않는다.
 - 반대 방향이 있으면 거리와 `highSpeed`가 같아야 한다. 방향별 기본요금은 달라도 된다. 같은 지역의 근거리에서는 보장 재고의 복수 태그와 거래 우선순위를 사용해 어느 방향으로든 공급·수요가 맞물리는 연결을 금지한다.
-- `distance`는 노선 거리다(양수, 왕복 동일). 운임의 거리 항(`distance × costPerDistance`)과 이동 시간(`distance × PuzzleTimeTableData.hoursPerDistance`)에 쓴다. `points`는 그리기 전용 폴라인으로 유한한 x,y 쌍이 두 점 이상이며 왕복은 역순이다. Map Editor의 노선 거리 자동 계산만 선 길이 ÷ `pixelsPerDistance`를 반올림해 `distance`를 채운다.
+- `distance`는 노선 거리다(양수, 왕복 동일). 운임의 거리 항(`distance × costPerDistance`)과 의뢰 보상·후보 범위에 쓴다. `points`는 유한한 x,y 쌍이 두 점 이상이며 왕복은 역순이다. 이동 시간(분)은 `points` 선 길이 ÷ `PuzzleTimeTableData.pixelsPerHour`를 `travelRoundingMinutes` 단위로 올린 값이다. Map Editor의 노선 거리 자동 계산만 선 길이 ÷ `pixelsPerDistance`를 반올림해 `distance`를 채운다.
 - 경과 시간(정수 게임 시간)은 `PuzzleInventoryService.Time` 하나가 소유하고 실시간 시계가 1시간씩 확정한다. 휴식·아침 대기와 실시간을 기다리지 않는 이동(`Travel`)은 같은 진행을 여러 시간 묶어 한 번에 확정한다. 자세한 흐름은 [게임 시간 시스템](<게임 시간 시스템.md>)에 있다. 진행 시뮬레이션은 객차 사본과 번식·배설 상태 사본에서 돌고 확정 시에만 본래 상태에 반영하므로 미리보기가 원본을 바꾸지 않는다. 배설은 동물 인스턴스별 진행 상태를 갖고 첫 발생을 이후 처음 맞는 주기 경계(경과 시간이 `wasteIntervalHours`의 배수)에 맞추며, 공간이 부족한 동물만 완료 직전에서 대기한다. 출산도 산출물 전체가 들어갈 때만 주기를 넘긴다. 성장 진행도는 `OwnedHours`와 분리한 성장 시계로 계산하고, 성체 자리가 없으면 그 품목의 성장 시계만 `growthHours − growthBlockedHours`에서 멈춘다. 같은 시각에는 정산·배설·식품 만료·조합·곡물 섭취·성장·출산 순서로 처리한다.
 - `planningTargetCityId`는 등록된 도시 ID를 가리키는 선택적 지도 표식이다. 현재 `city.finance`(금융마을)이며 실제 상환 장소 설정인 `PuzzleTradeTableData.debtCityId`와 분리한다. `debtCityId`도 같은 도시를 가리켜 금융마을에서만 상환할 수 있다.
 - `PuzzleTradeTableData.maxWagonCount`는 최대 객차 수 상한(8칸)이며 1 이상의 정수여야 한다. `PuzzleInventoryService`가 상한 도달 시 증차를 거부하고, UI 객차 바 슬롯 수가 이 값보다 적으면 예외를 발생시킨다.
@@ -127,7 +127,7 @@
 - 새 테이블은 `Trainventory` 접두사를 쓴다. `TrainventoryQuestTableData`의 `cargoTag`가 의뢰 화물 판별 태그이며 `courierQuests[].pieceIds`는 이 태그와 `excludeFromMarket`을 가진 등록 화물이어야 한다.
 - 평판은 저장하지 않고 숙련 레벨 합으로 계산한다. `proficiencyXpPercentOfReward`(0 이상)는 완료 시 보상 대비 숙련 경험치 비율이며, `courierQuests[].pieceIds` 화물에 숙련 대상 생산 태그가 없으면 그 의뢰 틀의 `fallbackProficiencyTags`(숙련 대상 태그만 허용)가 비어 있으면 안 된다. 이 태그는 화물에 생산 태그가 없을 때만 완료 경험치를 받는다.
 - `reputationLevels`에는 평판 0 단계가 있어야 하고 기준은 중복되지 않으며 평판이 높을수록 동시 진행 수가 줄지 않는다. `penalties[].type`은 `Deposit`(보증금 비율 1~1000%) 또는 `RegionTrade`(구매 +·판매 −, 양의 지속 시간)다.
-- 운송 의뢰는 `penaltyId`가 등록된 패널티이고 가중치·거리 범위가 양수, 기한 배율 100% 이상이어야 한다. 최단 노선 거리 합이 `minTravelDistance`~`maxTravelDistance`인 역이 목적지 후보다. 보상 = `baseReward + rewardPerCellDistance × 칸 수 × 최단 거리`, 기한(시간) = `⌈최단 거리 × hoursPerDistance × deadlinePercent / 100⌉ + deadlineExtraHours`.
+- 운송 의뢰는 `penaltyId`가 등록된 패널티이고 가중치·거리 범위가 양수, 기한 배율 100% 이상이어야 한다. 최단 노선 거리 합이 `minTravelDistance`~`maxTravelDistance`인 역이 목적지 후보다. 보상 = `baseReward + rewardPerCellDistance × 칸 수 × 최단 거리`, 기한(시간) = `⌈최단 이동 분 × deadlinePercent / 100 / 60⌉ + deadlineExtraHours`.
 
 ## 거래 숙련
 

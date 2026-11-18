@@ -526,7 +526,10 @@ public sealed class GameTableRules
             "낮 시간은 1 이상, 하루(" + PuzzleTimeManager.HOURS_PER_DAY + "시간) 미만이어야 합니다.");
         Check(_time.startHour >= 0 && _time.startHour < PuzzleTimeManager.HOURS_PER_DAY, PATH + ".startHour", "시작 시각이 범위를 벗어났습니다.");
         Check(_time.restHours > 0, PATH + ".restHours", "휴식 시간은 양수여야 합니다.");
-        Check(_time.hoursPerDistance > 0, PATH + ".hoursPerDistance", "거리당 이동 시간은 양수여야 합니다.");
+        Check(!float.IsNaN(_time.pixelsPerHour) && !float.IsInfinity(_time.pixelsPerHour) && _time.pixelsPerHour > 0f,
+            PATH + ".pixelsPerHour", "시간당 지도 길이는 유한한 양수여야 합니다.");
+        Check(_time.travelRoundingMinutes > 0 && PuzzleTimeManager.MINUTES_PER_HOUR % _time.travelRoundingMinutes == 0,
+            PATH + ".travelRoundingMinutes", "이동 시간 올림 단위는 60의 약수인 분이어야 합니다.");
     }
 
     void ValidateRoutes(TableManager _tables)
@@ -565,7 +568,7 @@ public sealed class GameTableRules
                 {
                     if (_tables.PuzzleTime != null)
                     {
-                        PuzzleTimeManager.TravelHours(route, _tables.PuzzleTime);
+                        PuzzleTimeManager.TravelMinutes(route, _tables.PuzzleTime);
                     }
                 }
                 catch (OverflowException)

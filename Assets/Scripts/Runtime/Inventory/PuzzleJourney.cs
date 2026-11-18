@@ -4,7 +4,8 @@ internal sealed class PuzzleJourney
     internal PuzzleTravelResult Evaluation { get; }
     internal string FromCityId => Evaluation.FromCityId;
     internal string ToCityId => Evaluation.ToCityId;
-    internal long TotalHours => Evaluation.TravelHours;
+    // 이동 시간(게임 시간, 소수). 정시가 아닌 시각에도 도착한다.
+    internal double TotalHours => Evaluation.TravelMinutes / (double)PuzzleTimeManager.MINUTES_PER_HOUR;
     internal long ElapsedHours { get; set; }
     // 통과역 도착이면 도착 처리(방문·의뢰 완료·CityArrived)를 하지 않는다.
     internal bool PassThrough { get; set; }

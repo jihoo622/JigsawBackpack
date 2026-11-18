@@ -560,8 +560,8 @@
         },
         {
           "id": "travelConfirmation",
-          "value": "<b>{0} → {1}</b>\n\n이동  {2}\n도착  {3:00}:00 · {4}\n이동 요금  {5:N0}\n이동 후 자금  {6:N0}",
-          "arguments": 7
+          "value": "<b>{0} → {1}</b>\n\n이동  {2}\n도착  {3:00}:{4:00} · {5}\n이동 요금  {6:N0}\n이동 후 자금  {7:N0}",
+          "arguments": 8
         },
         {
           "id": "travelConfirmationText2",
@@ -1086,6 +1086,16 @@
         {
           "id": "rumorBadge",
           "value": "소문 ?"
+        },
+        {
+          "id": "timeHoursMinutes",
+          "value": "{0}시간 {1}분",
+          "arguments": 2
+        },
+        {
+          "id": "timeMinutes",
+          "value": "{0}분",
+          "arguments": 1
         }
       ]
     },
@@ -1274,7 +1284,7 @@
         },
         {
           "id": "offer",
-          "value": "<b>{0}</b> → <b>{1}</b>\n최단 {2}시간 · 기한 {3}시간 · 보수 {4}$ + 화물 가치\n실패 시 {5}",
+          "value": "<b>{0}</b> → <b>{1}</b>\n최단 {2} · 기한 {3}시간 · 보수 {4}$ + 화물 가치\n실패 시 {5}",
           "arguments": 6
         },
         {
@@ -1559,14 +1569,9 @@
           "value": "휴식"
         },
         {
-          "id": "restDuration",
-          "value": "{0} 휴식",
-          "arguments": 1
-        },
-        {
           "id": "restHint",
-          "value": "휴식은 {0}을 보냅니다. {1}마다 시너지를 정산합니다.\n이동 요금과 시장 재고는 변하지 않습니다.",
-          "arguments": 2
+          "value": "고른 시각까지 시간을 빠르게 보냅니다. 쉬는 중에 다시 누르면 멈춥니다.\n{0}마다 시너지를 정산하고, 이동 요금과 시장 재고는 변하지 않습니다.",
+          "arguments": 1
         },
         {
           "id": "specialtyRumor",
@@ -1593,6 +1598,26 @@
         {
           "id": "unreadRumor",
           "value": "아직 들은 소식이 없어요."
+        },
+        {
+          "id": "restUntil",
+          "value": "{0:00}:00까지 휴식 · {1}",
+          "arguments": 2
+        },
+        {
+          "id": "restStop",
+          "value": "휴식 멈추기 · {0:00}:00까지 {1}",
+          "arguments": 2
+        },
+        {
+          "id": "restEarlier",
+          "value": "<",
+          "arguments": 0
+        },
+        {
+          "id": "restLater",
+          "value": ">",
+          "arguments": 0
         }
       ]
     },
@@ -2107,8 +2132,8 @@
         },
         {
           "id": "summary",
-          "value": "{0}구간 · {1} · 도착 {2:00}:00 {3} · 예상 운임 {4}$",
-          "arguments": 5
+          "value": "{0}구간 · {1} · 도착 {2:00}:{3:00} {4} · 예상 운임 {5}$",
+          "arguments": 6
         },
         {
           "id": "warningFunds",
@@ -2266,6 +2291,16 @@
           "id": "deadlineValue",
           "value": "D-{0} · {1}",
           "arguments": 2
+        },
+        {
+          "id": "duration",
+          "value": "{0}:{1:00}",
+          "arguments": 2
+        },
+        {
+          "id": "timestamp",
+          "value": "{0}일 {1:00}:{2:00}",
+          "arguments": 3
         }
       ]
     },
@@ -2913,6 +2948,11 @@
           "id": "travelTimeScale",
           "value": 24,
           "positive": true
+        },
+        {
+          "id": "restTimeScale",
+          "value": 24,
+          "positive": true
         }
       ]
     },
@@ -2939,8 +2979,8 @@
         },
         {
           "id": "StationModificationConfirmCost",
-          "value": "개조하기 · {0:N0}$",
-          "arguments": 1,
+          "value": "개조하기 · {0:N0}$ · {1}",
+          "arguments": 2,
           "source": "Assets/Scripts/Runtime/Core/Presentation.cs:StationModificationConfirmCost"
         },
         {
@@ -3023,8 +3063,8 @@
         },
         {
           "id": "StationButcheryConfirmCost",
-          "value": "도축하기 · {0:N0}$",
-          "arguments": 1,
+          "value": "도축하기 · {0:N0}$ · {1}",
+          "arguments": 2,
           "source": "Assets/Scripts/Runtime/Core/Presentation.cs:StationButcheryConfirmCost"
         },
         {
@@ -3065,8 +3105,8 @@
         },
         {
           "id": "StationRefiningConfirmCost",
-          "value": "정제하기 · {0:N0}$",
-          "arguments": 1,
+          "value": "정제하기 · {0:N0}$ · {1}",
+          "arguments": 2,
           "source": "Assets/Scripts/Runtime/Core/Presentation.cs:StationRefiningConfirmCost"
         },
         {

@@ -109,7 +109,7 @@ public struct RoutePlannedPayload
     public string from;
     public string to;
     public int legs;
-    public long totalHours;
+    public long totalMinutes;
     public int stops;
 }
 
@@ -244,7 +244,7 @@ public static partial class TelemetryPayload
             from = _info.fromCityId,
             to = _info.toCityId,
             legs = _info.legs,
-            totalHours = _info.totalHours,
+            totalMinutes = _info.totalMinutes,
             stops = _info.stops
         };
     }

@@ -815,35 +815,54 @@ public sealed class PuzzleMapView : PanelBase
         {
             if (tables.TryGetRoute(routeTime.fromCityId, routeTime.toCityId, out var route))
             {
-                routeTime.label.text = Presentation.PuzzleMapTime(PuzzleTimeManager.TravelHours(route, tables.PuzzleTime));
+                routeTime.label.text = Presentation.PuzzleTravelTime(PuzzleTimeManager.TravelMinutes(route, tables.PuzzleTime));
             }
             routeTime.label.color = Presentation.PuzzleHeading;
         }
 
         if (routeLines != null)
         {
+            // 선 조각 이름의 번호(Track_{railIndex}_{구간})는 레이아웃의 railIndex라 routeTimes 배열 순번과 다를 수 있다.
+            // 같은 노선의 시간 라벨 이름(Time_{railIndex})으로 railIndex → routeTimes 순번을 잇고, 강조는 순번으로 찾는다.
+            var routeByRail = new Dictionary<int, int>();
+            for (int i = 0; i < routeTimes.Length; i++)
+            {
+                if (routeTimes[i]?.label && TryParseIndex(routeTimes[i].label.name, "Time_", out int railIndex))
+                {
+                    routeByRail[railIndex] = i;
+                }
+            }
             foreach (var track in routeLines)
             {
                 if (!track) continue;
                 originalTrackColors[track] = track.color;
-                string tName = track.name;
-                if (tName.StartsWith("Track_", StringComparison.Ordinal))
+                if (TryParseIndex(track.name, "Track_", out int railIndex) &&
+                    routeByRail.TryGetValue(railIndex, out int routeIndex))
                 {
-                    var parts = tName.Split('_');
-                    if (parts.Length >= 2 && int.TryParse(parts[1], out int rIdx))
+                    if (!routeTrackImages.TryGetValue(routeIndex, out var list))
                     {
-                        if (!routeTrackImages.TryGetValue(rIdx, out var list))
-                        {
-                            list = new List<Image>();
-                            routeTrackImages[rIdx] = list;
-                        }
-                        list.Add(track);
+                        list = new List<Image>();
+                        routeTrackImages[routeIndex] = list;
                     }
+                    list.Add(track);
                 }
             }
         }
 
         base.Awake();
+    }
+
+    // "접두사{번호}" 또는 "접두사{번호}_{구간}"에서 번호를 읽는다.
+    static bool TryParseIndex(string _name, string _prefix, out int _index)
+    {
+        _index = -1;
+        if (string.IsNullOrEmpty(_name) || !_name.StartsWith(_prefix, StringComparison.Ordinal))
+        {
+            return false;
+        }
+        string rest = _name.Substring(_prefix.Length);
+        int cut = rest.IndexOf('_');
+        return int.TryParse(cut >= 0 ? rest.Substring(0, cut) : rest, out _index);
     }
 
     internal void ShowTownTooltip(string _toCityId, PuzzleTravelResult _eval, bool _isCurrent, bool _isConnected,
@@ -890,13 +909,12 @@ public sealed class PuzzleMapView : PanelBase
         {
             tooltipStatRows.Add(regionRow);
         }
-        tooltipStatRows.Add(("소요시간", Presentation.PuzzleMapTime(_eval.TravelHours)));
+        tooltipStatRows.Add(("소요시간", Presentation.PuzzleTravelTime(_eval.TravelMinutes)));
 
         string fareText = $"<color=#{ColorUtility.ToHtmlStringRGB(Presentation.PuzzleTooltipRed)}>{_eval.Cost:N0}$</color>";
         tooltipStatRows.Add(("운임비", fareText));
 
-        long arrivalTime = _session.ElapsedTime + _eval.TravelHours;
-        string arrivalStr = Presentation.GameTimestamp(arrivalTime);
+        string arrivalStr = Presentation.GameTimestampAt(_session.ContinuousArrivalAfter(_eval.TravelMinutes));
         if (_eval.ArrivalIsNight)
         {
             arrivalStr += $" <color=#{ColorUtility.ToHtmlStringRGB(Presentation.PuzzleTooltipRed)}>(야간)</color>";
@@ -909,8 +927,7 @@ public sealed class PuzzleMapView : PanelBase
         tooltipInfoLines.Clear();
         if (_session.Time != null && _session.Time.HasDeadline)
         {
-            long arrivalTime = _session.ElapsedTime + _eval.TravelHours;
-            long remaining = _session.Time.DeadlineHours - arrivalTime;
+            long remaining = (long)Math.Floor(_session.Time.DeadlineHours - _session.ContinuousArrivalAfter(_eval.TravelMinutes));
             string deadlineStr;
             if (remaining > 0)
             {

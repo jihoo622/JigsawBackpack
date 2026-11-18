@@ -67,18 +67,18 @@ public sealed partial class PuzzleInventoryService
 
         RoutePlan = new PuzzleRoutePlan(path, stops);
 
-        long totalHours = 0;
+        long totalMinutes = 0;
         for (int i = 0; i < path.Count - 1; i++)
         {
             if (tables.TryGetRoute(path[i], path[i + 1], out var legRoute))
             {
-                totalHours += PuzzleTimeManager.TravelHours(legRoute, tables.PuzzleTime);
+                totalMinutes += PuzzleTimeManager.TravelMinutes(legRoute, tables.PuzzleTime);
             }
         }
 
         int stopsCount = 1 + stops.Count;
         GameEvents.RaiseRoutePlanned(new GameEvents.RoutePlannedInfo(this, CurrentCityId, _destinationCityId,
-            path.Count - 1, totalHours, stopsCount));
+            path.Count - 1, totalMinutes, stopsCount));
         GameEvents.RaiseRoutePlanChanged(new GameEvents.RoutePlanInfo(this));
         return PuzzleRoutePlanFailure.None;
     }
@@ -163,7 +163,7 @@ public sealed partial class PuzzleInventoryService
         }
 
         int legs = RoutePlan.RemainingLegs;
-        long totalHours = 0;
+        long totalMinutes = 0;
         long estimatedCost = 0;
         long firstLegCost = 0;
         int cells = TotalTrainOccupiedCells;
@@ -174,8 +174,7 @@ public sealed partial class PuzzleInventoryService
             string v = RoutePlan.Cities[i + 1];
             if (tables.TryGetRoute(u, v, out var route))
             {
-                long legHours = PuzzleTimeManager.TravelHours(route, tables.PuzzleTime);
-                totalHours += legHours;
+                totalMinutes += PuzzleTimeManager.TravelMinutes(route, tables.PuzzleTime);
                 if (TryTravelCost(route.cost, route.distance, tables.PuzzleRoute.costPerDistance,
                     cells, tables.PuzzleRoute.costPerCell, out long cost, out _))
                 {
@@ -188,11 +187,14 @@ public sealed partial class PuzzleInventoryService
             }
         }
 
-        int arrivalHourOfDay = Time.HourAt(Time.ArrivalAt(totalHours));
-        bool arrivalIsNight = Time.IsNightAt(Time.ArrivalAt(totalHours));
+        double arrival = ContinuousArrivalAfter(totalMinutes);
+        long arrivalHour = (long)Math.Floor(arrival);
+        int arrivalMinute = Math.Min(PuzzleTimeManager.MINUTES_PER_HOUR - 1,
+            (int)Math.Round((arrival - arrivalHour) * PuzzleTimeManager.MINUTES_PER_HOUR));
         bool affordableNow = Funds >= firstLegCost;
 
-        return new PuzzleRouteQuote(legs, totalHours, estimatedCost, arrivalHourOfDay, arrivalIsNight, affordableNow);
+        return new PuzzleRouteQuote(legs, totalMinutes, estimatedCost, Time.HourAt(arrivalHour), arrivalMinute,
+            Time.IsNightAt(arrivalHour), affordableNow);
     }
 
     // 계획의 다음 구간을 지금 이동한다면의 평가(EvaluateTravel과 같은 결과). 계획이 없으면 NotAvailable.
@@ -307,19 +309,23 @@ internal enum PuzzleRouteEndReason
 internal readonly struct PuzzleRouteQuote
 {
     internal int Legs { get; }
-    internal long TotalHours { get; }
+    // 남은 계획 구간의 이동 시간 합(분).
+    internal long TotalMinutes { get; }
     // 지금 기차 점유 칸 수로 계산한 운임 합계(경유역 거래로 달라지는 추정치).
     internal long EstimatedCost { get; }
     internal int ArrivalHourOfDay { get; }
+    internal int ArrivalMinute { get; }
     internal bool ArrivalIsNight { get; }
     internal bool AffordableNow { get; }
 
-    internal PuzzleRouteQuote(int _legs, long _totalHours, long _estimatedCost, int _arrivalHourOfDay, bool _arrivalIsNight, bool _affordableNow)
+    internal PuzzleRouteQuote(int _legs, long _totalMinutes, long _estimatedCost, int _arrivalHourOfDay, int _arrivalMinute,
+        bool _arrivalIsNight, bool _affordableNow)
     {
         Legs = _legs;
-        TotalHours = _totalHours;
+        TotalMinutes = _totalMinutes;
         EstimatedCost = _estimatedCost;
         ArrivalHourOfDay = _arrivalHourOfDay;
+        ArrivalMinute = _arrivalMinute;
         ArrivalIsNight = _arrivalIsNight;
         AffordableNow = _affordableNow;
     }

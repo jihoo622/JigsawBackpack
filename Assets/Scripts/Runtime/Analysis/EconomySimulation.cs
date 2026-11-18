@@ -133,7 +133,7 @@ internal sealed class EconomyRouteGraph
     {
         DebtCityId = string.IsNullOrEmpty(_tables.PuzzleTrade.debtCityId) ? _tables.Puzzle.startCity : _tables.PuzzleTrade.debtCityId;
         var outgoing = _tables.Cities.ToDictionary(_city => _city.id,
-            _city => _tables.RoutesFrom(_city.id).Select(_route => (To: _route.toCityId, Hours: PuzzleTimeManager.TravelHours(_route, _tables.PuzzleTime))).ToList(),
+            _city => _tables.RoutesFrom(_city.id).Select(_route => (To: _route.toCityId, Hours: PuzzleTimeManager.TravelHoursRoundedUp(_route, _tables.PuzzleTime))).ToList(),
             StringComparer.Ordinal);
 
         // 출발 도시마다 다익스트라. 도시 수가 작아 단순 선택 방식을 쓴다.
@@ -207,7 +207,7 @@ internal sealed class EconomyLoop
                         continue;
                     }
                     long profit = LegProfit(session, _tables, forward) + LegProfit(session, _tables, backward);
-                    long cycle = PuzzleTimeManager.TravelHours(forward, _tables.PuzzleTime) + PuzzleTimeManager.TravelHours(backward, _tables.PuzzleTime);
+                    long cycle = PuzzleTimeManager.TravelHoursRoundedUp(forward, _tables.PuzzleTime) + PuzzleTimeManager.TravelHoursRoundedUp(backward, _tables.PuzzleTime);
                     if (profit > 0)
                     {
                         loops.Add(new EconomyLoop { A = from.id, B = forward.toCityId, CycleHours = cycle, CycleProfit = profit });
@@ -376,7 +376,7 @@ internal sealed class EconomyBot
 
     long TravelHours(PuzzleRouteData _route)
     {
-        return PuzzleTimeManager.TravelHours(_route, tables.PuzzleTime);
+        return PuzzleTimeManager.TravelHoursRoundedUp(_route, tables.PuzzleTime);
     }
 
     IEnumerable<PuzzlePlacement> Cargo()

@@ -23,6 +23,15 @@ public sealed class PuzzleTimeManager
     // 현재 시각(0~23시).
     public int Hour => HourAt(ElapsedHours);
     public int Minute => Math.Min(MINUTES_PER_HOUR - 1, (int)(HourFraction * MINUTES_PER_HOUR));
+    // 화면 시계의 분. 숫자가 너무 빨리 바뀌지 않게 10분 단위로 내린다.
+    public const int DISPLAY_MINUTE_STEP = 10;
+    public int DisplayMinute => Minute / DISPLAY_MINUTE_STEP * DISPLAY_MINUTE_STEP;
+    // 화면 시계가 바뀌는 단위(10분)의 누적 번호. 같으면 시계 글자를 다시 그리지 않는다.
+    public long DisplayStep => ElapsedHours * (MINUTES_PER_HOUR / DISPLAY_MINUTE_STEP) + Minute / DISPLAY_MINUTE_STEP;
+    // 정시 사이 흐름까지 포함한 연속 경과 시간. 막대·눈금 위치처럼 매끄럽게 움직이는 표시에만 쓴다.
+    public double ContinuousHours => ElapsedHours + HourFraction;
+    // 하루 안의 연속 시간(0~24, 낮 시작 기준).
+    public double ContinuousHourOfDay => HourOfDay + HourFraction;
     public bool IsNight => IsNightAt(ElapsedHours);
     public long HoursUntilDaylight => IsNight ? HOURS_PER_DAY - HourOfDay : 0;
     // 하루(HourOfDay 0~23) 안에서 밤이 시작하는 시간과 길이. 낮·밤 게이지 표시에 쓴다.
@@ -75,17 +84,27 @@ public sealed class PuzzleTimeManager
         return checked(_elapsedHours + (_intervalHours - _elapsedHours % _intervalHours));
     }
 
-    // 노선의 이동 시간 = 노선 거리 × hoursPerDistance. 지도 선 모양과 무관하다.
-    public static long TravelHours(PuzzleRouteData _route, PuzzleTimeTableData _rules)
+    // 노선의 이동 시간(분). 지도 선(points) 길이 ÷ pixelsPerHour를 travelRoundingMinutes 단위로 올림한다.
+    // 운임은 노선 거리(distance)를 따로 쓰므로 선 길이와 무관하다.
+    public static long TravelMinutes(PuzzleRouteData _route, PuzzleTimeTableData _rules)
     {
-        if (_route.distance <= 0 || _rules.hoursPerDistance <= 0)
+        double pixels = PolylineLength(_route.points ?? Array.Empty<float>());
+        double step = _rules.travelRoundingMinutes;
+        double minutes = Math.Ceiling(pixels / _rules.pixelsPerHour * MINUTES_PER_HOUR / step) * step;
+        if (double.IsNaN(minutes) || double.IsInfinity(minutes) || minutes < step || minutes >= long.MaxValue)
         {
-            throw new OverflowException("노선의 이동 거리가 없습니다.");
+            throw new OverflowException("노선의 이동 시간을 계산할 수 없습니다.");
         }
-        return checked((long)_route.distance * _rules.hoursPerDistance);
+        return checked((long)minutes);
     }
 
-    // 지도 선의 전체 길이. Map Editor가 노선 거리를 자동 계산할 때만 쓴다.
+    // 이동 시간을 시간 단위로 올림한 값. 시간 단위로 계획을 세우는 경제 분석만 쓴다.
+    public static long TravelHoursRoundedUp(PuzzleRouteData _route, PuzzleTimeTableData _rules)
+    {
+        return (TravelMinutes(_route, _rules) + MINUTES_PER_HOUR - 1) / MINUTES_PER_HOUR;
+    }
+
+    // 지도 선의 전체 길이. 이동 시간과 Map Editor의 노선 거리 자동 계산에 쓴다.
     public static double PolylineLength(float[] _points)
     {
         double length = 0;

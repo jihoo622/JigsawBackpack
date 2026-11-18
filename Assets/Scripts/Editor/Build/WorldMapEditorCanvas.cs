@@ -201,7 +201,7 @@ public sealed partial class WorldMapEditorWindow
                 try
                 {
                     var row = Forward(rail).ToObject<PuzzleRouteData>();
-                    text += " · " + Presentation.PuzzleMapTime(PuzzleTimeManager.TravelHours(row, TableManager.Instance.PuzzleTime));
+                    text += " · " + Presentation.PuzzleTravelTime(PuzzleTimeManager.TravelMinutes(row, TableManager.Instance.PuzzleTime));
                 }
                 catch (OverflowException)
                 {

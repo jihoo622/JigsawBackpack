@@ -205,7 +205,7 @@ public static class EconomyProbe
                 foreach (var route in tables.RoutesFrom(from.id))
                 {
                     var to = tables.CityPrice(route.toCityId);
-                    long hours = PuzzleTimeManager.TravelHours(route, tables.PuzzleTime);
+                    long hours = PuzzleTimeManager.TravelHoursRoundedUp(route, tables.PuzzleTime);
                     var row = new EconomyRouteRow
                     {
                         FromCityId = from.id,

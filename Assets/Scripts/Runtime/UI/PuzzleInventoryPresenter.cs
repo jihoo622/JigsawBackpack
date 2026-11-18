@@ -142,6 +142,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         GameEvents.CityArrived += OnCityArrived;
         GameEvents.TimeAdvanced += OnTimeAdvanced;
         GameEvents.JourneyChanged += OnJourneyChanged;
+        GameEvents.RestChanged += OnRestChanged;
         GameEvents.PuzzleActionCommitted += OnPuzzleActionCommitted;
         GameEvents.PanelVisibility += OnPanelVisibility;
         GameEvents.TravelPreviewChanged += OnTravelPreviewChanged;
@@ -222,6 +223,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         GameEvents.CityArrived -= OnCityArrived;
         GameEvents.TimeAdvanced -= OnTimeAdvanced;
         GameEvents.JourneyChanged -= OnJourneyChanged;
+        GameEvents.RestChanged -= OnRestChanged;
         GameEvents.PuzzleActionCommitted -= OnPuzzleActionCommitted;
         GameEvents.PanelVisibility -= OnPanelVisibility;
         GameEvents.TravelPreviewChanged -= OnTravelPreviewChanged;
@@ -392,20 +394,43 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
     #endregion
 
     // 게임 시계를 실시간으로 흘린다. 일시정지 메뉴가 timeScale을 0으로 두면 멈춘다.
-    // 화물을 끄는 동안은 보드가 바뀌지 않게 정시 확정을 미룬다. 분이 바뀌면 시계 표시만 갱신한다.
+    // 화물을 끄는 동안은 보드가 바뀌지 않게 정시 확정을 미룬다.
+    // 낮·밤 막대는 매 프레임 연속 시각으로 흘리고, 시계 글자는 화면 단위(10분)가 바뀔 때만 다시 쓴다.
     void AdvanceClock()
     {
         if (session.Time == null)
         {
             return;
         }
-        long hour = session.Time.ElapsedHours;
-        int minute = session.Time.Minute;
         session.AdvanceRealTime(UnityEngine.Time.deltaTime, drag != null);
-        if (session.Time.ElapsedHours == hour && session.Time.Minute != minute)
+        if (session.Time.DisplayStep != shownClockStep)
         {
+            shownClockStep = session.Time.DisplayStep;
             cityView.ShowTime(session.Time, session.CityMoveCount);
         }
+        else
+        {
+            cityView.ShowDayNight(session.Time);
+        }
+    }
+
+    long shownClockStep = long.MinValue;
+
+    // 시계가 흐른 뒤의 가벼운 갱신. 도시·보드 크기는 그대로이므로 다시 잡지 않고, 화물 표시·가치·상태 글자만 맞춘다.
+    // 떠 있는 툴팁과 상세 정보는 닫지 않고 RefreshHover가 새 진행도로 다시 그린다.
+    void RefreshAfterTimeAdvance()
+    {
+        bool inProgress = session.RunStatus == PuzzleRunStatus.InProgress;
+        shownClockStep = session.Time.DisplayStep;
+        cityView.ShowTime(session.Time, session.CityMoveCount);
+        RefreshFunds();
+        cityView.ShowTradeStatus(inProgress
+            ? session.IsMarketOpen ? string.Empty : Presentation.PuzzleNightMarket
+            : Presentation.PuzzleRunStatusText(session.RunStatus));
+        marketView.SetMarketOpen(session.CanTradeInMarket);
+        RefreshWaitAction();
+        RenderValues();
+        RefreshTrainBar();
     }
 
     // 역 시설 진입은 시간을 쓰지 않아 TimeAdvanced가 오지 않는다. 진입이 확정되면 시장 보드의 거래 가능 여부만 바로 다시 그린다.
@@ -418,6 +443,14 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             return;
         }
         marketView.SetMarketOpen(session.CanTradeInMarket);
+    }
+
+    void OnRestChanged(GameEvents.RestInfo _info)
+    {
+        if (_info.session == session && initialized)
+        {
+            RefreshWaitAction();
+        }
     }
 
     // 출발·도착 때 시장 거래 가능 여부와 시계를 바로 다시 그린다.
@@ -435,14 +468,19 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         {
             return;
         }
-        input.CancelCapture();
-        ClearDrag();
-        ShowCurrentCity();
+        // 끄는 중에는 시계가 정시를 미루므로 보통 드래그가 없다. 휴식 등으로 시간이 흐를 때만 안전하게 정리한다.
+        if (drag != null)
+        {
+            input.CancelCapture();
+            ClearDrag();
+        }
+        RefreshAfterTimeAdvance();
         pendingSettlementValue = _info.cargoValueBeforeSettlement;
         pendingFreshnessLossValue = _info.cargoValueBeforeFreshnessLoss;
         PlayPendingSettlement();
         if (session.RunStatus != PuzzleRunStatus.InProgress)
         {
+            RenderBoards();
             cityView.SetTown(session.CityData.displayName, false);
             cityView.ShowTradeStatus(Presentation.PuzzleRunStatusText(session.RunStatus));
             if (session.RunStatus == PuzzleRunStatus.Lost)
@@ -475,9 +513,8 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
     {
         if (!MarketOperationsBlocked && session.CanWaitForDaylight)
         {
-            input.CancelCapture();
-            ClearDrag();
-            if (!session.WaitForDaylight())
+            // 아침(낮 시작 시각)까지 휴식과 같은 빨리 감기로 흘린다.
+            if (!session.StartRest(TableManager.Instance.RequireValid().PuzzleTime.startHour))
             {
                 cityView.ShowTradeStatus(Presentation.PuzzleTimeOverflow);
             }

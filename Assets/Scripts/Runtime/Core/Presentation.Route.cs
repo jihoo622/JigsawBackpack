@@ -17,8 +17,9 @@ public static partial class Presentation
         return BasicData.Format(
             "presentation.route.summary",
             _quote.Legs,
-            PuzzleMapTime(_quote.TotalHours),
+            PuzzleTravelTime(_quote.TotalMinutes),
             _quote.ArrivalHourOfDay,
+            _quote.ArrivalMinute,
             nightText,
             _quote.EstimatedCost);
     }

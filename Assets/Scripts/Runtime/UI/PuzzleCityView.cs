@@ -9,8 +9,8 @@ public sealed class PuzzleCityView : MonoBehaviour
 {
     [SerializeField] TextMeshProUGUI cityName;
     [SerializeField] TextMeshProUGUI timeLabel;
-    // 시계 아래 하루(0~24시) 막대: 바탕은 낮, 밤 구간 두 칸(자정을 넘는 밤을 위해 둘), 현재 시각 표시선.
-    // 위치는 가로 앵커 비율로만 정하며 밤 구간은 시간 테이블이 원본이다.
+    // 시계 아래 24시간 막대: 지금을 가운데 고정하고 앞뒤 12시간을 보인다. 바탕은 낮, 밤 구간 두 칸(창 끝을 넘는 밤을 위해 둘),
+    // 가운데 고정 현재 시각 표시선. 위치는 가로 앵커 비율로만 정하며 밤 구간은 시간 테이블이 원본이다.
     [SerializeField] Image dayNightBar;
     [SerializeField] Image nightSegmentA;
     [SerializeField] Image nightSegmentB;
@@ -124,7 +124,9 @@ public sealed class PuzzleCityView : MonoBehaviour
         cityName.text = _name;
     }
 
-    void ShowDayNight(PuzzleTimeManager _time)
+    // 지금을 가운데 고정한 24시간 창(앞뒤 12시간)이다. 표시선은 움직이지 않고 낮·밤 구간이 왼쪽으로 흐른다.
+    // 매 프레임 불러도 된다(앵커만 바꾼다).
+    internal void ShowDayNight(PuzzleTimeManager _time)
     {
         if (!dayNightBar || !nightSegmentA || !nightSegmentB || !clockMarker)
         {
@@ -134,18 +136,18 @@ public sealed class PuzzleCityView : MonoBehaviour
         nightSegmentA.color = Presentation.TimeNightBar;
         nightSegmentB.color = Presentation.TimeNightBar;
         float day = PuzzleTimeManager.HOURS_PER_DAY;
-        float start = _time.NightStartHourOfDay / day;
+        float now = (float)_time.ContinuousHourOfDay;
+        float start = Mathf.Repeat(_time.NightStartHourOfDay - now + day / 2f, day) / day;
         float end = start + _time.NightLengthHours / day;
-        // 자정을 넘는 밤은 [시작, 1)과 [0, 끝-1) 두 칸으로 나눈다.
+        // 창 끝을 넘는 밤은 [시작, 1)과 [0, 끝-1) 두 칸으로 나눈다.
         SetSpan(nightSegmentA, start, Mathf.Min(end, 1f));
         nightSegmentB.gameObject.SetActive(end > 1f);
         if (end > 1f)
         {
             SetSpan(nightSegmentB, 0f, end - 1f);
         }
-        float now = (_time.HourOfDay + _time.HourFraction) / day;
-        clockMarker.anchorMin = new Vector2(now, clockMarker.anchorMin.y);
-        clockMarker.anchorMax = new Vector2(now, clockMarker.anchorMax.y);
+        clockMarker.anchorMin = new Vector2(0.5f, clockMarker.anchorMin.y);
+        clockMarker.anchorMax = new Vector2(0.5f, clockMarker.anchorMax.y);
         clockMarker.anchoredPosition = new Vector2(0f, clockMarker.anchoredPosition.y);
         if (clockMarker.TryGetComponent<Graphic>(out var markerGraphic))
         {
