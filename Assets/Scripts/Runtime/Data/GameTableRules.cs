@@ -210,6 +210,7 @@ public sealed class GameTableRules
         ValidatePuzzleSynergy(_tables);
         ValidateCombinations(_tables);
         ValidateWorkshops(_tables);
+        ValidateWagonProcesses(_tables);
         ValidatePuzzleTrade(_tables);
         ValidateRumor(_tables);
         ValidateTime(_tables.PuzzleTime);
@@ -320,18 +321,122 @@ public sealed class GameTableRules
         CheckTurnHours(_tables.PuzzleTrade.deadlineHours, PATH + ".deadlineHours");
         Check(_tables.PuzzleTrade.wagonRefrigerationCost > 0, PATH + ".wagonRefrigerationCost",
             "객차 냉장 개조 비용은 양수여야 합니다.");
-        Check(_tables.PuzzleTrade.startingWagonSalePrice >= 0, PATH + ".startingWagonSalePrice",
-            "시작 화차 판매가는 0 이상이어야 합니다.");
+        Check(_tables.PuzzleTrade.startingWagonValue >= 0, PATH + ".startingWagonValue",
+            "시작 화차 가치는 0 이상이어야 합니다.");
+        Check(_tables.PuzzleTrade.wagonSalePercent >= 0 && _tables.PuzzleTrade.wagonSalePercent <= 100,
+            PATH + ".wagonSalePercent", "화차 판매가 비율은 0~100%여야 합니다.");
         Check(_tables.PuzzleTrade.maxWagonCount >= 1, PATH + ".maxWagonCount",
             "최대 객차 수는 1 이상이어야 합니다.");
+        Check(_tables.PuzzleTrade.maxWagonCountCap >= _tables.PuzzleTrade.maxWagonCount, PATH + ".maxWagonCountCap",
+            "증차 상한 최댓값은 기본 상한 이상이어야 합니다.");
         Check(IsFinitePositive(_tables.PuzzleTrade.travelEffectSeconds), PATH + ".travelEffectSeconds",
             "이동 연출 시간은 유한한 양수여야 합니다.");
         Check(IsFinitePositive(_tables.PuzzleTrade.travelArrivalHoldSeconds), PATH + ".travelArrivalHoldSeconds",
             "도착 표시 시간은 유한한 양수여야 합니다.");
-        ValidateWagonProducts(_tables.PuzzleTrade.wagonProducts, PATH + ".wagonProducts");
+        ValidateWagonProducts(_tables, _tables.PuzzleTrade.wagonProducts, PATH + ".wagonProducts");
     }
 
-    void ValidateWagonProducts(PuzzleWagonProductData[] _products, string _path)
+    // 품목 중 하나라도 가진 태그만 등록된 태그로 본다.
+    static bool IsKnownTag(TableManager _tables, string _tag)
+    {
+        return !string.IsNullOrWhiteSpace(_tag) &&
+            _tables.Pieces.Any(_piece => (_piece.tags ?? Array.Empty<string>()).Contains(_tag));
+    }
+
+    // 전용 구역: id 고유, 보드 안 직사각형, 구역끼리 겹치지 않음, 받는 태그는 등록된 태그.
+    void ValidateBoardZones(TableManager _tables, PuzzleBoardData _board, string _path)
+    {
+        var zones = _board.zones ?? Array.Empty<PuzzleBoardZoneData>();
+        var ids = new HashSet<string>(StringComparer.Ordinal);
+        var cells = new HashSet<Vector2Int>();
+        for (int i = 0; i < zones.Length; i++)
+        {
+            var zone = zones[i];
+            string path = $"{_path}.zones[{i}]";
+            if (zone == null)
+            {
+                Check(false, path, "전용 구역 데이터가 필요합니다.");
+                continue;
+            }
+            Check(!string.IsNullOrWhiteSpace(zone.id) && ids.Add(zone.id), path + ".id", "구역 ID는 비어 있지 않고 고유해야 합니다.");
+            Check(!string.IsNullOrWhiteSpace(zone.displayName), path + ".displayName", "구역 이름이 필요합니다.");
+            bool inBounds = zone.width > 0 && zone.height > 0 && zone.x >= 0 && zone.y >= 0 &&
+                zone.x + zone.width <= _board.width && zone.y + zone.height <= _board.height;
+            Check(inBounds, path, "구역은 보드 안의 양수 크기 직사각형이어야 합니다.");
+            var tags = zone.allowedTags ?? Array.Empty<string>();
+            Check(tags.Length > 0, path + ".allowedTags", "구역이 받는 태그가 하나 이상 필요합니다.");
+            foreach (string tag in tags)
+            {
+                Check(IsKnownTag(_tables, tag), path + ".allowedTags", "'" + tag + "'은 등록된 화물 태그가 아닙니다.");
+            }
+            Check(zone.maxPieceCells >= 0, path + ".maxPieceCells", "구역 화물 칸 수 상한은 0 이상이어야 합니다.");
+            if (!inBounds)
+            {
+                continue;
+            }
+            for (int x = zone.x; x < zone.x + zone.width; x++)
+            {
+                for (int y = zone.y; y < zone.y + zone.height; y++)
+                {
+                    Check(cells.Add(new Vector2Int(x, y)), path, "구역끼리 겹칠 수 없습니다.");
+                }
+            }
+        }
+    }
+
+    void ValidateWagonProcesses(TableManager _tables)
+    {
+        const string PATH = nameof(TrainventoryWagonProcessTableData);
+        var processes = _tables.WagonProcess.processes ?? Array.Empty<TrainventoryWagonProcessData>();
+        for (int i = 0; i < processes.Length; i++)
+        {
+            var process = processes[i];
+            string path = $"{PATH}.processes[{i}]";
+            if (process == null)
+            {
+                Check(false, path, "가공 데이터가 필요합니다.");
+                continue;
+            }
+            Check(!string.IsNullOrWhiteSpace(process.displayName), path + ".displayName", "가공 이름이 필요합니다.");
+            Check(!string.IsNullOrWhiteSpace(process.description), path + ".description", "가공 설명이 필요합니다.");
+            Check(IsKnownTag(_tables, process.primaryTag), path + ".primaryTag", "주재료 태그는 등록된 화물 태그여야 합니다.");
+            bool hasOutput = _tables.TryGetPiece(process.outputPieceId, out var output);
+            Reference(process.outputPieceId, path + ".outputPieceId", hasOutput, "가공 산출 품목");
+            if (!TableManager.TryGetWagonProcessType(process, out var type))
+            {
+                Check(false, path + ".type", "가공 종류는 Convert 또는 Crush여야 합니다.");
+                continue;
+            }
+            if (type == TrainventoryWagonProcessType.Convert)
+            {
+                Check(process.hours > 0, path + ".hours", "가공 시간은 양수여야 합니다.");
+                CheckTurnHours(process.hours, path + ".hours");
+                Check(process.outputPerUnit > 0, path + ".outputPerUnit", "단위당 산출 개수는 양수여야 합니다.");
+                var inputs = process.inputs ?? Array.Empty<TrainventoryWagonProcessInputData>();
+                for (int j = 0; j < inputs.Length; j++)
+                {
+                    var input = inputs[j];
+                    string inputPath = $"{path}.inputs[{j}]";
+                    Check(input != null && IsKnownTag(_tables, input.tag), inputPath + ".tag", "부재료 태그는 등록된 화물 태그여야 합니다.");
+                    Check(input != null && input.countPerUnit > 0, inputPath + ".countPerUnit", "단위당 부재료 수는 양수여야 합니다.");
+                }
+            }
+            else
+            {
+                Check(process.hoursPerCell > 0, path + ".hoursPerCell", "칸당 가공 시간은 양수여야 합니다.");
+                CheckTurnHours(process.hoursPerCell, path + ".hoursPerCell");
+                if (hasOutput)
+                {
+                    Check((output.cells ?? Array.Empty<PuzzleCellData>()).Length == 1, path + ".outputPieceId",
+                        "분쇄 산출물은 1칸 품목이어야 합니다.");
+                    Check((output.tags ?? Array.Empty<string>()).Contains(process.primaryTag), path + ".outputPieceId",
+                        "분쇄 산출물은 주재료 태그를 가져야 합니다(같은 구역에 다시 놓인다).");
+                }
+            }
+        }
+    }
+
+    void ValidateWagonProducts(TableManager _tables, PuzzleWagonProductData[] _products, string _path)
     {
         if (_products == null || _products.Length == 0)
         {
@@ -355,8 +460,15 @@ public sealed class GameTableRules
             Check(!string.IsNullOrWhiteSpace(product.displayName), path + ".displayName",
                 "화차 상품 이름이 필요합니다.");
             Check(product.price > 0, path + ".price", "화차 상품 가격은 양수여야 합니다.");
-            Check(product.salePrice >= 0, path + ".salePrice", "화차 판매가는 0 이상이어야 합니다.");
-            Check(product.salePrice <= product.price, path + ".salePrice", "화차 판매가는 구매가 이하여야 합니다.");
+            Check(!string.IsNullOrWhiteSpace(product.description), path + ".description", "화차 효과 설명이 필요합니다.");
+            foreach (string tag in product.freightExemptTags ?? Array.Empty<string>())
+            {
+                Check(IsKnownTag(_tables, tag), path + ".freightExemptTags", "'" + tag + "'은 등록된 화물 태그가 아닙니다.");
+            }
+            if (!string.IsNullOrEmpty(product.processId))
+            {
+                Reference(product.processId, path + ".processId", _tables.TryGetWagonProcess(product.processId, out _), "화차 가공");
+            }
             if (product.board != null && (product.board.width > 0 || product.board.height > 0))
             {
                 Check(product.board.width > 0 && product.board.height > 0, path + ".board", "화차 보드의 너비·높이는 양수여야 합니다.");
@@ -364,6 +476,7 @@ public sealed class GameTableRules
                 Check((long)product.board.width * product.board.height <= MAX_WAGON_BOARD_CELLS, path + ".board",
                     "화차 보드는 " + MAX_WAGON_BOARD_CELLS + "칸 이하여야 합니다.");
                 var blocked = ValidateBlockedCells(product.board, path + ".board");
+                ValidateBoardZones(_tables, product.board, path + ".board");
                 Check((long)product.board.width * product.board.height - blocked.Count > 0, path + ".board",
                     "화차 보드에 쓸 수 있는 칸이 하나 이상 필요합니다.");
                 Check((product.board.startingPlacements ?? Array.Empty<PuzzleStartingPlacementData>()).Length == 0,
@@ -706,6 +819,8 @@ public sealed class GameTableRules
         Check(_tables.PuzzleSynergy.activationIntervalHours > 0, "PuzzleSynergyTableData.activationIntervalHours",
             "시너지 적용 주기는 양의 정수 시간이어야 합니다.");
         CheckTurnHours(_tables.PuzzleSynergy.activationIntervalHours, "PuzzleSynergyTableData.activationIntervalHours");
+        Check(_tables.PuzzleSynergy.proficiencyComboPercentPerLevel >= 0, "PuzzleSynergyTableData.proficiencyComboPercentPerLevel",
+            "숙련 콤보 보강 계수는 0 이상이어야 합니다.");
         var tags = new HashSet<string>(_tables.Pieces.SelectMany(_item => _item.tags ?? Array.Empty<string>()),
             StringComparer.Ordinal);
         var rules = _tables.PuzzleSynergy.rules ?? Array.Empty<PuzzleSynergyRuleData>();

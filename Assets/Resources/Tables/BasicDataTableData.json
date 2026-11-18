@@ -1489,6 +1489,11 @@
           "value": "최대 단계 · 동시 의뢰 상한에 도달했습니다"
         },
         {
+          "id": "panelWagonLimit",
+          "value": "증차 상한 {0}/{1}칸 · 평판 1당 +1",
+          "arguments": 2
+        },
+        {
           "id": "panelHint",
           "value": "다른 마을 화물을 팔면 숙련이 오르고, 레벨 합이 평판입니다."
         },
@@ -1790,6 +1795,20 @@
           "g": 0.6470588235294118,
           "b": 0.9137254901960784,
           "a": 1
+        },
+        {
+          "id": "oreBackground",
+          "r": 0.42,
+          "g": 0.36,
+          "b": 0.33,
+          "a": 1.0
+        },
+        {
+          "id": "grainBackground",
+          "r": 0.78,
+          "g": 0.64,
+          "b": 0.28,
+          "a": 1.0
         },
         {
           "id": "woodBackground",
@@ -2718,6 +2737,10 @@
           "value": "이 위치에 배치할 수 없습니다"
         },
         {
+          "id": "zoneRestricted",
+          "value": "전용 칸에는 맞는 화물만 실을 수 있습니다"
+        },
+        {
           "id": "tradeStatusText2",
           "value": " · {0:N0}$",
           "arguments": 1
@@ -3465,6 +3488,87 @@
         {
           "id": "toggle",
           "value": "상성표"
+        }
+      ]
+    },
+    {
+      "id": "presentation.wagonProcess",
+      "texts": [
+        {
+          "id": "effect",
+          "value": "특수 효과: {0}",
+          "arguments": 1
+        },
+        {
+          "id": "idle",
+          "value": "{0} · 재료 대기",
+          "arguments": 1
+        },
+        {
+          "id": "noSpace",
+          "value": "{0} · 산출 자리 부족",
+          "arguments": 1
+        },
+        {
+          "id": "progress",
+          "value": "{0} · {1}/{2}턴",
+          "arguments": 3
+        }
+      ]
+    },
+    {
+      "id": "presentation.buildSummary",
+      "texts": [
+        {
+          "id": "title",
+          "value": "<b>현재 열차 빌드</b>"
+        },
+        {
+          "id": "tagHeader",
+          "value": "태그 {0}",
+          "arguments": 1
+        },
+        {
+          "id": "wagonHeader",
+          "value": "<b>[{0}번 칸]</b>",
+          "arguments": 1
+        },
+        {
+          "id": "comboLine",
+          "value": "· {0} ← {1} · {2}",
+          "arguments": 3
+        },
+        {
+          "id": "comboPercent",
+          "value": "{0}%{1}",
+          "arguments": 2
+        },
+        {
+          "id": "comboFaces",
+          "value": " ({0}면)",
+          "arguments": 1
+        },
+        {
+          "id": "ruleLabel",
+          "value": "규칙 {0}",
+          "arguments": 1
+        },
+        {
+          "id": "comboBonus",
+          "value": "숙련 보강 +{0}%p 포함",
+          "arguments": 1
+        },
+        {
+          "id": "noCombo",
+          "value": "성립 중인 콤보가 없습니다"
+        },
+        {
+          "id": "empty",
+          "value": "실린 화물이 없습니다"
+        },
+        {
+          "id": "separator",
+          "value": "\n"
         }
       ]
     }

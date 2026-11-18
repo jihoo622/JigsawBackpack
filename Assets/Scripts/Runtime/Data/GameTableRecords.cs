@@ -187,7 +187,51 @@ public sealed class PuzzleBoardData
     public int width, height;
     // 사용할 수 없는 칸. 빈 목록은 직사각형 전체를 사용한다.
     public PuzzleBoardCellData[] blockedCells = Array.Empty<PuzzleBoardCellData>();
+    // 전용 구역. 구역 안 칸에는 그 구역이 받는 화물만 놓인다. 구역 밖 칸은 제한이 없다.
+    public PuzzleBoardZoneData[] zones = Array.Empty<PuzzleBoardZoneData>();
     public PuzzleStartingPlacementData[] startingPlacements = Array.Empty<PuzzleStartingPlacementData>();
+}
+
+// 보드의 전용 구역(직사각형). allowedTags 중 하나를 가진 화물만 구역 칸에 놓이고, maxPieceCells가 양수면
+// 그 칸 수 이하인 화물만 놓인다. 자동 배치(배설·가공 산출물)는 그 화물을 받는 구역을 먼저 채운다.
+[Serializable]
+public sealed class PuzzleBoardZoneData
+{
+    public string id, displayName;
+    public int x = -1, y = -1, width = -1, height = -1;
+    public string[] allowedTags = Array.Empty<string>();
+    public int maxPieceCells;
+}
+
+// 화차 가공 종류. Convert는 주재료 화물 하나(칸 수 = 단위 수)와 1칸 부재료를 단위마다 정한 수만큼 써서
+// 산출물을 단위마다 outputPerUnit개 만든다. Crush는 주재료 태그의 여러 칸 화물 하나를 칸 수만큼의 1칸 산출물로 나눈다.
+public enum TrainventoryWagonProcessType
+{
+    Convert,
+    Crush
+}
+
+// 화차 가공 하나. 재료가 차면 자동으로 시작하고, 시간이 지나면 재료를 없애고 산출물을 같은 객차에 놓는다.
+[Serializable]
+public sealed class TrainventoryWagonProcessData
+{
+    public string id, type, displayName, description;
+    public string primaryTag;
+    public TrainventoryWagonProcessInputData[] inputs = Array.Empty<TrainventoryWagonProcessInputData>();
+    public string outputPieceId;
+    // Convert: 단위당 산출 개수와 한 묶음 시간.
+    public int outputPerUnit = -1;
+    public long hours = -1;
+    // Crush: 주재료 한 칸당 시간.
+    public long hoursPerCell = -1;
+}
+
+// 가공 부재료. tag를 가진 1칸 화물을 단위마다 countPerUnit개 쓴다.
+[Serializable]
+public sealed class TrainventoryWagonProcessInputData
+{
+    public string tag;
+    public int countPerUnit = -1;
 }
 
 [Serializable]

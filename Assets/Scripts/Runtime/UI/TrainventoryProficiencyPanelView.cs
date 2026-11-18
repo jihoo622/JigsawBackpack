@@ -13,7 +13,7 @@ public sealed class TrainventoryProficiencyPanelView : MonoBehaviour
     [SerializeField] TrainventoryProficiencyEntryView[] rows = Array.Empty<TrainventoryProficiencyEntryView>();
 
     internal void Render(int _reputation, int _maxActiveQuests, bool _hasNextStage, int _nextReputation,
-        IReadOnlyList<TrainventoryProficiencyStanding> _standings)
+        IReadOnlyList<TrainventoryProficiencyStanding> _standings, string _wagonGates)
     {
         if (!reputationLabel || !nextStageLabel || !hintLabel || rows == null || rows.Length < _standings.Count)
         {
@@ -24,6 +24,11 @@ public sealed class TrainventoryProficiencyPanelView : MonoBehaviour
         nextStageLabel.text = _hasNextStage
             ? Presentation.ProficiencyPanelNextStage(_nextReputation, _nextReputation - _reputation)
             : Presentation.ProficiencyPanelMaxStage;
+        // 증차 상한 게이트를 같은 줄 뒤에 이어 쓴다. 남은 게이트가 없으면 평판 단계 문구만 남는다.
+        if (!string.IsNullOrEmpty(_wagonGates))
+        {
+            nextStageLabel.text += Presentation.ProficiencyNoticeSeparator + _wagonGates;
+        }
         nextStageLabel.color = Presentation.PuzzleHeading;
         hintLabel.text = Presentation.ProficiencyPanelHint;
         hintLabel.color = Presentation.ProficiencyDimText;

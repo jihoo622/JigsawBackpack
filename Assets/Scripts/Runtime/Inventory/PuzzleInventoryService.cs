@@ -105,8 +105,10 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
     public long NextWagonCost => CheapestWagonHere?.price ?? 0;
     // 다음 정산 게이지 예상치용. 실제 6시간 정산(ApplySynergyActivations)이 읽는 평가(Value)와 같은 값을 쓴다.
     internal decimal TrainSynergyDelta => trainWagons.Sum(_wagon => _wagon.Value.FinalValue - _wagon.Value.BaseValue);
+    // 증차 상한. 기본 상한 + 평판(1당 1칸)이며 maxWagonCountCap을 넘지 않는다.
+    internal int MaxWagonCount => Math.Min(tables.PuzzleTrade.maxWagonCount + Reputation, tables.MaxWagonCountCeiling);
     public bool CanAddWagon => RunStatus == PuzzleRunStatus.InProgress
-        && (tables.PuzzleTrade.maxWagonCount <= 0 || trainWagons.Count < tables.PuzzleTrade.maxWagonCount)
+        && trainWagons.Count < MaxWagonCount
         && CheapestWagonHere != null && Funds >= NextWagonCost;
     internal long WagonRefrigerationCost => tables.PuzzleTrade.wagonRefrigerationCost;
     internal bool HasWagonRefrigeration => Train?.HasWagonModification(PuzzleWagonRefrigeration.ModificationId) == true;
@@ -120,7 +122,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
             int total = 0;
             for (int i = 0; i < trainWagons.Count; i++)
             {
-                total += trainWagons[i].OccupiedCells;
+                total += FreightCellsOf(trainWagons[i]);
             }
             return total;
         }
@@ -355,8 +357,8 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
                 _modificationId: _modificationId);
             return false;
         }
-        int maxWagons = tables.PuzzleTrade.maxWagonCount;
-        if (maxWagons > 0 && trainWagons.Count >= maxWagons)
+        int maxWagons = MaxWagonCount;
+        if (trainWagons.Count >= maxWagons)
         {
             _failureReason = BasicData.Format("rules.wagon.maxReached", maxWagons);
             RecordAction(PuzzleActionKind.AddWagon, "max_wagons", _productId: _productId,
@@ -375,6 +377,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         int nextInstanceId = lastInstanceId;
         var newWagon = new PuzzleInventory(tables.WagonBoardOf(_product), Array.Empty<PuzzleStartingPlacementData>(), definitions,
             trainRules, ref nextInstanceId);
+        newWagon.SynergyComboBonusPercent = SynergyComboBonusPercent;
         if (!string.IsNullOrEmpty(_modificationId) &&
             (!PuzzleWagonModificationRegistry.Contains(_modificationId) ||
              !newWagon.TryInstallWagonModification(PuzzleWagonModificationRegistry.Create(_modificationId, tables))))
@@ -388,7 +391,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         long previousFunds = Funds;
         newWagon.WagonNumber = ++lastWagonNumber;
         newWagon.WagonProduct = _product;
-        newWagon.WagonSalePrice = newWagon.WagonProduct?.salePrice ?? 0;
+        newWagon.WagonSalePrice = newWagon.WagonProduct == null ? 0 : tables.WagonSalePrice(newWagon.WagonProduct.price);
         trainWagons.Add(newWagon);
         Funds -= _cost;
         lastInstanceId = nextInstanceId;
@@ -541,6 +544,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         marketRules = validatedTables.SynergiesFor(PuzzleSynergyScope.Market);
         var train = new PuzzleInventory(validatedTables.StartingTrainBoard, validatedTables.TrainStartingPlacements, definitions, trainRules,
             ref lastInstanceId);
+        train.SynergyComboBonusPercent = SynergyComboBonusPercent;
         // 시작 지급 화물도 처음부터 소유 중이므로 게임 시작을 보유 시간의 기준으로 삼는다.
         foreach (var item in train.Placements)
         {
@@ -575,7 +579,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         RunStatus = PuzzleRunStatus.InProgress;
         trainWagons.Clear();
         lastWagonNumber = train.WagonNumber = 1;
-        train.WagonSalePrice = validatedTables.PuzzleTrade.startingWagonSalePrice;
+        train.WagonSalePrice = validatedTables.WagonSalePrice(validatedTables.PuzzleTrade.startingWagonValue);
         trainWagons.Add(train);
         breedingProgress.Clear();
         wasteProgress.Clear();
@@ -599,8 +603,10 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         var placements = new List<PuzzleStartingPlacementData>(tables.MarketStartingPlacements(_cityId));
         AddStock(_cityId, tables.StockProfile(city.regionalStockId), placements);
         AddStock(_cityId, tables.StockProfile(city.generalStockId), placements);
-        return new PuzzleInventory(city.market, placements, definitions, marketRules,
+        var market = new PuzzleInventory(city.market, placements, definitions, marketRules,
             ref _lastInstanceId);
+        market.SynergyComboBonusPercent = SynergyComboBonusPercent;
+        return market;
     }
 
     void AddStock(string _cityId, PuzzleMarketStockData _stock, List<PuzzleStartingPlacementData> _placements)
@@ -867,6 +873,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
             decimal freshnessDelta = 0;
             // 이전 행동으로 공간이 확보된 경우 첫 경계를 기다리지 않고 대기를 푼다. 마지막 대기 시간은 이번 진행부터 다시 흐른다.
             ResumeBlockedStates(plan, wagons, animals, waste, growth, breedingHours, wasteHours, holdHours);
+            ResumeWagonProcesses(plan, wagons);
 
             while (cursor < arrival)
             {
@@ -874,11 +881,13 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
                 EnsureFeedingStates(plan, wagons, animals, feedIntervalHours);
                 var pairs = SelectBreedingPairs(wagons, plan.breedingProgress);
                 var combinations = SelectCombinationPairs(wagons, plan.combinationProgress);
+                EnsureWagonProcesses(wagons);
                 long step = Math.Min(arrival - cursor, HoursUntilCargoChange(wagons, preservation));
                 step = Math.Min(step, HoursUntilBirth(pairs, breedingHours, animalEventsThrough - cursor));
                 step = Math.Min(step, HoursUntilWaste(wagons, plan.wasteProgress, animals.animalTag, wasteHours,
                     animalEventsThrough - cursor));
                 step = Math.Min(step, HoursUntilCombination(combinations));
+                step = Math.Min(step, HoursUntilWagonProcess(wagons));
                 step = Math.Min(step, HoursUntilFeeding(wagons, plan.feedingProgress, animals.animalTag,
                     feedIntervalHours, animalEventsThrough - cursor));
                 long boundary = cursor + step;
@@ -923,6 +932,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
 
                 // 만료로 입력이 바뀐 조합은 처리하지 않는다. 같은 시각의 절임 완료를 섭취보다 먼저 반영한다.
                 AdvanceCombinations(plan, combinations, step);
+                AdvanceWagonProcesses(plan, wagons, step);
 
                 // 곡물 섭취와 가속은 성장·출산보다 먼저 처리한다. 섭취로 빈 칸이 성장 자리로 쓰인다.
                 if (animalEvents)
@@ -2184,6 +2194,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
 
         var board = new PuzzleInventory(action.board, Array.Empty<PuzzleStartingPlacementData>(), definitions,
             marketRules, ref lastInstanceId);
+        board.SynergyComboBonusPercent = SynergyComboBonusPercent;
         var state = new PuzzleButcheryState(_cityId, action, board);
         butcheries.Add(_cityId, state);
         return state;
@@ -2452,6 +2463,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         int probeId = 0;
         var probe = new PuzzleInventory(_workshop.board, Array.Empty<PuzzleStartingPlacementData>(), definitions,
             marketRules, ref probeId);
+        probe.SynergyComboBonusPercent = SynergyComboBonusPercent;
         foreach (string pieceId in _outputs)
         {
             if (!definitions.TryGetValue(pieceId, out var definition) ||
@@ -3022,6 +3034,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
 
         var board = new PuzzleInventory(action.board, Array.Empty<PuzzleStartingPlacementData>(), definitions,
             marketRules, ref lastInstanceId);
+        board.SynergyComboBonusPercent = SynergyComboBonusPercent;
         var state = new PuzzleRefiningState(_cityId, action, board);
         refinings.Add(_cityId, state);
         return state;

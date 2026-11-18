@@ -333,7 +333,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
 
         SetDragView(null);
         trainView.SetTitle(Presentation.PuzzleTrainTitle(session.Train));
-        trainView.SetBoardSize(session.Train.Width, session.Train.Height, session.Train.BlockedCells);
+        trainView.SetBoard(session.Train);
         RenderBoards();
         RenderValues();
         RefreshTrainBar();
@@ -619,7 +619,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         marketView.SetMarketOpen(session.CanTradeInMarket);
         RefreshWaitAction();
         marketView.SetBoardSize(session.Market.Width, session.Market.Height, session.Market.BlockedCells);
-        trainView.SetBoardSize(session.Train.Width, session.Train.Height, session.Train.BlockedCells);
+        trainView.SetBoard(session.Train);
         RenderBoards();
         RenderValues();
         ShowItemDetails(null, null);
@@ -780,8 +780,6 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         }
     }
 
-    static readonly bool ADJACENT_SYNERGY_PREVIEW_ENABLED = false;
-
     static readonly Vector2Int[] ADJACENT_OFFSETS =
     {
         Vector2Int.up, Vector2Int.right, Vector2Int.down, Vector2Int.left
@@ -879,7 +877,8 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
                             if (PuzzlePieceEffects.IsTarget(neighbor.Definition, rule, wasteTag) &&
                                 PuzzlePieceEffects.IsSource(_drag.Definition, rule))
                             {
-                                newPercent += (rule.multiplierPercent - PuzzleInventoryValuation.BASE_PERCENT);
+                                newPercent += rule.multiplierPercent - PuzzleInventoryValuation.BASE_PERCENT +
+                                    session.SynergyComboBonusPercent(rule);
                             }
                         }
                     }
@@ -901,7 +900,8 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
                                 if (PuzzlePieceEffects.IsTarget(neighbor.Definition, rule, wasteTag) &&
                                     PuzzlePieceEffects.IsSource(_drag.Definition, rule))
                                 {
-                                    oldPercent += (rule.multiplierPercent - PuzzleInventoryValuation.BASE_PERCENT);
+                                    oldPercent += rule.multiplierPercent - PuzzleInventoryValuation.BASE_PERCENT +
+                                        session.SynergyComboBonusPercent(rule);
                                 }
                             }
                         }
@@ -973,7 +973,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
                 targetView.HideDragBeam();
             }
 
-            if (ADJACENT_SYNERGY_PREVIEW_ENABLED && preview.CanDrop && candidate != null)
+            if (preview.CanDrop && candidate != null)
             {
                 if (destination != lastSynergyPreviewDestination || targetCell != lastSynergyPreviewCell || drag.ClockwiseTurns != lastSynergyPreviewRotation)
                 {
@@ -1622,7 +1622,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         }
         if (trainBarView && session != null)
         {
-            trainBarView.Refresh(session.TrainWagons, session.CurrentWagonIndex, hoveredWagonIndex);
+            trainBarView.Refresh(session.TrainWagons, session.CurrentWagonIndex, session.MaxWagonCount, hoveredWagonIndex);
         }
     }
 
@@ -1630,8 +1630,14 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
     {
         if (wagonEffectsLabel && session?.Train is { } wagon)
         {
-            wagonEffectsLabel.text = string.Join(" · ", wagon.WagonModifications.Select(_effect => _effect.ActiveEffectLabel));
-            wagonEffectsLabel.gameObject.SetActive(wagon.WagonModifications.Count > 0);
+            var effects = wagon.WagonModifications.Select(_effect => _effect.ActiveEffectLabel).ToList();
+            var process = session.WagonProcessOf(wagon);
+            if (process != null)
+            {
+                effects.Add(Presentation.WagonProcessStatus(process, session.CurrentWagonProcess(wagon)));
+            }
+            wagonEffectsLabel.text = string.Join(" · ", effects);
+            wagonEffectsLabel.gameObject.SetActive(effects.Count > 0);
         }
 
         if (!wagonRefrigerationButton || !wagonRefrigerationLabel || session == null)
@@ -1670,7 +1676,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         input.CancelCapture();
         ClearDrag();
         trainView.SetTitle(Presentation.PuzzleTrainTitle(session.Train));
-        trainView.SetBoardSize(session.Train.Width, session.Train.Height, session.Train.BlockedCells);
+        trainView.SetBoard(session.Train);
         RenderBoards();
         RenderValues();
         RefreshTrainBar();
@@ -1722,9 +1728,17 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         wagonTooltipStats.Clear();
         wagonTooltipStats.Add(("적재", $"{wagon.OccupiedCells} / {wagon.UsableCellCount}칸"));
         wagonTooltipStats.Add(("판매가", Presentation.WagonSaleAmount(wagon.WagonSalePrice)));
-        if (wagon.WagonModifications.Count > 0)
+        if (wagon.WagonProduct != null)
+        {
+            wagonTooltipStats.Add(("효과", wagon.WagonProduct.description));
+        }
+        else if (wagon.WagonModifications.Count > 0)
         {
             wagonTooltipStats.Add(("효과", string.Join(" · ", wagon.WagonModifications.Select(_effect => _effect.TooltipEffect))));
+        }
+        if (session.WagonProcessOf(wagon) is { } process)
+        {
+            wagonTooltipStats.Add(("가공", Presentation.WagonProcessStatus(process, session.CurrentWagonProcess(wagon))));
         }
 
         string failure = session.WagonSaleFailure(_index);
@@ -1756,7 +1770,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             return;
         }
         trainView.SetTitle(Presentation.PuzzleTrainTitle(session.Train));
-        trainView.SetBoardSize(session.Train.Width, session.Train.Height, session.Train.BlockedCells);
+        trainView.SetBoard(session.Train);
         RenderBoards();
         RenderValues();
         ShowItemDetails(null, null);
@@ -1848,7 +1862,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
     void RefreshSelectedWagon()
     {
         trainView.SetTitle(Presentation.PuzzleTrainTitle(session.Train));
-        trainView.SetBoardSize(session.Train.Width, session.Train.Height, session.Train.BlockedCells);
+        trainView.SetBoard(session.Train);
         RenderBoards();
         RenderValues();
         ShowItemDetails(null, null);

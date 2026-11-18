@@ -865,6 +865,12 @@ public static partial class Presentation
         return BasicData.Format("presentation.proficiency.panelNextStage", _nextReputation, _remaining);
     }
 
+    // 평판으로 늘어나는 증차 상한. 값은 세션·테이블이 계산해 넘기고 여기서는 문구만 붙인다.
+    public static string ProficiencyPanelWagonLimit(int _maxWagonCount, int _cap)
+    {
+        return BasicData.Format("presentation.proficiency.panelWagonLimit", _maxWagonCount, _cap);
+    }
+
     public static string ProficiencyPanelMaxStage => BasicData.Text("presentation.proficiency.panelMaxStage");
     public static string ProficiencyPanelHint => BasicData.Text("presentation.proficiency.panelHint");
 
@@ -934,6 +940,97 @@ public static partial class Presentation
                         : BasicData.Text("presentation.quest.failureCargoLost")));
         }
         return string.Join(BasicData.Text("presentation.quest.separator"), entries);
+    }
+
+    // 수첩 상성표 탭의 빌드 요약. 열차 화물의 태그 분포와 성립 중인 콤보를 평가 결과(SynergyBonuses)에서 읽고,
+    // 규칙 id와 숙련 보강치는 같은 판정(IsTarget·IsSource)과 세션 조회자로 라벨만 붙인다.
+    internal static string TrainBuildSummary(PuzzleInventoryService _session)
+    {
+        var tables = TableManager.Instance;
+        var entries = new List<string>
+        {
+            BasicData.Text("presentation.buildSummary.title")
+        };
+        var tagCounts = new Dictionary<string, int>(StringComparer.Ordinal);
+        int cargoCount = 0;
+        foreach (var wagon in _session.TrainWagons)
+        {
+            foreach (var placement in wagon.Placements)
+            {
+                cargoCount++;
+                foreach (string tag in placement.Definition.Tags)
+                {
+                    tagCounts.TryGetValue(tag, out int count);
+                    tagCounts[tag] = count + 1;
+                }
+            }
+        }
+        if (cargoCount == 0)
+        {
+            entries.Add(BasicData.Text("presentation.buildSummary.empty"));
+            return string.Join(BasicData.Text("presentation.buildSummary.separator"), entries);
+        }
+        string distribution = string.Join("  ", tagCounts
+            .OrderByDescending(_entry => _entry.Value)
+            .ThenBy(_entry => _entry.Key, StringComparer.Ordinal)
+            .Take(5)
+            .Select(_entry => $"{PuzzleTagLabel(_entry.Key)}×{_entry.Value}"));
+        entries.Add(BasicData.Format("presentation.buildSummary.tagHeader", distribution));
+
+        var rules = tables.SynergiesFor(PuzzleSynergyScope.Train);
+        string wasteTag = tables.PuzzleSynergy.animals.wasteTag;
+        foreach (var wagon in _session.TrainWagons)
+        {
+            entries.Add(BasicData.Format("presentation.buildSummary.wagonHeader", wagon.WagonNumber));
+            var neighbors = wagon.Placements.ToDictionary(_placement => _placement.InstanceId);
+            var lines = new List<string>();
+            foreach (var placement in wagon.Placements)
+            {
+                // 화살표 표시(RenderSynergies)가 읽는 같은 접촉 데이터를 이웃 단위로 합쳐 쓴다.
+                foreach (var bonus in PuzzleSynergyBonus.GroupByNeighbor(wagon.ValueOf(placement.InstanceId).SynergyBonuses)
+                    .OrderByDescending(_bonus => _bonus.Percent)
+                    .ThenBy(_bonus => _bonus.NeighborName, StringComparer.Ordinal))
+                {
+                    if (!neighbors.TryGetValue(bonus.NeighborId, out var neighbor))
+                    {
+                        continue;
+                    }
+                    string facesText = bonus.Faces > 1
+                        ? BasicData.Format("presentation.buildSummary.comboFaces", bonus.Faces)
+                        : string.Empty;
+                    var labels = new List<string>
+                    {
+                        BasicData.Format("presentation.buildSummary.comboPercent", PercentText(bonus.Percent), facesText)
+                    };
+                    var matching = rules.Where(_rule => PuzzlePieceEffects.IsTarget(placement.Definition, _rule, wasteTag) &&
+                        PuzzlePieceEffects.IsSource(neighbor.Definition, _rule)).ToArray();
+                    if (matching.Length > 0)
+                    {
+                        labels.Add(BasicData.Format("presentation.buildSummary.ruleLabel",
+                            string.Join(", ", matching.Select(_rule => _rule.id))));
+                        decimal bonusPercent = matching.Sum(_rule => _session.SynergyComboBonusPercent(_rule));
+                        if (bonusPercent > 0m)
+                        {
+                            labels.Add(BasicData.Format("presentation.buildSummary.comboBonus", PercentText(bonusPercent)));
+                        }
+                    }
+                    lines.Add(BasicData.Format("presentation.buildSummary.comboLine", placement.Definition.DisplayName,
+                        neighbor.Definition.DisplayName, string.Join(" · ", labels)));
+                }
+            }
+            if (lines.Count == 0)
+            {
+                lines.Add(BasicData.Text("presentation.buildSummary.noCombo"));
+            }
+            entries.AddRange(lines);
+        }
+        return string.Join(BasicData.Text("presentation.buildSummary.separator"), entries);
+    }
+
+    // 콤보 백분율 표기. "+20", "-10"처럼 부호를 붙이고 소수점은 필요한 자리만 남긴다.
+    static string PercentText(decimal _percent)
+    {
+        return _percent.ToString("+0.##;-0.##", System.Globalization.CultureInfo.InvariantCulture);
     }
 
     #endregion
@@ -1391,6 +1488,35 @@ public static partial class Presentation
     {
         return BasicData.Format("presentation.train.addWagonLabel", _cost);
     }
+    // 전용 구역 칸 색. 구역이 받는 첫 태그의 색을 기본 칸 색에 섞는다.
+    const float ZONE_TINT = 0.45f;
+
+    internal static Color PuzzleZoneCellColor(PuzzleBoardZone _zone)
+    {
+        string tag = _zone.AllowedTags.Count > 0 ? _zone.AllowedTags[0] : null;
+        return UnityEngine.Color.Lerp(PuzzleCell, PuzzleTagBackgroundColor(tag), ZONE_TINT);
+    }
+
+    internal static string WagonProductEffect(PuzzleWagonProductData _product)
+    {
+        return BasicData.Format("presentation.wagonProcess.effect", _product.description);
+    }
+
+    // 화차 가공 진행 한 줄. 묶음이 없으면 재료 대기, 자리가 없으면 산출 대기, 진행 중이면 경과/필요 턴.
+    internal static string WagonProcessStatus(TrainventoryWagonProcessData _process, PuzzleWagonProcessState _state)
+    {
+        if (_state == null)
+        {
+            return BasicData.Format("presentation.wagonProcess.idle", _process.displayName);
+        }
+        if (_state.WaitingForSpace)
+        {
+            return BasicData.Format("presentation.wagonProcess.noSpace", _process.displayName);
+        }
+        return BasicData.Format("presentation.wagonProcess.progress", _process.displayName,
+            PuzzleTimeManager.TurnsOf(_state.ElapsedHours), PuzzleTimeManager.TurnsOf(_state.RequiredHours));
+    }
+
     internal static string PuzzleWagonRefrigerationInstalled => BasicData.Text("presentation.train.refrigerationInstalled");
 
     internal static string PuzzleWagonRefrigerationLabel(long _cost)
@@ -2225,7 +2351,9 @@ public static partial class Presentation
             "animal" => BasicData.Color("presentation.tags.animalBackground"),    // 가축: 탄/레더 탠
             "fruit" => BasicData.Color("presentation.tags.fruitBackground"),      // 과일: 사과 레드
             "quest" => BasicData.Color("presentation.tags.questBackground"),
-            "waste" => BasicData.Color("presentation.tags.wasteBackground"),         // 폐기물: 다크 브라운
+            "waste" => BasicData.Color("presentation.tags.wasteBackground"),
+            "ore" => BasicData.Color("presentation.tags.oreBackground"),
+            "grain" => BasicData.Color("presentation.tags.grainBackground"),         // 폐기물: 다크 브라운
             _ => BasicData.Color("presentation.tags.puzzleTagBackgroundColorColor")
         };
     }
@@ -2416,6 +2544,7 @@ public static partial class Presentation
                 PuzzlePlacementFailure.StaleSource => BasicData.Text("presentation.trade.tradeStatusText12"),
                 PuzzlePlacementFailure.CellOutsideBoard => BasicData.Text("presentation.trade.tradeStatusText13"),
                 PuzzlePlacementFailure.CellOccupied => BasicData.Text("presentation.trade.tradeStatusText14"),
+                PuzzlePlacementFailure.ZoneRestricted => BasicData.Text("presentation.trade.zoneRestricted"),
                 PuzzlePlacementFailure.NoSpace => BasicData.Text("presentation.trade.tradeStatusText15"),
                 _ => BasicData.Text("presentation.trade.tradeStatusText16")
             }

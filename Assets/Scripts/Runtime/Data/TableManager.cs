@@ -35,6 +35,7 @@ public sealed class TableManager
     public PuzzleCombinationTableData PuzzleCombination { get; }
     public TrainventoryWorkTableData Work { get; }
     public TrainventoryWorkshopTableData Workshop { get; }
+    public TrainventoryWagonProcessTableData WagonProcess { get; }
     public PuzzleTradeTableData PuzzleTrade { get; }
     public PuzzleRumorTableData PuzzleRumor { get; }
     public PuzzleRouteTableData PuzzleRoute { get; }
@@ -67,6 +68,12 @@ public sealed class TableManager
     }
 
     // 화차 상품의 보드. 보드를 정하지 않은 상품은 기본 화차 보드(Puzzle.train)를 쓴다.
+    // 화차 판매가. 가치(상품 가격·시작 화차 가치) × wagonSalePercent / 100, 내림.
+    public long WagonSalePrice(long _value) => checked(_value * PuzzleTrade.wagonSalePercent / 100);
+
+    // 평판이 아무리 높아도 넘지 않는 증차 상한. 객차 바 슬롯 수는 이 값 이상이어야 한다.
+    public int MaxWagonCountCeiling => PuzzleTrade.maxWagonCountCap;
+
     public PuzzleBoardData WagonBoardOf(PuzzleWagonProductData _product)
     {
         return _product?.board != null && _product.board.width > 0 && _product.board.height > 0 ? _product.board : Puzzle.train;
@@ -93,6 +100,7 @@ public sealed class TableManager
     readonly Dictionary<string, Dictionary<string, PuzzleCityTagPriceData>> cityTagPrices;
     readonly Dictionary<string, TrainventoryWorkData> works;
     readonly Dictionary<string, TrainventoryWorkshopData> workshops;
+    readonly Dictionary<string, TrainventoryWagonProcessData> wagonProcesses;
     readonly Dictionary<string, Dictionary<string, PuzzleRouteData>> routes;
     readonly Dictionary<string, IReadOnlyList<PuzzleRouteData>> routesFrom;
     readonly Dictionary<string, TrainventoryQuestPenaltyData> questPenalties;
@@ -113,6 +121,7 @@ public sealed class TableManager
         PuzzleCombination = Load<PuzzleCombinationTableData>(ref loaded, _sources);
         Work = Load<TrainventoryWorkTableData>(ref loaded, _sources);
         Workshop = Load<TrainventoryWorkshopTableData>(ref loaded, _sources);
+        WagonProcess = Load<TrainventoryWagonProcessTableData>(ref loaded, _sources);
         PuzzleTrade = Load<PuzzleTradeTableData>(ref loaded, _sources);
         PuzzleRumor = Load<PuzzleRumorTableData>(ref loaded, _sources);
         PuzzleRoute = Load<PuzzleRouteTableData>(ref loaded, _sources);
@@ -156,6 +165,7 @@ public sealed class TableManager
         SynergyRules = Array.AsReadOnly(synergyRules.Values.OrderBy(entry => entry.id, StringComparer.Ordinal).ToArray());
         works = rules.Index(Work.works, _row => _row.id, "TrainventoryWorkTableData.works");
         workshops = rules.Index(Workshop.workshops, _row => _row.id, "TrainventoryWorkshopTableData.workshops");
+        wagonProcesses = rules.Index(WagonProcess.processes, _row => _row.id, "TrainventoryWagonProcessTableData.processes");
         Works = Array.AsReadOnly(works.Values.OrderBy(_row => _row.id, StringComparer.Ordinal).ToArray());
         Workshops = Array.AsReadOnly(workshops.Values.OrderBy(_row => _row.id, StringComparer.Ordinal).ToArray());
         Pieces = Array.AsReadOnly(pieces.Values.OrderBy(entry => entry.id, StringComparer.Ordinal).ToArray());
@@ -381,6 +391,20 @@ public sealed class TableManager
     }
 
     // 입력 화물 하나의 작업장 수수료 = 올림(작업 비용 × costPercent / 100) + 작업 시간 × feePerHour + extraCost.
+    internal bool TryGetWagonProcess(string _id, out TrainventoryWagonProcessData _process)
+    {
+        _process = null;
+        return !string.IsNullOrEmpty(_id) && wagonProcesses.TryGetValue(_id, out _process);
+    }
+
+    // type 문자열과 enum 이름을 대조한다. 숫자 문자열·알 수 없는 값은 false이고 검증에서 오류로 보고된다.
+    internal static bool TryGetWagonProcessType(TrainventoryWagonProcessData _process, out TrainventoryWagonProcessType _type)
+    {
+        _type = default;
+        return _process != null && !string.IsNullOrEmpty(_process.type) && !char.IsDigit(_process.type[0]) &&
+            Enum.TryParse(_process.type, false, out _type) && Enum.IsDefined(typeof(TrainventoryWagonProcessType), _type);
+    }
+
     internal static long WorkFee(TrainventoryWorkshopData _workshop, TrainventoryWorkData _work)
     {
         long scaled = checked((_work.cost * _workshop.costPercent + 99) / 100);

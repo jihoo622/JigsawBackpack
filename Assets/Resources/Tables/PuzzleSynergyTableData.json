@@ -1,6 +1,6 @@
 {
   "status": "sample",
-  "note": "품목의 synergyEffects에서 선택한 대상·발생원 역할과 태그 조건이 함께 맞는 규칙만 적용한다. 면별 변화량은 (multiplierPercent - 100)의 합이며 게임 경과 시간의 activationIntervalHours 경계마다 기본 가치에 대한 변화량을 누적한다.",
+  "note": "품목의 synergyEffects에서 선택한 대상·발생원 역할과 태그 조건이 함께 맞는 규칙만 적용한다. 면별 변화량은 (multiplierPercent - 100)의 합이며 게임 경과 시간의 activationIntervalHours 경계마다 기본 가치에 대한 변화량을 누적한다. 규칙이 실제로 적용될 때는 multiplierPercent에 (대상·발생원 중 숙련 대상 태그의 숙련 레벨 합 × proficiencyComboPercentPerLevel)%p를 보강한다.",
   "rules": [
     {
       "id": "sample.cargoNearFood",
@@ -121,6 +121,7 @@
     }
   ],
   "activationIntervalHours": 6,
+  "proficiencyComboPercentPerLevel": 1.0,
   "freshness": {
     "refrigerationTag": "Fresh",
     "refrigerationReductionPercent": 50,

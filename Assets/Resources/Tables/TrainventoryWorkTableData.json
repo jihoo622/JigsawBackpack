@@ -1,6 +1,6 @@
 {
   "status": "sample",
-  "note": "작업(WorksData) 원본. 입력 화물 하나(inputPieceId)를 workHours(게임 시간) 뒤 outputPieceId outputCount개로 바꾸고 cost를 받는다. 작업장(TrainventoryWorkshopTableData)이 workIds로 작업을 고르고 수수료 계수를 적용한다. 개조 작업은 같은 모양·같은 기본 가치의 1:1 정의 교체다. 시간·비용은 기존 마을 행동 값을 옮긴 잠정치다.",
+  "note": "작업(WorksData) 원본. 입력 화물 하나(inputPieceId)를 workHours(게임 시간) 뒤 outputPieceId outputCount개로 바꾸고 cost를 받는다. 작업장(TrainventoryWorkshopTableData)이 workIds로 작업을 고르고 수수료 계수를 적용한다. 개조 작업은 같은 모양·같은 기본 가치의 1:1 정의 교체다. 시간·비용은 기존 마을 행동 값을 옮긴 잠정치이고, 도축·정제는 화물 하나당 10을 받는다(잠정).",
   "works": [
     {
       "id": "work.butcherCow",
@@ -10,7 +10,7 @@
       "workHours": 6,
       "outputPieceId": "piece.beef",
       "outputCount": 2,
-      "cost": 0
+      "cost": 10
     },
     {
       "id": "work.refineOreCross",
@@ -20,7 +20,7 @@
       "workHours": 6,
       "outputPieceId": "piece.metalIngot",
       "outputCount": 5,
-      "cost": 0
+      "cost": 10
     },
     {
       "id": "work.refineOreL",
@@ -30,7 +30,7 @@
       "workHours": 6,
       "outputPieceId": "piece.metalIngot",
       "outputCount": 3,
-      "cost": 0
+      "cost": 10
     },
     {
       "id": "work.refrigerateUShape",

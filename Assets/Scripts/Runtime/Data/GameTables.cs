@@ -53,6 +53,8 @@ public sealed class PuzzleSynergyTableData
 {
     public string status, note;
     public int activationIntervalHours = -1;
+    // 규칙이 적용될 때 대상·발생원 중 숙련 대상 태그의 레벨 합에 곱해 multiplierPercent에 더하는 보강 계수(%p).
+    public float proficiencyComboPercentPerLevel;
     public PuzzleSynergyRuleData[] rules = Array.Empty<PuzzleSynergyRuleData>();
     public PuzzleAnimalSynergyData animals;
     public PuzzleFreshnessData freshness;
@@ -85,6 +87,14 @@ public sealed class TrainventoryWorkTableData
     public TrainventoryWorkData[] works = Array.Empty<TrainventoryWorkData>();
 }
 
+// 화차 가공의 원본. 화차 상품(PuzzleTradeTableData.wagonProducts[].processId)이 가공 하나를 가진다.
+[Serializable]
+public sealed class TrainventoryWagonProcessTableData
+{
+    public string status, note;
+    public TrainventoryWagonProcessData[] processes = Array.Empty<TrainventoryWagonProcessData>();
+}
+
 // 작업장의 원본. 작업장 종류·보드·처리할 작업·수수료 계수를 이 표만 안다. 역 배치는 PuzzleTableData.cities[].workshopIds다.
 [Serializable]
 public sealed class TrainventoryWorkshopTableData
@@ -98,10 +108,15 @@ public sealed class PuzzleTradeTableData
 {
     public string status, note;
     public long startingFunds = -1;
-    // 화물칸 최대 증차 상한 (8칸)
+    // 화물칸 기본 증차 상한. 평판 1당 1칸씩 더해지고 maxWagonCountCap을 넘지 않는다.
     public int maxWagonCount = -1;
+    // 평판으로 늘어나는 증차 상한의 최댓값. 객차 바 슬롯 수 이하여야 한다.
+    public int maxWagonCountCap = -1;
     public int wagonRefrigerationCost = -1;
-    public long startingWagonSalePrice = -1;
+    // 시작 화차의 가치. 판매가는 다른 화차와 같이 가치 × wagonSalePercent / 100이다.
+    public long startingWagonValue = -1;
+    // 화차 판매가 비율(%). 상품은 price, 시작 화차는 startingWagonValue에 곱하고 내림한다.
+    public int wagonSalePercent = -1;
     public PuzzleWagonProductData[] wagonProducts = Array.Empty<PuzzleWagonProductData>();
     // 목표 잔액(점수 기준). 영업 기간이 끝나 결산할 때 잔액이 이 값 이상이면 승리한다.
     public long targetFunds = -1;
@@ -116,8 +131,13 @@ public sealed class PuzzleWagonProductData
 {
     public string id, displayName;
     public long price = -1;
-    public long salePrice = -1;
+    // 화차 효과 설명. 상세·툴팁에 그대로 보인다.
+    public string description;
     public string modificationId;
+    // 이 태그를 가진 화물은 운임의 적재 칸 수에 넣지 않는다.
+    public string[] freightExemptTags = Array.Empty<string>();
+    // 화차 가공(TrainventoryWagonProcessTableData.processes의 id). 비어 있으면 가공하지 않는다.
+    public string processId;
     // 이 화차의 화물칸 보드(크기·막힌 칸). 화차마다 모양이 달라 적재 공간이 다르다. 시작 배치는 쓰지 않는다.
     public PuzzleBoardData board;
 }

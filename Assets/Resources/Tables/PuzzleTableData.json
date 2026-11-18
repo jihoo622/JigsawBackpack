@@ -1225,6 +1225,40 @@
       "iconOffsetY": -0.03
     },
     {
+      "id": "piece.oreChunk",
+      "displayName": "광석 조각",
+      "description": "분쇄 화차에서 나온 한 칸 광석. 제련 화차의 재료다.",
+      "tags": [
+        "Ore"
+      ],
+      "visualKey": "cargo.oreCross",
+      "slotCount": 1,
+      "cells": [
+        {
+          "x": 0,
+          "y": 0,
+          "north": "Flat",
+          "east": "Flat",
+          "south": "Flat",
+          "west": "Flat"
+        }
+      ],
+      "durability": 100,
+      "baseValue": 11,
+      "synergyEffects": [
+        {
+          "ruleId": "wasteNearbyPenalty",
+          "target": true,
+          "source": false
+        }
+      ],
+      "preservationEffect": {
+        "enabled": false,
+        "reductionPercent": 0
+      },
+      "excludeFromMarket": true
+    },
+    {
       "id": "piece.oreCross",
       "displayName": "십자 광석",
       "description": "십자 모양으로 붙은 다섯 칸 광석.",
@@ -1631,7 +1665,7 @@
     {
       "id": "city.riobruk",
       "workshopIds": [],
-      "wagonProductIds": ["hopper"],
+      "wagonProductIds": ["hopper", "crusher"],
       "displayName": "리오브루크",
       "regionId": "region.mine",
       "specialtyTag": "Ore",
@@ -1843,7 +1877,7 @@
     {
       "id": "city.karka",
       "workshopIds": [],
-      "wagonProductIds": ["hopper"],
+      "wagonProductIds": ["hopper", "crusher"],
       "displayName": "카르카",
       "regionId": "region.mine",
       "specialtyTag": "Salt",
@@ -2262,7 +2296,7 @@
     {
       "id": "city.porber",
       "workshopIds": [],
-      "wagonProductIds": ["flatbed"],
+      "wagonProductIds": ["flatbed", "smelter"],
       "displayName": "포르베르",
       "regionId": "region.industry",
       "specialtyTag": "Machinery",
@@ -2398,7 +2432,7 @@
     {
       "id": "city.nornova",
       "workshopIds": ["workshop.nornovaRefinery"],
-      "wagonProductIds": ["flatbed", "boxcar"],
+      "wagonProductIds": ["flatbed", "boxcar", "smelter"],
       "displayName": "노르노바",
       "regionId": "region.industry",
       "specialtyTag": "Machinery",
@@ -3072,7 +3106,7 @@
     {
       "id": "city.ibt",
       "workshopIds": [],
-      "wagonProductIds": ["granary"],
+      "wagonProductIds": ["granary", "garden"],
       "landmark": true,
       "displayName": "이브트",
       "regionId": "region.farm",
@@ -3259,7 +3293,7 @@
     {
       "id": "city.dart",
       "workshopIds": [],
-      "wagonProductIds": ["granary"],
+      "wagonProductIds": ["granary", "garden"],
       "displayName": "다르트",
       "regionId": "region.farm",
       "specialtyTag": "Grain",

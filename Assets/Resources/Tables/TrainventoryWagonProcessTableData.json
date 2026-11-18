@@ -1,0 +1,47 @@
+{
+  "status": "provisional",
+  "note": "화차 가공 원본. Convert: 주재료(primaryTag) 화물 하나를 통째로 쓰고 그 칸 수가 단위 수다. 부재료는 tag를 가진 1칸 화물을 단위마다 countPerUnit개 쓰고, 산출물은 단위마다 outputPerUnit개다. hours가 지나면 완료한다. Crush: 주재료 태그의 여러 칸 화물 하나를 칸 수만큼의 1칸 산출물로 나누며 칸당 hoursPerCell이 걸리고 산출물은 원래 칸에 그대로 놓인다. 재료가 차면 자동으로 시작해 반복하고, 산출 자리가 없으면 완료 상태로 기다리며, 재료가 빠지거나 바뀌면 처음부터 다시 센다. 시간은 6시간(1턴)의 배수다. 수치는 잠정치다.",
+  "processes": [
+    {
+      "id": "process.garden",
+      "type": "Convert",
+      "displayName": "텃밭",
+      "description": "곡물 1 + 똥 1 → 곡물 3",
+      "primaryTag": "Grain",
+      "inputs": [
+        {
+          "tag": "Waste",
+          "countPerUnit": 1
+        }
+      ],
+      "outputPieceId": "piece.topNotch",
+      "outputPerUnit": 3,
+      "hours": 60
+    },
+    {
+      "id": "process.smelt",
+      "type": "Convert",
+      "displayName": "제련",
+      "description": "나무 1칸 + 광석 조각 2 → 금속 주괴 3",
+      "primaryTag": "Wood",
+      "inputs": [
+        {
+          "tag": "Ore",
+          "countPerUnit": 2
+        }
+      ],
+      "outputPieceId": "piece.metalIngot",
+      "outputPerUnit": 3,
+      "hours": 90
+    },
+    {
+      "id": "process.crush",
+      "type": "Crush",
+      "displayName": "분쇄",
+      "description": "여러 칸 광석 → 칸 수만큼 광석 조각",
+      "primaryTag": "Ore",
+      "outputPieceId": "piece.oreChunk",
+      "hoursPerCell": 12
+    }
+  ]
+}

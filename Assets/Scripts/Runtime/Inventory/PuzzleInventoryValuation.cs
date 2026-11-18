@@ -99,15 +99,16 @@ internal sealed class PuzzleInventoryValuation
         return items[_instanceId];
     }
 
-    internal void Recalculate(PuzzleInventory _board, IReadOnlyList<PuzzleSynergyRuleData> _rules)
+    // _comboBonusPercent는 규칙별 숙련 보강치(%p). 세션 상태를 평가에 두지 않기 위해 계산 시점에 조회한다.
+    internal void Recalculate(PuzzleInventory _board, IReadOnlyList<PuzzleSynergyRuleData> _rules,
+        Func<PuzzleSynergyRuleData, decimal> _comboBonusPercent = null)
     {
         var effects = new Dictionary<int, List<NeighborEffect>>();
-        // 인접 가치 시너지 임시 비활성화
-        // var adjacentRules = _rules.Where(_rule => _rule.spatialRange == nameof(PuzzleSynergyRange.Adjacent)).ToArray();
-        // if (adjacentRules.Length > 0)
-        // {
-        //     CollectAdjacentEffects(_board, adjacentRules, effects);
-        // }
+        var adjacentRules = _rules.Where(_rule => _rule.spatialRange == nameof(PuzzleSynergyRange.Adjacent)).ToArray();
+        if (adjacentRules.Length > 0)
+        {
+            CollectAdjacentEffects(_board, adjacentRules, effects, _comboBonusPercent);
+        }
 
         var boardRules = _rules.Where(_rule => _rule.spatialRange == nameof(PuzzleSynergyRange.Board)).ToArray();
         if (boardRules.Length > 0)
@@ -117,8 +118,8 @@ internal sealed class PuzzleInventoryValuation
             {
                 for (int j = i + 1; j < placements.Length; j++)
                 {
-                    CollectEffects(placements[i], placements[j], null, boardRules, effects);
-                    CollectEffects(placements[j], placements[i], null, boardRules, effects);
+                    CollectEffects(placements[i], placements[j], null, boardRules, effects, _comboBonusPercent);
+                    CollectEffects(placements[j], placements[i], null, boardRules, effects, _comboBonusPercent);
                 }
             }
         }
@@ -140,7 +141,7 @@ internal sealed class PuzzleInventoryValuation
     }
 
     static void CollectAdjacentEffects(PuzzleInventory _board, IReadOnlyList<PuzzleSynergyRuleData> _rules,
-        Dictionary<int, List<NeighborEffect>> _effects)
+        Dictionary<int, List<NeighborEffect>> _effects, Func<PuzzleSynergyRuleData, decimal> _comboBonusPercent)
     {
         foreach (var placement in _board.Placements)
         {
@@ -156,8 +157,8 @@ internal sealed class PuzzleInventoryValuation
 
                     // 같은 이웃과 여러 면이 닿으면 면 수만큼 효과를 받는다.
                     var neighborPosition = cell.Position + offset;
-                    CollectEffects(placement, neighbor, (cell.Position, neighborPosition), _rules, _effects);
-                    CollectEffects(neighbor, placement, (neighborPosition, cell.Position), _rules, _effects);
+                    CollectEffects(placement, neighbor, (cell.Position, neighborPosition), _rules, _effects, _comboBonusPercent);
+                    CollectEffects(neighbor, placement, (neighborPosition, cell.Position), _rules, _effects, _comboBonusPercent);
                 }
             }
         }
@@ -185,7 +186,7 @@ internal sealed class PuzzleInventoryValuation
 
     static void CollectEffects(PuzzlePlacement _target, PuzzlePlacement _neighbor,
         (Vector2Int Target, Vector2Int Neighbor)? _contact, IReadOnlyList<PuzzleSynergyRuleData> _rules,
-        Dictionary<int, List<NeighborEffect>> _effects)
+        Dictionary<int, List<NeighborEffect>> _effects, Func<PuzzleSynergyRuleData, decimal> _comboBonusPercent)
     {
         // Poo 태그 아이템은 어떤 태그 시너지의 대상도 되지 않는다(음수 가치 고정).
         if (_target.Definition.Tags.Contains(WasteTag))
@@ -203,6 +204,11 @@ internal sealed class PuzzleInventoryValuation
             }
 
             percent += rule.multiplierPercent - BASE_PERCENT;
+            decimal comboBonus = _comboBonusPercent?.Invoke(rule) ?? 0m;
+            if (comboBonus != 0m)
+            {
+                percent += comboBonus;
+            }
         }
 
         if (percent != 0)

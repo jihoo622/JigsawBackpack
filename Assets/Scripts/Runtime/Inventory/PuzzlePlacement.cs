@@ -11,6 +11,7 @@ public enum PuzzlePlacementFailure
     InvalidRotation,
     CellOutsideBoard,
     CellOccupied,
+    ZoneRestricted,
     NoSpace,
     MarketClosed,
     BabyCannotButcher
