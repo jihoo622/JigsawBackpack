@@ -494,6 +494,8 @@ public sealed class GameTableRules
     {
         const string PATH = nameof(PuzzleRumorTableData);
         var rumor = _tables.PuzzleRumor;
+        Check(rumor.refreshHours > 0, PATH + ".refreshHours", "소문 재생 주기는 양수여야 합니다.");
+        CheckTurnHours(rumor.refreshHours, PATH + ".refreshHours");
         var firstPreference = rumor.firstPreference;
         if (firstPreference != null)
         {

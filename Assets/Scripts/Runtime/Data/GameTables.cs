@@ -77,6 +77,8 @@ public sealed class PuzzleRumorTableData
     public PuzzleRumorPreferenceData firstPreference;
     // 소문에서 빼는 품목 ID. 특산 후보만 막고 품목의 시장 유통은 그대로 둔다.
     public string[] excludedItemIds = Array.Empty<string>();
+    // 소문 재생 주기(게임 시간). 마을 소문을 들은 지 이 시간이 지나면 같은 마을 소문을 다시 들을 수 있다.
+    public long refreshHours = -1;
 }
 
 // 작업(WorksData)의 원본. 입력·작업 시간·산출·비용을 이 표만 안다.
