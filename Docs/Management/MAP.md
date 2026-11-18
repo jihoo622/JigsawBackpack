@@ -84,7 +84,7 @@
 ## 2. 노드 — `PuzzleTableData.json`
 
 - `startCity` = `city.finance`(금융마을, 피벗으로 출발지를 옮김), `planningTargetCityId` = 빈 값(★ 표식 없음). 상환 장소(`debtCityId`)는 없앴다.
-- 지도에는 전장의 안개가 있다. 들른 역(정차·통과)과 그 이웃만 보이고 노선은 한쪽 끝을 들렀을 때만 보인다. 소문·의뢰로 안 역은 위치·이름만 보인다. 경로 계획과 지도 검색도 보이는 범위만 쓴다(`PuzzleInventoryService.Fog.cs`, `PuzzleMapPresenter.Refresh`, `PuzzleMapView.SetKnownRoutes`).
+- 지도에는 고지도 스타일의 전장의 안개가 있다. 지형 배경 바로 위·선로 아래의 `FogOfWar` RawImage가 고지도 이미지(`Assets/Art/PuzzleMapOldTerrain.png`, 지형 칸당 1픽셀, 점 필터)를 덮고 칸마다 알파만 바꿔 걷어 낸다(`PuzzleMapView.ShowFog`). 고지도는 `Tools/MyJG/Generate Map Old Terrain Image`(지형 이미지 생성 때 함께)가 만들며 물(바다·강)은 밝은 양피지, 땅은 채도 낮은 갈색(높을수록 어둡게), 칸 단위 종이 결과 가장자리 그을림을 넣는다. 색은 기초데이터 `presentation.map.oldWater`·`oldLand`·`oldHigh`·`oldBurn`, 반지름·경계 폭·계단 수는 지도 프리팹 필드다. 들른 역 주변(90)과 달려 본 노선 양옆(28)만 칸 단위 3단계 경계로 걷힌다. 달려 본 노선(`IsRouteTraveled`)은 지역 색 그대로 밝게, 아는데 달려 보지 않은 노선은 짙은 회색(`presentation.map.untraveledTrack`)으로 그린다(`PuzzleMapView.SetKnownRoutes`). 노선 바로 아래 외곽선 층(`SubwayMapTrackOutlines`, 조각마다 `TrackOutline_i_j`)이 화면 기준 2px(`trackOutlineWidth`) 넓고 긴 어두운 조각(`presentation.map.trackOutline`)을 그린다. 외곽선 층은 `RailMapLayoutTool.SyncTrackOutlines`가 노선 조각과 함께 맞추고, 두께·표시는 실행 중 확대 배율에 맞춘다. 강조(호버·경로 계획)는 노란색이며 풀리면 이 기본색으로 돌아간다. 들른 역(정차·통과)과 그 이웃만 보이고 노선은 한쪽 끝을 들렀을 때만 보인다. 핵심 도시(`cities[].landmark`)·소문 역·의뢰 목적지는 위치·이름만 보인다. 의뢰 수락 때 목적지까지의 최단 경로 노선이 드러나며(`RevealRouteTo`) 경유역은 숨긴다. 경로 계획과 지도 검색도 보이는 범위만 쓴다(`PuzzleInventoryService.Fog.cs`, `PuzzleMapPresenter.Refresh`, `PuzzleMapView.SetKnownRoutes`).
 - 마을은 전부 시장 7×6·고정 배치 3·지역 재고 슬롯 1·일반 재고 슬롯 2로 동일하다. 표의 배율은 `tagPrices`가 없을 때 쓰는 기본값(구매/판매)이다.
 
 ### 지역 7

@@ -91,14 +91,40 @@ public sealed class PuzzleMapView : PanelBase
     [SerializeField] LineVisual[] lines;
     [SerializeField] PuzzleMapNavigation navigation;
 
+    [Header("Fog of War")]
+    // 들르지 않은 지역을 덮는 고지도 층(RawImage). 지형 배경 바로 위·선로 아래에 두고 지형과 같은 범위를 덮는다.
+    [SerializeField] RawImage fogOfWar;
+    // 고지도 원본(지형 칸당 1픽셀, 읽기 허용). Tools/MyJG/Generate Map Old Terrain Image가 만든다.
+    [SerializeField] Texture2D oldMapTexture;
+    // 들른 역 주변과 달려 본 노선 양옆을 걷어 내는 반지름(지도 좌표). 경계는 칸 단위 계단으로 흐려진다.
+    [SerializeField] float fogExploredRadius = 90f;
+    [SerializeField] float fogRouteRadius = 28f;
+    // 노선 외곽선 두께(화면 기준, 한쪽). 노선 아래 외곽선 층(SubwayMapTrackOutlines)의 조각이 이만큼 넓고 길다.
+    [SerializeField] float trackOutlineWidth = 2f;
+    [SerializeField] float fogEdgeSoftness = 24f;
+    // 경계의 계단 수. 클수록 부드럽고 작을수록 도트처럼 딱딱하다.
+    [SerializeField] int fogEdgeSteps = 3;
+
     [Header("Town Tooltip")]
     [SerializeField] PuzzleItemTooltipView travelPreviewTooltip;
+
+    Texture2D fogTexture;
+    // 고지도 원본 픽셀의 사본. 알파만 안개 농도로 바꿔 쓴다.
+    Color32[] fogPixels;
+    readonly List<Vector3> fogHoles = new List<Vector3>();
+    // 달려 본 노선의 선분(안개 층 좌표의 양 끝).
+    readonly List<(Vector2 From, Vector2 To)> fogSegments = new List<(Vector2 From, Vector2 To)>();
 
     readonly List<string> tooltipInfoLines = new List<string>();
     readonly List<(string label, string value)> tooltipStatRows = new List<(string label, string value)>();
 
     readonly Dictionary<int, List<Image>> routeTrackImages = new Dictionary<int, List<Image>>();
     readonly Dictionary<Image, Color> originalTrackColors = new Dictionary<Image, Color>();
+    // 강조가 없을 때 선분의 색. 달려 본 노선은 지역 색을 어둡게, 달려 보지 않은 노선은 짙은 회색이다.
+    readonly Dictionary<Image, Color> baseTrackColors = new Dictionary<Image, Color>();
+    // 노선 조각 → 같은 자리의 외곽선 조각(TrackOutline_i_j)과 그 조각의 원래 길이.
+    readonly Dictionary<Image, Image> trackOutlines = new Dictionary<Image, Image>();
+    readonly Dictionary<Image, float> trackLengths = new Dictionary<Image, float>();
     int highlightedRouteIndex = -1;
     readonly HashSet<int> highlightedPathIndices = new HashSet<int>();
     // 강조한 선분은 같은 부모 안에서 맨 위로 올려 다른 노선에 가려 끊겨 보이지 않게 한다. 올리기 전 형제 순서를 기억해 되돌린다.
@@ -346,6 +372,13 @@ public sealed class PuzzleMapView : PanelBase
             Vector2 size = track.rectTransform.sizeDelta;
             size.y = trackThickness[i] * trackThicknessMultiplier / _zoom;
             track.rectTransform.sizeDelta = size;
+            if (trackOutlines.TryGetValue(track, out var outline) && outline)
+            {
+                // 외곽선은 화면에서 일정한 두께가 되도록 배율로 나눈다. 끝도 그만큼 늘려 역 쪽 끝을 감싼다.
+                float border = trackOutlineWidth / _zoom;
+                float length = trackLengths.TryGetValue(track, out float baseLength) ? baseLength : size.x;
+                outline.rectTransform.sizeDelta = new Vector2(length + border * 2f, size.y + border * 2f);
+            }
         }
     }
 
@@ -846,6 +879,17 @@ public sealed class PuzzleMapView : PanelBase
             {
                 if (!track) continue;
                 originalTrackColors[track] = track.color;
+                baseTrackColors[track] = track.color;
+                trackLengths[track] = track.rectTransform.sizeDelta.x;
+                var mapContent = track.transform.parent ? track.transform.parent.parent : null;
+                var outlineParent = mapContent ? mapContent.Find("SubwayMapTrackOutlines") : null;
+                var outline = outlineParent ? outlineParent.Find("TrackOutline_" + track.name.Substring("Track_".Length)) : null;
+                if (outline && outline.TryGetComponent<Image>(out var outlineImage))
+                {
+                    outlineImage.color = Presentation.PuzzleMapTrackOutline;
+                    outlineImage.raycastTarget = false;
+                    trackOutlines[track] = outlineImage;
+                }
                 if (TryParseIndex(track.name, "Track_", out int railIndex) &&
                     routeByRail.TryGetValue(railIndex, out int routeIndex))
                 {
@@ -1019,9 +1063,9 @@ public sealed class PuzzleMapView : PanelBase
                         {
                             img.color = highlightColor;
                         }
-                        else if (originalTrackColors.TryGetValue(img, out var orig))
+                        else if (baseTrackColors.TryGetValue(img, out var baseColor))
                         {
-                            img.color = orig;
+                            img.color = baseColor;
                         }
                     }
                 }
@@ -1133,8 +1177,11 @@ public sealed class PuzzleMapView : PanelBase
     }
 
     // 전장의 안개: 모르는 노선의 선분을 숨긴다. 노선마다 선분 묶음은 Awake에서 시간 라벨 이름으로 이어 두었다.
-    internal void SetKnownRoutes(Func<string, string, bool> _isKnown)
+    // 달려 본 노선은 지역 색 그대로 밝게, 아는데 달려 보지 않은 노선은 짙은 회색으로 그린다. 강조 중인 선분은 강조색을 유지한다.
+    // 외곽선 조각도 노선과 함께 켜고 끈다.
+    internal void SetKnownRoutes(Func<string, string, bool> _isKnown, Func<string, string, bool> _isTraveled)
     {
+        Color untraveled = Presentation.PuzzleMapUntraveledTrack;
         for (int i = 0; i < routeTimes.Length; i++)
         {
             if (routeTimes[i] == null || !routeTrackImages.TryGetValue(i, out var images))
@@ -1142,13 +1189,159 @@ public sealed class PuzzleMapView : PanelBase
                 continue;
             }
             bool known = _isKnown(routeTimes[i].fromCityId, routeTimes[i].toCityId);
+            bool traveled = _isTraveled(routeTimes[i].fromCityId, routeTimes[i].toCityId);
+            bool highlighted = i == highlightedRouteIndex || highlightedPathIndices.Contains(i);
             foreach (var image in images)
             {
-                if (image)
+                if (!image)
                 {
-                    image.enabled = known;
+                    continue;
+                }
+                image.enabled = known;
+                if (trackOutlines.TryGetValue(image, out var outline) && outline)
+                {
+                    outline.enabled = known;
+                }
+                Color baseColor = untraveled;
+                if (traveled && originalTrackColors.TryGetValue(image, out var original))
+                {
+                    baseColor = original;
+                }
+                baseTrackColors[image] = baseColor;
+                if (!highlighted)
+                {
+                    image.color = baseColor;
                 }
             }
+        }
+    }
+
+    // 전장의 안개 층을 다시 그린다. 고지도 원본을 칸 단위(점 필터)로 덮고, 들른 역 주변과 달려 본 노선 양옆만 걷어 낸다.
+    // 달려 보지 않은 노선·이웃 역·위치만 아는 역(핵심 도시·소문·의뢰)은 걷지 않고 표식·선만 안개 위에 그린다.
+    internal void ShowFog(Func<string, bool> _isExplored, Func<string, string, bool> _isTraveled)
+    {
+        if (!fogOfWar || !oldMapTexture)
+        {
+            return;
+        }
+        var fogRect = fogOfWar.rectTransform;
+        Rect rect = fogRect.rect;
+        if (rect.width <= 0f || rect.height <= 0f)
+        {
+            return;
+        }
+        fogHoles.Clear();
+        foreach (var node in nodes)
+        {
+            if (!node)
+            {
+                continue;
+            }
+            if (!_isExplored(node.CityId))
+            {
+                continue;
+            }
+            Vector2 local = fogRect.InverseTransformPoint(node.transform.position);
+            fogHoles.Add(new Vector3(local.x, local.y, fogExploredRadius));
+        }
+        fogSegments.Clear();
+        for (int i = 0; i < routeTimes.Length; i++)
+        {
+            if (routeTimes[i] == null || !_isTraveled(routeTimes[i].fromCityId, routeTimes[i].toCityId) ||
+                !routeTrackImages.TryGetValue(i, out var images))
+            {
+                continue;
+            }
+            foreach (var image in images)
+            {
+                if (!image)
+                {
+                    continue;
+                }
+                // 선분 이미지는 가로 길이 방향으로 놓여 있다. 양 끝 중앙을 안개 층 좌표로 옮긴다.
+                var segment = image.rectTransform;
+                Rect r = segment.rect;
+                Vector2 from = fogRect.InverseTransformPoint(segment.TransformPoint(new Vector3(r.xMin, r.center.y, 0f)));
+                Vector2 to = fogRect.InverseTransformPoint(segment.TransformPoint(new Vector3(r.xMax, r.center.y, 0f)));
+                fogSegments.Add((from, to));
+            }
+        }
+
+        int width = oldMapTexture.width;
+        int height = oldMapTexture.height;
+        if (!fogTexture || fogTexture.width != width || fogTexture.height != height)
+        {
+            if (fogTexture)
+            {
+                Destroy(fogTexture);
+            }
+            fogTexture = new Texture2D(width, height, TextureFormat.RGBA32, false)
+            {
+                wrapMode = TextureWrapMode.Clamp,
+                filterMode = FilterMode.Point,
+                name = "MapFogOfWar"
+            };
+            fogPixels = oldMapTexture.GetPixels32();
+        }
+
+        float softness = Mathf.Max(1f, fogEdgeSoftness);
+        int steps = Mathf.Max(1, fogEdgeSteps);
+        for (int y = 0; y < height; y++)
+        {
+            float py = rect.yMin + (y + 0.5f) / height * rect.height;
+            for (int x = 0; x < width; x++)
+            {
+                float px = rect.xMin + (x + 0.5f) / width * rect.width;
+                float clear = 0f;
+                for (int i = 0; i < fogHoles.Count; i++)
+                {
+                    var hole = fogHoles[i];
+                    float dx = px - hole.x;
+                    float dy = py - hole.y;
+                    float open = 1f - Mathf.Clamp01((Mathf.Sqrt(dx * dx + dy * dy) - hole.z) / softness);
+                    if (open > clear)
+                    {
+                        clear = open;
+                    }
+                }
+                var pixelPoint = new Vector2(px, py);
+                for (int i = 0; i < fogSegments.Count && clear < 1f; i++)
+                {
+                    float distance = DistanceToSegment(pixelPoint, fogSegments[i].From, fogSegments[i].To);
+                    float open = 1f - Mathf.Clamp01((distance - fogRouteRadius) / softness);
+                    if (open > clear)
+                    {
+                        clear = open;
+                    }
+                }
+                // 칸 단위 도트 경계: 걷힘 정도를 몇 단계로만 나눈다.
+                float stepped = Mathf.Floor(clear * steps + 0.5f) / steps;
+                int index = y * width + x;
+                var pixel = fogPixels[index];
+                pixel.a = (byte)Mathf.RoundToInt(255f * (1f - stepped));
+                fogPixels[index] = pixel;
+            }
+        }
+        fogTexture.SetPixels32(fogPixels);
+        fogTexture.Apply(false);
+        fogOfWar.texture = fogTexture;
+        fogOfWar.color = Color.white;
+        fogOfWar.raycastTarget = false;
+    }
+
+    static float DistanceToSegment(Vector2 _point, Vector2 _from, Vector2 _to)
+    {
+        Vector2 line = _to - _from;
+        float lengthSquared = line.sqrMagnitude;
+        float t = lengthSquared > 0f ? Mathf.Clamp01(Vector2.Dot(_point - _from, line) / lengthSquared) : 0f;
+        return Vector2.Distance(_point, _from + line * t);
+    }
+
+    void OnDestroy()
+    {
+        if (fogTexture)
+        {
+            Destroy(fogTexture);
         }
     }
 
@@ -1170,9 +1363,9 @@ public sealed class PuzzleMapView : PanelBase
             {
                 foreach (var img in imgs)
                 {
-                    if (img && originalTrackColors.TryGetValue(img, out var orig))
+                    if (img && baseTrackColors.TryGetValue(img, out var baseColor))
                     {
-                        img.color = orig;
+                        img.color = baseColor;
                     }
                 }
             }

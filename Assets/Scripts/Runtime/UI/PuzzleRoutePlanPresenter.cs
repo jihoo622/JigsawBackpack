@@ -152,11 +152,13 @@ public sealed class PuzzleRoutePlanPresenter : MonoBehaviour
             string stopText = isStop ? Presentation.RouteStopText : Presentation.RoutePassText;
 
             var cityPrice = tables.CityPrice(cityId);
-            Color cityColor = Presentation.PuzzleMapLineColor(cityPrice.regionId);
+            // 전장의 안개: 의뢰로 드러난 경로의 모르는 경유역은 이름·지역을 숨긴다.
+            bool hidden = session.CityVisibility(cityId) == PuzzleMapVisibility.Hidden;
+            Color cityColor = Presentation.PuzzleMapLineColor(hidden ? "region.common" : cityPrice.regionId);
 
             stations.Add(new PuzzleRoutePlanView.StationDisplayData(
                 cityId,
-                cityPrice.displayName,
+                hidden ? Presentation.RouteUnknownStation : cityPrice.displayName,
                 cityColor,
                 isStop,
                 isDestination,

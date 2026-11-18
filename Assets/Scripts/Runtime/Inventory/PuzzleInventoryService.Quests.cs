@@ -277,8 +277,8 @@ public sealed partial class PuzzleInventoryService
         var quest = new TrainventoryQuest(++lastQuestId, _offer, instanceId, Time.ElapsedHours,
             checked(Time.ElapsedHours + _offer.DeadlineHours));
         quests.Add(quest);
-        // 의뢰 목적지는 지도에 위치만 드러난다. 가는 길은 스스로 찾아야 한다.
-        LocateCity(_offer.TargetCityId);
+        // 의뢰 목적지의 위치와 거기까지의 최단 경로 노선이 드러난다. 경유역 정보는 드러나지 않는다.
+        RevealRouteTo(_offer.TargetCityId);
         RecordAction(PuzzleActionKind.AcceptQuest);
         GameEvents.RaiseFundsChanged(this, previousFunds);
         GameEvents.RaiseQuestChanged(this, quest);

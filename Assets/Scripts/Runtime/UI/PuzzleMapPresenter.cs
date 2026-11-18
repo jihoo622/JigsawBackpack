@@ -339,7 +339,8 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
                 view.GetNodeLayoutSettings(),
                 Presentation.QuestMapBadge(session, cityId));
         }
-        view.SetKnownRoutes(session.IsRouteKnown);
+        view.SetKnownRoutes(session.IsRouteKnown, session.IsRouteTraveled);
+        view.ShowFog(session.IsCityExplored, session.IsRouteTraveled);
         if (currentNode)
         {
             view.ShowCurrentLocation(currentNode);

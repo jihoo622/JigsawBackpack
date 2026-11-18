@@ -1713,7 +1713,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         long previousFunds = Funds;
         Funds -= evaluation.Cost;
         currentCityId = evaluation.ToCityId;
-        ExploreCity(currentCityId);
+        ExploreCity(evaluation.FromCityId, currentCityId);
         EnteredFacility = StationFacility.None;
         // 떠난 도시의 작업장은 조작 대상이 아니다. 도착 후 패널을 다시 열 때 열어 준다.
         IsButcheryOpen = false;

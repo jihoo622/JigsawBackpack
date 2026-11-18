@@ -152,6 +152,8 @@ public sealed class PuzzleCityData
     public string[] workshopIds = Array.Empty<string>();
     // 이 역의 화차 시설이 파는 화차 상품(PuzzleTradeTableData.wagonProducts의 id). 역마다 다르다. 비면 화차를 팔지 않는다.
     public string[] wagonProductIds = Array.Empty<string>();
+    // 핵심 도시. 전장의 안개 위에서도 처음부터 위치·이름이 보인다(연결 노선은 보이지 않는다).
+    public bool landmark;
 }
 
 [Serializable]

@@ -953,6 +953,17 @@ public static partial class Presentation
     public static Color PuzzleTimeAccent => BasicData.Color("presentation.time.accent");
     public static Color TimeDayBar => BasicData.Color("presentation.time.dayBar");
     public static Color TimeNightBar => BasicData.Color("presentation.time.nightBar");
+    // 전장의 안개 고지도 색(채도 낮은 양피지). 물·땅·높은 땅·가장자리 그을림. 고지도 이미지 생성 도구가 쓴다.
+    public static Color PuzzleMapOldWater => BasicData.Color("presentation.map.oldWater");
+    public static Color PuzzleMapOldLand => BasicData.Color("presentation.map.oldLand");
+    public static Color PuzzleMapOldHigh => BasicData.Color("presentation.map.oldHigh");
+    public static Color PuzzleMapOldBurn => BasicData.Color("presentation.map.oldBurn");
+    // 노선 외곽선 색. 고지도·지형 위에서 노선을 또렷하게 한다.
+    public static Color PuzzleMapTrackOutline => BasicData.Color("presentation.map.trackOutline");
+    // 아는 노선 중 아직 달려 보지 않은 노선의 색(짙은 회색).
+    public static Color PuzzleMapUntraveledTrack => BasicData.Color("presentation.map.untraveledTrack");
+    // 경로 계획에서 아직 모르는 경유역의 표시 이름.
+    public static string RouteUnknownStation => BasicData.Text("presentation.route.unknownStation");
 
     public static string PuzzleMapTitle => BasicData.Text("presentation.map.title");
     public const string PUZZLE_MAP_PANEL_NAME = "PuzzleWorldMap";
