@@ -662,6 +662,7 @@ public sealed class GameTableRules
         Check(_time.travelTurns > 0, PATH + ".travelTurns", "이동 턴은 1 이상이어야 합니다.");
         Check(_time.restTurns > 0 && _time.restTurns <= PuzzleTimeManager.TURNS_PER_DAY, PATH + ".restTurns",
             "기본 휴식 턴은 1 이상, 하루(" + PuzzleTimeManager.TURNS_PER_DAY + "턴) 이하여야 합니다.");
+        Check(_time.restockTurns > 0, PATH + ".restockTurns", "재입고 주기는 1턴 이상이어야 합니다.");
     }
 
     void ValidateRoutes(TableManager _tables)

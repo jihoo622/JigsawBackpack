@@ -30,7 +30,7 @@
 | `PuzzleSynergyTableData` | 시너지 조건·공간 범위·배율·적용 주기·숙련 콤보 보강 계수(`proficiencyComboPercentPerLevel`), 동물 배설·번식 설정 |
 | `PuzzleCombinationTableData` | 인접 조합 규칙: 입력 품목 두 개·결과 품목·소요 시간·설명 |
 | `PuzzleTradeTableData` | 시작 자금·화차 상품(보드 모양·냉장)·냉장 설치비·최대 객차 수(maxWagonCount)·목표 잔액(`targetFunds`)·영업 기간(`deadlineHours`)·이동 연출 시간 |
-| `PuzzleTimeTableData` | 낮 길이·시작(낮 시작) 시각·이동 턴(`travelTurns`)·기본 휴식 턴(`restTurns`). 턴 길이(6시간)는 `PuzzleTimeManager` 상수이며 모든 표의 시간 값은 6의 배수여야 한다 |
+| `PuzzleTimeTableData` | 낮 길이·시작(낮 시작) 시각·이동 턴(`travelTurns`)·기본 휴식 턴(`restTurns`)·시장 재입고 주기(`restockTurns`, 현재 매 턴). 턴 길이(6시간)는 `PuzzleTimeManager` 상수이며 모든 표의 시간 값은 6의 배수여야 한다 |
 | `PuzzleRouteTableData` | 방향별 연결·고정 폴라인 좌표·기본 비용·거리·거리 및 적재 단가 |
 | `TrainventoryQuestTableData` | 술집 의뢰 전용 태그·방문당 의뢰 수·완료 숙련 경험치 비율·평판 단계별 동시 진행 수·실패 패널티(`Deposit`·`RegionTrade`)·운송 의뢰 틀(화물·거리 범위·보상·기한 계수·가중치) |
 | `TrainventoryProficiencyTableData` | 거래 숙련 판매 경험치 비율·레벨 기준(누적)·마지막 기준 이후 레벨당 경험치·레벨당 거래 이득(%) |

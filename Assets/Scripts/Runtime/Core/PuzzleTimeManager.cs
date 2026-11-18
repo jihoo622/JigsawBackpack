@@ -63,10 +63,11 @@ public sealed class PuzzleTimeManager
         return _hours <= 0 ? 0 : (_hours + HOURS_PER_TURN - 1) / HOURS_PER_TURN;
     }
 
-    // 현재 이후 _elapsedHours까지 낮이 시작된 횟수(시장 재입고 횟수).
-    internal long DaylightOpeningsThrough(long _elapsedHours)
+    // 현재 이후 _elapsedHours까지 재입고 주기(restockTurns) 경계를 지난 횟수.
+    internal long RestocksThrough(long _elapsedHours)
     {
-        return Math.Max(0, _elapsedHours / HOURS_PER_DAY - ElapsedHours / HOURS_PER_DAY);
+        long interval = HoursOf(rules.restockTurns);
+        return Math.Max(0, _elapsedHours / interval - ElapsedHours / interval);
     }
 
     public bool IsNightAt(long _elapsedHours)

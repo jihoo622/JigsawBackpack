@@ -196,10 +196,12 @@ public sealed class PuzzleTimeTableData
     public string status, note;
     // 하루 24시간 중 낮 시간. 낮 시작(startHour)부터 이만큼이 낮이고 나머지가 밤(시장 진입 불가)이다.
     public int daylightHours = -1;
-    // 낮이 시작하는 시각(0~23시). 게임 시작 시각이자 날짜 변경·재입고 시각이다.
+    // 낮이 시작하는 시각(0~23시). 게임 시작 시각이자 날짜 변경 시각이다.
     public int startHour = -1;
     // 이동 1회가 쓰는 턴. 노선 거리와 무관하게 모든 노선이 같다.
     public int travelTurns = -1;
     // 휴식 화면을 열 때 고른 기본 휴식 턴. 휴식은 1턴부터 하루(4턴)까지 고를 수 있다.
     public int restTurns = -1;
+    // 시장 재입고 주기(턴). 경과 0시간부터 이 턴 수의 경계를 지날 때마다 모든 마을 시장을 새로 채운다.
+    public int restockTurns = -1;
 }

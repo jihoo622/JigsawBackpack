@@ -7,7 +7,7 @@
 - 경로 계산: `PuzzleRoutePlanner.FindFastestPath(TableManager, from, to)` — 구간 수가 가장 적은 역 목록(출발 포함). 이동은 구간마다 1턴이라 구간 수가 곧 이동 턴이다. 구간 수가 같으면 노선 거리 합(운임)이 작은 경로, 그것도 같으면 역 ID 서수 비교로 결정. 도달 불가면 null. 선택 인자 `_canUse`로 쓸 노선을 거른다. 경로 계획(`PlanRoute`)은 전장의 안개로 아는 노선(`IsRouteKnown`)만 넘기며, 지도에 없는 역은 목적지로 고를 수 없다(`InvalidCity`). 순수 함수로 두고 의뢰의 최단 턴 계산(전체 노선 기준)과 같은 가중치를 쓴다.
 - 상태: `PuzzleInventoryService.RoutePlan`(`PuzzleRoutePlan`, 한 판에 하나, 없으면 null)과 `IsPassingThrough`. API는 `PuzzleInventoryService.Routes.cs`(`PlanRoute`·`SetRouteStop`·`CancelRoutePlan`·`QuoteRoutePlan`·`EvaluateNextRouteLeg`·`TravelNextRouteLeg`·`StopAtCurrentCity`).
 - 수동 이동 연동: `Travel(city)`는 항상 정차다. 계획의 다음 역으로 가면 계획을 한 구간 진행하고(목적지면 `Completed`로 종료), 다른 역으로 가면 `Deviated`로 취소한다. 판이 끝나면(승패) `RunEnded`로 취소한다.
-- 통과역: 도착 시 방문 기록(`visitedCities`)·의뢰 완료·`CityArrived`·도착 기록을 하지 않는다. 시간 진행(정산·배설·만료·성장·오전 6시 시장 재입고)과 운임은 수동 이동과 같다.
+- 통과역: 도착 시 방문 기록(`visitedCities`)·의뢰 완료·`CityArrived`·도착 기록을 하지 않는다. 시간 진행(정산·배설·만료·성장·매 턴 시장 재입고)과 운임은 수동 이동과 같다.
 - 이벤트: 계획이 바뀌면 `GameEvents.RaiseRoutePlanChanged(new RoutePlanInfo(session))`.
 
 ## 자동 이동(UI 실행)

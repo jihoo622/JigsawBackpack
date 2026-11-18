@@ -872,7 +872,8 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
             var waste = definitions[animals.wastePieceId];
             var expiredFood = definitions[ExpiredFoodPieceId];
             long animalEventsThrough = Time.HasDeadline ? Math.Min(arrival, Time.DeadlineHours) : arrival;
-            plan.marketRestocks = Time.DaylightOpeningsThrough(animalEventsThrough);
+            // 경계를 여러 번 지나도 결과는 새 재고 한 벌이므로 한 번만 채운다.
+            plan.marketRestocks = Math.Min(1, Time.RestocksThrough(animalEventsThrough));
             long breedingHours = (long)animals.breedingHours;
             long wasteHours = (long)animals.wasteIntervalHours;
             long holdHours = (long)animals.completionHoldHours;
