@@ -67,15 +67,8 @@ public sealed partial class PuzzleInventoryService
 
         RoutePlan = new PuzzleRoutePlan(path, stops);
 
-        long totalTurns = 0;
-        for (int i = 0; i < path.Count - 1; i++)
-        {
-            if (tables.TryGetRoute(path[i], path[i + 1], out var legRoute))
-            {
-                totalTurns += PuzzleTimeManager.TravelTurns(legRoute, tables.PuzzleTime);
-            }
-        }
-
+        // 이동은 구간당 1턴이므로 계획 총 턴 = 구간 수다.
+        long totalTurns = path.Count - 1;
         int stopsCount = 1 + stops.Count;
         GameEvents.RaiseRoutePlanned(new GameEvents.RoutePlannedInfo(this, CurrentCityId, _destinationCityId,
             path.Count - 1, totalTurns, stopsCount));
@@ -170,20 +163,18 @@ public sealed partial class PuzzleInventoryService
 
         for (int i = 0; i < RoutePlan.Cities.Count - 1; i++)
         {
+            // 구간당 이동은 1턴. 운임은 노선 거리(route.turns)로 계산한다.
+            totalTurns += 1;
             string u = RoutePlan.Cities[i];
             string v = RoutePlan.Cities[i + 1];
-            if (tables.TryGetRoute(u, v, out var route))
-            {
-                long legTurns = PuzzleTimeManager.TravelTurns(route, tables.PuzzleTime);
-                totalTurns += legTurns;
-                if (TryTravelCost(route.cost, route.turns, tables.PuzzleRoute.costPerTurn,
+            if (tables.TryGetRoute(u, v, out var route) &&
+                TryTravelCost(route.cost, route.turns, tables.PuzzleRoute.costPerTurn,
                     cells, tables.PuzzleRoute.costPerCell, out long cost, out _))
+            {
+                estimatedCost += cost;
+                if (i == 0)
                 {
-                    estimatedCost += cost;
-                    if (i == 0)
-                    {
-                        firstLegCost = cost;
-                    }
+                    firstLegCost = cost;
                 }
             }
         }

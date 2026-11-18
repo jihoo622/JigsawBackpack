@@ -240,8 +240,7 @@ public static class EconomyProbe
                     {
                         row.BestProfitPerCell = 0;
                     }
-                    float hours = turns;
-                    row.WagonProfitPerTurn = (row.BestProfitPerCell * wagonCells - row.FullWagonCost) / Mathf.Max(hours, 1f / 60f);
+                    row.WagonProfitPerTurn = (row.BestProfitPerCell * wagonCells - row.FullWagonCost) / Mathf.Max(turns, 1f);
                     rows.Add(row);
                 }
             }

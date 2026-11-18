@@ -78,7 +78,7 @@ public sealed class PuzzleCityView : MonoBehaviour
             !funds || !funds.font || !tradeStatus || !tradeStatus.font ||
             !clearButton || !clearButton.targetGraphic || !clearLabel || !clearLabel.font)
         {
-            throw new InvalidOperationException("도시 View에 도시 이름, 시간, 자금과 거래 표시 참조가 필요합니다.");
+            throw new InvalidOperationException("도시 View에 도시 이름, 시계, 자금과 거래 표시 참조가 필요합니다.");
         }
 
         clearLabel.text = Presentation.PuzzleClearButton(_clearCost);

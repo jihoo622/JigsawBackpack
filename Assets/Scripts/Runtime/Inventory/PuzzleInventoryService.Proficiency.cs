@@ -232,7 +232,7 @@ public sealed partial class PuzzleInventoryService
             long after = before > long.MaxValue - gained ? long.MaxValue : before + gained;
             proficiencyXp[tag] = after;
             GameEvents.RaiseProficiencyChanged(new GameEvents.ProficiencyInfo(this, tag, _source.ToString(), gained, after,
-                previousLevel, LevelForXp(after), _instanceId, _questId, ElapsedTime));
+                previousLevel, LevelForXp(after), _instanceId, _questId, ElapsedTurns));
         }
     }
 }

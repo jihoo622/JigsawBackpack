@@ -1,6 +1,6 @@
 {
   "status": "sample",
-  "note": "Route points mirror displayed rail geometry, reversed for the opposite direction. Travel minutes = ceil(displayed polyline length / PuzzleTimeTableData.pixelsPerHour * 60). Integer fare distance is calculated from the same line length with fareDistancePixelsPerUnit through the map editor.",
+  "note": "Route points mirror displayed rail geometry, reversed for the opposite direction, and are for drawing only. routes[].turns is the travel duration in turns and doubles as the fare distance. The map editor derives it from the displayed line length (length / PuzzleRouteTableData.pixelsPerTurn, rounded, minimum 1).",
   "defaultBaseCost": 3,
   "pixelsPerTurn": 100,
   "costPerCell": 1,

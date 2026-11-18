@@ -297,7 +297,7 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
 
     void Refresh()
     {
-        view.ShowGuide(Presentation.PuzzleMapGuide(session.ElapsedTime));
+        view.ShowGuide(Presentation.PuzzleMapGuide(session.ElapsedTurns));
         string targetCityId = TableManager.Instance.Puzzle.planningTargetCityId;
         PuzzleMapNodeView currentNode = null;
         string currentCityId = session.CurrentCityId;

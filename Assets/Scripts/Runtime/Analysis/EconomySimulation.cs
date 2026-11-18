@@ -578,8 +578,8 @@ internal sealed class EconomyBot
                 plan = PlanPurchases(stops, path[0], out planProfit, out planCells);
             }
             long cost = path.Sum(_route => EconomyProbe.RouteCost(_route, service.TotalTrainOccupiedCells + planCells));
-            double hours = Math.Max(path.Sum(TravelTurns), 1.0);
-            double score = (cargoGain + planProfit - cost) / hours;
+            double travelTurns = Math.Max(path.Sum(TravelTurns), 1.0);
+            double score = (cargoGain + planProfit - cost) / travelTurns;
             if (score > bestScore)
             {
                 bestScore = score;

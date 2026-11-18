@@ -59,7 +59,8 @@ public static class PuzzleRoutePlanner
                     continue;
                 }
 
-                long travelTime = PuzzleTimeManager.TravelTurns(route, _tables.PuzzleTime);
+                // 이동은 항상 1턴이므로 경로 가중치는 홉 수다. 노선 거리(turns)는 요금에만 쓴다.
+                const long travelTime = 1;
                 long arrival = checked(best + travelTime);
                 if (!turns.TryGetValue(route.toCityId, out long known) || arrival < known)
                 {

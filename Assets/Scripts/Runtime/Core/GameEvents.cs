@@ -172,7 +172,7 @@ public static class GameEvents
 
     internal static void RaiseQuestChanged(PuzzleInventoryService _session, TrainventoryQuest _quest)
     {
-        Emit(QuestChanged, new QuestInfo(_session, _quest, _session.ElapsedTime));
+        Emit(QuestChanged, new QuestInfo(_session, _quest, _session.ElapsedTurns));
     }
 
     // 태그 하나의 숙련 경험치가 늘었다. 판매(source=Sale)는 거래 직후, 의뢰(Quest)는 완료 처리 중에 발행한다.

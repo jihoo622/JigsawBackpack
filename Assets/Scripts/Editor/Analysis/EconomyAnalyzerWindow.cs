@@ -177,7 +177,7 @@ public sealed class EconomyAnalyzerWindow : EditorWindow
         {
             Row(false,
                 ($"{EconomyProbe.CityName(row.FromCityId)} → {EconomyProbe.CityName(row.ToCityId)}", 220),
-                (Hours(row.TravelTurns), 50),
+                (DayTurns(row.TravelTurns), 50),
                 ($"{row.EmptyCost}/{row.FullWagonCost}", 70),
                 (row.BestItemId == null ? "-" : EconomyProbe.ItemName(row.BestItemId) + (row.BestItemFixed ? " *" : ""), 130),
                 (row.BestItemId == null ? "-" : $"{row.BestBuy}→{row.BestSell}", 80),
@@ -490,7 +490,8 @@ public sealed class EconomyAnalyzerWindow : EditorWindow
         }
     }
 
-    static string Hours(long _turns)
+    // 경과 턴을 "N일 M턴"으로 표시한다.
+    static string DayTurns(long _turns)
     {
         return $"{_turns / PuzzleTimeManager.TURNS_PER_DAY + 1}일 {_turns % PuzzleTimeManager.TURNS_PER_DAY + 1}턴";
     }

@@ -180,7 +180,7 @@ public static partial class TelemetryPayload
                 passThrough = _info.action == PuzzleActionKind.Travel && _info.session.IsPassingThrough,
                 wagonDelta = _info.session.WagonCount - previousWagonCount,
                 instanceId = _info.instanceId,
-                elapsedTurns = _info.session.ElapsedTime,
+                elapsedTurns = _info.session.ElapsedTurns,
                 moneyDelta = _info.session.Funds - previousFunds,
                 introduced = Array.Empty<PuzzleItemObservation>(),
                 removed = Array.Empty<int>(),

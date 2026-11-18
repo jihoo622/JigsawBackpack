@@ -68,10 +68,10 @@ public sealed class PuzzleSettlementGaugePresenter : MonoBehaviour
             return;
         }
 
-        long elapsed = session.ElapsedTime;
-        long elapsedInCycle = elapsed % interval;
+        long elapsedTurns = session.ElapsedTurns;
+        long elapsedInCycle = elapsedTurns % interval;
         long remaining = interval - elapsedInCycle;
-        // 막대는 하루(0~1)다. 정산 시각은 경과 시간 기준 주기라 지금 위치에서 거꾸로·앞으로 잰다.
+        // 막대는 하루(0~1)다. 정산 시각은 경과 턴 기준 주기라 지금 위치에서 거꾸로·앞으로 잰다.
         const float DAY = PuzzleTimeManager.TURNS_PER_DAY;
         float now = session.Time.TurnOfDay / DAY;
         float start = Mathf.Repeat(now - elapsedInCycle / DAY, 1f);

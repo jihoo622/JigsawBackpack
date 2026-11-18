@@ -978,7 +978,7 @@ public sealed partial class WorldMapEditorWindow : EditorWindow
         ((JArray)layout["rails"]).Add(rail);
         SyncRouteGeometry(rail);
         SetBaseFare(rail);
-        SetFareDistance(rail);
+        SetRouteTurns(rail);
         UpdateTopology();
         selectedId = id;
     }

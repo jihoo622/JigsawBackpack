@@ -200,7 +200,7 @@ public sealed class PuzzleStationSummaryPresenter : MonoBehaviour
         {
             var q = activeQuests[i];
             string cityName = Presentation.QuestCityName(q.TargetCityId);
-            long remainingTurns = Math.Max(0, q.DeadlineTurns - session.ElapsedTime);
+            long remainingTurns = Math.Max(0, q.DeadlineTurns - session.ElapsedTurns);
             string timeStr = Presentation.PuzzleMapTime(remainingTurns);
             string timestamp = Presentation.GameTimestamp(q.DeadlineTurns);
             chosenQuests.Add($"{cityName} · {timestamp} (남은 {timeStr})");

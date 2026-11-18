@@ -890,13 +890,13 @@ public sealed class PuzzleMapView : PanelBase
         {
             tooltipStatRows.Add(regionRow);
         }
-        tooltipStatRows.Add(("소요시간", Presentation.PuzzleMapTime(_eval.TravelTurns)));
+        tooltipStatRows.Add(("소요 턴", Presentation.PuzzleMapTime(_eval.TravelTurns)));
 
         string fareText = $"<color=#{ColorUtility.ToHtmlStringRGB(Presentation.PuzzleTooltipRed)}>{_eval.Cost:N0}$</color>";
         tooltipStatRows.Add(("운임비", fareText));
 
-        long arrivalTime = _session.ElapsedTime + _eval.TravelTurns;
-        string arrivalStr = Presentation.GameTimestamp(arrivalTime);
+        long arrivalTurns = _session.ElapsedTurns + _eval.TravelTurns;
+        string arrivalStr = Presentation.GameTimestamp(arrivalTurns);
         if (_eval.ArrivalIsNight)
         {
             arrivalStr += $" <color=#{ColorUtility.ToHtmlStringRGB(Presentation.PuzzleTooltipRed)}>(야간)</color>";
@@ -909,8 +909,8 @@ public sealed class PuzzleMapView : PanelBase
         tooltipInfoLines.Clear();
         if (_session.Time != null && _session.Time.HasDeadline)
         {
-            long arrivalTime = _session.ElapsedTime + _eval.TravelTurns;
-            long remaining = _session.Time.DeadlineTurns - arrivalTime;
+            long arrivalTurns = _session.ElapsedTurns + _eval.TravelTurns;
+            long remaining = _session.Time.DeadlineTurns - arrivalTurns;
             string deadlineStr;
             if (remaining > 0)
             {

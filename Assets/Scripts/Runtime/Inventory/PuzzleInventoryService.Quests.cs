@@ -77,24 +77,24 @@ public sealed partial class PuzzleInventoryService
             return;
         }
 
-        var hours = ShortestTravelTurns(CurrentCityId);
+        var travelTurnsByCity = ShortestTravelTurns(CurrentCityId);
         for (int i = 0; i < tables.Quest.offersPerTavern; i++)
         {
-            if (TryCreateCourierOffer(hours, out var offer))
+            if (TryCreateCourierOffer(travelTurnsByCity, out var offer))
             {
                 questOffers.Add(offer);
             }
         }
     }
 
-    bool TryCreateCourierOffer(Dictionary<string, long> _hours, out TrainventoryQuestOffer _offer)
+    bool TryCreateCourierOffer(Dictionary<string, long> _travelTurnsByCity, out TrainventoryQuestOffer _offer)
     {
         _offer = null;
         // 1. 목적지 후보가 있는 의뢰 틀만 가중치 추첨 대상으로 남긴다.
         var candidates = new List<(TrainventoryCourierQuestData Template, List<string> Cities)>();
         foreach (var template in tables.CourierQuests)
         {
-            var cities = _hours
+            var cities = _travelTurnsByCity
                 .Where(_pair => _pair.Value >= template.minTravelTurns && _pair.Value <= template.maxTravelTurns)
                 .Select(_pair => _pair.Key)
                 .OrderBy(_id => _id, StringComparer.Ordinal)
@@ -126,7 +126,7 @@ public sealed partial class PuzzleInventoryService
         var piece = definitions[pieceIds[questRandom.Next(pieceIds.Length)]];
 
         // 3. 보상·기한·보증금을 테이블 계수로 계산한다.
-        long travelTurns = _hours[targetCityId];
+        long travelTurns = _travelTurnsByCity[targetCityId];
         long reward = checked(selected.Template.baseReward + (long)selected.Template.rewardPerCellTurn * piece.Cells.Count * travelTurns);
         long deadlineTurns = checked((travelTurns * selected.Template.deadlinePercent + 99) / 100 + selected.Template.deadlineExtraTurns);
         var penalty = tables.QuestPenalty(selected.Template.penaltyId);
@@ -138,7 +138,7 @@ public sealed partial class PuzzleInventoryService
         return true;
     }
 
-    // 현재 도시에서 다른 도시까지의 최단 이동 시간(시간). 노선 소요 시간은 이동과 같은 TravelMinutes를 쓴다.
+    // 현재 도시에서 다른 도시까지의 최단 이동 턴. 이동은 구간당 1턴이므로 최단 홉 수와 같다.
     Dictionary<string, long> ShortestTravelTurns(string _fromCityId)
     {
         var turns = new Dictionary<string, long>(StringComparer.Ordinal) { [_fromCityId] = 0 };
@@ -163,7 +163,7 @@ public sealed partial class PuzzleInventoryService
             done.Add(current);
             foreach (var route in tables.RoutesFrom(current))
             {
-                long arrival = best + PuzzleTimeManager.TravelTurns(route, tables.PuzzleTime);
+                long arrival = best + 1;
                 if (!turns.TryGetValue(route.toCityId, out long known) || arrival < known)
                 {
                     turns[route.toCityId] = arrival;
@@ -171,15 +171,15 @@ public sealed partial class PuzzleInventoryService
             }
         }
 
-        var hours = new Dictionary<string, long>(StringComparer.Ordinal);
+        var travelTurnsByCity = new Dictionary<string, long>(StringComparer.Ordinal);
         foreach (var pair in turns)
         {
             if (!string.Equals(pair.Key, _fromCityId, StringComparison.Ordinal))
             {
-                hours.Add(pair.Key, pair.Value);
+                travelTurnsByCity.Add(pair.Key, pair.Value);
             }
         }
-        return hours;
+        return travelTurnsByCity;
     }
 
     static TrainventoryQuestPenaltyType PenaltyType(TrainventoryQuestPenaltyData _penalty)

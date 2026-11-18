@@ -585,7 +585,7 @@ public static partial class Presentation
         {
             return;
         }
-        long remaining = Math.Max(0, quest.DeadlineTurns - _session.ElapsedTime);
+        long remaining = Math.Max(0, quest.DeadlineTurns - _session.ElapsedTurns);
         _lines.Add(BasicData.Format("presentation.link.previewQuestDeadline", PuzzleMapTime(remaining)));
         _lines.Add(BasicData.Format("presentation.link.previewQuestReward", quest.Reward));
     }
@@ -802,7 +802,7 @@ public static partial class Presentation
         {
             return null;
         }
-        string remaining = PuzzleMapTime(Math.Max(0, quests.Min(_quest => _quest.DeadlineTurns) - _session.ElapsedTime));
+        string remaining = PuzzleMapTime(Math.Max(0, quests.Min(_quest => _quest.DeadlineTurns) - _session.ElapsedTurns));
         return quests.Count == 1
             ? BasicData.Format("presentation.quest.mapBadge", remaining)
             : BasicData.Format("presentation.quest.mapBadgeMany", quests.Count, remaining);
@@ -820,7 +820,7 @@ public static partial class Presentation
         return string.Join("\n", ActiveQuestsTo(_session, _cityId)
             .OrderBy(_quest => _quest.DeadlineTurns)
             .Select(_quest => BasicData.Format("presentation.quest.mapInformation", QuestCargoName(_quest.PieceId),
-                PuzzleMapTime(Math.Max(0, _quest.DeadlineTurns - _session.ElapsedTime)), _quest.Reward)));
+                PuzzleMapTime(Math.Max(0, _quest.DeadlineTurns - _session.ElapsedTurns)), _quest.Reward)));
     }
 
     // 숙련 레벨이 오를 때 하단 상태 줄 끝에 붙이는 알림.

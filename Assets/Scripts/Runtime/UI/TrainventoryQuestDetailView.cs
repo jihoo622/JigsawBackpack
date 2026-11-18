@@ -58,7 +58,7 @@ public sealed class TrainventoryQuestDetailView : MonoBehaviour
         }
         if (deadlineLabel)
         {
-            long deadlineTurns = _session.ElapsedTime + _offer.DeadlineTurns;
+            long deadlineTurns = _session.ElapsedTurns + _offer.DeadlineTurns;
             deadlineLabel.text = Presentation.QuestDetailDeadline(deadlineTurns);
         }
         if (rewardLabel)

@@ -622,7 +622,7 @@
         },
         {
           "id": "travelStatusText6",
-          "value": "소비 시간 또는 화물 가치가 계산 범위를 초과했습니다."
+          "value": "소비 턴 또는 화물 가치가 계산 범위를 초과했습니다."
         },
         {
           "id": "travelStatusText7",
@@ -2923,13 +2923,13 @@
         },
         {
           "id": "StationModificationConfirm",
-          "value": "개조하기",
+          "value": "개조하기 · 1턴",
           "arguments": 0,
           "source": "Assets/Scripts/Runtime/Core/Presentation.cs:StationModificationConfirm"
         },
         {
           "id": "StationModificationConfirmCost",
-          "value": "개조하기 · {0:N0}$",
+          "value": "개조하기 · 1턴 · {0:N0}$",
           "arguments": 1,
           "source": "Assets/Scripts/Runtime/Core/Presentation.cs:StationModificationConfirmCost"
         },
@@ -3001,19 +3001,19 @@
         },
         {
           "id": "StationWorkWaitNow",
-          "value": "완료까지 시간 보내기",
+          "value": "완료까지 1턴 보내기",
           "arguments": 0,
           "source": "Assets/Scripts/Runtime/Core/Presentation.cs:StationWorkWaitNow"
         },
         {
           "id": "StationButcheryConfirm",
-          "value": "도축하기",
+          "value": "도축하기 · 1턴",
           "arguments": 0,
           "source": "Assets/Scripts/Runtime/Core/Presentation.cs:106"
         },
         {
           "id": "StationButcheryConfirmCost",
-          "value": "도축하기 · {0:N0}$",
+          "value": "도축하기 · 1턴 · {0:N0}$",
           "arguments": 1,
           "source": "Assets/Scripts/Runtime/Core/Presentation.cs:StationButcheryConfirmCost"
         },
@@ -3049,13 +3049,13 @@
         },
         {
           "id": "StationRefiningConfirm",
-          "value": "정제하기",
+          "value": "정제하기 · 1턴",
           "arguments": 0,
           "source": "Assets/Scripts/Runtime/Core/Presentation.cs:StationRefiningConfirm"
         },
         {
           "id": "StationRefiningConfirmCost",
-          "value": "정제하기 · {0:N0}$",
+          "value": "정제하기 · 1턴 · {0:N0}$",
           "arguments": 1,
           "source": "Assets/Scripts/Runtime/Core/Presentation.cs:StationRefiningConfirmCost"
         },
@@ -3156,7 +3156,7 @@
         },
         {
           "id": "butchery.inProgress",
-          "value": "도축이 진행 중입니다. 시간이 지나면 완료됩니다.",
+          "value": "도축이 진행 중입니다. 턴이 지나면 완료됩니다.",
           "arguments": 0,
           "source": "Assets/Scripts/Runtime/Inventory/PuzzleInventoryService.cs"
         },
@@ -3204,7 +3204,7 @@
         },
         {
           "id": "butchery.timeOverflow",
-          "value": "도축 완료 시각이 게임 시간 범위를 넘습니다.",
+          "value": "도축 완료 턴이 게임 범위를 넘습니다.",
           "arguments": 0,
           "source": "Assets/Scripts/Runtime/Inventory/PuzzleInventoryService.cs"
         },
@@ -3222,7 +3222,7 @@
         },
         {
           "id": "refining.inProgress",
-          "value": "정제가 진행 중입니다. 시간이 지나면 완료됩니다.",
+          "value": "정제가 진행 중입니다. 턴이 지나면 완료됩니다.",
           "arguments": 0,
           "source": "Assets/Scripts/Runtime/Inventory/PuzzleInventoryService.cs"
         },
@@ -3270,7 +3270,7 @@
         },
         {
           "id": "refining.timeOverflow",
-          "value": "정제 완료 시각이 게임 시간 범위를 넘습니다.",
+          "value": "정제 완료 턴이 게임 범위를 넘습니다.",
           "arguments": 0,
           "source": "Assets/Scripts/Runtime/Inventory/PuzzleInventoryService.cs"
         }

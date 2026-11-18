@@ -463,9 +463,9 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
             _action == PuzzleActionKind.EnterWagonFacility;
     }
     public string PreviewCityId { get; private set; }
+    // 미리보기 목적지로의 이동 턴. 이동은 항상 1턴이다.
     internal long? PreviewTurns => !string.IsNullOrEmpty(PreviewCityId) &&
-        tables.TryGetRoute(CurrentCityId, PreviewCityId, out var route)
-        ? PuzzleTimeManager.TravelTurns(route, tables.PuzzleTime) : (long?)null;
+        tables.TryGetRoute(CurrentCityId, PreviewCityId, out _) ? 1L : (long?)null;
 
     long SynergyIntervalTurns => (long)tables.PuzzleSynergy.activationIntervalTurns;
 
@@ -504,7 +504,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
     public PuzzleRunStatus RunStatus { get; private set; }
     internal string CurrentCityName => CityData.displayName;
     internal bool CanTravel => tables != null && !string.IsNullOrEmpty(currentCityId) && tables.RoutesFrom(currentCityId).Count > 0;
-    internal long ElapsedTime => Time.ElapsedTurns;
+    internal long ElapsedTurns => Time.ElapsedTurns;
     internal PuzzleRegionData RegionData => tables.Region(CityData.regionId);
     internal long MarketCapacity { get; private set; }
     long marketStockCount;
@@ -661,10 +661,10 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
                 _baseCost: route.cost, _cells: cells, _distance: route.turns);
         }
 
-        long travelTime;
+        // 이동은 노선 거리와 무관하게 항상 1턴이다. route.turns는 요금 거리 항으로만 쓴다.
+        long travelTime = 1;
         try
         {
-            travelTime = PuzzleTimeManager.TravelTurns(route, tables.PuzzleTime);
             Time.ArrivalAt(travelTime);
         }
         catch (OverflowException)
@@ -1227,14 +1227,14 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         return false;
     }
 
-    static long TurnsUntilBirth(List<BreedingPair> _pairs, long _breedingTurns, long _minutesUntilDeadline)
+    static long TurnsUntilBirth(List<BreedingPair> _pairs, long _breedingTurns, long _maxRemainingTurns)
     {
         long next = long.MaxValue;
         foreach (var pair in _pairs)
         {
             // 대기 중인 쌍도 남은 시간이 같으므로 같은 경계에서 자리를 다시 본다.
             long remaining = _breedingTurns - pair.state.ElapsedTurns;
-            if (remaining < next && remaining <= _minutesUntilDeadline)
+            if (remaining < next && remaining <= _maxRemainingTurns)
             {
                 next = remaining;
             }
@@ -1426,7 +1426,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
     }
 
     static long TurnsUntilWaste(PuzzleInventory[] _wagons, Dictionary<int, WasteState> _progress, string _animalTag,
-        long _cycleTurns, long _minutesUntilDeadline)
+        long _cycleTurns, long _maxRemainingTurns)
     {
         long next = long.MaxValue;
         foreach (var wagon in _wagons)
@@ -1439,7 +1439,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
                     continue;
                 }
                 long remaining = _cycleTurns - state.ElapsedTurns;
-                if (remaining < next && remaining <= _minutesUntilDeadline)
+                if (remaining < next && remaining <= _maxRemainingTurns)
                 {
                     next = remaining;
                 }
@@ -1508,7 +1508,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
     }
 
     static long TurnsUntilFeeding(PuzzleInventory[] _wagons, Dictionary<int, long> _progress, string _animalTag,
-        long _cycleTurns, long _minutesUntilDeadline)
+        long _cycleTurns, long _maxRemainingTurns)
     {
         long next = long.MaxValue;
         foreach (var wagon in _wagons)
@@ -1522,7 +1522,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
                 }
 
                 long remaining = _cycleTurns - elapsed;
-                if (remaining < next && remaining <= _minutesUntilDeadline)
+                if (remaining < next && remaining <= _maxRemainingTurns)
                 {
                     next = remaining;
                 }
