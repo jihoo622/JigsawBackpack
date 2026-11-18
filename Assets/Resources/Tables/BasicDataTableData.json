@@ -442,8 +442,18 @@
         },
         {
           "id": "clearSummary",
-          "value": "결산 잔액 {0:N0}$",
+          "value": "결산 잔액 {0:N0}$\n무한 모드로 계속하면 기한 없이 교역을 이어 갑니다.",
           "arguments": 1
+        },
+        {
+          "id": "endlessContinue",
+          "value": "무한 모드로 계속",
+          "arguments": 0
+        },
+        {
+          "id": "endlessLabel",
+          "value": "무한 모드",
+          "arguments": 0
         },
         {
           "id": "clearTitle",

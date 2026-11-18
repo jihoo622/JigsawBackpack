@@ -195,6 +195,12 @@ public sealed class PuzzleCityView : MonoBehaviour
             ? Presentation.PuzzleTooltipRed : Presentation.PuzzleHeading;
     }
 
+    // 무한 모드에는 결산이 없으므로 결산 버튼 자리에 모드 이름만 남긴다.
+    internal void ShowEndless()
+    {
+        clearLabel.text = Presentation.PuzzleEndlessLabel;
+    }
+
     internal void ShowFunds(long _funds, bool _canClear)
     {
         clearButton.interactable = _canClear;

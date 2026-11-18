@@ -71,6 +71,14 @@ public static class GameEvents
         Emit(PuzzleRunSettled, new PuzzleRunInfo(_session, null));
     }
 
+    // 승리 결산 뒤 무한 모드로 판을 이어 간다. 마감이 사라지고 진행 중 상태로 돌아온다.
+    public static event Action<PuzzleRunInfo> PuzzleRunContinued;
+
+    public static void RaisePuzzleRunContinued(PuzzleInventoryService _session)
+    {
+        Emit(PuzzleRunContinued, new PuzzleRunInfo(_session, null));
+    }
+
     public static void RaisePuzzleRunStarted(PuzzleInventoryService _session)
     {
         Emit(PuzzleRunStarted, new PuzzleRunInfo(_session, null));
@@ -772,6 +780,7 @@ public static class GameEvents
         PuzzleRunStarted = null;
         PuzzleRunEnded = null;
         PuzzleRunSettled = null;
+        PuzzleRunContinued = null;
         PuzzleActionCommitted = null;
         SceneChanged = null;
         UpgradeGranted = null;

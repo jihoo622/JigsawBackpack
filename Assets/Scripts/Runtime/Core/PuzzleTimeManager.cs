@@ -12,7 +12,7 @@ public sealed class PuzzleTimeManager
     public const int TURNS_PER_DAY = HOURS_PER_DAY / HOURS_PER_TURN;
     readonly PuzzleTimeTableData rules;
     public long ElapsedHours { get; private set; }
-    public long DeadlineHours { get; }
+    public long DeadlineHours { get; private set; }
     public bool HasDeadline => DeadlineHours > 0;
     public bool IsOverdue => HasDeadline && ElapsedHours > DeadlineHours;
     public long RemainingHours => HasDeadline ? Math.Max(0, DeadlineHours - ElapsedHours) : long.MaxValue;
@@ -43,6 +43,12 @@ public sealed class PuzzleTimeManager
         }
         rules = _rules;
         DeadlineHours = _deadlineHours;
+    }
+
+    // 무한 모드로 넘어가면 마감을 없앤다. 이후 IsOverdue·남은 시간 표시는 마감이 없는 시계처럼 동작한다.
+    internal void ClearDeadline()
+    {
+        DeadlineHours = 0;
     }
 
     // 턴 수를 게임 시간으로 바꾼다.

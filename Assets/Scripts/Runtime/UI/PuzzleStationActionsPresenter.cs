@@ -34,6 +34,7 @@ public sealed class PuzzleStationActionsPresenter : MonoBehaviour
         GameEvents.RefiningChanged += OnRefiningChanged;
         GameEvents.FundsChanged += OnFundsChanged;
         GameEvents.PuzzleRunEnded += OnRunEnded;
+        GameEvents.PuzzleRunContinued += OnRunContinued;
         Refresh();
     }
 
@@ -63,6 +64,7 @@ public sealed class PuzzleStationActionsPresenter : MonoBehaviour
         GameEvents.RefiningChanged -= OnRefiningChanged;
         GameEvents.FundsChanged -= OnFundsChanged;
         GameEvents.PuzzleRunEnded -= OnRunEnded;
+        GameEvents.PuzzleRunContinued -= OnRunContinued;
     }
 
     // 휴식 화면에서 고른 휴식 턴(1턴~하루).
@@ -434,6 +436,15 @@ public sealed class PuzzleStationActionsPresenter : MonoBehaviour
         if (_info.session == session)
         {
             ShowHome();
+        }
+    }
+
+    // 무한 모드로 이어 가면 시간을 쓰는 행동이 다시 열린다.
+    void OnRunContinued(GameEvents.PuzzleRunInfo _info)
+    {
+        if (_info.session == session)
+        {
+            Refresh();
         }
     }
 

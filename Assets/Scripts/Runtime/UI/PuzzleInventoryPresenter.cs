@@ -62,6 +62,8 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
     decimal? pendingFreshnessLossValue;
     bool pendingFundsRefresh;
     bool isTravelOpen;
+    // 시장 보드가 마지막으로 그린 시장. 도시를 옮기거나 개장으로 새로 채워지면 객체가 바뀐다.
+    PuzzleInventory shownMarket;
     bool TrainOperationsBlocked => isTravelOpen;
     bool MarketOperationsBlocked => isMapOpen || isTravelOpen;
 
@@ -140,6 +142,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         GameEvents.CityArrived += OnCityArrived;
         GameEvents.TimeAdvanced += OnTimeAdvanced;
         GameEvents.PuzzleRunSettled += OnRunSettled;
+        GameEvents.PuzzleRunContinued += OnRunContinued;
         GameEvents.PuzzleActionCommitted += OnPuzzleActionCommitted;
         GameEvents.PanelVisibility += OnPanelVisibility;
         GameEvents.TravelPreviewChanged += OnTravelPreviewChanged;
@@ -220,6 +223,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         GameEvents.CityArrived -= OnCityArrived;
         GameEvents.TimeAdvanced -= OnTimeAdvanced;
         GameEvents.PuzzleRunSettled -= OnRunSettled;
+        GameEvents.PuzzleRunContinued -= OnRunContinued;
         GameEvents.PuzzleActionCommitted -= OnPuzzleActionCommitted;
         GameEvents.PanelVisibility -= OnPanelVisibility;
         GameEvents.TravelPreviewChanged -= OnTravelPreviewChanged;
@@ -399,8 +403,33 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             : Presentation.PuzzleRunStatusText(session.RunStatus));
         marketView.SetMarketOpen(session.CanTradeInMarket);
         RefreshWaitAction();
+        SyncMarketBoard();
         RenderValues();
         RefreshTrainBar();
+    }
+
+    // 이동(통과 포함)·개장 보충으로 시장이 바뀌면 보드 크기·화물·도시 제목을 새 시장으로 다시 잡는다.
+    // 이동 연출 중에는 RefreshHover가 보드를 그리지 않으므로 여기서 직접 그려야 이전 시장이 남지 않는다.
+    void SyncMarketBoard()
+    {
+        if (shownMarket == session.Market)
+        {
+            return;
+        }
+
+        shownMarket = session.Market;
+        cityView.ShowCity(Presentation.PuzzleCityTitle(session.CityData, session.RegionData));
+        marketView.SetBoardSize(session.Market.Width, session.Market.Height, session.Market.BlockedCells);
+        if (currentHoveredInstanceId.HasValue && !session.Train.Placements.Any(_item => _item.InstanceId == currentHoveredInstanceId.Value))
+        {
+            currentHoveredInstanceId = null;
+            if (tooltipView)
+            {
+                tooltipView.Close();
+            }
+        }
+        marketView.ShowItemDetails(null, default, default, default);
+        RenderBoards(currentHoveredInstanceId);
     }
 
     // 역 시설 진입은 시간을 쓰지 않아 TimeAdvanced가 오지 않는다. 진입이 확정되면 시장 보드의 거래 가능 여부만 바로 다시 그린다.
@@ -433,6 +462,19 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         cityView.ShowTradeStatus(Presentation.PuzzleRunStatusText(session.RunStatus));
         RefreshTrainBar();
         pauseMenu.ShowCompletion(session.RunStatus, session.Funds);
+    }
+
+    // 무한 모드로 이어 가면 진행 중 표시로 되돌린다. 마감이 사라져 시계의 남은 기간 표시는 숨는다.
+    void OnRunContinued(GameEvents.PuzzleRunInfo _info)
+    {
+        if (_info.session != session || !initialized)
+        {
+            return;
+        }
+        cityView.SetTown(session.CityData.displayName, true);
+        cityView.ShowEndless();
+        RefreshAfterTimeAdvance();
+        RenderBoards();
     }
 
     void OnTimeAdvanced(GameEvents.TimeAdvanceInfo _info)
@@ -610,6 +652,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
     void ShowCurrentCity()
     {
         bool inProgress = session.RunStatus == PuzzleRunStatus.InProgress;
+        shownMarket = session.Market;
         cityView.ShowCity(Presentation.PuzzleCityTitle(session.CityData, session.RegionData));
         cityView.ShowTime(session.Time);
         RefreshFunds();

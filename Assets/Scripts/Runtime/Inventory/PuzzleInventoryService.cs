@@ -508,6 +508,9 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
     public bool ReachedTargetFunds => Funds >= TargetFunds;
     public int CityMoveCount { get; private set; }
     public PuzzleRunStatus RunStatus { get; private set; }
+    // 승리 결산 뒤 같은 판을 기한 없이 이어 가는 중인지(무한 모드). 마감이 없어 다시 결산하거나 패배하지 않는다.
+    public bool IsEndless { get; private set; }
+    public bool CanContinueEndless => RunStatus == PuzzleRunStatus.Won && !IsEndless;
     internal string CurrentCityName => CityData.displayName;
     internal bool CanTravel => tables != null && !string.IsNullOrEmpty(currentCityId) && tables.RoutesFrom(currentCityId).Count > 0;
     internal long ElapsedTime => Time.ElapsedHours;
@@ -749,6 +752,20 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         HandleRunStatusChanged();
         RecordAction(PuzzleActionKind.FinishRun);
         GameEvents.RaisePuzzleRunSettled(this);
+    }
+
+    // 승리 결산 직후 무한 모드로 이어 간다. 결산 기록(승리)은 그대로 두고 마감만 없앤다.
+    internal bool TryContinueEndless()
+    {
+        if (!CanContinueEndless)
+        {
+            return false;
+        }
+        IsEndless = true;
+        Time.ClearDeadline();
+        RunStatus = PuzzleRunStatus.InProgress;
+        GameEvents.RaisePuzzleRunContinued(this);
+        return true;
     }
 
     public bool AdvanceHours(long _hours, PuzzleActionKind _action = PuzzleActionKind.AdvanceTime)

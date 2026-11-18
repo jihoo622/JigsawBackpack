@@ -2467,6 +2467,9 @@ public static partial class Presentation
         return BasicData.Format("presentation.inventory.clearButton", _targetFunds);
     }
 
+    internal static string PuzzleEndlessContinue => BasicData.Text("presentation.inventory.endlessContinue");
+    internal static string PuzzleEndlessLabel => BasicData.Text("presentation.inventory.endlessLabel");
+
     internal static string PuzzleClearSummary(long _funds)
     {
         return BasicData.Format("presentation.inventory.clearSummary", _funds);
