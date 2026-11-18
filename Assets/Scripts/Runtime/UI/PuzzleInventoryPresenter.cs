@@ -7,7 +7,7 @@ using UnityEngine.UI;
 using TMPro;
 
 [DisallowMultipleComponent]
-public sealed class PuzzleInventoryPresenter : MonoBehaviour
+public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
 {
     [Header("Drag Settings")]
     [SerializeField] float wagonDragHoverDelay = 0.5f;
@@ -128,6 +128,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         input.HoverEnded += OnHoverEnded;
         trainView.Disabled += OnViewDisabled;
         marketView.Disabled += OnViewDisabled;
+        SubscribeLens();
         if (butcheryView)
         {
             butcheryView.Disabled += OnViewDisabled;
@@ -186,6 +187,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         if (marketView)
         {
             marketView.Disabled -= OnViewDisabled;
+            UnsubscribeLens();
         }
         if (butcheryView)
         {
@@ -342,6 +344,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         RenderBoards();
         RenderValues();
         RefreshTrainBar();
+        UpdateLensRanking();
         RefreshDrag();
     }
 
@@ -652,6 +655,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
 
     void ShowCurrentCity()
     {
+        HideLens();
         bool inProgress = session.RunStatus == PuzzleRunStatus.InProgress;
         shownMarket = session.Market;
         cityView.ShowCity(Presentation.PuzzleCityTitle(session.CityData, session.RegionData));
@@ -698,6 +702,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         }
         RenderBoards();
         ShowItemDetails(sourceView, placement);
+        BeginLens(placement);
         RefreshDrag();
     }
 
@@ -768,6 +773,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         }
 
         drag.RotateClockwise();
+        UpdateLensRanking();
         RefreshDrag();
     }
 
@@ -814,6 +820,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         {
             ClearDrag();
         }
+        FinishLens(result);
         if (result.Direction != PuzzleTradeDirection.None)
         {
             cityView.ShowTradeStatus(WithProficiencyNotice(Presentation.PuzzleTradeStatus(result, activeDrag.Definition, _committed: true)));
@@ -1037,6 +1044,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
                 sourceView.HideAdjacentSynergyPreview();
             }
 
+            UpdateLensSpot(destination, targetCell, preview.CanDrop && candidate != null);
             cityView.ShowTradeStatus(Presentation.PuzzleTradeStatus(preview, drag.Definition, _committed: false));
             return;
         }
@@ -1050,6 +1058,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             Vector2 sourceCenterScreen = sourceView.GetShapeCenterScreen(drag.OriginalPose.Cells);
             sourceView.ShowDragBeam(sourceCenterScreen, pointerPosition);
         }
+        UpdateLensSpot(null, default, false);
         cityView.ShowTradeStatus(string.Empty);
     }
 
@@ -1601,6 +1610,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
     void OnViewDisabled()
     {
         hoverPosition = null;
+        HideLens();
         bool hadDrag = drag != null;
         if (input)
         {

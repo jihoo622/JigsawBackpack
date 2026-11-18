@@ -15,6 +15,8 @@ public sealed class PauseMenu : PanelBase
     // 승리 결산 패널에서만 켜는 무한 모드 버튼.
     [SerializeField] Button endlessButton;
     [SerializeField] TextMeshProUGUI endlessLabel;
+    [SerializeField] Button candidateToggleButton;
+    [SerializeField] TextMeshProUGUI candidateToggleLabel;
 
     float previousTimeScale;
     bool offerEndless;
@@ -70,6 +72,12 @@ public sealed class PauseMenu : PanelBase
     protected override void OnEnable()
     {
         base.OnEnable();
+        if (candidateToggleButton)
+        {
+            candidateToggleButton.onClick.AddListener(OnCandidateToggleClicked);
+        }
+        PuzzleLensSettings.Changed += RefreshCandidateToggle;
+        RefreshCandidateToggle();
         if (cancel != null)
         {
             cancel.performed += OnCancel;
@@ -89,6 +97,11 @@ public sealed class PauseMenu : PanelBase
 
     protected override void OnDisable()
     {
+        PuzzleLensSettings.Changed -= RefreshCandidateToggle;
+        if (candidateToggleButton)
+        {
+            candidateToggleButton.onClick.RemoveListener(OnCandidateToggleClicked);
+        }
         if (cancel != null)
         {
             cancel.performed -= OnCancel;
@@ -330,6 +343,7 @@ public sealed class PauseMenu : PanelBase
 
     protected override void OnShow()
     {
+        RefreshCandidateToggle();
         if (paused)
         {
             return;
@@ -374,6 +388,19 @@ public sealed class PauseMenu : PanelBase
                 ? previousSelection : null);
         }
         previousSelection = null;
+    }
+
+    void OnCandidateToggleClicked()
+    {
+        PuzzleLensSettings.ShowCandidates = !PuzzleLensSettings.ShowCandidates;
+    }
+
+    void RefreshCandidateToggle()
+    {
+        if (candidateToggleLabel)
+        {
+            candidateToggleLabel.text = Presentation.LensCandidatesToggle(PuzzleLensSettings.ShowCandidates);
+        }
     }
 
     // 승리 결산 패널의 무한 모드 버튼. 마감을 없애고 같은 판을 이어 간다.

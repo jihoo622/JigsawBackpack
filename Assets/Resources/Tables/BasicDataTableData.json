@@ -679,6 +679,156 @@
           "id": "travelClock",
           "value": "{0}일 {1} {2:00}:{3:00}",
           "arguments": 4
+        },
+        {
+          "id": "routeLensTabCurrent",
+          "value": "현재",
+          "arguments": 0
+        },
+        {
+          "id": "routeLensTabVisited",
+          "value": "방문 도시",
+          "arguments": 0
+        },
+        {
+          "id": "routeLensTabRumor",
+          "value": "소문 도시",
+          "arguments": 0
+        },
+        {
+          "id": "routeLensTitleTags",
+          "value": "{0} ({1})",
+          "arguments": 2
+        },
+        {
+          "id": "routeLensTradeBuy",
+          "value": "구매 {0:N0}$ · 잔액 {1:N0} → {2:N0}$",
+          "arguments": 3
+        },
+        {
+          "id": "routeLensTradeSell",
+          "value": "판매 {0:N0}$ · 잔액 {1:N0} → {2:N0}$",
+          "arguments": 3
+        },
+        {
+          "id": "routeLensTradeNone",
+          "value": "기차 안 재배치 · 거래 없음",
+          "arguments": 0
+        },
+        {
+          "id": "routeLensTradeNoQuote",
+          "value": "견적 없음 · 잔액 {0:N0}$",
+          "arguments": 1
+        },
+        {
+          "id": "routeLensCommitted",
+          "value": "완료 · {0}",
+          "arguments": 1
+        },
+        {
+          "id": "routeLensSpot",
+          "value": "이 자리: 다음 정산 {0}$ · 영향 이웃 {1}",
+          "arguments": 2
+        },
+        {
+          "id": "routeLensSpotBlocked",
+          "value": "이 자리에는 놓을 수 없습니다",
+          "arguments": 0
+        },
+        {
+          "id": "routeLensRanking",
+          "value": "후보 {0} (다음 정산)",
+          "arguments": 1
+        },
+        {
+          "id": "routeLensRankingEmpty",
+          "value": "놓을 수 있는 자리가 없습니다",
+          "arguments": 0
+        },
+        {
+          "id": "routeLensPlanned",
+          "value": "계획 목적지",
+          "arguments": 0
+        },
+        {
+          "id": "routeLensVisitedSell",
+          "value": "판매 {0}%",
+          "arguments": 1
+        },
+        {
+          "id": "routeLensVisitedRegion",
+          "value": "물가 {0}%",
+          "arguments": 1
+        },
+        {
+          "id": "routeLensVisitedQuote",
+          "value": "현재 가치 기준 {0:N0}$",
+          "arguments": 1
+        },
+        {
+          "id": "routeLensFare",
+          "value": "적재 포함 운임 {0:N0}$",
+          "arguments": 1
+        },
+        {
+          "id": "routeLensLegs",
+          "value": "{0}구간",
+          "arguments": 1
+        },
+        {
+          "id": "routeLensTravelTurns",
+          "value": "{0}턴",
+          "arguments": 1
+        },
+        {
+          "id": "routeLensRumorFallback",
+          "value": "소문",
+          "arguments": 0
+        },
+        {
+          "id": "routeLensRumorHours",
+          "value": "{0}시간 전",
+          "arguments": 1
+        },
+        {
+          "id": "routeLensRumorStale",
+          "value": "오래된 소문",
+          "arguments": 0
+        },
+        {
+          "id": "routeLensNoVisited",
+          "value": "방문한 이웃 도시가 없습니다",
+          "arguments": 0
+        },
+        {
+          "id": "routeLensNoRumor",
+          "value": "이 화물에 대한 소문이 없습니다",
+          "arguments": 0
+        },
+        {
+          "id": "routeLensFootnoteCurrent",
+          "value": "현재 도시 확정 견적",
+          "arguments": 0
+        },
+        {
+          "id": "routeLensFootnoteVisited",
+          "value": "방문한 역의 공개 등급으로 계산 · 도착 때 가치는 신선도·정산으로 달라질 수 있음",
+          "arguments": 0
+        },
+        {
+          "id": "routeLensFootnoteRumor",
+          "value": "소문이 말한 내용만 표시 · 판매가 수치 없음",
+          "arguments": 0
+        },
+        {
+          "id": "routeLensCandidatesOn",
+          "value": "배치 후보 표시: 켜짐",
+          "arguments": 0
+        },
+        {
+          "id": "routeLensCandidatesOff",
+          "value": "배치 후보 표시: 꺼짐",
+          "arguments": 0
         }
       ]
     },

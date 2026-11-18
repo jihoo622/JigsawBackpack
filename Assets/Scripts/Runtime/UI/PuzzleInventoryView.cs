@@ -52,6 +52,9 @@ public sealed class PuzzleInventoryView : MonoBehaviour
     [SerializeField] RectTransform[] synergyChips;
     [SerializeField] TextMeshProUGUI[] synergyChipLabels;
     [SerializeField] Image[] synergyChipBackgrounds;
+    // [0] 1순위는 자리 전체 외곽선, [1]·[2] 순위 배지는 잡은 칸이 놓이는 한 칸 크기다.
+    [SerializeField] RectTransform[] candidateMarkers;
+    [SerializeField] TextMeshProUGUI[] candidateLabels;
 
     [Header("Layout & Visual Settings")]
     [SerializeField] float cellGap = 2f;
@@ -649,6 +652,7 @@ public sealed class PuzzleInventoryView : MonoBehaviour
         HideSlots(outlineSlots);
         HideDragBeam();
         HideAdjacentSynergyPreview();
+        HidePlacementCandidates();
     }
 
     internal void ShowBoardValue(decimal _actualValue, long _baseValue)
@@ -738,6 +742,121 @@ public sealed class PuzzleInventoryView : MonoBehaviour
             boardValue.text = string.Empty;
         }
         boardTradePreferences?.Show(_data);
+    }
+
+    // 1순위는 자리 전체 외곽선, 2·3순위는 잡은 칸이 놓이는 칸에 배지로 둔다. 남는 표식은 숨긴다.
+    internal void ShowPlacementCandidates(IReadOnlyList<(PuzzlePose Pose, Vector2Int TargetCell, string Label)> _candidates)
+    {
+        int count = _candidates != null ? _candidates.Count : 0;
+        int markerCount = candidateMarkers != null ? candidateMarkers.Length : 0;
+        for (int i = 0; i < markerCount; i++)
+        {
+            if (i >= count || _candidates[i].Pose == null)
+            {
+                HideCandidate(i);
+                continue;
+            }
+
+            var candidate = _candidates[i];
+            Vector2 boardCenter;
+            Vector2 size;
+            if (i == 0)
+            {
+                boardCenter = GetShapeCenter(candidate.Pose.Cells);
+                size = GetFootprintCellCount(candidate.Pose.Cells) * cellSize;
+            }
+            else
+            {
+                boardCenter = GetCellCenter(candidate.TargetCell);
+                size = Vector2.one * cellSize;
+            }
+            PlaceCandidate(i, boardCenter, size, candidate.Label);
+        }
+    }
+
+    internal void HidePlacementCandidates()
+    {
+        int markerCount = candidateMarkers != null ? candidateMarkers.Length : 0;
+        for (int i = 0; i < markerCount; i++)
+        {
+            HideCandidate(i);
+        }
+        int labelCount = candidateLabels != null ? candidateLabels.Length : 0;
+        for (int i = markerCount; i < labelCount; i++)
+        {
+            if (candidateLabels[i])
+            {
+                candidateLabels[i].gameObject.SetActive(false);
+            }
+        }
+    }
+
+    void PlaceCandidate(int _index, Vector2 _boardCenter, Vector2 _size, string _label)
+    {
+        var marker = candidateMarkers[_index];
+        if (marker)
+        {
+            // 보드 좌표 계산은 칸 중심과 같은 기준이므로 중심 앵커로 놓고 크기만 칸 단위로 준다.
+            marker.anchorMin = marker.anchorMax = marker.pivot = new Vector2(0.5f, 0.5f);
+            marker.localPosition = BoardToSpace(marker.parent, _boardCenter);
+            marker.sizeDelta = _size;
+            SetRaycastTargetsOff(marker);
+            marker.gameObject.SetActive(true);
+        }
+
+        var label = candidateLabels != null && _index < candidateLabels.Length ? candidateLabels[_index] : null;
+        if (label)
+        {
+            label.text = _label ?? string.Empty;
+            label.rectTransform.localPosition = BoardToSpace(label.rectTransform.parent, _boardCenter);
+            label.raycastTarget = false;
+            label.gameObject.SetActive(true);
+        }
+    }
+
+    void HideCandidate(int _index)
+    {
+        if (candidateMarkers[_index])
+        {
+            candidateMarkers[_index].gameObject.SetActive(false);
+        }
+        if (candidateLabels != null && _index < candidateLabels.Length && candidateLabels[_index])
+        {
+            candidateLabels[_index].gameObject.SetActive(false);
+        }
+    }
+
+    // 보드 로컬 점을 대상 부모의 로컬 좌표로 옮긴다. 표식이 보드 밖에 있어도 같은 칸 위치에 놓인다.
+    Vector2 BoardToSpace(Transform _space, Vector2 _boardLocal)
+    {
+        Vector3 world = board.rectTransform.TransformPoint(_boardLocal);
+        return _space ? (Vector2)_space.InverseTransformPoint(world) : (Vector2)world;
+    }
+
+    static void SetRaycastTargetsOff(Component _root)
+    {
+        foreach (var graphic in _root.GetComponentsInChildren<Graphic>(true))
+        {
+            graphic.raycastTarget = false;
+        }
+    }
+
+    // 자리가 차지하는 칸 수(가로·세로)를 구한다. 외곽선은 이 칸 수에 cellSize를 곱해 그린다.
+    static Vector2 GetFootprintCellCount(IReadOnlyList<PuzzleCell> _cells)
+    {
+        if (_cells == null || _cells.Count == 0)
+        {
+            return Vector2.zero;
+        }
+
+        var min = _cells[0].Position;
+        var max = min;
+        foreach (var cell in _cells)
+        {
+            min = Vector2Int.Min(min, cell.Position);
+            max = Vector2Int.Max(max, cell.Position);
+        }
+        return (Vector2)(max - min + Vector2Int.one);
     }
 
     internal bool TryGetHoveredBoardInfoLink(Vector2 _screenPosition, out string _linkId)

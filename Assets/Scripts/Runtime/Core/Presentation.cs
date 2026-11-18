@@ -1039,6 +1039,207 @@ public static partial class Presentation
     public static string TavernUnreadRumor => BasicData.Text("presentation.station.unreadRumor");
     public static string TavernTalk => BasicData.Text("presentation.station.talk");
 
+    // 행선지 렌즈 문구(계획 §5). 금액·퍼센트 서식은 기초데이터 템플릿이 맡고, 여기서는 부호와 목록 조립만 한다.
+    internal static string RouteLensTab(PuzzleLensTab _tab)
+    {
+        return _tab switch
+        {
+            PuzzleLensTab.Visited => BasicData.Text("presentation.inventory.routeLensTabVisited"),
+            PuzzleLensTab.Rumor => BasicData.Text("presentation.inventory.routeLensTabRumor"),
+            _ => BasicData.Text("presentation.inventory.routeLensTabCurrent"),
+        };
+    }
+
+    internal static string RouteLensTitle(PuzzleItemDefinition _item)
+    {
+        if (_item == null)
+        {
+            return string.Empty;
+        }
+        string tags = string.Join(" · ", _item.Tags.Select(PuzzleTagLabel));
+        return string.IsNullOrEmpty(tags) ? _item.DisplayName
+            : BasicData.Format("presentation.inventory.routeLensTitleTags", _item.DisplayName, tags);
+    }
+
+    // 판매 견적이 음수면 잔액이 줄어든다. 방향별 부호를 뒤집지 않고 잔액 산식을 그대로 쓴다.
+    internal static string RouteLensTrade(PuzzleTradeDirection _direction, long? _quote, long _fundsBefore, string _failure, bool _committed)
+    {
+        string body;
+        if (_direction == PuzzleTradeDirection.None)
+        {
+            body = BasicData.Text("presentation.inventory.routeLensTradeNone");
+        }
+        else if (_quote is long quote)
+        {
+            bool buying = _direction == PuzzleTradeDirection.Buy;
+            decimal after = buying ? (decimal)_fundsBefore - quote : (decimal)_fundsBefore + quote;
+            body = BasicData.Format(buying ? "presentation.inventory.routeLensTradeBuy" : "presentation.inventory.routeLensTradeSell",
+                quote, _fundsBefore, after);
+        }
+        else
+        {
+            body = BasicData.Format("presentation.inventory.routeLensTradeNoQuote", _fundsBefore);
+        }
+
+        if (_committed)
+        {
+            body = BasicData.Format("presentation.inventory.routeLensCommitted", body);
+        }
+        if (!string.IsNullOrEmpty(_failure))
+        {
+            body += "\n<color=#" + ColorUtility.ToHtmlStringRGB(PuzzleTooltipRed) + ">" + _failure + "</color>";
+        }
+        return body;
+    }
+
+    internal static string RouteLensPlacementSpot(decimal? _delta, int _affectedCount)
+    {
+        return _delta is decimal delta
+            ? BasicData.Format("presentation.inventory.routeLensSpot", RouteLensSignedAmount(delta), _affectedCount)
+            : BasicData.Text("presentation.inventory.routeLensSpotBlocked");
+    }
+
+    internal static string RouteLensRanking(IReadOnlyList<decimal> _top)
+    {
+        if (_top == null || _top.Count == 0)
+        {
+            return BasicData.Text("presentation.inventory.routeLensRankingEmpty");
+        }
+
+        var badges = new List<string>(_top.Count);
+        for (int i = 0; i < _top.Count; i++)
+        {
+            badges.Add(RouteLensCandidateBadge(i + 1, _top[i]));
+        }
+        return BasicData.Format("presentation.inventory.routeLensRanking", string.Join(" · ", badges));
+    }
+
+    internal static string RouteLensCandidateBadge(int _rank, decimal _delta)
+    {
+        // 원문자 ①(U+2460)부터 잇는다. 20위를 넘으면 숫자로 쓴다.
+        string mark = _rank >= 1 && _rank <= 20 ? char.ConvertFromUtf32(0x2460 + _rank - 1) : _rank + ".";
+        return mark + " " + RouteLensSignedAmount(_delta);
+    }
+
+    // 현재 탭 목록은 비운다. 현재 도시 견적은 TradeStatus가 맡는다.
+    internal static string RouteLensDestinations(IReadOnlyList<PuzzleLensDestination> _list, PuzzleLensTab _tab)
+    {
+        if (_tab == PuzzleLensTab.Current)
+        {
+            return string.Empty;
+        }
+
+        var level = _tab == PuzzleLensTab.Visited ? PuzzleLensLevel.Visited : PuzzleLensLevel.Rumor;
+        var lines = new List<string>();
+        if (_list != null)
+        {
+            foreach (var destination in _list)
+            {
+                if (destination.Level != level)
+                {
+                    continue;
+                }
+                lines.Add(level == PuzzleLensLevel.Visited
+                    ? RouteLensVisitedLine(destination)
+                    : RouteLensRumorLine(destination));
+            }
+        }
+
+        if (lines.Count == 0)
+        {
+            return BasicData.Text(level == PuzzleLensLevel.Visited
+                ? "presentation.inventory.routeLensNoVisited"
+                : "presentation.inventory.routeLensNoRumor");
+        }
+        return string.Join("\n", lines);
+    }
+
+    static string RouteLensVisitedLine(PuzzleLensDestination _destination)
+    {
+        var parts = CreateRouteDestinationParts(_destination);
+        if (_destination.SellPercent is int sell)
+        {
+            parts.Add(BasicData.Format("presentation.inventory.routeLensVisitedSell", sell));
+        }
+        if (_destination.RegionPercent is int region)
+        {
+            parts.Add(BasicData.Format("presentation.inventory.routeLensVisitedRegion", region));
+        }
+        if (_destination.Quote is long quote)
+        {
+            parts.Add(BasicData.Format("presentation.inventory.routeLensVisitedQuote", quote));
+        }
+        AppendRouteCommonParts(parts, _destination);
+        return string.Join(" · ", parts);
+    }
+
+    static string RouteLensRumorLine(PuzzleLensDestination _destination)
+    {
+        var parts = CreateRouteDestinationParts(_destination);
+        parts.Add(string.IsNullOrEmpty(_destination.RumorMessage)
+            ? BasicData.Text("presentation.inventory.routeLensRumorFallback")
+            : _destination.RumorMessage);
+        if (_destination.RumorHoursAgo is long hours)
+        {
+            parts.Add(BasicData.Format("presentation.inventory.routeLensRumorHours", hours));
+        }
+        if (_destination.RumorStale)
+        {
+            parts.Add(BasicData.Text("presentation.inventory.routeLensRumorStale"));
+        }
+        AppendRouteCommonParts(parts, _destination);
+        return string.Join(" · ", parts);
+    }
+
+    static List<string> CreateRouteDestinationParts(PuzzleLensDestination _destination)
+    {
+        var parts = new List<string>();
+        if (_destination.Planned)
+        {
+            parts.Add(BasicData.Text("presentation.inventory.routeLensPlanned"));
+        }
+        parts.Add(_destination.CityName);
+        return parts;
+    }
+
+    static void AppendRouteCommonParts(List<string> _parts, PuzzleLensDestination _destination)
+    {
+        if (_destination.Fare is long fare)
+        {
+            _parts.Add(BasicData.Format("presentation.inventory.routeLensFare", fare));
+        }
+        _parts.Add(BasicData.Format("presentation.inventory.routeLensTravelTurns", _destination.TravelTurns));
+        if (_destination.Planned)
+        {
+            _parts.Add(BasicData.Format("presentation.inventory.routeLensLegs", _destination.Legs));
+        }
+    }
+
+    internal static string RouteLensFootnote(PuzzleLensTab _tab)
+    {
+        return _tab switch
+        {
+            PuzzleLensTab.Visited => BasicData.Text("presentation.inventory.routeLensFootnoteVisited"),
+            PuzzleLensTab.Rumor => BasicData.Text("presentation.inventory.routeLensFootnoteRumor"),
+            _ => BasicData.Text("presentation.inventory.routeLensFootnoteCurrent"),
+        };
+    }
+
+    internal static string LensCandidatesToggle(bool _on)
+    {
+        return BasicData.Text(_on ? "presentation.inventory.routeLensCandidatesOn" : "presentation.inventory.routeLensCandidatesOff");
+    }
+
+    // 델타 표기는 시너지 칩과 같이 +와 U+2212 마이너스를 쓴다.
+    static string RouteLensSignedAmount(decimal _value)
+    {
+        if (_value == 0m)
+        {
+            return "0";
+        }
+        return (_value < 0m ? "−" : "+") + Math.Abs(_value).ToString("#,0.##");
+    }
+
     // 시계: 날짜·턴 시간대·낮밤·턴 번호.
     public static string PuzzleTime(PuzzleTimeManager _time)
     {
