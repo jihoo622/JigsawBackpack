@@ -120,6 +120,7 @@ public static class EconomySimulation
 }
 
 // 모든 도시 쌍의 최단 시간과 그 경로의 첫 역. 상환 도시까지의 값도 여기서 읽는다.
+// 이동은 구간당 1턴이라 가중치는 모두 1, 최단 시간은 홉 수와 같다.
 internal sealed class EconomyRouteGraph
 {
     const long UNREACHABLE = long.MaxValue / 4;
@@ -133,7 +134,7 @@ internal sealed class EconomyRouteGraph
     {
         DebtCityId = string.IsNullOrEmpty(_tables.PuzzleTrade.debtCityId) ? _tables.Puzzle.startCity : _tables.PuzzleTrade.debtCityId;
         var outgoing = _tables.Cities.ToDictionary(_city => _city.id,
-            _city => _tables.RoutesFrom(_city.id).Select(_route => (To: _route.toCityId, Turns: PuzzleTimeManager.TravelTurns(_route, _tables.PuzzleTime))).ToList(),
+            _city => _tables.RoutesFrom(_city.id).Select(_route => (To: _route.toCityId, Turns: 1L)).ToList(),
             StringComparer.Ordinal);
 
         // 출발 도시마다 다익스트라. 도시 수가 작아 단순 선택 방식을 쓴다.
@@ -207,7 +208,8 @@ internal sealed class EconomyLoop
                         continue;
                     }
                     long profit = LegProfit(session, _tables, forward) + LegProfit(session, _tables, backward);
-                    long cycle = PuzzleTimeManager.TravelTurns(forward, _tables.PuzzleTime) + PuzzleTimeManager.TravelTurns(backward, _tables.PuzzleTime);
+                    // 이동은 구간당 1턴. 왕복 2구간의 사이클 시간.
+                    long cycle = 2;
                     if (profit > 0)
                     {
                         loops.Add(new EconomyLoop { A = from.id, B = forward.toCityId, CycleTurns = cycle, CycleProfit = profit });
@@ -376,7 +378,8 @@ internal sealed class EconomyBot
 
     long TravelTurns(PuzzleRouteData _route)
     {
-        return PuzzleTimeManager.TravelTurns(_route, tables.PuzzleTime);
+        // 이동은 노선 거리와 무관하게 항상 1턴 (route.turns는 요금 거리일 뿐이다).
+        return 1;
     }
 
     IEnumerable<PuzzlePlacement> Cargo()

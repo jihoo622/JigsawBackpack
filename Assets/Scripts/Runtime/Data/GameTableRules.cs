@@ -561,17 +561,6 @@ public sealed class GameTableRules
             if (validPoints)
             {
                 Check(PuzzleTimeManager.PolylineLength(route.points) > 0, path + ".points", "노선 길이는 0보다 커야 합니다.");
-                try
-                {
-                    if (_tables.PuzzleTime != null)
-                    {
-                        PuzzleTimeManager.TravelTurns(route, _tables.PuzzleTime);
-                    }
-                }
-                catch (OverflowException)
-                {
-                    Check(false, path + ".points", "노선 이동 턴이 계산 범위를 초과합니다.");
-                }
             }
             if (_tables.HasCity(route.fromCityId) && _tables.HasCity(route.toCityId))
             {

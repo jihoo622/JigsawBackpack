@@ -538,7 +538,7 @@ public static partial class Presentation
                 var travel = _session.EvaluateTravel(_cityId);
                 if (travel.Failure == PuzzleTravelFailure.None || travel.Failure == PuzzleTravelFailure.InsufficientFunds)
                 {
-                    _lines.Add(BasicData.Format("presentation.link.previewTravel", PuzzleMapTime(travel.TravelTurns), travel.Cost));
+                    _lines.Add(BasicData.Format("presentation.link.previewTravel", travel.Cost));
                 }
                 _lines.Add(BasicData.Text(visited ? "presentation.link.previewVisited" : "presentation.link.previewUnvisited"));
             }
@@ -971,7 +971,7 @@ public static partial class Presentation
 
     internal static string PuzzleTravelConfirmation(string _fromName, string _toName, PuzzleTravelResult _quote)
     {
-        return BasicData.Format("presentation.inventory.travelConfirmation", _fromName, _toName, PuzzleMapTime(_quote.TravelTurns), _quote.ArrivalClockTurns + 1, HourOfTurn(_quote.ArrivalClockTurns), (_quote.ArrivalIsNight ? BasicData.Text("presentation.inventory.travelConfirmationText2") : BasicData.Text("presentation.inventory.travelConfirmationText3")), _quote.Cost, _quote.FundsAfter);
+        return BasicData.Format("presentation.inventory.travelConfirmation", _fromName, _toName, _quote.ArrivalClockTurns + 1, HourOfTurn(_quote.ArrivalClockTurns), (_quote.ArrivalIsNight ? BasicData.Text("presentation.inventory.travelConfirmationText2") : BasicData.Text("presentation.inventory.travelConfirmationText3")), _quote.Cost, _quote.FundsAfter);
     }
 
     internal static string PuzzleTravelJourney(string _fromName, string _toName)
@@ -1213,7 +1213,7 @@ public static partial class Presentation
         }
         else
         {
-            status = BasicData.Format("presentation.map.informationText7", ColorUtility.ToHtmlStringRGB(PuzzleMapConnectedDisabled), PuzzleTravelStatus(_evaluation), PuzzleMapTime(_evaluation.TravelTurns));
+            status = BasicData.Format("presentation.map.informationText7", ColorUtility.ToHtmlStringRGB(PuzzleMapConnectedDisabled), PuzzleTravelStatus(_evaluation));
         }
         return (heading, status);
     }
@@ -1264,7 +1264,7 @@ public static partial class Presentation
 
     static string PuzzleTravelQuote(PuzzleTravelResult _result)
     {
-        return BasicData.Format("presentation.inventory.travelQuote", _result.Distance, PuzzleMapTime(_result.TravelTurns), PuzzleTravelCost, _result.Cost, PuzzleTravelBreakdown(_result));
+        return BasicData.Format("presentation.inventory.travelQuote", _result.Distance, PuzzleTravelCost, _result.Cost, PuzzleTravelBreakdown(_result));
     }
 
     public static string PuzzleMapRegionLabel(PuzzleRegionData _region)
@@ -1290,6 +1290,12 @@ public static partial class Presentation
     public static string PuzzleMapTime(long _turns)
     {
         return BasicData.Format("presentation.map.time", _turns);
+    }
+
+    // 노선 거리를 나타내는 표기(요금 거리. 이동은 항상 1턴이라 이동 시간 대신 거리를 보여 준다).
+    public static string PuzzleMapDistance(int _distance)
+    {
+        return BasicData.Format("presentation.map.routeDistance", _distance);
     }
 
     public static Color PuzzleMapRegionColor(string _regionId)

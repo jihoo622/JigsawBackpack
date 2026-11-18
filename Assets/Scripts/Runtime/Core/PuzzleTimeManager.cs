@@ -71,17 +71,7 @@ public sealed class PuzzleTimeManager
         return checked(_elapsedTurns + (_intervalTurns - _elapsedTurns % _intervalTurns));
     }
 
-    // 노선의 이동 턴. 노선 표의 turns가 원본이며 지도 선 모양과 무관하다.
-    public static long TravelTurns(PuzzleRouteData _route, PuzzleTimeTableData _rules)
-    {
-        if (_route.turns <= 0)
-        {
-            throw new OverflowException("노선의 이동 턴이 없습니다.");
-        }
-        return _route.turns;
-    }
-
-    // 지도 선의 전체 길이. Map Editor가 이동 턴을 자동 계산할 때만 쓴다.
+    // 지도 선의 전체 길이. Map Editor가 운임의 거리 항을 자동 계산할 때만 쓴다.
     public static double PolylineLength(float[] _points)
     {
         double length = 0;

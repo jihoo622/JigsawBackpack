@@ -1,6 +1,6 @@
 {
   "status": "sample",
-  "note": "Route points mirror displayed rail geometry, reversed for the opposite direction, and are for drawing only. routes[].turns is the travel duration in turns and doubles as the fare distance. The map editor derives it from the displayed line length (length / PuzzleRouteTableData.pixelsPerTurn, rounded, minimum 1).",
+  "note": "points는 표시된 레일 모양을 옮긴 지도 좌표로 그리기 전용이고 반대 방향은 뒤집어 쓴다. routes[].turns는 요금 거리이며 이동은 항상 1턴이라 이동 시간에는 쓰지 않는다. Map Editor는 표시 선 길이로 계산한다 (길이 / PuzzleRouteTableData.pixelsPerTurn, 반올림, 최소 1).",
   "defaultBaseCost": 3,
   "pixelsPerTurn": 100,
   "costPerCell": 1,

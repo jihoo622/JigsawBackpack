@@ -815,7 +815,7 @@ public sealed class PuzzleMapView : PanelBase
         {
             if (tables.TryGetRoute(routeTime.fromCityId, routeTime.toCityId, out var route))
             {
-                routeTime.label.text = Presentation.PuzzleMapTime(PuzzleTimeManager.TravelTurns(route, tables.PuzzleTime));
+                routeTime.label.text = Presentation.PuzzleMapDistance(route.turns);
             }
             routeTime.label.color = Presentation.PuzzleHeading;
         }
@@ -890,7 +890,8 @@ public sealed class PuzzleMapView : PanelBase
         {
             tooltipStatRows.Add(regionRow);
         }
-        tooltipStatRows.Add(("소요 턴", Presentation.PuzzleMapTime(_eval.TravelTurns)));
+        // 이동은 노선과 무관하게 항상 1턴. 노선 값은 거리(운임 항)로만 쓴다.
+        tooltipStatRows.Add(("이동", "1턴 · " + Presentation.PuzzleMapDistance(_eval.Distance)));
 
         string fareText = $"<color=#{ColorUtility.ToHtmlStringRGB(Presentation.PuzzleTooltipRed)}>{_eval.Cost:N0}$</color>";
         tooltipStatRows.Add(("운임비", fareText));

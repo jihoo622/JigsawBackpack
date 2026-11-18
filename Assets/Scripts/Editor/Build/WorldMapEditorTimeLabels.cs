@@ -58,14 +58,7 @@ public sealed partial class WorldMapEditorWindow
     Vector2 TimeLabelSize(JObject _rail)
     {
         string text = (string)_rail["sourceId"];
-        try
-        {
-            text += " · " + Presentation.PuzzleMapTime(PuzzleTimeManager.TravelTurns(Forward(_rail).ToObject<PuzzleRouteData>(), TableManager.Instance.PuzzleTime));
-        }
-        catch (OverflowException)
-        {
-            text += " · 시간 범위 초과";
-        }
+        text += " · " + Presentation.PuzzleMapDistance(Forward(_rail).ToObject<PuzzleRouteData>().turns);
         var mapView = LoadMapPrefabView();
         int fontSize = mapView ? mapView.TimeFontSize : 18;
         var style = new GUIStyle(EditorStyles.label) { fontSize = fontSize };

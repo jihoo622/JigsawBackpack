@@ -344,7 +344,7 @@ public sealed class PuzzleActionModeData
 public sealed class PuzzleRouteData
 {
     public string fromCityId, toCityId;
-    // 이동 턴. 운임의 거리 항(턴 × costPerTurn)에도 같은 값을 쓴다.
+    // 요금 거리. 이동은 항상 1턴이라 이동 시간에는 쓰지 않는다. 운임의 거리 항(거리 × costPerTurn)에만 쓴다.
     public int turns = -1;
     // 고정 지도 좌표의 폴라인. x,y 쌍이며 그리기 전용이다. 이동 턴과 무관하다.
     public float[] points = Array.Empty<float>();

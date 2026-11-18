@@ -136,7 +136,7 @@ public sealed partial class WorldMapEditorWindow
                     Handles.color = previous;
                     Handles.EndGUI();
                 }
-                string mode = tab == TERRAIN_TAB ? "지형: 왼쪽 드래그로 칠하기 · " + (paintRegion ? "지역" : WorldMapGeography.KindName(WorldMapGeography.KINDS[paintKindIndex])) : "이동 시간은 표시 선 길이에 비례합니다";
+                string mode = tab == TERRAIN_TAB ? "지형: 왼쪽 드래그로 칠하기 · " + (paintRegion ? "지역" : WorldMapGeography.KindName(WorldMapGeography.KINDS[paintKindIndex])) : "이동 거리는 표시 선 길이에 비례합니다";
                 GUI.Label(new Rect(8f, canvasRect.height - 24f, canvasRect.width - 16f, 22f), mode, EditorStyles.helpBox);
             }
             HandleCanvasInput(control);
@@ -198,15 +198,7 @@ public sealed partial class WorldMapEditorWindow
             if (showTimes)
             {
                 string text = (string)rail["sourceId"];
-                try
-                {
-                    var row = Forward(rail).ToObject<PuzzleRouteData>();
-                    text += " · " + Presentation.PuzzleMapTime(PuzzleTimeManager.TravelTurns(row, TableManager.Instance.PuzzleTime));
-                }
-                catch (OverflowException)
-                {
-                    text += " · 시간 범위 초과";
-                }
+                text += " · " + Presentation.PuzzleMapDistance(Forward(rail).ToObject<PuzzleRouteData>().turns);
                 Vector2 point = CanvasPoint(new Vector2((float)rail["labelX"], (float)rail["labelY"]));
                 var style = CanvasLabelStyle(selected);
                 Vector2 size = style.CalcSize(new GUIContent(text));

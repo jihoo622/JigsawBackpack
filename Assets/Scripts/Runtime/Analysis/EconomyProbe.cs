@@ -191,7 +191,7 @@ public static class EconomyProbe
         };
     }
 
-    // 노선별로 출발 시장 후보 중 칸당 차익이 가장 큰 품목과, 객차 1량을 그 품목으로 채웠을 때의 시간당 이익.
+    // 노선별로 출발 시장 후보 중 칸당 차익이 가장 큰 품목과, 객차 1량을 그 품목으로 채웠을 때의 구간당(이동 1턴) 이익.
     public static List<EconomyRouteRow> BuildRouteRows()
     {
         var tables = Tables;
@@ -205,12 +205,15 @@ public static class EconomyProbe
                 foreach (var route in tables.RoutesFrom(from.id))
                 {
                     var to = tables.CityPrice(route.toCityId);
-                    long turns = PuzzleTimeManager.TravelTurns(route, tables.PuzzleTime);
+                    // 이동은 노선과 무관하게 항상 1턴. 턴당 이익의 분모는 1이 된다.
+                    long turns = 1;
                     var row = new EconomyRouteRow
                     {
                         FromCityId = from.id,
                         ToCityId = to.id,
                         TravelTurns = turns,
+                        // 운임의 거리 항 (route.turns). 이동 시간과 무관한 요금 값이다.
+                        Distance = route.turns,
                         EmptyCost = RouteCost(route, 0),
                         FullWagonCost = RouteCost(route, wagonCells),
                         BestProfitPerCell = float.NegativeInfinity
@@ -274,7 +277,9 @@ public sealed class EconomyItemRow
 public sealed class EconomyRouteRow
 {
     public string FromCityId, ToCityId, BestItemId;
+    // 이동은 항상 1턴이라 TravelTurns는 늘 1 (턴당 이익의 분모). 노선 값은 Distance(요금 거리)로 따로 둔다.
     public long TravelTurns, EmptyCost, FullWagonCost, BestBuy, BestSell;
+    public int Distance;
     public bool BestItemFixed;
     public float BestProfitPerCell, WagonProfitPerTurn;
 }

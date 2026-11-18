@@ -560,8 +560,8 @@
         },
         {
           "id": "travelConfirmation",
-          "value": "<b>{0} → {1}</b>\n\n이동  {2}\n도착  {3}턴 ({4:00}:00) · {5}\n이동 요금  {6:N0}\n이동 후 자금  {7:N0}",
-          "arguments": 8
+          "value": "<b>{0} → {1}</b>\n\n이동  1턴\n도착  {2}턴 ({3:00}:00) · {4}\n이동 요금  {5:N0}\n이동 후 자금  {6:N0}",
+          "arguments": 7
         },
         {
           "id": "travelConfirmationText2",
@@ -595,8 +595,8 @@
         },
         {
           "id": "travelQuote",
-          "value": "거리 {0} · 소요 {1} · {2} {3:N0} ({4})",
-          "arguments": 5
+          "value": "거리 {0} · 이동 1턴 · {1} {2:N0} ({3})",
+          "arguments": 4
         },
         {
           "id": "travelStatus",
@@ -987,8 +987,8 @@
         },
         {
           "id": "informationText7",
-          "value": "<color=#{0}>{1} · 소요: {2}</color>",
-          "arguments": 3
+          "value": "<color=#{0}>{1}</color>",
+          "arguments": 2
         },
         {
           "id": "informationText8",
@@ -1086,6 +1086,11 @@
         {
           "id": "rumorBadge",
           "value": "소문 ?"
+        },
+        {
+          "id": "routeDistance",
+          "value": "거리 {0}",
+          "arguments": 1
         }
       ]
     },
@@ -1963,8 +1968,8 @@
         },
         {
           "id": "previewTravel",
-          "value": "이동 {0} · 운임 {1}$",
-          "arguments": 2
+          "value": "이동 1턴 · 운임 {0}$",
+          "arguments": 1
         },
         {
           "id": "previewSynergy",
@@ -2112,7 +2117,7 @@
         },
         {
           "id": "summary",
-          "value": "{0}구간 · {1} · 도착 {2}턴({3:00}:00) {4} · 예상 운임 {5}$",
+          "value": "{0}구간 · 이동 {1} · 도착 {2}턴({3:00}:00) {4} · 예상 운임 {5}$",
           "arguments": 6
         },
         {

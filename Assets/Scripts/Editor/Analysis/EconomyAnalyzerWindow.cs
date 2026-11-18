@@ -163,7 +163,7 @@ public sealed class EconomyAnalyzerWindow : EditorWindow
             GUILayout.Label("정렬", GUILayout.Width(30));
             routeSort = EditorGUILayout.Popup(routeSort, ROUTE_SORTS, GUILayout.Width(120));
         }
-        EditorGUILayout.HelpBox("출발 시장 후보 중 칸당 차익이 가장 큰 품목 하나로 객차 1량을 채운다고 가정한다(* 고정 입고). 1량 턴당 이익 = (칸당 차익 × 객차 칸 수 − 만차 운임) ÷ 이동 턴.", MessageType.None);
+        EditorGUILayout.HelpBox("출발 시장 후보 중 칸당 차익이 가장 큰 품목 하나로 객차 1량을 채운다고 가정한다(* 고정 입고). 이동은 구간당 1턴이므로 1량 턴당 이익 = 칸당 차익 × 객차 칸 수 − 만차 운임.", MessageType.None);
         if (routeRows == null)
         {
             return;
@@ -172,12 +172,12 @@ public sealed class EconomyAnalyzerWindow : EditorWindow
         IEnumerable<EconomyRouteRow> rows = routeSort == 0 ? routeRows.OrderByDescending(_row => _row.WagonProfitPerTurn)
             : routeSort == 1 ? routeRows.OrderByDescending(_row => _row.BestProfitPerCell)
             : routeRows.OrderBy(_row => _row.FromCityId, StringComparer.Ordinal).ThenBy(_row => _row.ToCityId, StringComparer.Ordinal);
-        Row(true, ("노선", 220), ("턴", 50), ("운임 빈/만", 70), ("최적 품목", 130), ("매입→매도", 80), ("칸당", 50), ("1량/턴", 60));
+        Row(true, ("노선", 220), ("거리", 50), ("운임 빈/만", 70), ("최적 품목", 130), ("매입→매도", 80), ("칸당", 50), ("1량/턴", 60));
         foreach (var row in rows)
         {
             Row(false,
                 ($"{EconomyProbe.CityName(row.FromCityId)} → {EconomyProbe.CityName(row.ToCityId)}", 220),
-                (DayTurns(row.TravelTurns), 50),
+                (row.Distance.ToString(), 50),
                 ($"{row.EmptyCost}/{row.FullWagonCost}", 70),
                 (row.BestItemId == null ? "-" : EconomyProbe.ItemName(row.BestItemId) + (row.BestItemFixed ? " *" : ""), 130),
                 (row.BestItemId == null ? "-" : $"{row.BestBuy}→{row.BestSell}", 80),
@@ -188,10 +188,10 @@ public sealed class EconomyAnalyzerWindow : EditorWindow
 
     void ExportRoutes()
     {
-        var csv = new StringBuilder("fromCity,toCity,travelTurns,emptyCost,fullWagonCost,bestItem,bestItemFixed,buy,sell,profitPerCell,wagonProfitPerTurn\n");
+        var csv = new StringBuilder("fromCity,toCity,distance,travelTurns,emptyCost,fullWagonCost,bestItem,bestItemFixed,buy,sell,profitPerCell,wagonProfitPerTurn\n");
         foreach (var row in routeRows)
         {
-            csv.AppendLine(string.Join(",", row.FromCityId, row.ToCityId, row.TravelTurns, row.EmptyCost, row.FullWagonCost,
+            csv.AppendLine(string.Join(",", row.FromCityId, row.ToCityId, row.Distance, row.TravelTurns, row.EmptyCost, row.FullWagonCost,
                 row.BestItemId, row.BestItemFixed, row.BestBuy, row.BestSell,
                 row.BestProfitPerCell.ToString("0.###"), row.WagonProfitPerTurn.ToString("0.###")));
         }
@@ -488,12 +488,6 @@ public sealed class EconomyAnalyzerWindow : EditorWindow
                 GUILayout.Label(cell.Text, style, GUILayout.Width(cell.Width));
             }
         }
-    }
-
-    // 경과 턴을 "N일 M턴"으로 표시한다.
-    static string DayTurns(long _turns)
-    {
-        return $"{_turns / PuzzleTimeManager.TURNS_PER_DAY + 1}일 {_turns % PuzzleTimeManager.TURNS_PER_DAY + 1}턴";
     }
 
     static string Rate(int _count, int _total)
