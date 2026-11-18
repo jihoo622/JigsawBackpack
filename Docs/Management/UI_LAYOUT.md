@@ -1,12 +1,12 @@
 # 게임 UI 배치
 
-feature/improve_layout에 구현됨. 플레이 확인 전
+`feature/improve_layout` 및 `develop`·`feature/route-lens`(행선지 렌즈) 기준 구현 반영. 플레이 확인 전(※ 기차·시장 보드 좌표 일부는 초기 5×5·7×6 기준이 남아 있으며, 최신 실측은 [행선지 렌즈 구현 계획 v2](../Research/ROUTE_LENS_IMPLEMENTATION_PLAN.md) §0-1·P0 표를 따른다).
 
 UI 배치 원본은 프리팹이며 Game 씬 UI는 패널별 프리팹(`Assets/Art/UI/`) 인스턴스다. 배치는 프리팹에서 수정하며 런타임에 UI 오브젝트와 Layout Group을 동적 생성하지 않는다. CanvasScaler는 1920×1080 기준 Expand 모드를 유지한다.
 
 ## 0. 프리팹 구성과 동시 편집 규칙
 
-feature/ui-prefabs에서 단일 `GameplayLayout.prefab`(12.8MB)을 화면·부품 단위 중첩 프리팹으로 나눴다. 플레이 확인 전.
+예전 단일 `GameplayLayout.prefab`(12.8MB)을 `feature/ui-prefabs`에서 화면·부품 단위 중첩 프리팹 인스턴스로 나눴다(현재 `GameplayLayout.prefab` 약 616KB). 플레이 확인 전.
 
 | 구분 | 프리팹 | 내용 |
 |---|---|---|
@@ -98,7 +98,9 @@ UI 글자는 모두 TextMeshPro(`NotoSansKR-Medium SDF`)를 쓴다(구형 `Unity
 | └ 숙련 칩 | ProficiencyChips | 64 | 272 | 488 | 88 | 사전 배치 칩 12개(6열×2행, 각 78×42, 간격 4)에 숙련 대상 태그 수만큼(현재 11) 켠다. 태그 기본 순서 고정. 칩: 태그 14pt + 레벨 숫자 14pt 굵게(top +4), 현재 레벨 구간 진행 막대(66×6, top +28). 경험치 0은 흐린 글자. 누르면 수첩 숙련 탭 |
 | └ 시너지 정산 알림 | BoardValue/SynergySettlementNotice | 88 | 368 | 488 | 24 | 정산 순간에만 켜지는 알림. 보드 윗변 안쪽에 겹쳐 표시(칩과 겹치지 않음) |
 | └ 기차 보드 5×5 외곽 | Train Inventory/Board | 64 | 368 | 488 | 488 | 셀 97.6px, 중심 (308, 612). 시작 화차는 `startingTrain.blockedCells`의 13칸을 숨긴 12칸 |
-| └ 조작 안내 | MoveGuide | 64 | 864 | 488 | 40 | 공용 조작 단축키 안내(16pt) |
+| └ 조작 안내 | MoveGuide | 64 | 864 | 488 | 40 | 공용 조작 단축키 안내(16pt, P0 실측 `64.4, 669.6, 683.2×36`) |
+| └ 행선지 렌즈 | TrainColumn/RouteLens | 64 | 716 | 684 | 208 | `MoveGuide` 아래 E1 빈 공간. `현재`/`방문 도시`/`소문 도시` 탭, 거래 견적·다음 정산 Δ·상위 3 후보 요약 |
+| └ 배치 후보 표식 | Board/PlacementCandidates | — | — | — | — | `PuzzleInventoryUI.prefab` Board 아래 사전 배치 표식 3개(기본 비활성). 기차 보드에만 켜며 1순위 외곽선, 2·3순위 앵커 배지 |
 | **도착지 축 (역 작업 카드)** | StationColumn | 600 | 140 | 1280 | 780 | 현재 역 업무 및 목적지 패널 |
 | └ 역 제목 | StationTitle | 624 | 152 | 480 | 40 | 현재 역 이름 (24pt) |
 | └ 뒤로 가기 | StationBack | 1720 | 154 | 136 | 36 | 공용 `HeaderButton`(라벨 16pt 굵게). 제목 줄(152~192) 세로 가운데·오른쪽 여백 24. 하위 화면에서 행동 목록 복귀 (목록에선 숨김). 펼친 수첩에는 가려짐 |
