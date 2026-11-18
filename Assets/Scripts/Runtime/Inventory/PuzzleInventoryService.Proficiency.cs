@@ -178,12 +178,18 @@ public sealed partial class PuzzleInventoryService
             _price = refund;
             return true;
         }
+        return TryApplyProficiencyBonus(_item.Definition, _direction, ref _price);
+    }
+
+    // 숙련 레벨에 따른 비율만 적용한다. 구매 취소 환불은 빼고, 다른 도시 견적도 이 경로를 쓴다.
+    bool TryApplyProficiencyBonus(PuzzleItemDefinition _definition, PuzzleTradeDirection _direction, ref long _price)
+    {
         if (_price <= 0)
         {
             return true;
         }
 
-        int level = TradeProficiencyLevel(_item.Definition);
+        int level = TradeProficiencyLevel(_definition);
         if (level == 0)
         {
             return true;
