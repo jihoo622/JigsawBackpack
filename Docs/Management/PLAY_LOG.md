@@ -59,8 +59,9 @@ puzzle_action은 모델에 전달된 명시적 조작 한 건의 결과다. 의�
 | workbench_confirm | 작업대 작업 확정 시도. `actionId`, 개조면 `modeId`. 성공하면 비용이 moneyDelta, 도축·정제 입력이 removed로 나온다. 개조 입력은 완료까지 작업대에 남는다 | 비어 있음 |
 | wait_for_workbench | 작업대 작업에 턴 보내기 시도. 확정 직후 역 행동 1턴을 이 행동으로 쓴다. `actionId` | 비어 있음 |
 | enter_market | 시장 진입 시도(역 행동 1턴). 밤이면 market_closed, 기한을 넘기면 deadline으로 실패한다 | 비어 있음 |
-| enter_tavern | 술집 진입 시도(역 행동 1턴). 기한을 넘기면 deadline | 비어 있음 |
-| enter_wagon_facility | 화차 시설 진입 시도(역 행동 1턴). 기한을 넘기면 deadline | 비어 있음 |
+| listen_rumor | 술집 소문 청취 시도(청취 1회당 1턴). 들을 소문이 없으면 턴을 쓰지 않고 기록도 하지 않는다. 기한을 넘기면 deadline | 비어 있음 |
+| enter_tavern | (구버전) 술집 진입 기록. 진입이 무료화된 이후에는 나오지 않는다 | 비어 있음 |
+| enter_wagon_facility | (구버전) 화차 시설 진입 기록. 진입이 무료화된 이후에는 나오지 않는다 | 비어 있음 |
 | install_wagon_modification | 기존 화물칸 개조 설치 시도(현재 냉장). `modificationId`, 대상 `board` | 비어 있음 |
 | reorder_wagon | 기차 안 화물칸 순서 바꾸기 시도. 성공하면 `wagonOrder` | 비어 있음 |
 | travel | 목적지 이동 확정 시도 | 비어 있음 |
@@ -170,7 +171,7 @@ introduced의 ID는 적용 중인 S에 없어야 한다. moved/transformed/value
 - travel: Blocked, NotAvailable, SameCity, InvalidCity, MissingRoute, InsufficientFunds, CostOverflow, TimeOverflow.
 - placement 접두사: StaleSource, InvalidDestination, InvalidGrabbedCell, InvalidRotation, CellOutsideBoard, CellOccupied, NoSpace, MarketClosed.
 - trade 접두사: Disabled, InsufficientFunds, PriceOverflow, BalanceOverflow, MarketClosed. 예: trade.MarketClosed.
-- 증차/상환: run_finished, insufficient_funds, max_wagons, wrong_city, overdue, unknown_wagon_product, wagon_modification_failed. 시간(rest·wait_for_daylight·advance_time·wait_for_workbench): time_blocked, invalid_duration, time_overflow, unavailable. 역 시설 진입(enter_market·enter_tavern·enter_wagon_facility): market_closed, deadline 및 시간 실패 코드.
+- 증차/상환: run_finished, insufficient_funds, max_wagons, locked(평판 미달 상품), deadline(구매 1턴 기한 초과), wrong_city, overdue, unknown_wagon_product, wagon_modification_failed. 시간(rest·wait_for_daylight·advance_time·wait_for_workbench): time_blocked, invalid_duration, time_overflow, unavailable. 역 시설 진입(enter_market·enter_tavern·enter_wagon_facility): market_closed, deadline 및 시간 실패 코드.
 - workbench_confirm: blocked, unavailable, in_progress, awaiting_pickup, empty, baby, invalid_item, no_conversion, no_space, insufficient_funds, time_overflow, no_mode, already_modified, invalid_result.
 - install_wagon_modification: run_finished, unavailable, already_installed, insufficient_funds, install_failed. reorder_wagon: run_finished, invalid_index.
 - unknown 값/버전은 성공으로 치환하지 않는다. 원문을 보존하고 해석 미지원으로 표시한다.
