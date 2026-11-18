@@ -3,6 +3,8 @@
 - [게임 기획서](<게임 기획서.md>): 게임 목표·플레이 규칙·지역·경제·화면과 설계 미정 사항.
 - [세계관 기획서](<세계관 기획서.md>): 세계·세력·인물·이야기 전달 방식. 작업자용 시스템 안내는 [세계관 작업 안내](Management/WORLD_BRIEF.md).
 - [관리 문서](Management/README.md): 현재 구현 상태·기획 대비 차이·개발 과제·기술 및 운영 계약.
+- [그리드 인벤토리 거래 UI 개편 조사 계획](Research/GRID_INVENTORY_LAYOUT_RESEARCH_PLAN.md): 유사 게임 조사와 레이아웃 안 도출. `turnBase-전환` 브랜치 기준 조사라 수치는 develop과 다르다.
+- [행선지 렌즈 구현 계획](Research/ROUTE_LENS_IMPLEMENTATION_PLAN.md): 분석 문서와 develop 실제 구현 비교표, L0–L3·휴식/대기 정리 단계 계획.
 
 게임 기획서의 원본은 [게임 기획서](<게임 기획서.md>)다. 노션 동기화는 중단했다.
 
