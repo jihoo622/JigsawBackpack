@@ -92,6 +92,7 @@
   <b>거래 컨텍스트 패널</b>(견적·잔액 전후·시너지 ±·실패 사유)로 전환되는 구조. 검색·필터·자동 정렬·Junk 일괄 판매·상태 문구 강화는
   3안 공통으로 선행 적용한다(§3). 감사서가 지적한 핵심 격차 — <i>"잡는 순간 가격 상세가 사라진다", "두 보드가 658px 떨어져 있다"</i>(H) — 를
   가장 적은 구현 비용으로 닫는다.
+2026-11-18 추가 — <b>D안(윈도우 재구성안)</b>: 객차 전부를 드래그 윈도우로 띄우는 안(§4 참조). 다중 객차 동시 비교의 정면 답이지만 구현 비용이 4안 중 최대라, 권고는 B안 → D-lite 단계 이행.
 </div>
 
 <h2>1. 문제 정의 — 현 UI의 5가지 격차 (감사서 R0 요약)</h2>
@@ -128,13 +129,15 @@
   </ul>
 </div>
 
-<h2>4. 레이아웃 3안 예상 와이어프레임</h2>
-<p class="small">각 안은 같은 시나리오(시장의 2×3 화물을 기차로 구매·배치)의 <b>평상시 / 드래그 중</b> 두 상태를 그린다. 아래 탭으로 안을 전환하고, 각 안 안의 버튼으로 상태를 전환한다.</p>
+<h2>4. 레이아웃 4안 예상 와이어프레임</h2>
+<p class="small">각 안은 같은 시나리오(시장의 2×3 화물을 기차로 구매·배치)의 <b>평상시 / 드래그 중</b> 두 상태를 그린다. 아래 탭으로 안을 전환하고, 각 안 안의 버튼으로 상태를 전환한다. A·B·C는 조사 계획 §8의 3안이고, <b>D안은 2026-11-18 사용자 추가 요청</b>(객차 인벤토리 전체 윈도우화)으로 확장했다.</p>
 
 <div class="tabs" id="planTabs">
   <div class="tab" data-plan="A"><b>A안 · 보수안</b>좌우 구조 유지 + 정보 계층·드래그 피드백만 개선</div>
   <div class="tab active" data-plan="B"><b>B안 · 중간안 ★권고</b>거래 중에만 두 보드를 근접·대칭 배치, 평상시는 역 화면 유지</div>
-  <div class="tab" data-plan="C"><b>C안 · 재구성안</b>구매·배치·가격·목적지 판단을 하나의 거래 작업 공간으로</div>
+  <div class="tab" data-plan="C"><b>C안 · 재구성안</b>구매·배치·가격·목적지 판단을 하나의 거래 작업 공간으로<div class="tab" data-plan="D"><b>D안 · 윈도우 재구성안</b>시장·객차 전부를 드래그 가능한 윈도우로 — Tarkov류 다중 인벤토리</div>
+</div>
+<div class="tab" data-plan="D"><b>D안 · 윈도우 재구성안</b>시장·객차 전부를 드래그 가능한 윈도우로 — Tarkov류 다중 인벤토리</div>
 </div>
 
 <div class="card" id="planDetail">
@@ -156,16 +159,25 @@
 
 <h3>평가 점수 비교 (가중합 100)</h3>
 <table>
-  <tr><th>기준</th><th>가중치</th><th>A 보수안</th><th>B 중간안 ★</th><th>C 재구성안</th></tr>
-  <tr><td>핵심 루프 적합성</td><td>25</td><td>22</td><td>23</td><td>24</td></tr>
-  <tr><td>두 그리드 이동 명료성</td><td>20</td><td>13</td><td>17</td><td>18</td></tr>
-  <tr><td>가격 판단력</td><td>20</td><td>15</td><td>17</td><td>19</td></tr>
-  <tr><td>시너지 판단력</td><td>15</td><td>12</td><td>13</td><td>14</td></tr>
-  <tr><td>정보 과부하 억제</td><td>10</td><td>9</td><td>8</td><td>6</td></tr>
-  <tr><td>현 프로젝트 구현 적합성</td><td>10</td><td>9</td><td>7</td><td>3</td></tr>
-  <tr><th>합계</th><th>100</th><th>80</th><th><b style="color:var(--accent)">85</b></th><th>84</th></tr>
+  <tr><th>기준</th><th>가중치</th><th>A 보수안</th><th>B 중간안 ★</th><th>C 재구성안</th><th>D 윈도우안</th></tr>
+  <tr><td>핵심 루프 적합성</td><td>25</td><td>22</td><td>23</td><td>24</td><td>23</td></tr>
+  <tr><td>두 그리드 이동 명료성</td><td>20</td><td>13</td><td>17</td><td>18</td><td>18</td></tr>
+  <tr><td>가격 판단력</td><td>20</td><td>15</td><td>17</td><td>19</td><td>16</td></tr>
+  <tr><td>시너지 판단력</td><td>15</td><td>12</td><td>13</td><td>14</td><td>12</td></tr>
+  <tr><td>정보 과부하 억제</td><td>10</td><td>9</td><td>8</td><td>6</td><td>5</td></tr>
+  <tr><td>현 프로젝트 구현 적합성</td><td>10</td><td>9</td><td>7</td><td>3</td><td>2</td></tr>
+  <tr><th>합계</th><th>100</th><th>80</th><th><b style="color:var(--accent)">85</b></th><th>84</th><th>76</th></tr>
 </table>
 <p class="small">점수는 결론을 자동 정하는 장치가 아니라 장점을 같은 언어로 비교하기 위한 것(조사 계획 §6). C안은 가격·시너지 판독에서 최고이나 정보 밀도(과부하 6)와 프리팹·입력 전면 재구성 비용(구현 3)이 감점 — 후속(심층 15 검증 후) 재검토 가능.</p>
+<div class="card">
+  <b>D안(윈도우 재구성안)에 대하여</b>
+  <ul>
+    <li><b>참조 교정</b>: Escape from Tarkov의 인벤토리는 사실 <b>고정 분할 UI</b>다(좌 장비·우 컨테이너 내용 — 레지스터 G07). 자유 윈도우 배치의 계보는 <b>Project Zomboid(이동 가능 패널·컨테이너별 무게경감)</b>, <b>Barotrauma(속성 윈도우)</b>, <b>DayZ(Vicinity 주변 패널)</b>다 — 인디 조사 문서 그룹 2·5와 레지스터 G09에 기록.</li>
+    <li><b>정면 이득</b>: 감사서 §7 질문 5("다른 화차 동시 노출의 효익")의 가장 직접적인 답. 객차 전체를 동시에 펼쳐 재배치·분산 적재를 비교할 수 있고, 배치 자유도는 사용자 손에 넘어간다.</li>
+    <li><b>비용(이 코드 기준)</b>: ① 현재 Presenter는 <b>단일 trainView 가정</b> — 다중 보드 View·입력 캡처 대상 재설계(감사서 §6 "여러 화차 가시화" 항목). ② UI 런타임 동적 생성 금지 아래 윈도우 관리자(생성·포커스·z-order·위치 저장)를 사전 배치 풀로 만들어야 함. ③ 윈도우 겹침·가림 관리가 플레이어 부담으로 이동(과부하 5). ④ "열린 윈도우 = 시설 진입 상태" 정의 필요(시장 밤 규칙·MarketEntered 수명).</li>
+    <li><b>절충 경로(D-lite)</b>: B안을 먼저 구현하고 → ① 재배치 시 "다른 객차 비교 윈도우" 1장을 임시로 띄우는 것에서 시작해 → ② 작업대·수첩 윈도우화 → ③ 전면 윈도우화로 단계 이행. B안의 "거래 중 근접 배치"는 게임이 대신 해 주는 자동 윈도우 배치이므로 D로 가는 자연스러운 중간점이다.</li>
+  </ul>
+</div>
 
 <h2>5. 권고안(B안) 상태별 계약 — 감사서 R4/R5 인수 조건 대응</h2>
 <table>
@@ -185,14 +197,15 @@
   <tr><td>1</td><td>공통 패키지(자동 정렬·검색·필터·Junk·사유 문구)</td><td><code>PuzzleInventoryView/Presenter</code> · <code>Presentation.cs</code> · 기초데이터 문구 · GameplayLayout 버튼/칩 사전 배치</td><td>런타임 생성 금지 — 사전 배치 풀 on/off만</td></tr>
   <tr><td>2</td><td>거래 컨텍스트 패널</td><td>GameplayLayout의 시장 정보 열 자리에 패널 스왑 · <code>PuzzleInventoryService</code> 미리보기 DTO · <code>PuzzleItemTooltipView</code>와 역할 분리</td><td>도시 규칙 열은 평상시 유지, 드래그 중에만 스왑</td></tr>
   <tr><td>3</td><td>거래 중 보드 근접 배치</td><td><code>GameplayLayout.prefab</code> 기차 보드 인스턴스 override · TrainBar/Presenter의 단일 trainView 가정 검토</td><td>애니메이션은 최소(즉시 스왑 가능). 지도·수첩 열림 중에는 미적용</td></tr>
-  <tr><td>4</td><td>회귀 검증</td><td>Esc/우클릭·회전 우선순위 · <span class="kbd">Ctrl</span> 빠른 이동 · 하단 화차 드롭 · 지도 상태 제한 · 툴팁 Z-order 270</td><td>시나리오 5개(구매·재배치·판매·여정·오류 복구)로 기록</td></tr>
+  <tr><td>3′</td><td>(D안 선택 시) 윈도우 관리자·다중 보드 View·입력 캡처 재설계</td><td>신설 Window Manager · Presenter 다중 trainView 해제 · Input 포커스 체계 · Z-order 계약 확장</td><td>C안보다 큰 재설계 — R5 별도 검토 후 D-lite(①객차 비교 윈도우 ②작업대·수첩 ③전면) 단계 이행 권장</td></tr>
+<tr><td>4</td><td>회귀 검증</td><td>Esc/우클릭·회전 우선순위 · <span class="kbd">Ctrl</span> 빠른 이동 · 하단 화차 드롭 · 지도 상태 제한 · 툴팁 Z-order 270</td><td>시나리오 5개(구매·재배치·판매·여정·오류 복구)로 기록</td></tr>
 </table>
 <p class="small">보존 제약(감사서 §6): 런타임 UI 동적 생성 금지 · 공용 PuzzleInventoryUI 원본 수정은 단일 담당자 · CanvasScaler 1920×1080 Expand · 시너지·가격·소문 공개 규칙 변경 금지.</p>
 
 <h2>7. G1 결정 게이트 — 사용자 확인 항목</h2>
 <div class="card">
   <ul>
-    <li>선택 안 확정: <b>B안</b>(기본 제안) / A안 / C안 / 보류</li>
+    <li>선택 안 확정: <b>B안</b>(기본 제안) / A안 / C안 / <b>D안(윈도우화 — D-lite 단계 권장)</b> / 보류</li>
     <li>거래 컨텍스트 패널의 우선 정보: <b>도시 규칙</b> vs <b>선택 화물</b>(감사서 질문 1) — B안은 "드래그 중에만 화물 우선"으로 절충</li>
     <li>드롭 전 비교 기준 수치: 즉시 판매액 / 다음 정산 가치 / 선택 목적지 순익 중 무엇을 보여줄 것인가(질문 2) — B안은 현재 견적만 표시하고 목적지 순익은 목적지 선택 상태로 한정</li>
     <li>알려진 도시 정보 수준·유효 기간(질문 3): 소문의 refreshTurns와 동일 수명으로 갈지</li>
@@ -388,6 +401,62 @@ const PLAN = {
       }
       ann(host, 80, 345, '① 평상시·거래 중이 같은 공간 — 역 행동은 좌 레일로 전환');
       ann(host, 740, 70, '② 3탭 컨텍스트 패널 — 정보 밀도 최고, 과부하 관리 필요');
+    }
+  },
+  D: {
+    name:'D안 · 윈도우 재구성안',
+    bullets:`<ul>
+      <li>시장·객차·작업대·수첩을 <b>드래그 가능한 독립 윈도우</b>로 띄운다. 하단 바는 윈도우 런처가 된다.</li>
+      <li>객차를 전부 동시에 열어 <b>재배치·분산 적재를 한 화면에서 비교</b> — 감사서 질문 5의 정면 답.</li>
+      <li>윈도우 = 제목표시줄(드래그·닫기) + 고정 셀 97.6. 클릭한 윈도우가 최상위로 올라온다.</li>
+      <li>계보 교정: Tarkov는 고정 분할 UI. 자유 윈도우는 Project Zomboid·Barotrauma·DayZ(Vicinity) 계보.</li>
+      <li>비용: 단일 trainView 재설계·다중 보드 입력 캡처·윈도우 관리자 신설 — 4안 중 최대. D-lite 단계 이행 권장.</li></ul>`,
+    score: [['핵심 루프',23,25],['이동',18,20],['가격',16,20],['시너지',12,15],['과부하',5,10],['구현',2,10]],
+    draw(host, state){
+      function win(x, y, w, h, title, focus){
+        const d = el(focus ? 'b-ctx' : 'b-info', x, y, w, h, '');
+        d.style.cssText += 'align-items:flex-start;padding:0;';
+        const t = document.createElement('div');
+        t.style.cssText = 'width:100%;height:18px;background:#2c3742;color:#dfe7f2;font-size:10px;font-weight:600;display:flex;align-items:center;justify-content:space-between;padding:0 6px;box-sizing:border-box;border-bottom:1px solid #454c5c;';
+        t.innerHTML = '<span>' + title + '</span><span style="color:#9aa3b2">– □ ×</span>';
+        d.appendChild(t);
+        host.appendChild(d);
+        return d;
+      }
+      common(host, state==='drag' ? '상태 줄 — <b>구매 · 곡물 50$ · 잔액 1,240→1,190$</b> · 드롭 대상: 기차 1호' : '상태 줄 — 거래 견적/사유 한 줄 · 열린 윈도우: 시장 · 기차 1호 · 기차 2호');
+      const launcher = el('b-bar', 20, 70, 76, 390, '');
+      launcher.style.cssText += 'align-items:flex-start;padding:6px 2px;';
+      launcher.innerHTML = '<div style="width:100%;font-size:9.5px;color:#e6b422;text-align:center;border-bottom:1px solid #454c5c;padding-bottom:2px">윈도우<br>런처</div><div style="width:100%;text-align:center;font-size:9.5px;line-height:2.4;color:#cdd6e4;padding-top:4px">시장<br>기차 1호<br>기차 2호<br>기차 3호<br>작업대<br>수첩<br>지도</div>';
+      host.appendChild(launcher);
+      // 기차 2호 (뒤 — 겹침 상태)
+      const w2 = win(700, 250, 272, 290, '기차 2호 · 가치 870$', false);
+      const b2 = el('grid b-train', 714, 286, 244, 244, ''); b2.style.backgroundSize = '48.8px 48.8px'; host.appendChild(b2);
+      // 시장 윈도우
+      win(116, 90, 380, 352, '시장 — 라센턴 · 검색 [          ] · 밤이면 거래 불가', false);
+      const mb = el('grid b-market', 130, 148, 342, 293, ''); mb.style.backgroundSize = '48.8px 48.8px'; host.appendChild(mb);
+      marketItem(host, 130, 148);
+      // 기차 1호 (앞 — 포커스)
+      const w1 = win(520, 90, 272, 330, '기차 1호 · 가치 830$ · 자동 정렬 ▾', true);
+      const b1 = el('grid b-train', 534, 146, 244, 244, ''); b1.style.backgroundSize = '48.8px 48.8px'; host.appendChild(b1);
+      items(host, [[534-1, 146-1, 97.6, 97.6, '소'],[534+2*48.8-1, 146+1*48.8-1, 97.6, 146.4, '목재 2×3']]);
+      if (state==='drag'){
+        const src = document.createElement('div');
+        src.className='src'; src.style.left='131px'; src.style.top='149px'; src.style.width='97.6px'; src.style.height='146.4px'; src.textContent='출발';
+        host.appendChild(src);
+        const g = document.createElement('div'); g.className='ghost';
+        g.style.left=(534+2*48.8-1)+'px'; g.style.top=(146+48.8-1)+'px'; g.style.width='97.6px'; g.style.height='146.4px'; g.textContent='고스트 · 유효';
+        host.appendChild(g);
+        chip(host, 534+4*48.8+2, 146+48.8+2, '+20%', false);
+        chip(host, 534+1*48.8+2, 146+48.8+2, '-10%', true);
+        ann(host, 140, 96, '① 객차 전부를 윈도우로 — 다른 객차(2호)가 열려 있어<br>재배치·분산 적재를 동시 비교(감사서 질문 5의 정면 답)');
+        ann(host, 140, 452, '② 클릭한 윈도우가 최상위 — 1호가 2호 위로 포커스');
+        ann(host, 140, 500, '③ 윈도우 관리자·다중 View·입력 캡처 재설계 — 4안 중 최대 비용. D-lite 단계 이행 권장');
+      } else {
+        ann(host, 140, 96, '① 시장·객차를 독립 윈도우로 개방 — 하단 런처로 열고 닫는다');
+        ann(host, 140, 452, '② 윈도우 겹침·가림 관리가 플레이어 부담으로 이동(과부하 감점)');
+      }
+      // 하단 런처 바(기존 하단 바 위에 덮어 그림)
+      host.appendChild(el('b-bar', 0, 468, 960, 36, '하단 런처 — <b>[기관차 · 1 · 2 · 3 · + 객차 윈도우]</b> · 시장 · 작업대 · 수첩 · 지도', 'white-space:nowrap'));
     }
   }
 };
