@@ -118,7 +118,7 @@
 | L1 | 가리킨 자리의 다음 정산 Δ와 영향 이웃 | `PuzzleInventory`(사본 삽입·Δ), 서비스 partial | 드롭 후 HUD 정산 예상치 변화 = 표시 Δ |
 | L2 | 현재 화차·현재 회전 상위 3 후보(1순위 외곽선, 2·3순위 앵커 배지), 누름·회전·화차 전환 때만 계산, 4ms 넘으면 끔 | 서비스, `PuzzleInventoryView` 표식 풀, `PuzzleInventoryUI.prefab` | 후보 Δ = L1 단건 값, 구역·구멍 칸 제외 |
 | L3 | 직결 이웃 도시 렌즈: 방문=등급·공식 견적, 소문=문장·등급·경과 시간, 미확인=운임·턴만. 운임은 운임 칸 기준 | 서비스, 렌즈 View, `Presentation` | §7 공개 규칙 준수, 탭 전환이 후보 순위를 바꾸지 않음 |
-| S1 | 휴식 화면 "아침까지" 선택지, 끊긴 도시 대기 버튼 정리 | `PuzzleStationActions*`, `PuzzleCityView`, Presenter 대기 경로 | 밤에 휴식 화면 한 곳에서 대기 가능 |
+| S1 | ~~휴식 화면 "아침까지" 선택지~~ — P0에서 develop에 이미 있음을 확인, 작업 없음 | — | — |
 | DOC | 개편안 HTML·목업을 develop 수치로 갱신, `UI_LAYOUT.md`의 낡은 헤더·용량 정정 | `Docs/` | 비교표 항목이 문서에 남지 않음 |
 
 ### stash 코드 재사용
@@ -133,6 +133,18 @@
 | `PuzzleRouteLensView.cs` | 재사용 |
 | `PuzzleInventoryView` 표식·렌즈 전환, `Presentation` 문구, 일시정지 토글 | 재작성(develop 파일과 충돌, 문구 다수 변경) |
 | S1 코드 | 폐기 후 재작성(develop 휴식 구조가 다름) |
+
+### P0 실측 결과(2026-11-19, 에디터 `PrefabUtility.LoadPrefabContents`로 측정, 1920×1080 좌상단 기준)
+
+| 요소 | x | y | 폭 | 높이 | 비고 |
+|---|---:|---:|---:|---:|---|
+| 기차 열(TrainColumn) | 40 | 140 | 732 | 792 | 아래 끝 y=932 |
+| 기차 보드(Board) | 166.9 | 316 | 478.2 | 341.6 | 아래 끝 y≈657.6 |
+| 이동 안내(MoveGuide) | 64.4 | 669.6 | 683.2 | 36 | 아래 끝 y≈705.6 |
+| 화물 상세(ItemDetails) | 56 | 892 | 700 | 164 | **비활성**, 열 밖으로 넘침 |
+| **렌즈 영역(E1)** | **64** | **716** | **684** | **208** | 기차 열 안, MoveGuide 아래 빈 공간 |
+
+- "아침까지 대기" 버튼은 끊기지 않았다. `City Navigation.waitButton`이 `StationBody/RestContent/WaitForDaylight`(휴식 화면 안)를 가리킨다. **develop에서 휴식·대기 통합(S1)은 이미 되어 있으므로 S1은 작업 없음.**
 
 ## 4. 정보 공개 규칙 (구현 체크리스트)
 
