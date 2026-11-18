@@ -1,0 +1,431 @@
+<div id="iu-prototype" aria-label="기차 인벤토리 무역 게임 통합 UI 프로토타입">
+  <style>
+    #iu-prototype {
+      color-scheme: light dark;
+      --iu-bg: light-dark(#d7d0c1, #0f1216);
+      --iu-shell: light-dark(#f2eee5, #171b21);
+      --iu-panel: light-dark(#fffaf0, #20252d);
+      --iu-panel-2: light-dark(#e9e1d2, #292f39);
+      --iu-ink: light-dark(#2b2924, #e6e0d4);
+      --iu-muted: light-dark(#6b655b, #a9afba);
+      --iu-line: light-dark(#b8aa91, #424a57);
+      --iu-gold: light-dark(#8a6412, #e3b341);
+      --iu-good: light-dark(#24703d, #79c98e);
+      --iu-bad: light-dark(#9b3b37, #e68178);
+      --iu-blue: light-dark(#315d8a, #79aee6);
+      color: var(--iu-ink);
+      font-family: "Noto Sans KR", system-ui, sans-serif;
+      width: 100%;
+    }
+    #iu-prototype * { box-sizing: border-box; }
+    #iu-prototype button, #iu-prototype input { font: inherit; }
+    #iu-prototype button { color: inherit; }
+    #iu-prototype .iu-shell { background: var(--iu-shell); border: 1px solid var(--iu-line); border-radius: 12px; overflow: hidden; min-height: 650px; }
+    #iu-prototype .iu-hud { display: grid; grid-template-columns: 1.4fr repeat(5, minmax(86px, auto)); gap: 1px; background: var(--iu-line); }
+    #iu-prototype .iu-hud > * { background: var(--iu-panel); padding: 9px 11px; min-width: 0; }
+    #iu-prototype .iu-hud strong, #iu-prototype .iu-hud span { display: block; }
+    #iu-prototype .iu-hud span { color: var(--iu-muted); font-size: 11px; }
+    #iu-prototype .iu-hud strong { font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    #iu-prototype .iu-hud button { border: 0; background: transparent; width: 100%; text-align: left; padding: 0; }
+    #iu-prototype .iu-status { min-height: 35px; padding: 8px 12px; background: var(--iu-panel-2); border-block: 1px solid var(--iu-line); color: var(--iu-muted); font-size: 12px; }
+    #iu-prototype .iu-status b { color: var(--iu-ink); font-weight: 500; }
+    #iu-prototype .iu-workspace { display: grid; grid-template-columns: minmax(245px, 29%) 1fr; min-height: 520px; }
+    #iu-prototype .iu-train { padding: 12px; border-right: 1px solid var(--iu-line); background: color-mix(in srgb, var(--iu-panel) 76%, transparent); }
+    #iu-prototype .iu-panel-head, #iu-prototype .iu-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    #iu-prototype .iu-panel-head { margin-bottom: 9px; }
+    #iu-prototype h2, #iu-prototype h3, #iu-prototype p { margin: 0; }
+    #iu-prototype h2 { font-size: 15px; font-weight: 500; }
+    #iu-prototype h3 { font-size: 13px; font-weight: 500; }
+    #iu-prototype .iu-sub { color: var(--iu-muted); font-size: 11px; }
+    #iu-prototype .iu-action, #iu-prototype .iu-chip, #iu-prototype .iu-tab, #iu-prototype .iu-bottom button { border: 1px solid var(--iu-line); background: var(--iu-panel-2); border-radius: 6px; padding: 6px 9px; font-size: 12px; }
+    #iu-prototype .iu-action:hover, #iu-prototype .iu-chip:hover, #iu-prototype .iu-tab:hover, #iu-prototype .iu-bottom button:hover { border-color: var(--iu-gold); }
+    #iu-prototype .iu-action.primary, #iu-prototype .iu-tab.active, #iu-prototype .iu-bottom button.active { background: var(--iu-gold); color: var(--iu-shell); border-color: var(--iu-gold); }
+    #iu-prototype .iu-action.danger { color: var(--iu-bad); }
+    #iu-prototype .iu-tabs { display: flex; flex-wrap: wrap; gap: 5px; }
+    #iu-prototype .iu-grid { position: relative; display: grid; gap: 2px; padding: 2px; background-color: color-mix(in srgb, var(--iu-blue) 13%, var(--iu-panel)); background-image: linear-gradient(var(--iu-line) 1px, transparent 1px), linear-gradient(90deg, var(--iu-line) 1px, transparent 1px); }
+    #iu-prototype .iu-grid.train-grid { grid-template: repeat(5, 1fr) / repeat(5, 1fr); aspect-ratio: 1; background-size: 20% 20%; }
+    #iu-prototype .iu-grid.market-grid { grid-template: repeat(6, 1fr) / repeat(7, 1fr); aspect-ratio: 7 / 6; background-color: color-mix(in srgb, var(--iu-gold) 10%, var(--iu-panel)); background-size: calc(100% / 7) calc(100% / 6); }
+    #iu-prototype .iu-grid.work-grid { grid-template: repeat(5, 1fr) / repeat(5, 1fr); aspect-ratio: 1; background-color: color-mix(in srgb, var(--iu-good) 9%, var(--iu-panel)); background-size: 20% 20%; }
+    #iu-prototype .iu-item { z-index: 2; border: 1px solid color-mix(in srgb, var(--iu-blue) 70%, var(--iu-line)); background: color-mix(in srgb, var(--iu-blue) 28%, var(--iu-panel)); border-radius: 5px; padding: 4px; font-size: 10px; text-align: left; overflow: hidden; }
+    #iu-prototype .iu-item.good { border-color: color-mix(in srgb, var(--iu-good) 70%, var(--iu-line)); background: color-mix(in srgb, var(--iu-good) 24%, var(--iu-panel)); }
+    #iu-prototype .iu-item.gold { border-color: color-mix(in srgb, var(--iu-gold) 70%, var(--iu-line)); background: color-mix(in srgb, var(--iu-gold) 22%, var(--iu-panel)); }
+    #iu-prototype .iu-candidate { z-index: 4; border: 2px dashed var(--iu-gold); background: color-mix(in srgb, var(--iu-gold) 14%, transparent); border-radius: 5px; pointer-events: none; display: flex; justify-content: flex-end; align-items: flex-start; }
+    #iu-prototype .iu-candidate.primary { border-style: solid; }
+    #iu-prototype .iu-candidate span { background: var(--iu-shell); color: var(--iu-gold); padding: 1px 4px; font-size: 9px; border-radius: 8px; transform: translate(4px,-7px); }
+    #iu-prototype .iu-candidate[hidden] { display: none; }
+    #iu-prototype .iu-train-meta { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 9px; }
+    #iu-prototype .iu-metric { padding: 7px; background: var(--iu-panel-2); border-radius: 6px; }
+    #iu-prototype .iu-metric span, #iu-prototype .iu-metric b { display: block; }
+    #iu-prototype .iu-metric span { color: var(--iu-muted); font-size: 10px; }
+    #iu-prototype .iu-metric b { margin-top: 2px; font-size: 12px; font-weight: 500; }
+    #iu-prototype .iu-main { position: relative; min-width: 0; padding: 12px; background: var(--iu-bg); }
+    #iu-prototype .iu-screen[hidden], #iu-prototype .iu-notebook-panel[hidden] { display: none; }
+    #iu-prototype .iu-screen-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
+    #iu-prototype .iu-screen-head p { color: var(--iu-muted); font-size: 11px; margin-top: 3px; }
+    #iu-prototype .iu-station-grid { display: grid; grid-template-columns: repeat(4, minmax(110px, 1fr)); gap: 8px; }
+    #iu-prototype .iu-station-card { border: 1px solid var(--iu-line); background: var(--iu-panel); border-radius: 8px; padding: 10px; text-align: left; min-height: 84px; }
+    #iu-prototype .iu-station-card b, #iu-prototype .iu-station-card span { display: block; }
+    #iu-prototype .iu-station-card b { font-size: 13px; font-weight: 500; }
+    #iu-prototype .iu-station-card span { color: var(--iu-muted); font-size: 10px; margin-top: 4px; }
+    #iu-prototype .iu-summary { margin-top: 10px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    #iu-prototype .iu-section { background: var(--iu-panel); border: 1px solid var(--iu-line); border-radius: 8px; padding: 10px; }
+    #iu-prototype .iu-list { display: grid; gap: 6px; margin-top: 7px; }
+    #iu-prototype .iu-list-row { display: grid; grid-template-columns: minmax(90px, 1fr) auto; gap: 8px; align-items: center; padding: 7px; background: var(--iu-panel-2); border-radius: 6px; font-size: 11px; }
+    #iu-prototype .iu-market-layout { display: grid; grid-template-columns: minmax(280px, 1.25fr) minmax(210px, .75fr); gap: 10px; }
+    #iu-prototype .iu-market-tools { display: grid; grid-template-columns: 1fr auto auto; gap: 6px; margin-bottom: 8px; }
+    #iu-prototype input { width: 100%; border: 1px solid var(--iu-line); background: var(--iu-panel); color: var(--iu-ink); border-radius: 6px; padding: 7px 9px; }
+    #iu-prototype .iu-lens { background: var(--iu-panel); border: 1px solid var(--iu-line); border-radius: 8px; padding: 10px; }
+    #iu-prototype .iu-lens-output { margin-top: 9px; display: grid; gap: 8px; }
+    #iu-prototype .iu-callout { background: var(--iu-panel-2); border-left: 3px solid var(--iu-gold); padding: 8px; font-size: 11px; line-height: 1.5; }
+    #iu-prototype .iu-map-layout { display: grid; grid-template-columns: minmax(330px, 1.3fr) minmax(220px, .7fr); gap: 10px; }
+    #iu-prototype .iu-map { min-height: 350px; position: relative; overflow: hidden; border: 1px solid var(--iu-line); border-radius: 8px; background: radial-gradient(circle at 25% 28%, color-mix(in srgb, var(--iu-good) 18%, transparent), transparent 34%), radial-gradient(circle at 75% 72%, color-mix(in srgb, var(--iu-blue) 20%, transparent), transparent 38%), var(--iu-panel); }
+    #iu-prototype .iu-route { position: absolute; height: 2px; background: var(--iu-line); transform-origin: left center; }
+    #iu-prototype .iu-route.active { background: var(--iu-gold); height: 3px; }
+    #iu-prototype .iu-node { position: absolute; transform: translate(-50%,-50%); border: 2px solid var(--iu-blue); background: var(--iu-shell); border-radius: 50%; width: 20px; height: 20px; padding: 0; }
+    #iu-prototype .iu-node.current { border-color: var(--iu-gold); box-shadow: 0 0 0 5px color-mix(in srgb, var(--iu-gold) 16%, transparent); }
+    #iu-prototype .iu-node.selected { background: var(--iu-gold); border-color: var(--iu-gold); }
+    #iu-prototype .iu-node-label { position: absolute; transform: translate(-50%, 12px); font-size: 10px; white-space: nowrap; color: var(--iu-ink); }
+    #iu-prototype .iu-map-search { position: absolute; top: 9px; left: 9px; right: 9px; z-index: 4; display: grid; grid-template-columns: 1fr repeat(3, auto); gap: 6px; }
+    #iu-prototype .iu-map-side { display: grid; gap: 8px; align-content: start; }
+    #iu-prototype .iu-route-stop { display: flex; align-items: center; gap: 7px; font-size: 11px; padding: 5px 0; border-bottom: 1px solid var(--iu-line); }
+    #iu-prototype .iu-notebook { background: var(--iu-panel); border: 1px solid var(--iu-line); border-radius: 8px; overflow: hidden; }
+    #iu-prototype .iu-notebook-head { padding: 10px; border-bottom: 1px solid var(--iu-line); display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+    #iu-prototype .iu-notebook-body { padding: 10px; min-height: 350px; }
+    #iu-prototype .iu-notebook-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+    #iu-prototype .iu-progress { height: 7px; background: var(--iu-panel-2); border-radius: 5px; overflow: hidden; margin-top: 5px; }
+    #iu-prototype .iu-progress span { display: block; height: 100%; background: var(--iu-gold); }
+    #iu-prototype .iu-synergy { display: grid; grid-template-columns: 80px repeat(4, 1fr); gap: 2px; }
+    #iu-prototype .iu-synergy > div { min-height: 38px; display: grid; place-items: center; background: var(--iu-panel-2); font-size: 10px; text-align: center; padding: 3px; }
+    #iu-prototype .iu-synergy .good { color: var(--iu-good); }
+    #iu-prototype .iu-synergy .bad { color: var(--iu-bad); }
+    #iu-prototype .iu-work-layout { display: grid; grid-template-columns: minmax(230px, .9fr) minmax(240px, 1.1fr); gap: 10px; }
+    #iu-prototype .iu-work-grid-wrap { max-width: 330px; }
+    #iu-prototype .iu-work-detail { display: grid; gap: 8px; align-content: start; }
+    #iu-prototype .iu-shop { display: grid; grid-template-columns: minmax(300px, 1.2fr) minmax(220px, .8fr); gap: 10px; }
+    #iu-prototype .iu-products { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+    #iu-prototype .iu-product { border: 1px solid var(--iu-line); background: var(--iu-panel); border-radius: 8px; padding: 10px; text-align: left; min-height: 105px; }
+    #iu-prototype .iu-product.active { border-color: var(--iu-gold); }
+    #iu-prototype .iu-product b, #iu-prototype .iu-product span { display: block; }
+    #iu-prototype .iu-product span { color: var(--iu-muted); font-size: 10px; margin-top: 4px; }
+    #iu-prototype .iu-bottom { display: grid; grid-template-columns: auto 1fr auto auto; gap: 8px; align-items: center; padding: 8px 12px; border-top: 1px solid var(--iu-line); background: var(--iu-panel); }
+    #iu-prototype .iu-wagons { display: flex; justify-content: center; gap: 5px; }
+    #iu-prototype .iu-wagons button { min-width: 48px; }
+    #iu-prototype .iu-overlay { position: absolute; inset: 0; z-index: 20; background: color-mix(in srgb, var(--iu-bg) 72%, transparent); display: grid; place-items: center; padding: 18px; }
+    #iu-prototype .iu-overlay[hidden] { display: none; }
+    #iu-prototype .iu-dialog { width: min(460px, 100%); background: var(--iu-shell); border: 1px solid var(--iu-line); border-radius: 10px; padding: 16px; box-shadow: 0 18px 45px color-mix(in srgb, var(--iu-bg) 65%, transparent); }
+    #iu-prototype .iu-dialog h2 { margin-bottom: 7px; }
+    #iu-prototype .iu-dialog p { color: var(--iu-muted); font-size: 12px; line-height: 1.55; }
+    #iu-prototype .iu-dialog .iu-row { margin-top: 14px; justify-content: flex-end; }
+    #iu-prototype .iu-tooltip { position: absolute; z-index: 15; top: 78px; left: 30%; width: 230px; background: var(--iu-shell); border: 1px solid var(--iu-gold); border-radius: 8px; padding: 10px; box-shadow: 0 10px 26px color-mix(in srgb, var(--iu-bg) 58%, transparent); }
+    #iu-prototype .iu-tooltip[hidden] { display: none; }
+    #iu-prototype .iu-tooltip p { margin-top: 5px; color: var(--iu-muted); font-size: 10px; line-height: 1.5; }
+    @media (max-width: 760px) {
+      #iu-prototype .iu-hud { grid-template-columns: repeat(3, 1fr); }
+      #iu-prototype .iu-workspace { grid-template-columns: 1fr; }
+      #iu-prototype .iu-train { border-right: 0; border-bottom: 1px solid var(--iu-line); }
+      #iu-prototype .iu-grid.train-grid { max-width: 330px; }
+      #iu-prototype .iu-station-grid { grid-template-columns: repeat(2, 1fr); }
+      #iu-prototype .iu-market-layout, #iu-prototype .iu-map-layout, #iu-prototype .iu-work-layout, #iu-prototype .iu-shop { grid-template-columns: 1fr; }
+      #iu-prototype .iu-bottom { grid-template-columns: 1fr 1fr; }
+      #iu-prototype .iu-wagons { grid-column: 1 / -1; order: -1; }
+    }
+    @media (max-width: 430px) {
+      #iu-prototype .iu-hud { grid-template-columns: repeat(2, 1fr); }
+      #iu-prototype .iu-station-grid, #iu-prototype .iu-summary, #iu-prototype .iu-notebook-grid, #iu-prototype .iu-products { grid-template-columns: 1fr; }
+      #iu-prototype .iu-market-tools { grid-template-columns: 1fr; }
+      #iu-prototype .iu-bottom { grid-template-columns: 1fr; }
+    }
+  </style>
+
+  <section class="iu-shell">
+    <header class="iu-hud" aria-label="상단 정보 바">
+      <div><span>현재 도시</span><strong>라센턴 중앙역 · 낮</strong></div>
+      <div><span>상환 기한</span><strong>97턴</strong></div>
+      <div><span>다음 정산</span><strong>2턴</strong></div>
+      <button type="button" data-open-notebook="proficiency"><span>평판</span><strong>18 · 숙련 3</strong></button>
+      <div><span>자금</span><strong>1,240$</strong></div>
+      <button type="button" data-overlay="objective"><span>부채</span><strong>4,800$ · 목표 보기</strong></button>
+    </header>
+    <div class="iu-status" id="iu-status" aria-live="polite">역 화면 — <b>행동을 선택하세요.</b></div>
+
+    <div class="iu-workspace">
+      <aside class="iu-train" aria-label="현재 객차 인벤토리">
+        <div class="iu-panel-head">
+          <div><h2 id="iu-train-title">기차 1호 · 화물차</h2><p class="iu-sub">가치 830$ · 효과 2</p></div>
+          <button class="iu-chip" type="button" data-sort>자동 정렬 ▾</button>
+        </div>
+        <div class="iu-grid train-grid" id="iu-train-grid">
+          <button type="button" class="iu-item good" style="grid-column:1 / span 2;grid-row:1" data-item="소">소 · 식품</button>
+          <button type="button" class="iu-item" style="grid-column:5;grid-row:1 / span 2" data-item="철괴">철괴</button>
+          <button type="button" class="iu-item" style="grid-column:3 / span 2;grid-row:2 / span 3" data-item="목재">목재 2×3</button>
+          <button type="button" class="iu-item good" style="grid-column:1 / span 2;grid-row:5" data-item="밀">밀</button>
+          <div class="iu-candidate primary" hidden style="grid-column:3 / span 2;grid-row:2 / span 3"><span>1 · +18$</span></div>
+          <div class="iu-candidate" hidden style="grid-column:1 / span 2;grid-row:2 / span 3"><span>2 · +12$</span></div>
+          <div class="iu-candidate" hidden style="grid-column:4 / span 2;grid-row:3 / span 3"><span>3 · +7$</span></div>
+        </div>
+        <div class="iu-train-meta">
+          <div class="iu-metric"><span>공간</span><b>10 / 25</b></div>
+          <div class="iu-metric"><span>시너지</span><b>+27$</b></div>
+          <div class="iu-metric"><span>신선도</span><b>양호</b></div>
+        </div>
+      </aside>
+
+      <main class="iu-main">
+        <section class="iu-screen" data-screen="station">
+          <div class="iu-screen-head">
+            <div><h2>라센턴 중앙역</h2><p>시설은 도시와 시간대에 따라 활성 상태가 바뀝니다.</p></div>
+            <button type="button" class="iu-action" data-back disabled>뒤로</button>
+          </div>
+          <div class="iu-station-grid">
+            <button class="iu-station-card" type="button" data-open="market"><b>시장</b><span>구매·판매 · 낮 영업</span></button>
+            <button class="iu-station-card" type="button" data-station-action="tavern"><b>술집</b><span>소문 듣기 · 1턴</span></button>
+            <button class="iu-station-card" type="button" data-station-action="rest"><b>휴식</b><span>체류하며 시간 보내기</span></button>
+            <button class="iu-station-card" type="button" data-open="map"><b>여정</b><span>지도·경로·자동 이동</span></button>
+            <button class="iu-station-card" type="button" data-open="wagonshop"><b>화차 상점</b><span>구매·판매·순서 변경</span></button>
+            <button class="iu-station-card" type="button" data-open-work="butchery"><b>도축장</b><span>화물 가공 작업대</span></button>
+            <button class="iu-station-card" type="button" data-open-work="modification"><b>개조소</b><span>화물·화차 개조</span></button>
+            <button class="iu-station-card" type="button" data-open-work="refining"><b>정제소</b><span>원료 정제 작업대</span></button>
+            <button class="iu-station-card" type="button" data-open-notebook="quests"><b>의뢰 게시판</b><span>제안 확인·수락·완료</span></button>
+            <button class="iu-station-card" type="button" data-station-action="daylight" disabled><b>날 밝기까지 대기</b><span>야간 시장 폐점 시 활성</span></button>
+          </div>
+          <div class="iu-summary">
+            <section class="iu-section"><h3>최근 소문</h3><div class="iu-list"><div class="iu-list-row"><span>브락센에서 기계류 수요 증가</span><b>낮은 신뢰</b></div><div class="iu-list-row"><span>헤일하임 곡물 156$</span><b>2턴 전</b></div></div></section>
+            <section class="iu-section"><h3>진행 중 의뢰</h3><div class="iu-list"><div class="iu-list-row"><span>밀 3개 · 브락센</span><b>8턴</b></div><div class="iu-list-row"><span>도구 1개 · 채석장</span><b>14턴</b></div></div></section>
+          </div>
+          <div class="iu-section" id="iu-station-detail" style="margin-top:8px"><h3>역 행동</h3><p class="iu-sub" style="margin-top:5px">시장·시설·여정을 선택하거나 수첩에서 기록을 확인하세요.</p></div>
+        </section>
+
+        <section class="iu-screen" data-screen="market" hidden>
+          <div class="iu-screen-head"><div><h2>시장 · L 행선지 렌즈</h2><p>시장 화물을 선택하면 현재 거래와 배치·행선지 판단을 한 자리에서 비교합니다.</p></div><button class="iu-action" type="button" data-open="station">역으로</button></div>
+          <div class="iu-market-layout">
+            <div>
+              <div class="iu-market-tools"><input aria-label="시장 검색" placeholder="품목 검색"><button class="iu-action" type="button">태그 필터</button><button class="iu-action" type="button">Junk 일괄 판매</button></div>
+              <div class="iu-grid market-grid">
+                <button type="button" class="iu-item good" style="grid-column:1 / span 2;grid-row:1 / span 3" data-market-item="곡물 2×3">곡물 2×3<br>50$</button>
+                <button type="button" class="iu-item" style="grid-column:4 / span 2;grid-row:1 / span 2" data-market-item="도구 2×2">도구 2×2<br>88$</button>
+                <button type="button" class="iu-item gold" style="grid-column:6 / span 2;grid-row:3 / span 2" data-market-item="향신료 2×2">향신료<br>130$</button>
+                <button type="button" class="iu-item" style="grid-column:2;grid-row:5 / span 2" data-market-item="석탄">석탄<br>34$</button>
+              </div>
+            </div>
+            <aside class="iu-lens">
+              <div class="iu-panel-head"><div><h3 id="iu-lens-title">곡물 2×3</h3><p class="iu-sub">식품 · 벌크 · 신선</p></div><button class="iu-action primary" type="button" data-preview>배치 미리보기</button></div>
+              <div class="iu-tabs" aria-label="가격 정보 수준"><button class="iu-tab" type="button" data-lens="local">현재</button><button class="iu-tab active" type="button" data-lens="known">확인 도시</button><button class="iu-tab" type="button" data-lens="rumor">소문 도시</button></div>
+              <div class="iu-lens-output" id="iu-lens-output"></div>
+            </aside>
+          </div>
+        </section>
+
+        <section class="iu-screen" data-screen="map" hidden>
+          <div class="iu-screen-head"><div><h2>세계 지도 · 경로 계획</h2><p>지도 중 시장 거래는 차단되고, 기차 정리는 이동 확정 전까지 유지됩니다.</p></div><button class="iu-action" type="button" data-open="station">닫기</button></div>
+          <div class="iu-map-layout">
+            <div class="iu-map" aria-label="철도 노선 지도">
+              <div class="iu-map-search"><input id="iu-map-query" aria-label="역 검색" placeholder="역·지역·화물 검색"><button class="iu-action" type="button" data-map-search>검색</button><button class="iu-action" type="button" data-map-zoom="in" aria-label="지도 확대">＋</button><button class="iu-action" type="button" data-map-zoom="out" aria-label="지도 축소">−</button></div>
+              <div class="iu-route active" style="left:22%;top:34%;width:31%;transform:rotate(18deg)"></div>
+              <div class="iu-route" style="left:50%;top:44%;width:26%;transform:rotate(45deg)"></div>
+              <div class="iu-route" style="left:29%;top:69%;width:28%;transform:rotate(-62deg)"></div>
+              <div class="iu-route" style="left:55%;top:70%;width:26%;transform:rotate(-20deg)"></div>
+              <button class="iu-node current" type="button" style="left:22%;top:34%" data-city="라센턴" aria-label="현재 도시 라센턴"></button><span class="iu-node-label" style="left:22%;top:34%">라센턴 · 현재</span>
+              <button class="iu-node selected" type="button" style="left:50%;top:44%" data-city="헤일하임" aria-label="헤일하임"></button><span class="iu-node-label" style="left:50%;top:44%">헤일하임</span>
+              <button class="iu-node" type="button" style="left:29%;top:69%" data-city="채석장" aria-label="채석장"></button><span class="iu-node-label" style="left:29%;top:69%">채석장</span>
+              <button class="iu-node" type="button" style="left:73%;top:78%" data-city="브락센" aria-label="브락센"></button><span class="iu-node-label" style="left:73%;top:78%">브락센</span>
+            </div>
+            <aside class="iu-map-side">
+              <section class="iu-section"><h3 id="iu-city-title">헤일하임</h3><p class="iu-sub" id="iu-city-info" style="margin-top:5px">2홉 · 운임 9$ · 도착 2턴 후<br>곡물 관측가 156$ · 2턴 전</p></section>
+              <section class="iu-section"><div class="iu-panel-head"><h3>경로 계획</h3><span class="iu-sub">라센턴 → 헤일하임</span></div><label class="iu-route-stop"><input type="checkbox" checked disabled> 라센턴 · 출발</label><label class="iu-route-stop"><input type="checkbox"> 채석장 · 경유</label><label class="iu-route-stop"><input type="checkbox" checked disabled> 헤일하임 · 목적지</label><div class="iu-row" style="margin-top:8px"><button class="iu-action" type="button">계획 취소</button><button class="iu-action" type="button" data-auto-travel>자동 이동</button><button class="iu-action primary" type="button" data-travel>이동 확인</button></div></section>
+              <section class="iu-section"><h3>알려진 정보</h3><p class="iu-sub" style="margin-top:5px">곡물 비쌈 · 도구 보통<br>의뢰 1건 · 밤 도착 아님</p></section>
+            </aside>
+          </div>
+        </section>
+
+        <section class="iu-screen" data-screen="notebook" hidden>
+          <div class="iu-notebook">
+            <div class="iu-notebook-head"><div><h2>수첩 · 도감</h2><p class="iu-sub">소문·의뢰·숙련·상성표를 한 오버레이에서 관리</p></div><button class="iu-action" type="button" data-close-notebook>접기</button></div>
+            <div class="iu-tabs" style="padding:10px 10px 0"><button class="iu-tab active" type="button" data-notebook="rumors">소문</button><button class="iu-tab" type="button" data-notebook="quests">의뢰</button><button class="iu-tab" type="button" data-notebook="proficiency">숙련</button><button class="iu-tab" type="button" data-notebook="synergy">상성 도감</button></div>
+            <div class="iu-notebook-body">
+              <div class="iu-notebook-panel" data-notebook-panel="rumors"><div class="iu-list"><div class="iu-list-row"><span><b>브락센 · 기계류 수요</b><br><span class="iu-sub">소문 · 신뢰도 낮음 · 6턴 남음</span></span><button class="iu-action" type="button" data-city-jump="브락센">지도</button></div><div class="iu-list-row"><span><b>헤일하임 · 곡물 156$</b><br><span class="iu-sub">방문 관측 · 2턴 전</span></span><button class="iu-action" type="button" data-city-jump="헤일하임">지도</button></div></div></div>
+              <div class="iu-notebook-panel" data-notebook-panel="quests" hidden><div class="iu-notebook-grid"><section class="iu-section"><h3>진행 중 · 밀 납품</h3><p class="iu-sub" style="margin-top:5px">브락센 · 밀 3개 · 보상 420$ · 8턴</p><button class="iu-action" type="button" style="margin-top:8px" data-city-jump="브락센">목적지 보기</button></section><section class="iu-section"><h3>게시판 제안 · 채석장 도구</h3><p class="iu-sub" style="margin-top:5px">도구 1개 · 보상 180$ · 14턴</p><button class="iu-action primary" type="button" style="margin-top:8px" data-accept-quest>의뢰 수락</button></section></div></div>
+              <div class="iu-notebook-panel" data-notebook-panel="proficiency" hidden><div class="iu-notebook-grid"><section class="iu-section"><h3>평판 18</h3><p class="iu-sub" style="margin-top:5px">다음 화차 해금까지 7</p><div class="iu-progress"><span style="width:72%"></span></div></section><section class="iu-section"><h3>식품 숙련 3</h3><p class="iu-sub" style="margin-top:5px">가치 보정 +6% · 다음 단계 64%</p><div class="iu-progress"><span style="width:64%"></span></div></section><section class="iu-section"><h3>기계 숙련 1</h3><p class="iu-sub" style="margin-top:5px">가치 보정 +2% · 다음 단계 28%</p><div class="iu-progress"><span style="width:28%"></span></div></section></div></div>
+              <div class="iu-notebook-panel" data-notebook-panel="synergy" hidden><div class="iu-synergy" aria-label="화물 상성표"><div>태그</div><div>식품</div><div>동물</div><div>금속</div><div>연료</div><div>식품</div><div>—</div><div class="good">+20%</div><div>0</div><div class="bad">−10%</div><div>동물</div><div class="good">+20%</div><div>—</div><div class="bad">−10%</div><div>0</div><div>금속</div><div>0</div><div class="bad">−10%</div><div>—</div><div class="good">+15%</div><div>연료</div><div class="bad">−10%</div><div>0</div><div class="good">+15%</div><div>—</div></div><p class="iu-sub" style="margin-top:9px">선택 화물의 태그를 행·열에서 강조하고, 실제 배치 효과는 기차 보드의 인접 칩으로 확인합니다.</p></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="iu-screen" data-screen="workbench" hidden>
+          <div class="iu-screen-head"><div><h2>작업대 · <span id="iu-work-title">도축장</span></h2><p>기차와 작업대 사이 Ctrl 빠른 이동을 유지하고, 작업 확정 전 비용·턴·결과를 고정합니다.</p></div><button class="iu-action" type="button" data-open="station">역으로</button></div>
+          <div class="iu-tabs" style="margin-bottom:9px"><button class="iu-tab active" type="button" data-work="butchery">도축</button><button class="iu-tab" type="button" data-work="modification">개조</button><button class="iu-tab" type="button" data-work="refining">정제</button></div>
+          <div class="iu-work-layout">
+            <div class="iu-work-grid-wrap"><div class="iu-grid work-grid"><button type="button" class="iu-item good" style="grid-column:1 / span 2;grid-row:1 / span 2" data-item="소">소</button><div class="iu-item gold" style="grid-column:4 / span 2;grid-row:3 / span 2">결과<br>가죽·고기</div></div></div>
+            <div class="iu-work-detail"><section class="iu-section"><h3 id="iu-work-action">소 도축</h3><p class="iu-sub" id="iu-work-description" style="margin-top:5px">소 1개를 고기 2개와 가죽 1개로 가공합니다.</p></section><section class="iu-section"><div class="iu-list-row"><span>비용</span><b id="iu-work-cost">45$</b></div><div class="iu-list-row"><span>소요 시간</span><b id="iu-work-turns">1턴</b></div><div class="iu-list-row"><span>완료 후</span><b>작업대 보관</b></div></section><div class="iu-row"><button class="iu-action" type="button" data-work-wait>완료까지 대기</button><button class="iu-action primary" type="button" data-work-confirm>작업 확정</button></div></div>
+          </div>
+        </section>
+
+        <section class="iu-screen" data-screen="wagonshop" hidden>
+          <div class="iu-screen-head"><div><h2>화차 상점</h2><p>제품 선택·상세·구매와 하단 화차 순서 변경을 같은 화면에서 처리합니다.</p></div><button class="iu-action" type="button" data-open="station">역으로</button></div>
+          <div class="iu-shop"><div class="iu-products"><button class="iu-product active" type="button" data-product="평판 화물차"><b>평판 화물차</b><span>5×5 · 가격 900$<br>해금 평판 15</span></button><button class="iu-product" type="button" data-product="냉장 화물차"><b>냉장 화물차</b><span>5×5 · 가격 1,300$<br>신선도 감소 완화</span></button><button class="iu-product" type="button" data-product="중장 화물차"><b>중장 화물차</b><span>5×5 · 가격 1,100$<br>금속 시너지</span></button><button class="iu-product" type="button" data-product="중고 화물차"><b>중고 화물차</b><span>5×5 · 가격 620$<br>잠긴 칸 4</span></button></div><aside class="iu-section"><h3 id="iu-product-title">평판 화물차</h3><p class="iu-sub" id="iu-product-detail" style="margin-top:6px">기본 5×5 적재칸. 추가 효과 없음.<br>구매 시 1턴이 지나며 최대 화차 수를 확인합니다.</p><div class="iu-list" style="margin-top:10px"><div class="iu-list-row"><span>가격</span><b>900$</b></div><div class="iu-list-row"><span>구매 후 자금</span><b>340$</b></div></div><div class="iu-row" style="margin-top:10px"><button class="iu-action danger" type="button">현재 화차 판매</button><button class="iu-action primary" type="button">화차 구매</button></div></aside></div>
+        </section>
+
+        <div class="iu-tooltip" id="iu-item-popup" hidden><div class="iu-panel-head"><h3 id="iu-popup-title">화물 정보</h3><button class="iu-chip" type="button" data-close-popup>닫기</button></div><p id="iu-popup-body"></p></div>
+        <div class="iu-overlay" id="iu-overlay" hidden>
+          <section class="iu-dialog" data-dialog="travel" hidden><h2>헤일하임으로 이동할까요?</h2><p>2홉 · 운임 9$ · 도착 2턴 후 · 밤 도착 아님<br>곡물 의뢰 기한은 6턴 남습니다. 이동 중 시장과 작업대 조작은 차단됩니다.</p><div class="iu-row"><button class="iu-action" type="button" data-close-overlay>취소</button><button class="iu-action primary" type="button" data-confirm-travel>이동</button></div></section>
+          <section class="iu-dialog" data-dialog="pause" hidden><h2>일시정지</h2><p>설정과 재시작은 최상위 모달입니다. Esc는 검색 → 팝업 → 이동 확인 → 드래그 → 도감/지도/수첩 → 역 화면 → 일시정지 순서로 닫습니다.</p><div class="iu-list"><button class="iu-action" type="button">설정</button><button class="iu-action danger" type="button">다시 시작</button></div><div class="iu-row"><button class="iu-action primary" type="button" data-close-overlay>계속</button></div></section>
+          <section class="iu-dialog" data-dialog="objective" hidden><h2>상환 목표</h2><p>브락센 은행에 4,800$를 기한 97턴 안에 상환하세요. 현재 자금 1,240$ · 부족액 3,560$. 상환은 브락센 도착 후 활성화됩니다.</p><div class="iu-row"><button class="iu-action" type="button" data-open="map" data-city-jump="브락센" data-close-overlay>브락센 보기</button><button class="iu-action primary" type="button" disabled>현재 도시에서 상환 불가</button></div></section>
+        </div>
+      </main>
+    </div>
+
+    <nav class="iu-bottom" aria-label="고정 하단 UI">
+      <button type="button" data-open-notebook="rumors">수첩 <b>2</b></button>
+      <div class="iu-wagons" aria-label="화차 선택"><button class="active" type="button" data-wagon="1">1호</button><button type="button" data-wagon="2">2호</button><button type="button" data-wagon="3">3호</button><button type="button" data-open="wagonshop">＋</button></div>
+      <button type="button" data-open="map">지도</button>
+      <button type="button" data-overlay="pause">메뉴</button>
+    </nav>
+  </section>
+
+  <script>
+    (() => {
+      const root = document.getElementById('iu-prototype');
+      if (!root) return;
+      const state = { screen:'station', lens:'known', notebook:'rumors', work:'butchery', preview:false, city:'헤일하임', wagon:'1' };
+      const saved = window.openai && window.openai.widgetState && window.openai.widgetState.privateContent;
+      if (saved && typeof saved === 'object') Object.assign(state, saved);
+      const screens = [...root.querySelectorAll('[data-screen]')];
+      const status = root.querySelector('#iu-status');
+      const lensData = {
+        local:{ title:'라센턴 · 현재', badge:'확정 견적', body:'구매 50$ · 현재 판매 43$<br>운임 없음 · 거래 후 잔액 1,190$', result:'1순위 배치 시너지 +18$<br><b style="color:var(--iu-good)">즉시 기준 순변화 +11$</b>', note:'현재 거래 데이터 — 정확 수치 공개' },
+        known:{ title:'헤일하임 · 확인 도시', badge:'2턴 전 관측', body:'관측 판매가 156$ · 2홉<br>운임 9$ · 도착 전 가격 변동 가능', result:'1순위 배치 시너지 +18$<br><b style="color:var(--iu-good)">관측가 기준 차익 +115$</b>', note:'정확 수치에는 관측 시점을 함께 표시' },
+        rumor:{ title:'브락센 · 소문 도시', badge:'신뢰도 낮음', body:'기계류가 비싸다는 소문 ↑<br>3홉 · 운임 12$ · 정확 가격 미확인', result:'후보 순위는 공간·시너지 기준<br><b style="color:var(--iu-gold)">정확 순익은 표시하지 않음</b>', note:'소문은 방향·등급만 공개' }
+      };
+      const workData = {
+        butchery:['도축장','소 도축','소 1개를 고기 2개와 가죽 1개로 가공합니다.','45$','1턴'],
+        modification:['개조소','냉장 개조','선택 화물 또는 화차에 냉장 효과를 설치합니다.','120$','2턴'],
+        refining:['정제소','철괴 정제','원광을 철괴 2개로 정제해 작업대에 보관합니다.','60$','1턴']
+      };
+      const cityData = {
+        '라센턴':'현재 도시 · 이동 비용 없음<br>시장은 낮에만 영업',
+        '헤일하임':'2홉 · 운임 9$ · 도착 2턴 후<br>곡물 관측가 156$ · 2턴 전',
+        '채석장':'1홉 · 운임 5$ · 도착 1턴 후<br>도구 의뢰 · 14턴 남음',
+        '브락센':'3홉 · 운임 12$ · 도착 3턴 후<br>기계류 수요 소문 · 정확 가격 미확인'
+      };
+      function persist(){
+        if (window.openai && window.openai.setWidgetState) window.openai.setWidgetState({modelContent:{screen:state.screen,lens:state.lens,notebook:state.notebook,work:state.work},privateContent:state}).catch(()=>{});
+      }
+      function setStatus(text){ status.innerHTML = text; }
+      function showScreen(name){
+        state.screen = name;
+        screens.forEach(s => s.hidden = s.dataset.screen !== name);
+        root.querySelectorAll('.iu-bottom [data-open]').forEach(b => b.classList.toggle('active', b.dataset.open === name));
+        const labels = {station:'역 행동',market:'시장 거래',map:'지도·경로',notebook:'수첩·도감',workbench:'작업대',wagonshop:'화차 상점'};
+        setStatus(`${labels[name] || name} — <b>${name==='market'?'화물을 선택해 L 렌즈로 비교하세요.':name==='map'?'목적지와 경로를 선택하세요.':name==='notebook'?'기록 탭을 선택하세요.':'현재 상태를 안전하게 닫으면 이전 선택으로 복원됩니다.'}</b>`);
+        persist();
+      }
+      function renderLens(){
+        const d = lensData[state.lens];
+        root.querySelectorAll('[data-lens]').forEach(b => b.classList.toggle('active', b.dataset.lens === state.lens));
+        root.querySelector('#iu-lens-output').innerHTML = `<div class="iu-callout"><b>${d.title}</b><br><span class="iu-sub">${d.badge}</span><br>${d.body}</div><div class="iu-callout"><b>배치 후보</b><br>${state.preview ? d.result : '배치 미리보기를 누르면 상위 3개 후보를 표시합니다.'}</div><p class="iu-sub">${d.note}</p>`;
+        root.querySelectorAll('.iu-candidate').forEach(c => c.hidden = !state.preview);
+        root.querySelector('[data-preview]').textContent = state.preview ? '미리보기 닫기' : '배치 미리보기';
+      }
+      function showNotebook(tab){
+        state.notebook = tab;
+        showScreen('notebook');
+        root.querySelectorAll('[data-notebook]').forEach(b => b.classList.toggle('active', b.dataset.notebook === tab));
+        root.querySelectorAll('[data-notebook-panel]').forEach(p => p.hidden = p.dataset.notebookPanel !== tab);
+        persist();
+      }
+      function showWork(mode){
+        state.work = mode;
+        showScreen('workbench');
+        const d = workData[mode];
+        root.querySelector('#iu-work-title').textContent = d[0];
+        root.querySelector('#iu-work-action').textContent = d[1];
+        root.querySelector('#iu-work-description').textContent = d[2];
+        root.querySelector('#iu-work-cost').textContent = d[3];
+        root.querySelector('#iu-work-turns').textContent = d[4];
+        root.querySelectorAll('[data-work]').forEach(b => b.classList.toggle('active', b.dataset.work === mode));
+        persist();
+      }
+      function showOverlay(name){
+        const overlay = root.querySelector('#iu-overlay');
+        overlay.hidden = false;
+        overlay.querySelectorAll('[data-dialog]').forEach(d => d.hidden = d.dataset.dialog !== name);
+      }
+      function closeOverlay(){ root.querySelector('#iu-overlay').hidden = true; }
+      root.addEventListener('click', event => {
+        const open = event.target.closest('[data-open]');
+        if (open) showScreen(open.dataset.open);
+        const notebook = event.target.closest('[data-open-notebook]');
+        if (notebook) showNotebook(notebook.dataset.openNotebook);
+        const closeNotebook = event.target.closest('[data-close-notebook]');
+        if (closeNotebook) showScreen('station');
+        const notebookTab = event.target.closest('[data-notebook]');
+        if (notebookTab) showNotebook(notebookTab.dataset.notebook);
+        const workOpen = event.target.closest('[data-open-work]');
+        if (workOpen) showWork(workOpen.dataset.openWork);
+        const workTab = event.target.closest('[data-work]');
+        if (workTab) showWork(workTab.dataset.work);
+        const lens = event.target.closest('[data-lens]');
+        if (lens) { state.lens = lens.dataset.lens; renderLens(); persist(); }
+        const preview = event.target.closest('[data-preview]');
+        if (preview) { state.preview = !state.preview; renderLens(); setStatus(state.preview ? '드래그 미리보기 — <b>상위 3개 후보와 가격·시너지를 비교 중입니다.</b>' : '시장 거래 — <b>미리보기를 닫았습니다.</b>'); persist(); }
+        const stationAction = event.target.closest('[data-station-action]');
+        if (stationAction) {
+          const detail = root.querySelector('#iu-station-detail');
+          detail.innerHTML = stationAction.dataset.stationAction === 'tavern' ? '<h3>술집 · 소문 듣기</h3><p class="iu-sub" style="margin-top:5px">1턴을 보내 새 소문을 듣습니다. 기존 기록은 수첩에 남고 유효 기간이 표시됩니다.</p>' : stationAction.dataset.stationAction === 'daylight' ? '<h3>날 밝기까지 대기</h3><p class="iu-sub" style="margin-top:5px">야간 시장 폐점 상태에서 다음 낮까지 시간을 보냅니다. 의뢰와 작업대 기한도 함께 진행됩니다.</p>' : '<h3>휴식</h3><p class="iu-sub" style="margin-top:5px">지정한 턴만큼 쉽니다. 시장 영업 시간·의뢰 기한·작업대 완료 시점이 함께 진행됩니다.</p>';
+          setStatus('역 행동 — <b>확정하면 시간이 진행됩니다.</b>');
+        }
+        const overlayButton = event.target.closest('[data-overlay]');
+        if (overlayButton) showOverlay(overlayButton.dataset.overlay);
+        if (event.target.closest('[data-travel]')) showOverlay('travel');
+        if (event.target.closest('[data-close-overlay]')) closeOverlay();
+        if (event.target.closest('[data-confirm-travel]')) { closeOverlay(); setStatus('이동 중 — <b>라센턴 → 헤일하임 · 2턴</b>'); }
+        const item = event.target.closest('[data-item], [data-market-item]');
+        if (item) {
+          const name = item.dataset.item || item.dataset.marketItem;
+          root.querySelector('#iu-popup-title').textContent = name;
+          root.querySelector('#iu-popup-body').innerHTML = '기본 가치 42$ · 실제 가치 58$<br>태그: 식품 · 벌크<br>인접 식품 +20% · 연료 −10%';
+          root.querySelector('#iu-item-popup').hidden = false;
+        }
+        if (event.target.closest('[data-close-popup]')) root.querySelector('#iu-item-popup').hidden = true;
+        const city = event.target.closest('[data-city]');
+        if (city) {
+          state.city = city.dataset.city;
+          root.querySelectorAll('[data-city]').forEach(n => n.classList.toggle('selected', n.dataset.city === state.city));
+          root.querySelector('#iu-city-title').textContent = state.city;
+          root.querySelector('#iu-city-info').innerHTML = cityData[state.city];
+          persist();
+        }
+        const cityJump = event.target.closest('[data-city-jump]');
+        if (cityJump) { state.city = cityJump.dataset.cityJump; showScreen('map'); root.querySelector('#iu-city-title').textContent = state.city; root.querySelector('#iu-city-info').innerHTML = cityData[state.city]; }
+        const wagon = event.target.closest('[data-wagon]');
+        if (wagon) {
+          state.wagon = wagon.dataset.wagon;
+          root.querySelectorAll('[data-wagon]').forEach(b => b.classList.toggle('active', b.dataset.wagon === state.wagon));
+          root.querySelector('#iu-train-title').textContent = `기차 ${state.wagon}호 · 화물차`;
+          setStatus(`객차 전환 — <b>${state.wagon}호 적재 상태를 표시합니다.</b>`); persist();
+        }
+        const product = event.target.closest('[data-product]');
+        if (product) { root.querySelectorAll('[data-product]').forEach(p => p.classList.toggle('active', p === product)); root.querySelector('#iu-product-title').textContent = product.dataset.product; }
+        if (event.target.closest('[data-sort]')) setStatus('자동 정렬 — <b>위→아래 우선으로 첫 유효 위치에 배치했습니다.</b>');
+        if (event.target.closest('[data-work-confirm]')) setStatus('작업 확정 — <b>비용과 시간이 적용되고 결과는 작업대에 보관됩니다.</b>');
+        if (event.target.closest('[data-work-wait]')) setStatus('대기 — <b>작업 완료 시점까지 시간을 진행합니다.</b>');
+        if (event.target.closest('[data-map-search]')) { const q=root.querySelector('#iu-map-query').value.trim(); setStatus(q ? `지도 검색 — <b>${q}</b> 결과를 강조했습니다.` : '지도 검색 — <b>역·지역·화물 이름을 입력하세요.</b>'); }
+        const zoom = event.target.closest('[data-map-zoom]');
+        if (zoom) setStatus(`지도 — <b>${zoom.dataset.mapZoom==='in'?'확대':'축소'} 단계로 지명·노선 상세 수준을 조정했습니다.</b>`);
+        if (event.target.closest('[data-auto-travel]')) setStatus('자동 이동 — <b>경유지 정차 여부를 보존한 채 계획을 시작합니다.</b>');
+        if (event.target.closest('[data-accept-quest]')) setStatus('의뢰 수락 — <b>채석장 도구 의뢰가 진행 목록과 지도에 추가됐습니다.</b>');
+      });
+      root.addEventListener('keydown', event => {
+        if (event.key !== 'Escape') return;
+        if (!root.querySelector('#iu-item-popup').hidden) root.querySelector('#iu-item-popup').hidden = true;
+        else if (!root.querySelector('#iu-overlay').hidden) closeOverlay();
+        else if (state.preview) { state.preview=false; renderLens(); }
+        else if (state.screen !== 'station') showScreen('station');
+        else showOverlay('pause');
+      });
+      showScreen(state.screen);
+      renderLens();
+      if (state.screen === 'notebook') showNotebook(state.notebook);
+      if (state.screen === 'workbench') showWork(state.work);
+    })();
+  </script>
+</div>
