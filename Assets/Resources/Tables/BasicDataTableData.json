@@ -2765,8 +2765,8 @@
         },
         {
           "id": "wagonFormationDelta",
-          "value": "현재 편성 대비: 보유 칸 {0:+0;-0;0} · 적재 칸 {1:+0;-0;0}",
-          "arguments": 2
+          "value": "보유 칸 {0:+0;-0;0} · 구매 시 파손 칸 결정",
+          "arguments": 1
         },
         {
           "id": "wagonDetailTitle",

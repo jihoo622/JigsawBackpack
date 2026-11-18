@@ -1546,14 +1546,14 @@
     }
   ],
   "train": {
-    "width": 5,
+    "width": 7,
     "height": 5,
     "startingPlacements": []
   },
   "startingTrain": {
     "displayName": "고장난 칸",
     "description": "처음부터 연결된 화차. 파손된 칸에는 화물을 실을 수 없다.",
-    "width": 5,
+    "width": 7,
     "height": 5,
     "blockedCells": [
       {
@@ -1664,35 +1664,35 @@
         }
       ],
       "market": {
-        "width": 7,
-        "height": 6,
+        "width": 13,
+        "height": 9,
         "startingPlacements": [
           {
             "id": "city.riobruk.stock.0",
             "pieceId": "piece.oreCross",
-            "x": 2,
-            "y": 2,
+            "x": 4,
+            "y": 5,
             "clockwiseTurns": 0
           },
           {
             "id": "city.riobruk.stock.1",
             "pieceId": "piece.oreL",
-            "x": 0,
-            "y": 1,
+            "x": 2,
+            "y": 4,
             "clockwiseTurns": 0
           },
           {
             "id": "city.riobruk.stock.2",
             "pieceId": "piece.oreL",
-            "x": 0,
-            "y": 3,
+            "x": 2,
+            "y": 6,
             "clockwiseTurns": 2
           },
           {
             "id": "city.riobruk.stock.3",
             "pieceId": "piece.oreL",
-            "x": 5,
-            "y": 1,
+            "x": 7,
+            "y": 4,
             "clockwiseTurns": 3
           }
         ]
@@ -1737,28 +1737,28 @@
         }
       ],
       "market": {
-        "width": 7,
-        "height": 6,
+        "width": 13,
+        "height": 9,
         "startingPlacements": [
           {
             "id": "city.daran.stock.0",
             "pieceId": "piece.saltSack",
-            "x": 0,
-            "y": 1,
+            "x": 2,
+            "y": 4,
             "clockwiseTurns": 0
           },
           {
             "id": "city.daran.stock.1",
             "pieceId": "piece.saltSack",
-            "x": 4,
-            "y": 1,
+            "x": 6,
+            "y": 4,
             "clockwiseTurns": 0
           },
           {
             "id": "city.daran.stock.2",
             "pieceId": "piece.saltSack",
-            "x": 0,
-            "y": 3,
+            "x": 2,
+            "y": 6,
             "clockwiseTurns": 0
           }
         ]
@@ -1803,28 +1803,28 @@
         }
       ],
       "market": {
-        "width": 7,
-        "height": 6,
+        "width": 13,
+        "height": 9,
         "startingPlacements": [
           {
             "id": "city.rasenton.stock.0",
             "pieceId": "piece.elbowRight",
-            "x": 0,
-            "y": 1,
+            "x": 2,
+            "y": 4,
             "clockwiseTurns": 0
           },
           {
             "id": "city.rasenton.stock.1",
             "pieceId": "piece.elbowRight",
-            "x": 4,
-            "y": 1,
+            "x": 6,
+            "y": 4,
             "clockwiseTurns": 0
           },
           {
             "id": "city.rasenton.stock.2",
             "pieceId": "piece.elbowRight",
-            "x": 0,
-            "y": 3,
+            "x": 2,
+            "y": 6,
             "clockwiseTurns": 0
           }
         ]
@@ -1875,28 +1875,28 @@
         }
       ],
       "market": {
-        "width": 7,
-        "height": 6,
+        "width": 13,
+        "height": 9,
         "startingPlacements": [
           {
             "id": "city.karka.stock.0",
             "pieceId": "piece.saltSack",
-            "x": 0,
-            "y": 1,
+            "x": 2,
+            "y": 4,
             "clockwiseTurns": 0
           },
           {
             "id": "city.karka.stock.1",
             "pieceId": "piece.saltSack",
-            "x": 4,
-            "y": 1,
+            "x": 6,
+            "y": 4,
             "clockwiseTurns": 0
           },
           {
             "id": "city.karka.stock.2",
             "pieceId": "piece.saltSack",
-            "x": 0,
-            "y": 3,
+            "x": 2,
+            "y": 6,
             "clockwiseTurns": 0
           }
         ]
@@ -1935,28 +1935,28 @@
         }
       ],
       "market": {
-        "width": 7,
-        "height": 6,
+        "width": 13,
+        "height": 9,
         "startingPlacements": [
           {
             "id": "city.rasenpol.stock.0",
             "pieceId": "piece.cow",
-            "x": 0,
-            "y": 1,
+            "x": 2,
+            "y": 4,
             "clockwiseTurns": 0
           },
           {
             "id": "city.rasenpol.stock.1",
             "pieceId": "piece.cow",
-            "x": 4,
-            "y": 1,
+            "x": 6,
+            "y": 4,
             "clockwiseTurns": 0
           },
           {
             "id": "city.rasenpol.stock.2",
             "pieceId": "piece.cow",
-            "x": 0,
-            "y": 3,
+            "x": 2,
+            "y": 6,
             "clockwiseTurns": 0
           }
         ]
@@ -1995,28 +1995,28 @@
         }
       ],
       "market": {
-        "width": 7,
-        "height": 6,
+        "width": 13,
+        "height": 9,
         "startingPlacements": [
           {
             "id": "city.heilheim.stock.0",
             "pieceId": "piece.beef",
-            "x": 0,
-            "y": 1,
+            "x": 2,
+            "y": 4,
             "clockwiseTurns": 0
           },
           {
             "id": "city.heilheim.stock.1",
             "pieceId": "piece.beef",
-            "x": 4,
-            "y": 1,
+            "x": 6,
+            "y": 4,
             "clockwiseTurns": 0
           },
           {
             "id": "city.heilheim.stock.2",
             "pieceId": "piece.beef",
-            "x": 0,
-            "y": 3,
+            "x": 2,
+            "y": 6,
             "clockwiseTurns": 0
           }
         ]
@@ -2061,28 +2061,28 @@
         }
       ],
       "market": {
-        "width": 7,
-        "height": 6,
+        "width": 13,
+        "height": 9,
         "startingPlacements": [
           {
             "id": "city.darpol.stock.0",
             "pieceId": "piece.cow",
-            "x": 0,
-            "y": 1,
+            "x": 2,
+            "y": 4,
             "clockwiseTurns": 0
           },
           {
             "id": "city.darpol.stock.1",
             "pieceId": "piece.cow",
-            "x": 4,
-            "y": 1,
+            "x": 6,
+            "y": 4,
             "clockwiseTurns": 0
           },
           {
             "id": "city.darpol.stock.2",
             "pieceId": "piece.cow",
-            "x": 0,
-            "y": 3,
+            "x": 2,
+            "y": 6,
             "clockwiseTurns": 0
           }
         ]
@@ -2121,49 +2121,49 @@
         }
       ],
       "market": {
-        "width": 7,
-        "height": 6,
+        "width": 13,
+        "height": 9,
         "startingPlacements": [
           {
             "id": "city.osgrad.stock.0",
             "pieceId": "piece.beef",
-            "x": 0,
-            "y": 1,
+            "x": 2,
+            "y": 4,
             "clockwiseTurns": 0
           },
           {
             "id": "city.osgrad.stock.1",
             "pieceId": "piece.beef",
-            "x": 2,
-            "y": 3,
+            "x": 4,
+            "y": 6,
             "clockwiseTurns": 0
           },
           {
             "id": "city.osgrad.stock.2",
             "pieceId": "piece.beef",
-            "x": 0,
-            "y": 3,
+            "x": 2,
+            "y": 6,
             "clockwiseTurns": 0
           },
           {
             "id": "city.osgrad.stock.3",
             "pieceId": "piece.beef",
-            "x": 1,
-            "y": 1,
+            "x": 3,
+            "y": 4,
             "clockwiseTurns": 0
           },
           {
             "id": "city.osgrad.stock.4",
             "pieceId": "piece.beef",
-            "x": 1,
-            "y": 3,
+            "x": 3,
+            "y": 6,
             "clockwiseTurns": 0
           },
           {
             "id": "city.osgrad.stock.5",
             "pieceId": "piece.beef",
-            "x": 2,
-            "y": 1,
+            "x": 4,
+            "y": 4,
             "clockwiseTurns": 0
           }
         ]
@@ -2208,28 +2208,28 @@
         }
       ],
       "market": {
-        "width": 7,
-        "height": 6,
+        "width": 13,
+        "height": 9,
         "startingPlacements": [
           {
             "id": "city.erna.stock.0",
             "pieceId": "piece.uShape",
-            "x": 0,
-            "y": 1,
+            "x": 2,
+            "y": 4,
             "clockwiseTurns": 0
           },
           {
             "id": "city.erna.stock.1",
             "pieceId": "piece.uShape",
-            "x": 4,
-            "y": 1,
+            "x": 6,
+            "y": 4,
             "clockwiseTurns": 0
           },
           {
             "id": "city.erna.stock.2",
             "pieceId": "piece.uShape",
-            "x": 0,
-            "y": 3,
+            "x": 2,
+            "y": 6,
             "clockwiseTurns": 0
           }
         ]
@@ -2274,28 +2274,28 @@
         }
       ],
       "market": {
-        "width": 7,
-        "height": 6,
+        "width": 13,
+        "height": 9,
         "startingPlacements": [
           {
             "id": "city.porber.stock.0",
             "pieceId": "piece.uShape",
-            "x": 0,
-            "y": 1,
+            "x": 2,
+            "y": 4,
             "clockwiseTurns": 0
           },
           {
             "id": "city.porber.stock.1",
             "pieceId": "piece.uShape",
-            "x": 4,
-            "y": 1,
+            "x": 6,
+            "y": 4,
             "clockwiseTurns": 0
           },
           {
             "id": "city.porber.stock.2",
             "pieceId": "piece.uShape",
-            "x": 0,
-            "y": 3,
+            "x": 2,
+            "y": 6,
             "clockwiseTurns": 0
           }
         ]
@@ -2340,28 +2340,28 @@
         }
       ],
       "market": {
-        "width": 7,
-        "height": 6,
+        "width": 13,
+        "height": 9,
         "startingPlacements": [
           {
             "id": "city.karport.stock.0",
             "pieceId": "piece.uShape",
-            "x": 0,
-            "y": 1,
+            "x": 2,
+            "y": 4,
             "clockwiseTurns": 0
           },
           {
             "id": "city.karport.stock.1",
             "pieceId": "piece.uShape",
-            "x": 4,
-            "y": 1,
+            "x": 6,
+            "y": 4,
             "clockwiseTurns": 0
           },
           {
             "id": "city.karport.stock.2",
             "pieceId": "piece.uShape",
-            "x": 0,
-            "y": 3,
+            "x": 2,
+            "y": 6,
             "clockwiseTurns": 0
           }
         ]
@@ -2406,28 +2406,28 @@
         }
       ],
       "market": {
-        "width": 7,
-        "height": 6,
+        "width": 13,
+        "height": 9,
         "startingPlacements": [
           {
             "id": "city.nornova.stock.0",
             "pieceId": "piece.uShape",
-            "x": 0,
-            "y": 1,
+            "x": 2,
+            "y": 4,
             "clockwiseTurns": 0
           },
           {
             "id": "city.nornova.stock.1",
             "pieceId": "piece.uShape",
-            "x": 4,
-            "y": 1,
+            "x": 6,
+            "y": 4,
             "clockwiseTurns": 0
           },
           {
             "id": "city.nornova.stock.2",
             "pieceId": "piece.uShape",
-            "x": 0,
-            "y": 3,
+            "x": 2,
+            "y": 6,
             "clockwiseTurns": 0
           }
         ]
@@ -2478,28 +2478,28 @@
         }
       ],
       "market": {
-        "width": 7,
-        "height": 6,
+        "width": 13,
+        "height": 9,
         "startingPlacements": [
           {
             "id": "city.aiport.stock.0",
             "pieceId": "piece.box",
-            "x": 0,
-            "y": 1,
+            "x": 2,
+            "y": 4,
             "clockwiseTurns": 0
           },
           {
             "id": "city.aiport.stock.1",
             "pieceId": "piece.box",
-            "x": 4,
-            "y": 1,
+            "x": 6,
+            "y": 4,
             "clockwiseTurns": 0
           },
           {
             "id": "city.aiport.stock.2",
             "pieceId": "piece.box",
-            "x": 0,
-            "y": 3,
+            "x": 2,
+            "y": 6,
             "clockwiseTurns": 0
           }
         ]
@@ -2550,28 +2550,28 @@
         }
       ],
       "market": {
-        "width": 7,
-        "height": 6,
+        "width": 13,
+        "height": 9,
         "startingPlacements": [
           {
             "id": "city.trenford.stock.0",
             "pieceId": "piece.box",
-            "x": 0,
-            "y": 1,
+            "x": 2,
+            "y": 4,
             "clockwiseTurns": 0
           },
           {
             "id": "city.trenford.stock.1",
             "pieceId": "piece.box",
-            "x": 4,
-            "y": 1,
+            "x": 6,
+            "y": 4,
             "clockwiseTurns": 0
           },
           {
             "id": "city.trenford.stock.2",
             "pieceId": "piece.box",
-            "x": 0,
-            "y": 3,
+            "x": 2,
+            "y": 6,
             "clockwiseTurns": 0
           }
         ]
@@ -2622,28 +2622,28 @@
         }
       ],
       "market": {
-        "width": 7,
-        "height": 6,
+        "width": 13,
+        "height": 9,
         "startingPlacements": [
           {
             "id": "city.sergrad.stock.0",
             "pieceId": "piece.box",
-            "x": 0,
-            "y": 1,
+            "x": 2,
+            "y": 4,
             "clockwiseTurns": 0
           },
           {
             "id": "city.sergrad.stock.1",
             "pieceId": "piece.box",
-            "x": 4,
-            "y": 1,
+            "x": 6,
+            "y": 4,
             "clockwiseTurns": 0
           },
           {
             "id": "city.sergrad.stock.2",
             "pieceId": "piece.box",
-            "x": 0,
-            "y": 3,
+            "x": 2,
+            "y": 6,
             "clockwiseTurns": 0
           }
         ]
@@ -2694,28 +2694,28 @@
         }
       ],
       "market": {
-        "width": 7,
-        "height": 6,
+        "width": 13,
+        "height": 9,
         "startingPlacements": [
           {
             "id": "city.diaan.stock.0",
             "pieceId": "piece.box",
-            "x": 0,
-            "y": 1,
+            "x": 2,
+            "y": 4,
             "clockwiseTurns": 0
           },
           {
             "id": "city.diaan.stock.1",
             "pieceId": "piece.box",
-            "x": 4,
-            "y": 1,
+            "x": 6,
+            "y": 4,
             "clockwiseTurns": 0
           },
           {
             "id": "city.diaan.stock.2",
             "pieceId": "piece.box",
-            "x": 0,
-            "y": 3,
+            "x": 2,
+            "y": 6,
             "clockwiseTurns": 0
           }
         ]
@@ -2766,28 +2766,28 @@
         }
       ],
       "market": {
-        "width": 7,
-        "height": 6,
+        "width": 13,
+        "height": 9,
         "startingPlacements": [
           {
             "id": "city.teratia.stock.0",
             "pieceId": "piece.fish",
-            "x": 0,
-            "y": 1,
+            "x": 2,
+            "y": 4,
             "clockwiseTurns": 0
           },
           {
             "id": "city.teratia.stock.1",
             "pieceId": "piece.fish",
-            "x": 4,
-            "y": 1,
+            "x": 6,
+            "y": 4,
             "clockwiseTurns": 0
           },
           {
             "id": "city.teratia.stock.2",
             "pieceId": "piece.fish",
-            "x": 0,
-            "y": 3,
+            "x": 2,
+            "y": 6,
             "clockwiseTurns": 0
           }
         ]
@@ -2844,28 +2844,28 @@
         }
       ],
       "market": {
-        "width": 7,
-        "height": 6,
+        "width": 13,
+        "height": 9,
         "startingPlacements": [
           {
             "id": "city.teraka.stock.0",
             "pieceId": "piece.verticalTabs",
-            "x": 0,
-            "y": 1,
+            "x": 2,
+            "y": 4,
             "clockwiseTurns": 0
           },
           {
             "id": "city.teraka.stock.1",
             "pieceId": "piece.verticalTabs",
-            "x": 4,
-            "y": 1,
+            "x": 6,
+            "y": 4,
             "clockwiseTurns": 0
           },
           {
             "id": "city.teraka.stock.2",
             "pieceId": "piece.verticalTabs",
-            "x": 0,
-            "y": 3,
+            "x": 2,
+            "y": 6,
             "clockwiseTurns": 0
           }
         ]
@@ -2916,28 +2916,28 @@
         }
       ],
       "market": {
-        "width": 7,
-        "height": 6,
+        "width": 13,
+        "height": 9,
         "startingPlacements": [
           {
             "id": "city.pioa.stock.0",
             "pieceId": "piece.fish",
-            "x": 0,
-            "y": 1,
+            "x": 2,
+            "y": 4,
             "clockwiseTurns": 0
           },
           {
             "id": "city.pioa.stock.1",
             "pieceId": "piece.fish",
-            "x": 4,
-            "y": 1,
+            "x": 6,
+            "y": 4,
             "clockwiseTurns": 0
           },
           {
             "id": "city.pioa.stock.2",
             "pieceId": "piece.fish",
-            "x": 0,
-            "y": 3,
+            "x": 2,
+            "y": 6,
             "clockwiseTurns": 0
           }
         ]
@@ -2994,28 +2994,28 @@
         }
       ],
       "market": {
-        "width": 7,
-        "height": 6,
+        "width": 13,
+        "height": 9,
         "startingPlacements": [
           {
             "id": "city.valenrie.stock.0",
             "pieceId": "piece.verticalTabs",
-            "x": 0,
-            "y": 1,
+            "x": 2,
+            "y": 4,
             "clockwiseTurns": 0
           },
           {
             "id": "city.valenrie.stock.1",
             "pieceId": "piece.verticalTabs",
-            "x": 4,
-            "y": 1,
+            "x": 6,
+            "y": 4,
             "clockwiseTurns": 0
           },
           {
             "id": "city.valenrie.stock.2",
             "pieceId": "piece.verticalTabs",
-            "x": 0,
-            "y": 3,
+            "x": 2,
+            "y": 6,
             "clockwiseTurns": 0
           }
         ]
@@ -3054,28 +3054,28 @@
         }
       ],
       "market": {
-        "width": 7,
-        "height": 6,
+        "width": 13,
+        "height": 9,
         "startingPlacements": [
           {
             "id": "city.ibt.stock.0",
             "pieceId": "piece.topNotch",
-            "x": 0,
-            "y": 1,
+            "x": 2,
+            "y": 4,
             "clockwiseTurns": 0
           },
           {
             "id": "city.ibt.stock.1",
             "pieceId": "piece.topNotch",
-            "x": 4,
-            "y": 1,
+            "x": 6,
+            "y": 4,
             "clockwiseTurns": 0
           },
           {
             "id": "city.ibt.stock.2",
             "pieceId": "piece.topNotch",
-            "x": 0,
-            "y": 3,
+            "x": 2,
+            "y": 6,
             "clockwiseTurns": 0
           }
         ]
@@ -3114,28 +3114,28 @@
         }
       ],
       "market": {
-        "width": 7,
-        "height": 6,
+        "width": 13,
+        "height": 9,
         "startingPlacements": [
           {
             "id": "city.terapol.stock.0",
             "pieceId": "piece.fruit",
-            "x": 0,
-            "y": 1,
+            "x": 2,
+            "y": 4,
             "clockwiseTurns": 0
           },
           {
             "id": "city.terapol.stock.1",
             "pieceId": "piece.fruit",
-            "x": 4,
-            "y": 1,
+            "x": 6,
+            "y": 4,
             "clockwiseTurns": 0
           },
           {
             "id": "city.terapol.stock.2",
             "pieceId": "piece.fruit",
-            "x": 0,
-            "y": 3,
+            "x": 2,
+            "y": 6,
             "clockwiseTurns": 0
           }
         ]
@@ -3174,28 +3174,28 @@
         }
       ],
       "market": {
-        "width": 7,
-        "height": 6,
+        "width": 13,
+        "height": 9,
         "startingPlacements": [
           {
             "id": "city.berska.stock.0",
             "pieceId": "piece.verticalPair",
-            "x": 0,
-            "y": 1,
+            "x": 2,
+            "y": 4,
             "clockwiseTurns": 0
           },
           {
             "id": "city.berska.stock.1",
             "pieceId": "piece.verticalPair",
-            "x": 4,
-            "y": 1,
+            "x": 6,
+            "y": 4,
             "clockwiseTurns": 0
           },
           {
             "id": "city.berska.stock.2",
             "pieceId": "piece.verticalPair",
-            "x": 0,
-            "y": 3,
+            "x": 2,
+            "y": 6,
             "clockwiseTurns": 0
           }
         ]
@@ -3234,28 +3234,28 @@
         }
       ],
       "market": {
-        "width": 7,
-        "height": 6,
+        "width": 13,
+        "height": 9,
         "startingPlacements": [
           {
             "id": "city.dart.stock.0",
             "pieceId": "piece.topNotch",
-            "x": 0,
-            "y": 1,
+            "x": 2,
+            "y": 4,
             "clockwiseTurns": 0
           },
           {
             "id": "city.dart.stock.1",
             "pieceId": "piece.topNotch",
-            "x": 4,
-            "y": 1,
+            "x": 6,
+            "y": 4,
             "clockwiseTurns": 0
           },
           {
             "id": "city.dart.stock.2",
             "pieceId": "piece.topNotch",
-            "x": 0,
-            "y": 3,
+            "x": 2,
+            "y": 6,
             "clockwiseTurns": 0
           }
         ]
@@ -3306,28 +3306,28 @@
         }
       ],
       "market": {
-        "width": 7,
-        "height": 6,
+        "width": 13,
+        "height": 9,
         "startingPlacements": [
           {
             "id": "city.heilford.stock.0",
             "pieceId": "piece.uShape",
-            "x": 0,
-            "y": 1,
+            "x": 2,
+            "y": 4,
             "clockwiseTurns": 0
           },
           {
             "id": "city.heilford.stock.1",
             "pieceId": "piece.uShape",
-            "x": 4,
-            "y": 1,
+            "x": 6,
+            "y": 4,
             "clockwiseTurns": 0
           },
           {
             "id": "city.heilford.stock.2",
             "pieceId": "piece.uShape",
-            "x": 0,
-            "y": 3,
+            "x": 2,
+            "y": 6,
             "clockwiseTurns": 0
           }
         ]
@@ -3378,28 +3378,28 @@
         }
       ],
       "market": {
-        "width": 7,
-        "height": 6,
+        "width": 13,
+        "height": 9,
         "startingPlacements": [
           {
             "id": "city.finance.stock.0",
             "pieceId": "piece.box",
-            "x": 0,
-            "y": 1,
+            "x": 2,
+            "y": 4,
             "clockwiseTurns": 0
           },
           {
             "id": "city.finance.stock.1",
             "pieceId": "piece.box",
-            "x": 4,
-            "y": 1,
+            "x": 6,
+            "y": 4,
             "clockwiseTurns": 0
           },
           {
             "id": "city.finance.stock.2",
             "pieceId": "piece.box",
-            "x": 0,
-            "y": 3,
+            "x": 2,
+            "y": 6,
             "clockwiseTurns": 0
           }
         ]
@@ -3444,28 +3444,28 @@
         }
       ],
       "market": {
-        "width": 7,
-        "height": 6,
+        "width": 13,
+        "height": 9,
         "startingPlacements": [
           {
             "id": "city.teragrad.stock.0",
             "pieceId": "piece.uShape",
-            "x": 0,
-            "y": 1,
+            "x": 2,
+            "y": 4,
             "clockwiseTurns": 0
           },
           {
             "id": "city.teragrad.stock.1",
             "pieceId": "piece.uShape",
-            "x": 4,
-            "y": 1,
+            "x": 6,
+            "y": 4,
             "clockwiseTurns": 0
           },
           {
             "id": "city.teragrad.stock.2",
             "pieceId": "piece.uShape",
-            "x": 0,
-            "y": 3,
+            "x": 2,
+            "y": 6,
             "clockwiseTurns": 0
           }
         ]
@@ -3510,28 +3510,28 @@
         }
       ],
       "market": {
-        "width": 7,
-        "height": 6,
+        "width": 13,
+        "height": 9,
         "startingPlacements": [
           {
             "id": "city.sera.stock.0",
             "pieceId": "piece.cow",
-            "x": 0,
-            "y": 1,
+            "x": 2,
+            "y": 4,
             "clockwiseTurns": 0
           },
           {
             "id": "city.sera.stock.1",
             "pieceId": "piece.cow",
-            "x": 4,
-            "y": 1,
+            "x": 6,
+            "y": 4,
             "clockwiseTurns": 0
           },
           {
             "id": "city.sera.stock.2",
             "pieceId": "piece.cow",
-            "x": 0,
-            "y": 3,
+            "x": 2,
+            "y": 6,
             "clockwiseTurns": 0
           }
         ]
@@ -3576,28 +3576,28 @@
         }
       ],
       "market": {
-        "width": 7,
-        "height": 6,
+        "width": 13,
+        "height": 9,
         "startingPlacements": [
           {
             "id": "city.osber.stock.0",
             "pieceId": "piece.saltSack",
-            "x": 0,
-            "y": 1,
+            "x": 2,
+            "y": 4,
             "clockwiseTurns": 0
           },
           {
             "id": "city.osber.stock.1",
             "pieceId": "piece.saltSack",
-            "x": 4,
-            "y": 1,
+            "x": 6,
+            "y": 4,
             "clockwiseTurns": 0
           },
           {
             "id": "city.osber.stock.2",
             "pieceId": "piece.saltSack",
-            "x": 0,
-            "y": 3,
+            "x": 2,
+            "y": 6,
             "clockwiseTurns": 0
           }
         ]
@@ -3617,28 +3617,28 @@
       "sellPercentOfFinalValue": 100,
       "tagPrices": [],
       "market": {
-        "width": 7,
-        "height": 6,
+        "width": 13,
+        "height": 9,
         "startingPlacements": [
           {
             "id": "city.mert.stock.0",
             "pieceId": "piece.box",
-            "x": 0,
-            "y": 1,
+            "x": 2,
+            "y": 4,
             "clockwiseTurns": 0
           },
           {
             "id": "city.mert.stock.1",
             "pieceId": "piece.verticalTabs",
-            "x": 4,
-            "y": 1,
+            "x": 6,
+            "y": 4,
             "clockwiseTurns": 0
           },
           {
             "id": "city.mert.stock.2",
             "pieceId": "piece.topNotch",
-            "x": 0,
-            "y": 3,
+            "x": 2,
+            "y": 6,
             "clockwiseTurns": 0
           }
         ]
@@ -3683,28 +3683,28 @@
         }
       ],
       "market": {
-        "width": 7,
-        "height": 6,
+        "width": 13,
+        "height": 9,
         "startingPlacements": [
           {
             "id": "city.rasburk.stock.0",
             "pieceId": "piece.saltSack",
-            "x": 0,
-            "y": 1,
+            "x": 2,
+            "y": 4,
             "clockwiseTurns": 0
           },
           {
             "id": "city.rasburk.stock.1",
             "pieceId": "piece.saltSack",
-            "x": 4,
-            "y": 1,
+            "x": 6,
+            "y": 4,
             "clockwiseTurns": 0
           },
           {
             "id": "city.rasburk.stock.2",
             "pieceId": "piece.saltSack",
-            "x": 0,
-            "y": 3,
+            "x": 2,
+            "y": 6,
             "clockwiseTurns": 0
           }
         ]
@@ -3830,8 +3830,8 @@
       "slots": [
         {
           "id": "region",
-          "x": 4,
-          "y": 3,
+          "x": 6,
+          "y": 6,
           "width": 3,
           "height": 2
         }
@@ -3845,8 +3845,8 @@
       "slots": [
         {
           "id": "region",
-          "x": 4,
-          "y": 3,
+          "x": 6,
+          "y": 6,
           "width": 3,
           "height": 2
         }
@@ -3860,8 +3860,8 @@
       "slots": [
         {
           "id": "region",
-          "x": 4,
-          "y": 3,
+          "x": 6,
+          "y": 6,
           "width": 3,
           "height": 2
         }
@@ -3889,15 +3889,29 @@
       "slots": [
         {
           "id": "random.0",
-          "x": 0,
-          "y": 5,
+          "x": 2,
+          "y": 8,
           "width": 3,
           "height": 2
         },
         {
           "id": "random.1",
-          "x": 4,
-          "y": 5,
+          "x": 6,
+          "y": 8,
+          "width": 3,
+          "height": 2
+        },
+        {
+          "id": "random.2",
+          "x": 9,
+          "y": 8,
+          "width": 3,
+          "height": 2
+        },
+        {
+          "id": "random.3",
+          "x": 9,
+          "y": 6,
           "width": 3,
           "height": 2
         }
@@ -3911,8 +3925,8 @@
       "slots": [
         {
           "id": "region",
-          "x": 4,
-          "y": 3,
+          "x": 6,
+          "y": 6,
           "width": 3,
           "height": 2
         }
@@ -3927,8 +3941,8 @@
       "slots": [
         {
           "id": "region",
-          "x": 4,
-          "y": 3,
+          "x": 6,
+          "y": 6,
           "width": 3,
           "height": 2
         }
@@ -3942,8 +3956,8 @@
       "slots": [
         {
           "id": "region",
-          "x": 4,
-          "y": 3,
+          "x": 6,
+          "y": 6,
           "width": 3,
           "height": 2
         }
