@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>거래 UI 개편안과 예상 레이아웃 — JigsawBackpack</title>
+<style>
+  :root{
+    --bg:#14161a; --panel:#1d2026; --panel2:#23262e; --line:#343a46; --txt:#d8dde6; --sub:#9aa3b2;
+    --accent:#e6b422; --blue:#4f8fd6; --green:#4fae62; --red:#d65f5f; --ghost:#8fd0ff;
+    --train:#3b4a63; --market:#4a3b2e; --info:#2e3440;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--txt);font:14px/1.6 "Segoe UI","Malgun Gothic",sans-serif}
+  .wrap{max-width:1180px;margin:0 auto;padding:28px 20px 80px}
+  h1{font-size:26px;margin:0 0 4px}
+  h2{font-size:19px;margin:44px 0 10px;padding-bottom:6px;border-bottom:2px solid var(--line)}
+  h3{font-size:16px;margin:26px 0 8px;color:#fff}
+  p,li{color:var(--txt)}
+  .meta{color:var(--sub);font-size:12.5px;margin-bottom:18px}
+  .meta b{color:#c8d0dc}
+  a{color:var(--blue);text-decoration:none}
+  code{background:#262a32;padding:1px 5px;border-radius:4px;font-size:12.5px;color:#cfe3ff}
+  table{border-collapse:collapse;width:100%;margin:10px 0;font-size:13px}
+  th,td{border:1px solid var(--line);padding:6px 9px;text-align:left;vertical-align:top}
+  th{background:var(--panel2);color:#fff;font-weight:600}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px 18px;margin:12px 0}
+  .verdict{border-color:var(--accent);background:linear-gradient(180deg,#262316,var(--panel))}
+  .pill{display:inline-block;background:var(--panel2);border:1px solid var(--line);border-radius:20px;padding:2px 10px;font-size:12px;color:var(--sub);margin:2px 4px 2px 0}
+  .pill.on{border-color:var(--accent);color:var(--accent)}
+  .tag{display:inline-block;font-size:11px;padding:1px 7px;border-radius:4px;margin-right:6px;font-weight:600}
+  .tS{background:#233a2a;color:#8fd6a0}.tH{background:#3a2a33;color:#e39ab4}.tD{background:#2a3140;color:#9fc0e8}
+  /* 탭 */
+  .tabs{display:flex;gap:8px;margin:14px 0 0}
+  .tab{flex:1;background:var(--panel);border:1px solid var(--line);border-radius:8px 8px 0 0;padding:10px 12px;cursor:pointer;color:var(--sub);font-size:13.5px}
+  .tab b{display:block;color:inherit;font-size:14.5px}
+  .tab.active{background:var(--panel2);border-color:var(--accent);color:var(--txt)}
+  .tab.active b{color:var(--accent)}
+  /* 와이어프레임 캔버스: 1920×1080의 50% = 960×540 */
+  .wf{position:relative;width:960px;height:540px;background:#101216;border:1px solid var(--line);border-radius:6px;margin:10px 0 4px;overflow:hidden;font-size:10px}
+  .wf .box{position:absolute;border:1px solid #454c5c;border-radius:4px;background:#1a1e25;color:#aab3c2;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:2px;overflow:hidden}
+  .wf .grid{background-image:linear-gradient(#ffffff10 1px,transparent 1px),linear-gradient(90deg,#ffffff10 1px,transparent 1px);background-size:48.8px 48.8px}
+  .wf .hdr{background:#242a35;color:#cdd6e4;font-weight:600}
+  .b-train{background:#22304a !important;border-color:#41608f !important}
+  .b-market{background:#33291e !important;border-color:#8a6b45 !important}
+  .b-info{background:#252b36 !important}
+  .b-ctx{background:#20303a !important;border-color:#3d6a7a !important}
+  .b-bar{background:#1c1f26 !important}
+  .item{position:absolute;border-radius:3px;background:#4d6db3;border:1px solid #7d9ede;color:#eaf1ff;display:flex;align-items:center;justify-content:center;font-size:9.5px}
+  .item.sell{background:#4d7a9e}
+  .item.green{background:#3e7a4e;border-color:#6fce85}
+  .item.red{background:#7a3e3e;border-color:#d68a8a}
+  .ghost{position:absolute;border:2px dashed var(--ghost);background:#8fd0ff22;border-radius:3px;display:flex;align-items:center;justify-content:center;color:#d9ecff;font-size:9.5px}
+  .src{position:absolute;border:1px dashed #e6b42288;background:#e6b42214;border-radius:3px;display:flex;align-items:center;justify-content:center;color:#e6d7a4;font-size:9px}
+  .arrow{position:absolute;height:2px;background:linear-gradient(90deg,var(--accent),transparent);}
+  .ann{position:absolute;color:var(--accent);font-size:10px;font-weight:600;line-height:1.35;text-shadow:0 1px 2px #000}
+  .ann .n{display:inline-block;width:14px;height:14px;border-radius:50%;background:var(--accent);color:#111;text-align:center;line-height:14px;font-size:10px;margin-right:3px}
+  .chip{position:absolute;font-size:9px;padding:0 4px;border-radius:3px;background:#2b5a36;color:#9fe6b3;border:1px solid #4fae62}
+  .chip.neg{background:#5a2b2b;color:#f0b3b3;border-color:#d65f5f}
+  .legend{display:flex;gap:14px;flex-wrap:wrap;color:var(--sub);font-size:12px;margin:4px 0 0}
+  .sw{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:5px;vertical-align:-2px}
+  .scorebar{display:flex;height:14px;border-radius:7px;overflow:hidden;font-size:10px;color:#101216;text-align:center;line-height:14px;margin:6px 0 2px}
+  .scorebar div{height:100%}
+  .scorebar .s1{background:#7fb069}.scorebar .s0{background:#3a3f4a;color:#9aa3b2}
+  .procon{display:flex;gap:12px}
+  .procon>div{flex:1;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:10px 14px;font-size:13px}
+  .good{color:#8fd6a0}.bad{color:#e39ab4}
+  .statebtns{display:flex;gap:6px;margin:10px 0 0}
+  .stbtn{background:var(--panel);border:1px solid var(--line);color:var(--sub);border-radius:6px;padding:5px 12px;cursor:pointer;font-size:12.5px}
+  .stbtn.active{border-color:var(--blue);color:#cfe3ff;background:#1c2733}
+  ul{padding-left:20px}
+  .small{font-size:12.5px;color:var(--sub)}
+  .kbd{border:1px solid var(--line);border-bottom-width:2px;border-radius:4px;padding:0 5px;font-size:11.5px;background:#262a32}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>거래 UI 개편안과 예상 레이아웃</h1>
+<div class="meta">
+  기준 커밋 <b>fe7c6d5</b> · 작성 2026-11-18 · 상태: <b>R4 초안 — G1(사용자 결정 게이트) 대기</b><br>
+  근거: <a href="CURRENT_UI_LAYOUT_AUDIT.md">현 UI 감사 R0</a> ·
+  <a href="GRID_INVENTORY_LAYOUT_RESEARCH_PLAN.md">조사 계획</a> ·
+  <a href="GRID_INVENTORY_CANDIDATE_REGISTER.md">후보 레지스터 R1</a> ·
+  <a href="GRID_INVENTORY_UI_RESEARCH.md">그리드 인벤토리 총조사</a><br>
+  모든 와이어프레임은 실제 배치 계약(UI_LAYOUT 좌표)의 <b>50% 축소</b>(1920×1080 → 960×540)이며, 좌표는 감사서 §2의 직렬화 값(S+D)을 따른다.
+</div>
+
+<div class="card verdict">
+  <b>요약 — 권고: B안(중간안) + 공통 패키지</b><br>
+  평상시 역 화면(좌 기차·우 시장)은 유지하되, <b>화물을 잡는 순간</b> 두 보드가 근접·대칭으로 재배치되고 시장 정보 열이
+  <b>거래 컨텍스트 패널</b>(견적·잔액 전후·시너지 ±·실패 사유)로 전환되는 구조. 검색·필터·자동 정렬·Junk 일괄 판매·상태 문구 강화는
+  3안 공통으로 선행 적용한다(§3). 감사서가 지적한 핵심 격차 — <i>"잡는 순간 가격 상세가 사라진다", "두 보드가 658px 떨어져 있다"</i>(H) — 를
+  가장 적은 구현 비용으로 닫는다.
+</div>
+
+<h2>1. 문제 정의 — 현 UI의 5가지 격차 (감사서 R0 요약)</h2>
+<table>
+  <tr><th>과제</th><th>현재 경로</th><th>마찰 가설(H)</th></tr>
+  <tr><td>구매</td><td>시장 호버 가격 → 기차로 드래그 → 상단 견적 → 놓기</td><td>잡는 순간 가격·상세가 사라짐. 배치 후 총손익·잔액을 한 문맥에서 못 봄</td></tr>
+  <tr><td>재배치</td><td>원자리/고스트/이웃 ±% 칩 · 하단 슬롯</td><td>다른 화차를 미리 비교 못 함. 칩은 전체 손익이 아니라 이웃 단위</td></tr>
+  <tr><td>판매</td><td>기차 호버 판매가 · 소문은 요약/수첩</td><td>매입 원가·도시별 기회가 하나의 선택 문맥에 없음</td></tr>
+  <tr><td>여정</td><td>지도(시장 영역 대체) · 툴팁 미래가치</td><td>시장 구매와 목적지 탐색이 분리. 미래가치=순익 아님(이름 바꿔 표시 금지)</td></tr>
+  <tr><td>오류 복구</td><td>상태 줄 사유 · Esc 취소 · 실패 시 원본 유지</td><td>내부 재배치 사유는 빈 문자열 가능. 공간/경제 무효가 같은 색</td></tr>
+</table>
+<p class="small">표기: <span class="tag tS">S 소스 확인</span><span class="tag tD">D 문서 계약</span><span class="tag tH">H 플레이 검증 필요 가설</span> — 개편안의 모든 주장은 R0의 근거 수준을 따른다. H를 결함 확정으로 읽지 않는다.</p>
+
+<h2>2. 평가 기준 (조사 계획 §6)</h2>
+<table>
+  <tr><th>기준(가중치)</th><th>성공 조건</th></tr>
+  <tr><td>핵심 루프 적합성 (25)</td><td>구매→배치→이동·정산→판매의 연결을 끊지 않는다</td></tr>
+  <tr><td>두 그리드 이동 명료성 (20)</td><td>출발·도착·유효성·확정 결과를 오해하지 않는다</td></tr>
+  <tr><td>가격 판단력 (20)</td><td>현재 거래와 알려진 미래 기회를 빠르게 비교한다</td></tr>
+  <tr><td>시너지 판단력 (15)</td><td>배치 전후 영향 대상과 가치 변화를 읽는다</td></tr>
+  <tr><td>정보 과부하 억제 (10)</td><td>공간 퍼즐이 숫자표에 묻히지 않는다</td></tr>
+  <tr><td>현 프로젝트 구현 적합성 (10)</td><td>프리팹·입력·데이터 계약 안에서 단계적 적용이 가능하다</td></tr>
+</table>
+
+<h2>3. 공통 패키지 — 3안 모두에 선행 적용</h2>
+<div class="card">
+  <span class="pill on">거래 요약 패널</span><span class="pill on">자동 정렬(방향 선택형)</span><span class="pill on">시장 검색·필터</span><span class="pill on">Junk 마킹·일괄 매도</span><span class="pill on">실패 사유 문구 보강</span>
+  <ul>
+    <li><b>자동 정렬</b>: 기차 카드 헤더에 버튼. 방향(위→아래 / 왼→오른) 선택형 — Titan Quest AE·Sacred 2 계보. 서비스의 빈자리 탐색(현재 Ctrl 경로)을 재사용, 미리보기 없이 즉시 적용은 유지하되 <span class="kbd">Ctrl</span> 이동과 동일한 상태 줄 사유를 표시.</li>
+    <li><b>시장 검색·필터</b>: 시장 보드 상단 1줄 — 품목명 검색(IME 포커스 시 Esc 우선순위 주의) + 태그·등급 칩 필터. 결과 없음 상태 표시. Diablo IV 스태시 검색·Sacred 품목 탭 계보.</li>
+    <li><b>Junk 마킹·일괄 매도</b>: 기차 화물 우클릭 메뉴에 "폐기 예정 표시"(Junk) → 시장 열려 있으면 일괄 매도 버튼. D3/D4 Junk 체계. 표시는 프리팹 사전 배치 뱃지로 처리(런타임 생성 금지 유지).</li>
+    <li><b>실패 사유 문구 보강</b>: 같은 화차 재배치 등 Direction=None에서도 사유 문장을 반환하도록 <code>Presentation.PuzzleTradeStatus</code> 확장 — "공간 무효/경제 무효가 같은 색" 문제를 텍스트로 중복 전달.</li>
+    <li><b>소문 연동 힌트</b>: 시장 보드에서 알고 있는(소문으로 확인된) 태그 등급 배지를 정보 열에 상시 표시 — 정보 수준 4단계(정확/범위/등급/미확인) 중 현재 수준을 라벨로 구분.</li>
+  </ul>
+</div>
+
+<h2>4. 레이아웃 3안 예상 와이어프레임</h2>
+<p class="small">각 안은 같은 시나리오(시장의 2×3 화물을 기차로 구매·배치)의 <b>평상시 / 드래그 중</b> 두 상태를 그린다. 아래 탭으로 안을 전환하고, 각 안 안의 버튼으로 상태를 전환한다.</p>
+
+<div class="tabs" id="planTabs">
+  <div class="tab" data-plan="A"><b>A안 · 보수안</b>좌우 구조 유지 + 정보 계층·드래그 피드백만 개선</div>
+  <div class="tab active" data-plan="B"><b>B안 · 중간안 ★권고</b>거래 중에만 두 보드를 근접·대칭 배치, 평상시는 역 화면 유지</div>
+  <div class="tab" data-plan="C"><b>C안 · 재구성안</b>구매·배치·가격·목적지 판단을 하나의 거래 작업 공간으로</div>
+</div>
+
+<div class="card" id="planDetail">
+  <div class="statebtns">
+    <button class="stbtn active" data-state="idle">평상시</button>
+    <button class="stbtn" data-state="drag">드래그 중(구매)</button>
+  </div>
+  <div id="planBullets"></div>
+  <div id="wireframeHost"></div>
+  <div class="legend">
+    <span><span class="sw" style="background:#22304a"></span>기차 보드 5×5</span>
+    <span><span class="sw" style="background:#33291e"></span>시장 보드 7×6</span>
+    <span><span class="sw" style="background:#20303a"></span>컨텍스트 패널(신설)</span>
+    <span><span class="sw" style="background:#8fd0ff"></span>드래그 고스트</span>
+    <span><span class="sw" style="background:#e6b422"></span>주석 ①②③…</span>
+  </div>
+  <div id="planScore"></div>
+</div>
+
+<h3>평가 점수 비교 (가중합 100)</h3>
+<table>
+  <tr><th>기준</th><th>가중치</th><th>A 보수안</th><th>B 중간안 ★</th><th>C 재구성안</th></tr>
+  <tr><td>핵심 루프 적합성</td><td>25</td><td>22</td><td>23</td><td>24</td></tr>
+  <tr><td>두 그리드 이동 명료성</td><td>20</td><td>13</td><td>17</td><td>18</td></tr>
+  <tr><td>가격 판단력</td><td>20</td><td>15</td><td>17</td><td>19</td></tr>
+  <tr><td>시너지 판단력</td><td>15</td><td>12</td><td>13</td><td>14</td></tr>
+  <tr><td>정보 과부하 억제</td><td>10</td><td>9</td><td>8</td><td>6</td></tr>
+  <tr><td>현 프로젝트 구현 적합성</td><td>10</td><td>9</td><td>7</td><td>3</td></tr>
+  <tr><th>합계</th><th>100</th><th>80</th><th><b style="color:var(--accent)">85</b></th><th>84</th></tr>
+</table>
+<p class="small">점수는 결론을 자동 정하는 장치가 아니라 장점을 같은 언어로 비교하기 위한 것(조사 계획 §6). C안은 가격·시너지 판독에서 최고이나 정보 밀도(과부하 6)와 프리팹·입력 전면 재구성 비용(구현 3)이 감점 — 후속(심층 15 검증 후) 재검토 가능.</p>
+
+<h2>5. 권고안(B안) 상태별 계약 — 감사서 R4/R5 인수 조건 대응</h2>
+<table>
+  <tr><th>상태</th><th>보드 배치</th><th>가격 정보 위치</th><th>공간·시너지 위치</th><th>여정 정보 위치</th></tr>
+  <tr><td>평상시</td><td>현재 유지(좌 기차 536×780 · 우 시장 7×6 + 도시 규칙 열)</td><td>호버 툴팁(기존)</td><td>배치 확정 시 화살표(기존)</td><td>정보 바·수첩(기존)</td></tr>
+  <tr><td>선택(누름)</td><td>변경 없음 — <b>드래그 임계값 도입 검토</b>(현재 즉시 드래그)</td><td>호버 툴팁 유지 + 상태 줄에 방향·견적 선반영</td><td>—</td><td>—</td></tr>
+  <tr><td>드래그 중</td><td><b>기차 보드가 시장 보드 우측으로 슬라이드</b>(중심 간 658px → 약 250px), 셀 크기 97.6 동일</td><td><b>거래 컨텍스트 패널</b>(기존 도시 규칙 열 자리 스왑): 방향·견적·잔액 전후</td><td>고스트·유효/무효 + 이웃 ± 칩(기존) + <b>화차 총가치 Δ</b> 1줄 추가</td><td>패널 하단 고정 1줄: 기한·정산까지(선택 시에만)</td></tr>
+  <tr><td>드롭 직전</td><td>근접 유지</td><td>패널 견적 확정 표시(흔들림 없음)</td><td>고스트 색=공간 유효, 사유 문장=경제 무효 구분</td><td>—</td></tr>
+  <tr><td>거래 직후</td><td>원위치 복귀(드래그 종료)</td><td>상태 줄에 거래 결과 + 잔액(기존) 유지</td><td>정산 화살표 재계산(기존)</td><td>—</td></tr>
+  <tr><td>목적지 선택</td><td>지도 열림(기존 — 시장 대체)</td><td>링크 미리보기(기존) + 소문 기반 배지</td><td>—</td><td>운임·도착 턴·밤 여부 확인창(기존)</td></tr>
+</table>
+<p class="small">거래 컨텍스트 패널 데이터는 감사서 §6의 "순수 미리보기 DTO" 원칙을 따른다 — <code>TryQuoteTrade</code>를 재사용하고 가격식을 복제하지 않는다. 미래 가치를 "순익"으로 이름 바꿔 표시하지 않는다. 알려진 도시 가격은 정보 수준 라벨(정확/범위/등급/미확인)을 반드시 붙인다.</p>
+
+<h2>6. 구현 영향도 (감사서 §6 접점 기반)</h2>
+<table>
+  <tr><th>단계</th><th>작업</th><th>주 파일·프리팹</th><th>비고</th></tr>
+  <tr><td>1</td><td>공통 패키지(자동 정렬·검색·필터·Junk·사유 문구)</td><td><code>PuzzleInventoryView/Presenter</code> · <code>Presentation.cs</code> · 기초데이터 문구 · GameplayLayout 버튼/칩 사전 배치</td><td>런타임 생성 금지 — 사전 배치 풀 on/off만</td></tr>
+  <tr><td>2</td><td>거래 컨텍스트 패널</td><td>GameplayLayout의 시장 정보 열 자리에 패널 스왑 · <code>PuzzleInventoryService</code> 미리보기 DTO · <code>PuzzleItemTooltipView</code>와 역할 분리</td><td>도시 규칙 열은 평상시 유지, 드래그 중에만 스왑</td></tr>
+  <tr><td>3</td><td>거래 중 보드 근접 배치</td><td><code>GameplayLayout.prefab</code> 기차 보드 인스턴스 override · TrainBar/Presenter의 단일 trainView 가정 검토</td><td>애니메이션은 최소(즉시 스왑 가능). 지도·수첩 열림 중에는 미적용</td></tr>
+  <tr><td>4</td><td>회귀 검증</td><td>Esc/우클릭·회전 우선순위 · <span class="kbd">Ctrl</span> 빠른 이동 · 하단 화차 드롭 · 지도 상태 제한 · 툴팁 Z-order 270</td><td>시나리오 5개(구매·재배치·판매·여정·오류 복구)로 기록</td></tr>
+</table>
+<p class="small">보존 제약(감사서 §6): 런타임 UI 동적 생성 금지 · 공용 PuzzleInventoryUI 원본 수정은 단일 담당자 · CanvasScaler 1920×1080 Expand · 시너지·가격·소문 공개 규칙 변경 금지.</p>
+
+<h2>7. G1 결정 게이트 — 사용자 확인 항목</h2>
+<div class="card">
+  <ul>
+    <li>선택 안 확정: <b>B안</b>(기본 제안) / A안 / C안 / 보류</li>
+    <li>거래 컨텍스트 패널의 우선 정보: <b>도시 규칙</b> vs <b>선택 화물</b>(감사서 질문 1) — B안은 "드래그 중에만 화물 우선"으로 절충</li>
+    <li>드롭 전 비교 기준 수치: 즉시 판매액 / 다음 정산 가치 / 선택 목적지 순익 중 무엇을 보여줄 것인가(질문 2) — B안은 현재 견적만 표시하고 목적지 순익은 목적지 선택 상태로 한정</li>
+    <li>알려진 도시 정보 수준·유효 기간(질문 3): 소문의 refreshTurns와 동일 수명으로 갈지</li>
+    <li><span class="kbd">Ctrl</span> 빠른 이동의 즉시 거래 유지 여부(질문 4) — B안은 유지 + 상태 줄 사유 강화만</li>
+    <li>다른 화차 동시 노출은 이번 범위에서 제외(질문 5) — 하단 화차 바 드롭 유지</li>
+  </ul>
+</div>
+
+<p class="meta" style="margin-top:30px">본 문서는 R4 산출물이다. G1에서 안이 확정되면 I1(프로토타입/구현) → V1(시나리오 검증) → V2(독립 리뷰)로 진행한다(조사 계획 §9). 와이어프레임의 좌표·크기는 UI_LAYOUT 계약의 50% 축소값이며 실제 렌더링 측정이 아니다.</p>
+
+</div>
+
+<script>
+// ---------- 와이어프레임 생성 ----------
+function el(cls, x, y, w, h, label, extra){
+  const d = document.createElement('div');
+  d.className = 'box ' + (cls||'');
+  d.style.left = x+'px'; d.style.top = y+'px'; d.style.width = w+'px'; d.style.height = h+'px';
+  if (extra) d.style.cssText += extra;
+  if (label) d.innerHTML = label;
+  return d;
+}
+function items(host, list){ // (x,y,w,h,label,cls)
+  list.forEach(it => {
+    const d = document.createElement('div');
+    d.className = 'item ' + (it[5]||'');
+    d.style.left = it[0]+'px'; d.style.top = it[1]+'px'; d.style.width = it[2]+'px'; d.style.height = it[3]+'px';
+    d.textContent = it[4]||'';
+    host.appendChild(d);
+  });
+}
+function ann(host, x, y, html){ const d=document.createElement('div'); d.className='ann'; d.style.left=x+'px'; d.style.top=y+'px'; d.innerHTML=html; host.appendChild(d); }
+function chip(host, x, y, txt, neg){ const d=document.createElement('div'); d.className='chip'+(neg?' neg':''); d.style.left=x+'px'; d.style.top=y+'px'; d.textContent=txt; host.appendChild(d); }
+
+// 공통: 상단 정보바/상태줄/하단 바
+function common(host, statusText){
+  host.appendChild(el('hdr b-bar', 20, 8, 920, 30, '정보 바 — 도시 · <b>3일 4턴 (18:00)</b> · 기한 97턴 · 자금 <b>1,240$</b> / 1,500$', 'white-space:nowrap'));
+  host.appendChild(el('b-bar', 20, 46, 920, 16, statusText || '상태 줄 — 거래 견적/사유 한 줄', 'color:#cdd6e4;font-size:10px;white-space:nowrap'));
+  host.appendChild(el('b-bar', 0, 468, 960, 36, '하단 고정 UI — 수첩 · <b>화차 바 [기관차|1|2|3|+]</b> · 지도', 'white-space:nowrap'));
+}
+
+// 기차 카드(평상시 좌측): (20,70) 268×390, 보드 (32,184) 244×244 5×5
+function trainCard(host, opts){
+  opts = opts || {};
+  const card = el('b-train', 20, 70, 268, 390, '');
+  card.appendChild(Object.assign(document.createElement('div'), {innerHTML:'<b style="font-size:11px">기차 카드 — 1호 객차</b><br><span style="font-size:9px">가치 830$ · 효과 2 · 숙련 칩</span>', style:'padding:4px;width:100%'}));
+  const sortBtn = document.createElement('div');
+  sortBtn.style.cssText='position:absolute;top:4px;right:6px;font-size:9px;border:1px solid #7d9ede;border-radius:3px;padding:1px 5px;color:#cfe3ff';
+  sortBtn.textContent='자동 정렬 ▾';
+  card.appendChild(sortBtn);
+  const board = el('grid', 12, 114, 244, 244, '');
+  if (opts.trainPos){ board.style.left=opts.trainPos[0]+'px'; board.style.top=opts.trainPos[1]+'px'; }
+  board.style.cssText += 'position:absolute;background-size:48.8px 48.8px;';
+  card.appendChild(board);
+  host.appendChild(card);
+  return board;
+}
+// 시장 보드: 역열 (300,70) 640×390, 보드 (312,160) 342×293 7×6
+function marketBlock(host, opts){
+  opts = opts || {};
+  const panel = el('hdr', 300, 70, 640, 390, '');
+  panel.style.cssText += 'background:#181b21;align-items:flex-start;';
+  panel.appendChild(Object.assign(document.createElement('div'), {innerHTML:'<b style="font-size:11px;padding:4px 8px">역 — 시장 · 뒤로</b>', style:'width:100%;height:22px'}));
+  host.appendChild(panel);
+  const board = el('grid b-market', 312, 160, 342, 293, '');
+  board.style.backgroundSize = '48.8px 48.8px';
+  host.appendChild(board);
+  return {panel, board};
+}
+// 시나리오: 시장 2×3 화물(곡물 50$), 기차 (2,1)에 2×3 자리, 이웃 +20% 칩
+function marketItem(host, ox, oy){
+  items(host, [[ox+2, oy+2, 97.6, 146.4, '곡물 2×3 · 50$', 'green']]);
+}
+
+const PLAN = {
+  A: {
+    name:'A안 · 보수안',
+    bullets:`<ul>
+      <li>좌우 구조·보드 좌표를 <b>그대로 유지</b>(기차 중심 308,612 · 시장 중심 965.6,612 — 간격 658px 유지).</li>
+      <li>시장 정보 열(525×592)을 도시 규칙 ↔ <b>선택·드래그 중 거래 요약</b>으로 스왑.</li>
+      <li>공통 패키지(자동 정렬·검색·필터·Junk·사유 문구)로 조작 마찰 축소.</li>
+      <li>레이아웃 프리팹 변경 최소 — 정보 열 내부 교체만으로 완료.</li></ul>`,
+    score: [['핵심 루프',22,25],['이동',13,20],['가격',15,20],['시너지',12,15],['과부하',9,10],['구현',9,10]],
+    draw(host, state){
+      common(host, state==='drag' ? '상태 줄 — <b>구매 · 곡물 50$ · 잔액 1,190$</b>' : '상태 줄 — 거래 견적/사유 한 줄');
+      const board = trainCard(host);
+      items(host, [[32+2*48.8-1, 184+1*48.8-1, 97.6, 146.4, '목재 2×3'],[32-1, 184-1, 97.6, 97.6, '소']]);
+      const m = marketBlock(host);
+      marketItem(host, 312, 160);
+      // 우측 정보 열
+      const info = el(state==='drag' ? 'b-ctx' : 'b-info', 666, 158, 262, 296, '');
+      info.innerHTML = state==='drag'
+        ? '<b style="font-size:11px;color:#9fe6b3">거래 요약(스왑)</b><br>곡물 2×3<br>구매 <b>50$</b> · 잔액 1,240→1,190$<br>시너지 +20%(곡물+소금) · 총가치 +12$<br><span style="color:#e39ab4">사유: 자금 부족 시 문장 표시</span>'
+        : '<b style="font-size:11px">도시 교역 규칙(기존)</b><br>Common/Expensive/Rare 등급<br>태그 배지 · 지역 배율';
+      info.style.cssText += 'padding:8px;align-items:flex-start;text-align:left;font-size:10.5px;line-height:1.5';
+      host.appendChild(info);
+      if (state==='drag'){
+        ann(host, 560, 200, '① 정보 열이 거래 요약으로 스왑<br>(호버 툴팁은 드래그 중 숨김)');
+        ann(host, 230, 120, '② 보드 간격 658px 유지 — 이동 거리 개선 없음');
+      } else {
+        ann(host, 666, 128, '① 평상시: 도시 규칙 열(기존)');
+      }
+    }
+  },
+  B: {
+    name:'B안 · 중간안 ★권고',
+    bullets:`<ul>
+      <li>평상시는 <b>현재 역 화면 그대로</b>(구현 영향 최소).</li>
+      <li><b>화물을 잡는 순간</b> 기차 보드가 시장 보드 우측 근접 위치로 이동(중심 간 ≈250px) — 셀 크기 97.6 동일, 드래그 거리 658→약 250px.</li>
+      <li>시장 정보 열 자리에 <b>거래 컨텍스트 패널</b>: 방향·견적·잔액 전후·시너지 ±·화차 총가치 Δ·실패 사유.</li>
+      <li>놓거나 취소하면 원위치. 지도·수첩 열림 중에는 미적용.</li>
+      <li>근거: Backpack Battles(구매+인접 동시 판독)·DREDGE(선창↔보관)·Tarkov(두 보드 근접+실패 사유) — 레지스터 R1 심층 후보 1·5·7.</li></ul>`,
+    score: [['핵심 루프',23,25],['이동',17,20],['가격',17,20],['시너지',13,15],['과부하',8,10],['구현',7,10]],
+    draw(host, state){
+      if (state==='drag'){
+        common(host, '상태 줄 — <b>구매 · 곡물 50$ · 잔액 1,240→1,190$ · 사유는 문장으로</b>');
+        // 시장 보드 좌측 고정, 기차 보드 우측 근접
+        const panel = el('hdr', 300, 70, 640, 390, ''); panel.style.cssText += 'background:#181b21;align-items:flex-start;';
+        panel.innerHTML = '<b style="font-size:11px;padding:4px 8px">역 — 시장 (거래 중: 기차 보드가 근접 이동)</b>';
+        host.appendChild(panel);
+        const m = el('grid b-market', 320, 160, 342, 293, ''); m.style.backgroundSize='48.8px 48.8px'; host.appendChild(m);
+        items(host, [[322, 162, 97.6, 146.4, '곡물 2×3 · 50$', 'green']]);
+        const src = document.createElement('div'); // 시장에서 빠진 자리(취소 시 복귀 표시)
+        src.className='src'; src.style.left='322px'; src.style.top='162px'; src.style.width='97.6px'; src.style.height='146.4px'; src.textContent='출발(취소 시 복귀)';
+        host.appendChild(src);
+        const t = el('grid b-train', 690, 160, 244, 244, ''); t.style.backgroundSize='48.8px 48.8px'; host.appendChild(t);
+        items(host, [[690+2*48.8-1, 160+1*48.8-1, 97.6, 146.4, '목재 2×3'],[690-1, 160-1, 97.6, 97.6, '소']]);
+        const g = document.createElement('div'); g.className='ghost';
+        g.style.left=(690+2*48.8-1)+'px'; g.style.top=(160+1*48.8-1)+'px'; g.style.width='97.6px'; g.style.height='146.4px'; g.textContent='고스트 · 유효';
+        host.appendChild(g);
+        // 시너지 칩
+        chip(host, 690+4*48.8+2, 160+1*48.8+2, '+20%', false);
+        chip(host, 690+1*48.8+2, 160+1*48.8+2, '-10%', true);
+        // 컨텍스트 패널(기존 정보 열 자리)
+        const ctx = el('b-ctx', 666, 70, 274, 78, '');
+        ctx.style.cssText += 'padding:6px 8px;align-items:flex-start;text-align:left;font-size:10.5px;line-height:1.5';
+        ctx.innerHTML = '<b style="color:#9fe6b3;font-size:11px">거래 컨텍스트 패널</b><br>곡물 2×3 · 구매 <b>50$</b> · 잔액 <b>1,240→1,190$</b><br>총가치 Δ +12$ · 사유: 공간/경제 구분 문장';
+        host.appendChild(ctx);
+        ann(host, 420, 108, '① 잡는 순간 기차 보드가 시장 옆으로 슬라이드(간격 658→약 250px)');
+        ann(host, 966-300, 466, '② 놓거나 취소하면 원위치 — 평상시 역 화면 유지');
+        ann(host, 666, 430, '③ 패널: 견적·잔액 전후·총가치 Δ·실패 사유 (TryQuoteTrade 재사용)');
+      } else {
+        common(host, '상태 줄 — 거래 견적/사유 한 줄');
+        const board = trainCard(host);
+        items(host, [[32+2*48.8-1, 184+1*48.8-1, 97.6, 146.4, '목재 2×3'],[32-1, 184-1, 97.6, 97.6, '소']]);
+        const m = marketBlock(host);
+        marketItem(host, 312, 160);
+        const info = el('b-info', 666, 158, 262, 296, '');
+        info.style.cssText += 'padding:8px;align-items:flex-start;text-align:left;font-size:10.5px;line-height:1.5';
+        info.innerHTML = '<b style="font-size:11px">도시 교역 규칙(기존)</b><br>등급 배지 · 태그 가격 · 지역 배율<br><span style="color:#9fc0e8">+ 소문 기반 배지(정보 수준 라벨)</span>';
+        host.appendChild(info);
+        ann(host, 666, 128, '① 평상시는 현재 화면 유지');
+        ann(host, 230, 120, '② 드래그 시작 = 근접 모드 진입 트리거');
+      }
+    }
+  },
+  C: {
+    name:'C안 · 재구성안',
+    bullets:`<ul>
+      <li>역 화면 전체를 <b>하나의 거래 작업 공간</b>으로 재구성: 좌 레일 버튼 스트립 · 기차 · 시장 · 우측 컨텍스트 패널(가격/시너지/목적지 3탭).</li>
+      <li>상단에 여정 바(기한·정산까지·잔액·운임) 상시 노출.</li>
+      <li>가격·시너지·목적지 판독은 3안 중 최고 — 그러나 GameplayLayout 전면 재배치 + Presenter 상태 기계 재설계.</li>
+      <li>정보 밀도가 높아 과부하 위험. 심층 15 검증(R2·R3) 후 재검토 권장.</li></ul>`,
+    score: [['핵심 루프',24,25],['이동',18,20],['가격',19,20],['시너지',14,15],['과부하',6,10],['구현',3,10]],
+    draw(host, state){
+      common(host, state==='drag' ? '상태 줄 — 구매 · 곡물 50$' : '상태 줄 — 거래 견적/사유 한 줄');
+      // 여정 바
+      const journey = el('hdr', 20, 8, 920, 30, '여정 바 — 기한 97턴 · 정산까지 2턴 · 잔액 1,240$ · 다음 이동 운임(기한·밤 여부)');
+      journey.style.borderColor = '#8a6b45';
+      host.appendChild(journey);
+      // 좌 레일 버튼
+      const rail = el('b-bar', 20, 70, 46, 390, '');
+      rail.innerHTML = '<div style="font-size:9px;line-height:1.9;color:#cdd6e4">시<br>장<br><br>술<br>집<br><br>화<br>차<br><br>작<br>업<br><br>휴<br>식</div>';
+      host.appendChild(rail);
+      // 기차 보드
+      const t = el('grid b-train', 80, 90, 244, 244, ''); t.style.backgroundSize='48.8px 48.8px'; host.appendChild(t);
+      items(host, [[80+2*48.8-1, 90+1*48.8-1, 97.6, 146.4, '목재 2×3'],[80-1, 90-1, 97.6, 97.6, '소']]);
+      const th = el('hdr', 80, 70, 244, 16, '기차 · 자동 정렬 ▾'); host.appendChild(th);
+      // 시장 보드
+      const m = el('grid b-market', 380, 90, 342, 293, ''); m.style.backgroundSize='48.8px 48.8px'; host.appendChild(m);
+      marketItem(host, 380, 90);
+      const mh = el('hdr', 380, 70, 342, 16, '시장 — 검색 [            ] 필터: 전체·식품·자원 ▾'); host.appendChild(mh);
+      // 컨텍스트 패널 3탭
+      const ctx = el('b-ctx', 740, 90, 200, 293, '');
+      ctx.style.cssText += 'padding:8px;align-items:flex-start;text-align:left;font-size:10.5px;line-height:1.55';
+      ctx.innerHTML = '<b style="font-size:10px;color:#9fe6b3">가격</b> · 시너지 · <b>목적지</b><br><br><b>가격 탭</b><br>곡물 2×3 · 구매 50$<br>매입 원가 · 기본/실제가치<br><br><b>시너지 탭</b><br>영향 이웃 2 · 총가치 Δ +12$<br><br><b>목적지 탭</b><br>알려진 도시: 헤일하임 +30%(소문, 8턴 전)<br>운임 3+거리·1턴 · 기한 여유';
+      host.appendChild(ctx);
+      if (state==='drag'){
+        const g = document.createElement('div'); g.className='ghost';
+        g.style.left=(80+2*48.8-1)+'px'; g.style.top=(90+1*48.8-1)+'px'; g.style.width='97.6px'; g.style.height='146.4px'; g.textContent='고스트';
+        host.appendChild(g);
+        chip(host, 80+4*48.8+2, 90+1*48.8+2, '+20%', false);
+      }
+      ann(host, 80, 345, '① 평상시·거래 중이 같은 공간 — 역 행동은 좌 레일로 전환');
+      ann(host, 740, 70, '② 3탭 컨텍스트 패널 — 정보 밀도 최고, 과부하 관리 필요');
+    }
+  }
+};
+
+const planHost = document.getElementById('wireframeHost');
+const bulletsHost = document.getElementById('planBullets');
+const scoreHost = document.getElementById('planScore');
+const qp = new URLSearchParams(location.search);
+let currentPlan = qp.get('plan') || 'B';
+let currentState = qp.get('state') || 'idle';
+
+function scoreBar(sc){
+  let total=0, max=0;
+  sc.forEach(r=>{ total+=r[1]; max+=r[2]; });
+  const pct = Math.round(total/max*100);
+  return `<div class="scorebar"><div class="s1" style="width:${pct}%"></div><div class="s0" style="flex:1">${total}/${max}</div></div>`;
+}
+
+function render(){
+  const p = PLAN[currentPlan];
+  bulletsHost.innerHTML = p.bullets;
+  planHost.innerHTML = '';
+  const wf = document.createElement('div');
+  wf.className = 'wf';
+  planHost.appendChild(wf);
+  p.draw(wf, currentState);
+  document.querySelectorAll('#planTabs .tab').forEach(t=>t.classList.toggle('active', t.dataset.plan===currentPlan));
+  document.querySelectorAll('.stbtn').forEach(b=>b.classList.toggle('active', b.dataset.state===currentState));
+  scoreHost.innerHTML = scoreBar(p.score);
+}
+document.querySelectorAll('#planTabs .tab').forEach(t=>{
+  t.addEventListener('click', ()=>{ currentPlan = t.dataset.plan; render(); });
+});
+document.querySelectorAll('.stbtn').forEach(b=>{
+  b.addEventListener('click', ()=>{ currentState = b.dataset.state; render(); });
+});
+render();
+</script>
+</body>
+</html>
