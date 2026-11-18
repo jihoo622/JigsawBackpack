@@ -190,23 +190,15 @@ public sealed partial class PuzzleInventoryService
         GrantProficiency(ProficiencyTagsOf(_item.Definition), xp, TrainventoryProficiencySource.Sale, _item.InstanceId, 0);
     }
 
-    // 의뢰 완료 경험치. 의뢰 보상 금액에 비례해 의뢰 화물의 생산 태그에 준다.
-    // 화물에 생산 태그가 없으면 의뢰 틀의 fallbackProficiencyTags에 준다.
+    // 의뢰 완료 경험치. 의뢰를 만들 때 정한 숙련 태그 하나에 정한 경험치를 준다.
     void GrantQuestProficiency(TrainventoryQuest _quest)
     {
-        long xp = (long)Math.Min(long.MaxValue, (decimal)_quest.Reward * tables.Quest.proficiencyXpPercentOfReward / 100m);
-        var tags = ProficiencyTagsOf(definitions[_quest.PieceId]);
-        if (tags.Count == 0)
+        if (string.IsNullOrEmpty(_quest.ProficiencyTag))
         {
-            var template = tables.CourierQuests.FirstOrDefault(_template =>
-                string.Equals(_template.id, _quest.TemplateId, StringComparison.Ordinal));
-            tags = (template?.fallbackProficiencyTags ?? Array.Empty<string>())
-                .Where(_tag => tables.ProficiencyTags.Contains(_tag))
-                .Distinct(StringComparer.Ordinal)
-                .OrderBy(_tag => _tag, StringComparer.Ordinal)
-                .ToArray();
+            return;
         }
-        GrantProficiency(tags, xp, TrainventoryProficiencySource.Quest, _quest.CargoInstanceId, _quest.Id);
+        GrantProficiency(new[] { _quest.ProficiencyTag }, _quest.ProficiencyXp, TrainventoryProficiencySource.Quest,
+            _quest.CargoInstanceId, _quest.Id);
     }
 
     // 경험치를 태그 수로 나눠 준다. 나머지는 id 오름차순 앞 태그부터 1씩 더한다.

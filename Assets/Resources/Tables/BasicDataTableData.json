@@ -441,21 +441,22 @@
         },
         {
           "id": "clearButton",
-          "value": "상환하기 · {0:N0}$",
+          "value": "결산 · 목표 {0:N0}$",
           "arguments": 1
         },
         {
           "id": "clearSummary",
-          "value": "남은 자금 {0:N0}$",
+          "value": "결산 잔액 {0:N0}$",
           "arguments": 1
         },
         {
           "id": "clearTitle",
-          "value": "게임 완료"
+          "value": "목표 달성",
+          "arguments": 0
         },
         {
           "id": "objectiveHint",
-          "value": "{0}에서 빚을 갚으세요!",
+          "value": "{0}일 동안 교역해 잔액을 불리세요.\n마지막 날이 끝나면 결산하고, 잔액이 목표 이상이면 승리합니다.",
           "arguments": 1
         },
         {
@@ -515,7 +516,8 @@
         },
         {
           "id": "runStatusText",
-          "value": "빚을 갚지 못했습니다. 패배"
+          "value": "목표 잔액 미달 · 패배",
+          "arguments": 0
         },
         {
           "id": "tagExpensive",
@@ -560,8 +562,8 @@
         },
         {
           "id": "travelConfirmation",
-          "value": "<b>{0} → {1}</b>\n\n이동  {2}\n도착  {3:00}:{4:00} · {5}\n이동 요금  {6:N0}\n이동 후 자금  {7:N0}",
-          "arguments": 8
+          "value": "<b>{0} → {1}</b>\n\n이동  {2}\n도착  {3} · {4}\n이동 요금  {5:N0}\n이동 후 자금  {6:N0}",
+          "arguments": 7
         },
         {
           "id": "travelConfirmationText2",
@@ -664,8 +666,13 @@
         },
         {
           "id": "lossSummary",
-          "value": "상환 기한이 지났습니다.\n남은 자금 {0:N0}$\n재시작하거나 종료하세요.",
+          "value": "목표 잔액에 닿지 못했습니다.\n결산 잔액 {0:N0}$\n재시작하거나 종료하세요.",
           "arguments": 1
+        },
+        {
+          "id": "travelTimeUp",
+          "value": "영업 기간이 끝났습니다. 남은 거래를 마치고 결산하세요.",
+          "arguments": 0
         }
       ]
     },
@@ -917,7 +924,7 @@
         },
         {
           "id": "guide2",
-          "value": "{0}\n숫자: 이동 시간 · ★: 상환 예정지 · 경과 {1}",
+          "value": "{0}\n숫자: 기본 운임(적재 요금 제외) · 경과 {1}",
           "arguments": 2
         },
         {
@@ -1044,11 +1051,12 @@
         },
         {
           "id": "target",
-          "value": "▼ 상환 목표"
+          "value": "▼ 목표",
+          "arguments": 0
         },
         {
           "id": "time",
-          "value": "{0}시간",
+          "value": "{0}턴",
           "arguments": 1
         },
         {
@@ -1088,13 +1096,8 @@
           "value": "소문 ?"
         },
         {
-          "id": "timeHoursMinutes",
-          "value": "{0}시간 {1}분",
-          "arguments": 2
-        },
-        {
-          "id": "timeMinutes",
-          "value": "{0}분",
+          "id": "routeFare",
+          "value": "{0}$",
           "arguments": 1
         }
       ]
@@ -1181,11 +1184,6 @@
           "arguments": 1
         },
         {
-          "id": "time",
-          "value": "{0}일 {1:00}:00",
-          "arguments": 2
-        },
-        {
           "id": "entry",
           "value": "<b>{0}</b> - <b>{1}</b> - {2}",
           "arguments": 3
@@ -1252,8 +1250,8 @@
         },
         {
           "id": "detailReward",
-          "value": "보수: {0:N0}$ + 화물 가치",
-          "arguments": 1
+          "value": "보수: {0:N0}$ + 화물 가치 · {1} 숙련 +{2:N0}",
+          "arguments": 3
         },
         {
           "id": "detailDeposit",
@@ -1284,8 +1282,8 @@
         },
         {
           "id": "offer",
-          "value": "<b>{0}</b> → <b>{1}</b>\n최단 {2} · 기한 {3}시간 · 보수 {4}$ + 화물 가치\n실패 시 {5}",
-          "arguments": 6
+          "value": "<b>{0}</b> → <b>{1}</b>\n최단 {2} · 기한 {3} · 보수 {4}$ + 화물 가치 · {6} 숙련 +{7:N0}\n실패 시 {5}",
+          "arguments": 8
         },
         {
           "id": "depositPenalty",
@@ -1570,7 +1568,7 @@
         },
         {
           "id": "restHint",
-          "value": "고른 시각까지 시간을 빠르게 보냅니다. 쉬는 중에 다시 누르면 멈춥니다.\n{0}마다 시너지를 정산하고, 이동 요금과 시장 재고는 변하지 않습니다.",
+          "value": "고른 턴만큼 쉬며 시간을 보냅니다(1턴 = 6시간).\n{0}마다 시너지를 정산하고, 이동 요금과 시장 재고는 변하지 않습니다.",
           "arguments": 1
         },
         {
@@ -1601,12 +1599,7 @@
         },
         {
           "id": "restUntil",
-          "value": "{0:00}:00까지 휴식 · {1}",
-          "arguments": 2
-        },
-        {
-          "id": "restStop",
-          "value": "휴식 멈추기 · {0:00}:00까지 {1}",
+          "value": "{0}까지 휴식 · {1}",
           "arguments": 2
         },
         {
@@ -2090,7 +2083,7 @@
         },
         {
           "id": "shelfLifeFormat",
-          "value": "{0}시간",
+          "value": "{0}턴",
           "arguments": 1
         },
         {
@@ -2132,8 +2125,8 @@
         },
         {
           "id": "summary",
-          "value": "{0}구간 · {1} · 도착 {2:00}:{3:00} {4} · 예상 운임 {5}$",
-          "arguments": 6
+          "value": "{0}구간 · {1} · 도착 {2} {3} · 예상 운임 {4}$",
+          "arguments": 5
         },
         {
           "id": "warningFunds",
@@ -2190,7 +2183,7 @@
         },
         {
           "id": "failureUnreachable",
-          "value": "이 역으로 가는 철로가 없습니다."
+          "value": "아는 노선으로는 그 역에 가는 길을 모릅니다. 가까운 역을 들러 길을 찾아보세요."
         },
         {
           "id": "stoppedStopReached",
@@ -2272,8 +2265,8 @@
       "texts": [
         {
           "id": "clock",
-          "value": "{0}일 {1:00}:{2:00} · {3} · {4}턴",
-          "arguments": 5
+          "value": "{0}일 {1} · {2} · {3}턴",
+          "arguments": 4
         },
         {
           "id": "clockText2",
@@ -2293,14 +2286,29 @@
           "arguments": 2
         },
         {
-          "id": "duration",
-          "value": "{0}:{1:00}",
+          "id": "timestamp",
+          "value": "{0}일 {1}",
           "arguments": 2
         },
         {
-          "id": "timestamp",
-          "value": "{0}일 {1:00}:{2:00}",
-          "arguments": 3
+          "id": "slot0",
+          "value": "새벽",
+          "arguments": 0
+        },
+        {
+          "id": "slot1",
+          "value": "오전",
+          "arguments": 0
+        },
+        {
+          "id": "slot2",
+          "value": "오후",
+          "arguments": 0
+        },
+        {
+          "id": "slot3",
+          "value": "저녁",
+          "arguments": 0
         }
       ]
     },
@@ -2452,7 +2460,7 @@
         },
         {
           "id": "shelfLifeValue",
-          "value": "<color=#{0}>{1}시간</color>",
+          "value": "<color=#{0}>{1}턴</color>",
           "arguments": 2
         },
         {
@@ -2805,6 +2813,11 @@
         {
           "id": "wagonDetailEmpty",
           "value": "왼쪽 아래 화차 카드를 누르거나 끌기 시작하면 상세가 표시됩니다."
+        },
+        {
+          "id": "wagonCellsChip",
+          "value": "{0}칸",
+          "arguments": 1
         }
       ]
     },
@@ -2933,26 +2946,6 @@
           "value": 50,
           "positive": true,
           "whole": true
-        }
-      ]
-    },
-    {
-      "id": "rules.time",
-      "numbers": [
-        {
-          "id": "gameHoursPerRealMinute",
-          "value": 6,
-          "positive": true
-        },
-        {
-          "id": "travelTimeScale",
-          "value": 24,
-          "positive": true
-        },
-        {
-          "id": "restTimeScale",
-          "value": 24,
-          "positive": true
         }
       ]
     },
@@ -3323,6 +3316,17 @@
           "value": "정제 완료 시각이 게임 시간 범위를 넘습니다.",
           "arguments": 0,
           "source": "Assets/Scripts/Runtime/Inventory/PuzzleInventoryService.cs"
+        },
+        {
+          "id": "workshop.deadline",
+          "value": "기한 안에 작업을 마칠 수 없습니다.",
+          "arguments": 0,
+          "source": "Assets/Scripts/Runtime/Inventory/PuzzleInventoryService.Workshops.cs"
+        },
+        {
+          "id": "wagon.notSoldHere",
+          "value": "이 역의 화차 시설은 그 화차를 팔지 않습니다.",
+          "arguments": 0
         }
       ]
     },
@@ -3408,7 +3412,7 @@
         },
         {
           "id": "rules",
-          "value": "• 이 표는 공통 태그 조건이며 품목별로 선택한 대상·발생원 역할이 모두 있어야 적용한다.\n• 맞닿은 면 하나마다 효과를 합산하고 {0}시간 정산마다 실제 가치에 누적한다.\n• 기차 화물칸 안에서만 정산하며 시장 보드는 표시만 한다.",
+          "value": "• 이 표는 공통 태그 조건이며 품목별로 선택한 대상·발생원 역할이 모두 있어야 적용한다.\n• 맞닿은 면 하나마다 효과를 합산하고 {0} 정산마다 실제 가치에 누적한다.\n• 기차 화물칸 안에서만 정산하며 시장 보드는 표시만 한다.",
           "arguments": 1
         },
         {

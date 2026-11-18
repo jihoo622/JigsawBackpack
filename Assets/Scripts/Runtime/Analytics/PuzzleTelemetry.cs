@@ -16,7 +16,7 @@ public enum PuzzleActionKind
     Place,
     QuickTransfer,
     AddWagon,
-    Repay,
+    FinishRun,
     AcceptQuest,
     CompleteQuest,
     WorkbenchConfirm,
@@ -26,8 +26,7 @@ public enum PuzzleActionKind
     SellWagon,
     EnterMarket,
     EnterTavern,
-    EnterWagonFacility,
-    Depart
+    EnterWagonFacility
 }
 
 [Serializable]
@@ -346,7 +345,7 @@ public static partial class TelemetryPayload
                 PuzzleActionKind.AdvanceTime => "advance_time",
                 PuzzleActionKind.AddWagon => "add_wagon",
                 PuzzleActionKind.SellWagon => "sell_wagon",
-                PuzzleActionKind.Repay => "repay",
+                PuzzleActionKind.FinishRun => "finish_run",
                 PuzzleActionKind.AcceptQuest => "accept_quest",
                 PuzzleActionKind.CompleteQuest => "complete_quest",
                 PuzzleActionKind.WorkbenchConfirm => "workbench_confirm",
@@ -356,7 +355,6 @@ public static partial class TelemetryPayload
                 PuzzleActionKind.EnterMarket => "enter_market",
                 PuzzleActionKind.EnterTavern => "enter_tavern",
                 PuzzleActionKind.EnterWagonFacility => "enter_wagon_facility",
-                PuzzleActionKind.Depart => "depart",
                 _ => throw new ArgumentOutOfRangeException(nameof(_info))
             };
         }

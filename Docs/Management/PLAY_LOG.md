@@ -1,6 +1,6 @@
 # 외부 행동 복원 계약
 
-이 문서와 schemaVersion 8 구조화 로그, 해당 Rules 테이블만으로 외부 도구가 행동과 관측 상태를 복원한다. Unity 실행·게임 소스·콘솔 문장 해석을 요구하지 않는다. 복원 규칙과 게임의 기대 규칙 검증을 구분한다. 실제 변화는 로그에서 적용하고, 기대 가격·시너지·조건은 테이블과 비교한다.
+이 문서와 schemaVersion 9 구조화 로그, 해당 Rules 테이블만으로 외부 도구가 행동과 관측 상태를 복원한다. Unity 실행·게임 소스·콘솔 문장 해석을 요구하지 않는다. 복원 규칙과 게임의 기대 규칙 검증을 구분한다. 실제 변화는 로그에서 적용하고, 기대 가격·시너지·조건은 테이블과 비교한다.
 
 ## LogKit 서버에서 원본 추출
 
@@ -19,7 +19,7 @@
 - 입력: 세션 JSONL과 각 run_start.rulesHash에 해당하는 `Rules/<hash>.json`. 파일 바이트의 SHA-256이 hash와 같아야 한다. 파일을 재직렬화한 결과가 아니라 전달된 UTF-8 원본 바이트를 해시한다.
 - Rules의 `tables[{name,json}]`에서 name은 확장자 없는 테이블 이름, json은 해당 원본 JSON 문자열이다. 판마다 참조가 고정되며 최신 테이블로 대체하지 않는다.
 - JSONL의 dataJson은 JSON 문자열이므로 한 번 더 파싱한다. sessionId별 sequence 순으로 읽는다. timestampUtc나 디렉터리 나열 순서로 정렬하지 않는다.
-- session_start.schemaVersion은 **8**이다. 없는 버전은 1, 이전 변화분 계약은 2, 구매·판매·재배치의 의미 분리는 3, `rumor_learned`에 `kind`·`itemId`를 더한 것이 4, 행동 종류와 `actionId`를 더한 것이 5, 작업대·화차 행동과 작업대 보드 관측·`transformed`를 더한 것이 6, 게임 시간을 턴(1턴=3시간)으로 바꾸고 역 시설 진입 행동을 더한 것이 7이다. 7부터 `elapsedMinutes`·`requestedMinutes`·`deadlineMinutes`·`totalMinutes`는 `elapsedHours`·`requestedHours`·`deadlineHours`·`totalHours`(정수 턴)로 바뀐다. 8에서 게임 시간을 정수 게임 시간(1시간)으로 바꾸고 실시간 시계를 도입했다. 필드는 `elapsedHours`·`requestedHours`·`deadlineHours`, 경로 계획의 `totalMinutes`다. 시계가 1시간 흐를 때마다 `advance_time`을 남기고, 이동은 출발 `depart`와 도착 `travel` 두 건으로 나뉜다. 역 시설 진입은 시간을 쓰지 않는다. 6 이하의 분 값과 7의 턴 값은 규칙이 달라 같은 집계로 섞지 않는다. 버전에 맞춰 필드를 해석한다.
+- session_start.schemaVersion은 **9**이다. 없는 버전은 1, 이전 변화분 계약은 2, 구매·판매·재배치의 의미 분리는 3, `rumor_learned`에 `kind`·`itemId`를 더한 것이 4, 행동 종류와 `actionId`를 더한 것이 5, 작업대·화차 행동과 작업대 보드 관측·`transformed`를 더한 것이 6, 게임 시간을 턴(1턴=3시간)으로 바꾸고 역 시설 진입 행동을 더한 것이 7이다. 7부터 `elapsedMinutes`·`requestedMinutes`·`deadlineMinutes`·`totalMinutes`는 `elapsedHours`·`requestedHours`·`deadlineHours`·`totalHours`(정수 턴)로 바뀐다. 8에서 게임 시간을 정수 게임 시간(1시간)으로 바꾸고 실시간 시계를 도입했다. 필드는 `elapsedHours`·`requestedHours`·`deadlineHours`, 경로 계획의 `totalMinutes`다. 시계가 1시간 흐를 때마다 `advance_time`을 남기고, 이동은 출발 `depart`와 도착 `travel` 두 건으로 나뉜다. 역 시설 진입은 시간을 쓰지 않는다. 6 이하의 분 값과 7의 턴 값은 규칙이 달라 같은 집계로 섞지 않는다. 9에서 턴제(1턴 = 6시간)로 다시 바꿨다. 경로 계획은 `totalTurns`를 쓰고, `depart`를 없애 이동은 `travel` 한 건(`requestedHours` 6)이며, 1시간마다의 `advance_time`은 남기지 않는다. 버전에 맞춰 필드를 해석한다.
 - run_start에서 새 판을 만들고 run_end에서 닫는다. 판 키는 `(sessionId, run_start.sequence)`다. instanceId는 판 안에서만 유일하다. 재시작 후 같은 번호를 이전 판 화물과 연결하지 않는다.
 - 시퀀스 누락·중복·파싱 실패·run_start 부재·Rules 누락은 불완전 입력이다. 누락 부분을 가격·이동 성공 여부 등으로 추측해서 채우지 않는다. 마지막 연속된 원본까지의 복원만 확정한다.
 - run_end/session_end가 없으면 완결된 승패가 아닌 중단된 접두 기록이다. 완전한 마지막 행동까지 복원할 수 있지만 이후 행동·종료 사유는 알 수 없다.
@@ -41,7 +41,7 @@ items/introduced 원소는 `instanceId`, `itemId`, `board`, `x`, `y`, `clockwise
 | 작업(입력·시간·산출·비용, 개조 모드) | TrainventoryWorkTableData.works[].id = modeId |
 | 역의 작업장 | PuzzleTableData.cities[].workshopIds |
 | 화차 상품·화차 개조 | PuzzleTradeTableData.wagonProducts[].id = productId |
-| 증차·상환·기한 | PuzzleTradeTableData |
+| 화차·목표 잔액·영업 기간 | PuzzleTradeTableData |
 | 노선 | PuzzleRouteTableData.routes의 fromCityId/toCityId |
 | 게임 시각·휴식 | PuzzleTimeTableData |
 | 시너지 | PuzzleSynergyTableData |
@@ -59,19 +59,19 @@ puzzle_action은 모델에 전달된 명시적 조작 한 건의 결과다. 의�
 | workbench_unload | 작업대 보드에서 기차로 꺼내기 시도(산출물 회수 포함) | drag / quick_transfer |
 | placement | 원본 ID나 대상 보드가 유효하지 않아 위 분류로 나눌 수 없는 배치 시도 | drag / quick_transfer |
 | workbench_confirm | 작업대 작업 확정 시도. `actionId`, 개조면 `modeId`. 성공하면 비용이 moneyDelta, 도축·정제 입력이 removed로 나온다. 개조 입력은 완료까지 작업대에 남는다 | 비어 있음 |
-| wait_for_workbench | 작업대 작업에 시간 보내기 시도(8부터 쓰지 않음). `actionId` | 비어 있음 |
+| wait_for_workbench | 작업장 확정 뒤 작업 시간만큼 흐른 시간(9부터 확정마다 남김, 8에서는 쓰지 않음). `actionId` | 비어 있음 |
 | enter_market | 시장 진입(시간을 쓰지 않음). 밤이면 market_closed로 실패한다. 같은 시설에 다시 들어가면 기록하지 않는다 | 비어 있음 |
 | enter_tavern | 술집 진입(시간을 쓰지 않음) | 비어 있음 |
 | enter_wagon_facility | 화차 시설 진입(시간을 쓰지 않음) | 비어 있음 |
 | install_wagon_modification | 기존 화물칸 개조 설치 시도(현재 냉장). `modificationId`, 대상 `board` | 비어 있음 |
 | reorder_wagon | 기차 안 화물칸 순서 바꾸기 시도. 성공하면 `wagonOrder` | 비어 있음 |
-| depart | 출발 시도. 성공하면 운임이 moneyDelta로 나오고 `targetCityId`가 목적지다. 실패 사유는 `failure` | 비어 있음 |
-| travel | 도착. 시계가 이동 시간만큼 흐른 뒤 기록하며 `cityId`가 바뀐다. 턴은 travel 건수다 | 비어 있음 |
-| rest | 휴식 시도 | 비어 있음 |
+| depart | 8에서만 쓴 출발 기록. 9부터 남기지 않는다 | 비어 있음 |
+| travel | 이동. 운임이 moneyDelta로 나오고 `cityId`가 바뀌며 `requestedHours`는 이동에 흐른 시간(6)이다. 실패 사유는 `failure` | 비어 있음 |
+| rest | 휴식 시도. `requestedHours`는 고른 턴 × 6 | 비어 있음 |
 | wait_for_daylight | 아침 대기 시도 | 비어 있음 |
 | advance_time | 그 외 명시적 시간 진행 시도 | 비어 있음 |
 | add_wagon | 증차 시도. 상품 구매면 `productId`·`modificationId` | 비어 있음 |
-| repay | 채무 상환 시도 | 비어 있음 |
+| finish_run | 결산 시도(9부터, 8 이하는 `repay` 채무 상환). 성공하면 판이 끝나고 run_finished의 승패가 잔액 ≥ 목표 잔액으로 정해진다 | 비어 있음 |
 | accept_quest | 술집 운송 의뢰 수락 시도. 성공하면 의뢰 화물이 introduced, 보증금이 moneyDelta로 나온다 | 비어 있음 |
 | complete_quest | 목적지 도착 직후의 운송 의뢰 완료. 의뢰 화물이 removed, 보상+화물 가치+보증금이 moneyDelta로 나온다. travel 바로 뒤에 기록한다 | 비어 있음 |
 
@@ -144,7 +144,7 @@ introduced의 ID는 적용 중인 S에 없어야 한다. moved/transformed/value
 - run_end.reason은 won/deadline/restart/scene_unloaded/shutdown/recorder_disabled/replaced다. 승패와 중단을 구분하고 S를 닫는다. 결과 패널/씬 이벤트가 뒤에 있어도 새 run_start 전까지 이전 판 행동으로 추가하지 않는다.
 - session_start는 schemaVersion/reason/appVersion/unityVersion/platform/isEditor/scene, session_end는 reason이다. scene_change는 scene/loaded, panel_visibility는 panel/open, upgrade_granted는 id, entity_link_clicked는 kind(city·item·tag·quest·region 소문자)/id/action(click·context)이다. 원본 시각은 공통 봉투에서 읽는다.
 - entity_link_clicked는 플레이어가 고유명사 하이퍼링크를 클릭하거나 컨텍스트(우클릭 등)를 요청했을 때 kind/id/action을 기록한다. 호버는 고빈도이므로 수집 경계에 따라 기록하지 않는다.
-- route_planned는 경로 계획이 생성되었을 때 from/to/legs/totalMinutes/stops를 기록한다. legs는 구간 수, totalMinutes는 계획 구간들의 이동 시간 합계(분), stops는 목적지를 포함한 계획 상의 정차역 수다.
+- route_planned는 경로 계획이 생성되었을 때 from/to/legs/totalTurns/stops를 기록한다. legs는 구간 수, totalTurns는 계획 구간들의 이동 턴 합계(8은 `totalMinutes`), stops는 목적지를 포함한 계획 상의 정차역 수다.
 - route_stop_changed는 계획 경로의 경유역 정차 여부를 바꿨을 때 city/stop/to를 기록한다. to는 계획 목적지 역 ID다.
 - station_screen은 역 행동 패널 안의 하위 화면이 바뀔 때 screen(home/market/wagon_shop/rest/tavern/butchery/modification/refining)을 기록한다. 패널 자체의 열림·닫힘은 panel_visibility다.
 - route_ended는 경로 계획이 종료되었을 때 reason(completed/canceled/deviated/run_ended)/to를 기록한다. to는 계획했던 목적지 역 ID다.
@@ -173,7 +173,7 @@ introduced의 ID는 적용 중인 S에 없어야 한다. moved/transformed/value
 - travel: Blocked, NotAvailable, SameCity, InvalidCity, MissingRoute, InsufficientFunds, CostOverflow, TimeOverflow.
 - placement 접두사: StaleSource, InvalidDestination, InvalidGrabbedCell, InvalidRotation, CellOutsideBoard, CellOccupied, NoSpace, MarketClosed.
 - trade 접두사: Disabled, InsufficientFunds, PriceOverflow, BalanceOverflow, MarketClosed. 예: trade.MarketClosed.
-- 증차/상환: run_finished, insufficient_funds, max_wagons, wrong_city, overdue, unknown_wagon_product, wagon_modification_failed. 시간(rest·wait_for_daylight·advance_time·wait_for_workbench): time_blocked, invalid_duration, time_overflow, unavailable. 역 시설 진입(enter_market·enter_tavern·enter_wagon_facility): market_closed, deadline 및 시간 실패 코드.
+- 증차/결산: run_finished, insufficient_funds, max_wagons, not_sold_here, unknown_wagon_product, wagon_modification_failed, time_remaining(영업 기간 전 결산). 시간(rest·wait_for_daylight·advance_time·wait_for_workbench): time_blocked, invalid_duration, time_overflow, unavailable. 이동(travel): TimeUp(영업 기간 끝) 등 `PuzzleTravelFailure` 이름. 역 시설 진입(enter_market·enter_tavern·enter_wagon_facility): market_closed, deadline 및 시간 실패 코드. 작업대 확정: deadline(기간 초과).
 - workbench_confirm: blocked, unavailable, in_progress, awaiting_pickup, empty, baby, invalid_item, no_conversion, no_space, insufficient_funds, time_overflow, no_mode, already_modified, invalid_result.
 - install_wagon_modification: run_finished, unavailable, already_installed, insufficient_funds, install_failed. reorder_wagon: run_finished, invalid_index.
 - unknown 값/버전은 성공으로 치환하지 않는다. 원문을 보존하고 해석 미지원으로 표시한다.

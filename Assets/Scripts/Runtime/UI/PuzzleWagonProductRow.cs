@@ -55,10 +55,10 @@ public sealed class PuzzleWagonProductRow : MonoBehaviour, IBeginDragHandler, ID
         gameObject.SetActive(product != null);
         if (product != null)
         {
-            label.text = Presentation.WagonProductLabel(product.displayName, product.price);
+            label.text = Presentation.WagonProductLabel(product);
             if (chipLabel != null)
             {
-                chipLabel.text = "+1칸";
+                chipLabel.text = Presentation.WagonCellsChip(Presentation.WagonUsableCells(product));
             }
             if (chipRoot != null)
             {

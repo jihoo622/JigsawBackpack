@@ -109,7 +109,7 @@ public struct RoutePlannedPayload
     public string from;
     public string to;
     public int legs;
-    public long totalMinutes;
+    public long totalTurns;
     public int stops;
 }
 
@@ -145,7 +145,7 @@ public static partial class TelemetryPayload
     {
         var payload = new SessionPayload();
         // 6부터 작업대·화차 개조·화차 순서 행동, 작업대 보드 관측, transformed를 기록한다.
-        payload.schemaVersion = 8;
+        payload.schemaVersion = 9;
         payload.reason = _reason ?? string.Empty;
         payload.appVersion = Application.version;
         payload.unityVersion = Application.unityVersion;
@@ -244,7 +244,7 @@ public static partial class TelemetryPayload
             from = _info.fromCityId,
             to = _info.toCityId,
             legs = _info.legs,
-            totalMinutes = _info.totalMinutes,
+            totalTurns = _info.totalTurns,
             stops = _info.stops
         };
     }

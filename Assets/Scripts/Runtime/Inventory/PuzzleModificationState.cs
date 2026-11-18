@@ -37,5 +37,6 @@ public enum PuzzleModificationFailure
     NoConversion,
     AlreadyModified,
     InvalidResult,
-    InsufficientFunds
+    InsufficientFunds,
+    Deadline
 }

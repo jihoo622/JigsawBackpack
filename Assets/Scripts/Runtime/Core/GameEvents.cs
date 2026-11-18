@@ -117,26 +117,6 @@ public static class GameEvents
         }
     }
     public static event Action<TravelPreviewInfo> TravelPreviewChanged;
-    // 이동 출발·도착 또는 이동 중단. 페이로드는 세션이며 진행 상태는 session.Journey에서 읽는다.
-    public readonly struct JourneyInfo
-    {
-        public readonly PuzzleInventoryService session;
-        public JourneyInfo(PuzzleInventoryService _session)
-        {
-            session = _session;
-        }
-    }
-    public static event Action<JourneyInfo> JourneyChanged;
-    // 휴식(빨리 감기) 시작·종료. 상태는 session.RestTargetHours에서 읽는다.
-    public readonly struct RestInfo
-    {
-        public readonly PuzzleInventoryService session;
-        public RestInfo(PuzzleInventoryService _session)
-        {
-            session = _session;
-        }
-    }
-    public static event Action<RestInfo> RestChanged;
     public readonly struct TavernRumorInfo
     {
         public readonly PuzzleInventoryService session;
@@ -361,15 +341,15 @@ public static class GameEvents
         public readonly string fromCityId;
         public readonly string toCityId;
         public readonly int legs;
-        public readonly long totalMinutes;
+        public readonly long totalTurns;
         public readonly int stops;
-        public RoutePlannedInfo(PuzzleInventoryService _session, string _fromCityId, string _toCityId, int _legs, long _totalMinutes, int _stops)
+        public RoutePlannedInfo(PuzzleInventoryService _session, string _fromCityId, string _toCityId, int _legs, long _totalTurns, int _stops)
         {
             session = _session;
             fromCityId = _fromCityId;
             toCityId = _toCityId;
             legs = _legs;
-            totalMinutes = _totalMinutes;
+            totalTurns = _totalTurns;
             stops = _stops;
         }
     }
@@ -510,14 +490,6 @@ public static class GameEvents
     public static void RaiseTravelPreviewChanged(PuzzleInventoryService _session)
     {
         Emit(TravelPreviewChanged, new TravelPreviewInfo(_session));
-    }
-    public static void RaiseJourneyChanged(PuzzleInventoryService _session)
-    {
-        Emit(JourneyChanged, new JourneyInfo(_session));
-    }
-    public static void RaiseRestChanged(PuzzleInventoryService _session)
-    {
-        Emit(RestChanged, new RestInfo(_session));
     }
 
     /// <summary>확정된 게임 시간 변화를 알린다. 시간을 직접 진행하지 않으며 구독자 예외는 격리한다.</summary>
@@ -801,8 +773,6 @@ public static class GameEvents
         CityArrived = null;
         TimeAdvanced = null;
         TravelPreviewChanged = null;
-        JourneyChanged = null;
-        RestChanged = null;
         MapRequested = null;
         MapToggleRequested = null;
         SynergyChartShowRequested = null;

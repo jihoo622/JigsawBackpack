@@ -376,7 +376,7 @@ public sealed class EconomyAnalyzerWindow : EditorWindow
             return;
         }
 
-        long clearCost = TableManager.Instance.PuzzleTrade.gameClearCost;
+        long clearCost = TableManager.Instance.PuzzleTrade.targetFunds;
         long max = Math.Max(clearCost, days.Max(_day => chartAssets ? _day.AssetsP90 : _day.FundsP90));
         long min = Math.Min(0, days.Min(_day => chartAssets ? _day.AssetsP10 : _day.FundsP10));
         var plot = new Rect(rect.x + 44, rect.y + 8, rect.width - 52, rect.height - 26);

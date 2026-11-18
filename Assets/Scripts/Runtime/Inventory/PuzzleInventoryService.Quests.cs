@@ -78,17 +78,19 @@ public sealed partial class PuzzleInventoryService
         }
 
         var distances = ShortestTravel(CurrentCityId, _route => _route.distance);
-        var minutes = ShortestTravel(CurrentCityId, _route => PuzzleTimeManager.TravelMinutes(_route, tables.PuzzleTime));
+        // 이동은 노선마다 같은 턴을 쓰므로 최단 이동 턴은 구간 수 × 이동 턴이다.
+        long legTurns = tables.PuzzleTime.travelTurns;
+        var turns = ShortestTravel(CurrentCityId, _route => legTurns);
         for (int i = 0; i < tables.Quest.offersPerTavern; i++)
         {
-            if (TryCreateCourierOffer(distances, minutes, out var offer))
+            if (TryCreateCourierOffer(distances, turns, out var offer))
             {
                 questOffers.Add(offer);
             }
         }
     }
 
-    bool TryCreateCourierOffer(Dictionary<string, long> _distances, Dictionary<string, long> _minutes,
+    bool TryCreateCourierOffer(Dictionary<string, long> _distances, Dictionary<string, long> _turns,
         out TrainventoryQuestOffer _offer)
     {
         _offer = null;
@@ -128,20 +130,44 @@ public sealed partial class PuzzleInventoryService
         var piece = definitions[pieceIds[questRandom.Next(pieceIds.Length)]];
 
         // 3. 보상·기한·보증금을 테이블 계수로 계산한다.
-        // 보상·후보 범위는 노선 거리, 기한은 최단 이동 시간(분)을 시간으로 올림해 쓴다.
+        // 보상·후보 범위는 노선 거리, 기한은 최단 이동 턴 × deadlinePercent(턴으로 올림) + 여유 시간이다.
         long travelDistance = _distances[targetCityId];
-        long travelMinutes = _minutes[targetCityId];
+        long travelTurns = _turns[targetCityId];
         long reward = checked(selected.Template.baseReward + (long)selected.Template.rewardPerCellDistance * piece.Cells.Count * travelDistance);
-        long minutesPerHundred = PuzzleTimeManager.MINUTES_PER_HOUR * 100L;
-        long deadlineHours = checked((travelMinutes * selected.Template.deadlinePercent + minutesPerHundred - 1) / minutesPerHundred +
+        long deadlineHours = checked(PuzzleTimeManager.HoursOf((travelTurns * selected.Template.deadlinePercent + 99) / 100) +
             selected.Template.deadlineExtraHours);
+        // 4. 완료 때 경험치를 받을 숙련 태그 하나와 경험치(보상 × 비율)를 정해 의뢰에 보여 준다.
+        string proficiencyTag = PickQuestProficiencyTag(selected.Template, piece, targetCityId);
+        long proficiencyXp = checked(reward * tables.Quest.proficiencyXpPercentOfReward / 100);
         var penalty = tables.QuestPenalty(selected.Template.penaltyId);
         long deposit = PenaltyType(penalty) == TrainventoryQuestPenaltyType.Deposit
             ? checked((reward * penalty.depositPercentOfReward + 99) / 100)
             : 0;
         _offer = new TrainventoryQuestOffer(selected.Template.id, piece.Id, CurrentCityId, targetCityId, penalty.id,
-            travelMinutes, reward, deposit, deadlineHours);
+            travelTurns, reward, deposit, deadlineHours, proficiencyTag, proficiencyXp);
         return true;
+    }
+
+    // 의뢰 틀의 후보 → 화물의 생산 태그 → 목적지 지역의 생산 태그 → 전체 숙련 태그 순으로 첫 후보 묶음에서 하나를 고른다.
+    string PickQuestProficiencyTag(TrainventoryCourierQuestData _template, PuzzleItemDefinition _piece, string _targetCityId)
+    {
+        var candidates = (_template.proficiencyTags ?? Array.Empty<string>())
+            .Where(_tag => tables.ProficiencyTags.Contains(_tag)).ToList();
+        if (candidates.Count == 0)
+        {
+            candidates = ProficiencyTagsOf(_piece).ToList();
+        }
+        if (candidates.Count == 0)
+        {
+            candidates = (tables.Region(tables.CityPrice(_targetCityId).regionId).productionTags ?? Array.Empty<string>())
+                .Where(_tag => tables.ProficiencyTags.Contains(_tag)).ToList();
+        }
+        if (candidates.Count == 0)
+        {
+            candidates = tables.ProficiencyTags.ToList();
+        }
+        var ordered = candidates.Distinct(StringComparer.Ordinal).OrderBy(_tag => _tag, StringComparer.Ordinal).ToArray();
+        return ordered[questRandom.Next(ordered.Length)];
     }
 
     // 현재 도시에서 다른 도시까지 _weight(노선 거리 또는 이동 분)의 최단 합.
@@ -251,6 +277,8 @@ public sealed partial class PuzzleInventoryService
         var quest = new TrainventoryQuest(++lastQuestId, _offer, instanceId, Time.ElapsedHours,
             checked(Time.ElapsedHours + _offer.DeadlineHours));
         quests.Add(quest);
+        // 의뢰 목적지는 지도에 위치만 드러난다. 가는 길은 스스로 찾아야 한다.
+        LocateCity(_offer.TargetCityId);
         RecordAction(PuzzleActionKind.AcceptQuest);
         GameEvents.RaiseFundsChanged(this, previousFunds);
         GameEvents.RaiseQuestChanged(this, quest);
@@ -348,7 +376,7 @@ public sealed partial class PuzzleInventoryService
 
     bool IsQuestCargoOnSaleHere(TrainventoryQuest _quest)
     {
-        if (IsPassingThrough || IsTraveling || !markets.TryGetValue(CurrentCityId, out var market))
+        if (IsPassingThrough || !markets.TryGetValue(CurrentCityId, out var market))
         {
             return false;
         }
@@ -446,21 +474,27 @@ internal sealed class TrainventoryQuestOffer
     internal string SourceCityId { get; }
     internal string TargetCityId { get; }
     internal string PenaltyId { get; }
-    // 최단 이동 시간(분).
-    internal long TravelMinutes { get; }
+    // 최단 이동 턴.
+    internal long TravelTurns { get; }
     internal long Reward { get; }
     internal long Deposit { get; }
     internal long DeadlineHours { get; }
+    // 완료 때 경험치를 받는 숙련 태그와 경험치.
+    internal string ProficiencyTag { get; }
+    internal long ProficiencyXp { get; }
 
     internal TrainventoryQuestOffer(string _templateId, string _pieceId, string _sourceCityId, string _targetCityId,
-        string _penaltyId, long _travelMinutes, long _reward, long _deposit, long _deadlineHours)
+        string _penaltyId, long _travelTurns, long _reward, long _deposit, long _deadlineHours, string _proficiencyTag,
+        long _proficiencyXp)
     {
+        ProficiencyTag = _proficiencyTag;
+        ProficiencyXp = _proficiencyXp;
         TemplateId = _templateId;
         PieceId = _pieceId;
         SourceCityId = _sourceCityId;
         TargetCityId = _targetCityId;
         PenaltyId = _penaltyId;
-        TravelMinutes = _travelMinutes;
+        TravelTurns = _travelTurns;
         Reward = _reward;
         Deposit = _deposit;
         DeadlineHours = _deadlineHours;
@@ -477,6 +511,8 @@ internal sealed class TrainventoryQuest
     internal string PenaltyId { get; }
     internal long Reward { get; }
     internal long Deposit { get; }
+    internal string ProficiencyTag { get; }
+    internal long ProficiencyXp { get; }
     internal int CargoInstanceId { get; }
     internal long AcceptedHours { get; }
     internal long DeadlineHours { get; }
@@ -496,6 +532,8 @@ internal sealed class TrainventoryQuest
         PenaltyId = _offer.PenaltyId;
         Reward = _offer.Reward;
         Deposit = _offer.Deposit;
+        ProficiencyTag = _offer.ProficiencyTag;
+        ProficiencyXp = _offer.ProficiencyXp;
         CargoInstanceId = _cargoInstanceId;
         AcceptedHours = _acceptedHours;
         DeadlineHours = _deadlineHours;

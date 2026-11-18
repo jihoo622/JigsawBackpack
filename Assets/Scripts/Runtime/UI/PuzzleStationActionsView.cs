@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine.UI;
 using UnityEngine;
@@ -352,9 +354,10 @@ public sealed class PuzzleStationActionsView : PanelBase
         ShowMode(marketContent, Presentation.StationMarket);
     }
 
-    internal void ShowWagonShop()
+    // 이 역의 화차 시설이 파는 화차만 보인다.
+    internal void ShowWagonShop(IReadOnlyList<PuzzleWagonProductData> _products)
     {
-        wagonProducts = TableManager.Instance.PuzzleTrade.wagonProducts;
+        wagonProducts = _products.ToArray();
         wagonShopPage = 0;
         ShowMode(wagonShopContent, Presentation.StationWagonShop);
         RefreshWagonShopPage();
@@ -362,7 +365,7 @@ public sealed class PuzzleStationActionsView : PanelBase
 
     void NextWagonShopPage()
     {
-        int pageCount = (wagonProducts.Length + wagonProductRows.Length - 1) / wagonProductRows.Length;
+        int pageCount = Math.Max(1, (wagonProducts.Length + wagonProductRows.Length - 1) / wagonProductRows.Length);
         wagonShopPage = (wagonShopPage + 1) % pageCount;
         RefreshWagonShopPage();
     }
@@ -400,7 +403,7 @@ public sealed class PuzzleStationActionsView : PanelBase
     // 쪽을 넘기면 카드 내용이 바뀌므로 선택을 해제한다.
     void RefreshWagonShopPage()
     {
-        int pageCount = (wagonProducts.Length + wagonProductRows.Length - 1) / wagonProductRows.Length;
+        int pageCount = Math.Max(1, (wagonProducts.Length + wagonProductRows.Length - 1) / wagonProductRows.Length);
         int firstIndex = wagonShopPage * wagonProductRows.Length;
         for (int i = 0; i < wagonProductRows.Length; i++)
         {

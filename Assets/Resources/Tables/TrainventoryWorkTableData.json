@@ -7,7 +7,7 @@
       "displayName": "소 도축",
       "description": "소 한 마리를 소고기 두 덩이로 손질합니다.",
       "inputPieceId": "piece.cow",
-      "workHours": 3,
+      "workHours": 6,
       "outputPieceId": "piece.beef",
       "outputCount": 2,
       "cost": 0
@@ -17,7 +17,7 @@
       "displayName": "십자 광석 정제",
       "description": "십자 모양 광석을 금속 주괴 다섯 개로 정제합니다.",
       "inputPieceId": "piece.oreCross",
-      "workHours": 3,
+      "workHours": 6,
       "outputPieceId": "piece.metalIngot",
       "outputCount": 5,
       "cost": 0
@@ -27,7 +27,7 @@
       "displayName": "ㄱ자 광석 정제",
       "description": "ㄱ자 모양 광석을 금속 주괴 세 개로 정제합니다.",
       "inputPieceId": "piece.oreL",
-      "workHours": 3,
+      "workHours": 6,
       "outputPieceId": "piece.metalIngot",
       "outputCount": 3,
       "cost": 0
@@ -37,7 +37,7 @@
       "displayName": "냉장 개조",
       "description": "기계 화물을 같은 모양의 냉장 프레임으로 바꿉니다. 같은 객차에서 상하좌우로 맞닿은 음식의 유통기한 소모를 50% 줄입니다.",
       "inputPieceId": "piece.uShape",
-      "workHours": 3,
+      "workHours": 6,
       "outputPieceId": "piece.refrigeratedFrame",
       "outputCount": 1,
       "cost": 150

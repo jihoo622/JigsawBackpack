@@ -54,11 +54,12 @@ public sealed class PuzzleWagonDetailView : MonoBehaviour
         }
         if (sizeLabel)
         {
-            sizeLabel.text = Presentation.WagonSizeLabel(5, 5);
+            var board = TableManager.Instance.RequireValid().WagonBoardOf(_product);
+            sizeLabel.text = Presentation.WagonSizeLabel(board.width, board.height);
         }
         if (formationDeltaLabel)
         {
-            formationDeltaLabel.text = Presentation.WagonFormationDelta(1, 25);
+            formationDeltaLabel.text = Presentation.WagonFormationDelta(1, Presentation.WagonUsableCells(_product));
         }
         if (effectLabel)
         {

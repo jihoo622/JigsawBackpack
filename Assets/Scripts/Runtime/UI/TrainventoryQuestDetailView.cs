@@ -54,7 +54,7 @@ public sealed class TrainventoryQuestDetailView : MonoBehaviour
         if (destinationLabel)
         {
             destinationLabel.richText = true;
-            destinationLabel.text = Presentation.QuestDetailDestination(cityName, _offer.TravelMinutes);
+            destinationLabel.text = Presentation.QuestDetailDestination(cityName, _offer.TravelTurns);
         }
         if (deadlineLabel)
         {
@@ -63,7 +63,7 @@ public sealed class TrainventoryQuestDetailView : MonoBehaviour
         }
         if (rewardLabel)
         {
-            rewardLabel.text = Presentation.QuestDetailReward(_offer.Reward);
+            rewardLabel.text = Presentation.QuestDetailReward(_offer.Reward, _offer.ProficiencyTag, _offer.ProficiencyXp);
         }
         if (depositLabel)
         {

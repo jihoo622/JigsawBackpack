@@ -53,6 +53,16 @@ public sealed class GameTableRules
         issues = _issues;
     }
 
+    // 화물칸 화면(PuzzleInventoryUI 프리팹)에 미리 배치한 칸 슬롯 수.
+    const int MAX_WAGON_BOARD_CELLS = 42;
+
+    // 턴제: 테이블의 시간 값은 턴 길이(6시간)의 배수여야 턴 경계에서만 사건이 일어난다.
+    void CheckTurnHours(long _hours, string _path, string _pieceId = null, string _field = null)
+    {
+        Check(_hours % PuzzleTimeManager.HOURS_PER_TURN == 0, _path,
+            "시간 값은 1턴(" + PuzzleTimeManager.HOURS_PER_TURN + "시간)의 배수여야 합니다.", _pieceId, _field);
+    }
+
     void Check(bool _condition, string _path, string _rule, string _pieceId = null, string _field = null)
     {
         if (_condition)
@@ -305,18 +315,13 @@ public sealed class GameTableRules
     {
         const string PATH = nameof(PuzzleTradeTableData);
         Check(_tables.PuzzleTrade.startingFunds >= 0, PATH + ".startingFunds", "시작 자금은 0 이상이어야 합니다.");
-        Check(_tables.PuzzleTrade.gameClearCost > 0, PATH + ".gameClearCost", "클리어 비용은 0보다 커야 합니다.");
-        Check(_tables.PuzzleTrade.deadlineHours >= 0, PATH + ".deadlineHours", "기한은 시간 단위 0 이상이어야 합니다. 0이면 무기한입니다.");
-        if (!string.IsNullOrEmpty(_tables.PuzzleTrade.debtCityId))
-        {
-            Reference(_tables.PuzzleTrade.debtCityId, PATH + ".debtCityId", _tables.HasCity(_tables.PuzzleTrade.debtCityId), "상환 도시");
-        }
+        Check(_tables.PuzzleTrade.targetFunds > 0, PATH + ".targetFunds", "목표 잔액은 0보다 커야 합니다.");
+        Check(_tables.PuzzleTrade.deadlineHours > 0, PATH + ".deadlineHours", "영업 기간은 양수여야 합니다. 결산은 기간이 끝나야 할 수 있습니다.");
+        CheckTurnHours(_tables.PuzzleTrade.deadlineHours, PATH + ".deadlineHours");
         Check(_tables.PuzzleTrade.wagonRefrigerationCost > 0, PATH + ".wagonRefrigerationCost",
             "객차 냉장 개조 비용은 양수여야 합니다.");
         Check(_tables.PuzzleTrade.startingWagonSalePrice >= 0, PATH + ".startingWagonSalePrice",
             "시작 화차 판매가는 0 이상이어야 합니다.");
-        Check(_tables.PuzzleTrade.wagonAddCostBase > 0, PATH + ".wagonAddCostBase",
-            "화물칸 증차 기본 비용은 0보다 커야 합니다.");
         Check(_tables.PuzzleTrade.maxWagonCount >= 1, PATH + ".maxWagonCount",
             "최대 객차 수는 1 이상이어야 합니다.");
         Check(IsFinitePositive(_tables.PuzzleTrade.travelEffectSeconds), PATH + ".travelEffectSeconds",
@@ -351,6 +356,19 @@ public sealed class GameTableRules
                 "화차 상품 이름이 필요합니다.");
             Check(product.price > 0, path + ".price", "화차 상품 가격은 양수여야 합니다.");
             Check(product.salePrice >= 0, path + ".salePrice", "화차 판매가는 0 이상이어야 합니다.");
+            Check(product.salePrice <= product.price, path + ".salePrice", "화차 판매가는 구매가 이하여야 합니다.");
+            if (product.board != null && (product.board.width > 0 || product.board.height > 0))
+            {
+                Check(product.board.width > 0 && product.board.height > 0, path + ".board", "화차 보드의 너비·높이는 양수여야 합니다.");
+                // 화물칸 화면은 미리 배치한 칸 슬롯(최대 7×6 = 42칸)만 켠다.
+                Check((long)product.board.width * product.board.height <= MAX_WAGON_BOARD_CELLS, path + ".board",
+                    "화차 보드는 " + MAX_WAGON_BOARD_CELLS + "칸 이하여야 합니다.");
+                var blocked = ValidateBlockedCells(product.board, path + ".board");
+                Check((long)product.board.width * product.board.height - blocked.Count > 0, path + ".board",
+                    "화차 보드에 쓸 수 있는 칸이 하나 이상 필요합니다.");
+                Check((product.board.startingPlacements ?? Array.Empty<PuzzleStartingPlacementData>()).Length == 0,
+                    path + ".board.startingPlacements", "구매 화차는 빈 상태로 온다. 시작 배치를 둘 수 없습니다.");
+            }
             if (!string.IsNullOrEmpty(product.modificationId))
             {
                 Reference(product.modificationId, path + ".modificationId",
@@ -468,6 +486,7 @@ public sealed class GameTableRules
                     (penalty.buyPercentDelta != 0 || penalty.sellPercentDelta != 0), path,
                     "지역 거래 불이익은 구매 배율을 올리거나 판매 배율을 내려야 합니다.");
                 Check(penalty.durationHours > 0, path + ".durationHours", "지역 거래 불이익 시간은 양수여야 합니다.");
+                CheckTurnHours(penalty.durationHours, path + ".durationHours");
             }
         }
 
@@ -483,9 +502,10 @@ public sealed class GameTableRules
                 courier.baseReward + courier.rewardPerCellDistance > 0, path, "보상 계수는 0 이상이고 둘 다 0일 수 없습니다.");
             Check(courier.deadlinePercent >= 100, path + ".deadlinePercent", "기한 배율은 100% 이상이어야 합니다.");
             Check(courier.deadlineExtraHours >= 0, path + ".deadlineExtraHours", "기한 여유 시간은 0 이상이어야 합니다.");
-            foreach (string tag in courier.fallbackProficiencyTags ?? Array.Empty<string>())
+            CheckTurnHours(courier.deadlineExtraHours, path + ".deadlineExtraHours");
+            foreach (string tag in courier.proficiencyTags ?? Array.Empty<string>())
             {
-                Check(_tables.ProficiencyTags.Contains(tag), path + ".fallbackProficiencyTags",
+                Check(_tables.ProficiencyTags.Contains(tag), path + ".proficiencyTags",
                     $"'{tag}'은 숙련 대상(지역 생산) 태그가 아닙니다.");
             }
             var pieceIds = courier.pieceIds ?? Array.Empty<string>();
@@ -500,9 +520,6 @@ public sealed class GameTableRules
                         $"의뢰 화물 '{pieceId}'은 시장 재고에서 제외(excludeFromMarket)되어야 합니다.");
                     Check((piece.tags ?? Array.Empty<string>()).Contains(quest.cargoTag),
                         path + ".pieceIds", $"의뢰 화물 '{pieceId}'에 의뢰 전용 태그가 필요합니다.");
-                    Check((piece.tags ?? Array.Empty<string>()).Any(_tag => _tables.ProficiencyTags.Contains(_tag)) ||
-                        (courier.fallbackProficiencyTags ?? Array.Empty<string>()).Length > 0, path + ".fallbackProficiencyTags",
-                        $"생산 태그가 없는 의뢰 화물 '{pieceId}'이 있으면 숙련 경험치를 받을 태그를 지정해야 합니다.");
                 }
             }
         }
@@ -525,11 +542,11 @@ public sealed class GameTableRules
         Check(_time.daylightHours > 0 && _time.daylightHours < PuzzleTimeManager.HOURS_PER_DAY, PATH + ".daylightHours",
             "낮 시간은 1 이상, 하루(" + PuzzleTimeManager.HOURS_PER_DAY + "시간) 미만이어야 합니다.");
         Check(_time.startHour >= 0 && _time.startHour < PuzzleTimeManager.HOURS_PER_DAY, PATH + ".startHour", "시작 시각이 범위를 벗어났습니다.");
-        Check(_time.restHours > 0, PATH + ".restHours", "휴식 시간은 양수여야 합니다.");
-        Check(!float.IsNaN(_time.pixelsPerHour) && !float.IsInfinity(_time.pixelsPerHour) && _time.pixelsPerHour > 0f,
-            PATH + ".pixelsPerHour", "시간당 지도 길이는 유한한 양수여야 합니다.");
-        Check(_time.travelRoundingMinutes > 0 && PuzzleTimeManager.MINUTES_PER_HOUR % _time.travelRoundingMinutes == 0,
-            PATH + ".travelRoundingMinutes", "이동 시간 올림 단위는 60의 약수인 분이어야 합니다.");
+        CheckTurnHours(_time.daylightHours, PATH + ".daylightHours");
+        CheckTurnHours(_time.startHour, PATH + ".startHour");
+        Check(_time.travelTurns > 0, PATH + ".travelTurns", "이동 턴은 1 이상이어야 합니다.");
+        Check(_time.restTurns > 0 && _time.restTurns <= PuzzleTimeManager.TURNS_PER_DAY, PATH + ".restTurns",
+            "기본 휴식 턴은 1 이상, 하루(" + PuzzleTimeManager.TURNS_PER_DAY + "턴) 이하여야 합니다.");
     }
 
     void ValidateRoutes(TableManager _tables)
@@ -564,17 +581,6 @@ public sealed class GameTableRules
             if (validPoints)
             {
                 Check(PuzzleTimeManager.PolylineLength(route.points) > 0, path + ".points", "노선 길이는 0보다 커야 합니다.");
-                try
-                {
-                    if (_tables.PuzzleTime != null)
-                    {
-                        PuzzleTimeManager.TravelMinutes(route, _tables.PuzzleTime);
-                    }
-                }
-                catch (OverflowException)
-                {
-                    Check(false, path + ".points", "노선 시간이 계산 범위를 초과합니다.");
-                }
             }
             if (_tables.HasCity(route.fromCityId) && _tables.HasCity(route.toCityId))
             {
@@ -699,6 +705,7 @@ public sealed class GameTableRules
     {
         Check(_tables.PuzzleSynergy.activationIntervalHours > 0, "PuzzleSynergyTableData.activationIntervalHours",
             "시너지 적용 주기는 양의 정수 시간이어야 합니다.");
+        CheckTurnHours(_tables.PuzzleSynergy.activationIntervalHours, "PuzzleSynergyTableData.activationIntervalHours");
         var tags = new HashSet<string>(_tables.Pieces.SelectMany(_item => _item.tags ?? Array.Empty<string>()),
             StringComparer.Ordinal);
         var rules = _tables.PuzzleSynergy.rules ?? Array.Empty<PuzzleSynergyRuleData>();
@@ -841,6 +848,12 @@ public sealed class GameTableRules
         Check(animals.grainTag != animals.animalTag && animals.grainTag != animals.wasteTag, PATH + ".grainTag",
             "곡물 태그는 동물·배설물 태그와 서로 달라야 합니다.");
         Check(animals.feedIntervalHours > 0, PATH + ".feedIntervalHours", "곡물 섭취 주기는 양의 정수 시간이어야 합니다.");
+        CheckTurnHours(animals.wasteIntervalHours, PATH + ".wasteIntervalHours");
+        CheckTurnHours(animals.breedingHours, PATH + ".breedingHours");
+        CheckTurnHours(animals.completionHoldHours, PATH + ".completionHoldHours");
+        CheckTurnHours(animals.feedIntervalHours, PATH + ".feedIntervalHours");
+        CheckTurnHours(animals.breedingFeedReductionHours, PATH + ".breedingFeedReductionHours");
+        CheckTurnHours(animals.growthFeedReductionHours, PATH + ".growthFeedReductionHours");
         Check(animals.breedingFeedReductionHours > 0, PATH + ".breedingFeedReductionHours",
             "섭취 1회 번식 시간 단축은 양의 정수 시간이어야 합니다.");
         Check(animals.growthFeedReductionHours > 0, PATH + ".growthFeedReductionHours",
@@ -943,6 +956,7 @@ public sealed class GameTableRules
                 !string.Equals(rule.sourcePieceId, rule.partnerPieceId, StringComparison.Ordinal), path + ".partnerPieceId",
                 "두 입력은 비어 있지 않고 서로 다른 품목이어야 합니다.");
             Check(rule.requiredHours > 0, path + ".requiredHours", "조합 시간은 양의 정수 시간이어야 합니다.");
+            CheckTurnHours(rule.requiredHours, path + ".requiredHours");
             ValidateEffectDescription(rule.description, path + ".description", string.Empty, string.Empty);
             Check(pairs.Add(PairKey(rule.sourcePieceId, rule.partnerPieceId)), path,
                 "같은 입력 쌍의 조합 규칙은 하나만 둘 수 있습니다.");
@@ -1105,6 +1119,21 @@ public sealed class GameTableRules
             }
         }
 
+        // 역의 화차 상품 참조. 같은 역에 같은 상품을 두 번 두지 않는다.
+        foreach (var city in _tables.Cities)
+        {
+            var ids = city.wagonProductIds ?? Array.Empty<string>();
+            var seen = new HashSet<string>(StringComparer.Ordinal);
+            for (int i = 0; i < ids.Length; i++)
+            {
+                string path = $"PuzzleTableData.cities.{city.id}.wagonProductIds[{i}]";
+                bool known = !string.IsNullOrEmpty(ids[i]) &&
+                    (_tables.PuzzleTrade.wagonProducts ?? Array.Empty<PuzzleWagonProductData>()).Any(_row => _row != null && _row.id == ids[i]);
+                Reference(ids[i], path, known, "화차 상품");
+                Check(seen.Add(ids[i] ?? string.Empty), path, "같은 역에 같은 화차 상품을 두 번 둘 수 없습니다.");
+            }
+        }
+
         // 개조 결과 품목은 시장 무작위 재고·고정 재고 후보에 편입되지 않는다.
         foreach (var profile in _tables.Puzzle.stockProfiles ?? Array.Empty<PuzzleMarketStockData>())
         {
@@ -1145,6 +1174,7 @@ public sealed class GameTableRules
             Check(!string.Equals(work.inputPieceId, work.outputPieceId, StringComparison.Ordinal), path + ".outputPieceId",
                 "입력과 산출은 서로 다른 품목이어야 합니다.");
             Check(work.workHours > 0, path + ".workHours", "작업 시간은 0보다 큰 게임 시간이어야 합니다.");
+            CheckTurnHours(work.workHours, path + ".workHours");
             Check(work.outputCount > 0, path + ".outputCount", "산출 개수는 0보다 커야 합니다.");
             Check(work.cost >= 0, path + ".cost", "작업 비용은 0 이상이어야 합니다.");
         }
@@ -1337,7 +1367,9 @@ public sealed class GameTableRules
             _path + ".tags", "성장하는 화물에는 Baby 태그가 필요합니다.");
         Check(_piece.growthHours > 0, _path + ".growthHours", "성장 시간은 양수여야 합니다.");
         Check(_piece.growthBlockedHours > 0 && _piece.growthBlockedHours <= _piece.growthHours,
-            _path + ".growthBlockedHours", "성장 전 공간을 확인하는 시간은 1시간 이상이며 성장 시간 이하여야 합니다.");
+            _path + ".growthBlockedHours", "성장 전 공간을 확인하는 시간은 1턴 이상이며 성장 시간 이하여야 합니다.");
+        CheckTurnHours(_piece.growthHours, _path + ".growthHours", _piece.id, "growthHours");
+        CheckTurnHours(_piece.growthBlockedHours, _path + ".growthBlockedHours", _piece.id, "growthBlockedHours");
         ValidateEffectDescription(_piece.growthDescription, _path + ".growthDescription",
             string.Empty, string.Empty, string.Empty);
         bool hasAdult = _tables.TryGetPiece(_piece.adultPieceId, out var adult);
@@ -1611,6 +1643,7 @@ public sealed class GameTableRules
         Check(!string.IsNullOrWhiteSpace(_piece.visualKey), _path + ".visualKey", "표시 에셋 키가 필요합니다.");
         ValidateItemTags(_piece.tags, _path + ".tags");
         Check(_piece.shelfLifeHours >= 0, _path + ".shelfLifeHours", "유통기한은 0(시간 소모 없음) 이상의 시간이어야 합니다.");
+        CheckTurnHours(_piece.shelfLifeHours, _path + ".shelfLifeHours", _piece.id, "shelfLifeHours");
         const string DURABILITY_MAX = "rules.durability.maximum";
         if (_tables.HasBasicNumber(DURABILITY_MAX))
         {

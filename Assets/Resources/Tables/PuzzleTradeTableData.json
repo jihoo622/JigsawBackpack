@@ -1,18 +1,129 @@
 {
   "status": "sample",
-  "note": "시작 자금·증차 비용·상환 목표·기한 및 이동 연출 설정. 도시별 거래 설정은 PuzzleTableData.cities가 원본이다.",
+  "note": "시작 자금·화차 상품(역마다 PuzzleTableData.cities[].wagonProductIds로 판다, 보드 모양이 다름)·목표 잔액·영업 기간 및 이동 연출 설정. 점수는 결산 잔액이다. deadlineHours(336, 14일 = 56턴)가 지나면 이동·휴식·작업은 막히고 거래만 할 수 있으며, 결산하면 잔액이 targetFunds 이상일 때 승리한다. 상환·상환 도시는 없다. 도시별 거래 설정은 PuzzleTableData.cities가 원본이다.",
   "startingFunds": 200,
-  "wagonAddCostBase": 50,
   "maxWagonCount": 8,
-  "wagonRefrigerationCost": 50,
+  "wagonRefrigerationCost": 120,
   "startingWagonSalePrice": 10,
   "wagonProducts": [
-    { "id": "standard", "displayName": "일반 화차", "price": 50, "salePrice": 25 },
-    { "id": "refrigerated", "displayName": "냉장 화차", "price": 100, "salePrice": 50, "modificationId": "refrigeration" }
+    {
+      "id": "hopper",
+      "displayName": "광석 호퍼",
+      "price": 120,
+      "salePrice": 60,
+      "board": {
+        "width": 4,
+        "height": 4,
+        "blockedCells": [],
+        "startingPlacements": []
+      }
+    },
+    {
+      "id": "flatbed",
+      "displayName": "장물 평판 화차",
+      "price": 180,
+      "salePrice": 90,
+      "board": {
+        "width": 7,
+        "height": 3,
+        "blockedCells": [],
+        "startingPlacements": []
+      }
+    },
+    {
+      "id": "standard",
+      "displayName": "일반 화차",
+      "price": 200,
+      "salePrice": 100,
+      "board": {
+        "width": 5,
+        "height": 5,
+        "blockedCells": [],
+        "startingPlacements": []
+      }
+    },
+    {
+      "id": "coldbox",
+      "displayName": "소형 냉장 화차",
+      "price": 200,
+      "salePrice": 100,
+      "modificationId": "refrigeration",
+      "board": {
+        "width": 4,
+        "height": 4,
+        "blockedCells": [],
+        "startingPlacements": []
+      }
+    },
+    {
+      "id": "livestock",
+      "displayName": "가축 화차",
+      "price": 220,
+      "salePrice": 110,
+      "board": {
+        "width": 6,
+        "height": 4,
+        "blockedCells": [],
+        "startingPlacements": []
+      }
+    },
+    {
+      "id": "granary",
+      "displayName": "곡물 화차",
+      "price": 240,
+      "salePrice": 120,
+      "board": {
+        "width": 6,
+        "height": 5,
+        "blockedCells": [
+          {
+            "x": 0,
+            "y": 0
+          },
+          {
+            "x": 5,
+            "y": 0
+          },
+          {
+            "x": 0,
+            "y": 4
+          },
+          {
+            "x": 5,
+            "y": 4
+          }
+        ],
+        "startingPlacements": []
+      }
+    },
+    {
+      "id": "refrigerated",
+      "displayName": "냉장 화차",
+      "price": 320,
+      "salePrice": 160,
+      "modificationId": "refrigeration",
+      "board": {
+        "width": 5,
+        "height": 5,
+        "blockedCells": [],
+        "startingPlacements": []
+      }
+    },
+    {
+      "id": "boxcar",
+      "displayName": "대형 유개 화차",
+      "price": 450,
+      "salePrice": 220,
+      "board": {
+        "width": 7,
+        "height": 5,
+        "blockedCells": [],
+        "startingPlacements": []
+      }
+    }
   ],
-  "gameClearCost": 1500,
+  "targetFunds": 1500,
   "deadlineHours": 336,
-  "debtCityId": "city.finance",
   "travelEffectSeconds": 1.25,
   "travelArrivalHoldSeconds": 0.35
 }

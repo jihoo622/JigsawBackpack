@@ -150,6 +150,8 @@ public sealed class PuzzleCityData
     public string generalStockId, regionalStockId;
     // 이 역에 있는 작업장(TrainventoryWorkshopTableData.workshops[].id). 같은 종류는 하나만 둔다.
     public string[] workshopIds = Array.Empty<string>();
+    // 이 역의 화차 시설이 파는 화차 상품(PuzzleTradeTableData.wagonProducts의 id). 역마다 다르다. 비면 화차를 팔지 않는다.
+    public string[] wagonProductIds = Array.Empty<string>();
 }
 
 [Serializable]
@@ -337,9 +339,9 @@ public sealed class TrainventoryWorkshopData
 public sealed class PuzzleRouteData
 {
     public string fromCityId, toCityId;
-    // 노선 거리. 운임의 거리 항(거리 × costPerDistance)과 의뢰 보상·후보 범위에 쓴다. 이동 시간은 선 길이(points)가 정한다.
+    // 노선 거리. 운임의 거리 항(거리 × costPerDistance)과 의뢰 보상·후보 범위, 최단 경로 동률 판정에 쓴다. 이동은 노선과 무관하게 1턴이다.
     public int distance = -1;
-    // 고정 지도 좌표의 폴라인. x,y 쌍이며 이동 시간(선 길이 ÷ pixelsPerHour)의 원본이다. 노선 거리와 무관하다.
+    // 고정 지도 좌표의 폴라인. x,y 쌍이며 그리기 전용이다. Map Editor의 노선 거리 자동 계산만 선 길이를 쓴다.
     public float[] points = Array.Empty<float>();
     public bool highSpeed;
     // 누락된 값이 0이라는 정상값으로 위장되지 않도록 하는 검증용 값이다.
@@ -385,6 +387,7 @@ public sealed class TrainventoryCourierQuestData
     public int minTravelDistance = -1, maxTravelDistance = -1;
     public int baseReward = -1, rewardPerCellDistance = -1;
     public int deadlinePercent = -1, deadlineExtraHours = -1;
-    // 의뢰 화물에 생산 태그가 없을 때 완료 숙련 경험치를 받을 태그. 화물에 생산 태그가 있으면 쓰지 않는다.
-    public string[] fallbackProficiencyTags = Array.Empty<string>();
+    // 완료 숙련 경험치를 받을 태그 후보. 의뢰마다 이 중 하나를 골라 보여 준다. 비우면 화물의 생산 태그,
+    // 그것도 없으면 목적지 지역의 생산 태그, 그것도 없으면 전체 숙련 태그에서 고른다.
+    public string[] proficiencyTags = Array.Empty<string>();
 }

@@ -18,7 +18,6 @@ public sealed class PuzzleStationActionsPresenter : MonoBehaviour
         view.RestTimeRequested += Rest;
         view.RestEarlierRequested += ShowEarlierRest;
         view.RestLaterRequested += ShowLaterRest;
-        GameEvents.RestChanged += OnRestChanged;
         view.ButcheryRequested += OpenButchery;
         view.ButcheryConfirmed += ConfirmButchery;
         view.ModificationRequested += OpenModification;
@@ -29,7 +28,6 @@ public sealed class PuzzleStationActionsPresenter : MonoBehaviour
         view.ActionBackRequested += OnBack;
         GameEvents.CityArrived += OnArrived;
         GameEvents.TimeAdvanced += OnTimeAdvanced;
-        GameEvents.JourneyChanged += OnJourneyChanged;
         GameEvents.PanelVisibility += OnPanelVisibility;
         GameEvents.ButcheryChanged += OnButcheryChanged;
         GameEvents.ModificationChanged += OnModificationChanged;
@@ -49,7 +47,6 @@ public sealed class PuzzleStationActionsPresenter : MonoBehaviour
         view.RestTimeRequested -= Rest;
         view.RestEarlierRequested -= ShowEarlierRest;
         view.RestLaterRequested -= ShowLaterRest;
-        GameEvents.RestChanged -= OnRestChanged;
         view.ButcheryRequested -= OpenButchery;
         view.ButcheryConfirmed -= ConfirmButchery;
         view.ModificationRequested -= OpenModification;
@@ -60,7 +57,6 @@ public sealed class PuzzleStationActionsPresenter : MonoBehaviour
         view.ActionBackRequested -= OnBack;
         GameEvents.CityArrived -= OnArrived;
         GameEvents.TimeAdvanced -= OnTimeAdvanced;
-        GameEvents.JourneyChanged -= OnJourneyChanged;
         GameEvents.PanelVisibility -= OnPanelVisibility;
         GameEvents.ButcheryChanged -= OnButcheryChanged;
         GameEvents.ModificationChanged -= OnModificationChanged;
@@ -69,8 +65,8 @@ public sealed class PuzzleStationActionsPresenter : MonoBehaviour
         GameEvents.PuzzleRunEnded -= OnRunEnded;
     }
 
-    int restTargetHour;
-    long shownRestStep = long.MinValue;
+    // 휴식 화면에서 고른 휴식 턴(1턴~하루).
+    int restTurns = 1;
 
     void Refresh()
     {
@@ -104,8 +100,8 @@ public sealed class PuzzleStationActionsPresenter : MonoBehaviour
             : PuzzleModificationPhase.Idle;
         TrainventoryWorkData selectedMode = null;
         bool modificationModeSelected = modificationAvailable && session.TryGetSelectedModificationMode(out selectedMode);
-        // 역 시설·작업장은 시간을 쓰지 않는다. 이동 중에는 쓸 수 없다.
-        bool canSpendHour = !session.IsTraveling;
+        // 작업장 확정은 작업 시간(턴)만큼 시간을 쓴다. 기한 검사는 확정할 때 한다.
+        bool canSpendHour = session.RunStatus == PuzzleRunStatus.InProgress;
         bool modificationConfirmable = modificationAvailable && session.ModificationConfirmable() && canSpendHour;
         long modificationCost = -1;
         long modificationHours = 0;
@@ -184,52 +180,35 @@ public sealed class PuzzleStationActionsPresenter : MonoBehaviour
     {
         if (session.RunStatus == PuzzleRunStatus.InProgress && session.TryEnterWagonFacility())
         {
-            view.ShowWagonShop();
+            view.ShowWagonShop(session.WagonProductsHere);
         }
     }
 
-    // 휴식 화면을 열 때마다 목표 시각을 지금 + restHours로 다시 잡는다. 쉬는 중이면 그 목표를 그대로 보인다.
+    // 휴식 화면을 열 때마다 기본 휴식 턴(restTurns)으로 다시 잡는다.
     void OpenRest()
     {
         session.LeaveFacility();
-        if (!session.IsResting && session.Time != null)
-        {
-            restTargetHour = (session.Time.Hour + (int)TableManager.Instance.RequireValid().PuzzleTime.restHours) %
-                PuzzleTimeManager.HOURS_PER_DAY;
-        }
+        restTurns = TableManager.Instance.RequireValid().PuzzleTime.restTurns;
         view.ShowRest();
         RefreshRest();
     }
 
-    void ShiftRestTarget(int _hours)
+    // 휴식 턴을 1턴~하루 사이에서 돌려 고른다.
+    void ShiftRestTurns(int _delta)
     {
-        if (session.IsResting)
-        {
-            return;
-        }
-        restTargetHour = ((restTargetHour + _hours) % PuzzleTimeManager.HOURS_PER_DAY + PuzzleTimeManager.HOURS_PER_DAY) %
-            PuzzleTimeManager.HOURS_PER_DAY;
+        int max = PuzzleInventoryService.MaxRestTurns;
+        restTurns = ((restTurns - 1 + _delta) % max + max) % max + 1;
         RefreshRest();
     }
 
     void ShowEarlierRest()
     {
-        ShiftRestTarget(-1);
+        ShiftRestTurns(-1);
     }
 
     void ShowLaterRest()
     {
-        ShiftRestTarget(1);
-    }
-
-    // 쉬는 동안 남은 시간 글자를 화면 시계 단위(10분)로 갱신한다.
-    void Update()
-    {
-        if (session != null && session.Time != null && view && view.ShowingRest &&
-            session.Time.DisplayStep != shownRestStep)
-        {
-            RefreshRest();
-        }
+        ShiftRestTurns(1);
     }
 
     void RefreshRest()
@@ -238,26 +217,8 @@ public sealed class PuzzleStationActionsPresenter : MonoBehaviour
         {
             return;
         }
-        shownRestStep = session.Time.DisplayStep;
-        if (session.IsResting)
-        {
-            long target = session.RestTargetHours.Value;
-            view.RefreshRest(Presentation.StationRestStop(session.Time.HourAt(target),
-                Presentation.ClockDuration(target - session.Time.ContinuousHours)), false, true);
-            return;
-        }
-        view.RefreshRest(Presentation.StationRestUntil(restTargetHour,
-                Presentation.ClockDuration(session.RestRemainingHoursFor(restTargetHour))),
-            session.RunStatus == PuzzleRunStatus.InProgress && !session.IsTraveling,
-            session.CanRestUntil(restTargetHour));
-    }
-
-    void OnRestChanged(GameEvents.RestInfo _info)
-    {
-        if (_info.session == session)
-        {
-            RefreshRest();
-        }
+        view.RefreshRest(Presentation.StationRestUntil(session.TurnSlotAfter(restTurns), restTurns),
+            session.RunStatus == PuzzleRunStatus.InProgress, session.CanRest(restTurns));
     }
 
     void OpenTavern()
@@ -452,14 +413,10 @@ public sealed class PuzzleStationActionsPresenter : MonoBehaviour
         GameEvents.RaiseMapRequested(gameObject.scene.handle);
     }
 
-    // 쉬는 중이면 멈추고, 아니면 고른 시각까지 빨리 감기를 시작한다.
+    // 고른 턴만큼 쉰다.
     void Rest()
     {
-        if (session.IsResting)
-        {
-            session.StopRest();
-        }
-        else if (!session.StartRest(restTargetHour))
+        if (!session.Rest(restTurns))
         {
             view.ShowRestNotice(Presentation.PuzzleTimeOverflow);
         }
@@ -480,20 +437,15 @@ public sealed class PuzzleStationActionsPresenter : MonoBehaviour
         }
     }
 
-    // 출발하면 역 시설을 쓸 수 없고 도착하면 다시 쓸 수 있다.
-    void OnJourneyChanged(GameEvents.JourneyInfo _info)
-    {
-        if (_info.session == session)
-        {
-            Refresh();
-        }
-    }
-
     void OnTimeAdvanced(GameEvents.TimeAdvanceInfo _info)
     {
         if (_info.session == session)
         {
             Refresh();
+            if (view.ShowingRest)
+            {
+                RefreshRest();
+            }
         }
     }
 }

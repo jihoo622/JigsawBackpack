@@ -360,6 +360,11 @@ public sealed class PuzzleMapView : PanelBase
         var nodeSettings = GetNodeLayoutSettings();
         foreach (var node in layoutNodes)
         {
+            // 전장의 안개로 숨긴 역은 배치·겹침 계산에서 뺀다.
+            if (!node.gameObject.activeSelf)
+            {
+                continue;
+            }
             node.PrepareLayout(_zoom, nodeSettings);
             markerBounds.Add(node, node.MarkerBounds(_viewport));
         }
@@ -388,6 +393,10 @@ public sealed class PuzzleMapView : PanelBase
         foreach (var node in layoutNodes)
         {
             node.HideLabel();
+            if (!node.gameObject.activeSelf)
+            {
+                continue;
+            }
             bool required = regionMode ? node.IsLabelEssential(selectedCityId) : node.IsLabelRequired(selectedCityId, nodeSettings);
             if (required)
             {
@@ -493,7 +502,8 @@ public sealed class PuzzleMapView : PanelBase
             {
                 foreach (var node in layoutNodes)
                 {
-                    if (tables.HasCity(node.CityId) && tables.CityPrice(node.CityId).regionId == region.regionId)
+                    if (node.gameObject.activeSelf && tables.HasCity(node.CityId) &&
+                        tables.CityPrice(node.CityId).regionId == region.regionId)
                     {
                         center += node.MarkerPosition(_viewport);
                         count++;
@@ -815,7 +825,7 @@ public sealed class PuzzleMapView : PanelBase
         {
             if (tables.TryGetRoute(routeTime.fromCityId, routeTime.toCityId, out var route))
             {
-                routeTime.label.text = Presentation.PuzzleTravelTime(PuzzleTimeManager.TravelMinutes(route, tables.PuzzleTime));
+                routeTime.label.text = Presentation.PuzzleMapRouteFare(route, tables.PuzzleRoute);
             }
             routeTime.label.color = Presentation.PuzzleHeading;
         }
@@ -909,12 +919,12 @@ public sealed class PuzzleMapView : PanelBase
         {
             tooltipStatRows.Add(regionRow);
         }
-        tooltipStatRows.Add(("소요시간", Presentation.PuzzleTravelTime(_eval.TravelMinutes)));
+        tooltipStatRows.Add(("소요시간", Presentation.TurnSpan(_eval.TravelHours)));
 
         string fareText = $"<color=#{ColorUtility.ToHtmlStringRGB(Presentation.PuzzleTooltipRed)}>{_eval.Cost:N0}$</color>";
         tooltipStatRows.Add(("운임비", fareText));
 
-        string arrivalStr = Presentation.GameTimestampAt(_session.ContinuousArrivalAfter(_eval.TravelMinutes));
+        string arrivalStr = Presentation.GameTimestamp(_session.ElapsedTime + _eval.TravelHours);
         if (_eval.ArrivalIsNight)
         {
             arrivalStr += $" <color=#{ColorUtility.ToHtmlStringRGB(Presentation.PuzzleTooltipRed)}>(야간)</color>";
@@ -927,9 +937,10 @@ public sealed class PuzzleMapView : PanelBase
         tooltipInfoLines.Clear();
         if (_session.Time != null && _session.Time.HasDeadline)
         {
-            long remaining = (long)Math.Floor(_session.Time.DeadlineHours - _session.ContinuousArrivalAfter(_eval.TravelMinutes));
+            long remaining = _session.Time.DeadlineHours - (_session.ElapsedTime + _eval.TravelHours);
             string deadlineStr;
-            if (remaining > 0)
+            // 영업 기간이 끝나는 시각에 도착하는 이동은 허용하므로 남은 0은 초과가 아니다.
+            if (remaining >= 0)
             {
                 string formatted = Presentation.TimeDeadlineValue(remaining);
                 deadlineStr = Presentation.TimeDeadlineWarning(remaining)
@@ -1117,6 +1128,26 @@ public sealed class PuzzleMapView : PanelBase
             if (img)
             {
                 _into.Add(img);
+            }
+        }
+    }
+
+    // 전장의 안개: 모르는 노선의 선분을 숨긴다. 노선마다 선분 묶음은 Awake에서 시간 라벨 이름으로 이어 두었다.
+    internal void SetKnownRoutes(Func<string, string, bool> _isKnown)
+    {
+        for (int i = 0; i < routeTimes.Length; i++)
+        {
+            if (routeTimes[i] == null || !routeTrackImages.TryGetValue(i, out var images))
+            {
+                continue;
+            }
+            bool known = _isKnown(routeTimes[i].fromCityId, routeTimes[i].toCityId);
+            foreach (var image in images)
+            {
+                if (image)
+                {
+                    image.enabled = known;
+                }
             }
         }
     }

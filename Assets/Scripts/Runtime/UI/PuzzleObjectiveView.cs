@@ -14,14 +14,14 @@ public sealed class PuzzleObjectiveView : PanelBase
     [SerializeField] TextMeshProUGUI objectiveLabel;
     [SerializeField] TextMeshProUGUI confirmLabel;
 
-    internal void ShowObjective(long _cost, string _cityName)
+    internal void ShowObjective(long _targetFunds, long _deadlineHours)
     {
         background.color = Presentation.PuzzleObjectiveBackground;
         backdrop.color = Presentation.PuzzleObjectiveBackdrop;
         costPlate.color = Presentation.PuzzleObjectiveSurface;
         confirmButton.image.color = Presentation.PuzzleObjectiveSurface;
-        costLabel.text = Presentation.PuzzleClearButton(_cost);
-        objectiveLabel.text = Presentation.PuzzleObjectiveHint(_cityName);
+        costLabel.text = Presentation.PuzzleClearButton(_targetFunds);
+        objectiveLabel.text = Presentation.PuzzleObjectiveHint(_deadlineHours);
         confirmLabel.text = Presentation.PuzzleObjectiveConfirm;
         Open();
     }

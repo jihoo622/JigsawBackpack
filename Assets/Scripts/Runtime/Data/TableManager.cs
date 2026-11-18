@@ -54,6 +54,23 @@ public sealed class TableManager
     public IReadOnlyList<PuzzleCityData> Cities { get; }
     public IReadOnlyList<PuzzleStartingPlacementData> TrainStartingPlacements { get; }
     public PuzzleBoardData StartingTrainBoard => Puzzle.startingTrain ?? Puzzle.train;
+
+    // 역이 파는 화차 상품. 가격 오름차순, 같으면 id 오름차순이다.
+    public IReadOnlyList<PuzzleWagonProductData> WagonProductsOf(string _cityId)
+    {
+        var ids = HasCity(_cityId) ? CityPrice(_cityId).wagonProductIds ?? Array.Empty<string>() : Array.Empty<string>();
+        return (PuzzleTrade.wagonProducts ?? Array.Empty<PuzzleWagonProductData>())
+            .Where(_product => _product != null && ids.Contains(_product.id))
+            .OrderBy(_product => _product.price)
+            .ThenBy(_product => _product.id, StringComparer.Ordinal)
+            .ToArray();
+    }
+
+    // 화차 상품의 보드. 보드를 정하지 않은 상품은 기본 화차 보드(Puzzle.train)를 쓴다.
+    public PuzzleBoardData WagonBoardOf(PuzzleWagonProductData _product)
+    {
+        return _product?.board != null && _product.board.width > 0 && _product.board.height > 0 ? _product.board : Puzzle.train;
+    }
     public bool IsValid { get; }
 
     readonly Dictionary<string, UpgradeData> upgrades;

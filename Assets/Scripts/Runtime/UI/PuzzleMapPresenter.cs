@@ -98,7 +98,7 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
 
     void OnMapToggleRequested(GameEvents.MapToggleInfo _info)
     {
-        if (_info.sceneHandle != gameObject.scene.handle || session.IsTraveling)
+        if (_info.sceneHandle != gameObject.scene.handle || phase == TravelPhase.Traveling)
         {
             return;
         }
@@ -204,11 +204,7 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
 
     public bool TryConsumeTravelCancel()
     {
-        // 출발한 이동은 되돌릴 수 없다. 취소 입력은 삼키고 도착을 기다린다.
-        if (phase == TravelPhase.Traveling && session.IsTraveling)
-        {
-            return true;
-        }
+        // 연출 중인 이동은 취소하면 확정 전에 멈춘다.
         if (phase == TravelPhase.AutoTraveling)
         {
             RequestStopAutoTravel();
@@ -309,6 +305,13 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
         foreach (var node in view.Nodes)
         {
             string cityId = node.CityId;
+            // 전장의 안개: 모르는 역은 숨긴다. 위치만 아는 역(소문·의뢰)은 미방문 역처럼 보인다.
+            var visibility = session.CityVisibility(cityId);
+            node.gameObject.SetActive(visibility != PuzzleMapVisibility.Hidden);
+            if (visibility == PuzzleMapVisibility.Hidden)
+            {
+                continue;
+            }
             bool isCurrent = string.Equals(cityId, currentCityId, System.StringComparison.Ordinal);
             if (isCurrent)
             {
@@ -336,6 +339,7 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
                 view.GetNodeLayoutSettings(),
                 Presentation.QuestMapBadge(session, cityId));
         }
+        view.SetKnownRoutes(session.IsRouteKnown);
         if (currentNode)
         {
             view.ShowCurrentLocation(currentNode);
@@ -472,44 +476,24 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
             view.ShowInformation(Presentation.PuzzleTravelStatus(evaluation));
             return;
         }
-        string fromName = TableManager.Instance.CityPrice(session.CurrentCityId).displayName;
-        string toName = TableManager.Instance.CityPrice(pendingCityId).displayName;
-        bool routeLeg = session.RoutePlan != null &&
-            string.Equals(session.RoutePlan.NextCityId, pendingCityId, System.StringComparison.Ordinal);
-        // 출발할 때 운임을 내고, 도착은 게임 시계가 노선 이동 시간만큼 흐른 뒤다.
-        var departure = session.DepartLeg(pendingCityId, false, routeLeg);
-        if (!departure.IsSuccess)
-        {
-            AbortTravel();
-            view.ShowInformation(Presentation.PuzzleTravelStatus(departure));
-            return;
-        }
         phase = TravelPhase.Traveling;
-        travelView.BeginJourney(Presentation.PuzzleTravelJourney(fromName, toName));
-        travelRoutine = StartCoroutine(FollowJourney());
+        travelView.BeginJourney(Presentation.PuzzleTravelJourney(
+            TableManager.Instance.CityPrice(session.CurrentCityId).displayName,
+            TableManager.Instance.CityPrice(pendingCityId).displayName));
+        travelRoutine = StartCoroutine(TravelTo(pendingCityId));
     }
 
-    // 진행 중인 이동을 실시간으로 따라가며 진행 막대를 그린다. 도착하면 도착 연출 뒤 지도를 닫는다.
-    IEnumerator FollowJourney()
+    // 짧은 이동 연출 뒤 이동을 한 번 확정한다(1턴). 닫힘·비활성화는 확정 전에 대기 작업을 멈춘다.
+    IEnumerator TravelTo(string _cityId)
     {
-        while (session.IsTraveling)
-        {
-            travelView.ShowProgress(session.JourneyProgress);
-            yield return null;
-        }
+        yield return PlayTravelEffect(TableManager.Instance.PuzzleTrade.travelEffectSeconds);
 
-        var travelResult = session.LastArrival;
-        if (session.RunStatus == PuzzleRunStatus.InProgress && travelResult.IsSuccess)
+        var travelResult = session.Travel(_cityId);
+        if (travelResult.IsSuccess)
         {
             phase = TravelPhase.Arrived;
             travelView.ShowArrival();
-            float elapsed = 0f;
-            float duration = TableManager.Instance.PuzzleTrade.travelArrivalHoldSeconds;
-            while (elapsed < duration)
-            {
-                elapsed += Time.unscaledDeltaTime;
-                yield return null;
-            }
+            yield return HoldArrival();
             travelRoutine = null;
             AbortTravel();
             view.Close();
@@ -522,6 +506,29 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
         }
     }
 
+    IEnumerator PlayTravelEffect(float _duration)
+    {
+        float elapsed = 0f;
+        while (elapsed < _duration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+            travelView.ShowProgress(Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(elapsed / _duration)));
+            yield return null;
+        }
+        travelView.ShowProgress(1f);
+    }
+
+    IEnumerator HoldArrival()
+    {
+        float elapsed = 0f;
+        float duration = TableManager.Instance.PuzzleTrade.travelArrivalHoldSeconds;
+        while (elapsed < duration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+            yield return null;
+        }
+    }
+
     void AbortTravel()
     {
         if (travelRoutine != null)
@@ -529,8 +536,6 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
             StopCoroutine(travelRoutine);
             travelRoutine = null;
         }
-        // 화면이 이동을 더 따라가지 못하면 진행 중인 구간은 목적지에 정차하는 것으로 바꾼다.
-        session?.StopJourneyAtDestination();
         if (autoTravelRoutine != null)
         {
             StopCoroutine(autoTravelRoutine);
@@ -678,21 +683,11 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
             bool isStopLeg = plan.IsStop(nextCityId);
             string currentCityName = TableManager.Instance.CityPrice(session.CurrentCityId).displayName;
             string nextCityName = TableManager.Instance.CityPrice(nextCityId).displayName;
-            var travelResult = session.DepartLeg(nextCityId, !isStopLeg, true);
-            if (travelResult.IsSuccess)
-            {
-                travelView.BeginJourney(Presentation.PuzzleTravelJourney(currentCityName, nextCityName));
-                // 구간마다 게임 시계가 노선 이동 시간만큼 흐른 뒤 도착한다.
-                while (session.IsTraveling)
-                {
-                    travelView.ShowProgress(session.JourneyProgress);
-                    yield return null;
-                }
-                travelResult = session.RunStatus == PuzzleRunStatus.InProgress
-                    ? session.LastArrival
-                    : new PuzzleTravelResult(PuzzleTravelFailure.Blocked);
-            }
-            bool stopped = travelResult.IsSuccess && isStopLeg;
+            travelView.BeginJourney(Presentation.PuzzleTravelJourney(currentCityName, nextCityName));
+            // 통과 구간은 연출을 절반으로 줄인다. 구간마다 1턴이 흐른다.
+            float baseDuration = TableManager.Instance.PuzzleTrade.travelEffectSeconds;
+            yield return PlayTravelEffect(isStopLeg ? baseDuration : Mathf.Max(0.2f, baseDuration * 0.5f));
+            var travelResult = session.TravelNextRouteLeg(out bool stopped);
             if (!travelResult.IsSuccess)
             {
                 if (session.IsPassingThrough)
@@ -709,13 +704,7 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
             {
                 phase = TravelPhase.Arrived;
                 travelView.ShowArrival();
-                float elapsed = 0f;
-                float arrivalDuration = TableManager.Instance.PuzzleTrade.travelArrivalHoldSeconds;
-                while (elapsed < arrivalDuration)
-                {
-                    elapsed += Time.unscaledDeltaTime;
-                    yield return null;
-                }
+                yield return HoldArrival();
                 session.ReportAutoTravelStopped("stop_reached");
                 EndAutoTravel();
                 view.Close();

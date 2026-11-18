@@ -33,6 +33,14 @@ public sealed partial class PuzzleInventoryService
         return hours;
     }
 
+    // 작업 시간만큼 흘려도 기한 안인지. 기한을 넘기는 작업은 확정하지 않는다.
+    bool WorkshopFitsDeadline(long _hours, out string _reason)
+    {
+        bool fits = Time != null && Time.CanArriveBeforeDeadline(_hours);
+        _reason = fits ? null : BasicData.Text("rules.workshop.deadline");
+        return fits;
+    }
+
     // 맡기기 전 견적. 비어 있지 않은 대기(Idle) 보드에서 처리할 수 있는 화물의 수수료 합과 걸리는 시간이다.
     // 맡긴 뒤(작업 중·수령 대기)나 처리할 화물이 없으면 false다.
     bool TryQuoteIdleBoard(TrainventoryWorkshopData _workshop, PuzzleInventory _board, bool _idle,

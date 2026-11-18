@@ -131,9 +131,10 @@ internal sealed class EconomyRouteGraph
 
     internal EconomyRouteGraph(TableManager _tables)
     {
-        DebtCityId = string.IsNullOrEmpty(_tables.PuzzleTrade.debtCityId) ? _tables.Puzzle.startCity : _tables.PuzzleTrade.debtCityId;
+        // 상환 장소가 없어졌다. 귀환 추정(남은 가치 계산)은 출발지를 기준으로 한다.
+        DebtCityId = _tables.Puzzle.startCity;
         var outgoing = _tables.Cities.ToDictionary(_city => _city.id,
-            _city => _tables.RoutesFrom(_city.id).Select(_route => (To: _route.toCityId, Hours: PuzzleTimeManager.TravelHoursRoundedUp(_route, _tables.PuzzleTime))).ToList(),
+            _city => _tables.RoutesFrom(_city.id).Select(_route => (To: _route.toCityId, Hours: PuzzleTimeManager.HoursOf(_tables.PuzzleTime.travelTurns))).ToList(),
             StringComparer.Ordinal);
 
         // 출발 도시마다 다익스트라. 도시 수가 작아 단순 선택 방식을 쓴다.
@@ -207,7 +208,7 @@ internal sealed class EconomyLoop
                         continue;
                     }
                     long profit = LegProfit(session, _tables, forward) + LegProfit(session, _tables, backward);
-                    long cycle = PuzzleTimeManager.TravelHoursRoundedUp(forward, _tables.PuzzleTime) + PuzzleTimeManager.TravelHoursRoundedUp(backward, _tables.PuzzleTime);
+                    long cycle = PuzzleTimeManager.HoursOf(_tables.PuzzleTime.travelTurns) + PuzzleTimeManager.HoursOf(_tables.PuzzleTime.travelTurns);
                     if (profit > 0)
                     {
                         loops.Add(new EconomyLoop { A = from.id, B = forward.toCityId, CycleHours = cycle, CycleProfit = profit });
@@ -291,39 +292,26 @@ internal sealed class EconomyBot
             }
 
             var options = TimelyRoutes();
-            if (service.CanClearGame && (settings.repayEarly || options.Count == 0))
+            if (options.Count == 0)
             {
-                Repay();
-                break;
-            }
-
-            bool returning = options.Count == 0 ||
-                (settings.repayEarly && EstimatedWealthAtDebt() - CostToDebt() >= service.GameClearCost + RETURN_FUNDS_MARGIN);
-            if (returning && AtDebtCity)
-            {
-                if (!service.IsMarketOpen && service.CanWaitForDaylight && service.Time.HoursUntilDaylight <= service.Time.RemainingHours)
+                // 더 갈 수 있는 노선이 없으면 영업 기간이 끝날 때까지 쉬고, 남은 화물을 팔아 결산한다.
+                while (!service.IsTimeUp && service.Rest(1))
+                {
+                    Snapshot();
+                }
+                if (!service.IsMarketOpen && service.CanWaitForDaylight)
                 {
                     Wait();
                 }
                 LiquidateCargo();
                 Snapshot();
-                if (service.CanClearGame)
-                {
-                    Repay();
-                    break;
-                }
-                if (options.Count == 0)
-                {
-                    result.Outcome = EconomyRunOutcome.ShortOfFunds;
-                    break;
-                }
-                // 추정 판매액이 실제와 달랐다. 거래를 이어 간다.
-                returning = false;
+                Finish();
+                break;
             }
 
             if (!service.IsMarketOpen)
             {
-                if (!returning && service.CanWaitForDaylight)
+                if (service.CanWaitForDaylight)
                 {
                     Wait();
                     Snapshot();
@@ -333,18 +321,11 @@ internal sealed class EconomyBot
             else
             {
                 MarketReady();
-                SellCargo(returning);
-                if (service.CanClearGame && (settings.repayEarly || options.Count == 0))
-                {
-                    continue;
-                }
-                if (!returning)
-                {
-                    TryAddWagon();
-                }
+                SellCargo(false);
+                TryAddWagon();
             }
 
-            string destination = returning ? graph.NextHopToDebt(CurrentCityId) : ChooseDestinationAndBuy(options);
+            string destination = ChooseDestinationAndBuy(options);
             Snapshot();
             if (destination == null || !TravelTo(destination, options))
             {
@@ -365,18 +346,18 @@ internal sealed class EconomyBot
         return result;
     }
 
-    // 다녀와도 기한 안에 상환 도시에 닿을 수 있는 노선.
+    // 영업 기간 안에 도착할 수 있는 노선.
     List<PuzzleRouteData> TimelyRoutes()
     {
         long remaining = service.Time.RemainingHours;
         return tables.RoutesFrom(CurrentCityId)
-            .Where(_route => TravelHours(_route) + graph.HoursToDebt(_route.toCityId) + RETURN_BUFFER_TURNS <= remaining)
+            .Where(_route => TravelHours(_route) <= remaining)
             .ToList();
     }
 
     long TravelHours(PuzzleRouteData _route)
     {
-        return PuzzleTimeManager.TravelHoursRoundedUp(_route, tables.PuzzleTime);
+        return PuzzleTimeManager.HoursOf(tables.PuzzleTime.travelTurns);
     }
 
     IEnumerable<PuzzlePlacement> Cargo()
@@ -508,7 +489,8 @@ internal sealed class EconomyBot
     void TryAddWagon()
     {
         long cost = service.NextWagonCost;
-        if (service.Funds < cost * WAGON_FUNDS_MULTIPLIER || service.Time.RemainingHours < WAGON_MIN_REMAINING_TURNS)
+        // 이 역에서 화차를 팔지 않으면 사지 않는다.
+        if (cost <= 0 || service.Funds < cost * WAGON_FUNDS_MULTIPLIER || service.Time.RemainingHours < WAGON_MIN_REMAINING_TURNS)
         {
             return;
         }
@@ -826,13 +808,12 @@ internal sealed class EconomyBot
         return true;
     }
 
-    void Repay()
+    // 결산. 잔액이 점수이며 차감은 없다.
+    void Finish()
     {
-        long before = service.Funds;
-        if (service.TryClearGame())
+        if (service.TryFinishRun())
         {
-            result.Repaid += before - service.Funds;
-            Record(EconomyRunEventKind.Repay, null, service.Funds - before);
+            Record(EconomyRunEventKind.Repay, null, 0);
         }
     }
 

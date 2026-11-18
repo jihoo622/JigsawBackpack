@@ -124,8 +124,7 @@ public sealed class PuzzleCityView : MonoBehaviour
         cityName.text = _name;
     }
 
-    // 지금을 가운데 고정한 24시간 창(앞뒤 12시간)이다. 표시선은 움직이지 않고 낮·밤 구간이 왼쪽으로 흐른다.
-    // 매 프레임 불러도 된다(앵커만 바꾼다).
+    // 지금 턴의 한가운데를 가운데 고정한 24시간 창(앞뒤 12시간)이다. 표시선은 움직이지 않고 턴이 지나면 낮·밤 구간이 한 칸 밀린다.
     internal void ShowDayNight(PuzzleTimeManager _time)
     {
         if (!dayNightBar || !nightSegmentA || !nightSegmentB || !clockMarker)
@@ -136,7 +135,7 @@ public sealed class PuzzleCityView : MonoBehaviour
         nightSegmentA.color = Presentation.TimeNightBar;
         nightSegmentB.color = Presentation.TimeNightBar;
         float day = PuzzleTimeManager.HOURS_PER_DAY;
-        float now = (float)_time.ContinuousHourOfDay;
+        float now = _time.HourOfDay + PuzzleTimeManager.HOURS_PER_TURN / 2f;
         float start = Mathf.Repeat(_time.NightStartHourOfDay - now + day / 2f, day) / day;
         float end = start + _time.NightLengthHours / day;
         // 창 끝을 넘는 밤은 [시작, 1)과 [0, 끝-1) 두 칸으로 나눈다.
@@ -164,9 +163,9 @@ public sealed class PuzzleCityView : MonoBehaviour
         rect.offsetMax = Vector2.zero;
     }
 
-    internal void ShowTime(PuzzleTimeManager _time, int _turns)
+    internal void ShowTime(PuzzleTimeManager _time)
     {
-        timeLabel.text = Presentation.PuzzleTime(_time, _turns);
+        timeLabel.text = Presentation.PuzzleTime(_time);
         ShowDayNight(_time);
         if (deadlineTitle)
         {

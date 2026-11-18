@@ -67,14 +67,12 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
 
     void Start()
     {
-        if (!initialized || !objectiveView || session.RunStatus != PuzzleRunStatus.InProgress ||
-            string.IsNullOrEmpty(session.DebtCityId))
+        if (!initialized || !objectiveView || session.RunStatus != PuzzleRunStatus.InProgress)
         {
             return;
         }
 
-        var destination = TableManager.Instance.CityPrice(session.DebtCityId);
-        objectiveView.ShowObjective(session.GameClearCost, destination.displayName);
+        objectiveView.ShowObjective(session.TargetFunds, session.Time.DeadlineHours);
     }
 
     void OnEnable()
@@ -111,7 +109,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         ConfigureButcheryView();
         ConfigureModificationView();
         ConfigureRefiningView();
-        cityView.Initialize(session.GameClearCost);
+        cityView.Initialize(session.TargetFunds);
         cityView.InitializeTown(GetTavernRumor);
         ShowCurrentCity();
         cityView.SetTown(session.CityData.displayName, session.RunStatus == PuzzleRunStatus.InProgress);
@@ -141,8 +139,6 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         }
         GameEvents.CityArrived += OnCityArrived;
         GameEvents.TimeAdvanced += OnTimeAdvanced;
-        GameEvents.JourneyChanged += OnJourneyChanged;
-        GameEvents.RestChanged += OnRestChanged;
         GameEvents.PuzzleActionCommitted += OnPuzzleActionCommitted;
         GameEvents.PanelVisibility += OnPanelVisibility;
         GameEvents.TravelPreviewChanged += OnTravelPreviewChanged;
@@ -222,8 +218,6 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         pendingFundsRefresh = false;
         GameEvents.CityArrived -= OnCityArrived;
         GameEvents.TimeAdvanced -= OnTimeAdvanced;
-        GameEvents.JourneyChanged -= OnJourneyChanged;
-        GameEvents.RestChanged -= OnRestChanged;
         GameEvents.PuzzleActionCommitted -= OnPuzzleActionCommitted;
         GameEvents.PanelVisibility -= OnPanelVisibility;
         GameEvents.TravelPreviewChanged -= OnTravelPreviewChanged;
@@ -268,8 +262,6 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             }
             return;
         }
-        AdvanceClock();
-
         if (drag == null)
         {
             if (hoveredWagonIndex.HasValue)
@@ -393,36 +385,12 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
 
     #endregion
 
-    // 게임 시계를 실시간으로 흘린다. 일시정지 메뉴가 timeScale을 0으로 두면 멈춘다.
-    // 화물을 끄는 동안은 보드가 바뀌지 않게 정시 확정을 미룬다.
-    // 낮·밤 막대는 매 프레임 연속 시각으로 흘리고, 시계 글자는 화면 단위(10분)가 바뀔 때만 다시 쓴다.
-    void AdvanceClock()
-    {
-        if (session.Time == null)
-        {
-            return;
-        }
-        session.AdvanceRealTime(UnityEngine.Time.deltaTime, drag != null);
-        if (session.Time.DisplayStep != shownClockStep)
-        {
-            shownClockStep = session.Time.DisplayStep;
-            cityView.ShowTime(session.Time, session.CityMoveCount);
-        }
-        else
-        {
-            cityView.ShowDayNight(session.Time);
-        }
-    }
-
-    long shownClockStep = long.MinValue;
-
     // 시계가 흐른 뒤의 가벼운 갱신. 도시·보드 크기는 그대로이므로 다시 잡지 않고, 화물 표시·가치·상태 글자만 맞춘다.
     // 떠 있는 툴팁과 상세 정보는 닫지 않고 RefreshHover가 새 진행도로 다시 그린다.
     void RefreshAfterTimeAdvance()
     {
         bool inProgress = session.RunStatus == PuzzleRunStatus.InProgress;
-        shownClockStep = session.Time.DisplayStep;
-        cityView.ShowTime(session.Time, session.CityMoveCount);
+        cityView.ShowTime(session.Time);
         RefreshFunds();
         cityView.ShowTradeStatus(inProgress
             ? session.IsMarketOpen ? string.Empty : Presentation.PuzzleNightMarket
@@ -445,30 +413,13 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         marketView.SetMarketOpen(session.CanTradeInMarket);
     }
 
-    void OnRestChanged(GameEvents.RestInfo _info)
-    {
-        if (_info.session == session && initialized)
-        {
-            RefreshWaitAction();
-        }
-    }
-
-    // 출발·도착 때 시장 거래 가능 여부와 시계를 바로 다시 그린다.
-    void OnJourneyChanged(GameEvents.JourneyInfo _info)
-    {
-        if (_info.session == session && initialized)
-        {
-            ShowCurrentCity();
-        }
-    }
-
     void OnTimeAdvanced(GameEvents.TimeAdvanceInfo _info)
     {
         if (_info.session != session)
         {
             return;
         }
-        // 끄는 중에는 시계가 정시를 미루므로 보통 드래그가 없다. 휴식 등으로 시간이 흐를 때만 안전하게 정리한다.
+        // 시간은 이동·휴식·작업 확정으로만 흐르므로 보통 드래그가 없다. 남아 있으면 안전하게 정리한다.
         if (drag != null)
         {
             input.CancelCapture();
@@ -513,8 +464,8 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
     {
         if (!MarketOperationsBlocked && session.CanWaitForDaylight)
         {
-            // 아침(낮 시작 시각)까지 휴식과 같은 빨리 감기로 흘린다.
-            if (!session.StartRest(TableManager.Instance.RequireValid().PuzzleTime.startHour))
+            // 아침(낮이 시작하는 턴)까지 쉰다.
+            if (!session.Rest((int)session.Time.TurnsUntilDaylight))
             {
                 cityView.ShowTradeStatus(Presentation.PuzzleTimeOverflow);
             }
@@ -524,15 +475,15 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
     public void ClearGame()
     {
         if (!initialized || !isActiveAndEnabled || MarketOperationsBlocked || !pauseMenu || !pauseMenu.CanShowCompletion ||
-            !session.TryClearGame())
+            !session.TryFinishRun())
         {
             return;
         }
 
-        pauseMenu.ShowCompletion(PuzzleRunStatus.Won, session.Funds);
+        pauseMenu.ShowCompletion(session.RunStatus, session.Funds);
         cityView.SetTown(session.CityData.displayName, false);
         RefreshFunds();
-        cityView.ShowTradeStatus(Presentation.PuzzleClearTitle);
+        cityView.ShowTradeStatus(Presentation.PuzzleRunStatusText(session.RunStatus));
         RefreshTrainBar();
     }
 
@@ -544,7 +495,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             return;
         }
         pendingFundsRefresh = false;
-        cityView.ShowFunds(session.Funds, session.CanClearGame);
+        cityView.ShowFunds(session.Funds, session.CanFinishRun);
     }
 
     void OnPanelVisibility(GameEvents.PanelInfo _info)
@@ -638,7 +589,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
     {
         bool inProgress = session.RunStatus == PuzzleRunStatus.InProgress;
         cityView.ShowCity(Presentation.PuzzleCityTitle(session.CityData, session.RegionData));
-        cityView.ShowTime(session.Time, session.CityMoveCount);
+        cityView.ShowTime(session.Time);
         RefreshFunds();
         cityView.ShowTradeStatus(inProgress
             ? session.IsMarketOpen ? string.Empty : Presentation.PuzzleNightMarket

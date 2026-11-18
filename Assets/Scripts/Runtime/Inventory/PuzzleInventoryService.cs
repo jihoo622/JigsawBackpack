@@ -98,12 +98,16 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
     public PuzzleInventory CurrentTrainWagon => (trainWagons.Count > CurrentWagonIndex && CurrentWagonIndex >= 0) ? trainWagons[CurrentWagonIndex] : null;
     public PuzzleInventory Train => CurrentTrainWagon;
     public int WagonCount => trainWagons.Count;
-    public long NextWagonCost => tables.PuzzleTrade.wagonAddCostBase;
+    // 지금 역의 화차 시설이 파는 화차. 역마다 다르다(PuzzleTableData.cities[].wagonProductIds).
+    internal IReadOnlyList<PuzzleWagonProductData> WagonProductsHere => tables.WagonProductsOf(CurrentCityId);
+    PuzzleWagonProductData CheapestWagonHere => WagonProductsHere.FirstOrDefault();
+    // 이 역에서 가장 싼 화차의 가격. 화차를 팔지 않는 역이면 0이다.
+    public long NextWagonCost => CheapestWagonHere?.price ?? 0;
     // 다음 정산 게이지 예상치용. 실제 6시간 정산(ApplySynergyActivations)이 읽는 평가(Value)와 같은 값을 쓴다.
     internal decimal TrainSynergyDelta => trainWagons.Sum(_wagon => _wagon.Value.FinalValue - _wagon.Value.BaseValue);
     public bool CanAddWagon => RunStatus == PuzzleRunStatus.InProgress
         && (tables.PuzzleTrade.maxWagonCount <= 0 || trainWagons.Count < tables.PuzzleTrade.maxWagonCount)
-        && Funds >= NextWagonCost;
+        && CheapestWagonHere != null && Funds >= NextWagonCost;
     internal long WagonRefrigerationCost => tables.PuzzleTrade.wagonRefrigerationCost;
     internal bool HasWagonRefrigeration => Train?.HasWagonModification(PuzzleWagonRefrigeration.ModificationId) == true;
     internal bool CanInstallWagonRefrigeration => RunStatus == PuzzleRunStatus.InProgress && Train != null &&
@@ -227,12 +231,6 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
                 EndRoutePlan(PuzzleRouteEndReason.RunEnded);
             }
             IsPassingThrough = false;
-            if (Journey != null)
-            {
-                Journey = null;
-                GameEvents.RaiseJourneyChanged(this);
-            }
-            StopRest();
         }
     }
 
@@ -272,9 +270,17 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         return true;
     }
 
+    // 이 역에서 가장 싼 화차를 산다. 경제 분석이 쓴다.
     internal bool TryAddWagon(out string _failureReason)
     {
-        return TryPurchaseWagon(NextWagonCost, null, out _failureReason);
+        var product = CheapestWagonHere;
+        if (product == null)
+        {
+            _failureReason = BasicData.Text("rules.wagon.notSoldHere");
+            RecordAction(PuzzleActionKind.AddWagon, "not_sold_here");
+            return false;
+        }
+        return TryPurchaseWagon(product.price, product, out _failureReason);
     }
 
     internal string WagonSaleFailure(int _index)
@@ -327,6 +333,12 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
             RecordAction(PuzzleActionKind.AddWagon, "unknown_wagon_product", _productId: _productId);
             return false;
         }
+        if (!WagonProductsHere.Contains(product))
+        {
+            _failureReason = BasicData.Text("rules.wagon.notSoldHere");
+            RecordAction(PuzzleActionKind.AddWagon, "not_sold_here", _productId: _productId);
+            return false;
+        }
 
         return TryPurchaseWagon(product.price, product, out _failureReason);
     }
@@ -361,8 +373,8 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
 
         var trainRules = tables.SynergiesFor(PuzzleSynergyScope.Train);
         int nextInstanceId = lastInstanceId;
-        var newWagon = new PuzzleInventory(tables.Puzzle.train, Array.Empty<PuzzleStartingPlacementData>(), definitions, trainRules,
-            ref nextInstanceId);
+        var newWagon = new PuzzleInventory(tables.WagonBoardOf(_product), Array.Empty<PuzzleStartingPlacementData>(), definitions,
+            trainRules, ref nextInstanceId);
         if (!string.IsNullOrEmpty(_modificationId) &&
             (!PuzzleWagonModificationRegistry.Contains(_modificationId) ||
              !newWagon.TryInstallWagonModification(PuzzleWagonModificationRegistry.Create(_modificationId, tables))))
@@ -375,8 +387,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
 
         long previousFunds = Funds;
         newWagon.WagonNumber = ++lastWagonNumber;
-        newWagon.WagonProduct = _product ?? tables.PuzzleTrade.wagonProducts.FirstOrDefault(
-            _entry => string.IsNullOrEmpty(_entry.modificationId) && _entry.price == _cost);
+        newWagon.WagonProduct = _product;
         newWagon.WagonSalePrice = newWagon.WagonProduct?.salePrice ?? 0;
         trainWagons.Add(newWagon);
         Funds -= _cost;
@@ -390,18 +401,19 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
     public string CurrentCityId => currentCityId;
     internal PuzzleCityData CityData => tables.CityPrice(CurrentCityId);
     public long Funds { get; private set; }
-    public long GameClearCost => tables.PuzzleTrade.gameClearCost;
+    // 목표 잔액. 영업 기간(14일)이 끝나 결산할 때의 잔액이 점수다.
+    public long TargetFunds => tables.PuzzleTrade.targetFunds;
     /// <summary>이 세션의 게임 시계. Initialize 이후 조회 가능하며 씬 재시작 시 초기화된다.</summary>
     public PuzzleTimeManager Time { get; private set; }
     public bool IsMarketOpen => Time != null && !Time.IsNight && RunStatus == PuzzleRunStatus.InProgress;
     public bool CanWaitForDaylight => Time != null && Time.IsNight && RunStatus == PuzzleRunStatus.InProgress &&
-        !IsTraveling && !IsResting;
+        Time.CanArriveBeforeDeadline(Time.HoursUntilDaylight);
     // 지금 들어가 있는 역 시설. 시설 진입은 시간을 쓰지 않는다. 다른 시설에 들어가거나 다른 역 행동을 고르거나
     // (LeaveFacility) 역을 떠나면 사라진다.
     internal StationFacility EnteredFacility { get; private set; }
     // 시장 입장이 유효한지. 밤 여부는 들어갈 때만 확인하므로 들어간 뒤 밤이 되어도 이번 입장 동안은 거래할 수 있다.
     public bool MarketEntered => EnteredFacility == StationFacility.Market;
-    public bool CanTradeInMarket => MarketEntered && RunStatus == PuzzleRunStatus.InProgress && !IsTraveling;
+    public bool CanTradeInMarket => MarketEntered && RunStatus == PuzzleRunStatus.InProgress;
 
     // 시장에 들어간다. 밤이면 들어가지 못한다.
     internal bool TryEnterMarket()
@@ -436,7 +448,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
 
     bool TryEnterFacility(StationFacility _facility, PuzzleActionKind _action)
     {
-        if (RunStatus != PuzzleRunStatus.InProgress || IsTraveling)
+        if (RunStatus != PuzzleRunStatus.InProgress)
         {
             return false;
         }
@@ -450,10 +462,11 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
     }
 
     public string PreviewCityId { get; private set; }
-    // 지도에서 고른 목적지까지 가는 동안 확정될 정시 수. 미래 가치·정산 횟수 미리보기가 쓴다.
-    internal long? PreviewHours => !string.IsNullOrEmpty(PreviewCityId) &&
-        tables.TryGetRoute(CurrentCityId, PreviewCityId, out var route)
-        ? HourCommitsDuring(PuzzleTimeManager.TravelMinutes(route, tables.PuzzleTime)) : (long?)null;
+    // 지도에서 고른 목적지까지 가는 동안 흐를 게임 시간(이동 턴). 미래 가치·정산 횟수 미리보기가 쓴다.
+    internal long? PreviewHours => !string.IsNullOrEmpty(PreviewCityId) && tables.HasRoute(CurrentCityId, PreviewCityId)
+        ? TravelHours : (long?)null;
+    // 이동 1회가 쓰는 게임 시간. 모든 노선이 같다(PuzzleTimeTableData.travelTurns).
+    internal long TravelHours => PuzzleTimeManager.HoursOf(tables.PuzzleTime.travelTurns);
 
     long SynergyIntervalHours => (long)tables.PuzzleSynergy.activationIntervalHours;
 
@@ -485,9 +498,11 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         }
         return AdvanceHours(Time.HoursUntilDaylight, PuzzleActionKind.WaitForDaylight);
     }
-    public string DebtCityId => tables.PuzzleTrade.debtCityId;
-    public bool CanClearGame => tables != null && RunStatus == PuzzleRunStatus.InProgress && Funds >= GameClearCost
-        && !Time.IsOverdue && (string.IsNullOrEmpty(DebtCityId) || CurrentCityId == DebtCityId);
+    // 영업 기간이 끝났는지. 끝나면 시간을 쓰는 행동(이동·휴식·작업)은 막히고 시설 이용·거래만 할 수 있다.
+    public bool IsTimeUp => Time != null && Time.HasDeadline && Time.ElapsedHours >= Time.DeadlineHours;
+    // 결산은 영업 기간이 끝난 뒤 어느 역에서나 한다.
+    public bool CanFinishRun => tables != null && RunStatus == PuzzleRunStatus.InProgress && IsTimeUp;
+    public bool ReachedTargetFunds => Funds >= TargetFunds;
     public int CityMoveCount { get; private set; }
     public PuzzleRunStatus RunStatus { get; private set; }
     internal string CurrentCityName => CityData.displayName;
@@ -521,9 +536,6 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
 
         tables = validatedTables;
         Time = new PuzzleTimeManager(tables.PuzzleTrade.deadlineHours, tables.PuzzleTime);
-        clockCarryHours = 0d;
-        Journey = null;
-        RestTargetHours = null;
         lastInstanceId = 0;
         var trainRules = validatedTables.SynergiesFor(PuzzleSynergyScope.Train);
         marketRules = validatedTables.SynergiesFor(PuzzleSynergyScope.Market);
@@ -551,6 +563,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         currentCityId = tables.Puzzle.startCity;
         visitedCities.Clear();
         visitedCities.Add(currentCityId);
+        ResetFog();
         tavernRumors.Clear();
         lastRumorVisit = -1;
         ResetQuests();
@@ -612,7 +625,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
     // 기본 요금·거리 요금·출발 직전 전체 기차 적재 요금을 같은 경로에서 평가한다.
     internal PuzzleTravelResult EvaluateTravel(string _cityId)
     {
-        if (RunStatus != PuzzleRunStatus.InProgress || IsTraveling)
+        if (RunStatus != PuzzleRunStatus.InProgress)
         {
             return new PuzzleTravelResult(PuzzleTravelFailure.Blocked);
         }
@@ -646,17 +659,20 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
                 _baseCost: route.cost, _cells: cells, _distance: route.distance);
         }
 
-        long travelMinutes;
-        double arrival;
+        long travelHours = TravelHours;
+        long arrival;
         try
         {
-            travelMinutes = PuzzleTimeManager.TravelMinutes(route, tables.PuzzleTime);
-            Time.ArrivalAt(HourCommitsDuring(travelMinutes) + 1);
-            arrival = ContinuousArrivalAfter(travelMinutes);
+            arrival = Time.ArrivalAt(travelHours);
         }
         catch (OverflowException)
         {
             return new PuzzleTravelResult(PuzzleTravelFailure.TimeOverflow);
+        }
+        // 영업 기간이 끝나면 더 이동하지 않는다. 기간이 끝나는 시각에 도착하는 이동은 허용한다.
+        if (!Time.CanArriveBeforeDeadline(travelHours))
+        {
+            return new PuzzleTravelResult(PuzzleTravelFailure.TimeUp, _fromCityId: fromCityId, _toCityId: _cityId);
         }
         if (CityMoveCount == int.MaxValue)
         {
@@ -664,15 +680,11 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         }
         var failure = Funds < cost ? PuzzleTravelFailure.InsufficientFunds : PuzzleTravelFailure.None;
 
-        long arrivalHour = (long)Math.Floor(arrival);
-        int arrivalMinute = Math.Min(PuzzleTimeManager.MINUTES_PER_HOUR - 1,
-            (int)Math.Round((arrival - arrivalHour) * PuzzleTimeManager.MINUTES_PER_HOUR));
         return new PuzzleTravelResult(failure,
             cost, fromCityId, _cityId, _baseCost: route.cost, _cells: cells,
-            _distance: route.distance, _distanceCost: distanceCost, _travelMinutes: travelMinutes,
+            _distance: route.distance, _distanceCost: distanceCost, _travelHours: travelHours,
             _fundsAfter: Funds >= cost ? Funds - cost : Funds,
-            _arrivalHourOfDay: Time.HourAt(arrivalHour), _arrivalIsNight: Time.IsNightAt(arrivalHour),
-            _arrivalMinute: arrivalMinute);
+            _arrivalHourOfDay: Time.HourAt(arrival), _arrivalIsNight: Time.IsNightAt(arrival));
     }
 
     // 이동 버튼에 표시할 목적지 노선의 비용. 기차 보유 칸이 바뀌면 값도 바뀐다.
@@ -703,24 +715,18 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         return true;
     }
 
-    internal bool TryClearGame()
+    // 결산. 잔액이 점수이며 목표 잔액 이상이면 승리, 미만이면 패배로 판을 끝낸다. 잔액은 차감하지 않는다.
+    internal bool TryFinishRun()
     {
-        if (!CanClearGame)
+        if (!CanFinishRun)
         {
-            string failure = RunStatus != PuzzleRunStatus.InProgress ? "run_finished"
-                : Time.IsOverdue ? "overdue"
-                : !string.IsNullOrEmpty(DebtCityId) && CurrentCityId != DebtCityId ? "wrong_city"
-                : "insufficient_funds";
-            RecordAction(PuzzleActionKind.Repay, failure);
+            RecordAction(PuzzleActionKind.FinishRun, RunStatus != PuzzleRunStatus.InProgress ? "run_finished" : "time_remaining");
             return false;
         }
 
-        long previousFunds = Funds;
-        Funds -= GameClearCost;
-        RunStatus = PuzzleRunStatus.Won;
+        RunStatus = ReachedTargetFunds ? PuzzleRunStatus.Won : PuzzleRunStatus.Lost;
         HandleRunStatusChanged();
-        GameEvents.RaiseFundsChanged(this, previousFunds);
-        RecordAction(PuzzleActionKind.Repay);
+        RecordAction(PuzzleActionKind.FinishRun);
         return true;
     }
 
@@ -1683,160 +1689,48 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         }
     }
 
-    #region 이동·실시간 시계
+    #region 이동
 
-    // 진행 중인 이동. 출발할 때 운임을 내고, 게임 시계가 노선 이동 시간만큼 흐르면 도착한다.
-    // 이동 중에는 출발 역에 머문 것으로 보되 역 시설·작업장·거래를 쓸 수 없다.
-    internal PuzzleJourney Journey { get; private set; }
-    internal bool IsTraveling => Journey != null;
-    // 이번 이동의 진행 비율(0~1). 정시 사이의 실시간 흐름까지 반영한다.
-    internal float JourneyProgress => Journey == null || Journey.TotalHours <= 0 ? 0f
-        : Mathf.Clamp01((float)(JourneyTraveledHours / Journey.TotalHours));
-    // 출발 이후 흐른 게임 시간. 출발 시각이 정시 사이여도 0에서 시작한다.
-    double JourneyTraveledHours => Journey == null ? 0d
-        : Journey.ElapsedHours + clockCarryHours - Journey.StartCarryHours;
-    // 이동 중 시계 가속 배율. 기초데이터 rules.time.travelTimeScale이 원본이다.
-    static double TravelTimeScale => BasicData.Float("rules.time.travelTimeScale");
-    // 마지막으로 끝난 이동의 결과(도착 역·운임·도착 후 자금).
-    internal PuzzleTravelResult LastArrival { get; private set; }
-
-    // 마지막 정시 이후 흐른 게임 시간(시간 단위). 정시 확정을 미루는 동안에는 1을 넘을 수 있다.
-    // 시계의 HourFraction은 이 값을 표시용으로 자른 사본이다. 누적은 잘리지 않은 이 값으로만 한다.
-    double clockCarryHours;
-
-    // 게임 시간 1시간이 흐르는 데 걸리는 실제 초. 기초데이터 rules.time.gameHoursPerRealMinute가 원본이다.
-    internal static float RealSecondsPerGameHour => 60f / BasicData.Float("rules.time.gameHoursPerRealMinute");
-
-    // 실시간 시계. 일시정지(timeScale 0)면 흐르지 않도록 호출자가 스케일된 경과 초를 넘긴다.
-    // 정시를 넘길 때마다 1시간씩 시뮬레이션을 확정하고, 남은 비율은 표시용으로 시계에 둔다.
-    // _holdHourBoundary: 화물을 끌고 있는 동안처럼 보드가 바뀌면 안 될 때 정시 확정을 미룬다.
-    // 미룬 시간은 버리지 않고 다음 호출에서 이어 처리한다.
-    internal void AdvanceRealTime(float _realSeconds, bool _holdHourBoundary = false)
-    {
-        if (Time == null || RunStatus != PuzzleRunStatus.InProgress || _realSeconds <= 0f)
-        {
-            return;
-        }
-        double hours = _realSeconds / (double)RealSecondsPerGameHour;
-        if (Journey != null)
-        {
-            // 이동 중에는 시계를 가속한다. 도착 시각을 넘는 몫은 도착 뒤 평소 속도로 흘린다.
-            double scaled = hours * TravelTimeScale;
-            double remaining = Math.Max(0d, Journey.TotalHours - JourneyTraveledHours);
-            bool arrives = scaled >= remaining;
-            clockCarryHours += arrives ? remaining : scaled;
-            hours = arrives ? (scaled - remaining) / TravelTimeScale : 0d;
-            CommitClockHours(_holdHourBoundary);
-            if (arrives && Journey != null && RunStatus == PuzzleRunStatus.InProgress)
-            {
-                CompleteJourney();
-            }
-        }
-        else if (RestTargetHours.HasValue)
-        {
-            hours = AdvanceRest(hours, _holdHourBoundary);
-        }
-        clockCarryHours += hours;
-        CommitClockHours(_holdHourBoundary);
-        Time?.SetHourFraction((float)Math.Min(clockCarryHours, 0.999d));
-    }
-
-    // 누적한 시간에서 정시를 넘은 만큼 1시간씩 확정한다. 프레임이 크게 끊겨도 한 번에 하루를 넘겨 몰아 처리하지 않는다.
-    void CommitClockHours(bool _holdHourBoundary)
-    {
-        if (_holdHourBoundary)
-        {
-            return;
-        }
-        int steps = 0;
-        while (clockCarryHours >= 1d && RunStatus == PuzzleRunStatus.InProgress &&
-            steps < PuzzleTimeManager.HOURS_PER_DAY)
-        {
-            clockCarryHours -= 1d;
-            steps++;
-            AdvanceClockHour();
-        }
-        if (clockCarryHours >= 1d)
-        {
-            clockCarryHours = 0d;
-        }
-    }
-
-    // 게임 1시간을 확정한다. 분석 로그 복원이 그 사이 생긴 화물 변화를 따라가도록 1시간마다 advance_time을 남긴다.
-    void AdvanceClockHour()
-    {
-        if (PrepareTimeAdvance(1, out var plan) != PuzzleTravelFailure.None)
-        {
-            return;
-        }
-        CommitTimeAdvance(1, plan);
-        RecordAction(PuzzleActionKind.AdvanceTime, _requestedHours: 1);
-        if (Journey == null || RunStatus != PuzzleRunStatus.InProgress)
-        {
-            return;
-        }
-        // 도착 판정은 정시가 아니라 출발 후 흐른 시간으로 한다(AdvanceRealTime).
-        Journey.ElapsedHours++;
-    }
-
-    // 자동 이동이 멈추면 진행 중인 통과 구간을 목적지 정차로 바꾼다. 도착하면 일반 도착 처리를 한다.
-    internal void StopJourneyAtDestination()
-    {
-        if (Journey != null)
-        {
-            Journey.PassThrough = false;
-        }
-    }
-
-    // 출발한다. 운임을 내고 이동을 시작하며 도착은 게임 시계가 이동 시간만큼 흐른 뒤다.
-    internal PuzzleTravelResult DepartLeg(string _cityId, bool _passThrough, bool _routeLeg)
+    // 이동은 확정하는 즉시 처리한다. 운임을 내고 이동 턴만큼 시간을 흘린 뒤 도착한다. 이동 1회가 1턴이다.
+    // 흐르는 동안 정산·유통기한·동물 사건은 휴식과 같은 시간 진행 경로로 처리한다.
+    internal PuzzleTravelResult TravelLeg(string _cityId, bool _passThrough)
     {
         var evaluation = EvaluateTravel(_cityId);
         if (!evaluation.IsSuccess)
         {
-            RecordAction(PuzzleActionKind.Depart, evaluation.Failure.ToString(), _targetCityId: _cityId);
+            RecordAction(PuzzleActionKind.Travel, evaluation.Failure.ToString(), _targetCityId: _cityId);
             return evaluation;
         }
+        long hours = evaluation.TravelHours;
+        if (PrepareTimeAdvance(hours, out var plan) != PuzzleTravelFailure.None)
+        {
+            var overflow = new PuzzleTravelResult(PuzzleTravelFailure.TimeOverflow);
+            RecordAction(PuzzleActionKind.Travel, overflow.Failure.ToString(), _targetCityId: _cityId);
+            return overflow;
+        }
 
+        bool routeLeg = RoutePlan != null && string.Equals(_cityId, RoutePlan.NextCityId, StringComparison.Ordinal);
         long previousFunds = Funds;
         Funds -= evaluation.Cost;
+        currentCityId = evaluation.ToCityId;
+        ExploreCity(currentCityId);
         EnteredFacility = StationFacility.None;
-        // 떠나는 도시의 작업장은 조작 대상이 아니다. 도착 후 패널을 다시 열 때 열어 준다.
+        // 떠난 도시의 작업장은 조작 대상이 아니다. 도착 후 패널을 다시 열 때 열어 준다.
         IsButcheryOpen = false;
         IsModificationOpen = false;
         IsRefiningOpen = false;
         bool previewChanged = PreviewCityId != null;
         PreviewCityId = null;
-        StopRest();
-        Journey = new PuzzleJourney(evaluation, _passThrough, _routeLeg, clockCarryHours);
+        CityMoveCount++;
+        IsPassingThrough = _passThrough;
+        CommitTimeAdvance(hours, plan);
         if (previewChanged)
         {
             GameEvents.RaiseTravelPreviewChanged(this);
         }
-        // 운임은 출발 기록(depart)에, 도시 변경은 도착 기록(travel)에 남는다.
-        RecordAction(PuzzleActionKind.Depart, _targetCityId: evaluation.ToCityId);
+        RecordAction(PuzzleActionKind.Travel, _targetCityId: evaluation.ToCityId, _requestedHours: hours);
         GameEvents.RaiseFundsChanged(this, previousFunds);
-        GameEvents.RaiseJourneyChanged(this);
-        // 판매해 시장 보드에 남겨 둔 의뢰 화물은 출발과 함께 되살 수 없게 된다.
-        CheckQuestFailures();
-        return evaluation;
-    }
-
-    // 이동을 마친다. 이동 1회가 1턴이다.
-    void CompleteJourney()
-    {
-        var journey = Journey;
-        Journey = null;
-        var evaluation = journey.Evaluation;
-        currentCityId = evaluation.ToCityId;
-        CityMoveCount++;
-        LastArrival = new PuzzleTravelResult(PuzzleTravelFailure.None, evaluation.Cost, evaluation.FromCityId,
-            evaluation.ToCityId, Funds, evaluation.BaseCost, evaluation.Cells, evaluation.Distance, evaluation.DistanceCost,
-            evaluation.TravelMinutes, evaluation.ArrivalHourOfDay, evaluation.ArrivalIsNight, evaluation.ArrivalMinute);
-
-        IsPassingThrough = journey.PassThrough;
-        RecordAction(PuzzleActionKind.Travel, _targetCityId: evaluation.ToCityId);
-        if (!journey.PassThrough)
+        if (!_passThrough)
         {
             visitedCities.Add(CurrentCityId);
             GameEvents.RaiseCityArrived(CurrentCityId, CityMoveCount);
@@ -1848,7 +1742,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
             if (string.Equals(evaluation.ToCityId, RoutePlan.NextCityId, StringComparison.Ordinal))
             {
                 RoutePlan.Advance();
-                if (!journey.PassThrough &&
+                if (!_passThrough &&
                     string.Equals(evaluation.ToCityId, RoutePlan.DestinationCityId, StringComparison.Ordinal))
                 {
                     EndRoutePlan(PuzzleRouteEndReason.Completed);
@@ -1858,44 +1752,15 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
                     GameEvents.RaiseRoutePlanChanged(new GameEvents.RoutePlanInfo(this));
                 }
             }
-            else if (!journey.RouteLeg)
+            else if (!routeLeg)
             {
                 EndRoutePlan(PuzzleRouteEndReason.Deviated);
             }
         }
-        GameEvents.RaiseJourneyChanged(this);
-    }
 
-    // 남은 이동 시간을 한 번에 보내고 도착한다. 경제 분석처럼 실시간을 기다리지 않는 호출자가 쓴다.
-    PuzzleTravelResult FinishJourneyNow()
-    {
-        double target = clockCarryHours + Math.Max(0d, Journey.TotalHours - JourneyTraveledHours);
-        long commits = (long)Math.Floor(target);
-        if (commits > 0)
-        {
-            if (PrepareTimeAdvance(commits, out var plan) != PuzzleTravelFailure.None)
-            {
-                return new PuzzleTravelResult(PuzzleTravelFailure.TimeOverflow);
-            }
-            CommitTimeAdvance(commits, plan);
-            if (Journey == null)
-            {
-                return new PuzzleTravelResult(PuzzleTravelFailure.Blocked);
-            }
-            Journey.ElapsedHours += commits;
-        }
-        clockCarryHours = target - commits;
-        Time.SetHourFraction((float)Math.Min(clockCarryHours, 0.999d));
-        CompleteJourney();
-        return LastArrival;
-    }
-
-    // 출발부터 도착까지 즉시 처리한다(실시간을 기다리지 않음).
-    internal PuzzleTravelResult TravelLeg(string _cityId, bool _passThrough)
-    {
-        bool routeLeg = RoutePlan != null && string.Equals(_cityId, RoutePlan.NextCityId, StringComparison.Ordinal);
-        var departure = DepartLeg(_cityId, _passThrough, routeLeg);
-        return departure.IsSuccess ? FinishJourneyNow() : departure;
+        return new PuzzleTravelResult(PuzzleTravelFailure.None, evaluation.Cost, evaluation.FromCityId,
+            evaluation.ToCityId, Funds, evaluation.BaseCost, evaluation.Cells, evaluation.Distance, evaluation.DistanceCost,
+            evaluation.TravelHours, evaluation.ArrivalHourOfDay, evaluation.ArrivalIsNight);
     }
 
     internal PuzzleTravelResult Travel(string _cityId)
@@ -2472,10 +2337,18 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         return true;
     }
 
+    // 작업 확정은 작업 시간(턴)만큼 시간을 흘린다. 흐른 뒤 결과를 수령할 수 있다.
     internal bool TryConfirmButchery(out string _reason)
     {
-        bool confirmed = ConfirmButchery(out _reason, out string failure);
-        RecordAction(PuzzleActionKind.WorkbenchConfirm, confirmed ? null : failure, _actionId: ButcheryAction()?.id);
+        long hours = TryQuoteButchery(out _, out long quoted) ? quoted : 0;
+        string failure = null;
+        bool confirmed = WorkshopFitsDeadline(hours, out _reason) && ConfirmButchery(out _reason, out failure);
+        RecordAction(PuzzleActionKind.WorkbenchConfirm, confirmed ? null : failure ?? "deadline",
+            _actionId: ButcheryAction()?.id);
+        if (confirmed)
+        {
+            WaitForWorkbench(ButcheryAction()?.id, hours);
+        }
         return confirmed;
     }
 
@@ -2836,9 +2709,24 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         var state = EnsureModification(string.IsNullOrEmpty(_cityId) ? CurrentCityId : _cityId);
         // 확정이 모드 선택을 비우므로 기록할 모드를 먼저 잡는다.
         string modeId = state?.SelectedModeId;
-        bool confirmed = ConfirmModification(state, out _convertedCount, out _failure);
+        long hours = TryQuoteModification(out _, out long quoted) ? quoted : 0;
+        bool confirmed;
+        if (!WorkshopFitsDeadline(hours, out _))
+        {
+            _convertedCount = 0;
+            _failure = PuzzleModificationFailure.Deadline;
+            confirmed = false;
+        }
+        else
+        {
+            confirmed = ConfirmModification(state, out _convertedCount, out _failure);
+        }
         RecordAction(PuzzleActionKind.WorkbenchConfirm, confirmed ? null : ModificationFailureCode(_failure),
             _actionId: state?.Workshop.id, _modeId: modeId);
+        if (confirmed)
+        {
+            WaitForWorkbench(state.Workshop.id, hours);
+        }
         return confirmed;
     }
 
@@ -2866,6 +2754,8 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
                 return "invalid_result";
             case PuzzleModificationFailure.InsufficientFunds:
                 return "insufficient_funds";
+            case PuzzleModificationFailure.Deadline:
+                return "deadline";
             default:
                 return _failure.ToString();
         }
@@ -3279,8 +3169,15 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
 
     internal bool TryConfirmRefining(out string _reason)
     {
-        bool confirmed = ConfirmRefining(out _reason, out string failure);
-        RecordAction(PuzzleActionKind.WorkbenchConfirm, confirmed ? null : failure, _actionId: RefiningAction()?.id);
+        long hours = TryQuoteRefining(out _, out long quoted) ? quoted : 0;
+        string failure = null;
+        bool confirmed = WorkshopFitsDeadline(hours, out _reason) && ConfirmRefining(out _reason, out failure);
+        RecordAction(PuzzleActionKind.WorkbenchConfirm, confirmed ? null : failure ?? "deadline",
+            _actionId: RefiningAction()?.id);
+        if (confirmed)
+        {
+            WaitForWorkbench(RefiningAction()?.id, hours);
+        }
         return confirmed;
     }
 
@@ -3482,7 +3379,8 @@ internal enum PuzzleTravelFailure
     MissingRoute,
     InsufficientFunds,
     CostOverflow,
-    TimeOverflow
+    TimeOverflow,
+    TimeUp
 }
 
 // 이동 미리보기와 확정의 공통 결과. 실패하면 도시·시간·시장·자금 어느 것도 바뀌지 않는다.
@@ -3493,11 +3391,11 @@ internal readonly struct PuzzleTravelResult
     // 미리보기와 확정에서 공유하는 비용 내역.
     internal long BaseCost { get; }
     internal int Distance { get; }
-    // 이동 시간(분).
-    internal long TravelMinutes { get; }
-    // 도착 시각(0~23시·분).
+    // 이동에 흐르는 게임 시간(턴 길이의 배수).
+    internal long TravelHours { get; }
+    internal long TravelTurns => PuzzleTimeManager.TurnsOf(TravelHours);
+    // 도착 시각(0~23시, 도착 턴이 시작하는 정시).
     internal int ArrivalHourOfDay { get; }
-    internal int ArrivalMinute { get; }
     internal bool ArrivalIsNight { get; }
     internal long DistanceCost { get; }
     internal int Cells { get; }
@@ -3508,8 +3406,7 @@ internal readonly struct PuzzleTravelResult
 
     internal PuzzleTravelResult(PuzzleTravelFailure _failure, long _cost = 0, string _fromCityId = null,
         string _toCityId = null, long _fundsAfter = 0, long _baseCost = 0, int _cells = 0,
-        int _distance = 0, long _distanceCost = 0, long _travelMinutes = 0, int _arrivalHourOfDay = 0, bool _arrivalIsNight = false,
-        int _arrivalMinute = 0)
+        int _distance = 0, long _distanceCost = 0, long _travelHours = 0, int _arrivalHourOfDay = 0, bool _arrivalIsNight = false)
     {
         Failure = _failure;
         Cost = _cost;
@@ -3518,9 +3415,8 @@ internal readonly struct PuzzleTravelResult
         FundsAfter = _fundsAfter;
         BaseCost = _baseCost;
         Distance = _distance;
-        TravelMinutes = _travelMinutes;
+        TravelHours = _travelHours;
         ArrivalHourOfDay = _arrivalHourOfDay;
-        ArrivalMinute = _arrivalMinute;
         ArrivalIsNight = _arrivalIsNight;
         DistanceCost = _distanceCost;
         Cells = _cells;

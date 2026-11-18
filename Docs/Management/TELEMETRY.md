@@ -8,7 +8,7 @@
 
 게임 사건은 GameEvents에서 발행하고 TelemetryRecorder가 TelemetryLog에 넘긴다. TelemetryLog는 원본 행을 한 번 직렬화해 LogKit Data로 보내고 같은 내용을 로컬에 보관한다. Debug.Log로 게임 사건을 다시 출력하지 않으므로 콘솔 자동 수집과 이중 전송되지 않는다.
 
-**콘솔·게임 분석·적용 테이블을 모두 LogKit으로 전송한다.** 기존 수신 API/주소/키를 사용한다. 게임 원본 계약은 schemaVersion 8이다. 6에서 작업대·화차 행동, 작업대 보드 관측, `transformed`, `workbench_ready`·`route_stop_changed`·`station_screen`을 더했고, 7에서 게임 시간을 턴(`elapsedTurns` 등)으로 바꾸고 역 시설 진입 행동(`enter_market`·`enter_tavern`·`enter_wagon_facility`)을 더했으며, 8에서 정수 게임 시간(`elapsedHours` 등)과 실시간 시계(1시간마다 `advance_time`), 출발 `depart`를 더했다. 분석 가공·집계·대시보드는 별도 저장소 `logkit-analytics-trainventory`(`/trainventory`)가 수행하며 schemaVersion 3~6을 읽는다. 수신 서버 CSV는 DataJson을 4000자에서 잘라 `rules_chunk`는 서버 미러에서 복원되지 않는다. [PLAY_LOG](PLAY_LOG.md)
+**콘솔·게임 분석·적용 테이블을 모두 LogKit으로 전송한다.** 기존 수신 API/주소/키를 사용한다. 게임 원본 계약은 schemaVersion 9다. 6에서 작업대·화차 행동, 작업대 보드 관측, `transformed`, `workbench_ready`·`route_stop_changed`·`station_screen`을 더했고, 7에서 게임 시간을 턴(`elapsedTurns` 등)으로 바꾸고 역 시설 진입 행동(`enter_market`·`enter_tavern`·`enter_wagon_facility`)을 더했으며, 8에서 정수 게임 시간(`elapsedHours` 등)과 실시간 시계(1시간마다 `advance_time`), 출발 `depart`를 더했고, 9에서 턴제(1턴 = 6시간)로 바꿔 `depart`와 시간당 `advance_time`을 없애고 경로 계획을 `totalTurns`로 바꿨다. 분석 가공·집계·대시보드는 별도 저장소 `logkit-analytics-trainventory`(`/trainventory`)가 수행하며 schemaVersion 3~6을 읽는다. 수신 서버 CSV는 DataJson을 4000자에서 잘라 `rules_chunk`는 서버 미러에서 복원되지 않는다. [PLAY_LOG](PLAY_LOG.md)
 
 ## 전송 계약
 

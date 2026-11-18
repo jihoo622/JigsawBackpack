@@ -572,7 +572,7 @@ public static class RailMapLayoutTool
                     {
                         throw new InvalidOperationException("노선 시간의 원본이 없습니다: " + rail.sourceId);
                     }
-                    text.text = Presentation.PuzzleTravelTime(PuzzleTimeManager.TravelMinutes(route, TableManager.Instance.PuzzleTime));
+                    text.text = Presentation.PuzzleMapRouteFare(route, TableManager.Instance.PuzzleRoute);
                     text.color = Presentation.PuzzleHeading;
                 }
                 if (!label.objectReferenceValue)

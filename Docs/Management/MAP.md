@@ -10,10 +10,10 @@
 |---|---|---|
 | 노드 테이블 | `Assets/Resources/Tables/PuzzleTableData.json` | 마을 31·지역 7·`startCity`·`planningTargetCityId`, 각 마을의 시장 격자와 재고 |
 | 노선 테이블 | `Assets/Resources/Tables/PuzzleRouteTableData.json` | 방향 노선 100항목의 표시 선과 같은 `points`·요금용 `distance`·`cost`·`highSpeed`, 거리·적재 단가 |
-| 시간 테이블 | `Assets/Resources/Tables/PuzzleTimeTableData.json` | 낮 길이·시작 시각·휴식·시간당 지도 길이(`pixelsPerHour`)·이동 시간 올림 단위 |
-| 시간·판정 테이블 | `Assets/Resources/Tables/PuzzleTradeTableData.json` | `deadlineHours` 336(14일)·`debtCityId` |
+| 시간 테이블 | `Assets/Resources/Tables/PuzzleTimeTableData.json` | 낮 길이·시작 시각·이동 턴(`travelTurns`)·기본 휴식 턴(`restTurns`) |
+| 시간·판정 테이블 | `Assets/Resources/Tables/PuzzleTradeTableData.json` | `deadlineHours` 336(14일)·`targetFunds`·화차 상품 |
 | 지도 프리팹 | `Assets/Art/PuzzleWorldMap.prefab`<br>guid `ab2441b70b1c4490988e4eb2ca06784a` | 화면 좌표·선분·라벨 등 모든 시각 요소, 그리고 Presenter/View/NodeView 컴포넌트 자체 |
-| 시간 계산 | `Assets/Scripts/Runtime/Core/PuzzleTimeManager.cs` | 실시간 시계의 정수 게임 시간·야간 판정·노선 이동 시간(선 길이 ÷ `pixelsPerHour`, 분 단위 올림). 밸런스는 시간·노선 테이블이 원본 |
+| 시간 계산 | `Assets/Scripts/Runtime/Core/PuzzleTimeManager.cs` | 턴제 시계(1턴 = 게임 6시간, 하루 4턴(새벽·오전·오후·저녁))의 정수 게임 시간·야간 판정·턴 시간대. 밸런스는 시간·노선 테이블이 원본 |
 
 - 맵 UI 스크립트(PuzzleMapPresenter 1·PuzzleMapView 1·PuzzleMapNavigation 1·PuzzleMapTravelView 1·PuzzleMapNodeView 31)는 **전부 프리팹 안에 자기 완결로 들어 있다.** `Assets/Scenes/Game.unity`는 프리팹 인스턴스 하나를 사용한다.
 - `Game.unity`의 인스턴스는 루트 RectTransform(fileID 700011)에 프로퍼티 오버라이드 11개(pivot·anchor·sizeDelta·localScale)를 저장한다. 노드·선분·라벨 좌표는 전부 프리팹에 있고 씬 오버라이드는 없다.
@@ -25,8 +25,8 @@
 
 - 실행 표의 100개 방향 연결과 레이아웃의 50개 철도, 지도 프리팹의 노선 시간 50개 참조가 일치한다. 자기 연결·중복 방향·누락 도시·끊긴 참조가 없고 모든 역이 출발지에서 도달 가능하다.
 - 왕복 점 배열은 역순으로 일치하며 거리·고속 여부도 같다. 폴라인 끝점은 역 좌표와 일치하고 실행 표와 레이아웃의 원본 `points`·거리·기본요금이 일치한다. `displayPoints`를 노선 표 `points`와 왕복 테이블에 동기화한다(그리기 전용). 기본요금은 모두 3, 노선 거리는 1~7이다.
-- 현재 역과 직접 연결된 노선만 이동 시간 표시 대상이며 자금 부족 여부로 숨기지는 않는다. 다른 역의 선택·호버는 표시 대상을 확장하지 않는다. 줌·겹침 회피 조건은 유지한다.
-- 노선 거리 분포는 1 26개 · 2 19개 · 3 4개 · 6 1개 · 7 1개다(이동 시간은 ×3시간). 거리가 운임의 거리 항도 맡는다. 구조 확인은 경제/야간 동선의 플레이 밸런스 검증을 뜻하지 않는다.
+- 현재 역과 직접 연결된 노선만 기본 운임 라벨 표시 대상이며 자금 부족 여부로 숨기지는 않는다. 다른 역의 선택·호버는 표시 대상을 확장하지 않는다. 줌·겹침 회피 조건은 유지한다.
+- 노선 거리 분포는 1 26개 · 2 19개 · 3 4개 · 6 1개 · 7 1개다. 거리는 운임의 거리 항을 맡고 이동은 거리와 관계없이 1턴이다. 구조 확인은 경제/야간 동선의 플레이 밸런스 검증을 뜻하지 않는다.
 
 - 공업 지역 안 연결은 R06·R11·R20·R23·R35·R44(포르베르↔카르포트)·R45(에른아 공업역↔포르베르)·R51(헤일포드↔노르노바)이다.
 - 지도 재열기 시 확대 배율과 이동 위치를 유지하며 최초 열기·전체 보기 요청 때만 전체 배치를 맞춘다.
@@ -45,7 +45,7 @@
 
 ### 표시 선과 시간·수동 라벨 계약
 
-- 노선 거리는 노선 표 `distance` 정수가 원본이며 운임의 거리 항과 이동 시간에 쓴다. 맵/경유점 에디터는 displayPoints를 레이아웃 points와 왕복 노선 테이블 points에 동기화하지만 선 모양을 바꿔도 거리는 바뀌지 않는다. 선 길이로 다시 맞추려면 노선 거리 자동 계산 버튼을 쓴다.
+- 노선 거리는 노선 표 `distance` 정수가 원본이며 운임의 거리 항에 쓴다. 맵/경유점 에디터는 displayPoints를 레이아웃 points와 왕복 노선 테이블 points에 동기화하지만 선 모양을 바꿔도 거리는 바뀌지 않는다. 선 길이로 다시 맞추려면 노선 거리 자동 계산 버튼을 쓴다.
 - labelManual=true인 라벨은 자동 배치·프리팹 역 겹침 보정·런타임 위치 이동에서 제외한다. 좌표 입력/드래그는 자동으로 고정하며 기존 저장 좌표도 고정으로 보존했다. 실행 화면은 고정 라벨 영역부터 예약해 역명을 피하도록 배치한다. 화면 밖·역 표식·다른 고정 라벨과 충돌하면 임의로 옮기지 않고 숨긴다.
 - 선택 노선의 자동 배치는 해당 고정을 해제한다. 전체 자동 배치는 고정되지 않은 것만 처리하며 `고정 해제 후 전체 자동 배치`로 명시적으로 전체를 풀 수 있다. 라벨 좌표는 저장 후 재적용해도 같은 값을 쓴다.
 
@@ -83,8 +83,8 @@
 
 ## 2. 노드 — `PuzzleTableData.json`
 
-- `startCity` = `city.erna`(에른아 공업역), `planningTargetCityId` = `city.finance`(금융마을), `debtCityId` = `city.finance`. 세 값 모두 생성 데이터가 준 값이다.
-- `planningTargetCityId`는 **지도 표식(★)**이고 실제 상환 장소 판정은 `PuzzleTradeTableData.debtCityId`다. 지금은 금융마을이라 **그 도시에서 상환해야 클리어**된다(`PuzzleInventoryService.CanClearGame`).
+- `startCity` = `city.finance`(금융마을, 피벗으로 출발지를 옮김), `planningTargetCityId` = 빈 값(★ 표식 없음). 상환 장소(`debtCityId`)는 없앴다.
+- 지도에는 전장의 안개가 있다. 들른 역(정차·통과)과 그 이웃만 보이고 노선은 한쪽 끝을 들렀을 때만 보인다. 소문·의뢰로 안 역은 위치·이름만 보인다. 경로 계획과 지도 검색도 보이는 범위만 쓴다(`PuzzleInventoryService.Fog.cs`, `PuzzleMapPresenter.Refresh`, `PuzzleMapView.SetKnownRoutes`).
 - 마을은 전부 시장 7×6·고정 배치 3·지역 재고 슬롯 1·일반 재고 슬롯 2로 동일하다. 표의 배율은 `tagPrices`가 없을 때 쓰는 기본값(구매/판매)이다.
 
 ### 지역 7
@@ -137,40 +137,40 @@
 | `city.mert` | 메르트 | common | — | 100/100 | 0 | 메르트 `S30` | 74, 57 | 3 |
 | `city.sera` | 세르아 | common | — | 100/100 | 0 | 세르아 `S28` | 43, 57 | 4 |
 
-## 3. 노선과 이동 시간
+## 3. 노선과 이동
 
-- `PuzzleRouteTableData.routes[].distance`가 노선 거리의 원본이다. 방향 100개(왕복 50철도)를 기록하며 왕복 값은 같아야 한다. 운임 = 기본요금 + 거리 × `costPerDistance` + 점유 칸 × `costPerCell`이다. 이동 시간은 선 길이 ÷ `PuzzleTimeTableData.pixelsPerHour`(28)를 10분 단위로 올린 값이고 이동 1회가 1턴이다.
+- `PuzzleRouteTableData.routes[].distance`가 노선 거리의 원본이다. 방향 100개(왕복 50철도)를 기록하며 왕복 값은 같아야 한다. 운임 = 기본요금 + 거리 × `costPerDistance` + 점유 칸 × `costPerCell`이다. 이동은 노선과 관계없이 1턴(`PuzzleTimeTableData.travelTurns`)이다.
 - `routes[].points`는 표시 선과 동기화된 그리기 전용 좌표이며 역방향은 같은 점의 역순이다. 선 길이는 Map Editor의 노선 거리 자동 계산(`pixelsPerDistance` 100당 1)에만 쓴다.
 - 노선 거리는 1~7(1 26 · 2 19 · 3 4 · 6 1 · 7 1)이다. 값은 턴제 전환 전의 요금 거리를 그대로 옮겼다. 거리·적재 단가 1과 기본요금 3은 바꾸지 않았다.
-- `PuzzleTimeManager`가 실시간 시계의 정수 게임 시간을 보유하고 표시·이동·물품 보유 시간·가치 누적이 같은 시계를 쓴다. 06:00 시작, 낮 06:00~24:00, 밤 00:00~06:00이다([게임 시간 시스템](<게임 시간 시스템.md>)).
-- 지도 시간 라벨·시장 입력 그룹·Game 씬의 아침 대기와 상환 금액 배치는 프리팹에서 수정한다. 원본 레이아웃의 좌표와 노선 연결은 유지했다.
+- `PuzzleTimeManager`가 턴제 시계의 정수 게임 시간을 보유하고 표시·이동·물품 보유 시간·가치 누적이 같은 시간을 쓴다. 1일 오전(06:00) 시작, 낮은 오전·오후·저녁(06:00~24:00), 밤은 새벽(00:00~06:00)이다([게임 시간 시스템](<게임 시간 시스템.md>)).
+- 지도 시간 라벨·시장 입력 그룹·Game 씬의 아침 대기와 결산 버튼 배치는 프리팹에서 수정한다. 원본 레이아웃의 좌표와 노선 연결은 유지했다.
 
-### 금융마을까지 최단 노선 거리 — 잠정
+### 금융마을까지 최소 구간 — 잠정
 
-| 출발 마을 | 거리 합(이동 시간) |
-|---|---|
-| 카르포트 | 7 (21시간) |
-| 테라그라드 | 8 (24시간) |
-| 포르베르 | 8 (24시간) |
-| 에른아 공업역 | 9 (27시간) |
-| 노르노바 | 10 (30시간) |
-| 헤일포드 | 11 (33시간) |
+| 출발 마을 | 구간 수(이동 턴) | 노선 거리 합 |
+|---|---|---|
+| 카르포트 | 5 | 7 |
+| 테라그라드 | 5 | 8 |
+| 포르베르 | 6 | 8 |
+| 에른아 공업역 | 6 | 9 |
+| 노르노바 | 6 | 10 |
+| 헤일포드 | 7 | 11 |
 
-노선 거리의 경로 합산값이며 역에서 보낸 시간·대기·거래·자금·화물 상태와 플레이 가능성을 검증한 결과가 아니다.
+구간 수가 가장 적은 경로(동률이면 거리 합이 작은 경로)의 합산값이며 휴식·작업·거래·자금·화물 상태와 플레이 가능성을 검증한 결과가 아니다.
 
-- 시장은 역 메뉴에서 시간을 쓰지 않고 들어가며, 밤(00:00~06:00)에는 들어갈 수 없다. 들어가지 않은 시장은 `CanvasGroup`으로 흐리게 표시하고 입력을 끄며, 모델의 `EvaluateDrop`도 시장 입장(`CanTradeInMarket`) 없이는 거래와 시장 내 재배치를 거부한다. 기차 내 조작과 다른 역으로 이동은 허용한다.
-- 아침 대기는 06:00까지 시간·보유 시간을 진행한다. 턴·요금·시장 재고는 변경하지 않으며 시너지 정산 주기를 넘으면 가치를 정산한다.
+- 시장은 역 메뉴에서 시간을 쓰지 않고 들어가며, 새벽(00:00~06:00)에는 들어갈 수 없다. 들어가지 않은 시장은 `CanvasGroup`으로 흐리게 표시하고 입력을 끄며, 모델의 `EvaluateDrop`도 시장 입장(`CanTradeInMarket`) 없이는 거래와 시장 내 재배치를 거부한다. 기차 내 조작과 다른 역으로 이동은 허용한다.
+- 아침 대기는 오전(06:00)까지 1턴 쉰다. 요금·시장 재고는 변경하지 않으며 턴마다 시너지를 정산한다.
 
 ## 6. 세션 시간
 
-- `PuzzleInventoryService.Time.ElapsedHours`가 단일 게임 시간이다. 실시간 시계가 1시간씩 확정하고 UI 시계는 `D일 HH:MM · 낮/밤 · N턴`으로 표시한다. 날짜는 06:00에 바뀐다. 기한은 시작부터의 경과 시간으로 비교한다.
-- 이동 시간(분)은 `PuzzleTimeManager.TravelMinutes(route, timeRules)`가 노선 `points` 선 길이 ÷ `pixelsPerHour`를 `travelRoundingMinutes` 단위로 올려 계산한다. `Time.ArrivalAt`은 누적 범위를 먼저 검사한다.
-- 출발(`DepartLeg`)은 운임을 내고 `Journey`를 만든다. 시계가 이동 시간만큼 흐르면 도착(`CompleteJourney`)해 도시와 턴을 바꾼다. 가치 변화는 이동 중 통과한 6시간 정산 횟수만큼이며 호버 예측도 같은 횟수를 사용한다.
+- `PuzzleInventoryService.Time.ElapsedHours`가 단일 게임 시간이다. 턴을 쓰는 행동만 시간을 진행하고 UI 시계는 `D일 오후 · 낮 · N턴`으로 표시한다. 날짜는 오전 06:00에 바뀐다. 기한은 시작부터의 경과 시간으로 비교한다.
+- 이동 시간은 `PuzzleInventoryService.TravelHours`(`travelTurns` × 6)이다. `Time.ArrivalAt`은 누적 범위를 먼저 검사한다.
+- 이동(`TravelLeg`)은 운임을 내고 도시를 바꾼 뒤 1턴을 진행하고 도착 처리를 한다. 가치 변화는 그 1턴의 정산 횟수만큼이며 호버 예측도 같은 횟수를 사용한다.
 - 보유 시간은 상태 확정 중 갱신하고, 날짜 변경 부산물을 생성한 뒤 `TimeAdvanced`를 발행한다. 새 부산물의 보유 시간은 0에서 시작한다. 이벤트는 `previousHours`·`elapsedHours`·`DeltaHours`를 제공한다.
 
 ## 7. 표 검증
 
-- 낮 시간은 1 이상, 24시간 미만이다. 시작 시각은 0~23 범위이고 휴식 시간·거리당 이동 시간은 양수다. 노선 거리는 양수이며 왕복 값이 같아야 한다.
+- 낮 시간은 1 이상, 24시간 미만이다. 시작 시각은 0~23 범위다. 둘 다 6의 배수이고 이동 턴은 1 이상, 기본 휴식 턴은 1~4다. 노선 거리는 양수이며 왕복 값이 같아야 한다.
 - 폴라인은 유한한 x,y 쌍이 두 점 이상이고 길이가 양수여야 한다. 왕복 폴라인은 정확한 역순이다. 
 - 기존 도시 참조·노선 중복·거리·비용·양방향 연결과 근거리 교역 제한 검증을 유지한다. 테이블 오류는 모아서 보고하고 사용 전에 `RequireValid()`로 차단한다.
 
@@ -180,8 +180,8 @@
 |---|---|
 | 마을 위치·노선 모양 | 레이아웃 JSON과 노선 표 `points`를 함께 갱신한 뒤 레이아웃 적용 |
 | 노선 거리 | `PuzzleRouteTableData.routes[].distance` (자동 계산 기준 `pixelsPerDistance`) |
-| 시작 시각·낮 길이·휴식·이동 시간 기준 | `PuzzleTimeTableData.startHour`·`daylightHours`·`restHours`·`pixelsPerHour`·`travelRoundingMinutes` |
-| 실시간 배율 | 기초데이터 `rules.time.gameHoursPerRealMinute` |
+| 시작 시각·낮 길이·이동 턴·기본 휴식 턴 | `PuzzleTimeTableData.startHour`·`daylightHours`·`travelTurns`·`restTurns` |
+| 턴 길이 | `PuzzleTimeManager.HOURS_PER_TURN`(6) 구조 상수 |
 | 운임 단가 | `PuzzleRouteTableData`의 `cost`·`costPerDistance`·`costPerCell` |
 | 기한 | `PuzzleTradeTableData.deadlineHours` |
 | 툴팁 문구 | `BasicDataTableData`의 `presentation.PuzzleTooltip*` 항목 |
@@ -190,6 +190,6 @@
 
 ## 9. 남은 확인
 
-- 실시간 시계(이동 1턴·거리 비례 이동 시간·역 행동 무료)에서의 경제 밸런스는 잠정이며 플레이 검증이 필요하다.
-- 낮 18시간(실제 3분) 안의 정차·거래 수, 밤 대기와 상환 기한·자금 압박, 이동 대기 체감은 실제 플레이로 확인하지 않았다.
+- 턴제(이동 1턴·휴식·작업만 턴 소모·시설 진입 무료)에서의 경제 밸런스는 잠정이며 플레이 검증이 필요하다.
+- 하루 4턴 안의 정차·거래 수, 새벽 대기와 14일 결산·자금 압박, 안개 속 탐색 체감은 실제 플레이로 확인하지 않았다.
 - `highSpeed`는 시간 계산에 참여하지 않는 기존 필드다.

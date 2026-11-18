@@ -39,7 +39,7 @@ public sealed class PuzzleTableData
     // 시작 전용 화차. 생략한 기존 데이터는 train을 시작 화차로 사용한다.
     public PuzzleBoardData startingTrain;
     public string startCity;
-    // 지도상 예정 목적지. 실제 상환 장소 판정인 debtCityId와 별개다.
+    // 지도에 ★로 표시하는 예정 목적지. 비우면 표시하지 않는다. 규칙에는 쓰지 않는다.
     public string planningTargetCityId;
     public PuzzleCityData[] cities = Array.Empty<PuzzleCityData>();
     public PuzzleRegionData[] regions = Array.Empty<PuzzleRegionData>();
@@ -98,17 +98,15 @@ public sealed class PuzzleTradeTableData
 {
     public string status, note;
     public long startingFunds = -1;
-    // 화물칸 증차 시 기본 단위 비용 (예: 50원씩 누적 증가)
-    public int wagonAddCostBase = -1;
     // 화물칸 최대 증차 상한 (8칸)
     public int maxWagonCount = -1;
     public int wagonRefrigerationCost = -1;
     public long startingWagonSalePrice = -1;
     public PuzzleWagonProductData[] wagonProducts = Array.Empty<PuzzleWagonProductData>();
-    public long gameClearCost = -1;
-    // 0이면 무기한. 목표 도시가 비어 있으면 상환 장소를 제한하지 않는다.
+    // 목표 잔액(점수 기준). 영업 기간이 끝나 결산할 때 잔액이 이 값 이상이면 승리한다.
+    public long targetFunds = -1;
+    // 영업 기간(게임 시간). 0이면 무기한이다.
     public int deadlineHours = -1;
-    public string debtCityId;
     public float travelEffectSeconds = -1f;
     public float travelArrivalHoldSeconds = -1f;
 }
@@ -120,6 +118,8 @@ public sealed class PuzzleWagonProductData
     public long price = -1;
     public long salePrice = -1;
     public string modificationId;
+    // 이 화차의 화물칸 보드(크기·막힌 칸). 화차마다 모양이 달라 적재 공간이 다르다. 시작 배치는 쓰지 않는다.
+    public PuzzleBoardData board;
 }
 
 [Serializable]
@@ -176,10 +176,8 @@ public sealed class PuzzleTimeTableData
     public int daylightHours = -1;
     // 낮이 시작하는 시각(0~23시). 게임 시작 시각이자 날짜 변경·재입고 시각이다.
     public int startHour = -1;
-    // 휴식 화면을 열 때의 기본 목표 시각 = 지금 + restHours(게임 시간). 휴식 자체는 고른 시각까지 빨리 감기다.
-    public long restHours = -1;
-    // 지도 선 길이 몇 픽셀이 게임 1시간인지. 이동 시간 = 선 길이 ÷ pixelsPerHour.
-    public float pixelsPerHour = -1f;
-    // 이동 시간 올림 단위(분). 60의 약수여야 한다.
-    public int travelRoundingMinutes = -1;
+    // 이동 1회가 쓰는 턴. 노선 거리와 무관하게 모든 노선이 같다.
+    public int travelTurns = -1;
+    // 휴식 화면을 열 때 고른 기본 휴식 턴. 휴식은 1턴부터 하루(4턴)까지 고를 수 있다.
+    public int restTurns = -1;
 }

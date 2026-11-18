@@ -1,9 +1,16 @@
 using System;
 using System.Collections.Generic;
 
+// 최단 경로. 이동은 노선마다 같은 턴을 쓰므로 구간 수가 가장 적은 경로를 고르고,
+// 구간 수가 같으면 노선 거리 합(운임)이 작은 경로, 그것도 같으면 역 ID 순서로 고른다.
 public static class PuzzleRoutePlanner
 {
-    public static IReadOnlyList<string> FindFastestPath(TableManager _tables, string _fromCityId, string _toCityId)
+    // 구간 하나의 가중치. 노선 거리 합이 이 값에 닿지 않으므로 구간 수가 먼저 비교된다.
+    const long LEG_WEIGHT = 1_000_000L;
+
+    // _canUse: 쓸 수 있는 노선만 남긴다(전장의 안개). 비우면 모든 노선을 쓴다.
+    public static IReadOnlyList<string> FindFastestPath(TableManager _tables, string _fromCityId, string _toCityId,
+        Func<PuzzleRouteData, bool> _canUse = null)
     {
         if (_tables == null || string.IsNullOrEmpty(_fromCityId) || string.IsNullOrEmpty(_toCityId))
         {
@@ -54,12 +61,13 @@ public static class PuzzleRoutePlanner
             for (int i = 0; i < routes.Count; i++)
             {
                 var route = routes[i];
-                if (route == null || string.IsNullOrEmpty(route.toCityId) || done.Contains(route.toCityId))
+                if (route == null || string.IsNullOrEmpty(route.toCityId) || done.Contains(route.toCityId) ||
+                    (_canUse != null && !_canUse(route)))
                 {
                     continue;
                 }
 
-                long travelTime = PuzzleTimeManager.TravelMinutes(route, _tables.PuzzleTime);
+                long travelTime = LEG_WEIGHT + Math.Max(0, route.distance);
                 long arrival = checked(best + travelTime);
                 if (!hours.TryGetValue(route.toCityId, out long known) || arrival < known)
                 {
