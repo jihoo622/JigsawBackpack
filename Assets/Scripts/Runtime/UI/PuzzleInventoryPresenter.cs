@@ -139,6 +139,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         }
         GameEvents.CityArrived += OnCityArrived;
         GameEvents.TimeAdvanced += OnTimeAdvanced;
+        GameEvents.PuzzleRunSettled += OnRunSettled;
         GameEvents.PuzzleActionCommitted += OnPuzzleActionCommitted;
         GameEvents.PanelVisibility += OnPanelVisibility;
         GameEvents.TravelPreviewChanged += OnTravelPreviewChanged;
@@ -218,6 +219,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         pendingFundsRefresh = false;
         GameEvents.CityArrived -= OnCityArrived;
         GameEvents.TimeAdvanced -= OnTimeAdvanced;
+        GameEvents.PuzzleRunSettled -= OnRunSettled;
         GameEvents.PuzzleActionCommitted -= OnPuzzleActionCommitted;
         GameEvents.PanelVisibility -= OnPanelVisibility;
         GameEvents.TravelPreviewChanged -= OnTravelPreviewChanged;
@@ -411,6 +413,26 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             return;
         }
         marketView.SetMarketOpen(session.CanTradeInMarket);
+    }
+
+    // 영업 기간이 끝나 자동 결산되면 결과 패널을 연다(승리·패배 모두).
+    void OnRunSettled(GameEvents.PuzzleRunInfo _info)
+    {
+        if (_info.session != session || !initialized)
+        {
+            return;
+        }
+        if (drag != null)
+        {
+            input.CancelCapture();
+            ClearDrag();
+        }
+        RenderBoards();
+        cityView.SetTown(session.CityData.displayName, false);
+        RefreshFunds();
+        cityView.ShowTradeStatus(Presentation.PuzzleRunStatusText(session.RunStatus));
+        RefreshTrainBar();
+        pauseMenu.ShowCompletion(session.RunStatus, session.Funds);
     }
 
     void OnTimeAdvanced(GameEvents.TimeAdvanceInfo _info)

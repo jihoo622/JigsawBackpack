@@ -292,20 +292,23 @@ internal sealed class EconomyBot
             }
 
             var options = TimelyRoutes();
-            if (options.Count == 0)
+            // 마지막 턴이거나 더 갈 노선이 없으면 화물을 팔고 기간 끝까지 쉰다. 기간이 끝나는 순간 자동 결산된다.
+            if (options.Count == 0 || service.Time.RemainingHours <= service.TravelHours)
             {
-                // 더 갈 수 있는 노선이 없으면 영업 기간이 끝날 때까지 쉬고, 남은 화물을 팔아 결산한다.
-                while (!service.IsTimeUp && service.Rest(1))
-                {
-                    Snapshot();
-                }
-                if (!service.IsMarketOpen && service.CanWaitForDaylight)
+                if (!service.IsMarketOpen && service.CanWaitForDaylight && service.Time.RemainingHours > service.TravelHours)
                 {
                     Wait();
                 }
                 LiquidateCargo();
                 Snapshot();
-                Finish();
+                while (service.RunStatus == PuzzleRunStatus.InProgress && service.Rest(1))
+                {
+                    Snapshot();
+                }
+                if (service.RunStatus == PuzzleRunStatus.InProgress)
+                {
+                    Finish();
+                }
                 break;
             }
 

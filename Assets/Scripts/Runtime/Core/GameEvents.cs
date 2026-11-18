@@ -63,6 +63,13 @@ public static class GameEvents
     public static event Action<PuzzleRunInfo> PuzzleRunStarted;
     public static event Action<PuzzleRunInfo> PuzzleRunEnded;
     public static event Action<PuzzleActionInfo> PuzzleActionCommitted;
+    // 영업 기간이 끝나 결산했다(승패 확정). 상태·잔액은 세션에서 읽는다.
+    public static event Action<PuzzleRunInfo> PuzzleRunSettled;
+
+    public static void RaisePuzzleRunSettled(PuzzleInventoryService _session)
+    {
+        Emit(PuzzleRunSettled, new PuzzleRunInfo(_session, null));
+    }
 
     public static void RaisePuzzleRunStarted(PuzzleInventoryService _session)
     {
@@ -764,6 +771,7 @@ public static class GameEvents
     {
         PuzzleRunStarted = null;
         PuzzleRunEnded = null;
+        PuzzleRunSettled = null;
         PuzzleActionCommitted = null;
         SceneChanged = null;
         UpgradeGranted = null;

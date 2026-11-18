@@ -88,7 +88,7 @@ UI 글자는 모두 TextMeshPro(`NotoSansKR-Medium SDF`)를 쓴다(구형 `Unity
 | └ 게임 시간 | Game Time | 712 | 22 | 408 | 48 | 위 줄(아래 여백 20을 비움): 시계 20pt '12일 새벽 · 밤 · 45턴'. 아래 줄 왼쪽: 지금 턴의 가운데를 고정한 24시간 창(앞뒤 12시간) 막대 `DayNightBar`(폭 192 = 칸 폭 − 정산 글자 208 − 8, 높이 8, 아래 6). 바탕은 낮 색(`presentation.time.dayBar`), 밤 구간 `NightA`/`NightB`(창 끝을 넘는 밤용, 턴마다 한 칸 밀림)는 밤 색(`presentation.time.nightBar`), 가운데 고정 현재 시각 표시선 `Marker`(4×14, 금색 `presentation.time.accent`). 같은 막대에 정산 시각 눈금 `Tick_0~7`(2×14, 사전 배치 8개, 다음 정산은 금색·나머지 `presentation.gauge.tick`)과 막대 아래 3px 진행 띠 `ProgressA`(지금~다음 정산, 금색. `ProgressB`는 쓰지 않음)를 그린다. 턴이 지나면 눈금이 한 칸 밀리고, 표시선 오른쪽 첫 눈금(이번 턴 끝)에서 정산한다. 아래 줄 오른쪽: 정산 글자 `Settlement` 14pt(208×20, 오른쪽 정렬) '정산 1턴 · 예상 +12$'. 밤 구간은 시간 테이블, 눈금·진행은 정산 주기(`activationIntervalHours`)와 경과 시간(`ElapsedHours`)에서 턴이 바뀔 때 계산해 가로 앵커 비율로만 놓는다(`PuzzleSettlementGaugeView`/`Presenter`가 이 칸에 붙는다) |
 | └ 평판 | Reputation | 1144 | 22 | 120 | 48 | '평판 n' 20pt 굵게 버튼(상환 버튼과 같은 배경·틴트). 누르면 수첩 숙련 탭 |
 | └ 자금 | Funds | 1288 | 22 | 224 | 48 | 보유 자금 |
-| └ 결산 버튼 | Game Clear Button | 1536 | 22 | 320 | 48 | '결산 · 목표 1,500$'. 14일(56턴)이 끝나면 켜지고 누르면 판을 끝낸다 |
+| └ 결산 버튼 | Game Clear Button | 1536 | 22 | 320 | 48 | '결산 · 목표 1,500$'. 목표 표시용이며 결산은 14일(56턴)이 끝날 때 자동으로 한다 |
 | **고정 UI: 상태 안내** | JourneyFooter / Trade Status | 40 | 92 | 1840 | 32 | 정보 바 바로 아래 띠. 거래/야간/이동 등 상태 및 미리보기 안내(24pt, 안쪽 좌우 12) |
 | **백팩 축 (기차 카드)** | Train Inventory | 40 | 140 | 536 | 780 | 선택한 화물칸 내부 관리 패널 |
 | └ 보드 제목 | BoardTitle | 64 | 152 | 488 | 40 | 화물칸 번호 및 명칭 (24pt) |

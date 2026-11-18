@@ -723,11 +723,26 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
             RecordAction(PuzzleActionKind.FinishRun, RunStatus != PuzzleRunStatus.InProgress ? "run_finished" : "time_remaining");
             return false;
         }
+        Settle();
+        return true;
+    }
 
+    // 영업 기간을 다 쓴 행동(이동·휴식·작업)은 도착 처리까지 마친 직후 자동으로 결산한다.
+    // 목표 잔액에 못 미치면 그 자리에서 패배다. 남은 화물은 점수에 넣지 않는다.
+    void SettleIfTimeUp()
+    {
+        if (CanFinishRun)
+        {
+            Settle();
+        }
+    }
+
+    void Settle()
+    {
         RunStatus = ReachedTargetFunds ? PuzzleRunStatus.Won : PuzzleRunStatus.Lost;
         HandleRunStatusChanged();
         RecordAction(PuzzleActionKind.FinishRun);
-        return true;
+        GameEvents.RaisePuzzleRunSettled(this);
     }
 
     public bool AdvanceHours(long _hours, PuzzleActionKind _action = PuzzleActionKind.AdvanceTime)
@@ -772,6 +787,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
 
         CommitTimeAdvance(_hours, plan);
         RecordAction(_action, _requestedHours: _hours, _actionId: _actionId);
+        SettleIfTimeUp();
         return true;
     }
 
@@ -1758,9 +1774,11 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
             }
         }
 
-        return new PuzzleTravelResult(PuzzleTravelFailure.None, evaluation.Cost, evaluation.FromCityId,
+        var arrival = new PuzzleTravelResult(PuzzleTravelFailure.None, evaluation.Cost, evaluation.FromCityId,
             evaluation.ToCityId, Funds, evaluation.BaseCost, evaluation.Cells, evaluation.Distance, evaluation.DistanceCost,
             evaluation.TravelHours, evaluation.ArrivalHourOfDay, evaluation.ArrivalIsNight);
+        SettleIfTimeUp();
+        return arrival;
     }
 
     internal PuzzleTravelResult Travel(string _cityId)
