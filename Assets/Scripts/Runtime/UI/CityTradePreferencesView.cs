@@ -24,6 +24,7 @@ public sealed class CityTradePreferencesView : MonoBehaviour
     [SerializeField] GradeSlot[] grades;
     [SerializeField] TMP_Text regionPriceLabel;
     [SerializeField] bool useKeywordLinks;
+    [SerializeField] bool alignTitleColumn;
 
     internal void Show(PuzzleCityTradePreferencesData _data)
     {
@@ -41,11 +42,15 @@ public sealed class CityTradePreferencesView : MonoBehaviour
             {
                 ApplyGradeSlot(ref grades[i], _data);
             }
+            SyncTitleColumnWidths();
         }
 
         if (regionPriceLabel)
         {
-            regionPriceLabel.text = Presentation.CityTradeRegionPriceText(_data.BuyPercentOfBaseValue, _data.SellPercentOfFinalValue);
+            regionPriceLabel.text = Presentation.CityTradeRegionPriceText(
+                _data.BuyPercentOfBaseValue, _data.SellPercentOfFinalValue, useKeywordLinks);
+            regionPriceLabel.raycastTarget = useKeywordLinks;
+            regionPriceLabel.ForceMeshUpdate();
             regionPriceLabel.gameObject.SetActive(true);
         }
 
@@ -67,24 +72,28 @@ public sealed class CityTradePreferencesView : MonoBehaviour
     internal bool TryGetHoveredKeywordLink(Vector2 _screenPosition, Camera _eventCamera, out string _linkId)
     {
         _linkId = null;
-        if (!useKeywordLinks || !gameObject.activeInHierarchy || grades == null)
+        if (!useKeywordLinks || !gameObject.activeInHierarchy)
         {
             return false;
         }
 
-        for (int i = 0; i < grades.Length; i++)
+        if (grades != null)
         {
-            ref readonly GradeSlot slot = ref grades[i];
-            if (slot.rowRoot && !slot.rowRoot.activeInHierarchy)
+            for (int i = 0; i < grades.Length; i++)
             {
-                continue;
-            }
-            if (TryGetHoveredTmpLink(slot.titleLabel, _screenPosition, _eventCamera, out _linkId))
-            {
-                return true;
+                ref readonly GradeSlot slot = ref grades[i];
+                if (slot.rowRoot && !slot.rowRoot.activeInHierarchy)
+                {
+                    continue;
+                }
+                if (TryGetHoveredTmpLink(slot.titleLabel, _screenPosition, _eventCamera, out _linkId))
+                {
+                    return true;
+                }
             }
         }
-        return false;
+
+        return TryGetHoveredTmpLink(regionPriceLabel, _screenPosition, _eventCamera, out _linkId);
     }
 
     void ApplyGradeSlot(ref GradeSlot _slot, PuzzleCityTradePreferencesData _data)
@@ -128,6 +137,58 @@ public sealed class CityTradePreferencesView : MonoBehaviour
         if (_slot.rowRoot && _slot.rowRoot.transform is RectTransform rowRect)
         {
             LayoutRebuilder.ForceRebuildLayoutImmediate(rowRect);
+        }
+    }
+
+    void SyncTitleColumnWidths()
+    {
+        if (grades == null)
+        {
+            return;
+        }
+
+        float maxWidth = 0f;
+        if (alignTitleColumn)
+        {
+            for (int i = 0; i < grades.Length; i++)
+            {
+                ref readonly GradeSlot slot = ref grades[i];
+                if ((slot.rowRoot && !slot.rowRoot.activeSelf) || !slot.titleLabel)
+                {
+                    continue;
+                }
+                float width = slot.titleLabel.preferredWidth;
+                if (width > maxWidth)
+                {
+                    maxWidth = width;
+                }
+            }
+        }
+
+        float targetWidth = alignTitleColumn && maxWidth > 0f ? Mathf.Ceil(maxWidth) : -1f;
+        for (int i = 0; i < grades.Length; i++)
+        {
+            TMP_Text title = grades[i].titleLabel;
+            if (!title)
+            {
+                continue;
+            }
+            LayoutElement layout = title.GetComponent<LayoutElement>();
+            if (targetWidth <= 0f)
+            {
+                if (layout)
+                {
+                    layout.minWidth = -1f;
+                    layout.preferredWidth = -1f;
+                }
+                continue;
+            }
+            if (!layout)
+            {
+                layout = title.gameObject.AddComponent<LayoutElement>();
+            }
+            layout.minWidth = targetWidth;
+            layout.preferredWidth = targetWidth;
         }
     }
 

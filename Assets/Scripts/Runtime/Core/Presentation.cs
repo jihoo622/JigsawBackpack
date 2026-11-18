@@ -2150,9 +2150,24 @@ public static partial class Presentation
 
     internal static string CityTradeWasteSuffix => "(+10$)";
 
-    internal static string CityTradeRegionPriceText(int _buyPercent, int _sellPercent)
+    const string REGION_PRICE_LINK_PREFIX = "regionPrice:";
+
+    internal static string CityTradeRegionPriceText(int _buyPercent, int _sellPercent, bool _withLink = false)
     {
-        return BasicData.Format("presentation.trade.regionPrice", _buyPercent, _sellPercent).TrimStart('\n');
+        bool samePercent = _buyPercent == _sellPercent;
+        string rawText = samePercent
+            ? BasicData.Format("presentation.trade.regionPriceTitle", _buyPercent)
+            : BasicData.Format("presentation.trade.regionPrice", _buyPercent, _sellPercent).TrimStart('\n');
+
+        string content = _withLink
+            ? $"<link=\"{REGION_PRICE_LINK_PREFIX}{_buyPercent}:{_sellPercent}\">{rawText}</link>"
+            : rawText;
+
+        if (_buyPercent != 100 || _sellPercent != 100)
+        {
+            return $"<color=#{ColorUtility.ToHtmlStringRGB(PuzzleTooltipGold)}><b>{content}</b></color>";
+        }
+        return $"<b>{content}</b>";
     }
 
     // 도시의 태그 규칙을 판매 등급 기준으로 흔함/귀함/희귀로 묶는다. 임의 배율이나 일반(100%)은 표시하지 않는다.
@@ -2184,6 +2199,22 @@ public static partial class Presentation
 
     internal static bool TryGetTradeKeywordTooltip(string _linkId, out string _title, out string _description)
     {
+        if (!string.IsNullOrEmpty(_linkId) &&
+            _linkId.StartsWith(REGION_PRICE_LINK_PREFIX, StringComparison.Ordinal))
+        {
+            string[] parts = _linkId.Substring(REGION_PRICE_LINK_PREFIX.Length).Split(':');
+            if (parts.Length >= 2 &&
+                int.TryParse(parts[0], out int buyPercent) &&
+                int.TryParse(parts[1], out int sellPercent))
+            {
+                _title = buyPercent == sellPercent
+                    ? BasicData.Format("presentation.trade.regionPriceTitle", buyPercent)
+                    : BasicData.Format("presentation.trade.regionPrice", buyPercent, sellPercent).TrimStart('\n');
+                _description = FormatKeywordTooltipDescription(BasicData.Text("presentation.trade.regionPriceTooltip"));
+                return true;
+            }
+        }
+
         switch (_linkId)
         {
             case "common":

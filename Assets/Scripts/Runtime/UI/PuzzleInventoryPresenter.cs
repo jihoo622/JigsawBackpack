@@ -25,6 +25,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
     [SerializeField] PuzzleItemTooltipView tooltipView;
     [SerializeField] PuzzleItemTooltipView wagonTooltipView;
     readonly List<(string label, string value)> wagonTooltipStats = new();
+    readonly List<string> wagonTooltipEffects = new();
     PuzzleInventory hoveredTooltipWagon;
     PuzzleStationActionsView stationActions;
     int? wagonSalePreviewIndex;
@@ -1771,23 +1772,32 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         wagonTooltipStats.Clear();
         wagonTooltipStats.Add(("적재", $"{wagon.OccupiedCells} / {wagon.UsableCellCount}칸"));
         wagonTooltipStats.Add(("판매가", Presentation.WagonSaleAmount(wagon.WagonSalePrice)));
-        if (wagon.WagonProduct != null)
-        {
-            wagonTooltipStats.Add(("효과", wagon.WagonProduct.description));
-        }
-        else if (wagon.WagonModifications.Count > 0)
-        {
-            wagonTooltipStats.Add(("효과", string.Join(" · ", wagon.WagonModifications.Select(_effect => _effect.TooltipEffect))));
-        }
         if (session.WagonProcessOf(wagon) is { } process)
         {
             wagonTooltipStats.Add(("가공", Presentation.WagonProcessStatus(process, session.CurrentWagonProcess(wagon))));
         }
 
+        wagonTooltipEffects.Clear();
+        if (wagon.WagonProduct != null && !string.IsNullOrEmpty(wagon.WagonProduct.description))
+        {
+            wagonTooltipEffects.Add(Presentation.PuzzleTooltipEffectDescription(wagon.WagonProduct.description));
+        }
+        string productModId = wagon.WagonProduct?.modificationId;
+        foreach (var modification in wagon.WagonModifications)
+        {
+            if (!string.IsNullOrEmpty(productModId) &&
+                string.Equals(modification.Id, productModId, System.StringComparison.Ordinal))
+            {
+                continue;
+            }
+            wagonTooltipEffects.Add(Presentation.PuzzleTooltipEffectDescription(modification.TooltipEffect));
+        }
+
         string failure = session.WagonSaleFailure(_index);
         string notice = failure == null ? null : Presentation.WagonSaleNotice(failure);
         wagonTooltipView.ShowEntityInfo($"{name} · {wagon.WagonNumber}번", null,
-            notice == null ? null : new[] { notice }, _slotAnchor, _statRows: wagonTooltipStats, _aboveAnchor: true);
+            notice == null ? null : new[] { notice }, _slotAnchor, _statRows: wagonTooltipStats, _aboveAnchor: true,
+            _effectHeader: "효과", _effectLines: wagonTooltipEffects);
     }
 
     void HideWagonTooltip()

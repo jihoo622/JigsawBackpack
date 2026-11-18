@@ -1489,8 +1489,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 24, y: -4}
-  m_SizeDelta: {x: 988, y: 68}
+  m_AnchoredPosition: {x: 24, y: -3}
+  m_SizeDelta: {x: 988, y: 70}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &930000000000000004
 MonoBehaviour:
@@ -1531,6 +1531,7 @@ MonoBehaviour:
     hideRowWhenEmpty: 1
   regionPriceLabel: {fileID: 930000000000000075}
   useKeywordLinks: 1
+  alignTitleColumn: 1
 --- !u!1 &930000000000000005
 GameObject:
   m_ObjectHideFlags: 0
@@ -1566,7 +1567,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 506, y: 0}
   m_SizeDelta: {x: 482, y: 22}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &930000000000000007
@@ -1587,9 +1588,9 @@ MonoBehaviour:
     m_Top: 0
     m_Bottom: 0
   m_ChildAlignment: 3
-  m_Spacing: 12
+  m_Spacing: 10
   m_ChildForceExpandWidth: 0
-  m_ChildForceExpandHeight: 0
+  m_ChildForceExpandHeight: 1
   m_ChildControlWidth: 1
   m_ChildControlHeight: 1
   m_ChildScaleWidth: 0
@@ -1687,8 +1688,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 16
-  m_fontSizeBase: 16
+  m_fontSize: 15
+  m_fontSizeBase: 15
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 14
@@ -1788,7 +1789,7 @@ MonoBehaviour:
     m_Top: 0
     m_Bottom: 0
   m_ChildAlignment: 3
-  m_Spacing: 6
+  m_Spacing: 5
   m_ChildForceExpandWidth: 0
   m_ChildForceExpandHeight: 0
   m_ChildControlWidth: 1
@@ -1813,7 +1814,13 @@ MonoBehaviour:
   emptyLabel: {fileID: 930000000000000019}
   emptyText: "\uC5C6\uC74C"
   badgeBlend: 0.25
-  fontSizeOverride: 15
+  fontSizeOverride: 12
+  overrideBadgePadding: 1
+  badgePadding:
+    m_Left: 7
+    m_Right: 7
+    m_Top: 1
+    m_Bottom: 1
   hideWhenEmpty: 0
   maxVisibleCount: 0
 --- !u!1 &930000000000000016
@@ -1988,7 +1995,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 506, y: 0}
+  m_AnchoredPosition: {x: 0, y: -24}
   m_SizeDelta: {x: 482, y: 22}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &930000000000000022
@@ -2009,9 +2016,9 @@ MonoBehaviour:
     m_Top: 0
     m_Bottom: 0
   m_ChildAlignment: 3
-  m_Spacing: 12
+  m_Spacing: 10
   m_ChildForceExpandWidth: 0
-  m_ChildForceExpandHeight: 0
+  m_ChildForceExpandHeight: 1
   m_ChildControlWidth: 1
   m_ChildControlHeight: 1
   m_ChildScaleWidth: 0
@@ -2109,8 +2116,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 16
-  m_fontSizeBase: 16
+  m_fontSize: 15
+  m_fontSizeBase: 15
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 14
@@ -2210,7 +2217,7 @@ MonoBehaviour:
     m_Top: 0
     m_Bottom: 0
   m_ChildAlignment: 3
-  m_Spacing: 6
+  m_Spacing: 5
   m_ChildForceExpandWidth: 0
   m_ChildForceExpandHeight: 0
   m_ChildControlWidth: 1
@@ -2235,7 +2242,13 @@ MonoBehaviour:
   emptyLabel: {fileID: 930000000000000034}
   emptyText: "\uC5C6\uC74C"
   badgeBlend: 0.25
-  fontSizeOverride: 15
+  fontSizeOverride: 12
+  overrideBadgePadding: 1
+  badgePadding:
+    m_Left: 7
+    m_Right: 7
+    m_Top: 1
+    m_Bottom: 1
   hideWhenEmpty: 0
   maxVisibleCount: 0
 --- !u!1 &930000000000000031
@@ -2410,7 +2423,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 0, y: -22}
+  m_AnchoredPosition: {x: 506, y: -24}
   m_SizeDelta: {x: 482, y: 22}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &930000000000000037
@@ -2431,9 +2444,9 @@ MonoBehaviour:
     m_Top: 0
     m_Bottom: 0
   m_ChildAlignment: 3
-  m_Spacing: 12
+  m_Spacing: 10
   m_ChildForceExpandWidth: 0
-  m_ChildForceExpandHeight: 0
+  m_ChildForceExpandHeight: 1
   m_ChildControlWidth: 1
   m_ChildControlHeight: 1
   m_ChildScaleWidth: 0
@@ -2531,8 +2544,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 16
-  m_fontSizeBase: 16
+  m_fontSize: 15
+  m_fontSizeBase: 15
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 14
@@ -2632,7 +2645,7 @@ MonoBehaviour:
     m_Top: 0
     m_Bottom: 0
   m_ChildAlignment: 3
-  m_Spacing: 6
+  m_Spacing: 5
   m_ChildForceExpandWidth: 0
   m_ChildForceExpandHeight: 0
   m_ChildControlWidth: 1
@@ -2657,7 +2670,13 @@ MonoBehaviour:
   emptyLabel: {fileID: 930000000000000049}
   emptyText: "\uC5C6\uC74C"
   badgeBlend: 0.25
-  fontSizeOverride: 15
+  fontSizeOverride: 12
+  overrideBadgePadding: 1
+  badgePadding:
+    m_Left: 7
+    m_Right: 7
+    m_Top: 1
+    m_Bottom: 1
   hideWhenEmpty: 0
   maxVisibleCount: 0
 --- !u!1 &930000000000000046
@@ -2833,7 +2852,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 506, y: -22}
+  m_AnchoredPosition: {x: 0, y: -48}
   m_SizeDelta: {x: 482, y: 22}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &930000000000000052
@@ -2854,9 +2873,9 @@ MonoBehaviour:
     m_Top: 0
     m_Bottom: 0
   m_ChildAlignment: 3
-  m_Spacing: 12
+  m_Spacing: 10
   m_ChildForceExpandWidth: 0
-  m_ChildForceExpandHeight: 0
+  m_ChildForceExpandHeight: 1
   m_ChildControlWidth: 1
   m_ChildControlHeight: 1
   m_ChildScaleWidth: 0
@@ -2954,8 +2973,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 16
-  m_fontSizeBase: 16
+  m_fontSize: 15
+  m_fontSizeBase: 15
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 14
@@ -3055,7 +3074,7 @@ MonoBehaviour:
     m_Top: 0
     m_Bottom: 0
   m_ChildAlignment: 3
-  m_Spacing: 6
+  m_Spacing: 5
   m_ChildForceExpandWidth: 0
   m_ChildForceExpandHeight: 0
   m_ChildControlWidth: 1
@@ -3080,7 +3099,13 @@ MonoBehaviour:
   emptyLabel: {fileID: 930000000000000064}
   emptyText: "\uC5C6\uC74C"
   badgeBlend: 0.25
-  fontSizeOverride: 15
+  fontSizeOverride: 12
+  overrideBadgePadding: 1
+  badgePadding:
+    m_Left: 7
+    m_Right: 7
+    m_Top: 1
+    m_Bottom: 1
   hideWhenEmpty: 0
   maxVisibleCount: 0
 --- !u!1 &930000000000000061
@@ -3391,8 +3416,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 0, y: -44}
-  m_SizeDelta: {x: 988, y: 22}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 482, y: 22}
   m_Pivot: {x: 0, y: 1}
 --- !u!222 &930000000000000074
 CanvasRenderer:
@@ -3416,7 +3441,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 0
+  m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -3449,8 +3474,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 16
-  m_fontSizeBase: 16
+  m_fontSize: 15
+  m_fontSizeBase: 15
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 14

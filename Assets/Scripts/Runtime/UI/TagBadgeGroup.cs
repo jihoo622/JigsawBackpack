@@ -15,6 +15,8 @@ public sealed class TagBadgeGroup : MonoBehaviour
     [SerializeField] string emptyText = "없음";
     [SerializeField] float badgeBlend = 0.25f;
     [SerializeField] float fontSizeOverride;
+    [SerializeField] bool overrideBadgePadding;
+    [SerializeField] RectOffset badgePadding;
     [SerializeField] bool hideWhenEmpty;
     [SerializeField] int maxVisibleCount;
 
@@ -60,6 +62,7 @@ public sealed class TagBadgeGroup : MonoBehaviour
 
         gameObject.SetActive(true);
         HideAllPoolItems();
+        RectOffset paddingOverride = overrideBadgePadding && badgePadding != null ? badgePadding : null;
 
         for (int i = 0; i < totalCount; i++)
         {
@@ -68,7 +71,7 @@ public sealed class TagBadgeGroup : MonoBehaviour
             {
                 continue;
             }
-            view.Show(_entries[i], badgeBlend, fontSizeOverride);
+            view.Show(_entries[i], badgeBlend, fontSizeOverride, paddingOverride);
             view.transform.SetSiblingIndex(i);
         }
 

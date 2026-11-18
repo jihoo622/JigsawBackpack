@@ -2700,6 +2700,15 @@
           "value": "농업 지역에서는 거름을 판매할 때 처분 비용을 내지 않고 +10$으로 매입합니다."
         },
         {
+          "id": "regionPriceTitle",
+          "value": "물가 {0}%",
+          "arguments": 1
+        },
+        {
+          "id": "regionPriceTooltip",
+          "value": "이 지역에서 물품을 거래할 때 적용되는 기본 배율입니다.\n(태그 보정이 있는 품목에도 합산, 구매·판매 모두 적용)"
+        },
+        {
           "id": "cityTitle",
           "value": "{0} · {1}",
           "arguments": 2

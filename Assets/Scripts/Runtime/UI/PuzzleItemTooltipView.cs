@@ -309,7 +309,8 @@ public sealed class PuzzleItemTooltipView : PanelBase
     /// </summary>
     internal void ShowEntityInfo(string _title, Color? _titleColor, IReadOnlyList<string> _lines,
         Vector2 _screenPosition, IReadOnlyList<string> _tags = null,
-        IReadOnlyList<(string label, string value)> _statRows = null, bool _aboveAnchor = false)
+        IReadOnlyList<(string label, string value)> _statRows = null, bool _aboveAnchor = false,
+        string _effectHeader = null, IReadOnlyList<string> _effectLines = null)
     {
         BeginShow(_title, _titleColor);
         UpdateCategoryBadges(_tags);
@@ -321,10 +322,7 @@ public sealed class PuzzleItemTooltipView : PanelBase
         {
             HideAllStatRows();
         }
-        if (activeEffectsSection)
-        {
-            activeEffectsSection.gameObject.SetActive(false);
-        }
+        PopulateActiveEffectSection(_effectHeader, _effectLines);
         PopulatePlainEffectSection(_lines);
         RebuildLayouts();
         if (_aboveAnchor)
@@ -334,6 +332,68 @@ public sealed class PuzzleItemTooltipView : PanelBase
         else
         {
             SetPointerPosition(_screenPosition);
+        }
+    }
+
+    void PopulateActiveEffectSection(string _headerText, IReadOnlyList<string> _lines)
+    {
+        if (!activeEffectsSection)
+        {
+            return;
+        }
+
+        bool hasLines = _lines != null && _lines.Count > 0;
+        activeEffectsSection.gameObject.SetActive(hasLines);
+        if (!hasLines)
+        {
+            return;
+        }
+
+        if (activeEffectsText)
+        {
+            bool showHeader = !string.IsNullOrEmpty(_headerText);
+            activeEffectsText.gameObject.SetActive(showHeader);
+            if (showHeader)
+            {
+                activeEffectsText.color = Presentation.PuzzleTooltipText;
+                activeEffectsText.text = _headerText;
+            }
+        }
+
+        int rowCount = activeEffectRows?.Length ?? 0;
+        bool useRows = activeEffectsListRoot && rowCount > 0;
+        if (activeEffectsListRoot)
+        {
+            activeEffectsListRoot.gameObject.SetActive(useRows);
+        }
+        if (activeEffectsMessageText)
+        {
+            activeEffectsMessageText.gameObject.SetActive(!useRows);
+            if (!useRows)
+            {
+                activeEffectsMessageText.color = Presentation.PuzzleTooltipText;
+                activeEffectsMessageText.text = string.Join("\n", _lines);
+            }
+        }
+        if (!useRows)
+        {
+            return;
+        }
+
+        for (int i = 0; i < rowCount; i++)
+        {
+            EffectRow row = activeEffectRows[i];
+            if (i < _lines.Count)
+            {
+                string line = i == rowCount - 1 && _lines.Count > rowCount
+                    ? string.Join("\n", _lines.Skip(i))
+                    : _lines[i];
+                SetRow(row.labelText, row.valueText, line, string.Empty);
+            }
+            else
+            {
+                SetRowActive(row.labelText, row.valueText, false);
+            }
         }
     }
 
@@ -696,6 +756,7 @@ public sealed class PuzzleItemTooltipView : PanelBase
         bool useRows = activeEffectsListRoot && activeCount > 0 && activeCount <= rowCount;
         if (activeEffectsText)
         {
+            activeEffectsText.gameObject.SetActive(true);
             activeEffectsText.text = valueCount > 0 && !hasPreservation
                 ? Presentation.PuzzleTooltipActiveEffectsHeader()
                 : Presentation.PuzzleTooltipActiveEffectsTitle;

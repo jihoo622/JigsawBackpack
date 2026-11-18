@@ -49,27 +49,29 @@ public sealed class TagBadgeView : MonoBehaviour
 {
     [SerializeField] Image plate;
     [SerializeField] TMP_Text label;
+    [SerializeField] HorizontalLayoutGroup layoutGroup;
     [SerializeField] float defaultBlend = 0.25f;
     [SerializeField] float fontSizeOverride;
 
     float baseFontSize = -1f;
+    RectOffset defaultPadding;
 
     void Awake()
     {
         EnsureComponents();
     }
 
-    public void ShowTag(string _tagId, float _blend = -1f, float _fontSizeOverride = 0f)
+    public void ShowTag(string _tagId, float _blend = -1f, float _fontSizeOverride = 0f, RectOffset _paddingOverride = null)
     {
-        Show(TagBadgeEntry.FromTag(_tagId, _blend), -1f, _fontSizeOverride);
+        Show(TagBadgeEntry.FromTag(_tagId, _blend), -1f, _fontSizeOverride, _paddingOverride);
     }
 
-    public void Show(string _text, Color _backgroundColor, Color? _textColor = null, float _fontSizeOverride = 0f)
+    public void Show(string _text, Color _backgroundColor, Color? _textColor = null, float _fontSizeOverride = 0f, RectOffset _paddingOverride = null)
     {
-        Show(TagBadgeEntry.Custom(_text, _backgroundColor, _textColor), -1f, _fontSizeOverride);
+        Show(TagBadgeEntry.Custom(_text, _backgroundColor, _textColor), -1f, _fontSizeOverride, _paddingOverride);
     }
 
-    public void Show(TagBadgeEntry _entry, float _groupBlend = -1f, float _fontSizeOverride = 0f)
+    public void Show(TagBadgeEntry _entry, float _groupBlend = -1f, float _fontSizeOverride = 0f, RectOffset _paddingOverride = null)
     {
         if (!EnsureComponents())
         {
@@ -113,12 +115,38 @@ public sealed class TagBadgeView : MonoBehaviour
             label.fontSize = effectiveFontSize;
         }
 
+        ApplyPadding(_paddingOverride ?? defaultPadding);
+
         gameObject.SetActive(true);
     }
 
     public void Hide()
     {
         gameObject.SetActive(false);
+    }
+
+    void ApplyPadding(RectOffset _targetPadding)
+    {
+        if (!layoutGroup || _targetPadding == null)
+        {
+            return;
+        }
+        RectOffset padding = layoutGroup.padding;
+        if (padding.left == _targetPadding.left &&
+            padding.right == _targetPadding.right &&
+            padding.top == _targetPadding.top &&
+            padding.bottom == _targetPadding.bottom)
+        {
+            return;
+        }
+        padding.left = _targetPadding.left;
+        padding.right = _targetPadding.right;
+        padding.top = _targetPadding.top;
+        padding.bottom = _targetPadding.bottom;
+        if (layoutGroup.transform is RectTransform layoutRect)
+        {
+            LayoutRebuilder.MarkLayoutForRebuild(layoutRect);
+        }
     }
 
     bool EnsureComponents()
@@ -130,6 +158,15 @@ public sealed class TagBadgeView : MonoBehaviour
         if (!label)
         {
             label = GetComponentInChildren<TMP_Text>(true);
+        }
+        if (!layoutGroup)
+        {
+            layoutGroup = GetComponent<HorizontalLayoutGroup>();
+        }
+        if (layoutGroup && defaultPadding == null)
+        {
+            RectOffset padding = layoutGroup.padding;
+            defaultPadding = new RectOffset(padding.left, padding.right, padding.top, padding.bottom);
         }
         if (label && baseFontSize < 0f)
         {
