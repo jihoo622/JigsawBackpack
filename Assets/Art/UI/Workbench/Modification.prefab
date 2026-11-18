@@ -17994,11 +17994,11 @@ PrefabInstance:
       objectReference: {fileID: 2834588815416094544}
     - target: {fileID: 7062326370960135123, guid: 910b8b48dbe9787438be5a0a9fde4bf8, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 596
+      value: 341.6
       objectReference: {fileID: 0}
     - target: {fileID: 7062326370960135123, guid: 910b8b48dbe9787438be5a0a9fde4bf8, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 596
+      value: 341.6
       objectReference: {fileID: 0}
     - target: {fileID: 2183206298769346135, guid: 910b8b48dbe9787438be5a0a9fde4bf8, type: 3}
       propertyPath: m_AnchorMin.y

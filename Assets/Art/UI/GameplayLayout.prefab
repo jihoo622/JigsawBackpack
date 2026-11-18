@@ -7233,7 +7233,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 1036, y: 104}
+  m_SizeDelta: {x: 1036, y: 76}
   m_Pivot: {x: 0, y: 1}
 --- !u!222 &8107133578609979543
 CanvasRenderer:
@@ -13482,15 +13482,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 100014, guid: 94a43f59b6c04922aed62a5b05bf11dd, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 976
+      value: 888.16
       objectReference: {fileID: 0}
     - target: {fileID: 100014, guid: 94a43f59b6c04922aed62a5b05bf11dd, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 585.6
+      value: 614.88
       objectReference: {fileID: 0}
     - target: {fileID: 100014, guid: 94a43f59b6c04922aed62a5b05bf11dd, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -112
+      value: -80
       objectReference: {fileID: 0}
     - target: {fileID: 100269, guid: 94a43f59b6c04922aed62a5b05bf11dd, type: 3}
       propertyPath: dragBeam
@@ -14278,15 +14278,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 100014, guid: 94a43f59b6c04922aed62a5b05bf11dd, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 683.2
+      value: 478.24
       objectReference: {fileID: 0}
     - target: {fileID: 100014, guid: 94a43f59b6c04922aed62a5b05bf11dd, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 488
+      value: 341.6
       objectReference: {fileID: 0}
     - target: {fileID: 100014, guid: 94a43f59b6c04922aed62a5b05bf11dd, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 24
+      value: 126.88
       objectReference: {fileID: 0}
     - target: {fileID: 100014, guid: 94a43f59b6c04922aed62a5b05bf11dd, type: 3}
       propertyPath: m_AnchoredPosition.y
@@ -15002,7 +15002,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 310001, guid: 94a43f59b6c04922aed62a5b05bf11dd, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -694
+      value: -547.6
       objectReference: {fileID: 0}
     - target: {fileID: 330001, guid: 94a43f59b6c04922aed62a5b05bf11dd, type: 3}
       propertyPath: m_Pivot.x
@@ -15522,8 +15522,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 24, y: -8}
-  m_SizeDelta: {x: 988, y: 88}
+  m_AnchoredPosition: {x: 24, y: -4}
+  m_SizeDelta: {x: 988, y: 68}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &930000000000000004
 MonoBehaviour:
@@ -15598,8 +15598,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 0, y: -60}
-  m_SizeDelta: {x: 988, y: 26}
+  m_AnchoredPosition: {x: 0, y: -44}
+  m_SizeDelta: {x: 988, y: 22}
   m_Pivot: {x: 0, y: 1}
 --- !u!222 &930000000000000074
 CanvasRenderer:
@@ -15737,7 +15737,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 482, y: 26}
+  m_SizeDelta: {x: 482, y: 22}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &930000000000000007
 MonoBehaviour:
@@ -16159,7 +16159,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 506, y: 0}
-  m_SizeDelta: {x: 482, y: 26}
+  m_SizeDelta: {x: 482, y: 22}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &930000000000000022
 MonoBehaviour:
@@ -16580,8 +16580,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 0, y: -30}
-  m_SizeDelta: {x: 482, y: 26}
+  m_AnchoredPosition: {x: 0, y: -22}
+  m_SizeDelta: {x: 482, y: 22}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &930000000000000037
 MonoBehaviour:
@@ -17003,8 +17003,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 506, y: -30}
-  m_SizeDelta: {x: 482, y: 26}
+  m_AnchoredPosition: {x: 506, y: -22}
+  m_SizeDelta: {x: 482, y: 22}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &930000000000000052
 MonoBehaviour:
