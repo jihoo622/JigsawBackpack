@@ -100,12 +100,12 @@ public sealed class PuzzleStationActionsView : PanelBase
 
     protected override void Awake()
     {
-        tavernLabel.text = Presentation.StationTurnCost(Presentation.StationTavern);
+        tavernLabel.text = Presentation.StationTavern;
         restLabel.text = Presentation.StationRest;
         travelLabel.text = Presentation.StationTravel;
         backLabel.text = Presentation.StationBack;
         restHint.text = Presentation.StationRestHint;
-        wagonShopButton.GetComponentInChildren<TextMeshProUGUI>().text = Presentation.StationTurnCost(Presentation.StationWagonShop);
+        wagonShopButton.GetComponentInChildren<TextMeshProUGUI>().text = Presentation.StationWagonShop;
         tavernContent.gameObject.SetActive(false);
         if (butcheryButton && !ButcheryWired)
         {
@@ -243,9 +243,11 @@ public sealed class PuzzleStationActionsView : PanelBase
             : Presentation.StationMarketClosed;
         marketButton.interactable = _marketOpen || _marketEntered;
         restButton.interactable = travelButton.interactable = _inProgress;
-        tavernButton.interactable = restDurationButton.interactable = _inProgress && _canSpendTurn;
+        // 술집·휴식 대기·화차 시설은 진입이 무료다. 턴은 소문 듣기(청취)와 휴식 확정, 화차 구매에서 쓴다.
+        tavernButton.interactable = _inProgress;
+        restDurationButton.interactable = _inProgress && _canSpendTurn;
         restDurationLabel.text = Presentation.StationRestDuration(_restTurns);
-        wagonShopButton.interactable = _inProgress && _canSpendTurn;
+        wagonShopButton.interactable = _inProgress;
         if (!_inProgress && wagonShopContent.activeSelf)
         {
             ShowHome();

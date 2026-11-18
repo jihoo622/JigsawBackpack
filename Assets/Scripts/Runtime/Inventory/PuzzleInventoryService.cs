@@ -19,7 +19,6 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
     string currentCityId;
     readonly HashSet<string> visitedCities = new HashSet<string>(StringComparer.Ordinal);
     readonly List<TavernRumor> tavernRumors = new List<TavernRumor>();
-    int lastRumorVisit = -1;
     System.Random stockRandom = new System.Random();
 
     internal readonly struct TavernRumor
@@ -62,17 +61,14 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         return HasRumorForCity(_cityId) && !HasVisitedCity(_cityId);
     }
 
-    // 한 방문에 한 번만 남긴다. 문구는 이미 결정된 후보에서 만들어 함께 저장한다.
+    // 소문을 들을 때마다 남긴다. 문구는 이미 결정된 후보에서 만들어 함께 저장한다.
+    // 같은 도시의 소문은 후보 단계(IsRumorTarget)에서 걸러 중복 기록하지 않는다.
     internal void RecordTavernRumor(PuzzleRumorCandidate _candidate, string _message)
     {
-        if (lastRumorVisit != CityMoveCount)
-        {
-            tavernRumors.Add(new TavernRumor(_candidate.Kind, _candidate.CityId, CurrentCityId, _message,
-                _candidate.ItemId, _candidate.Tag, _candidate.ActionId, Time.ElapsedTurns));
-            lastRumorVisit = CityMoveCount;
-            GameEvents.RaiseTavernRumorRecorded(this, CurrentCityId, _candidate.CityId, _message,
-                Time.ElapsedTurns, _candidate.Tag, _candidate.Kind, _candidate.ItemId, _candidate.ActionId);
-        }
+        tavernRumors.Add(new TavernRumor(_candidate.Kind, _candidate.CityId, CurrentCityId, _message,
+            _candidate.ItemId, _candidate.Tag, _candidate.ActionId, Time.ElapsedTurns));
+        GameEvents.RaiseTavernRumorRecorded(this, CurrentCityId, _candidate.CityId, _message,
+            Time.ElapsedTurns, _candidate.Tag, _candidate.Kind, _candidate.ItemId, _candidate.ActionId);
     }
 
     internal bool HasVisitedCity(string _cityId)
@@ -268,7 +264,8 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
 
     internal bool TryAddWagon(out string _failureReason)
     {
-        return TryPurchaseWagon(NextWagonCost, null, out _failureReason);
+        // 시뮬레이터가 쓰는 증차 경로. 경제 관찰만 하므로 턴을 소모하지 않는다.
+        return TryPurchaseWagon(NextWagonCost, null, out _failureReason, _spendsTurn: false);
     }
 
     internal string WagonSaleFailure(int _index)
@@ -322,10 +319,11 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
             return false;
         }
 
-        return TryPurchaseWagon(product.price, product, out _failureReason);
+        return TryPurchaseWagon(product.price, product, out _failureReason, _spendsTurn: true);
     }
 
-    bool TryPurchaseWagon(long _cost, PuzzleWagonProductData _product, out string _failureReason)
+    // 객차를 산다. 모든 검증을 통과한 뒤 역 행동 1턴을 보내고, 턴을 실제로 넘긴 다음에 객차를 추가하고 자금을 뺀다.
+    bool TryPurchaseWagon(long _cost, PuzzleWagonProductData _product, out string _failureReason, bool _spendsTurn)
     {
         string _productId = _product?.id;
         string _modificationId = _product?.modificationId;
@@ -367,6 +365,22 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
             return false;
         }
 
+        // 검증이 끝났다. 기한을 넘겨 1턴을 낼 수 없으면 구매하지 않는다.
+        if (_spendsTurn && !CanSpendStationTurn)
+        {
+            _failureReason = BasicData.Text("rules.wagon.turnDeadline");
+            RecordAction(PuzzleActionKind.AddWagon, "deadline", _productId: _productId,
+                _modificationId: _modificationId);
+            return false;
+        }
+        // 턴을 먼저 보낸다. 커밋이 실패하거나 턴 뒤 게임이 끝났으면(시장 진입 TryEnterFacility와 같은 확인) 객차를 받지 않는다.
+        if (_spendsTurn && (!AdvanceTurnsFor(StationActionTurns, PuzzleActionKind.AddWagon, null) ||
+            RunStatus != PuzzleRunStatus.InProgress))
+        {
+            _failureReason = BasicData.Text("rules.wagon.turnDeadline");
+            return false;
+        }
+
         long previousFunds = Funds;
         newWagon.WagonNumber = ++lastWagonNumber;
         newWagon.WagonProduct = _product ?? tables.PuzzleTrade.wagonProducts.FirstOrDefault(
@@ -377,6 +391,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         lastInstanceId = nextInstanceId;
         CurrentWagonIndex = trainWagons.Count - 1;
         GameEvents.RaiseFundsChanged(this, previousFunds);
+        // 턴을 보냈다는 기록은 AdvanceTurnsFor가 남긴다. 여기서는 산 객차의 상품과 개조를 덧붙인다.
         RecordAction(PuzzleActionKind.AddWagon, _productId: _productId, _modificationId: _modificationId);
         return true;
     }
@@ -389,8 +404,8 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
     public PuzzleTimeManager Time { get; private set; }
     public bool IsMarketOpen => Time != null && !Time.IsNight && RunStatus == PuzzleRunStatus.InProgress;
     public bool CanWaitForDaylight => Time != null && Time.IsNight && RunStatus == PuzzleRunStatus.InProgress;
-    // 이번 턴 비용을 이미 낸 역 시설. 같은 시설에 다시 들어가면 턴을 쓰지 않는다(뒤로 갔다가 다시 들어가기).
-    // 다른 시설에 들어가거나, 다른 역 행동을 고르거나(ForgetPaidFacility), 다른 이유로 시간이 흐르거나, 다른 역으로 떠나면 사라진다.
+    // 시장에 들어갈 때만 턴을 쓰는 시설 입장. 다른 역 행동을 고르거나(ForgetPaidFacility), 다른 이유로 시간이 흐르거나,
+    // 다른 역으로 떠나면 사라진다. 술집·화차 시설은 진입이 턴 무료라 이 기록을 쓰지 않고 지우기만 한다.
     internal StationFacility PaidFacility { get; private set; }
     // 시장 입장이 유효한지. 시장에 들어갈 때만 밤인지 확인하므로, 진입 턴 뒤 시계가 밤이 되어도 이번 입장 동안은 거래할 수 있다.
     public bool MarketEntered => PaidFacility == StationFacility.Market;
@@ -418,12 +433,24 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
 
     internal bool TryEnterTavern()
     {
-        return TryEnterFacility(StationFacility.Tavern, PuzzleActionKind.EnterTavern);
+        // 술집 진입은 턴을 쓰지 않는다. 대신 낸 시장 입장을 잊는다.
+        if (RunStatus != PuzzleRunStatus.InProgress)
+        {
+            return false;
+        }
+        ForgetPaidFacility();
+        return true;
     }
 
     internal bool TryEnterWagonFacility()
     {
-        return TryEnterFacility(StationFacility.WagonFacility, PuzzleActionKind.EnterWagonFacility);
+        // 화차 시설 진입은 턴을 쓰지 않는다. 구매 자체(TryPurchaseWagon)가 1턴을 쓴다.
+        if (RunStatus != PuzzleRunStatus.InProgress)
+        {
+            return false;
+        }
+        ForgetPaidFacility();
+        return true;
     }
 
     // 다른 역 행동(휴식·작업대 화면 등)을 골랐다. 이후 시설에 다시 들어가면 턴을 다시 쓴다.
@@ -432,6 +459,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         PaidFacility = StationFacility.None;
     }
 
+    // 시장 전용. 밤 확인과 1턴 소모가 필요한 시설 진입은 여기만 거친다.
     bool TryEnterFacility(StationFacility _facility, PuzzleActionKind _action)
     {
         if (RunStatus != PuzzleRunStatus.InProgress)
@@ -457,10 +485,10 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         return true;
     }
 
+    // 시간을 흘려보내도 낸 입장이 유지되는 시설 진입은 시장뿐이다.
     static bool IsFacilityEntry(PuzzleActionKind _action)
     {
-        return _action == PuzzleActionKind.EnterMarket || _action == PuzzleActionKind.EnterTavern ||
-            _action == PuzzleActionKind.EnterWagonFacility;
+        return _action == PuzzleActionKind.EnterMarket;
     }
     public string PreviewCityId { get; private set; }
     // 미리보기 목적지로의 이동 턴. 이동은 항상 1턴이다.
@@ -561,7 +589,6 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         visitedCities.Clear();
         visitedCities.Add(currentCityId);
         tavernRumors.Clear();
-        lastRumorVisit = -1;
         ResetQuests();
         ResetProficiency();
         RoutePlan = null;
@@ -3525,7 +3552,7 @@ internal readonly struct PuzzleDropResult
     }
 }
 
-// 들어갈 때 역 행동 턴을 쓰는 역 시설.
+// 역 시설. 진입 턴을 쓰는 곳은 시장뿐이고, 술집·화차 시설은 진입이 무료다(화차 구매 등 개별 행동이 턴을 쓴다).
 internal enum StationFacility
 {
     None,

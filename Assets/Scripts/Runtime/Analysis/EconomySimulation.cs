@@ -520,6 +520,7 @@ internal sealed class EconomyBot
             return;
         }
         long before = service.Funds;
+        // TryAddWagon은 시뮬레이터 전용 경로로 턴을 소모하지 않는다. 실제 게임의 화차 구매는 1턴을 쓴다.
         if (service.TryAddWagon(out _))
         {
             result.WagonCost += before - service.Funds;

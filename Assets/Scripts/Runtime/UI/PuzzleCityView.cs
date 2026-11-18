@@ -67,7 +67,6 @@ public sealed class PuzzleCityView : MonoBehaviour
     [SerializeField] TextMeshProUGUI rumorLabel;
 
     Func<string> getRumor;
-    string heardRumor;
     long? displayedFunds;
     long targetFunds;
     Coroutine fundsAnimation;
@@ -97,24 +96,24 @@ public sealed class PuzzleCityView : MonoBehaviour
     internal void SetTown(string _name, bool _available)
     {
         tavernTitle.text = Presentation.TavernTitle(_name);
-        heardRumor = null;
+        // 새 마을에 도착하면 표시를 비우고 다시 소문을 들을 수 있게 한다.
         rumorLabel.text = Presentation.TavernUnreadRumor;
         talkButton.interactable = _available;
     }
 
     #region 술집 대화 표시
 
-    // 이번 방문의 소식을 받아 표시한 뒤, 다음 마을에 도착할 때까지 대화 버튼을 비활성화한다.
+    // 버튼을 누를 때마다 1턴을 써서 소문을 듣는다. 같은 방문에서 반복해서 들을 수 있다.
     void HearRumor()
     {
-        // 1. 이번 방문에서 아직 소식을 듣지 않았다면 새 소식을 받아 저장한다.
-        heardRumor ??= getRumor();
+        // 1. 소식을 받는다. 들을 소문이 없거나 턴을 낼 수 없으면 null이 돌아온다.
+        string rumor = getRumor();
 
-        // 2. 저장된 소식을 대화 영역에 표시한다.
-        rumorLabel.text = heardRumor;
-
-        // 3. 같은 방문에서 대화를 반복할 수 없도록 버튼을 비활성화한다.
-        talkButton.interactable = false;
+        // 2. 새 소식을 들었을 때만 대화 영역을 바꾼다. 듣지 못하면 지금까지 표시를 그대로 둔다.
+        if (!string.IsNullOrEmpty(rumor))
+        {
+            rumorLabel.text = rumor;
+        }
     }
 
     #endregion

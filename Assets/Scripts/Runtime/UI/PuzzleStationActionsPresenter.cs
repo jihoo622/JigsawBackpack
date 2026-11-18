@@ -143,8 +143,8 @@ public sealed class PuzzleStationActionsPresenter : MonoBehaviour
         return modes.Count > 0 ? modes[0].displayName : string.Empty;
     }
 
-    // 시장·술집·화차 시설은 들어갈 때 역 행동 1턴을 쓴다. 턴을 쓰지 못하면 화면을 열지 않는다.
-    // 뒤로 갔다가 같은 시설에 다시 들어가면 턴을 다시 쓰지 않는다. 다른 역 행동을 고르면 다시 쓴다.
+    // 시장은 들어갈 때 역 행동 1턴을 쓴다. 술집·화차 시설은 진입이 무료이고 소문 듣기와 화차 구매가 1턴을 쓴다.
+    // 시장에 뒤로 갔다가 다시 들어가면 턴을 다시 쓰지 않는다. 다른 역 행동을 고르면 다시 쓴다.
     void OpenMarket()
     {
         if (session.TryEnterMarket())

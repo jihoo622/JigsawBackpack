@@ -1575,7 +1575,7 @@
         },
         {
           "id": "talk",
-          "value": "손님에게 말 걸기"
+          "value": "손님에게 말 걸기 · 1턴"
         },
         {
           "id": "tavern",
@@ -2842,6 +2842,10 @@
         {
           "id": "modificationFailed",
           "value": "화차에 강화를 적용할 수 없어 구매를 취소했습니다."
+        },
+        {
+          "id": "turnDeadline",
+          "value": "기한을 넘기게 되어 지금은 구매할 수 없습니다."
         },
         {
           "id": "saleUnavailable",

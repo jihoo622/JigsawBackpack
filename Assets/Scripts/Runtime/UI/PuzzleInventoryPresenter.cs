@@ -347,22 +347,43 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
 
     #region 술집 대화 생성
 
+    // 소문을 듣는다. 들을 소문이 없으면 턴을 쓰지 않고, 있으면 1턴을 보낸 뒤 문구를 만들어 남긴다.
+    // 턴을 낼 수 없거나 커밋에 실패하면 소문을 듣지 못한 것이므로 null을 돌려 기존 표시를 유지한다.
     string GetTavernRumor()
     {
-        var candidates = session.CollectRumorCandidates().ToArray();
-        var preferenceCandidates = candidates.Where(_candidate => _candidate.Kind == PuzzleRumorKind.Preference).ToArray();
+        PuzzleRumorCandidate? selected = PickRumor(session.CollectRumorCandidates().ToArray());
+        if (selected == null)
+        {
+            return null;
+        }
+        if (!session.CanSpendStationTurn || !session.AdvanceTurns(1, PuzzleActionKind.ListenRumor))
+        {
+            return null;
+        }
+
+        PuzzleRumorCandidate candidate = selected.Value;
+        string message = Presentation.TavernRumor(candidate);
+        session.RecordTavernRumor(candidate, message);
+        return message;
+    }
+
+    // 후보 없이 소문 하나를 고른다. 선호·희귀 순으로 우선하고, 그 외 종류는 종류 안에서 랜덤으로 택한다.
+    // 문구 생성과 기록은 턴을 실제로 낸 뒤 GetTavernRumor가 한다.
+    static PuzzleRumorCandidate? PickRumor(PuzzleRumorCandidate[] _candidates)
+    {
+        var preferenceCandidates = _candidates.Where(_candidate => _candidate.Kind == PuzzleRumorKind.Preference).ToArray();
         if (preferenceCandidates.Length > 0)
         {
-            return PickRumor(preferenceCandidates);
+            return preferenceCandidates[Random.Range(0, preferenceCandidates.Length)];
         }
 
-        var rareCandidates = candidates.Where(_candidate => _candidate.Kind == PuzzleRumorKind.RareDemand).ToArray();
+        var rareCandidates = _candidates.Where(_candidate => _candidate.Kind == PuzzleRumorKind.RareDemand).ToArray();
         if (rareCandidates.Length > 0)
         {
-            return PickRumor(rareCandidates);
+            return rareCandidates[Random.Range(0, rareCandidates.Length)];
         }
 
-        var candidatesByKind = candidates
+        var candidatesByKind = _candidates
             .Where(_candidate => _candidate.Kind != PuzzleRumorKind.Preference &&
                 _candidate.Kind != PuzzleRumorKind.RareDemand)
             .GroupBy(_candidate => _candidate.Kind)
@@ -370,18 +391,11 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             .ToArray();
         if (candidatesByKind.Length == 0)
         {
-            return Presentation.TavernNoRumor;
+            return null;
         }
 
-        return PickRumor(candidatesByKind[Random.Range(0, candidatesByKind.Length)]);
-    }
-
-    string PickRumor(PuzzleRumorCandidate[] _candidates)
-    {
-        var selected = _candidates[Random.Range(0, _candidates.Length)];
-        string message = Presentation.TavernRumor(selected);
-        session.RecordTavernRumor(selected, message);
-        return message;
+        var group = candidatesByKind[Random.Range(0, candidatesByKind.Length)];
+        return group[Random.Range(0, group.Length)];
     }
 
     #endregion

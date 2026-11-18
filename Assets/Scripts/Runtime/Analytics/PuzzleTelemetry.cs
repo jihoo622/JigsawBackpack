@@ -26,7 +26,8 @@ public enum PuzzleActionKind
     SellWagon,
     EnterMarket,
     EnterTavern,
-    EnterWagonFacility
+    EnterWagonFacility,
+    ListenRumor
 }
 
 [Serializable]
@@ -355,6 +356,7 @@ public static partial class TelemetryPayload
                 PuzzleActionKind.EnterMarket => "enter_market",
                 PuzzleActionKind.EnterTavern => "enter_tavern",
                 PuzzleActionKind.EnterWagonFacility => "enter_wagon_facility",
+                PuzzleActionKind.ListenRumor => "listen_rumor",
                 _ => throw new ArgumentOutOfRangeException(nameof(_info))
             };
         }
