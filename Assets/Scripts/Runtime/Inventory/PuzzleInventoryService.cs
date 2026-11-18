@@ -397,7 +397,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
                 _modificationId: _modificationId);
             return false;
         }
-        // 턴을 먼저 보낸다. 커밋이 실패하거나 턴 뒤 게임이 끝났으면(시장 진입 TryEnterFacility와 같은 확인) 객차를 받지 않는다.
+        // 턴을 먼저 보낸다. 커밋이 실패하거나 턴 뒤 게임이 끝났으면 객차를 받지 않는다.
         if (_spendsTurn && (!AdvanceTurnsFor(StationActionTurns, PuzzleActionKind.AddWagon, null) ||
             RunStatus != PuzzleRunStatus.InProgress))
         {
@@ -428,19 +428,19 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
     public PuzzleTimeManager Time { get; private set; }
     public bool IsMarketOpen => Time != null && !Time.IsNight && RunStatus == PuzzleRunStatus.InProgress;
     public bool CanWaitForDaylight => Time != null && Time.IsNight && RunStatus == PuzzleRunStatus.InProgress;
-    // 시장에 들어갈 때만 턴을 쓰는 시설 입장. 다른 역 행동을 고르거나(ForgetPaidFacility), 다른 이유로 시간이 흐르거나,
-    // 다른 역으로 떠나면 사라진다. 술집·화차 시설은 진입이 턴 무료라 이 기록을 쓰지 않고 지우기만 한다.
+    // 시장 입장 기록. 다른 역 행동을 고르거나(ForgetPaidFacility), 다른 이유로 시간이 흐르거나,
+    // 다른 역으로 떠나면 사라진다. 모든 시설 진입이 턴 무료라 이 기록은 시장 거래 허용 판정에만 쓴다.
     internal StationFacility PaidFacility { get; private set; }
-    // 시장 입장이 유효한지. 시장에 들어갈 때만 밤인지 확인하므로, 진입 턴 뒤 시계가 밤이 되어도 이번 입장 동안은 거래할 수 있다.
+    // 시장 입장이 유효한지. 시장에 들어갈 때만 밤인지 확인하므로, 시계가 밤이 되어도 이번 입장 동안은 거래할 수 있다.
     public bool MarketEntered => PaidFacility == StationFacility.Market;
     public bool CanTradeInMarket => MarketEntered && RunStatus == PuzzleRunStatus.InProgress;
-    // 역 시설 진입(시장·술집·화차 시설)과 작업대 작업이 쓰는 턴.
+    // 역 행동(소문 청취·휴식·작업대·화차 구매)이 쓰는 턴.
     internal long StationActionTurns => tables.PuzzleTime.stationActionTurns;
     // 역 행동 1턴을 쓸 수 있는지. 기한을 넘기는 행동은 막는다.
     internal bool CanSpendStationTurn => RunStatus == PuzzleRunStatus.InProgress && Time != null &&
         Time.CanArriveBeforeDeadline(StationActionTurns);
 
-    // 시장에 들어간다. 밤이거나 기한을 넘기면 들어가지 못한다. 이미 낸 입장이면 턴을 쓰지 않는다.
+    // 시장에 들어간다. 밤이면 들어가지 못한다. 진입은 턴을 쓰지 않는다.
     internal bool TryEnterMarket()
     {
         if (MarketEntered)
@@ -452,7 +452,8 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
             RecordAction(PuzzleActionKind.EnterMarket, "market_closed");
             return false;
         }
-        return TryEnterFacility(StationFacility.Market, PuzzleActionKind.EnterMarket);
+        PaidFacility = StationFacility.Market;
+        return true;
     }
 
     internal bool TryEnterTavern()
@@ -477,43 +478,12 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         return true;
     }
 
-    // 다른 역 행동(휴식·작업대 화면 등)을 골랐다. 이후 시설에 다시 들어가면 턴을 다시 쓴다.
+    // 다른 역 행동(휴식·작업대 화면 등)을 골랐다. 이후 시장에 다시 들어가면 입장을 다시 연다.
     internal void ForgetPaidFacility()
     {
         PaidFacility = StationFacility.None;
     }
 
-    // 시장 전용. 밤 확인과 1턴 소모가 필요한 시설 진입은 여기만 거친다.
-    bool TryEnterFacility(StationFacility _facility, PuzzleActionKind _action)
-    {
-        if (RunStatus != PuzzleRunStatus.InProgress)
-        {
-            return false;
-        }
-        if (PaidFacility == _facility)
-        {
-            return true;
-        }
-        if (!CanSpendStationTurn)
-        {
-            RecordAction(_action, "deadline");
-            return false;
-        }
-        // 시간 진행 이벤트를 받는 화면이 이미 들어간 시설로 그리도록 먼저 표시한다.
-        PaidFacility = _facility;
-        if (!AdvanceTurnsFor(StationActionTurns, _action, null) || RunStatus != PuzzleRunStatus.InProgress)
-        {
-            PaidFacility = StationFacility.None;
-            return false;
-        }
-        return true;
-    }
-
-    // 시간을 흘려보내도 낸 입장이 유지되는 시설 진입은 시장뿐이다.
-    static bool IsFacilityEntry(PuzzleActionKind _action)
-    {
-        return _action == PuzzleActionKind.EnterMarket;
-    }
     public string PreviewCityId { get; private set; }
     // 미리보기 목적지로의 이동 턴. 이동은 항상 1턴이다.
     internal long? PreviewTurns => !string.IsNullOrEmpty(PreviewCityId) &&
@@ -839,11 +809,8 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
             return false;
         }
 
-        // 시설 진입이 아닌 이유로 시간이 흐르면 낸 입장이 사라진다. 시간 진행 이벤트보다 먼저 정리한다.
-        if (!IsFacilityEntry(_action))
-        {
-            PaidFacility = StationFacility.None;
-        }
+        // 시간이 흐르면 낸 시장 입장이 사라진다. 시간 진행 이벤트보다 먼저 정리한다.
+        PaidFacility = StationFacility.None;
         CommitTimeAdvance(_turns, plan);
         RecordAction(_action, _requestedTurns: _turns, _actionId: _actionId);
         return true;

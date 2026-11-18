@@ -1116,12 +1116,6 @@ public static partial class Presentation
         return $"<color=#{color}>{BasicData.Text("rules.wagon." + _reason)}</color>";
     }
     public static string StationMarket => BasicData.Text("presentation.station.market");
-    // 턴을 쓰는 역 행동 버튼 라벨("시장 · 1턴"). 화면 제목은 턴 표기 없이 원래 문구를 쓴다.
-    internal static string StationTurnCost(string _label)
-    {
-        return BasicData.Format("presentation.station.turnCost", _label,
-            TableManager.Instance.RequireValid().PuzzleTime.stationActionTurns);
-    }
     public static string StationMarketClosed => BasicData.Text("presentation.station.marketClosed");
     public static string StationTavern => BasicData.Text("presentation.station.tavern");
     public static string StationRest => BasicData.Text("presentation.station.rest");

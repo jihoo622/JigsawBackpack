@@ -233,17 +233,16 @@ public sealed class PuzzleStationActionsView : PanelBase
     }
 
     // _marketOpen: 지금 시장에 들어갈 수 있는지(밤이 아니고 턴을 쓸 수 있음). _marketEntered: 이미 시장에 들어가 있는지.
+    // _marketOpen: 지금 시장에 들어갈 수 있는지(밤이 아님). 진입은 턴을 쓰지 않는다.
     // _canSpendTurn: 역 행동 1턴을 쓸 수 있는지(기한). 턴을 쓰는 버튼만 막고 휴식 화면·이동 버튼은 그대로 둔다.
     internal void Refresh(bool _marketOpen, bool _marketEntered, bool _inProgress, bool _canSpendTurn, long _restTurns,
         bool _butcheryAvailable, bool _butcheryEnabled, bool _butcheryConfirmEnabled, string _butcheryHint,
         long _butcheryCost, string _butcheryDescription)
     {
-        marketLabel.text = _marketOpen || _marketEntered
-            ? Presentation.StationTurnCost(Presentation.StationMarket)
-            : Presentation.StationMarketClosed;
+        marketLabel.text = _marketOpen || _marketEntered ? Presentation.StationMarket : Presentation.StationMarketClosed;
         marketButton.interactable = _marketOpen || _marketEntered;
         restButton.interactable = travelButton.interactable = _inProgress;
-        // 술집·휴식 대기·화차 시설은 진입이 무료다. 턴은 소문 듣기(청취)와 휴식 확정, 화차 구매에서 쓴다.
+        // 모든 시설 진입은 무료다. 턴은 소문 듣기(청취)·휴식 확정·작업대 확정·화차 구매에서 쓴다.
         tavernButton.interactable = _inProgress;
         restDurationButton.interactable = _inProgress && _canSpendTurn;
         restDurationLabel.text = Presentation.StationRestDuration(_restTurns);

@@ -1606,11 +1606,6 @@
           "value": "다른 역으로 이동"
         },
         {
-          "id": "turnCost",
-          "value": "{0} · {1}턴",
-          "arguments": 2
-        },
-        {
           "id": "unreadRumor",
           "value": "아직 들은 소식이 없어요."
         }

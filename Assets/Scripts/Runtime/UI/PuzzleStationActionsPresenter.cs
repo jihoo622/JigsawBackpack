@@ -121,7 +121,7 @@ public sealed class PuzzleStationActionsPresenter : MonoBehaviour
         {
             session.CloseRefining();
         }
-        view.Refresh(session.IsMarketOpen && canSpendTurn, session.MarketEntered, inProgress, canSpendTurn,
+        view.Refresh(session.IsMarketOpen, session.MarketEntered, inProgress, canSpendTurn,
             TableManager.Instance.PuzzleTime.restTurns,
             available, available && phase != PuzzleButcheryPhase.Working,
             available && session.ButcheryConfirmable() && canSpendTurn, hint, butcheryCost,

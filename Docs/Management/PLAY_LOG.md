@@ -58,7 +58,7 @@ puzzle_action은 모델에 전달된 명시적 조작 한 건의 결과다. 의�
 | placement | 원본 ID나 대상 보드가 유효하지 않아 위 분류로 나눌 수 없는 배치 시도 | drag / quick_transfer |
 | workbench_confirm | 작업대 작업 확정 시도. `actionId`, 개조면 `modeId`. 성공하면 비용이 moneyDelta, 도축·정제 입력이 removed로 나온다. 개조 입력은 완료까지 작업대에 남는다 | 비어 있음 |
 | wait_for_workbench | 작업대 작업에 턴 보내기 시도. 확정 직후 역 행동 1턴을 이 행동으로 쓴다. `actionId` | 비어 있음 |
-| enter_market | 시장 진입 시도(역 행동 1턴). 밤이면 market_closed, 기한을 넘기면 deadline으로 실패한다 | 비어 있음 |
+| enter_market | 시장 진입 시도. 진입은 턴을 쓰지 않아 성공은 기록하지 않고, 밤이면 market_closed로 실패만 기록한다 | 비어 있음 |
 | listen_rumor | 술집 소문 청취 시도(청취 1회당 1턴). 들을 소문이 없으면 턴을 쓰지 않고 기록도 하지 않는다. 기한을 넘기면 deadline | 비어 있음 |
 | enter_tavern | (구버전) 술집 진입 기록. 진입이 무료화된 이후에는 나오지 않는다 | 비어 있음 |
 | enter_wagon_facility | (구버전) 화차 시설 진입 기록. 진입이 무료화된 이후에는 나오지 않는다 | 비어 있음 |
