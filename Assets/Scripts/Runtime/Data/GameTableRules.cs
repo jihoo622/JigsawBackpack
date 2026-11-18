@@ -364,6 +364,7 @@ public sealed class GameTableRules
     {
         const string PATH = nameof(PuzzleRumorTableData);
         var rumor = _tables.PuzzleRumor;
+        Check(rumor.refreshTurns > 0, PATH + ".refreshTurns", "소문 재생 주기는 양의 정수 턴이어야 합니다.");
         var firstPreference = rumor.firstPreference;
         if (firstPreference != null)
         {

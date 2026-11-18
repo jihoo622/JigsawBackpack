@@ -1,10 +1,11 @@
 {
   "status": "provisional",
-  "note": "firstPreference는 시작 마을의 첫 술집 대화에서 제공하는 선호(Expensive) 소문 한 건이다. 현재 라센턴·기계만 등록하며 방문한 라센턴은 제외한다. 이동 후에는 희귀 수요, 특산·행동 순으로 선택한다. excludedItemIds는 특산 소문 후보에서 제외할 품목이다.",
+  "note": "firstPreference는 시작 마을의 첫 술집 대화에서 제공하는 선호(Expensive) 소문 한 건이다. 현재 라센턴·기계만 등록하며 방문한 라센턴은 제외한다. 이동 후에는 희귀 수요, 특산·행동 순으로 선택한다. excludedItemIds는 특산 소문 후보에서 제외할 품목이다. refreshTurns는 소문 재생 주기로, 들은 지 이 턴이 지나면 같은 마을의 소문을 다시 들을 수 있다(잠정 16턴=2일).",
   "firstPreference": {
     "cityId": "city.rasenton",
     "tag": "Machinery"
   },
+  "refreshTurns": 16,
   "excludedItemIds": [
     "piece.oreCross"
   ]

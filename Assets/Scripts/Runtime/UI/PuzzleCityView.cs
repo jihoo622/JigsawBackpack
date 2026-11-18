@@ -109,11 +109,8 @@ public sealed class PuzzleCityView : MonoBehaviour
         // 1. 소식을 받는다. 들을 소문이 없거나 턴을 낼 수 없으면 null이 돌아온다.
         string rumor = getRumor();
 
-        // 2. 새 소식을 들었을 때만 대화 영역을 바꾼다. 듣지 못하면 지금까지 표시를 그대로 둔다.
-        if (!string.IsNullOrEmpty(rumor))
-        {
-            rumorLabel.text = rumor;
-        }
+        // 2. 새 소식을 들었으면 대화 영역을 바꾸고, 못 들었으면 소식 없음을 알린다.
+        rumorLabel.text = string.IsNullOrEmpty(rumor) ? Presentation.TavernNoRumor : rumor;
     }
 
     #endregion

@@ -77,6 +77,8 @@ public sealed class PuzzleRumorTableData
     public PuzzleRumorPreferenceData firstPreference;
     // 소문에서 빼는 품목 ID. 특산 후보만 막고 품목의 시장 유통은 그대로 둔다.
     public string[] excludedItemIds = Array.Empty<string>();
+    // 소문 재생 주기. 들은 지 이 턴이 지나면 같은 마을이 다시 후보가 된다.
+    public int refreshTurns = -1;
 }
 
 // 마을별 추가 행동(도축 등)의 원본. 도시 id·작업 시간·변환 관계를 이 표만 안다.

@@ -134,6 +134,21 @@ public sealed partial class PuzzleInventoryService
     bool IsRumorTarget(string _cityId)
     {
         return !string.Equals(_cityId, CurrentCityId, StringComparison.Ordinal) &&
-            !HasVisitedCity(_cityId) && !HasRumorForCity(_cityId);
+            !HasVisitedCity(_cityId) && !HasFreshRumorForCity(_cityId);
+    }
+
+    // 마을 소문은 소문 표의 refreshTurns가 지나면 낡아 다시 들을 수 있다. 그 마을의 가장 최근 소문부터 센다.
+    // 기록 자체(수첩·지도 배지)는 남고 소문 후보에서만 빠진다.
+    bool HasFreshRumorForCity(string _cityId)
+    {
+        long latest = -1;
+        foreach (var rumor in tavernRumors)
+        {
+            if (string.Equals(rumor.TargetCityId, _cityId, StringComparison.Ordinal) && rumor.RecordedTurns > latest)
+            {
+                latest = rumor.RecordedTurns;
+            }
+        }
+        return latest >= 0 && Time.ElapsedTurns - latest < tables.PuzzleRumor.refreshTurns;
     }
 }
