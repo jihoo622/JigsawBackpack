@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -150,7 +151,25 @@ public sealed class PuzzleTradeNotebookPresenter : MonoBehaviour
         {
             bool hasNext = session.TryGetNextQuestReputationLevel(out int nextReputation, out _);
             view.RenderProficiency(session.Reputation, session.MaxActiveQuests, hasNext, nextReputation,
-                session.RankedProficiencyTags.Select(session.ProficiencyStanding).ToArray());
+                session.RankedProficiencyTags.Select(session.ProficiencyStanding).ToArray(), WagonGateLine());
         }
+    }
+
+    // 증차 상한·화차 해금처럼 평판이 여는 다음 게이트 한 줄. 남은 게이트가 없으면 빈 문자열.
+    string WagonGateLine()
+    {
+        var gates = new List<string>();
+        // 기본 상한이 무제한이면 증차 상한 게이트가 의미가 없어 넘어간다.
+        if (session.MaxWagonCount > 0 && session.TryGetNextWagonLimitLevel(out int limitReputation, out int limitBonus))
+        {
+            gates.Add(Presentation.ProficiencyPanelWagonLimitGate(limitBonus, limitReputation,
+                limitReputation - session.Reputation));
+        }
+        if (session.TryGetNextWagonUnlock(out int unlockReputation, out string unlockDisplayName))
+        {
+            gates.Add(Presentation.ProficiencyPanelWagonUnlockGate(unlockDisplayName, unlockReputation,
+                unlockReputation - session.Reputation));
+        }
+        return string.Join(Presentation.ProficiencyNoticeSeparator, gates);
     }
 }

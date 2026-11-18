@@ -1448,6 +1448,16 @@
           "value": "최대 단계 · 동시 의뢰 상한에 도달했습니다"
         },
         {
+          "id": "panelWagonLimitGate",
+          "value": "다음 증차 상한 +{0}(평판 {1})까지 {2}",
+          "arguments": 3
+        },
+        {
+          "id": "panelWagonUnlockGate",
+          "value": "{0} 해금(평판 {1})까지 {2}",
+          "arguments": 3
+        },
+        {
           "id": "panelHint",
           "value": "다른 마을 화물을 팔면 숙련이 오르고, 레벨 합이 평판입니다."
         },
@@ -2838,6 +2848,11 @@
         {
           "id": "maxReached",
           "value": "객차는 최대 {0}칸입니다",
+          "arguments": 1
+        },
+        {
+          "id": "locked",
+          "value": "이 화차는 평판 {0} 이상이어야 구매할 수 있습니다.",
           "arguments": 1
         },
         {

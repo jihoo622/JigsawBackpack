@@ -92,7 +92,7 @@ public sealed class PuzzleTradeTableData
     public long startingFunds = -1;
     // 화물칸 증차 시 기본 단위 비용 (예: 50원씩 누적 증가)
     public int wagonAddCostBase = -1;
-    // 화물칸 최대 증차 상한 (8칸)
+    // 화물칸 최대 증차 상한 (8칸). 평판 단계의 wagonLimitBonus만큼 더해진다.
     public int maxWagonCount = -1;
     public int wagonRefrigerationCost = -1;
     public long startingWagonSalePrice = -1;
@@ -112,6 +112,8 @@ public sealed class PuzzleWagonProductData
     public long price = -1;
     public long salePrice = -1;
     public string modificationId;
+    // 구매에 필요한 최소 평판. 0이면 평판과 무관하게 구매한다.
+    public int requiredReputation;
 }
 
 [Serializable]

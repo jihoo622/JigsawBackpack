@@ -1,21 +1,24 @@
 {
   "status": "provisional",
-  "note": "술집 운송 의뢰 잠정값. 이동은 구간당 1턴이라 최단 이동 턴은 최단 홉 수다. 보상 = baseReward + rewardPerCellTurn × 화물 칸 수 × 최단 이동 턴이며 도착 시 화물의 실제 가치와 보증금을 함께 지급한다. 기한 = 최단 이동 턴 × deadlinePercent(올림) + deadlineExtraTurns. 평판은 TrainventoryProficiencyTableData의 숙련 레벨 합이다. 완료하면 보상 × proficiencyXpPercentOfReward / 100만큼 의뢰 화물의 생산 태그에 숙련 경험치를 주고, 화물에 생산 태그가 없으면 의뢰 틀의 fallbackProficiencyTags에 준다. 실패해도 평판·숙련은 줄지 않고 패널티만 적용한다. 플레이 검증 전 수치다.",
+  "note": "술집 운송 의뢰 잠정값. 이동은 구간당 1턴이라 최단 이동 턴은 최단 홉 수다. 보상 = baseReward + rewardPerCellTurn × 화물 칸 수 × 최단 이동 턴이며 도착 시 화물의 실제 가치와 보증금을 함께 지급한다. 기한 = 최단 이동 턴 × deadlinePercent(올림) + deadlineExtraTurns. 평판은 TrainventoryProficiencyTableData의 숙련 레벨 합이다. 완료하면 보상 × proficiencyXpPercentOfReward / 100만큼 의뢰 화물의 생산 태그에 숙련 경험치를 주고, 화물에 생산 태그가 없으면 의뢰 틀의 fallbackProficiencyTags에 준다. 실패해도 평판·숙련은 줄지 않고 패널티만 적용한다. 평판 단계의 wagonLimitBonus로 증차 상한을 더해 평판 4에서 +1, 평판 8에서 +2를 허용한다(provisional). 플레이 검증 전 수치다.",
   "cargoTag": "Quest",
   "offersPerTavern": 2,
   "proficiencyXpPercentOfReward": 100,
   "reputationLevels": [
     {
       "reputation": 0,
-      "maxActiveQuests": 1
+      "maxActiveQuests": 1,
+      "wagonLimitBonus": 0
     },
     {
       "reputation": 4,
-      "maxActiveQuests": 2
+      "maxActiveQuests": 2,
+      "wagonLimitBonus": 1
     },
     {
       "reputation": 8,
-      "maxActiveQuests": 3
+      "maxActiveQuests": 3,
+      "wagonLimitBonus": 2
     }
   ],
   "penalties": [

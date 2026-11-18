@@ -95,10 +95,25 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
     public PuzzleInventory Train => CurrentTrainWagon;
     public int WagonCount => trainWagons.Count;
     public long NextWagonCost => tables.PuzzleTrade.wagonAddCostBase;
+    // 증차 상한. 기본 상한이 0 이하이면 무제한이고, 평판 단계의 추가 상한은 무제한에 더하지 않는다.
+    internal int MaxWagonCount
+    {
+        get
+        {
+            int baseCount = tables.PuzzleTrade.maxWagonCount;
+            return baseCount <= 0 ? baseCount : baseCount + WagonLimitBonus;
+        }
+    }
+    // 도달한 평판 단계 중 가장 큰 증차 상한 보너스.
+    internal int WagonLimitBonus => tables.Quest.reputationLevels
+        .Where(_level => _level != null && _level.reputation <= Reputation)
+        .Select(_level => _level.wagonLimitBonus)
+        .DefaultIfEmpty(0)
+        .Max();
     // 다음 정산 게이지 예상치용. 실제 6시간 정산(ApplySynergyActivations)이 읽는 평가(Value)와 같은 값을 쓴다.
     internal decimal TrainSynergyDelta => trainWagons.Sum(_wagon => _wagon.Value.FinalValue - _wagon.Value.BaseValue);
     public bool CanAddWagon => RunStatus == PuzzleRunStatus.InProgress
-        && (tables.PuzzleTrade.maxWagonCount <= 0 || trainWagons.Count < tables.PuzzleTrade.maxWagonCount)
+        && (MaxWagonCount <= 0 || trainWagons.Count < MaxWagonCount)
         && Funds >= NextWagonCost;
     internal long WagonRefrigerationCost => tables.PuzzleTrade.wagonRefrigerationCost;
     internal bool HasWagonRefrigeration => Train?.HasWagonModification(PuzzleWagonRefrigeration.ModificationId) == true;
@@ -335,11 +350,19 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
                 _modificationId: _modificationId);
             return false;
         }
-        int maxWagons = tables.PuzzleTrade.maxWagonCount;
+        int maxWagons = MaxWagonCount;
         if (maxWagons > 0 && trainWagons.Count >= maxWagons)
         {
             _failureReason = BasicData.Format("rules.wagon.maxReached", maxWagons);
             RecordAction(PuzzleActionKind.AddWagon, "max_wagons", _productId: _productId,
+                _modificationId: _modificationId);
+            return false;
+        }
+        // 상품에 달린 평판 해금. 시뮬레이터로 넘겨지는 구매(product이 없는 TryAddWagon)는 상품 검사 대상이 아니다.
+        if (_product != null && Reputation < _product.requiredReputation)
+        {
+            _failureReason = BasicData.Format("rules.wagon.locked", _product.requiredReputation);
+            RecordAction(PuzzleActionKind.AddWagon, "locked", _productId: _productId,
                 _modificationId: _modificationId);
             return false;
         }

@@ -359,6 +359,8 @@ public sealed class TrainventoryQuestReputationData
 {
     public int reputation = -1;
     public int maxActiveQuests = -1;
+    // 기본 증차 상한(PuzzleTradeTableData.maxWagonCount)에서 추가로 허용하는 화물칸 수. 도달한 단계 중 가장 큰 값을 하나 적용한다.
+    public int wagonLimitBonus;
 }
 
 public enum TrainventoryQuestPenaltyType

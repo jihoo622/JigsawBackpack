@@ -855,6 +855,20 @@ public static partial class Presentation
         return BasicData.Format("presentation.proficiency.panelNextStage", _nextReputation, _remaining);
     }
 
+    // 평판으로 열리는 다음 증차 상한. 값은 세션이 계산해 넘기고 여기서는 문구만 붙인다.
+    public static string ProficiencyPanelWagonLimitGate(int _wagonLimitBonus, int _nextReputation, int _remaining)
+    {
+        return BasicData.Format("presentation.proficiency.panelWagonLimitGate", _wagonLimitBonus, _nextReputation,
+            _remaining);
+    }
+
+    // 구매에 평판이 필요한 다음 화차의 해금 기준.
+    public static string ProficiencyPanelWagonUnlockGate(string _displayName, int _nextReputation, int _remaining)
+    {
+        return BasicData.Format("presentation.proficiency.panelWagonUnlockGate", _displayName, _nextReputation,
+            _remaining);
+    }
+
     public static string ProficiencyPanelMaxStage => BasicData.Text("presentation.proficiency.panelMaxStage");
     public static string ProficiencyPanelHint => BasicData.Text("presentation.proficiency.panelHint");
 

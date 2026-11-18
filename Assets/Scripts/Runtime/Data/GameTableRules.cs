@@ -351,6 +351,7 @@ public sealed class GameTableRules
                 "화차 상품 이름이 필요합니다.");
             Check(product.price > 0, path + ".price", "화차 상품 가격은 양수여야 합니다.");
             Check(product.salePrice >= 0, path + ".salePrice", "화차 판매가는 0 이상이어야 합니다.");
+            Check(product.requiredReputation >= 0, path + ".requiredReputation", "화차 해금 평판은 0 이상이어야 합니다.");
             if (!string.IsNullOrEmpty(product.modificationId))
             {
                 Reference(product.modificationId, path + ".modificationId",
@@ -437,6 +438,7 @@ public sealed class GameTableRules
             Check(level.reputation >= 0, path + ".reputation", "평판 기준은 0 이상이어야 합니다.");
             Check(seenReputation.Add(level.reputation), path + ".reputation", "평판 기준이 중복되었습니다.");
             Check(level.maxActiveQuests > 0, path + ".maxActiveQuests", "동시 진행 수는 양수여야 합니다.");
+            Check(level.wagonLimitBonus >= 0, path + ".wagonLimitBonus", "증차 상한 보너스는 0 이상이어야 합니다.");
         }
         var ordered = levels.Where(_level => _level != null).OrderBy(_level => _level.reputation).ToArray();
         for (int i = 1; i < ordered.Length; i++)

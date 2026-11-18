@@ -38,6 +38,34 @@ public sealed partial class PuzzleInventoryService
         return next != null;
     }
 
+    // 증차 상한 보너스가 지금보다 늘어나는 가장 가까운 평판 단계. 없으면(최대 단계) false다.
+    internal bool TryGetNextWagonLimitLevel(out int _reputation, out int _wagonLimitBonus)
+    {
+        int reputation = Reputation;
+        int current = WagonLimitBonus;
+        var next = tables.Quest.reputationLevels
+            .Where(_level => _level != null && _level.reputation > reputation && _level.wagonLimitBonus > current)
+            .OrderBy(_level => _level.reputation)
+            .FirstOrDefault();
+        _reputation = next?.reputation ?? 0;
+        _wagonLimitBonus = next?.wagonLimitBonus ?? current;
+        return next != null;
+    }
+
+    // 구매에 필요한 평판이 지금보다 높은 화차 상품 중 가장 낮은 해금 평판. 남은 해금이 없으면 false다.
+    internal bool TryGetNextWagonUnlock(out int _reputation, out string _displayName)
+    {
+        int reputation = Reputation;
+        var next = tables.PuzzleTrade.wagonProducts
+            .Where(_product => _product != null && _product.requiredReputation > reputation)
+            .OrderBy(_product => _product.requiredReputation)
+            .ThenBy(_product => _product.price)
+            .FirstOrDefault();
+        _reputation = next?.requiredReputation ?? 0;
+        _displayName = next?.displayName ?? string.Empty;
+        return next != null;
+    }
+
     // 이번 방문의 의뢰 목록. 같은 방문에서는 처음 만든 목록을 유지하고 수락한 의뢰만 빠진다.
     internal IReadOnlyList<TrainventoryQuestOffer> QuestOffers
     {

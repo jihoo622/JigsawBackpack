@@ -141,11 +141,11 @@ public sealed class PuzzleTradeNotebookView : PanelBase
         panel.anchoredPosition = new Vector2(left + panel.pivot.x * width, panel.anchoredPosition.y);
     }
 
-    // 숙련 탭 패널 내용. 숙련 탭일 때 Render 직후 같은 갱신에서 호출한다.
+    // 숙련 탭 패널 내용. 숙련 탭일 때 Render 직후 같은 갱신에서 호출한다. _wagonGates는 평판 다음 화차 게이트 한 줄.
     internal void RenderProficiency(int _reputation, int _maxActiveQuests, bool _hasNextStage, int _nextReputation,
-        IReadOnlyList<TrainventoryProficiencyStanding> _standings)
+        IReadOnlyList<TrainventoryProficiencyStanding> _standings, string _wagonGates)
     {
-        proficiencyPanel.Render(_reputation, _maxActiveQuests, _hasNextStage, _nextReputation, _standings);
+        proficiencyPanel.Render(_reputation, _maxActiveQuests, _hasNextStage, _nextReputation, _standings, _wagonGates);
     }
 
     // _unseenCount: 수첩을 마지막으로 연 뒤 생긴 소문·의뢰 변화·숙련 레벨 상승 수. 0이면 접힌 탭의 배지를 숨긴다.
