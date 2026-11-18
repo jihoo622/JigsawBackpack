@@ -416,10 +416,6 @@
           "whole": true
         },
         {
-          "id": "puzzleTravelProgress",
-          "value": 100
-        },
-        {
           "id": "stationRestDurationAbovePercent",
           "value": 0.45
         }
@@ -583,13 +579,8 @@
         },
         {
           "id": "travelJourney",
-          "value": "{0} → {1}",
-          "arguments": 2
-        },
-        {
-          "id": "travelProgress",
-          "value": "{0}%",
-          "arguments": 1
+          "value": "{0} → {1} · 운임 {2:N0}$ · {3}",
+          "arguments": 4
         },
         {
           "id": "travelQuestion",
@@ -673,6 +664,11 @@
           "id": "travelTimeUp",
           "value": "영업 기간이 끝났습니다. 남은 거래를 마치고 결산하세요.",
           "arguments": 0
+        },
+        {
+          "id": "travelClock",
+          "value": "{0}일 {1} {2:00}:{3:00}",
+          "arguments": 4
         }
       ]
     },

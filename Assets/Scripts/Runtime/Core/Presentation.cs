@@ -998,14 +998,21 @@ public static partial class Presentation
             TurnSlotName(_quote.ArrivalHourOfDay / PuzzleTimeManager.HOURS_PER_TURN), (_quote.ArrivalIsNight ? BasicData.Text("presentation.inventory.travelConfirmationText2") : BasicData.Text("presentation.inventory.travelConfirmationText3")), _quote.Cost, _quote.FundsAfter);
     }
 
-    internal static string PuzzleTravelJourney(string _fromName, string _toName)
+    // 이동 연출의 경로 줄: "카르포트 → 테라그라드 · 운임 12$ · 1턴".
+    internal static string PuzzleTravelJourney(string _fromName, string _toName, long _cost, long _hours)
     {
-        return BasicData.Format("presentation.inventory.travelJourney", _fromName, _toName);
+        return BasicData.Format("presentation.inventory.travelJourney", _fromName, _toName, _cost, TurnSpan(_hours));
     }
 
-    public static string PuzzleTravelProgress(float _progress)
+    // 이동 연출의 시계: "3일 오전 08:20". 분은 10분 단위로 내린다.
+    internal static string PuzzleTravelClock(double _elapsedHours)
     {
-        return BasicData.Format("presentation.inventory.travelProgress", Mathf.RoundToInt(_progress * BasicData.Float("presentation.inventory.puzzleTravelProgress")));
+        long hour = (long)Math.Floor(_elapsedHours);
+        int minute = (int)Math.Floor((_elapsedHours - hour) * 6) * 10;
+        int clock = (int)((TableManager.Instance.PuzzleTime.startHour + hour % PuzzleTimeManager.HOURS_PER_DAY)
+            % PuzzleTimeManager.HOURS_PER_DAY);
+        return BasicData.Format("presentation.inventory.travelClock", hour / PuzzleTimeManager.HOURS_PER_DAY + 1,
+            TurnSlotName(clock / PuzzleTimeManager.HOURS_PER_TURN), clock, Math.Min(50, minute));
     }
     public static string PuzzleMapFit => BasicData.Text("presentation.map.fit");
     public static string PuzzleWaitDaylight => BasicData.Text("presentation.inventory.waitDaylight");

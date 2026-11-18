@@ -478,9 +478,9 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
             return;
         }
         phase = TravelPhase.Traveling;
-        travelView.BeginJourney(Presentation.PuzzleTravelJourney(
-            TableManager.Instance.CityPrice(session.CurrentCityId).displayName,
-            TableManager.Instance.CityPrice(pendingCityId).displayName));
+        travelView.BeginJourney(TableManager.Instance.CityPrice(session.CurrentCityId).displayName,
+            TableManager.Instance.CityPrice(pendingCityId).displayName, evaluation.Cost, session.ElapsedTime,
+            session.ElapsedTime + evaluation.TravelHours);
         travelRoutine = StartCoroutine(TravelTo(pendingCityId));
     }
 
@@ -684,7 +684,8 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
             bool isStopLeg = plan.IsStop(nextCityId);
             string currentCityName = TableManager.Instance.CityPrice(session.CurrentCityId).displayName;
             string nextCityName = TableManager.Instance.CityPrice(nextCityId).displayName;
-            travelView.BeginJourney(Presentation.PuzzleTravelJourney(currentCityName, nextCityName));
+            travelView.BeginJourney(currentCityName, nextCityName, eval.Cost, session.ElapsedTime,
+                session.ElapsedTime + eval.TravelHours);
             // 통과 구간은 연출을 절반으로 줄인다. 구간마다 1턴이 흐른다.
             float baseDuration = TableManager.Instance.PuzzleTrade.travelEffectSeconds;
             yield return PlayTravelEffect(isStopLeg ? baseDuration : Mathf.Max(0.2f, baseDuration * 0.5f));

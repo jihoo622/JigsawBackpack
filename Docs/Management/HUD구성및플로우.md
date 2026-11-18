@@ -27,7 +27,7 @@
 | `PuzzleMapNavigation` | 지도 줌 레벨 상수(`ui.PuzzleMapNavigation.*`) 보유 |
 | `PuzzleMapNodeView` | 원형 노드 표식·현재 역 하이라이팅(_current 여부·planningTargetCityId 비교로 강조색 결정)·라벨 위치 프리팹 값(`ui.PuzzleMapNodeView.*`)으로 노드·환승 표기 |
 | `PuzzleMapPresenter` | 지도 열림·마을 정보·이동 확인/연출과 모델 이동을 중계 |
-| `PuzzleMapTravelView` | 확인창+이동 연출(확인 카드·이동 카드·기차·진행 막대), MapPanel 아래 `MapTravelPanel`. 취소 선택 기본값이며 `UI/Cancel` 액션도 취소로 반영. 진행률 코루틴은 비활성화 시 중단; 이동 확정 전 중단은 도시·시간·자금 유지; 확인 중·연출 중에는 중복 이동과 지도 조작 차단; 지도 열림 중 배경 드래그·즉시 거래 차단; 도착 표시 후 지도 닫기 |
+| `PuzzleMapTravelView` | 확인창+이동 연출(확인 카드·이동 카드·기차·출발/도착역 이름·흐르는 게임 시계, 카드 마스크), MapPanel 아래 `MapTravelPanel`. 취소 선택 기본값이며 `UI/Cancel` 액션도 취소로 반영. 진행률 코루틴은 비활성화 시 중단; 이동 확정 전 중단은 도시·시간·자금 유지; 확인 중·연출 중에는 중복 이동과 지도 조작 차단; 지도 열림 중 배경 드래그·즉시 거래 차단; 도착 표시 후 지도 닫기 |
 | `PuzzleStationActionsView / PuzzleStationActionsPresenter` | 역 행동 패널(빌더가 `startOpen = true`로 열어 놓음) |
 
 ## C. 핵심 UI 이벤트 흐름
