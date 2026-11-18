@@ -163,10 +163,11 @@ public sealed class PuzzleTradeNotebookView : PanelBase
         bool proficiency = _tab == PuzzleNotebookTab.Proficiency;
         bool synergy = _tab == PuzzleNotebookTab.Synergy;
         ApplyPanelWidth(synergy);
-        scroll.gameObject.SetActive(!proficiency && !synergy);
+        // 상성표 탭 본문은 빌드 요약. 상성표 패널이 열려 있으면 불투명 배경으로 덮인다.
+        scroll.gameObject.SetActive(!proficiency);
         proficiencyPanel.gameObject.SetActive(proficiency);
         logText.richText = true;
-        logText.text = proficiency || synergy ? string.Empty : _text;
+        logText.text = proficiency ? string.Empty : _text;
         titleLabel.text = Presentation.RumorLogTitle;
         countLabel.gameObject.SetActive(!proficiency && !synergy);
         countLabel.text = Presentation.RumorLogCount(_tab == PuzzleNotebookTab.Rumors ? _rumorCount : _questCount);

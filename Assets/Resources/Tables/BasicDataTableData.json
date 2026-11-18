@@ -3394,6 +3394,62 @@
           "value": "상성표"
         }
       ]
+    },
+    {
+      "id": "presentation.buildSummary",
+      "texts": [
+        {
+          "id": "title",
+          "value": "<b>현재 열차 빌드</b>"
+        },
+        {
+          "id": "tagHeader",
+          "value": "태그 {0}",
+          "arguments": 1
+        },
+        {
+          "id": "wagonHeader",
+          "value": "<b>[{0}번 칸]</b>",
+          "arguments": 1
+        },
+        {
+          "id": "comboLine",
+          "value": "· {0} ← {1} · {2}",
+          "arguments": 3
+        },
+        {
+          "id": "comboPercent",
+          "value": "{0}%{1}",
+          "arguments": 2
+        },
+        {
+          "id": "comboFaces",
+          "value": " ({0}면)",
+          "arguments": 1
+        },
+        {
+          "id": "ruleLabel",
+          "value": "규칙 {0}",
+          "arguments": 1
+        },
+        {
+          "id": "comboBonus",
+          "value": "숙련 보강 +{0}%p 포함",
+          "arguments": 1
+        },
+        {
+          "id": "noCombo",
+          "value": "성립 중인 콤보가 없습니다"
+        },
+        {
+          "id": "empty",
+          "value": "실린 화물이 없습니다"
+        },
+        {
+          "id": "separator",
+          "value": "\n"
+        }
+      ]
     }
   ]
 }

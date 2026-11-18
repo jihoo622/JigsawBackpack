@@ -940,6 +940,97 @@ public static partial class Presentation
         return string.Join(BasicData.Text("presentation.quest.separator"), entries);
     }
 
+    // 수첩 상성표 탭의 빌드 요약. 열차 화물의 태그 분포와 성립 중인 콤보를 평가 결과(SynergyBonuses)에서 읽고,
+    // 규칙 id와 숙련 보강치는 같은 판정(IsTarget·IsSource)과 세션 조회자로 라벨만 붙인다.
+    internal static string TrainBuildSummary(PuzzleInventoryService _session)
+    {
+        var tables = TableManager.Instance;
+        var entries = new List<string>
+        {
+            BasicData.Text("presentation.buildSummary.title")
+        };
+        var tagCounts = new Dictionary<string, int>(StringComparer.Ordinal);
+        int cargoCount = 0;
+        foreach (var wagon in _session.TrainWagons)
+        {
+            foreach (var placement in wagon.Placements)
+            {
+                cargoCount++;
+                foreach (string tag in placement.Definition.Tags)
+                {
+                    tagCounts.TryGetValue(tag, out int count);
+                    tagCounts[tag] = count + 1;
+                }
+            }
+        }
+        if (cargoCount == 0)
+        {
+            entries.Add(BasicData.Text("presentation.buildSummary.empty"));
+            return string.Join(BasicData.Text("presentation.buildSummary.separator"), entries);
+        }
+        string distribution = string.Join("  ", tagCounts
+            .OrderByDescending(_entry => _entry.Value)
+            .ThenBy(_entry => _entry.Key, StringComparer.Ordinal)
+            .Take(5)
+            .Select(_entry => $"{PuzzleTagLabel(_entry.Key)}×{_entry.Value}"));
+        entries.Add(BasicData.Format("presentation.buildSummary.tagHeader", distribution));
+
+        var rules = tables.SynergiesFor(PuzzleSynergyScope.Train);
+        string wasteTag = tables.PuzzleSynergy.animals.wasteTag;
+        foreach (var wagon in _session.TrainWagons)
+        {
+            entries.Add(BasicData.Format("presentation.buildSummary.wagonHeader", wagon.WagonNumber));
+            var neighbors = wagon.Placements.ToDictionary(_placement => _placement.InstanceId);
+            var lines = new List<string>();
+            foreach (var placement in wagon.Placements)
+            {
+                // 화살표 표시(RenderSynergies)가 읽는 같은 접촉 데이터를 이웃 단위로 합쳐 쓴다.
+                foreach (var bonus in PuzzleSynergyBonus.GroupByNeighbor(wagon.ValueOf(placement.InstanceId).SynergyBonuses)
+                    .OrderByDescending(_bonus => _bonus.Percent)
+                    .ThenBy(_bonus => _bonus.NeighborName, StringComparer.Ordinal))
+                {
+                    if (!neighbors.TryGetValue(bonus.NeighborId, out var neighbor))
+                    {
+                        continue;
+                    }
+                    string facesText = bonus.Faces > 1
+                        ? BasicData.Format("presentation.buildSummary.comboFaces", bonus.Faces)
+                        : string.Empty;
+                    var labels = new List<string>
+                    {
+                        BasicData.Format("presentation.buildSummary.comboPercent", PercentText(bonus.Percent), facesText)
+                    };
+                    var matching = rules.Where(_rule => PuzzlePieceEffects.IsTarget(placement.Definition, _rule, wasteTag) &&
+                        PuzzlePieceEffects.IsSource(neighbor.Definition, _rule)).ToArray();
+                    if (matching.Length > 0)
+                    {
+                        labels.Add(BasicData.Format("presentation.buildSummary.ruleLabel",
+                            string.Join(", ", matching.Select(_rule => _rule.id))));
+                        decimal bonusPercent = matching.Sum(_rule => _session.SynergyComboBonusPercent(_rule));
+                        if (bonusPercent > 0m)
+                        {
+                            labels.Add(BasicData.Format("presentation.buildSummary.comboBonus", PercentText(bonusPercent)));
+                        }
+                    }
+                    lines.Add(BasicData.Format("presentation.buildSummary.comboLine", placement.Definition.DisplayName,
+                        neighbor.Definition.DisplayName, string.Join(" · ", labels)));
+                }
+            }
+            if (lines.Count == 0)
+            {
+                lines.Add(BasicData.Text("presentation.buildSummary.noCombo"));
+            }
+            entries.AddRange(lines);
+        }
+        return string.Join(BasicData.Text("presentation.buildSummary.separator"), entries);
+    }
+
+    // 콤보 백분율 표기. "+20", "-10"처럼 부호를 붙이고 소수점은 필요한 자리만 남긴다.
+    static string PercentText(decimal _percent)
+    {
+        return _percent.ToString("+0.##;-0.##", System.Globalization.CultureInfo.InvariantCulture);
+    }
+
     #endregion
 
     public static string TavernNoRumor => BasicData.Text("presentation.station.noRumor");

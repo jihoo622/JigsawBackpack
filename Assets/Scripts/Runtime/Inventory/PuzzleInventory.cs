@@ -7,6 +7,8 @@ public sealed class PuzzleInventory
 {
     readonly IReadOnlyDictionary<string, PuzzleItemDefinition> definitions;
     readonly IReadOnlyList<PuzzleSynergyRuleData> synergyRules;
+    // 규칙별 숙련 보강치(%p) 조회 훅. 세션 상태는 저장하지 않고 계산 시점에 세션이 준 조회자를 빌려 쓴다.
+    internal Func<PuzzleSynergyRuleData, decimal> SynergyComboBonusPercent { get; set; }
     PuzzleInventoryValuation valuation = new();
     readonly SortedDictionary<int, PuzzlePlacement> placements = new();
     readonly Dictionary<Vector2Int, (int InstanceId, PuzzleCell Cell)> occupancy = new();
@@ -101,6 +103,7 @@ public sealed class PuzzleInventory
         blockedCells.UnionWith(_source.blockedCells);
         definitions = _source.definitions;
         synergyRules = _source.synergyRules;
+        SynergyComboBonusPercent = _source.SynergyComboBonusPercent;
         wagonModifications = new Dictionary<string, PuzzleWagonModification>(_source.wagonModifications, StringComparer.Ordinal);
     }
 
@@ -154,7 +157,7 @@ public sealed class PuzzleInventory
 
     internal void RecalculateValue()
     {
-        valuation.Recalculate(this, synergyRules);
+        valuation.Recalculate(this, synergyRules, SynergyComboBonusPercent);
     }
 
     // 정산 계획의 작업 사본에 현재 배치의 시너지를 적용한다.

@@ -93,6 +93,48 @@ public sealed partial class PuzzleInventoryService
         return (decimal)tables.Proficiency.bonusPercentPerLevel * _level;
     }
 
+    // 시너지 규칙의 숙련 보강치(%p). 규칙의 대상·발생원 중 숙련 대상 태그의 레벨 합에 테이블 계수를 곱한다.
+    // 보드에는 이 조회자만 훅으로 넘기고 세션 상태는 보드에 저장하지 않는다.
+    internal decimal SynergyComboBonusPercent(PuzzleSynergyRuleData _rule)
+    {
+        float coefficient = tables.PuzzleSynergy.proficiencyComboPercentPerLevel;
+        if (coefficient <= 0)
+        {
+            return 0m;
+        }
+        int levels = 0;
+        if (!string.IsNullOrEmpty(_rule.targetTag) && tables.ProficiencyTags.Contains(_rule.targetTag))
+        {
+            levels += ProficiencyLevel(_rule.targetTag);
+        }
+        if (tables.ProficiencyTags.Contains(_rule.neighborTag))
+        {
+            levels += ProficiencyLevel(_rule.neighborTag);
+        }
+        return levels * (decimal)coefficient;
+    }
+
+    // 숙련 레벨 변화를 현재 평가에 반영한다. 누적 가치는 그대로 두고 현재 배치의 시너지 합만 다시 계산한다.
+    void RefreshValuations()
+    {
+        foreach (var wagon in trainWagons)
+        {
+            wagon.RecalculateValue();
+        }
+        foreach (var market in markets.Values)
+        {
+            market.RecalculateValue();
+        }
+        foreach (var state in butcheries.Values)
+        {
+            state.Board?.RecalculateValue();
+        }
+        foreach (var state in refinings.Values)
+        {
+            state.Board?.RecalculateValue();
+        }
+    }
+
     // 화물에 붙은 숙련 대상(생산) 태그. id 오름차순이다.
     IReadOnlyList<string> ProficiencyTagsOf(PuzzleItemDefinition _definition)
     {
@@ -231,6 +273,8 @@ public sealed partial class PuzzleInventoryService
             int previousLevel = LevelForXp(before);
             long after = before > long.MaxValue - gained ? long.MaxValue : before + gained;
             proficiencyXp[tag] = after;
+            // 레벨이 바뀐 뒤 이벤트 구독자가 보강치가 반영된 평가를 읽도록 먼저 다시 계산한다.
+            RefreshValuations();
             GameEvents.RaiseProficiencyChanged(new GameEvents.ProficiencyInfo(this, tag, _source.ToString(), gained, after,
                 previousLevel, LevelForXp(after), _instanceId, _questId, ElapsedTurns));
         }

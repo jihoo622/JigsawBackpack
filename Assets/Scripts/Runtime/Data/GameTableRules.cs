@@ -687,6 +687,8 @@ public sealed class GameTableRules
     {
         Check(_tables.PuzzleSynergy.activationIntervalTurns > 0, "PuzzleSynergyTableData.activationIntervalTurns",
             "시너지 적용 주기는 양의 정수 턴이어야 합니다.");
+        Check(_tables.PuzzleSynergy.proficiencyComboPercentPerLevel >= 0, "PuzzleSynergyTableData.proficiencyComboPercentPerLevel",
+            "숙련 콤보 보강 계수는 0 이상이어야 합니다.");
         var tags = new HashSet<string>(_tables.Pieces.SelectMany(_item => _item.tags ?? Array.Empty<string>()),
             StringComparer.Ordinal);
         var rules = _tables.PuzzleSynergy.rules ?? Array.Empty<PuzzleSynergyRuleData>();

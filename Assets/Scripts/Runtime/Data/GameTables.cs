@@ -53,6 +53,8 @@ public sealed class PuzzleSynergyTableData
 {
     public string status, note;
     public int activationIntervalTurns = -1;
+    // 규칙이 적용될 때 대상·발생원 중 숙련 대상 태그의 레벨 합에 곱해 multiplierPercent에 더하는 보강 계수(%p).
+    public float proficiencyComboPercentPerLevel;
     public PuzzleSynergyRuleData[] rules = Array.Empty<PuzzleSynergyRuleData>();
     public PuzzleAnimalSynergyData animals;
     public PuzzleFreshnessData freshness;

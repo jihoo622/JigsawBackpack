@@ -378,6 +378,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         int nextInstanceId = lastInstanceId;
         var newWagon = new PuzzleInventory(tables.Puzzle.train, Array.Empty<PuzzleStartingPlacementData>(), definitions, trainRules,
             ref nextInstanceId);
+        newWagon.SynergyComboBonusPercent = SynergyComboBonusPercent;
         if (!string.IsNullOrEmpty(_modificationId) &&
             (!PuzzleWagonModificationRegistry.Contains(_modificationId) ||
              !newWagon.TryInstallWagonModification(PuzzleWagonModificationRegistry.Create(_modificationId, tables))))
@@ -589,6 +590,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         marketRules = validatedTables.SynergiesFor(PuzzleSynergyScope.Market);
         var train = new PuzzleInventory(validatedTables.StartingTrainBoard, validatedTables.TrainStartingPlacements, definitions, trainRules,
             ref lastInstanceId);
+        train.SynergyComboBonusPercent = SynergyComboBonusPercent;
         // 시작 지급 화물도 처음부터 소유 중이므로 게임 시작을 보유 시간의 기준으로 삼는다.
         foreach (var item in train.Placements)
         {
@@ -645,8 +647,10 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         var placements = new List<PuzzleStartingPlacementData>(tables.MarketStartingPlacements(_cityId));
         AddStock(_cityId, tables.StockProfile(city.regionalStockId), placements);
         AddStock(_cityId, tables.StockProfile(city.generalStockId), placements);
-        return new PuzzleInventory(city.market, placements, definitions, marketRules,
+        var market = new PuzzleInventory(city.market, placements, definitions, marketRules,
             ref _lastInstanceId);
+        market.SynergyComboBonusPercent = SynergyComboBonusPercent;
+        return market;
     }
 
     void AddStock(string _cityId, PuzzleMarketStockData _stock, List<PuzzleStartingPlacementData> _placements)
@@ -2241,6 +2245,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
 
         var board = new PuzzleInventory(action.board, Array.Empty<PuzzleStartingPlacementData>(), definitions,
             marketRules, ref lastInstanceId);
+        board.SynergyComboBonusPercent = SynergyComboBonusPercent;
         var state = new PuzzleButcheryState(_cityId, action, board);
         butcheries.Add(_cityId, state);
         return state;
@@ -2511,6 +2516,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         int probeId = 0;
         var probe = new PuzzleInventory(_action.board, Array.Empty<PuzzleStartingPlacementData>(), definitions,
             marketRules, ref probeId);
+        probe.SynergyComboBonusPercent = SynergyComboBonusPercent;
         foreach (string pieceId in _outputs)
         {
             if (!definitions.TryGetValue(pieceId, out var definition) ||
@@ -3086,6 +3092,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
 
         var board = new PuzzleInventory(action.board, Array.Empty<PuzzleStartingPlacementData>(), definitions,
             marketRules, ref lastInstanceId);
+        board.SynergyComboBonusPercent = SynergyComboBonusPercent;
         var state = new PuzzleRefiningState(_cityId, action, board);
         refinings.Add(_cityId, state);
         return state;
