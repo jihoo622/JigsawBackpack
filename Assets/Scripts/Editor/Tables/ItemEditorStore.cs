@@ -399,7 +399,7 @@ public static class ItemEditorStore
 
     public static Dictionary<Type, string> DraftSources(ItemEditorSource _source, ItemEditorDraft _draft)
     {
-        var sources = _source.files.Where(_file => _file.tableType != null)
+        var sources = _source.files.Where(_file => !string.IsNullOrEmpty(_file.tableType))
             .ToDictionary(_file => Type.GetType(_file.tableType, true), _file => _file.source);
         sources[typeof(PuzzleTableData)] = _draft.puzzle;
         if (!string.IsNullOrEmpty(_draft.synergy))

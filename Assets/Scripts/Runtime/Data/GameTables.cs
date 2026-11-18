@@ -68,6 +68,18 @@ public sealed class PuzzleCombinationTableData
     public PuzzleCombinationRuleData[] rules = Array.Empty<PuzzleCombinationRuleData>();
 }
 
+// 11-18 신규 품목 규칙의 원본. 목재 결합, 기계 성장, 소금 사용 횟수, 품목 강화의 수치·조건을 이 표만 안다.
+// 시너지 표와 독립적으로 적용하고, 진행 상태(묶음·남은 사용 횟수·부착된 강화)는 품목 인스턴스가 가진다.
+[Serializable]
+public sealed class PuzzleMechanicTableData
+{
+    public string status, note;
+    public PuzzleWoodBindingData woodBinding;
+    public PuzzleMachineryGrowthData machineryGrowth;
+    public PuzzleSaltUseData salt;
+    public PuzzleItemUpgradeData[] upgrades = Array.Empty<PuzzleItemUpgradeData>();
+}
+
 // 특산 소문 후보에서 제외할 품목.
 [Serializable]
 public sealed class PuzzleRumorTableData

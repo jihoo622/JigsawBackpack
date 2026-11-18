@@ -89,6 +89,10 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
     Dictionary<(int First, int Second), long> combinationProgress = new();
     // 동물 인스턴스 ID별 곡물 섭취 진행(섭취 주기 안의 경과 시간). 배설과 같이 씬 안에서만 산다.
     Dictionary<int, long> feedingProgress = new();
+    // 목재 결합 진행. 조합과 같이 두 회원 인스턴스 ID를 작은 쪽 먼저 정렬한 키로 관리하며 씬 안에서만 산다.
+    Dictionary<(int First, int Second), long> bindingProgress = new();
+    // 목재 묶음에 부여하는 id. 결합 진행과 함께 씬 안에서만 산다.
+    int nextBindingId = 1;
     // 도시별 도축대. 행동이 없는 도시는 항목을 만들지 않는다.
     readonly Dictionary<string, PuzzleButcheryState> butcheries = new Dictionary<string, PuzzleButcheryState>(StringComparer.Ordinal);
     // 도시별 정제대. 도축과 독립적인 보드·진행 상태를 가지며 행동이 없는 도시는 항목을 만들지 않는다.
@@ -593,6 +597,8 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         wasteProgress.Clear();
         combinationProgress.Clear();
         feedingProgress.Clear();
+        bindingProgress.Clear();
+        nextBindingId = 1;
         CurrentWagonIndex = 0;
         butcheries.Clear();
         modifications.Clear();
@@ -830,7 +836,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
 
         // 미리보기 진행에서 곡물 섭취·조합으로 소모된 품목은 미래 가치가 없다. 원본은 건드리지 않는다.
         PuzzleInventory staged = plan.wagons[wagonIndex];
-        return staged.HasPlacement(_item.InstanceId) ? staged.FreshnessAdjustedValueOf(_item.InstanceId) : (decimal?)null;
+        return staged.HasPlacement(_item.InstanceId) ? staged.BundleValueOf(_item.InstanceId) : (decimal?)null;
     }
 
     sealed class TimeAdvancePlan
@@ -840,6 +846,8 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         internal Dictionary<int, WasteState> wasteProgress;
         internal Dictionary<(int First, int Second), long> combinationProgress;
         internal Dictionary<int, long> feedingProgress;
+        internal Dictionary<(int First, int Second), long> bindingProgress;
+        internal int nextBindingId;
         internal int lastInstanceId;
         internal long marketRestocks;
         internal decimal? cargoValueBeforeSettlement;
@@ -849,13 +857,16 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
             Dictionary<(int First, int Second), BreedingState> _breedingProgress,
             Dictionary<int, WasteState> _wasteProgress,
             Dictionary<(int First, int Second), long> _combinationProgress,
-            Dictionary<int, long> _feedingProgress, int _lastInstanceId)
+            Dictionary<int, long> _feedingProgress,
+            Dictionary<(int First, int Second), long> _bindingProgress, int _nextBindingId, int _lastInstanceId)
         {
             wagons = _wagons;
             breedingProgress = _breedingProgress;
             wasteProgress = _wasteProgress;
             combinationProgress = _combinationProgress;
             feedingProgress = _feedingProgress;
+            bindingProgress = _bindingProgress;
+            nextBindingId = _nextBindingId;
             lastInstanceId = _lastInstanceId;
         }
     }
@@ -872,7 +883,8 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
                 new Dictionary<(int First, int Second), BreedingState>(breedingProgress),
                 new Dictionary<int, WasteState>(wasteProgress),
                 new Dictionary<(int First, int Second), long>(combinationProgress),
-                new Dictionary<int, long>(feedingProgress), lastInstanceId);
+                new Dictionary<int, long>(feedingProgress),
+                new Dictionary<(int First, int Second), long>(bindingProgress), nextBindingId, lastInstanceId);
             var animals = tables.PuzzleSynergy.animals;
             var waste = definitions[animals.wastePieceId];
             var expiredFood = definitions[ExpiredFoodPieceId];
@@ -886,6 +898,10 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
             long synergyInterval = SynergyIntervalHours;
             var freshness = tables.PuzzleSynergy.freshness;
             var preservation = CreatePreservation(freshness);
+            var woodBinding = tables.PuzzleMechanic.woodBinding;
+            long bindingHours = (long)woodBinding.requiredTurns * PuzzleTimeManager.HOURS_PER_TURN;
+            var machineryGrowth = tables.PuzzleMechanic.machineryGrowth;
+            var saltData = tables.PuzzleMechanic.salt;
             long cursor = Time.ElapsedHours;
             var growth = new List<PuzzleGrowth>();
             var selectedWagon = wagons[CurrentWagonIndex];
@@ -903,13 +919,17 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
                 EnsureWasteStates(plan, wagons, animals, wasteHours, cursor);
                 EnsureFeedingStates(plan, wagons, animals, feedIntervalHours);
                 var pairs = SelectBreedingPairs(wagons, plan.breedingProgress);
-                var combinations = SelectCombinationPairs(wagons, plan.combinationProgress);
+                var combinations = SelectCombinationPairs(wagons, plan.combinationProgress, saltData);
+                var bindings = SelectBindingPairs(wagons, plan.bindingProgress, woodBinding.woodTag);
+                var machinery = wagons.SelectMany(_wagon =>
+                    PuzzleMachineryGrowth.Contacts(_wagon.Placements, machineryGrowth)).ToList();
                 EnsureWagonProcesses(wagons);
                 long step = Math.Min(arrival - cursor, HoursUntilCargoChange(wagons, preservation));
                 step = Math.Min(step, HoursUntilBirth(pairs, breedingHours, animalEventsThrough - cursor));
                 step = Math.Min(step, HoursUntilWaste(wagons, plan.wasteProgress, animals.animalTag, wasteHours,
                     animalEventsThrough - cursor));
                 step = Math.Min(step, HoursUntilCombination(combinations));
+                step = Math.Min(step, HoursUntilBinding(bindings, bindingHours));
                 step = Math.Min(step, HoursUntilWagonProcess(wagons));
                 step = Math.Min(step, HoursUntilFeeding(wagons, plan.feedingProgress, animals.animalTag,
                     feedIntervalHours, animalEventsThrough - cursor));
@@ -934,6 +954,14 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
                     }
                 }
 
+                // 기계 성장은 그 턴을 시작할 때의 접촉 상태로, 이미 시작한 턴 수만큼 정산한다.
+                long machineryTurns = boundary / PuzzleTimeManager.HOURS_PER_TURN -
+                    cursor / PuzzleTimeManager.HOURS_PER_TURN;
+                if (machineryTurns > 0)
+                {
+                    ApplyMachineryGrowth(machinery, machineryGrowth, machineryTurns);
+                }
+
                 // 기한을 지난 경계에서는 동물 사건을 되살리지 않는다. 대기 상태도 그대로 둔다.
                 bool animalEvents = boundary <= animalEventsThrough;
                 if (animalEvents)
@@ -954,7 +982,8 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
                 }
 
                 // 만료로 입력이 바뀐 조합은 처리하지 않는다. 같은 시각의 절임 완료를 섭취보다 먼저 반영한다.
-                AdvanceCombinations(plan, combinations, step);
+                AdvanceCombinations(plan, combinations, step, saltData);
+                AdvanceBindings(plan, bindings, step, bindingHours, woodBinding.valuePercent, woodBinding.woodTag);
                 AdvanceWagonProcesses(plan, wagons, step);
 
                 // 곡물 섭취와 가속은 성장·출산보다 먼저 처리한다. 섭취로 빈 칸이 성장 자리로 쓰인다.
@@ -1243,7 +1272,8 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
             return false;
         }
 
-        foreach (var pair in SelectCombinationPairs(trainWagons.ToArray(), combinationProgress))
+        foreach (var pair in SelectCombinationPairs(trainWagons.ToArray(), combinationProgress,
+            tables.PuzzleMechanic.salt))
         {
             if (pair.key.First == _placement.InstanceId || pair.key.Second == _placement.InstanceId)
             {
@@ -1330,9 +1360,11 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         internal readonly PuzzleItemDefinition result;
         internal readonly long requiredHours;
         internal readonly long elapsedHours;
+        // 절임처럼 결과를 이어받지 않고 횟수로 소모되는partner입력. 없으면 null.
+        internal readonly PuzzlePlacement salt;
 
         internal CombinationPair(PuzzlePlacement _source, PuzzlePlacement _partner, PuzzleInventory _wagon,
-            PuzzleCombinationRuleData _rule, PuzzleItemDefinition _result, long _elapsedHours)
+            PuzzleCombinationRuleData _rule, PuzzleItemDefinition _result, long _elapsedHours, PuzzlePlacement _salt)
         {
             key = CombinationKey(_source.InstanceId, _partner.InstanceId);
             rule = _rule;
@@ -1342,6 +1374,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
             result = _result;
             requiredHours = (long)_rule.requiredHours;
             elapsedHours = _elapsedHours;
+            salt = _salt;
         }
     }
 
@@ -1351,9 +1384,11 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
     }
 
     // 규칙과 두 품목 ID로 조합 가능한 쌍을 고른다. 번식과 같이 기존 쌍을 먼저, 나머지는 인스턴스 ID순으로
-    // 두고 한 품목이 여러 쌍에 동시에 들어가지 않게 한다. 인접 판정도 냉장과 같은 조건을 쓴다.
+    // 두고 한 품목이 여러 쌍에 동시에 들어가지 않게 한다. 단, 결과를 자리로 이어받지 않는 소금 partner는
+    // 남은 사용 횟수까지 여러 쌍을 동시에 유지할 수 있고 진행 중이던 쌍은 횟수와 무관하게 자리를 지킨다.
+    // 인접 판정도 냉장과 같은 조건을 쓴다.
     List<CombinationPair> SelectCombinationPairs(PuzzleInventory[] _wagons,
-        Dictionary<(int First, int Second), long> _previous)
+        Dictionary<(int First, int Second), long> _previous, PuzzleSaltUseData _saltData)
     {
         var candidates = new List<CombinationPair>();
         foreach (var wagon in _wagons)
@@ -1373,24 +1408,47 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
 
                     var source = firstIsSource ? first : second;
                     var partner = firstIsSource ? second : first;
+                    var salt = partner.Definition.Tags.Contains(_saltData.saltTag) &&
+                        !source.Definition.Tags.Contains(_saltData.saltTag) ? partner : null;
                     _previous.TryGetValue(CombinationKey(source.InstanceId, partner.InstanceId), out long elapsed);
                     candidates.Add(new CombinationPair(source, partner, wagon, rule, definitions[rule.resultPieceId],
-                        elapsed));
+                        elapsed, salt));
                 }
             }
         }
 
         var pairedIds = new HashSet<int>();
+        var saltSlots = new Dictionary<int, int>();
         var pairs = new List<CombinationPair>();
         foreach (var candidate in candidates.OrderByDescending(_pair => _previous.ContainsKey(_pair.key))
             .ThenBy(_pair => _pair.key.First).ThenBy(_pair => _pair.key.Second))
         {
-            if (pairedIds.Contains(candidate.key.First) || pairedIds.Contains(candidate.key.Second))
+            if (candidate.salt == null)
+            {
+                if (pairedIds.Contains(candidate.key.First) || pairedIds.Contains(candidate.key.Second))
+                {
+                    continue;
+                }
+                pairedIds.Add(candidate.key.First);
+                pairedIds.Add(candidate.key.Second);
+                pairs.Add(candidate);
+                continue;
+            }
+
+            // 소금 쌍은 음식(결과 자리를 이어받는 source)만 독점하고, 소금은 남은 횟수까지 겹칠 수 있다.
+            int foodId = candidate.source.InstanceId;
+            if (pairedIds.Contains(foodId))
             {
                 continue;
             }
-            pairedIds.Add(candidate.key.First);
-            pairedIds.Add(candidate.key.Second);
+            saltSlots.TryGetValue(candidate.salt.InstanceId, out int used);
+            if (!_previous.ContainsKey(candidate.key) &&
+                used >= candidate.salt.SaltUsesLeft(_saltData.usesPerItem))
+            {
+                continue;
+            }
+            saltSlots[candidate.salt.InstanceId] = used + 1;
+            pairedIds.Add(foodId);
             pairs.Add(candidate);
         }
         return pairs;
@@ -1412,8 +1470,9 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
     }
 
     // 조합 완료 시각에 두 입력을 소모한다. 만료·대체로 입력이 바뀌었다면 조합하지 않고 진행을 처음부터 세고,
-    // 소모에 성공한 쌍은 진행을 남기지 않는다.
-    void AdvanceCombinations(TimeAdvancePlan _plan, List<CombinationPair> _pairs, long _step)
+    // 소모에 성공한 쌍은 진행을 남기지 않는다. 절임은 음식만 소모하고 소금의 사용 횟수를 깎는다.
+    void AdvanceCombinations(TimeAdvancePlan _plan, List<CombinationPair> _pairs, long _step,
+        PuzzleSaltUseData _saltData)
     {
         var progress = new Dictionary<(int First, int Second), long>();
         foreach (var pair in _pairs)
@@ -1421,7 +1480,10 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
             long elapsed = pair.elapsedHours + _step;
             if (elapsed >= pair.requiredHours)
             {
-                if (!pair.wagon.TryCombine(pair.source, pair.partner, pair.result, ref _plan.lastInstanceId))
+                bool combined = pair.salt == null
+                    ? pair.wagon.TryCombine(pair.source, pair.partner, pair.result, ref _plan.lastInstanceId)
+                    : pair.wagon.TryPickle(pair.source, pair.salt, pair.result, _saltData, ref _plan.lastInstanceId);
+                if (!combined)
                 {
                     elapsed = 0;
                 }
@@ -1434,6 +1496,217 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         }
 
         _plan.combinationProgress = progress;
+    }
+
+    // 목재 결합 후보 쌍. 키는 두 회원 인스턴스 ID를 정렬해 쌍의 순서와 무관하게 본다.
+    readonly struct BindingPair
+    {
+        internal readonly (int First, int Second) key;
+        internal readonly PuzzlePlacement source;
+        internal readonly PuzzlePlacement partner;
+        internal readonly PuzzleInventory wagon;
+        internal readonly long elapsedHours;
+        internal readonly bool hadProgress;
+
+        internal BindingPair(PuzzlePlacement _source, PuzzlePlacement _partner, PuzzleInventory _wagon,
+            long _elapsedHours, bool _hadProgress)
+        {
+            key = CombinationKey(_source.InstanceId, _partner.InstanceId);
+            source = _source;
+            partner = _partner;
+            wagon = _wagon;
+            elapsedHours = _elapsedHours;
+            hadProgress = _hadProgress;
+        }
+    }
+
+    // 로컬 (0, 1)이 가리키는 방향(화면 북쪽)을 회전 후 보드 축으로 바꾼 방향 벡터.
+    // 조각 칸과 같은 GetBoardOffset 틀을 쓰므로 회전수가 커지면 시계 방향으로 함께 돈다.
+    static Vector2Int BindingDirection(PuzzlePlacement _item)
+    {
+        var rotation = new PuzzleRotation(_item.Definition.Cells, _item.Pose.ClockwiseTurns);
+        return rotation.GetBoardOffset(Vector2Int.zero) - rotation.GetBoardOffset(new Vector2Int(0, 1));
+    }
+
+    // 목재의 각 점유 칸에서 북쪽(회전 반영) 바깥으로 맞닿는 칸. 다칸 목재도 칸마다 밖을 본다.
+    static List<Vector2Int> BindingSlots(PuzzlePlacement _item)
+    {
+        var direction = BindingDirection(_item);
+        var slots = new List<Vector2Int>();
+        foreach (var cell in _item.Pose.Cells)
+        {
+            slots.Add(cell.Position + direction);
+        }
+        return slots;
+    }
+
+    // 북쪽 바깥 칸에 다른 목재를 받은 쌍을 후보로 고른다. 같은 두 인스턴스는 키 하나로 보이고,
+    // 같은 묶음 내부 쌍은 버린다. 묶음 충돌은 걸러 내지 않고 경계 처리로 넘겨 진행도가 사라지지 않게 한다.
+    static List<BindingPair> SelectBindingPairs(PuzzleInventory[] _wagons,
+        Dictionary<(int First, int Second), long> _previous, string _woodTag)
+    {
+        var candidates = new List<BindingPair>();
+        var seenKeys = new HashSet<(int First, int Second)>();
+        foreach (var wagon in _wagons)
+        {
+            foreach (var item in wagon.Placements.OrderBy(_item => _item.InstanceId))
+            {
+                if (!item.Definition.Tags.Contains(_woodTag))
+                {
+                    continue;
+                }
+
+                foreach (var slot in BindingSlots(item))
+                {
+                    if (!wagon.TryGetCell(slot, out var occupant, out _) ||
+                        ReferenceEquals(occupant, item) ||
+                        (item.BindingId != 0 && item.BindingId == occupant.BindingId) ||
+                        !occupant.Definition.Tags.Contains(_woodTag))
+                    {
+                        continue;
+                    }
+
+                    var key = CombinationKey(item.InstanceId, occupant.InstanceId);
+                    if (!seenKeys.Add(key))
+                    {
+                        continue;
+                    }
+
+                    _previous.TryGetValue(key, out long elapsed);
+                    candidates.Add(new BindingPair(item, occupant, wagon, elapsed, _previous.ContainsKey(key)));
+                }
+            }
+        }
+
+        return candidates;
+    }
+
+    static long HoursUntilBinding(List<BindingPair> _pairs, long _requiredHours)
+    {
+        long next = long.MaxValue;
+        foreach (var pair in _pairs)
+        {
+            long remaining = _requiredHours - pair.elapsedHours;
+            if (remaining < next)
+            {
+                next = remaining;
+            }
+        }
+
+        return Math.Max(1, next);
+    }
+
+    // 경계마다 1턴 유지를 채운 쌍부터 결합하고, 완성한 묶음으로 가능해지는 연쇄도 같은 경계에서 이어서
+    // 처리한다. 한 묶음은 경계당 한 번만 결합에 참여하고, 진행은 아직 붙어 있는 쌍만 남긴다.
+    // 분리·객차 변경으로 후보가 사라지면 진행이 저절로 처음부터 센다.
+    void AdvanceBindings(TimeAdvancePlan _plan, List<BindingPair> _pairs, long _step, long _requiredHours,
+        int _valuePercent, string _woodTag)
+    {
+        var progress = new Dictionary<(int First, int Second), long>();
+        var pending = _pairs.Select(_pair => (pair: _pair, elapsed: _pair.elapsedHours + _step)).ToList();
+        bool bound;
+        do
+        {
+            bound = false;
+            var roots = new HashSet<int>();
+            var deferred = new List<(BindingPair pair, long elapsed)>();
+            foreach (var entry in pending.OrderByDescending(_entry => _entry.pair.hadProgress)
+                .ThenBy(_entry => _entry.pair.key.First).ThenBy(_entry => _entry.pair.key.Second))
+            {
+                if (!entry.pair.wagon.TryGetPlacement(entry.pair.key.First, out var source) ||
+                    !entry.pair.wagon.TryGetPlacement(entry.pair.key.Second, out var partner) ||
+                    (source.BindingId != 0 && source.BindingId == partner.BindingId))
+                {
+                    continue;
+                }
+
+                int firstRoot = entry.pair.wagon.BundleRootId(source);
+                int secondRoot = entry.pair.wagon.BundleRootId(partner);
+                if (roots.Contains(firstRoot) || roots.Contains(secondRoot))
+                {
+                    deferred.Add(entry);
+                    continue;
+                }
+                roots.Add(firstRoot);
+                roots.Add(secondRoot);
+
+                if (entry.elapsed >= _requiredHours)
+                {
+                    if (entry.pair.wagon.TryBind(source, partner, _valuePercent, checked(++_plan.nextBindingId)))
+                    {
+                        bound = true;
+                    }
+                    else
+                    {
+                        progress[entry.pair.key] = 0;
+                    }
+                }
+                else
+                {
+                    progress[entry.pair.key] = entry.elapsed;
+                }
+            }
+
+            foreach (var entry in deferred)
+            {
+                progress[entry.pair.key] = entry.elapsed;
+            }
+
+            // 묶음이 완성된 자리에서 다음 후보와의 결합을 다시 본다. 진행은 남겨 둔 표에서 이어받는다.
+            pending = bound
+                ? SelectBindingPairs(_plan.wagons, progress, _woodTag)
+                    .Select(_pair => (pair: _pair, elapsed: _pair.elapsedHours)).ToList()
+                : new List<(BindingPair pair, long elapsed)>();
+        }
+        while (bound);
+
+        _plan.bindingProgress = progress;
+    }
+
+    // 기계 성장 정산. 같은 기계는 대상마다 한 번만 적용하고 여러 기계의 효과는 합산한다.
+    // 증가분은 대상 기본 가치 × 성장률(%) × 턴 수이며 소수는 반올림 없이 그대로 누적한다.
+    void ApplyMachineryGrowth(List<PuzzleMachineryContact> _contacts, PuzzleMachineryGrowthData _data, long _turns)
+    {
+        var effective = new Dictionary<int, (int Min, int Percent)>();
+        foreach (var contact in _contacts)
+        {
+            if (!effective.TryGetValue(contact.Machine.InstanceId, out var growth))
+            {
+                if (!PuzzleMachineryGrowth.TryGetGrowth(contact.Machine, _data, out int min, out int percent))
+                {
+                    continue;
+                }
+                growth = (Min: min, Percent: percent);
+                effective[contact.Machine.InstanceId] = growth;
+            }
+            if (contact.ContactFaces >= growth.Min)
+            {
+                // 가치 변동 알림은 시너지 정산과 같은 깃발을 쓴다. 성장이 확인되지 않은 채 지나가지 않게 한다.
+                contact.Target.ApplySynergySettlement(
+                    contact.Target.Definition.BaseValue * growth.Percent / 100m * _turns);
+            }
+        }
+    }
+
+    // 기계가 지금 성장 중인 대상의 표시 이름. 화면 목록은 시간 정산과 같은 판정 결과를 쓴다.
+    internal IReadOnlyList<string> MachineryGrowthTargets(PuzzlePlacement _machine)
+    {
+        var data = tables.PuzzleMechanic.machineryGrowth;
+        if (_machine?.Owner == null || !PuzzleMachineryGrowth.TryGetGrowth(_machine, data, out int min, out _))
+        {
+            return Array.Empty<string>();
+        }
+        var targets = new List<string>();
+        var seen = new HashSet<int>();
+        foreach (var contact in PuzzleMachineryGrowth.Contacts(_machine.Owner.Placements, data))
+        {
+            if (ReferenceEquals(contact.Machine, _machine) && contact.ContactFaces >= min &&
+                seen.Add(contact.Target.InstanceId))
+            {
+                targets.Add(contact.Target.Definition.DisplayName);
+            }
+        }
+        return targets;
     }
 
     // 배설 진행도가 없는 동물은 이번 시각 이후 처음 맞는 주기 경계(경과 시간이 주기의 배수)에 첫 발생을 맞춘다.
@@ -1692,8 +1965,10 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         wasteProgress = _plan.wasteProgress;
         combinationProgress = _plan.combinationProgress;
         feedingProgress = _plan.feedingProgress;
+        bindingProgress = _plan.bindingProgress;
         PruneAnimalStates();
         lastInstanceId = _plan.lastInstanceId;
+        nextBindingId = _plan.nextBindingId;
         for (long opening = 0; opening < _plan.marketRestocks; opening++)
         {
             foreach (var city in tables.Cities)
@@ -1712,7 +1987,6 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         {
             CheckButcheryReady();
             CheckRefiningReady();
-            CheckModificationReady();
             GameEvents.RaiseTimeAdvanced(previous, Time.ElapsedHours, this, _plan.cargoValueBeforeSettlement,
                 _plan.cargoValueBeforeFreshnessLoss);
         }
@@ -1966,9 +2240,17 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         {
             return false;
         }
-        return TryQuoteTradeAt(CurrentCityId, _item.Definition, _item.FreshnessAdjustedValue, _direction, out _price) &&
+        // 목재 묶음 회원은 원자에 모인 묶음 가치가 거래 기준이다. 다른 물건은 신선도를 반영한 값 그대로 쓴다.
+        decimal tradeValue = _item.Owner != null && _item.BindingId != 0
+            ? _item.Owner.BundleValueOf(_item.InstanceId)
+            : _item.FreshnessAdjustedValue;
+        return TryQuoteTradeAt(CurrentCityId, _item.Definition, tradeValue, _direction, out _price) &&
             TryApplyProficiency(_item, _direction, ref _price);
     }
+
+    // 툴팁이 표시하는 목재 묶음의 이름과 결합 효과 설명. 원본은 기계공학 표의 woodBinding이다.
+    internal string WoodBundleName => tables.PuzzleMechanic.woodBinding.bundleName;
+    internal string WoodBundleDescription => tables.PuzzleMechanic.woodBinding.description;
 
     // 지정 도시에서 주어진 가치의 거래 금액. 경제 분석이 다른 도시를 같은 공식으로 견적한다.
     internal bool TryQuoteTradeAt(string _cityId, PuzzleItemDefinition _definition, decimal _value,
@@ -2632,7 +2914,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         }
         if (modifications.TryGetValue(_cityId, out var existing))
         {
-            return RefreshModificationReady(existing);
+            return existing;
         }
 
         var board = new PuzzleInventory(action.board, Array.Empty<PuzzleStartingPlacementData>(), definitions,
@@ -2753,7 +3035,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
     internal bool ModificationConfirmable(string _cityId = null)
     {
         var state = EnsureModification(string.IsNullOrEmpty(_cityId) ? CurrentCityId : _cityId);
-        return TryPlanModificationSwaps(state, out _, out _, out _);
+        return TryPlanUpgradeWork(state, out _, out _, out _);
     }
 
     internal bool TryConfirmModification(out int _convertedCount, out PuzzleModificationFailure _failure,
@@ -2762,25 +3044,120 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         var state = EnsureModification(string.IsNullOrEmpty(_cityId) ? CurrentCityId : _cityId);
         // 확정이 모드 선택을 비우므로 기록할 모드를 먼저 잡는다.
         string modeId = state?.SelectedModeId;
-        long hours = TryQuoteModification(out _, out long quoted) ? quoted : 0;
-        bool confirmed;
-        if (!WorkshopFitsDeadline(hours, out _))
-        {
-            _convertedCount = 0;
-            _failure = PuzzleModificationFailure.Deadline;
-            confirmed = false;
-        }
-        else
-        {
-            confirmed = ConfirmModification(state, out _convertedCount, out _failure);
-        }
+        bool confirmed = TryAcceptUpgrades(state, out _convertedCount, out _failure);
         RecordAction(PuzzleActionKind.WorkbenchConfirm, confirmed ? null : ModificationFailureCode(_failure),
             _actionId: state?.Workshop.id, _modeId: modeId);
-        if (confirmed)
-        {
-            WaitForWorkbench(state.Workshop.id, hours);
-        }
         return confirmed;
+    }
+
+    // 강화 접수: 조건을 모두 확인한 뒤 즉시 requiredTurns를 소모해 완료한다.
+    // 시간 진행을 시작할 수 없으면 돈·화물·강화 상태를 하나도 바꾸지 않는다.
+    bool TryAcceptUpgrades(PuzzleModificationState _state, out int _convertedCount,
+        out PuzzleModificationFailure _failure)
+    {
+        _convertedCount = 0;
+        if (!TryPlanUpgradeWork(_state, out var upgrade, out int count, out _failure))
+        {
+            return false;
+        }
+
+        long hours = (long)upgrade.requiredTurns * PuzzleTimeManager.HOURS_PER_TURN;
+        if (!WorkshopFitsDeadline(hours, out _))
+        {
+            _failure = PuzzleModificationFailure.Deadline;
+            return false;
+        }
+        if (!WaitForWorkbench(_state.Workshop.id, hours))
+        {
+            _failure = PuzzleModificationFailure.Blocked;
+            return false;
+        }
+
+        // 시간이 흘렀으니 강화를 붙이고 수수료를 받는다. 품목 정의는 그대로 두고 인스턴스 상태만 바꾼다.
+        foreach (var placement in _state.Board.Placements)
+        {
+            placement.TryAddUpgrade(upgrade.id);
+        }
+        _convertedCount = count;
+        long previousFunds = Funds;
+        Funds -= upgrade.cost;
+        _state.SelectedModeId = null;
+        GameEvents.RaiseFundsChanged(this, previousFunds);
+        NotifyModification(_state);
+        return true;
+    }
+
+    // 강화 접수 가능 여부. 대상 태그·중복 강화·금액을 화물 전체에 대해 확인하고 어떤 상태도 바꾸지 않는다.
+    bool TryPlanUpgradeWork(PuzzleModificationState _state, out PuzzleItemUpgradeData _upgrade, out int _count,
+        out PuzzleModificationFailure _failure)
+    {
+        _upgrade = null;
+        _count = 0;
+        _failure = PuzzleModificationFailure.None;
+        if (RunStatus != PuzzleRunStatus.InProgress || Time == null)
+        {
+            _failure = PuzzleModificationFailure.Blocked;
+            return false;
+        }
+        if (_state == null)
+        {
+            _failure = PuzzleModificationFailure.Unavailable;
+            return false;
+        }
+        if (!IsModificationOpen || _state.Phase != PuzzleModificationPhase.Idle ||
+            !string.Equals(_state.CityId, CurrentCityId, StringComparison.Ordinal))
+        {
+            _failure = PuzzleModificationFailure.Blocked;
+            return false;
+        }
+        if (!TryFindSelectedMode(_state, out var mode) || !TryGetUpgradeForMode(mode, out _upgrade))
+        {
+            _failure = PuzzleModificationFailure.NoMode;
+            return false;
+        }
+        if (_state.Board.Placements.Count == 0)
+        {
+            _failure = PuzzleModificationFailure.Empty;
+            return false;
+        }
+
+        foreach (var placement in _state.Board.Placements)
+        {
+            // 같은 강화는 중복할 수 없고, 강화 대상 태그가 아닌 화물은 접수 자체를 막는다. 다른 강화는 공존한다.
+            if (placement.HasUpgrade(_upgrade.id))
+            {
+                _failure = PuzzleModificationFailure.AlreadyModified;
+                return false;
+            }
+            if (!placement.Definition.Tags.Contains(_upgrade.targetTag))
+            {
+                _failure = PuzzleModificationFailure.InvalidItem;
+                return false;
+            }
+        }
+
+        if (Funds < _upgrade.cost)
+        {
+            _failure = PuzzleModificationFailure.InsufficientFunds;
+            return false;
+        }
+
+        _count = _state.Board.Placements.Count;
+        return true;
+    }
+
+    // 개조 모드(작업 행)가 참조하는 강화. 강화 원본은 PuzzleMechanicTableData.upgrades다.
+    internal static bool TryGetUpgradeForMode(TrainventoryWorkData _mode, out PuzzleItemUpgradeData _upgrade)
+    {
+        _upgrade = null;
+        return _mode != null && TableManager.Instance != null &&
+            TableManager.Instance.TryGetItemUpgrade(_mode.upgradeId, out _upgrade);
+    }
+
+    internal bool TryGetSelectedModificationUpgrade(out PuzzleItemUpgradeData _upgrade, string _cityId = null)
+    {
+        _upgrade = null;
+        return TryGetSelectedModificationMode(out var mode, _cityId) && TryGetUpgradeForMode(mode, out _upgrade);
     }
 
     static string ModificationFailureCode(PuzzleModificationFailure _failure)
@@ -2812,67 +3189,6 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
             default:
                 return _failure.ToString();
         }
-    }
-
-    bool ConfirmModification(PuzzleModificationState _state, out int _convertedCount,
-        out PuzzleModificationFailure _failure)
-    {
-        _convertedCount = 0;
-        var state = _state;
-        if (!TryPlanModificationSwaps(state, out var swaps, out long cost, out _failure))
-        {
-            return false;
-        }
-
-        long readyAtHours;
-        try
-        {
-            TryFindSelectedMode(state, out var work);
-            readyAtHours = checked(Time.ElapsedHours + work.workHours);
-        }
-        catch (OverflowException)
-        {
-            _failure = PuzzleModificationFailure.Blocked;
-            return false;
-        }
-
-        // 입력은 작업대에 잠그고 확정된 정의 교체를 완료 때 적용한다.
-        state.PendingSwaps = swaps;
-        state.ReadyAtHours = readyAtHours;
-        state.Phase = PuzzleModificationPhase.Working;
-        state.SelectedModeId = null;
-        long previousFunds = Funds;
-        Funds -= cost;
-        _convertedCount = swaps.Count;
-        NotifyModification(state);
-        GameEvents.RaiseFundsChanged(this, previousFunds);
-        return true;
-    }
-
-    void CheckModificationReady()
-    {
-        foreach (var state in modifications.Values.ToArray())
-        {
-            RefreshModificationReady(state);
-        }
-    }
-
-    PuzzleModificationState RefreshModificationReady(PuzzleModificationState _state)
-    {
-        if (_state.Phase != PuzzleModificationPhase.Working || Time == null ||
-            Time.ElapsedHours < _state.ReadyAtHours ||
-            !_state.Board.TrySwapDefinitions(_state.PendingSwaps, out _))
-        {
-            return _state;
-        }
-
-        int outputCount = _state.PendingSwaps.Count;
-        _state.PendingSwaps = null;
-        _state.ReadyAtHours = -1;
-        _state.Phase = PuzzleModificationPhase.Ready;
-        NotifyModification(_state);
-        GameEvents.RaiseWorkbenchReady(this, _state.Workshop.id, _state.CityId, outputCount);
-        return _state;
     }
 
     internal void RefreshModificationAfterMove(PuzzleInventory _board)
@@ -2913,83 +3229,6 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
             default:
                 return false;
         }
-    }
-
-    bool TryPlanModificationSwaps(PuzzleModificationState _state, out List<PuzzleDefinitionSwap> _swaps, out long _cost,
-        out PuzzleModificationFailure _failure)
-    {
-        _swaps = null;
-        _cost = 0;
-        _failure = PuzzleModificationFailure.None;
-        if (RunStatus != PuzzleRunStatus.InProgress || Time == null)
-        {
-            _failure = PuzzleModificationFailure.Blocked;
-            return false;
-        }
-
-        if (_state == null)
-        {
-            _failure = PuzzleModificationFailure.Unavailable;
-            return false;
-        }
-        if (!IsModificationOpen || _state.Phase != PuzzleModificationPhase.Idle ||
-            !string.Equals(_state.CityId, CurrentCityId, StringComparison.Ordinal))
-        {
-            _failure = PuzzleModificationFailure.Blocked;
-            return false;
-        }
-        if (!TryFindSelectedMode(_state, out var mode))
-        {
-            _failure = PuzzleModificationFailure.NoMode;
-            return false;
-        }
-        if (_state.Board.Placements.Count == 0)
-        {
-            _failure = PuzzleModificationFailure.Empty;
-            return false;
-        }
-
-        var swaps = new List<PuzzleDefinitionSwap>(_state.Board.Placements.Count);
-        foreach (var placement in _state.Board.Placements)
-        {
-            // 이미 개조한 결과 품목은 다시 맡길 수 없다. 고른 작업의 입력 화물만 받는다.
-            if (string.Equals(placement.Definition.Id, mode.outputPieceId, StringComparison.Ordinal))
-            {
-                _failure = PuzzleModificationFailure.AlreadyModified;
-                return false;
-            }
-            if (!string.Equals(placement.Definition.Id, mode.inputPieceId, StringComparison.Ordinal))
-            {
-                _failure = tables.TryGetWorkFor(_state.Workshop, placement.Definition.Id, out _)
-                    ? PuzzleModificationFailure.NoConversion
-                    : PuzzleModificationFailure.InvalidItem;
-                return false;
-            }
-            if (!definitions.TryGetValue(mode.outputPieceId, out var result) || result == null)
-            {
-                _failure = PuzzleModificationFailure.InvalidResult;
-                return false;
-            }
-
-            swaps.Add(new PuzzleDefinitionSwap(placement, result));
-        }
-
-        if (!_state.Board.TryPlanDefinitionSwaps(swaps))
-        {
-            _failure = PuzzleModificationFailure.InvalidResult;
-            return false;
-        }
-
-        long fee = checked(TableManager.WorkFee(_state.Workshop, mode) * swaps.Count);
-        if (Funds < fee)
-        {
-            _failure = PuzzleModificationFailure.InsufficientFunds;
-            return false;
-        }
-
-        _swaps = swaps;
-        _cost = fee;
-        return true;
     }
 
     bool TryFindSelectedMode(PuzzleModificationState _state, out TrainventoryWorkData _mode)

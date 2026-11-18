@@ -113,9 +113,12 @@ public sealed class PuzzleStationActionsPresenter : MonoBehaviour
             modificationHours = quotedModificationHours;
         }
         bool modificationNoFunds = modificationCost >= 0 && session.Funds < modificationCost;
-        string modificationModeName = modificationModeSelected
-            ? selectedMode.displayName
-            : FirstModificationModeName();
+        string modificationModeName = FirstModificationModeName();
+        if (modificationModeSelected &&
+            PuzzleInventoryService.TryGetUpgradeForMode(selectedMode, out var selectedUpgrade))
+        {
+            modificationModeName = selectedUpgrade.displayName;
+        }
         string modificationHint = !modificationAvailable
             ? string.Empty
             : modificationNoFunds
@@ -162,10 +165,17 @@ public sealed class PuzzleStationActionsPresenter : MonoBehaviour
         RefreshRest();
     }
 
+    // 모드 이름은 강화 행이 원본이다. 강화 참조가 아닌 오래된 행만 작업 이름으로 대신한다.
     string FirstModificationModeName()
     {
         var modes = session.ModificationModes();
-        return modes.Count > 0 ? modes[0].displayName : string.Empty;
+        if (modes.Count == 0)
+        {
+            return string.Empty;
+        }
+        return PuzzleInventoryService.TryGetUpgradeForMode(modes[0], out var upgrade)
+            ? upgrade.displayName
+            : modes[0].displayName;
     }
 
     // 시장·술집·화차 시설은 시간을 쓰지 않고 들어간다. 이동 중이거나 판이 끝났으면 화면을 열지 않는다.
@@ -276,7 +286,20 @@ public sealed class PuzzleStationActionsPresenter : MonoBehaviour
         {
             return;
         }
-        session.TryToggleModificationMode(modes[0].id, out _);
+        // 버튼 하나로 모드를 순환한다. 고른 모드의 다음으로 가고, 미선택이면 첫 모드를 고른다.
+        int next = 0;
+        if (session.TryGetSelectedModificationMode(out var current))
+        {
+            for (int i = 0; i < modes.Count; i++)
+            {
+                if (string.Equals(modes[i].id, current.id, StringComparison.Ordinal))
+                {
+                    next = (i + 1) % modes.Count;
+                    break;
+                }
+            }
+        }
+        session.TryToggleModificationMode(modes[next].id, out _);
     }
 
     void ConfirmModification()

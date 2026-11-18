@@ -209,6 +209,7 @@ public sealed class GameTableRules
         ValidatePuzzle(_tables);
         ValidatePuzzleSynergy(_tables);
         ValidateCombinations(_tables);
+        ValidateMechanics(_tables);
         ValidateWorkshops(_tables);
         ValidateWagonProcesses(_tables);
         ValidatePuzzleTrade(_tables);
@@ -1125,6 +1126,83 @@ public sealed class GameTableRules
         return string.CompareOrdinal(left, right) <= 0 ? left + "|" + right : right + "|" + left;
     }
 
+    // 11-18 신규 품목 규칙 원본. 목재 결합·기계 성장·소금 사용·품목 강화의 수치 범위와 태그·효과 참조를
+    // 항목별로 보고한다. 시너지 표의 규칙과 독립적으로 검증한다.
+    void ValidateMechanics(TableManager _tables)
+    {
+        const string PATH = nameof(PuzzleMechanicTableData);
+        var tags = new HashSet<string>(_tables.Pieces.SelectMany(_piece => _piece.tags ?? Array.Empty<string>()),
+            StringComparer.Ordinal);
+
+        var binding = _tables.PuzzleMechanic.woodBinding;
+        const string BINDING_PATH = PATH + ".woodBinding";
+        Check(binding != null, BINDING_PATH, "목재 결합 설정이 필요합니다.");
+        if (binding != null)
+        {
+            Reference(binding.woodTag, BINDING_PATH + ".woodTag", tags.Contains(binding.woodTag), "목재 태그");
+            Check(_tables.Pieces.Any(_piece => (_piece.tags ?? Array.Empty<string>()).Contains(binding.woodTag)),
+                BINDING_PATH + ".woodTag", "목재 태그를 가진 품목이 없습니다.");
+            Check(!string.IsNullOrWhiteSpace(binding.bundleName), BINDING_PATH + ".bundleName", "묶음 표시 이름이 필요합니다.");
+            Check(!string.IsNullOrWhiteSpace(binding.description), BINDING_PATH + ".description", "목재 결합 설명이 필요합니다.");
+            Check(binding.requiredTurns >= 1, BINDING_PATH + ".requiredTurns", "결합 유지 기간은 1턴 이상이어야 합니다.");
+            Check(binding.valuePercent > PuzzleInventoryValuation.BASE_PERCENT, BINDING_PATH + ".valuePercent",
+                "묶음 가치는 두 가치의 합보다 큰 배율(%)이어야 합니다.");
+        }
+
+        var growth = _tables.PuzzleMechanic.machineryGrowth;
+        const string GROWTH_PATH = PATH + ".machineryGrowth";
+        Check(growth != null, GROWTH_PATH, "기계 성장 설정이 필요합니다.");
+        if (growth != null)
+        {
+            Reference(growth.machineryTag, GROWTH_PATH + ".machineryTag", tags.Contains(growth.machineryTag), "기계 태그");
+            Check(growth.minContactCells >= 2, GROWTH_PATH + ".minContactCells", "성장 기준은 2면 이상이어야 합니다.");
+            Check(growth.growthPercentPerTurn > 0, GROWTH_PATH + ".growthPercentPerTurn", "턴당 성장률은 양의 백분율이어야 합니다.");
+            Check(!string.IsNullOrWhiteSpace(growth.description), GROWTH_PATH + ".description", "기계 성장 설명이 필요합니다.");
+        }
+
+        var salt = _tables.PuzzleMechanic.salt;
+        const string SALT_PATH = PATH + ".salt";
+        Check(salt != null, SALT_PATH, "소금 사용 설정이 필요합니다.");
+        if (salt != null)
+        {
+            Reference(salt.saltTag, SALT_PATH + ".saltTag", tags.Contains(salt.saltTag), "소금 태그");
+            Check(_tables.Pieces.Any(_piece => (_piece.tags ?? Array.Empty<string>()).Contains(salt.saltTag)),
+                SALT_PATH + ".saltTag", "소금 태그를 가진 품목이 없습니다.");
+            Check(!string.IsNullOrWhiteSpace(salt.description), SALT_PATH + ".description", "소금 효과 설명이 필요합니다.");
+            Check(salt.usesPerItem >= 1, SALT_PATH + ".usesPerItem", "소금 사용 횟수는 1 이상이어야 합니다.");
+        }
+
+        var upgrades = _tables.PuzzleMechanic.upgrades ?? Array.Empty<PuzzleItemUpgradeData>();
+        for (int i = 0; i < upgrades.Length; i++)
+        {
+            var upgrade = upgrades[i];
+            if (upgrade == null)
+            {
+                continue;
+            }
+            string path = $"{PATH}.upgrades[{i}]";
+            Check(!string.IsNullOrWhiteSpace(upgrade.displayName), path + ".displayName", "강화 이름이 필요합니다.");
+            Check(!string.IsNullOrWhiteSpace(upgrade.description), path + ".description", "강화 설명이 필요합니다.");
+            Reference(upgrade.targetTag, path + ".targetTag", tags.Contains(upgrade.targetTag), "강화 대상 태그");
+            bool knownEffect = TableManager.TryGetUpgradeEffect(upgrade, out PuzzleUpgradeEffect effect);
+            Check(knownEffect, path + ".effect",
+                $"강화 효과는 {string.Join(", ", Enum.GetNames(typeof(PuzzleUpgradeEffect)))} 중 하나여야 합니다.");
+            Check(upgrade.cost >= 0, path + ".cost", "강화 수수료는 0 이상이어야 합니다.");
+            Check(upgrade.requiredTurns >= 1, path + ".requiredTurns", "강화 완료까지 1턴 이상이어야 합니다.");
+            if (knownEffect && effect == PuzzleUpgradeEffect.Preservation)
+            {
+                Check(upgrade.preservationReductionPercent >= 0 &&
+                    upgrade.preservationReductionPercent <= PuzzleInventoryValuation.BASE_PERCENT,
+                    path + ".preservationReductionPercent", "보존 감소율은 0~100%여야 합니다.");
+            }
+            if (knownEffect && effect == PuzzleUpgradeEffect.GrowthFocus)
+            {
+                Check(upgrade.minContactCells >= 2, path + ".minContactCells", "집중 강화의 성장 기준은 2면 이상이어야 합니다.");
+                Check(upgrade.growthPercentPerTurn > 0, path + ".growthPercentPerTurn", "집중 강화의 성장률은 양의 백분율이어야 합니다.");
+            }
+        }
+    }
+
     // 마을별 추가 행동. 도시·조각·태그 참조와 같은 도시 같은 종류의 중복 등록을 검사하고,
     // 도축·개조·정제는 완성 방식과 변환 규칙이 다르므로 유형별로 분리해 검증한다.
     void ValidateWorkshops(TableManager _tables)
@@ -1178,8 +1256,18 @@ public sealed class GameTableRules
                 {
                     continue;
                 }
-                Check(inputs.Add(work.inputPieceId ?? string.Empty), workPath,
-                    "한 작업장 안에서 같은 입력 화물의 작업은 하나만 둘 수 있습니다.");
+                if (!string.IsNullOrWhiteSpace(work.upgradeId))
+                {
+                    // 강화 행은 품목 입·출력이 아니라 개조 작업장 모드만 된다.
+                    Check(knownType && type == TrainventoryWorkshopType.Modification, workPath,
+                        "강화 작업은 개조 작업장 모드만 등록할 수 있습니다.");
+                    continue;
+                }
+                if (!string.IsNullOrEmpty(work.inputPieceId))
+                {
+                    Check(inputs.Add(work.inputPieceId), workPath,
+                        "한 작업장 안에서 같은 입력 화물의 작업은 하나만 둘 수 있습니다.");
+                }
                 if (!string.IsNullOrEmpty(work.outputPieceId))
                 {
                     outputs.Add(work.outputPieceId);
@@ -1285,6 +1373,14 @@ public sealed class GameTableRules
                 continue;
             }
             string path = $"{PATH}.works[{i}]";
+            if (!string.IsNullOrWhiteSpace(work.upgradeId))
+            {
+                // 강화 참조 행. 이름·설명·가격·시간은 강화 행이 원본이므로 작업 행에서는 입·출력 품목을 두지 않는다.
+                Reference(work.upgradeId, path + ".upgradeId", _tables.TryGetItemUpgrade(work.upgradeId, out _), "강화");
+                Check(string.IsNullOrWhiteSpace(work.inputPieceId) && string.IsNullOrWhiteSpace(work.outputPieceId),
+                    path, "강화 작업 행은 입·출력 품목을 두지 않습니다.");
+                continue;
+            }
             Check(!string.IsNullOrWhiteSpace(work.displayName), path + ".displayName", "작업 이름이 필요합니다.");
             Check(!string.IsNullOrWhiteSpace(work.description), path + ".description", "작업 설명이 필요합니다.");
             Reference(work.inputPieceId, path + ".inputPieceId", _tables.TryGetPiece(work.inputPieceId, out _), "입력 화물");

@@ -371,8 +371,9 @@ public sealed class PuzzleInventoryView : MonoBehaviour
     // 고스트 슬롯은 보드와 피벗이 다른 레이어 아래에 있으므로 보드 칸 좌표를 그 레이어 좌표로 옮겨 그린다.
     RectTransform GhostParent => ghostLayer ? ghostLayer : (RectTransform)transform;
 
-    // 놓을 자리 후보는 외곽선과 같은 보드 칸에 겹쳐 그린다.
-    public void ShowGhostOnBoard(PuzzlePose _pose, PuzzleItemDefinition _item, int? _freshness = null)
+    // 놓을 자리 후보는 외곽선과 같은 보드 칸에 겹쳐 그린다. _extras는 목재 묶음처럼 함께 움직이는 회원 고스트.
+    public void ShowGhostOnBoard(PuzzlePose _pose, PuzzleItemDefinition _item, int? _freshness = null,
+        IReadOnlyList<(PuzzlePose Pose, PuzzleItemDefinition Item, int? Freshness)> _extras = null)
     {
         if (_pose == null)
         {
@@ -381,12 +382,13 @@ public sealed class PuzzleInventoryView : MonoBehaviour
         }
 
         Vector2 boardOrigin = GhostParent.InverseTransformPoint(board.rectTransform.position);
-        RenderGhost(_pose, _item, boardOrigin, _freshness);
+        RenderGhost(_pose, _item, boardOrigin, _freshness, _extras);
     }
 
     // 놓을 자리가 없으면 잡은 칸의 중심이 커서 아래 오도록 커서를 따라간다.
     public void ShowGhostAtPointer(PuzzlePose _pose, PuzzleItemDefinition _item, Vector2Int _grabbedCell, Vector2 _screenPosition,
-        int? _freshness = null)
+        int? _freshness = null,
+        IReadOnlyList<(PuzzlePose Pose, PuzzleItemDefinition Item, int? Freshness)> _extras = null)
     {
         if (_pose == null || !RectTransformUtility.ScreenPointToLocalPointInRectangle(
                 GhostParent, _screenPosition, EventCamera, out var local))
@@ -395,7 +397,7 @@ public sealed class PuzzleInventoryView : MonoBehaviour
             return;
         }
 
-        RenderGhost(_pose, _item, local - GetCellCenter(_grabbedCell), _freshness);
+        RenderGhost(_pose, _item, local - GetCellCenter(_grabbedCell), _freshness, _extras);
     }
 
     public void HideGhost()
@@ -403,12 +405,26 @@ public sealed class PuzzleInventoryView : MonoBehaviour
         HideSlots(ghostSlots);
     }
 
-    void RenderGhost(PuzzlePose _pose, PuzzleItemDefinition _item, Vector2 _offset, int? _freshness)
+    void RenderGhost(PuzzlePose _pose, PuzzleItemDefinition _item, Vector2 _offset, int? _freshness,
+        IReadOnlyList<(PuzzlePose Pose, PuzzleItemDefinition Item, int? Freshness)> _extras = null)
     {
         var ghost = Presentation.PuzzleGhost;
         int used = RenderPose(ghostSlots, 0, _pose, _offset, ghost,
             iconIndex[_item.VisualKey].sprite, _item.IconSize, _item.IconOffset, _freshness,
             _outlineColor: Presentation.PuzzlePieceAccentOutline(_item, ghost.a));
+        if (_extras != null)
+        {
+            foreach (var extra in _extras)
+            {
+                if (used >= ghostSlots.Length)
+                {
+                    break;
+                }
+                used = RenderPose(ghostSlots, used, extra.Pose, _offset, ghost,
+                    iconIndex[extra.Item.VisualKey].sprite, extra.Item.IconSize, extra.Item.IconOffset,
+                    extra.Freshness, _outlineColor: Presentation.PuzzlePieceAccentOutline(extra.Item, ghost.a));
+            }
+        }
         HideSlots(ghostSlots, used);
     }
 

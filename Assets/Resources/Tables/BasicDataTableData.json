@@ -2491,6 +2491,16 @@
           "arguments": 1
         },
         {
+          "id": "machineryTargets",
+          "value": "<size=85%><color=#{0}>현재 성장 중: {1}</color></size>",
+          "arguments": 2
+        },
+        {
+          "id": "saltUses",
+          "value": "<size=85%><color=#{0}>남은 사용 {1}/{2}회</color></size>",
+          "arguments": 3
+        },
+        {
           "id": "generalEffectHeader",
           "value": "<color=#{0}>일반 효과</color>",
           "arguments": 1
@@ -3239,7 +3249,7 @@
         },
         {
           "id": "modification.alreadyModified",
-          "value": "이미 개조한 화물이 섞여 있습니다.",
+          "value": "이미 같은 강화가 붙은 화물이 섞여 있습니다.",
           "arguments": 0,
           "source": "Assets/Scripts/Runtime/Core/Presentation.cs:PuzzleModificationReason"
         },

@@ -8,7 +8,6 @@ public sealed class PuzzleModificationState
     public string SelectedModeId { get; internal set; }
     public PuzzleModificationPhase Phase { get; internal set; } = PuzzleModificationPhase.Idle;
     public long ReadyAtHours { get; internal set; } = -1;
-    internal IReadOnlyList<PuzzleDefinitionSwap> PendingSwaps { get; set; }
 
     internal PuzzleModificationState(string _cityId, TrainventoryWorkshopData _workshop, PuzzleInventory _board)
     {

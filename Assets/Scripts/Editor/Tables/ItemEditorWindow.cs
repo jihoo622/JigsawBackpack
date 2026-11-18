@@ -227,10 +227,12 @@ public sealed partial class ItemEditorWindow : EditorWindow
             }
             using (new EditorGUILayout.VerticalScope(GUILayout.Width(350f)))
             {
-                detailsScroll = EditorGUILayout.BeginScrollView(detailsScroll);
-                BeginValidationFields();
-                DrawDetails();
-                EditorGUILayout.EndScrollView();
+                using (var scroll = new EditorGUILayout.ScrollViewScope(detailsScroll))
+                {
+                    detailsScroll = scroll.scrollPosition;
+                    BeginValidationFields();
+                    DrawDetails();
+                }
                 CompleteValidationFocus();
             }
         }

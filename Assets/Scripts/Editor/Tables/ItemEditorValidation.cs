@@ -27,7 +27,7 @@ public static class ItemEditorValidation
 {
     public static ItemEditorDefinitionReview Review(ItemEditorSource _source, ItemEditorDraft _draft)
     {
-        var originals = _source.files.Where(_file => _file.tableType != null)
+        var originals = _source.files.Where(_file => !string.IsNullOrEmpty(_file.tableType))
             .ToDictionary(_file => Type.GetType(_file.tableType, true), _file => _file.source);
         if (_source.originalValidation == null)
         {

@@ -991,11 +991,14 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             var candidate = preview.Placement.Candidate;
             if (candidate != null)
             {
-                targetView.ShowGhostOnBoard(candidate, drag.Definition, drag.FreshnessPercent);
+                targetView.ShowGhostOnBoard(candidate, drag.Definition, drag.FreshnessPercent,
+                    drag.GetBundleGhostExtras(candidate));
             }
             else
             {
-                targetView.ShowGhostAtPointer(drag.GetGhostPose(), drag.Definition, Vector2Int.zero, pointerPosition, drag.FreshnessPercent);
+                var ghostPose = drag.GetGhostPose();
+                targetView.ShowGhostAtPointer(ghostPose, drag.Definition, Vector2Int.zero, pointerPosition,
+                    drag.FreshnessPercent, drag.GetBundleGhostExtras(ghostPose));
             }
             targetView.ShowPreview(candidate, preview.CanDrop);
             // 고스트는 놓을 후보 보드에만 둔다. 출발 보드에는 원래 자리 외곽선과 광선만 남긴다.
@@ -1043,7 +1046,9 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         SetDragView(sourceView);
         if (sourceView)
         {
-            sourceView.ShowGhostAtPointer(drag.GetGhostPose(), drag.Definition, Vector2Int.zero, pointerPosition, drag.FreshnessPercent);
+            var homeGhostPose = drag.GetGhostPose();
+            sourceView.ShowGhostAtPointer(homeGhostPose, drag.Definition, Vector2Int.zero, pointerPosition,
+                drag.FreshnessPercent, drag.GetBundleGhostExtras(homeGhostPose));
             sourceView.ShowPreview(null, false);
             sourceView.HideAdjacentSynergyPreview();
             Vector2 sourceCenterScreen = sourceView.GetShapeCenterScreen(drag.OriginalPose.Cells);
@@ -1324,10 +1329,17 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         bool isActionBoard = session.IsButchery(_placement.Owner) || session.IsModification(_placement.Owner) ||
             session.IsRefining(_placement.Owner);
         bool isTrain = _view == trainView || session.IsTrainWagon(_placement.Owner);
-        decimal actualValue = _placement.FreshnessAdjustedValue;
+        // 목재 묶음 회원은 원자에 모인 묶음 가치와 표의 묶음 이름·설명으로 표시한다.
+        bool bound = _placement.BindingId != 0;
+        decimal actualValue = _placement.Owner.BundleValueOf(_placement.InstanceId);
+        string bundleName = bound ? session.WoodBundleName : null;
         var rate = item == null ? default : session.RateFor(item);
         (IReadOnlyList<string> General, IReadOnlyList<PuzzleTooltipEffectEntry> Synergies) effects =
             BuildEffectDescriptions(_placement, isTrain, isActionBoard);
+        if (bound)
+        {
+            effects = (new List<string>(effects.General) { session.WoodBundleDescription }, effects.Synergies);
+        }
         long? previewHours = session.PreviewHours;
         long? previewActivations = null;
         decimal? futureValue = null;
@@ -1352,8 +1364,8 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             long? price = session.TryQuoteTrade(_placement, direction, out long quote) ? quote : (long?)null;
             tooltipView.Show(item, actualValue, rate, effects.General, effects.Synergies, futureValue, pos, isTrain, _placement.FreshnessPercent,
                 session.HoursUntilNextFreshnessBand(_placement), previewHours,
-                previewName, previewActivations, price, isTrain ? PuzzleSynergyBonus.GroupByNeighbor(value.SynergyBonuses) : null,
-                isTrain ? session.AppliedPreservationPercent(_placement) : 0, isActionBoard);
+                previewName, previewActivations, price,                 isTrain ? PuzzleSynergyBonus.GroupByNeighbor(value.SynergyBonuses) : null,
+                isTrain ? session.AppliedPreservationPercent(_placement) : 0, isActionBoard, bundleName);
             // 툴팁을 열면 미확인 알림만 지운다. 실제로 대기 중인 진행도와 빨간 표시는 상태가 풀릴 때까지 남는다.
             if (_placement.HasUnreadNotice && tooltipView.IsOpen)
             {

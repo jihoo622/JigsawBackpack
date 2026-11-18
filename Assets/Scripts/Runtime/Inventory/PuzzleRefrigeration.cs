@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -39,6 +40,34 @@ internal static class PuzzleRefrigeration
         return _source.PreservationReductionPercent;
     }
 
+    // 품목 정의의 냉장 효과와 인스턴스에 붙은 냉장 강화를 함께 본다. 강화 원본은 PuzzleMechanicTableData.upgrades.
+    internal static int SourceReductionPercent(PuzzlePlacement _source, PuzzleFreshnessData _freshness)
+    {
+        int reduction = SourceReductionPercent(_source.Definition, _freshness);
+        var preservation = PreservationUpgrade(_source);
+        return preservation == null ? reduction : Math.Max(reduction, preservation.preservationReductionPercent);
+    }
+
+    // 기계 인스턴스에 붙은 냉장 강화. 없으면 null.
+    internal static PuzzleItemUpgradeData PreservationUpgrade(PuzzlePlacement _source)
+    {
+        if (_source == null)
+        {
+            return null;
+        }
+        foreach (string id in _source.AppliedUpgradeIds)
+        {
+            if (TableManager.Instance.TryGetItemUpgrade(id, out var upgrade) &&
+                TableManager.TryGetUpgradeEffect(upgrade, out PuzzleUpgradeEffect effect) &&
+                effect == PuzzleUpgradeEffect.Preservation)
+            {
+                return upgrade;
+            }
+        }
+
+        return null;
+    }
+
     internal static int AdjacentReductionPercent(IEnumerable<PuzzlePlacement> _sources, PuzzlePlacement _item,
         PuzzleFreshnessData _freshness, ICollection<PuzzleRefrigerationContact> _contacts = null)
     {
@@ -61,7 +90,7 @@ internal static class PuzzleRefrigeration
                 continue;
             }
 
-            int reduction = SourceReductionPercent(source.Definition, _freshness);
+            int reduction = SourceReductionPercent(source, _freshness);
             if (reduction <= 0 || !TryGetContact(source, _item, out var cells))
             {
                 continue;

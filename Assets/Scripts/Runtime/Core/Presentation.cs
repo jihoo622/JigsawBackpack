@@ -1227,7 +1227,11 @@ public static partial class Presentation
         }
 
         bool selected = _session.TryGetSelectedModificationMode(out var mode);
-        string modeName = selected ? mode.displayName : FirstModificationModeName(_session);
+        string modeName = FirstModificationModeName(_session);
+        if (selected && PuzzleInventoryService.TryGetUpgradeForMode(mode, out var selectedUpgrade))
+        {
+            modeName = selectedUpgrade.displayName;
+        }
         if (!selected)
         {
             return BasicData.Format("presentation.PuzzleModificationIdle", modeName);
@@ -1248,8 +1252,8 @@ public static partial class Presentation
             PuzzleModificationFailure.InvalidItem => BasicData.Text("rules.modification.invalidItem"),
             PuzzleModificationFailure.AlreadyModified => BasicData.Text("rules.modification.alreadyModified"),
             PuzzleModificationFailure.NoConversion => BasicData.Text("rules.modification.noConversion"),
-            PuzzleModificationFailure.InsufficientFunds when _session.TryGetSelectedModificationMode(out var mode)
-                => PuzzleModificationInsufficientFunds(mode.cost),
+            PuzzleModificationFailure.InsufficientFunds when _session.TryGetSelectedModificationUpgrade(out var upgrade)
+                => PuzzleModificationInsufficientFunds(upgrade.cost),
             _ => BasicData.Text("rules.modification.invalidResult")
         };
     }
@@ -1257,7 +1261,13 @@ public static partial class Presentation
     static string FirstModificationModeName(PuzzleInventoryService _session)
     {
         var modes = _session.ModificationModes();
-        return modes.Count > 0 ? modes[0].displayName : string.Empty;
+        if (modes.Count == 0)
+        {
+            return string.Empty;
+        }
+        return PuzzleInventoryService.TryGetUpgradeForMode(modes[0], out var upgrade)
+            ? upgrade.displayName
+            : modes[0].displayName;
     }
     public static string PuzzleNightMarket => BasicData.Text("presentation.inventory.nightMarket");
     public static float PuzzleMarketClosedAlpha => BasicData.Float("presentation.inventory.stationRestDurationAbovePercent");
@@ -1776,6 +1786,24 @@ public static partial class Presentation
             TurnSpan(_hours), _resultName));
     }
 
+    internal static string PuzzleSaltUseEffect(string _description, int _remaining, int _fullUses)
+    {
+        return PuzzleTooltipEffectDescription(_description) + "\n" +
+            BasicData.Format("presentation.tooltip.saltUses",
+                ColorUtility.ToHtmlStringRGB(PuzzleTooltipGreen), _remaining, _fullUses);
+    }
+
+    internal static string PuzzleMachineryGrowthEffect(string _description, IReadOnlyList<string> _growthTargets)
+    {
+        string line = PuzzleTooltipEffectDescription(_description);
+        if (_growthTargets != null && _growthTargets.Count > 0)
+        {
+            line += "\n" + BasicData.Format("presentation.tooltip.machineryTargets",
+                ColorUtility.ToHtmlStringRGB(PuzzleTooltipGreen), string.Join(", ", _growthTargets));
+        }
+        return line;
+    }
+
     internal static string PuzzleFreshnessDot => BasicData.Text("presentation.freshness.dot");
 
     internal static Color PuzzleFreshnessOutline => BasicData.Color("presentation.freshness.outline");
@@ -1887,6 +1915,19 @@ public static partial class Presentation
             synergies.Add((false, false, PuzzleRefrigerationEffect(preservation)));
         }
 
+        // 강화 효과는 인스턴스가 가지므로 붙은 강화의 설명을 강화 표 행 그대로 목록에 더한다.
+        if (_placement != null)
+        {
+            foreach (string upgradeId in _placement.AppliedUpgradeIds)
+            {
+                if (tables.TryGetItemUpgrade(upgradeId, out var appliedUpgrade))
+                {
+                    general.Add(new PuzzleEffectDisplay(
+                        PuzzleTooltipEffectDescription(appliedUpgrade.description), null));
+                }
+            }
+        }
+
         var animals = tables.PuzzleSynergy.animals;
         if (_item.Tags.Contains(animals.animalTag))
         {
@@ -1951,6 +1992,30 @@ public static partial class Presentation
                 combinationHours, product.displayName), combinationProgress));
         }
 
+        // 소금은 사용 횟수만큼 여러 음식을 동시에 절이며 성공할 때마다 횟수를 쓴다. 표시 수치는 표와
+        // 인스턴스의 차감값을 그대로 따른다.
+        var salt = tables.PuzzleMechanic.salt;
+        if (_item.Tags.Contains(salt.saltTag))
+        {
+            int remaining = _placement != null && _placement.SaltUsesRemaining >= 0
+                ? _placement.SaltUsesRemaining
+                : salt.usesPerItem;
+            general.Add(new PuzzleEffectDisplay(
+                PuzzleSaltUseEffect(salt.description, remaining, salt.usesPerItem), null));
+        }
+
+        // 기계 성장은 태그 기반의 인스턴스 효과다. 설명은 표(집중 강화가 붙은 인스턴스는 강화 설명)를 읽고,
+        // 객차 안에서는 정산과 같은 조회로 지금 성장 중인 대상 목록을 덧붙인다.
+        var machinery = tables.PuzzleMechanic.machineryGrowth;
+        if (_item.Tags.Contains(machinery.machineryTag))
+        {
+            var focus = PuzzleMachineryGrowth.FocusUpgrade(_placement);
+            IReadOnlyList<string> growthTargets =
+                isTrain && _placement != null && _session != null ? _session.MachineryGrowthTargets(_placement) : null;
+            general.Add(new PuzzleEffectDisplay(
+                PuzzleMachineryGrowthEffect(focus != null ? focus.description : machinery.description,
+                    growthTargets), null));
+        }
 
         foreach (var rule in tables.SynergiesFor(_scope))
         {

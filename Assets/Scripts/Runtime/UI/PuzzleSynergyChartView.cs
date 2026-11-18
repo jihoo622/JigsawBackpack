@@ -3,7 +3,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-// 사전 배치한 상성표 칸에 문구와 색만 넣는다. 칸 구성은 Tools/MyJG/Apply Synergy Chart가 만든다.
+// 사전 배치한 상성표 칸에 문구와 색만 넣는다. 칸 구성은 PuzzleSynergyChart 프리팹에서 편집한다.
 public sealed class PuzzleSynergyChartView : PanelBase
 {
     [SerializeField] Button toggleButton;
@@ -75,7 +75,7 @@ public sealed class PuzzleSynergyChartView : PanelBase
         if (!closeButton || !closeLabel || !titleLabel || !cornerLabel ||
             !notesText || !itemTitleText || !itemTagsText)
         {
-            throw new InvalidOperationException("상성표 패널의 버튼·제목·설명 참조를 연결하세요(Tools/MyJG/Apply Synergy Chart).");
+            throw new InvalidOperationException("상성표 패널의 버튼·제목·설명 참조를 연결하세요: Assets/Art/PuzzleSynergyChart.prefab");
         }
         titleLabel.text = _title;
         if (toggleLabel)

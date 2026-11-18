@@ -33,6 +33,7 @@ public sealed class TableManager
     public PuzzleTableData Puzzle { get; }
     public PuzzleSynergyTableData PuzzleSynergy { get; }
     public PuzzleCombinationTableData PuzzleCombination { get; }
+    public PuzzleMechanicTableData PuzzleMechanic { get; }
     public TrainventoryWorkTableData Work { get; }
     public TrainventoryWorkshopTableData Workshop { get; }
     public TrainventoryWagonProcessTableData WagonProcess { get; }
@@ -48,6 +49,8 @@ public sealed class TableManager
     public IReadOnlyList<PuzzleSynergyRuleData> SynergyRules { get; }
     // 인접 조합 규칙. id 오름차순이라 배열 순서에 의존하지 않는다.
     public IReadOnlyList<PuzzleCombinationRuleData> Combinations { get; }
+    // 품목 강화. id 오름차순이라 배열 순서에 의존하지 않는다.
+    public IReadOnlyList<PuzzleItemUpgradeData> ItemUpgrades { get; }
     // 작업·작업장. id 오름차순이라 배열 순서에 의존하지 않는다.
     public IReadOnlyList<TrainventoryWorkData> Works { get; }
     public IReadOnlyList<TrainventoryWorkshopData> Workshops { get; }
@@ -93,6 +96,7 @@ public sealed class TableManager
     readonly Dictionary<string, PuzzleCombinationRuleData> combinations;
     readonly Dictionary<string, List<PuzzleCombinationRuleData>> combinationsByPiece;
     readonly HashSet<string> combinationResults;
+    readonly Dictionary<string, PuzzleItemUpgradeData> itemUpgrades;
     readonly Dictionary<string, PuzzleCityData> cities;
     readonly Dictionary<string, PuzzleRegionData> regions;
     readonly Dictionary<string, PuzzleMarketStockData> stockProfiles;
@@ -119,6 +123,7 @@ public sealed class TableManager
         Puzzle = Load<PuzzleTableData>(ref loaded, _sources);
         PuzzleSynergy = Load<PuzzleSynergyTableData>(ref loaded, _sources);
         PuzzleCombination = Load<PuzzleCombinationTableData>(ref loaded, _sources);
+        PuzzleMechanic = Load<PuzzleMechanicTableData>(ref loaded, _sources);
         Work = Load<TrainventoryWorkTableData>(ref loaded, _sources);
         Workshop = Load<TrainventoryWorkshopTableData>(ref loaded, _sources);
         WagonProcess = Load<TrainventoryWagonProcessTableData>(ref loaded, _sources);
@@ -159,9 +164,11 @@ public sealed class TableManager
             "PuzzleSynergyTableData.animals.breeding");
         combinations = rules.Index(PuzzleCombination.rules, _row => _row.id, "PuzzleCombinationTableData.rules");
         combinationsByPiece = IndexCombinationsByPiece(combinations);
+        itemUpgrades = rules.Index(PuzzleMechanic.upgrades, _row => _row.id, "PuzzleMechanicTableData.upgrades");
         combinationResults = new HashSet<string>(combinations.Values.Select(_rule => _rule.resultPieceId)
             .Where(_id => !string.IsNullOrEmpty(_id)), StringComparer.Ordinal);
         Combinations = Array.AsReadOnly(combinations.Values.OrderBy(_rule => _rule.id, StringComparer.Ordinal).ToArray());
+        ItemUpgrades = Array.AsReadOnly(itemUpgrades.Values.OrderBy(_row => _row.id, StringComparer.Ordinal).ToArray());
         SynergyRules = Array.AsReadOnly(synergyRules.Values.OrderBy(entry => entry.id, StringComparer.Ordinal).ToArray());
         works = rules.Index(Work.works, _row => _row.id, "TrainventoryWorkTableData.works");
         workshops = rules.Index(Workshop.workshops, _row => _row.id, "TrainventoryWorkshopTableData.workshops");
@@ -506,6 +513,20 @@ public sealed class TableManager
 
         _rule = null;
         return false;
+    }
+
+    internal bool TryGetItemUpgrade(string _id, out PuzzleItemUpgradeData _upgrade)
+    {
+        _upgrade = null;
+        return !string.IsNullOrEmpty(_id) && itemUpgrades.TryGetValue(_id, out _upgrade);
+    }
+
+    // effect 문자열과 enum 이름을 대조한다. 숫자 문자열·알 수 없는 값은 false이고 검증에서 오류로 보고된다.
+    internal static bool TryGetUpgradeEffect(PuzzleItemUpgradeData _upgrade, out PuzzleUpgradeEffect _effect)
+    {
+        _effect = default;
+        return _upgrade != null && !string.IsNullOrEmpty(_upgrade.effect) && !char.IsDigit(_upgrade.effect[0]) &&
+            Enum.TryParse(_upgrade.effect, false, out _effect) && Enum.IsDefined(typeof(PuzzleUpgradeEffect), _effect);
     }
 
     // 품목이 입력으로 참여하는 조합 규칙. id 오름차순이라 배열 순서에 의존하지 않는다.

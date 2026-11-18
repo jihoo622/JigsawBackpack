@@ -209,7 +209,7 @@ public sealed class PuzzleItemTooltipView : PanelBase
         IReadOnlyList<string> _generalEffects, IReadOnlyList<PuzzleTooltipEffectEntry> _synergyEffects, decimal? _futureValue, Vector2 _screenPosition,
         bool _isTrainInventory, int? _freshness, long? _minutesUntilNextFreshnessBand, long? _previewHours, string _previewCityName,
         long? _previewActivations, long? _tradePrice, IReadOnlyList<PuzzleSynergyBonus> _activeEffects, int _appliedPreservation,
-        bool _isActionBoard = false)
+        bool _isActionBoard = false, string _displayName = null)
     {
         if (_item == null)
         {
@@ -217,7 +217,7 @@ public sealed class PuzzleItemTooltipView : PanelBase
             return;
         }
 
-        BeginShow(_item.DisplayName);
+        BeginShow(_displayName ?? _item.DisplayName);
 
         if (activeEffectsSection)
         {

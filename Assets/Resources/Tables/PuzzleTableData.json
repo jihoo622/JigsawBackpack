@@ -52,11 +52,6 @@
           "source": false
         },
         {
-          "ruleId": "sample.machineryNearWood",
-          "target": false,
-          "source": true
-        },
-        {
           "ruleId": "wasteNearbyPenalty",
           "target": true,
           "source": false
@@ -113,11 +108,6 @@
           "ruleId": "sample.cargoNearFood",
           "target": true,
           "source": false
-        },
-        {
-          "ruleId": "sample.machineryNearWood",
-          "target": false,
-          "source": true
         },
         {
           "ruleId": "wasteNearbyPenalty",
@@ -223,11 +213,6 @@
           "ruleId": "sample.cargoNearFood",
           "target": true,
           "source": false
-        },
-        {
-          "ruleId": "sample.machineryNearWood",
-          "target": false,
-          "source": true
         },
         {
           "ruleId": "wasteNearbyPenalty",
@@ -356,11 +341,6 @@
       "baseValue": 55,
       "synergyEffects": [
         {
-          "ruleId": "sample.machineryNearWood",
-          "target": true,
-          "source": false
-        },
-        {
           "ruleId": "wasteNearbyPenalty",
           "target": true,
           "source": false
@@ -429,11 +409,6 @@
       "durability": 100,
       "baseValue": 55,
       "synergyEffects": [
-        {
-          "ruleId": "sample.machineryNearWood",
-          "target": true,
-          "source": false
-        },
         {
           "ruleId": "wasteNearbyPenalty",
           "target": true,

@@ -58,7 +58,7 @@ puzzle_action은 모델에 전달된 명시적 조작 한 건의 결과다. 의�
 | workbench_load | 기차에서 작업대 보드로 맡기기 시도 | drag / quick_transfer |
 | workbench_unload | 작업대 보드에서 기차로 꺼내기 시도(산출물 회수 포함) | drag / quick_transfer |
 | placement | 원본 ID나 대상 보드가 유효하지 않아 위 분류로 나눌 수 없는 배치 시도 | drag / quick_transfer |
-| workbench_confirm | 작업대 작업 확정 시도. `actionId`, 개조면 `modeId`. 성공하면 비용이 moneyDelta, 도축·정제 입력이 removed로 나온다. 개조 입력은 완료까지 작업대에 남는다 | 비어 있음 |
+| workbench_confirm | 작업대 작업 확정 시도. `actionId`, 개조면 `modeId`. 성공하면 비용이 moneyDelta, 도축·정제 입력이 removed로 나온다. 개조 강화는 확정 즉시 1턴을 소모해 완료되며 품목은 그대로 남고 강화만 붙으므로 introduced·removed·transformed 변화가 없다(강화 부착은 관측 변화로 남기지 않는다) | 비어 있음 |
 | wait_for_workbench | 작업장 확정 뒤 작업 시간만큼 흐른 시간(9부터 확정마다 남김, 8에서는 쓰지 않음). `actionId` | 비어 있음 |
 | enter_market | 시장 진입(시간을 쓰지 않음). 밤이면 market_closed로 실패한다. 같은 시설에 다시 들어가면 기록하지 않는다 | 비어 있음 |
 | enter_tavern | 술집 진입(시간을 쓰지 않음) | 비어 있음 |
@@ -127,7 +127,7 @@ introduced의 ID는 적용 중인 S에 없어야 한다. moved/transformed/value
 
 시간 행동의 values는 행동 끝에 관측한 실제 가치다. 행동 도중 생성되거나 변환된 화물은 이후 정산에 참여할 수 있다. 외부 복원은 기록된 values를 적용한다. 동일 ID로 품목이 바뀌는 성장·식품 만료·개조 완료는 transformed로 복원한다. 작업대의 예약 산출물·남은 시간 같은 내부 진행 상태는 화물이 아니므로 복원하지 않고 테이블의 `workTurns`와 확정 시각으로 계산한다.
 
-작업대 완료는 보통 시간 행동 안에서 일어나 그 행동의 introduced(도축·정제 산출물)나 transformed(개조)에 나온다. 완료 판정은 작업대를 조회할 때도 늦게 일어날 수 있어 그 경우 변화는 다음 `puzzle_action`에 실린다. 완료 시점은 보조 기록 `workbench_ready`(`actionId`, `cityId`, `outputCount`, `elapsedHours`)로 확인한다. 상태 적용에는 쓰지 않는다.
+작업대 완료는 보통 시간 행동 안에서 일어나 그 행동의 introduced(도축·정제 산출물)에 나온다. 완료 판정은 작업대를 조회할 때도 늦게 일어날 수 있어 그 경우 변화는 다음 `puzzle_action`에 실린다. 완료 시점은 보조 기록 `workbench_ready`(`actionId`, `cityId`, `outputCount`, `elapsedHours`)로 확인한다. 상태 적용에는 쓰지 않는다.
 
 ## 격자·회전
 

@@ -18,18 +18,22 @@ public sealed class PuzzleSynergyChartPresenter : MonoBehaviour
     void OnEnable()
     {
         var tables = TableManager.Instance.RequireValid();
+        chart = PuzzleSynergyChart.ForTrain(tables);
+        if (!view)
+        {
+            throw new InvalidOperationException("상성표 Presenter의 View 참조를 연결하세요: Assets/Art/PuzzleSynergyChart.prefab");
+        }
+        if (!view.MatchesShape(chart.Rows.Count, chart.Columns.Count))
+        {
+            throw new InvalidOperationException($"상성표 프리팹의 칸 구성이 시너지 규칙과 다릅니다. 필요: {chart.Rows.Count}행×{chart.Columns.Count}열, 연결된 헤더: {view.RowCapacity}행×{view.ColumnCapacity}열. Assets/Art/PuzzleSynergyChart.prefab의 헤더·칸 배열과 GridLayoutGroup을 맞추세요.");
+        }
+
         GameEvents.SynergyChartShowRequested += OnShowRequested;
         GameEvents.SynergyHighlightRequested += OnSynergyHighlightRequested;
         GameEvents.PanelVisibility += OnPanelVisibility;
         if (view)
         {
             view.Hidden += OnViewHidden;
-        }
-
-        chart = PuzzleSynergyChart.ForTrain(tables);
-        if (!view.MatchesShape(chart.Rows.Count, chart.Columns.Count))
-        {
-            throw new InvalidOperationException("상성표 칸 수가 시너지 규칙과 다릅니다. Tools/MyJG/Apply Synergy Chart를 다시 실행하세요.");
         }
 
         // 제외 조건은 칸에 각주 번호를 달고 설명 영역에 모은다.

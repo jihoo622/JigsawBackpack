@@ -111,6 +111,16 @@ public sealed class PuzzlePlacement
     internal bool GrowthSpaceBlocked { get; set; }
     // 현재 내구도. 생성 시 정의의 시작값으로 초기화하고, 이동 시 보존한다. 감소는 외부 Manager가 담당한다.
     public int Durability { get; private set; }
+    // 인스턴스에 부착된 강화(PuzzleMechanicTableData.upgrades의 id). 같은 강화는 중복 불가, 다른 강화는 공존한다.
+    // 사본·이동·반영과 함께 옮겨지고 품목 정의에는 남기지 않는다.
+    internal IReadOnlyList<string> AppliedUpgradeIds { get; set; } = Array.Empty<string>();
+    // 소금의 남은 사용 횟수. -1은 사용 횟수를 추적하지 않는 품목, 0 이상은 남은 절임 횟수다.
+    internal int SaltUsesRemaining { get; set; } = NO_SALT_TRACKING;
+    // 목재 결합 식별자. 0은 미결합이며 같은 값은 같은 묶음이다. 묶음은 모든 작업에서 하나의 아이템으로 다룬다.
+    internal int BindingId { get; set; }
+    // 결합 구성 정보. 묶음 기준 회원을 원점으로 한 묶음 로컬 좌표의 오프셋으로, 상대 배치를 보존한다.
+    internal Vector2Int BindingLocalOffset { get; set; }
+    const int NO_SALT_TRACKING = -1;
     long ShelfLifeHours => Definition.ShelfLifeHours;
     // 남은 유통기한 시간. 유통기한이 없는 품목은 null이다.
     internal long? RemainingShelfLifeHours => Definition.HasDurability && ShelfLifeHours > 0
@@ -329,6 +339,40 @@ public sealed class PuzzlePlacement
         HasUnreadSynergySettlement |= ActualValue != previousValue;
     }
 
+    /// <summary>강화 부착. 같은 강화가 이미 있으면 아무것도 바꾸지 않고 false다.</summary>
+    internal bool TryAddUpgrade(string _upgradeId)
+    {
+        if (string.IsNullOrEmpty(_upgradeId) || HasUpgrade(_upgradeId))
+        {
+            return false;
+        }
+        var ids = new List<string>(AppliedUpgradeIds) { _upgradeId };
+        AppliedUpgradeIds = ids;
+        return true;
+    }
+
+    internal bool HasUpgrade(string _upgradeId)
+    {
+        if (string.IsNullOrEmpty(_upgradeId))
+        {
+            return false;
+        }
+        foreach (string id in AppliedUpgradeIds)
+        {
+            if (string.Equals(id, _upgradeId, StringComparison.Ordinal))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /// <summary>소금의 남은 사용 횟수. 아직 절임을 성공한 적이 없으면 표의 전체 횟수를 그대로 따른다.</summary>
+    internal int SaltUsesLeft(int _fullUses)
+    {
+        return SaltUsesRemaining < 0 ? _fullUses : SaltUsesRemaining;
+    }
+
     internal void CopyTimeState(PuzzlePlacement _staged)
     {
         ActualValue = _staged.ActualValue;
@@ -336,6 +380,10 @@ public sealed class PuzzlePlacement
         GrowthElapsedHours = _staged.GrowthElapsedHours;
         GrowthSpaceBlocked = _staged.GrowthSpaceBlocked;
         ShelfLifeAge = _staged.ShelfLifeAge;
+        AppliedUpgradeIds = _staged.AppliedUpgradeIds;
+        SaltUsesRemaining = _staged.SaltUsesRemaining;
+        BindingId = _staged.BindingId;
+        BindingLocalOffset = _staged.BindingLocalOffset;
         HasUnreadSynergySettlement = _staged.HasUnreadSynergySettlement;
         HasUnreadSpaceNotice = _staged.HasUnreadSpaceNotice;
         HasUnreadSpawnNotice = _staged.HasUnreadSpawnNotice;

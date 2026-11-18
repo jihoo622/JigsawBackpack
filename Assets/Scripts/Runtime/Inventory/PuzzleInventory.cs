@@ -202,7 +202,11 @@ public sealed class PuzzleInventory
             HasUnreadSpaceNotice = keepsSpaceNotice && _source.HasUnreadSpaceNotice,
             HasUnreadSpawnNotice = _source.HasUnreadSpawnNotice,
             GrowthElapsedHours = keepsGrowth ? _source.GrowthElapsedHours : (_source.OwnedHours < 0 ? -1 : 0),
-            GrowthSpaceBlocked = keepsGrowth && _source.GrowthSpaceBlocked
+            GrowthSpaceBlocked = keepsGrowth && _source.GrowthSpaceBlocked,
+            AppliedUpgradeIds = _source.AppliedUpgradeIds,
+            SaltUsesRemaining = _source.SaltUsesRemaining,
+            BindingId = _source.BindingId,
+            BindingLocalOffset = _source.BindingLocalOffset
         };
     }
 
@@ -355,6 +359,13 @@ public sealed class PuzzleInventory
             return new PuzzlePlacementResult(failure);
         }
 
+        // 목재 묶음은 잡은 조각 하나가 아니라 묶음 전체가 함께 움직인다. 전 회워가 함께 들어갈 때만 허용한다.
+        if (_original.BindingId != 0)
+        {
+            return new PuzzlePlacementResult(EvaluateBundleMove(_original, _destination, _grabbedCell, _targetCell,
+                _clockwiseTurns, out _), candidate);
+        }
+
         int? ignoredInstanceId = sameBoard ? _original.InstanceId : null;
         return new PuzzlePlacementResult(_destination.CheckPlacement(candidate.Cells, ignoredInstanceId, _original.Definition),
             candidate);
@@ -366,20 +377,279 @@ public sealed class PuzzleInventory
         var result = EvaluateMove(_original, _destination, _grabbedCell, _targetCell, _clockwiseTurns);
         if (result.CanPlace)
         {
-            // 원본과 대상의 현재 점유를 확인한 뒤 같은 호출에서 소속과 점유를 함께 바꾼다.
-            var placement = _destination.CopyPlacement(_original, _original.Definition, _destination, result.Candidate,
-                _original.ActualValue);
-            ClearOccupancy(_original);
-            placements.Remove(_original.InstanceId);
-            _destination.StorePlacement(placement);
-            RecalculateValue();
-            if (!ReferenceEquals(this, _destination))
+            if (_original.BindingId != 0)
             {
-                _destination.RecalculateValue();
+                ApplyBundleMove(_original, _destination, _grabbedCell, _targetCell, _clockwiseTurns);
+            }
+            else
+            {
+                // 원본과 대상의 현재 점유를 확인한 뒤 같은 호출에서 소속과 점유를 함께 바꾼다.
+                var placement = _destination.CopyPlacement(_original, _original.Definition, _destination, result.Candidate,
+                    _original.ActualValue);
+                ClearOccupancy(_original);
+                placements.Remove(_original.InstanceId);
+                _destination.StorePlacement(placement);
+                RecalculateValue();
+                if (!ReferenceEquals(this, _destination))
+                {
+                    _destination.RecalculateValue();
+                }
             }
         }
 
         return result;
+    }
+
+    // 목재 묶음 회원. 미결합 품목은 자기 하나만 담는다. 회원은 같은 BindingId와 같은 소속을 공유한다.
+    internal List<PuzzlePlacement> BundleMembers(PuzzlePlacement _placement)
+    {
+        if (_placement == null)
+        {
+            return new List<PuzzlePlacement>();
+        }
+        if (_placement.BindingId == 0)
+        {
+            return new List<PuzzlePlacement> { _placement };
+        }
+        return placements.Values
+            .Where(_item => _item.BindingId == _placement.BindingId)
+            .OrderBy(_item => _item.InstanceId)
+            .ToList();
+    }
+
+    // 항목 하나의 논리적 가치. 미결합은 신선도를 반영한 가치, 묶음 회원은 묶음 원자(인스턴스 ID 최소)에
+    // 모인 가치 합이다. 보드 합계는 회원 가치가 원자에만 남아 중복 없이 같다.
+    internal decimal BundleValueOf(int _instanceId)
+    {
+        if (!placements.TryGetValue(_instanceId, out var placement))
+        {
+            return 0;
+        }
+        return placement.BindingId == 0
+            ? placement.FreshnessAdjustedValue
+            : BundleMembers(placement).Sum(_member => _member.ActualValue);
+    }
+
+    // 묶음 dedup과 순서를 안정적으로 만들기 위한 회원 중 가장 작은 인스턴스 ID.
+    internal int BundleRootId(PuzzlePlacement _placement)
+    {
+        if (_placement == null)
+        {
+            return 0;
+        }
+        if (_placement.BindingId == 0)
+        {
+            return _placement.InstanceId;
+        }
+        int root = _placement.InstanceId;
+        foreach (var item in placements.Values)
+        {
+            if (item.BindingId == _placement.BindingId && item.InstanceId < root)
+            {
+                root = item.InstanceId;
+            }
+        }
+        return root;
+    }
+
+    // 목재 결합 완료. 두 회원을 하나의 새 id로 다시 만들고 인스턴스 ID가 최소인 회원을 원자로 삼는다.
+    // 묶음 가치 = ⌈두 묶음 가치 합 × _valuePercent / 100⌉을 원자에 모으고 나머지 회원 가치는 0으로 둔다.
+    // 좌표는 움직이지 않는다.
+    internal bool TryBind(PuzzlePlacement _left, PuzzlePlacement _right, int _valuePercent, int _bindingId)
+    {
+        if (_bindingId == 0 || _valuePercent <= 0 || _left == null || _right == null ||
+            ReferenceEquals(_left, _right) || !IsCurrentPlacement(_left) || !IsCurrentPlacement(_right) ||
+            (_left.BindingId != 0 && _left.BindingId == _right.BindingId))
+        {
+            return false;
+        }
+
+        var members = BundleMembers(_left).Concat(BundleMembers(_right))
+            .OrderBy(_member => _member.InstanceId)
+            .ToList();
+        decimal total = members.Sum(_member => _member.ActualValue);
+        decimal merged = (decimal)Math.Ceiling(total * _valuePercent / 100m);
+        int anchorId = members[0].InstanceId;
+        var anchorPosition = members[0].Pose.Cells[0].Position;
+        foreach (var member in members)
+        {
+            var bound = CopyPlacement(member, member.Definition, this, member.Pose,
+                member.InstanceId == anchorId ? merged : 0m);
+            bound.BindingId = _bindingId;
+            bound.BindingLocalOffset = member.Pose.Cells[0].Position - anchorPosition;
+            ClearOccupancy(member);
+            placements.Remove(member.InstanceId);
+            StorePlacement(bound);
+        }
+        RecalculateValue();
+        return true;
+    }
+
+    // 잡은 회원의 목표 포즈(_anchorPose)와 강체로 함께 움직이는 회원 전원의 포즈. 드래그 고스트 표시용이며
+    // 대상 보드는 검사하지 않는다. 수식은 EvaluateBundleMove와 같은 틀을 쓴다.
+    internal List<(PuzzlePlacement Member, PuzzlePose Pose)> GetBundleGhostPoses(
+        PuzzlePlacement _original, Vector2Int _grabbedCell, PuzzlePose _anchorPose)
+    {
+        var poses = new List<(PuzzlePlacement Member, PuzzlePose Pose)>();
+        if (_original?.Pose == null || _anchorPose == null ||
+            !TryGrabbedCellPosition(_original, _grabbedCell, out var grabbedPosition))
+        {
+            return poses;
+        }
+
+        var anchorCell = Vector2Int.zero;
+        bool anchored = false;
+        foreach (var cell in _anchorPose.Cells)
+        {
+            if (cell.OriginalCell == _grabbedCell)
+            {
+                anchorCell = cell.Position;
+                anchored = true;
+                break;
+            }
+        }
+
+        if (!anchored)
+        {
+            return poses;
+        }
+
+        int delta = (_anchorPose.ClockwiseTurns - _original.Pose.ClockwiseTurns + PuzzleRotation.TURN_COUNT) %
+            PuzzleRotation.TURN_COUNT;
+        foreach (var member in BundleMembers(_original))
+        {
+            var rotation = new PuzzleRotation(member.Definition.Cells,
+                (member.Pose.ClockwiseTurns + delta) % PuzzleRotation.TURN_COUNT);
+            var first = member.Pose.Cells[0];
+            if (!TryTranslate(anchorCell, RotateBoard(first.Position - grabbedPosition, delta), out var mappedFirst) ||
+                !TryTranslate(mappedFirst, -rotation.GetBoardOffset(first.OriginalCell), out var origin) ||
+                !TryCreatePose(member.Definition.Cells, origin, rotation, out var pose))
+            {
+                continue;
+            }
+            poses.Add((member, pose));
+        }
+
+        return poses;
+    }
+
+    // 묶음 회원 전원의 강체 이동 포즈를 만들고 대상 보드 적합성을 함께 본다. 회전은 잡은 칸을 중심으로
+    // 전체가 함께 돌며, 포즈는 잡은 조각의 CreatePoseAtSlot 결과와 같은 움직임을 따른다.
+    PuzzlePlacementFailure EvaluateBundleMove(PuzzlePlacement _original, PuzzleInventory _destination,
+        Vector2Int _grabbedCell, Vector2Int _targetCell, int _clockwiseTurns,
+        out List<(PuzzlePlacement Member, PuzzlePose Pose)> _poses)
+    {
+        _poses = null;
+        var members = BundleMembers(_original);
+        if (members.Any(_member => !ReferenceEquals(_member.Owner, _original.Owner)) ||
+            !TryGrabbedCellPosition(_original, _grabbedCell, out var grabbedPosition))
+        {
+            return PuzzlePlacementFailure.InvalidDestination;
+        }
+
+        int delta = (_clockwiseTurns - _original.Pose.ClockwiseTurns + PuzzleRotation.TURN_COUNT) %
+            PuzzleRotation.TURN_COUNT;
+        var memberIds = new HashSet<int>(members.Select(_member => _member.InstanceId));
+        var poses = new List<(PuzzlePlacement, PuzzlePose)>(members.Count);
+        foreach (var member in members)
+        {
+            var rotation = new PuzzleRotation(member.Definition.Cells,
+                (member.Pose.ClockwiseTurns + delta) % PuzzleRotation.TURN_COUNT);
+            var first = member.Pose.Cells[0];
+            if (!TryTranslate(_targetCell, RotateBoard(first.Position - grabbedPosition, delta), out var mappedFirst) ||
+                !TryTranslate(mappedFirst, -rotation.GetBoardOffset(first.OriginalCell), out var origin) ||
+                !TryCreatePose(member.Definition.Cells, origin, rotation, out var pose))
+            {
+                return PuzzlePlacementFailure.CellOutsideBoard;
+            }
+            poses.Add((member, pose));
+        }
+
+        foreach (var pose in poses)
+        {
+            foreach (var cell in pose.Item2.Cells)
+            {
+                if (!_destination.InBounds(cell.Position))
+                {
+                    return PuzzlePlacementFailure.CellOutsideBoard;
+                }
+            }
+        }
+        foreach (var pose in poses)
+        {
+            foreach (var cell in pose.Item2.Cells)
+            {
+                if (_destination.occupancy.TryGetValue(cell.Position, out var occupant) &&
+                    !memberIds.Contains(occupant.InstanceId))
+                {
+                    return PuzzlePlacementFailure.CellOccupied;
+                }
+            }
+        }
+        foreach (var (member, pose) in poses)
+        {
+            if (!_destination.ZonesAccept(pose.Cells, member.Definition))
+            {
+                return PuzzlePlacementFailure.ZoneRestricted;
+            }
+        }
+
+        _poses = poses;
+        return PuzzlePlacementFailure.None;
+    }
+
+    void ApplyBundleMove(PuzzlePlacement _original, PuzzleInventory _destination, Vector2Int _grabbedCell,
+        Vector2Int _targetCell, int _clockwiseTurns)
+    {
+        if (EvaluateBundleMove(_original, _destination, _grabbedCell, _targetCell, _clockwiseTurns, out var poses) !=
+            PuzzlePlacementFailure.None)
+        {
+            return;
+        }
+
+        // 회원 새 포즈는 다른 회원의 옛 칸과 겹칠 수 있다(회전·이동 합법). 전부 비운 뒤 다시 채운다.
+        foreach (var (member, _) in poses)
+        {
+            member.Owner.ClearOccupancy(member);
+            member.Owner.placements.Remove(member.InstanceId);
+        }
+        foreach (var (member, pose) in poses)
+        {
+            var moved = _destination.CopyPlacement(member, member.Definition, _destination, pose, member.ActualValue);
+            _destination.StorePlacement(moved);
+        }
+        RecalculateValue();
+        if (!ReferenceEquals(this, _destination))
+        {
+            _destination.RecalculateValue();
+        }
+    }
+
+    static bool TryGrabbedCellPosition(PuzzlePlacement _placement, Vector2Int _grabbedCell, out Vector2Int _position)
+    {
+        foreach (var cell in _placement.Pose.Cells)
+        {
+            if (cell.OriginalCell == _grabbedCell)
+            {
+                _position = cell.Position;
+                return true;
+            }
+        }
+
+        _position = default;
+        return false;
+    }
+
+    // 보드 좌표 오프셋을 조각 회전과 같은 방향으로 회전시킨다. local y-다운→보드 y-업 이중 변환을 상쇄한 값이다.
+    static Vector2Int RotateBoard(Vector2Int _offset, int _clockwiseTurns)
+    {
+        return _clockwiseTurns switch
+        {
+            0 => _offset,
+            1 => new Vector2Int(_offset.y, -_offset.x),
+            2 => new Vector2Int(-_offset.x, -_offset.y),
+            _ => new Vector2Int(-_offset.y, _offset.x)
+        };
     }
 
     internal void ReplaceExpiredFood(PuzzleItemDefinition _waste)
@@ -409,56 +679,6 @@ public sealed class PuzzleInventory
         {
             RecalculateValue();
         }
-    }
-
-    internal bool TryPlanDefinitionSwaps(IReadOnlyList<PuzzleDefinitionSwap> _swaps)
-    {
-        if (_swaps == null || _swaps.Count == 0)
-        {
-            return false;
-        }
-
-        var claimed = new HashSet<int>();
-        foreach (var swap in _swaps)
-        {
-            PuzzlePlacement original = swap.Placement;
-            PuzzleItemDefinition result = swap.Result;
-            if (original == null || result == null || original.Owner != this ||
-                !placements.TryGetValue(original.InstanceId, out var current) ||
-                !ReferenceEquals(current, original) || !claimed.Add(original.InstanceId) ||
-                ReferenceEquals(current.Definition, result) || !ZonesAccept(current.Pose.Cells, result) ||
-                current.Definition.BaseValue != result.BaseValue ||
-                !SameLocalCells(current.Definition.Cells, result.Cells))
-            {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    internal bool TrySwapDefinitions(IReadOnlyList<PuzzleDefinitionSwap> _swaps,
-        out IReadOnlyList<PuzzlePlacement> _replacements)
-    {
-        _replacements = null;
-        if (!TryPlanDefinitionSwaps(_swaps))
-        {
-            return false;
-        }
-
-        var replacements = new List<PuzzlePlacement>(_swaps.Count);
-        foreach (var swap in _swaps)
-        {
-            var original = swap.Placement;
-            var replacement = CopyPlacement(original, swap.Result, this, original.Pose, original.ActualValue);
-            ClearOccupancy(original);
-            StorePlacement(replacement);
-            replacements.Add(replacement);
-        }
-
-        RecalculateValue();
-        _replacements = replacements;
-        return true;
     }
 
     static bool SameLocalCells(IReadOnlyList<Vector2Int> _left, IReadOnlyList<Vector2Int> _right)
@@ -715,6 +935,33 @@ public sealed class PuzzleInventory
         return true;
     }
 
+    // 절임 완료. 음식만 소모해 결과를 자리에 이어받고 소금은 남긴 채 사용 횟수를 하나 깎는다.
+    // 마지막 횟수를 쓰면 소금도 사라진다. 횟수가 없거나 입력이 바뀌었으면 보드는 그대로다.
+    internal bool TryPickle(PuzzlePlacement _food, PuzzlePlacement _salt, PuzzleItemDefinition _result,
+        PuzzleSaltUseData _saltData, ref int _lastInstanceId)
+    {
+        if (!IsCurrentPlacement(_salt) || !ReferenceEquals(_salt.Owner, this) ||
+            _salt.SaltUsesLeft(_saltData.usesPerItem) <= 0 || !CanCombine(_food, _salt, _result))
+        {
+            return false;
+        }
+
+        int remaining = _salt.SaltUsesLeft(_saltData.usesPerItem);
+        PuzzlePose pose = _food.Pose;
+        ClearOccupancy(_food);
+        placements.Remove(_food.InstanceId);
+        PlaceSpawnedItem(_result, checked(++_lastInstanceId), pose);
+        if (remaining > 1)
+        {
+            _salt.SaltUsesRemaining = remaining - 1;
+        }
+        else
+        {
+            Remove(_salt);
+        }
+        return true;
+    }
+
     bool IsCurrentPlacement(PuzzlePlacement _placement)
     {
         return placements.TryGetValue(_placement.InstanceId, out var current) && ReferenceEquals(current, _placement);
@@ -828,18 +1075,6 @@ public sealed class PuzzleInventory
 
         _position = new Vector2Int((int)x, (int)y);
         return true;
-    }
-}
-
-internal readonly struct PuzzleDefinitionSwap
-{
-    internal PuzzlePlacement Placement { get; }
-    internal PuzzleItemDefinition Result { get; }
-
-    internal PuzzleDefinitionSwap(PuzzlePlacement _placement, PuzzleItemDefinition _result)
-    {
-        Placement = _placement;
-        Result = _result;
     }
 }
 

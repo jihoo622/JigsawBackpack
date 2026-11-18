@@ -24,11 +24,12 @@
 |---|---|
 | `BasicDataTableData` (기초데이터) | 공통 표시 문구·서식·색·UI 조정값·제작 치수·규칙 참조 ID·레이어 번호. [편집 계약](BASIC_DATA.md) |
 | `PuzzleTableData` | 화물 모양·복수 태그·표기 키, 시작 기차, 지역·생산 태그·물가, 도시·시장·특산품·재고·도시 배율 |
-| `TrainventoryWorkTableData` | 작업(WorksData): 입력 화물·작업 시간·산출 화물과 개수·비용·이름·설명 |
+| `TrainventoryWorkTableData` | 작업(WorksData): 입력 화물·작업 시간·산출 화물과 개수·비용·이름·설명. 개조 작업은 `upgradeId`로 강화만 참조하고 입·출력 품목을 두지 않는다 |
 | `TrainventoryWagonProcessTableData` | 화차 가공: 종류(`Convert`·`Crush`)·주재료 태그·부재료(1칸 화물 태그·단위당 수)·산출 품목·단위당 산출 수·시간(`hours`, 분쇄는 `hoursPerCell`). 화차 상품 `processId`가 참조 |
 | `TrainventoryWorkshopTableData` | 작업장: 종류(도축·정제·개조)·작업 보드·처리할 작업 ID·수수료 계수(비용 %·시간당 수수료·추가 비용). 역 배치는 `PuzzleTableData.cities[].workshopIds` |
 | `PuzzleSynergyTableData` | 시너지 조건·공간 범위·배율·적용 주기·숙련 콤보 보강 계수(`proficiencyComboPercentPerLevel`), 동물 배설·번식 설정 |
 | `PuzzleCombinationTableData` | 인접 조합 규칙: 입력 품목 두 개·결과 품목·소요 시간·설명 |
+| `PuzzleMechanicTableData` | 11-18 품목 규칙 원본: `woodBinding`(목재 태그·묶음 이름·설명·필요 턴·가치 배율), `machineryGrowth`(기계 태그·설명·기준 면 수·턴당 성장률), `salt`(소금 태그·설명·사용 횟수), `upgrades[]`(강화 id·이름·설명·대상 태그·effect·가격·필요 턴·효과 수치) |
 | `PuzzleTradeTableData` | 시작 자금·화차 상품(보드 모양·냉장)·냉장 설치비·최대 객차 수(maxWagonCount)·목표 잔액(`targetFunds`)·영업 기간(`deadlineHours`)·이동 연출 시간 |
 | `PuzzleTimeTableData` | 낮 길이·시작(낮 시작) 시각·이동 턴(`travelTurns`)·기본 휴식 턴(`restTurns`)·시장 재입고 주기(`restockTurns`, 현재 매 턴). 턴 길이(6시간)는 `PuzzleTimeManager` 상수이며 모든 표의 시간 값은 6의 배수여야 한다 |
 | `PuzzleRouteTableData` | 방향별 연결·고정 폴라인 좌표·기본 비용·거리·거리 및 적재 단가 |
@@ -37,7 +38,7 @@
 | `FlowTableData` | 씬 이름·다음 씬·재시작 씬 |
 | `GameplayTableData` | 템플릿의 player·sequence·upgrades 샘플 |
 
-현재 도메인 JSON은 13개다. `GameplayTableData`는 UpgradeManager와 템플릿 SmokeCheck 참조가 있어 유지한다.
+현재 도메인 JSON은 14개다. `GameplayTableData`는 UpgradeManager와 템플릿 SmokeCheck 참조가 있어 유지한다.
 
 ## 화물·보드·시장
 
@@ -127,10 +128,10 @@
 - `TrainventoryWorkTableData.works[]`(WorksData) 행은 고유 `id`, 비어 있지 않은 `displayName`·`description`, 등록된 서로 다른 `inputPieceId`·`outputPieceId`, 양수 `workHours`·`outputCount`, 0 이상 `cost`를 가진다.
 - `TrainventoryWorkshopTableData.workshops[]` 행은 고유 `id`, 알려진 `type`(`Butchery`·`Modification`·`Refining`), 비어 있지 않은 `title`·`description`, 양수 `width`·`height`와 빈 `startingPlacements`의 `board`, 하나 이상의 등록된 `workIds`, 0 이상 `costPercent`·`feePerHour`·`extraCost`를 가진다. 한 작업장 안에서 입력 화물은 작업 하나에만 대응하고, 산출 품목을 같은 작업장의 입력으로 둘 수 없다.
 - 역 배치는 `PuzzleTableData.cities[].workshopIds`다. 등록된 작업장만 참조하고 같은 역에 같은 `type`은 하나만 둔다. `TableManager.WorkshopsOf(cityId)`(id 오름차순)·`TryGetWorkshop(cityId, type, out row)`·`WorksOf(workshop)`·`TryGetWorkFor(workshop, inputPieceId, out work)`로 조회한다.
-- 수수료 = `⌈cost × costPercent / 100⌉ + workHours × feePerHour + extraCost`(`TableManager.WorkFee`, 화물 하나당). 맡긴 화물 전체의 합을 내고, 가장 긴 `workHours`가 지나면 모두 나온다.
-- 도축은 `Baby` 태그 입력을 금지한다. 도축·정제 산출물은 빈 작업 보드에 모두 들어가야 한다. 개조는 `outputCount` 1, 같은 셀 좌표·`slotCount`·`baseValue`, 입력 태그 유지가 필요하고 결과 품목은 시장 재고 후보·고정 재고에 둘 수 없다.
-- 현재 배치: `city.darpol`의 `workshop.darpolButchery`(`work.butcherCow`: 소 → 소고기 2), `city.nornova`의 `workshop.nornovaRefinery`(`work.refineOreCross` → 금속 주괴 5, `work.refineOreL` → 3), `city.erna`의 `workshop.ernaModification`(`work.refrigerateUShape`: U자 기계 → 냉장 프레임, 비용 150). 작업 시간은 모두 3시간, 계수는 `costPercent` 100·`feePerHour` 0·`extraCost` 0이다.
-- 개조는 `InstanceId`, 회전 후 `Pose`, `ActualValue`, `OwnedHours`, `Durability`와 유통기한 진행을 보존한다. `BaseValue`와 로컬 점유 셀을 같게 유지해 변환으로 이후 시너지 기준액이 바뀌지 않게 한다. 냉장 프레임의 `Refrigerator` 태그는 `PuzzleSynergyTableData.freshness`에서 참조한다.
+- 도축·정제 수수료 = `⌈cost × costPercent / 100⌉ + workHours × feePerHour + extraCost`(`TableManager.WorkFee`, 화물 하나당). 맡긴 화물 전체의 합을 내고, 가장 긴 `workHours`가 지나면 모두 나온다. 개조 강화는 화물 수와 무관하게 접수당 `upgrades.cost`를 한 번 받고 `requiredTurns`를 즉시 소모한다.
+- 도축은 `Baby` 태그 입력을 금지한다. 도축·정제 산출물은 빈 작업 보드에 모두 들어가야 한다. 개조 작업 행은 `upgradeId` 참조가 필수이고 입·출력 품목을 두지 않으며, 개조가 아닌 작업장의 강화 행은 오류다.
+- 현재 배치: `city.darpol`의 `workshop.darpolButchery`(`work.butcherCow`: 소 → 소고기 2), `city.nornova`의 `workshop.nornovaRefinery`(`work.refineOreCross` → 금속 주괴 5, `work.refineOreL` → 3), `city.erna`의 `workshop.ernaModification`(`work.upgradeRefrigerated`·`work.upgradeFocus` → `PuzzleMechanicTableData.upgrades`의 냉장·집중 강화, 각 50원·1턴). 도축·정제 작업 시간은 모두 6시간(1턴), 계수는 `costPercent` 100·`feePerHour` 0·`extraCost` 0이다.
+- 강화는 품목 정의를 바꾸지 않는다. `InstanceId`, `Pose`, `ActualValue`, `OwnedHours`, `Durability`, 유통기한 진행이 그대로 남고 인스턴스의 `AppliedUpgradeIds`에만 효과가 붙는다. 사본·이동·거래·시간 진행에서 목록이 보존된다. 냉장 강화는 품목 정의 기반 냉장 프레임과 `PuzzleRefrigeration`에서 최대값으로 합쳐진다.
 - 도축대·개조대·정제대 버튼·View는 Game 씬의 `Assets/Art/UI/GameplayLayout.prefab`에 연결되어 있으며 배치는 프리팹에서 수정한다. 문구 원본은 `BasicDataTableData`이며 상태·사유는 `rules.butchery.*`·`rules.modification.*`·`rules.refining.*`, 버튼·보드는 `presentation.StationButchery*`·`presentation.PuzzleButcheryTitle`·`presentation.StationModification*`·`presentation.PuzzleModification*`·`presentation.StationRefining*`·`presentation.PuzzleRefiningTitle`을 쓴다.
 
 ## 술집 의뢰

@@ -1,6 +1,6 @@
 {
   "status": "sample",
-  "note": "작업장 원본. 역은 PuzzleTableData.cities[].workshopIds로 작업장을 가진다. type(Butchery·Refining·Modification)이 동작 방식이고 workIds의 작업만 받는다. 입력 화물 하나당 수수료 = 올림(작업 cost × costPercent / 100) + 작업 workHours × feePerHour + extraCost. 한 번에 맡긴 화물은 함께 시작해 가장 긴 작업 시간이 지나면 모두 나온다. 계수는 기존 비용을 그대로 내도록 잡은 잠정치다.",
+  "note": "작업장 원본. 역은 PuzzleTableData.cities[].workshopIds로 작업장을 가진다. type(Butchery·Refining·Modification)이 동작 방식이고 workIds의 작업만 받는다. 입력 화물 하나당 수수료 = 올림(작업 cost × costPercent / 100) + 작업 workHours × feePerHour + extraCost. 한 번에 맡긴 화물은 함께 시작해 가장 긴 작업 시간이 지나면 모두 나온다. 계수는 기존 비용을 그대로 내도록 잡은 잠정치다. 개조 강화의 가격·시간 원본은 PuzzleMechanicTableData.upgrades이고 이 표의 수수료 계수는 도축·정제에만 쓴다.",
   "workshops": [
     {
       "id": "workshop.darpolButchery",
@@ -41,14 +41,15 @@
       "id": "workshop.ernaModification",
       "type": "Modification",
       "title": "개조하기",
-      "description": "기계 화물을 맡기면 작업 시간이 지난 뒤 선택한 작업으로 개조된 화물을 받습니다.",
+      "description": "기계 화물을 맡기면 강화 수수료를 내고 즉시 1턴을 보내 선택한 강화를 붙입니다.",
       "board": {
         "width": 5,
         "height": 5,
         "startingPlacements": []
       },
       "workIds": [
-        "work.refrigerateUShape"
+        "work.upgradeRefrigerated",
+        "work.upgradeFocus"
       ],
       "costPercent": 100,
       "feePerHour": 0,

@@ -322,6 +322,60 @@ public sealed class PuzzleCombinationRuleData
     public int requiredHours = -1;
 }
 
+// 목재 결합 규칙. woodTag 품목의 로컬 (0, 1) 방향(회전 따라 돌아감)에 다른 목재가 requiredTurns 동안
+// 유지되면 한 묶음으로 합쳐진다. 묶음 가치 = ⌈두 결합 대상의 가치 합 × valuePercent / 100⌉.
+[Serializable]
+public sealed class PuzzleWoodBindingData
+{
+    public string woodTag, bundleName, description;
+    // 누락이 0이라는 정상값으로 위장되지 않도록 하는 검증용 값이다.
+    public int requiredTurns = -1;
+    public int valuePercent = -1;
+}
+
+// 기계 성장 규칙. 같은 객차에서 기계와 minContactCells면 이상 닿은 대상의 가치에
+// 대상 기본 가치 × growthPercentPerTurn%를 턴마다 더한다. 같은 기계는 대상마다 한 번만 적용한다.
+[Serializable]
+public sealed class PuzzleMachineryGrowthData
+{
+    public string machineryTag, description;
+    public int minContactCells = -1;
+    public int growthPercentPerTurn = -1;
+}
+
+// 소금 사용 규칙. 소금 인스턴스 하나는 남은 횟수만큼 절임 쌍을 동시에 유지하고,
+// 성공한 절임 하나마다 횟수를 하나 쓴다. 남은 횟수가 0이 되면 소금은 사라진다.
+[Serializable]
+public sealed class PuzzleSaltUseData
+{
+    public string saltTag, description;
+    // 누락이 0이라는 정상값으로 위장되지 않도록 하는 검증용 값이다.
+    public int usesPerItem = -1;
+}
+
+// 강화 효과의 종류. 테이블의 effect 문자열과 이름이 같아야 한다.
+// Preservation: 같은 객차의 맞닿은 음식 신선도 보존. GrowthFocus: 기계 성장의 기준 면 수와 비율을 교체한다.
+public enum PuzzleUpgradeEffect
+{
+    Preservation,
+    GrowthFocus
+}
+
+// 품목 강화 하나. targetTag 품목의 인스턴스에 붙이고, 접수 때 cost를 받고 즉시 requiredTurns를 소모해 완료한다.
+// 강화 상태는 품목 정의가 아니라 인스턴스에 남긴다.
+[Serializable]
+public sealed class PuzzleItemUpgradeData
+{
+    public string id, displayName, description, targetTag, effect;
+    public long cost = -1;
+    public int requiredTurns = -1;
+    // Preservation 효과. 맞닿은 음식의 유통기한 소모를 이 비율(%)만큼 줄인다.
+    public int preservationReductionPercent = -1;
+    // GrowthFocus 효과. 기계 성장의 기준 면 수와 턴당 비율을 이 값으로 교체한다.
+    public int minContactCells = -1;
+    public int growthPercentPerTurn = -1;
+}
+
 [Serializable]
 public sealed class PuzzleCityTagPriceData
 {
@@ -365,6 +419,8 @@ public sealed class TrainventoryWorkData
     public string outputPieceId;
     public int outputCount = -1;
     public long cost = -1;
+    // 개조 작업 전용. PuzzleMechanicTableData.upgrades의 id를 참조하고, 가격·시간·이름·설명은 강화 행이 원본이다.
+    public string upgradeId;
 }
 
 // 작업장. 역은 PuzzleCityData.workshopIds로 작업장을 가진다. 작업장은 type 동작으로 workIds의 작업을 처리한다.

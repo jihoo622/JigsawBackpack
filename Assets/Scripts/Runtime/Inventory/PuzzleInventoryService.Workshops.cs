@@ -71,19 +71,19 @@ public sealed partial class PuzzleInventoryService
             out _fee, out _hours);
     }
 
-    // 개조는 고른 작업 하나를 보드의 화물 전체에 적용한다.
+    // 개조는 고른 강화 하나를 화물 수와 무관하게 접수당 한 번 적용한다. 가격·시간은 강화 행이 원본이다.
     internal bool TryQuoteModification(out long _fee, out long _hours)
     {
         _fee = 0;
         _hours = 0;
         var state = EnsureModification(CurrentCityId);
         if (state == null || state.Phase != PuzzleModificationPhase.Idle || state.Board.Placements.Count == 0 ||
-            !TryGetSelectedModificationMode(out var work))
+            !TryGetSelectedModificationUpgrade(out var upgrade))
         {
             return false;
         }
-        _fee = checked(TableManager.WorkFee(state.Workshop, work) * state.Board.Placements.Count);
-        _hours = work.workHours;
+        _fee = upgrade.cost;
+        _hours = (long)upgrade.requiredTurns * PuzzleTimeManager.HOURS_PER_TURN;
         return true;
     }
 }

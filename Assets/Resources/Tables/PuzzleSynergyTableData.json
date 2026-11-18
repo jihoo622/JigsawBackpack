@@ -15,17 +15,6 @@
       "sourceDescription": "인접한 화물(Cargo)에게 +20%\n   (곡물·물고기는 발생원에서 제외)"
     },
     {
-      "id": "sample.machineryNearWood",
-      "targetTag": "Machinery",
-      "neighborTag": "Wood",
-      "scope": "Both",
-      "spatialRange": "Adjacent",
-      "multiplierPercent": 110,
-      "description": "목재와 인접 시 +10%",
-      "targetDescription": "목재와 인접 시 +10%",
-      "sourceDescription": "인접한 기계에게 +10%"
-    },
-    {
       "id": "foodNearSalt",
       "targetTag": "Food",
       "neighborTag": "Salt",
