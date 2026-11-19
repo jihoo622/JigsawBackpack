@@ -112,7 +112,7 @@ public sealed class FloatingWindowManager : MonoBehaviour
         for (int i = 0; i < windows.Count; i++)
         {
             var win = windows[i];
-            if (!win || !win.IsOpen || !win.gameObject.activeInHierarchy)
+            if (!win || !win.IsOpen || !win.gameObject.activeInHierarchy || win.CloseBlocked)
             {
                 continue;
             }
@@ -129,10 +129,7 @@ public sealed class FloatingWindowManager : MonoBehaviour
             return false;
         }
 
-        if (!topMost.CloseBlocked)
-        {
-            topMost.Close();
-        }
+        topMost.Close();
         return true;
     }
 

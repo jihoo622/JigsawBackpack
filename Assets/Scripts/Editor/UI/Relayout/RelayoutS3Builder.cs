@@ -470,9 +470,14 @@ public static class RelayoutS3Builder
                 {
                     var markerRt = candProp.GetArrayElementAtIndex(c).objectReferenceValue as RectTransform;
                     if (!markerRt) continue;
+                    markerRt.anchorMin = new Vector2(0.5f, 0.5f);
+                    markerRt.anchorMax = new Vector2(0.5f, 0.5f);
+                    markerRt.pivot = new Vector2(0.5f, 0.5f);
+                    markerRt.localScale = Vector3.one;
                     var mImg = markerRt.GetComponent<Image>();
                     if (mImg)
                     {
+                        mImg.enabled = true;
                         mImg.sprite = null;
                         mImg.type = Image.Type.Simple;
                         mImg.color = c == 0

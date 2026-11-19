@@ -326,13 +326,14 @@ public sealed class TrainWindowManager : MonoBehaviour
         }
         if (!restoredOpenWagons || !string.Equals(restoredRunId, _session.RunId, StringComparison.Ordinal))
         {
-            restoredOpenWagons = true;
             restoredRunId = _session.RunId ?? string.Empty;
             RestoreOpenWagons(_session);
             if (!HasAnyOpenWindow && _session.WagonCount > 0)
             {
                 OpenOrFocusWagon(Mathf.Clamp(_session.CurrentWagonIndex, 0, _session.WagonCount - 1), _session, false);
             }
+            // 런 시작 직후에는 창 계층이 아직 켜지지 않아 열기가 실패할 수 있다. 실제로 창이 열렸을 때만 복원을 끝낸 것으로 본다.
+            restoredOpenWagons = HasAnyOpenWindow;
         }
 
         int cap = MaxWindowCount;

@@ -674,7 +674,7 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
         pendingCityId = null;
         CloseTravelView();
         view.SetInteraction(true);
-        if (embeddedInNotebook && notebookWindow && notebookWindow.FloatingWindow)
+        if (notebookWindow && notebookWindow.FloatingWindow)
         {
             notebookWindow.FloatingWindow.CloseBlocked = false;
         }
@@ -892,7 +892,7 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
         UpdateTravelAnimatingState();
         CloseTravelView();
         view.SetInteraction(true);
-        if (embeddedInNotebook && notebookWindow && notebookWindow.FloatingWindow)
+        if (notebookWindow && notebookWindow.FloatingWindow)
         {
             notebookWindow.FloatingWindow.CloseBlocked = false;
         }

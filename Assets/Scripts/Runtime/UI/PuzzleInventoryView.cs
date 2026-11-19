@@ -25,7 +25,8 @@ public sealed class PuzzleInventoryView : MonoBehaviour
     };
 
     // 놓을 자리 후보 표식의 반투명 채움색(개편 레이아웃).
-    static readonly Color CANDIDATE_FILL_COLOR = new Color(0.95f, 0.82f, 0.35f, 0.35f);
+    static readonly Color CANDIDATE_FILL_COLOR = new Color(0.95f, 0.82f, 0.35f, 0.55f);
+    static readonly Color CANDIDATE_LABEL_COLOR = new Color(0.07f, 0.09f, 0.13f, 1f);
 
     [SerializeField] Image board;
     [SerializeField] CanvasGroup interaction;
@@ -662,7 +663,7 @@ public sealed class PuzzleInventoryView : MonoBehaviour
     internal Vector2 GetShapeCenterScreen(IReadOnlyList<PuzzleCell> _cells)
     {
         Vector2 local = GetShapeCenter(_cells);
-        Vector3 world = board.rectTransform.TransformPoint(local);
+        Vector3 world = CoordinateRect.TransformPoint(local);
         return RectTransformUtility.WorldToScreenPoint(EventCamera, world);
     }
 
@@ -927,6 +928,12 @@ public sealed class PuzzleInventoryView : MonoBehaviour
             label.text = _label ?? string.Empty;
             label.rectTransform.localPosition = BoardToSpace(label.rectTransform.parent, _boardCenter);
             label.raycastTarget = false;
+            // 개편 레이아웃은 금색 반투명 채움 위에 놓이므로 같은 금색 글자는 묻힌다. 진한 글자로 대비를 준다.
+            if (RelayoutSettings.Enabled)
+            {
+                label.color = CANDIDATE_LABEL_COLOR;
+                label.fontStyle = FontStyles.Bold;
+            }
             label.gameObject.SetActive(true);
         }
     }
@@ -946,7 +953,7 @@ public sealed class PuzzleInventoryView : MonoBehaviour
     // 보드 로컬 점을 대상 부모의 로컬 좌표로 옮긴다. 표식이 보드 밖에 있어도 같은 칸 위치에 놓인다.
     Vector2 BoardToSpace(Transform _space, Vector2 _boardLocal)
     {
-        Vector3 world = board.rectTransform.TransformPoint(_boardLocal);
+        Vector3 world = CoordinateRect.TransformPoint(_boardLocal);
         return _space ? (Vector2)_space.InverseTransformPoint(world) : (Vector2)world;
     }
 
