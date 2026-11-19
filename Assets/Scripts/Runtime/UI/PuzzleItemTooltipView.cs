@@ -74,6 +74,10 @@ public sealed class PuzzleItemTooltipView : PanelBase
     bool hasDefaultTitleColor;
     bool pointerFlipped;
     bool needsSnap;
+    bool styleCaptured;
+    bool defaultPointerActive;
+    UIPalette cachedPalette;
+    readonly List<(Image img, Sprite sprite, Image.Type type, Color color)> originalImages = new();
 
     protected override void Awake()
     {
@@ -109,11 +113,99 @@ public sealed class PuzzleItemTooltipView : PanelBase
             defaultTitleColor = itemNameText.color;
             hasDefaultTitleColor = true;
         }
+        if (!styleCaptured)
+        {
+            styleCaptured = true;
+            defaultPointerActive = pointer && pointer.gameObject.activeSelf;
+            originalImages.Clear();
+            foreach (var img in GetComponentsInChildren<Image>(true))
+            {
+                if (img)
+                {
+                    originalImages.Add((img, img.sprite, img.type, img.color));
+                }
+            }
+        }
+        ApplyRelayoutStyle(RelayoutSettings.Enabled);
+    }
+
+    void OnEnable()
+    {
+        RelayoutSettings.Changed += ApplyRelayoutStyle;
+        if (styleCaptured)
+        {
+            ApplyRelayoutStyle(RelayoutSettings.Enabled);
+        }
+    }
+
+    void OnDisable()
+    {
+        RelayoutSettings.Changed -= ApplyRelayoutStyle;
+    }
+
+    void ApplyRelayoutStyle(bool _relayout)
+    {
+        if (!styleCaptured)
+        {
+            return;
+        }
+        if (!_relayout)
+        {
+            for (int i = 0; i < originalImages.Count; i++)
+            {
+                var entry = originalImages[i];
+                if (!entry.img) continue;
+                entry.img.sprite = entry.sprite;
+                entry.img.type = entry.type;
+                entry.img.color = entry.color;
+            }
+            if (pointer)
+            {
+                pointer.gameObject.SetActive(defaultPointerActive);
+            }
+            return;
+        }
+
+        var pal = cachedPalette ? cachedPalette : (cachedPalette = Resources.Load<UIPalette>("UI/UIPalette"));
+        for (int i = 0; i < originalImages.Count; i++)
+        {
+            var entry = originalImages[i];
+            var img = entry.img;
+            if (!img) continue;
+            if (pointer && img.transform == pointer)
+            {
+                continue;
+            }
+            img.sprite = null;
+            img.type = Image.Type.Simple;
+            if (!pal) continue;
+            if (img.gameObject == gameObject)
+            {
+                img.color = pal.BorderBright;
+            }
+            else if (img.name == "Panel Surface")
+            {
+                img.color = pal.Panel;
+            }
+            else if (img.name == "Header")
+            {
+                img.color = pal.Panel2;
+            }
+            else if (img.name == "DividerLine" || img.name == "Bottom Rule")
+            {
+                img.color = pal.Border;
+            }
+        }
+        if (pointer)
+        {
+            pointer.gameObject.SetActive(false);
+        }
     }
 
     void BeginShow(string _title, Color? _titleColor = null)
     {
         EnsureInitialized();
+        ApplyRelayoutStyle(RelayoutSettings.Enabled);
         if (synergySection)
         {
             synergySection.SetActive(false);
@@ -663,7 +755,7 @@ public sealed class PuzzleItemTooltipView : PanelBase
             Mathf.Clamp(anchor.y + anchorGap + size.y, minTop, top));
         if (pointer)
         {
-            pointer.gameObject.SetActive(true);
+            pointer.gameObject.SetActive(!RelayoutSettings.Enabled);
             pointer.anchorMin = pointer.anchorMax = Vector2.zero;
             pointer.localScale = Vector3.one;
             pointer.localRotation = Quaternion.Euler(0f, 0f, 90f);
@@ -713,7 +805,7 @@ public sealed class PuzzleItemTooltipView : PanelBase
 
         if (pointer)
         {
-            pointer.gameObject.SetActive(true);
+            pointer.gameObject.SetActive(!RelayoutSettings.Enabled);
             needsSnap |= pointerFlipped != flipped;
             pointerFlipped = flipped;
             float edge = flipped ? 1f : 0f;

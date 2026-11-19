@@ -996,6 +996,40 @@
           "arguments": 0
         },
         {
+          "id": "marketWindowTitle",
+          "value": "시장 · {0}",
+          "arguments": 1
+        },
+        {
+          "id": "marketWindowHint",
+          "value": "드래그 / Ctrl+클릭: 화차로 구매 · 기차 화물 드롭: 판매"
+        },
+        {
+          "id": "marketWindowRestock",
+          "value": "매 턴(6h) 재입고"
+        },
+        {
+          "id": "marketItemPrice",
+          "value": "{0:N0}$",
+          "arguments": 1
+        },
+        {
+          "id": "lensWindowTitle",
+          "value": "행선지 렌즈"
+        },
+        {
+          "id": "quickToolbarLens",
+          "value": "렌즈 (L)"
+        },
+        {
+          "id": "trainWindowLensButton",
+          "value": "렌즈"
+        },
+        {
+          "id": "lensWindowEmpty",
+          "value": "화물을 잡거나 선택하면 행선지별 판매 견적이 표시됩니다."
+        },
+        {
           "id": "notebookTabMap",
           "value": "지도",
           "arguments": 0

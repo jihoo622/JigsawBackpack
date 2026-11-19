@@ -11,6 +11,8 @@ public sealed class QuickToolbarView : MonoBehaviour
     [SerializeField] TextMeshProUGUI notebookLabel;
     [SerializeField] Button mapButton;
     [SerializeField] TextMeshProUGUI mapLabel;
+    [SerializeField] Button lensButton;
+    [SerializeField] TextMeshProUGUI lensLabel;
     [SerializeField] Button backgroundOnlyButton;
     [SerializeField] TextMeshProUGUI backgroundOnlyLabel;
     [SerializeField] Button resetLayoutButton;
@@ -18,6 +20,7 @@ public sealed class QuickToolbarView : MonoBehaviour
     [SerializeField] TextMeshProUGUI shortcutHintLabel;
     [SerializeField] PuzzleTradeNotebookView notebookView;
     [SerializeField] NotebookWindowView notebookWindowView;
+    [SerializeField] LensWindowView lensWindowView;
     [SerializeField] FloatingWindowManager windowManager;
     [SerializeField] PuzzleInventoryPresenter inventoryPresenter;
 
@@ -27,6 +30,7 @@ public sealed class QuickToolbarView : MonoBehaviour
     {
         if (notebookButton) notebookButton.onClick.AddListener(OnNotebookClicked);
         if (mapButton) mapButton.onClick.AddListener(OnMapClicked);
+        if (lensButton) lensButton.onClick.AddListener(OnLensClicked);
         if (backgroundOnlyButton) backgroundOnlyButton.onClick.AddListener(OnBackgroundOnlyClicked);
         if (resetLayoutButton) resetLayoutButton.onClick.AddListener(OnResetLayoutClicked);
         GameEvents.TextInputFocusChanged += OnTextInputFocusChanged;
@@ -37,6 +41,7 @@ public sealed class QuickToolbarView : MonoBehaviour
     {
         if (notebookButton) notebookButton.onClick.RemoveListener(OnNotebookClicked);
         if (mapButton) mapButton.onClick.RemoveListener(OnMapClicked);
+        if (lensButton) lensButton.onClick.RemoveListener(OnLensClicked);
         if (backgroundOnlyButton) backgroundOnlyButton.onClick.RemoveListener(OnBackgroundOnlyClicked);
         if (resetLayoutButton) resetLayoutButton.onClick.RemoveListener(OnResetLayoutClicked);
         GameEvents.TextInputFocusChanged -= OnTextInputFocusChanged;
@@ -67,6 +72,10 @@ public sealed class QuickToolbarView : MonoBehaviour
         {
             OnMapClicked();
         }
+        else if (kb.lKey.wasPressedThisFrame)
+        {
+            OnLensClicked();
+        }
     }
 
     void OnTextInputFocusChanged(GameEvents.TextInputFocusInfo _info)
@@ -81,6 +90,7 @@ public sealed class QuickToolbarView : MonoBehaviour
     {
         if (notebookLabel) notebookLabel.text = Presentation.QuickToolbarNotebook;
         if (mapLabel) mapLabel.text = Presentation.QuickToolbarMap;
+        if (lensLabel) lensLabel.text = Presentation.QuickToolbarLens;
         if (backgroundOnlyLabel) backgroundOnlyLabel.text = Presentation.QuickToolbarBackgroundOnly;
         if (resetLayoutLabel) resetLayoutLabel.text = Presentation.ResetWindowLayouts;
         if (shortcutHintLabel) shortcutHintLabel.text = Presentation.QuickToolbarShortcutHint;
@@ -100,6 +110,14 @@ public sealed class QuickToolbarView : MonoBehaviour
     void OnMapClicked()
     {
         GameEvents.RaiseMapToggleRequested(gameObject.scene.handle);
+    }
+
+    void OnLensClicked()
+    {
+        if (RelayoutSettings.Enabled && lensWindowView)
+        {
+            lensWindowView.Toggle();
+        }
     }
 
     void OnBackgroundOnlyClicked()

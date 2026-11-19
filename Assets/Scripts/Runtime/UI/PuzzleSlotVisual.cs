@@ -17,6 +17,7 @@ public sealed class PuzzleSlotVisual : MonoBehaviour
     Sprite[] fillSprites;
     Sprite outlineSprite;
     Sprite dashedOutlineSprite;
+    [SerializeField] GameObject deltaChip;
     [SerializeField] TextMeshProUGUI deltaLabel;
     [SerializeField] TextMeshProUGUI freshnessLabel;
     [SerializeField] TextMeshProUGUI synergyNotice;
@@ -147,6 +148,10 @@ public sealed class PuzzleSlotVisual : MonoBehaviour
 
     internal void ShowDelta(string _text, Color _color)
     {
+        if (deltaChip)
+        {
+            deltaChip.SetActive(true);
+        }
         if (deltaLabel)
         {
             deltaLabel.text = _text;
@@ -157,6 +162,10 @@ public sealed class PuzzleSlotVisual : MonoBehaviour
 
     internal void HideDelta()
     {
+        if (deltaChip)
+        {
+            deltaChip.SetActive(false);
+        }
         if (deltaLabel)
         {
             deltaLabel.enabled = false;

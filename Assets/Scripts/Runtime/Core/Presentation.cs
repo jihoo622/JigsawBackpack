@@ -2768,6 +2768,17 @@ public static partial class Presentation
             _wagon.WagonNumber, wagonName, _wagon.OccupiedCells, _wagon.UsableCellCount);
     }
 
+    public static string MarketWindowTitle(string _cityName) =>
+        BasicData.Format("presentation.inventory.marketWindowTitle", _cityName);
+    public static string MarketWindowHint => BasicData.Text("presentation.inventory.marketWindowHint");
+    public static string MarketWindowRestock => BasicData.Text("presentation.inventory.marketWindowRestock");
+    public static string MarketItemPrice(long _price) =>
+        BasicData.Format("presentation.inventory.marketItemPrice", _price);
+    public static string LensWindowTitle => BasicData.Text("presentation.inventory.lensWindowTitle");
+    public static string QuickToolbarLens => BasicData.Text("presentation.inventory.quickToolbarLens");
+    public static string TrainWindowLensButton => BasicData.Text("presentation.inventory.trainWindowLensButton");
+    public static string LensWindowEmpty => BasicData.Text("presentation.inventory.lensWindowEmpty");
+
     internal static string RelayoutToggle(bool _enabled)
     {
         return BasicData.Text(_enabled ? "presentation.inventory.relayoutToggleOn" : "presentation.inventory.relayoutToggleOff");

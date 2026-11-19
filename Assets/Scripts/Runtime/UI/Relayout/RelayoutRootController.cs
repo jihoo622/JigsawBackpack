@@ -20,6 +20,8 @@ public sealed class RelayoutRootController : MonoBehaviour
     [SerializeField] PuzzleStationActionsPresenter stationActionsPresenter;
     [SerializeField] StatusBannerView statusBannerView;
     [SerializeField] NotebookWindowView notebookWindow;
+    [SerializeField] MarketWindowView marketWindow;
+    [SerializeField] LensWindowView lensWindow;
 
     bool defaultsCaptured;
     bool defaultGameplayLayoutActive;
@@ -145,6 +147,25 @@ public sealed class RelayoutRootController : MonoBehaviour
         if (_kind == TownBuildingButton.BuildingKind.CityHall)
         {
             statusBannerView?.ShowStatus(Presentation.BuildingCityHallPlaceholder);
+            return;
+        }
+
+        if (_kind == TownBuildingButton.BuildingKind.Market && marketWindow)
+        {
+            var session = SceneServices.For<PuzzleInventoryService>(gameObject.scene);
+            if (session == null || session.RunStatus != PuzzleRunStatus.InProgress)
+            {
+                string runMsg = session != null ? Presentation.PuzzleRunStatusText(session.RunStatus) : string.Empty;
+                if (!string.IsNullOrEmpty(runMsg)) statusBannerView?.ShowStatus(runMsg);
+                return;
+            }
+            if (!session.IsMarketOpen)
+            {
+                statusBannerView?.ShowStatus(Presentation.PuzzleNightMarket);
+                return;
+            }
+            session.TryEnterMarket();
+            marketWindow.SetOpen(true);
             return;
         }
 

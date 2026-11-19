@@ -334,7 +334,16 @@ public static class RelayoutS3Builder
             titleText.rectTransform.anchorMin = Vector2.zero;
             titleText.rectTransform.anchorMax = Vector2.one;
             titleText.rectTransform.offsetMin = new Vector2(12f, 0f);
-            titleText.rectTransform.offsetMax = new Vector2(-36f, 0f);
+            titleText.rectTransform.offsetMax = new Vector2(-84f, 0f);
+
+            var lensBtn = CreateSmallButton(_buttonTemplate, _labelTemplate, titleBar, "LensButton",
+                0f, 0f, 44f, 22f, "렌즈", 12f, _palette);
+            var lRt = (RectTransform)lensBtn.transform;
+            lRt.anchorMin = new Vector2(1f, 0.5f);
+            lRt.anchorMax = new Vector2(1f, 0.5f);
+            lRt.pivot = new Vector2(1f, 0.5f);
+            lRt.anchoredPosition = new Vector2(-34f, 0f);
+            var lensLbl = lensBtn.GetComponentInChildren<TextMeshProUGUI>(true);
 
             var closeBtn = CreateSmallButton(_buttonTemplate, _labelTemplate, titleBar, "CloseButton",
                 0f, 0f, 24f, 24f, "X", 14f, _palette);
@@ -443,6 +452,30 @@ public static class RelayoutS3Builder
             invSo.FindProperty("boardContent").objectReferenceValue = content;
             invSo.FindProperty("minDynamicCellSize").floatValue = 40f;
             invSo.FindProperty("maxDynamicCellSize").floatValue = 72f;
+
+            // S5: 배치 후보 표식을 상단 선만 그려지던 Flat.Outline에서 H16 채움 사각형+외곽선으로 교정한다.
+            var candProp = invSo.FindProperty("candidateMarkers");
+            if (candProp != null && candProp.isArray)
+            {
+                for (int c = 0; c < candProp.arraySize; c++)
+                {
+                    var markerRt = candProp.GetArrayElementAtIndex(c).objectReferenceValue as RectTransform;
+                    if (!markerRt) continue;
+                    var mImg = markerRt.GetComponent<Image>();
+                    if (mImg)
+                    {
+                        mImg.sprite = null;
+                        mImg.type = Image.Type.Simple;
+                        mImg.color = c == 0
+                            ? new Color(_palette.GoldAccent.r, _palette.GoldAccent.g, _palette.GoldAccent.b, 0.28f)
+                            : new Color(_palette.GoldAccent.r, _palette.GoldAccent.g, _palette.GoldAccent.b, 0.18f);
+                        mImg.raycastTarget = false;
+                    }
+                    var mOut = markerRt.GetComponent<Outline>() ?? markerRt.gameObject.AddComponent<Outline>();
+                    mOut.effectColor = _palette.GoldAccent;
+                    mOut.effectDistance = new Vector2(2f, -2f);
+                }
+            }
             invSo.ApplyModifiedPropertiesWithoutUndo();
 
             // 하단 2줄 렌즈 요약 (R14)
@@ -492,6 +525,8 @@ public static class RelayoutS3Builder
             wvSo.FindProperty("lensTradeLine").objectReferenceValue = tradeLine;
             wvSo.FindProperty("lensSpotLine").objectReferenceValue = spotLine;
             wvSo.FindProperty("inventoryView").objectReferenceValue = invView;
+            wvSo.FindProperty("lensButton").objectReferenceValue = lensBtn;
+            wvSo.FindProperty("lensLabel").objectReferenceValue = lensLbl;
             wvSo.ApplyModifiedPropertiesWithoutUndo();
 
             var saved = PrefabUtility.SaveAsPrefabAsset(rootGo, TRAIN_WINDOW_PREFAB);

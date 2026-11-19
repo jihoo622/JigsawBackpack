@@ -299,7 +299,8 @@ public sealed class PuzzleInventoryView : MonoBehaviour
 
     internal void RenderPlacements(PuzzleInventory _inventory,
         int? _hiddenInstanceId = null, int? _highlightedInstanceId = null,
-        IReadOnlyList<PuzzleRefrigerationContact> _refrigerationContacts = null)
+        IReadOnlyList<PuzzleRefrigerationContact> _refrigerationContacts = null,
+        Func<PuzzlePlacement, string> _slotLabelProvider = null)
     {
         lastRenderedInventory = _inventory;
         lastHiddenInstanceId = _hiddenInstanceId;
@@ -316,11 +317,13 @@ public sealed class PuzzleInventoryView : MonoBehaviour
             var color = placement.InstanceId == _highlightedInstanceId
                 ? Presentation.PuzzleMoveTarget
                 : Presentation.PuzzlePiece;
+            string slotLabel = _slotLabelProvider != null ? _slotLabelProvider(placement) : null;
             index = RenderPose(placementSlots, index, placement.Pose, Vector2.zero, color,
                 iconIndex[placement.Definition.VisualKey].sprite, placement.Definition.IconSize, placement.Definition.IconOffset,
                 // 가치 변동, 공간 부족, 새로 생성된 산출물은 별도 상태지만 같은 알림 아이콘을 쓴다. 읽지 않은 쪽이 남아 있으면 아이콘은 유지한다.
                 placement.FreshnessPercent, placement.HasUnreadNotice,
-                Presentation.PuzzlePieceAccentOutline(placement.Definition, color.a));
+                Presentation.PuzzlePieceAccentOutline(placement.Definition, color.a),
+                _deltaText: slotLabel, _deltaColor: new Color(0.95f, 0.82f, 0.35f, 1f));
         }
 
         HideSlots(placementSlots, index);
@@ -477,6 +480,22 @@ public sealed class PuzzleInventoryView : MonoBehaviour
             iconIndex[_item.VisualKey].sprite, _item.IconSize, _item.IconOffset, _freshness,
             _outlineColor: Presentation.PuzzlePieceAccentOutline(_item, ghost.a));
         HideSlots(ghostSlots, used);
+    }
+
+    internal void ShowGhostPrice(string _priceText)
+    {
+        if (ghostSlots == null || ghostSlots.Length == 0 || !ghostSlots[0])
+        {
+            return;
+        }
+        if (string.IsNullOrEmpty(_priceText))
+        {
+            ghostSlots[0].HideDelta();
+        }
+        else
+        {
+            ghostSlots[0].ShowDelta(_priceText, new Color(0.95f, 0.82f, 0.35f, 1f));
+        }
     }
 
     PuzzlePose originalSlotPose;
@@ -646,7 +665,7 @@ public sealed class PuzzleInventoryView : MonoBehaviour
 
     int RenderPose(PuzzleSlotVisual[] _slots, int _start, PuzzlePose _pose, Vector2 _offset, Color _color, Sprite _icon = null,
         Vector2 _iconSize = default, Vector2 _iconOffset = default, int? _freshness = null, bool _showSynergyNotice = false,
-        Color? _outlineColor = null, bool _useDashedOutline = false)
+        Color? _outlineColor = null, bool _useDashedOutline = false, string _deltaText = null, Color? _deltaColor = null)
     {
         piecePositions.Clear();
         foreach (var cell in _pose.Cells)
@@ -658,6 +677,7 @@ public sealed class PuzzleInventoryView : MonoBehaviour
         var min = _pose.Cells[0].Position;
         var max = min;
         var bottomLeft = min;
+        var bottomRight = min;
         var topRight = max;
         var originalMin = _pose.Cells[0].OriginalCell;
         var originalMax = originalMin;
@@ -669,6 +689,11 @@ public sealed class PuzzleInventoryView : MonoBehaviour
                 (cell.Position.y == bottomLeft.y && cell.Position.x < bottomLeft.x))
             {
                 bottomLeft = cell.Position;
+            }
+            if (cell.Position.y < bottomRight.y ||
+                (cell.Position.y == bottomRight.y && cell.Position.x > bottomRight.x))
+            {
+                bottomRight = cell.Position;
             }
             if (cell.Position.y > topRight.y ||
                 (cell.Position.y == topRight.y && cell.Position.x > topRight.x))
@@ -690,6 +715,14 @@ public sealed class PuzzleInventoryView : MonoBehaviour
                 bottomLeft - cell.Position, boardTitle.font, freshnessMaterial);
             _slots[index].ShowSynergyNotice(index == _start && _showSynergyNotice,
                 topRight - cell.Position);
+            if (cell.Position == bottomRight && !string.IsNullOrEmpty(_deltaText))
+            {
+                _slots[index].ShowDelta(_deltaText, _deltaColor ?? Color.white);
+            }
+            else
+            {
+                _slots[index].HideDelta();
+            }
             index++;
         }
         if (_icon && index > _start)

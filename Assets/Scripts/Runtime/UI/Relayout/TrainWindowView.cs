@@ -1,7 +1,9 @@
+using System;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
-// S3: 기차 화차 부동 창(26, 516, 510, 544). 제목, 가치/다음 정산 요약, 숙련 칩, 동적 보드, 2줄 렌즈 요약(R14).
+// S3/S5: 기차 화차 부동 창(440, 430). 제목, 렌즈 버튼, 가치/다음 정산 요약, 숙련 칩, 동적 보드, 2줄 렌즈 요약(R14).
 [DisallowMultipleComponent]
 public sealed class TrainWindowView : MonoBehaviour
 {
@@ -11,15 +13,44 @@ public sealed class TrainWindowView : MonoBehaviour
     [SerializeField] TextMeshProUGUI lensTradeLine;
     [SerializeField] TextMeshProUGUI lensSpotLine;
     [SerializeField] PuzzleInventoryView inventoryView;
+    [SerializeField] Button lensButton;
+    [SerializeField] TextMeshProUGUI lensLabel;
 
     public FloatingWindow FloatingWindow => floatingWindow;
     public PuzzleInventoryView InventoryView => inventoryView;
     public PuzzleInventory BoundWagon { get; set; }
     public int BoundWagonIndex { get; set; } = -1;
 
+    public event Action LensRequested;
+
     void Awake()
     {
         SetLensSummary(string.Empty, string.Empty);
+    }
+
+    void OnEnable()
+    {
+        if (lensLabel)
+        {
+            lensLabel.text = Presentation.TrainWindowLensButton;
+        }
+        if (lensButton)
+        {
+            lensButton.onClick.AddListener(OnLensClicked);
+        }
+    }
+
+    void OnDisable()
+    {
+        if (lensButton)
+        {
+            lensButton.onClick.RemoveListener(OnLensClicked);
+        }
+    }
+
+    void OnLensClicked()
+    {
+        LensRequested?.Invoke();
     }
 
     public void SetHeader(PuzzleInventory _wagon, long _remainingSettlementHours, decimal _synergyDelta)

@@ -63,6 +63,7 @@ public sealed class TrainWindowManager : MonoBehaviour
 
     public event Action<int> WagonFocused;
     public event Action OpenWindowsChanged;
+    public event Action LensToggleRequested;
 
     void Awake()
     {
@@ -79,8 +80,17 @@ public sealed class TrainWindowManager : MonoBehaviour
                     windows[i].FloatingWindow.Focused += () => OnWindowFocused(idx);
                     windows[i].FloatingWindow.OpenChanged += _open => OnWindowOpenChanged(idx, _open);
                 }
+                if (windows[i])
+                {
+                    windows[i].LensRequested += OnWindowLensRequested;
+                }
             }
         }
+    }
+
+    void OnWindowLensRequested()
+    {
+        LensToggleRequested?.Invoke();
     }
 
     void EnsureFocusArray()

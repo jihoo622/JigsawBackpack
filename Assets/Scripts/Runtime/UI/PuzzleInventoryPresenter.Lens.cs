@@ -30,28 +30,41 @@ public sealed partial class PuzzleInventoryPresenter
     readonly List<(PuzzlePose Pose, Vector2Int TargetCell, string Label)> lensMarkers = new();
     readonly List<decimal> lensTopDeltas = new();
 
-    PuzzleRouteLensView RouteLens => routeLens;
+    PuzzleRouteLensView RouteLens => RelayoutSettings.Enabled && lensWindowView && lensWindowView.RouteLensView
+        ? lensWindowView.RouteLensView
+        : routeLens;
     // 렌즈는 기차 열에 있으므로 기차 보드가 보이고 이동 중이 아닐 때 연다.
     bool LensAvailable =>
         (UseMultiTrainWindows ? trainWindowManager.HasAnyOpenWindow : (ActiveTrainView && ActiveTrainView.gameObject.activeInHierarchy)) &&
         !TrainOperationsBlocked &&
         session != null && session.RunStatus == PuzzleRunStatus.InProgress;
-    bool LensVisible => (RouteLens && RouteLens.IsShowing) || (RelayoutSettings.Enabled && trainWindowView && trainWindowView.gameObject.activeInHierarchy);
+    bool LensVisible => (RouteLens && RouteLens.IsShowing) ||
+        (RelayoutSettings.Enabled && ((lensWindowView && lensWindowView.IsOpen) ||
+            (trainWindowManager && trainWindowManager.HasAnyOpenWindow) ||
+            (trainWindowView && trainWindowView.gameObject.activeInHierarchy)));
 
     void SubscribeLens()
     {
-        if (RouteLens)
+        if (routeLens)
         {
-            RouteLens.TabSelected += OnLensTabSelected;
+            routeLens.TabSelected += OnLensTabSelected;
+        }
+        if (lensWindowView && lensWindowView.RouteLensView && lensWindowView.RouteLensView != routeLens)
+        {
+            lensWindowView.RouteLensView.TabSelected += OnLensTabSelected;
         }
         PuzzleLensSettings.Changed += OnLensSettingsChanged;
     }
 
     void UnsubscribeLens()
     {
-        if (RouteLens)
+        if (routeLens)
         {
-            RouteLens.TabSelected -= OnLensTabSelected;
+            routeLens.TabSelected -= OnLensTabSelected;
+        }
+        if (lensWindowView && lensWindowView.RouteLensView && lensWindowView.RouteLensView != routeLens)
+        {
+            lensWindowView.RouteLensView.TabSelected -= OnLensTabSelected;
         }
         PuzzleLensSettings.Changed -= OnLensSettingsChanged;
     }
@@ -70,7 +83,7 @@ public sealed partial class PuzzleInventoryPresenter
         }
 
         // 기차 화물은 시장이 열려 있을 때만 판매 견적을 보인다. 아니면 기차 안 재배치다(F5).
-        bool marketOpen = !MarketOperationsBlocked && marketView && marketView.gameObject.activeInHierarchy;
+        bool marketOpen = !MarketOperationsBlocked && ActiveMarketView && ActiveMarketView.gameObject.activeInHierarchy;
         lensDirection = fromMarket ? PuzzleTradeDirection.Buy
             : marketOpen ? PuzzleTradeDirection.Sell : PuzzleTradeDirection.None;
         lensDefinition = _placement.Definition;
@@ -127,9 +140,14 @@ public sealed partial class PuzzleInventoryPresenter
         {
             var top = ranking.Top[i];
             lensTopDeltas.Add(top.SettlementDelta);
-            lensMarkers.Add((top.Pose, top.TargetCell, Presentation.RouteLensCandidateBadge(i + 1, top.SettlementDelta)));
+            if (!RelayoutSettings.Enabled || top.SettlementDelta > 0m)
+            {
+                lensMarkers.Add((top.Pose, top.TargetCell, Presentation.RouteLensCandidateBadge(i + 1, top.SettlementDelta)));
+            }
         }
-        lensRankingText = Presentation.RouteLensRanking(lensTopDeltas);
+        lensRankingText = (RelayoutSettings.Enabled && lensMarkers.Count == 0)
+            ? string.Empty
+            : Presentation.RouteLensRanking(lensTopDeltas);
         if (UseMultiTrainWindows)
         {
             var markerView = targetWindow ? targetWindow.InventoryView : trainWindowManager.GetViewForInventory(targetTrain, session)?.InventoryView;
@@ -226,7 +244,12 @@ public sealed partial class PuzzleInventoryPresenter
 
     void HideLensPanel()
     {
-        if (RouteLens)
+        if (RelayoutSettings.Enabled && lensWindowView && lensWindowView.RouteLensView)
+        {
+            lensWindowView.RouteLensView.Show(Presentation.LensWindowTitle, Presentation.LensWindowEmpty,
+                string.Empty, string.Empty, string.Empty, lensTab, _tabsInteractable: false);
+        }
+        else if (RouteLens)
         {
             RouteLens.Hide();
         }
