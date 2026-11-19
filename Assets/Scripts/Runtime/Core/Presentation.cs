@@ -2701,6 +2701,34 @@ public static partial class Presentation
 
     internal static string PuzzleEndlessContinue => BasicData.Text("presentation.inventory.endlessContinue");
     internal static string PuzzleEndlessLabel => BasicData.Text("presentation.inventory.endlessLabel");
+    internal static string ResetWindowLayouts => BasicData.Text("presentation.inventory.resetWindowLayouts");
+    internal static string RunEndFundsLabel => BasicData.Text("presentation.inventory.runEndFundsLabel");
+    internal static string RunEndGoalLabel => BasicData.Text("presentation.inventory.runEndGoalLabel");
+    internal static string RunEndDiffLabel => BasicData.Text("presentation.inventory.runEndDiffLabel");
+    internal static string RunEndTurnsLabel => BasicData.Text("presentation.inventory.runEndTurnsLabel");
+    internal static string RunEndQuestsLabel => BasicData.Text("presentation.inventory.runEndQuestsLabel");
+    internal static string RunEndRestart => BasicData.Text("presentation.inventory.runEndRestart");
+    internal static string RunEndQuit => BasicData.Text("presentation.inventory.runEndQuit");
+
+    internal static string RunEndMoney(long _amount)
+    {
+        return BasicData.Format("presentation.inventory.runEndValueMoney", _amount);
+    }
+
+    internal static string RunEndSignedMoney(long _amount)
+    {
+        return BasicData.Format("presentation.inventory.runEndValueSignedMoney", _amount);
+    }
+
+    internal static string RunEndTurns(long _turns)
+    {
+        return BasicData.Format("presentation.inventory.runEndValueTurns", _turns);
+    }
+
+    internal static string RunEndQuests(int _count)
+    {
+        return BasicData.Format("presentation.inventory.runEndValueQuests", _count);
+    }
 
     internal static string PuzzleClearSummary(long _funds)
     {

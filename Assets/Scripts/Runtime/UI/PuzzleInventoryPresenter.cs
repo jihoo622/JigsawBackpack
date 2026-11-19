@@ -32,6 +32,7 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
     [SerializeField] PuzzleItemTooltipView keywordTooltipView;
     [SerializeField] PuzzleTrainBarView trainBarView;
     [SerializeField] PauseMenu pauseMenu;
+    [SerializeField] RunEndPresenter runEndPresenter;
 
     [SerializeField] PuzzleInventoryInput input;
     PuzzleInventoryService session;
@@ -465,7 +466,15 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
         RefreshFunds();
         cityView.ShowTradeStatus(Presentation.PuzzleRunStatusText(session.RunStatus));
         RefreshTrainBar();
-        pauseMenu.ShowCompletion(session.RunStatus, session.Funds);
+        var runEnd = ResolveRunEndPresenter();
+        if (runEnd)
+        {
+            runEnd.Show(session);
+        }
+        else
+        {
+            Debug.LogError("RunEndPresenter를 찾을 수 없어 결산 모달을 열 수 없습니다.", this);
+        }
     }
 
     // 무한 모드로 이어 가면 진행 중 표시로 되돌린다. 마감이 사라져 시계의 남은 기간 표시는 숨는다.
@@ -504,7 +513,15 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
             cityView.ShowTradeStatus(Presentation.PuzzleRunStatusText(session.RunStatus));
             if (session.RunStatus == PuzzleRunStatus.Lost)
             {
-                pauseMenu.ShowCompletion(PuzzleRunStatus.Lost, session.Funds);
+                var runEnd = ResolveRunEndPresenter();
+                if (runEnd)
+                {
+                    runEnd.Show(session);
+                }
+                else
+                {
+                    Debug.LogError("RunEndPresenter를 찾을 수 없어 패배 결산 모달을 열 수 없습니다.", this);
+                }
             }
         }
         else
@@ -542,17 +559,32 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
 
     public void ClearGame()
     {
-        if (!initialized || !isActiveAndEnabled || MarketOperationsBlocked || !pauseMenu || !pauseMenu.CanShowCompletion ||
+        var runEnd = ResolveRunEndPresenter();
+        if (!runEnd)
+        {
+            Debug.LogError("RunEndPresenter를 찾을 수 없어 결산 모달을 열 수 없습니다.", this);
+            return;
+        }
+        if (!initialized || !isActiveAndEnabled || MarketOperationsBlocked || !runEnd.CanShow ||
             !session.TryFinishRun())
         {
             return;
         }
 
-        pauseMenu.ShowCompletion(session.RunStatus, session.Funds);
+        runEnd.Show(session);
         cityView.SetTown(session.CityData.displayName, false);
         RefreshFunds();
         cityView.ShowTradeStatus(Presentation.PuzzleRunStatusText(session.RunStatus));
         RefreshTrainBar();
+    }
+
+    RunEndPresenter ResolveRunEndPresenter()
+    {
+        if (!runEndPresenter)
+        {
+            runEndPresenter = SceneServices.Find<RunEndPresenter>(gameObject.scene);
+        }
+        return runEndPresenter;
     }
 
     void RefreshFunds()

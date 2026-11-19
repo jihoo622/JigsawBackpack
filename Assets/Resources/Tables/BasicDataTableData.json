@@ -829,6 +829,66 @@
           "id": "routeLensCandidatesOff",
           "value": "배치 후보 표시: 꺼짐",
           "arguments": 0
+        },
+        {
+          "id": "resetWindowLayouts",
+          "value": "창 배치 초기화",
+          "arguments": 0
+        },
+        {
+          "id": "runEndFundsLabel",
+          "value": "최종 잔액",
+          "arguments": 0
+        },
+        {
+          "id": "runEndGoalLabel",
+          "value": "목표 자금",
+          "arguments": 0
+        },
+        {
+          "id": "runEndDiffLabel",
+          "value": "목표 차액",
+          "arguments": 0
+        },
+        {
+          "id": "runEndTurnsLabel",
+          "value": "경과 턴",
+          "arguments": 0
+        },
+        {
+          "id": "runEndQuestsLabel",
+          "value": "완료 의뢰",
+          "arguments": 0
+        },
+        {
+          "id": "runEndValueMoney",
+          "value": "{0:N0}$",
+          "arguments": 1
+        },
+        {
+          "id": "runEndValueSignedMoney",
+          "value": "{0:+#,##0;-#,##0;0}$",
+          "arguments": 1
+        },
+        {
+          "id": "runEndValueTurns",
+          "value": "{0:N0}턴",
+          "arguments": 1
+        },
+        {
+          "id": "runEndValueQuests",
+          "value": "{0:N0}건",
+          "arguments": 1
+        },
+        {
+          "id": "runEndRestart",
+          "value": "다시 시작",
+          "arguments": 0
+        },
+        {
+          "id": "runEndQuit",
+          "value": "종료",
+          "arguments": 0
         }
       ]
     },
