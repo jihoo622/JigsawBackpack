@@ -2813,6 +2813,22 @@ public static partial class Presentation
     public static string TravelBannerCancel => BasicData.Text("presentation.inventory.travelBannerCancel");
     public static string TravelBannerInProgress(string _from, string _to) =>
         BasicData.Format("presentation.inventory.travelBannerInProgress", _from, _to);
+    public static string BldgStatusMarketOpen(int _pricePercent, int _prefCount) =>
+        BasicData.Format("presentation.inventory.bldgStatusMarketOpen", _pricePercent, _prefCount);
+    public static string BldgStatusMarketClosed =>
+        BasicData.Text("presentation.inventory.bldgStatusMarketClosed");
+    public static string BldgStatusTavernOffers(int _offerCount) =>
+        BasicData.Format("presentation.inventory.bldgStatusTavernOffers", _offerCount);
+    public static string BldgStatusTavernDeliverable(int _deliverableCount) =>
+        BasicData.Format("presentation.inventory.bldgStatusTavernDeliverable", _deliverableCount);
+    public static string BldgStatusRest =>
+        BasicData.Text("presentation.inventory.bldgStatusRest");
+    public static string BldgStatusStation(int _wagonCount, int _maxWagons) =>
+        BasicData.Format("presentation.inventory.bldgStatusStation", _wagonCount, _maxWagons);
+    public static string BldgStatusWorkshop(string _title, long _fee) =>
+        BasicData.Format("presentation.inventory.bldgStatusWorkshop", _title, _fee);
+    public static string BldgStatusCityHall(int _reputation, int _goalPercent) =>
+        BasicData.Format("presentation.inventory.bldgStatusCityHall", _reputation, _goalPercent);
 
     internal static string RelayoutToggle(bool _enabled)
     {

@@ -51,6 +51,12 @@ public sealed class TownSceneView : MonoBehaviour
         GameEvents.TextInputFocusChanged += OnTextInputFocusChanged;
         GameEvents.TimeAdvanced += OnGameStateChanged;
         GameEvents.CityArrived += OnCityArrived;
+        GameEvents.FundsChanged += OnFundsChanged;
+        GameEvents.QuestChanged += OnQuestChanged;
+        GameEvents.TavernRumorRecorded += OnRumorRecorded;
+        GameEvents.PuzzleActionCommitted += OnActionCommitted;
+        GameEvents.PuzzleRunStarted += OnRunChanged;
+        GameEvents.PuzzleRunSettled += OnRunChanged;
         GameEvents.PuzzleRunEnded += OnRunChanged;
         GameEvents.PuzzleRunContinued += OnRunChanged;
         RefreshBuildingStates();
@@ -72,6 +78,12 @@ public sealed class TownSceneView : MonoBehaviour
         GameEvents.TextInputFocusChanged -= OnTextInputFocusChanged;
         GameEvents.TimeAdvanced -= OnGameStateChanged;
         GameEvents.CityArrived -= OnCityArrived;
+        GameEvents.FundsChanged -= OnFundsChanged;
+        GameEvents.QuestChanged -= OnQuestChanged;
+        GameEvents.TavernRumorRecorded -= OnRumorRecorded;
+        GameEvents.PuzzleActionCommitted -= OnActionCommitted;
+        GameEvents.PuzzleRunStarted -= OnRunChanged;
+        GameEvents.PuzzleRunSettled -= OnRunChanged;
         GameEvents.PuzzleRunEnded -= OnRunChanged;
         GameEvents.PuzzleRunContinued -= OnRunChanged;
         textInputFocused = false;
@@ -112,6 +124,10 @@ public sealed class TownSceneView : MonoBehaviour
 
     void OnGameStateChanged(GameEvents.TimeAdvanceInfo _info) => RefreshBuildingStates();
     void OnCityArrived(GameEvents.CityArrivalInfo _info) => RefreshBuildingStates();
+    void OnFundsChanged(GameEvents.FundsInfo _info) => RefreshBuildingStates();
+    void OnQuestChanged(GameEvents.QuestInfo _info) => RefreshBuildingStates();
+    void OnRumorRecorded(GameEvents.TavernRumorInfo _info) => RefreshBuildingStates();
+    void OnActionCommitted(GameEvents.PuzzleActionInfo _info) => RefreshBuildingStates();
     void OnRunChanged(GameEvents.PuzzleRunInfo _info) => RefreshBuildingStates();
 
     public void RefreshBuildingStates()
@@ -126,6 +142,21 @@ public sealed class TownSceneView : MonoBehaviour
         bool hasWorkshop = session != null &&
             (session.HasButchery() || session.HasModification() || session.HasRefining());
 
+        int deliverableQuests = 0;
+        if (session != null)
+        {
+            var quests = session.Quests;
+            for (int i = 0; i < quests.Count; i++)
+            {
+                var q = quests[i];
+                if (q.State == TrainventoryQuestState.Active &&
+                    string.Equals(q.TargetCityId, session.CurrentCityId, System.StringComparison.Ordinal))
+                {
+                    deliverableQuests++;
+                }
+            }
+        }
+
         for (int i = 0; i < buildings.Length; i++)
         {
             var b = buildings[i];
@@ -137,6 +168,8 @@ public sealed class TownSceneView : MonoBehaviour
             {
                 b.SetWorkshopAvailable(hasWorkshop);
             }
+
+            UpdateBuildingStatusLine(b, session, marketOpen, hasWorkshop, deliverableQuests);
 
             if (!inProgress)
             {
@@ -157,6 +190,84 @@ public sealed class TownSceneView : MonoBehaviour
                     b.SetDisabled(false, string.Empty);
                     break;
             }
+        }
+    }
+
+    static void UpdateBuildingStatusLine(
+        TownBuildingButton _button,
+        PuzzleInventoryService _session,
+        bool _marketOpen,
+        bool _hasWorkshop,
+        int _deliverableQuests)
+    {
+        if (_session == null || _session.CityData == null)
+        {
+            _button.SetChalkboard(string.Empty);
+            _button.SetPersistentHighlight(false);
+            return;
+        }
+
+        switch (_button.Kind)
+        {
+            case TownBuildingButton.BuildingKind.Market:
+                if (_marketOpen)
+                {
+                    var prefs = Presentation.GetCityTradePreferences(_session.CityData);
+                    _button.SetChalkboard(Presentation.BldgStatusMarketOpen(
+                        _session.CityData.buyPercentOfBaseValue, prefs.ExpensiveTags.Count));
+                }
+                else
+                {
+                    _button.SetChalkboard(Presentation.BldgStatusMarketClosed);
+                }
+                _button.SetPersistentHighlight(false);
+                break;
+
+            case TownBuildingButton.BuildingKind.Tavern:
+                if (_deliverableQuests > 0)
+                {
+                    _button.SetChalkboard(Presentation.BldgStatusTavernDeliverable(_deliverableQuests));
+                    _button.SetPersistentHighlight(true);
+                }
+                else
+                {
+                    _button.SetChalkboard(Presentation.BldgStatusTavernOffers(_session.QuestOffers.Count));
+                    _button.SetPersistentHighlight(false);
+                }
+                break;
+
+            case TownBuildingButton.BuildingKind.Rest:
+                _button.SetChalkboard(Presentation.BldgStatusRest);
+                _button.SetPersistentHighlight(false);
+                break;
+
+            case TownBuildingButton.BuildingKind.StationHall:
+                _button.SetChalkboard(Presentation.BldgStatusStation(_session.WagonCount, _session.MaxWagonCount));
+                _button.SetPersistentHighlight(false);
+                break;
+
+            case TownBuildingButton.BuildingKind.Workshop:
+                if (_hasWorkshop)
+                {
+                    var ws = _session.ButcheryAction() ?? _session.ModificationAction() ?? _session.RefiningAction();
+                    string title = ws != null ? ws.title : string.Empty;
+                    long fee = ws != null && ws.extraCost > 0 ? ws.extraCost : 0;
+                    _button.SetChalkboard(fee > 0 ? Presentation.BldgStatusWorkshop(title, fee) : title);
+                }
+                else
+                {
+                    _button.SetChalkboard(string.Empty);
+                }
+                _button.SetPersistentHighlight(false);
+                break;
+
+            case TownBuildingButton.BuildingKind.CityHall:
+                int goalPct = Mathf.Clamp(
+                    Mathf.RoundToInt((float)_session.Funds * 100f / System.Math.Max(1L, _session.TargetFunds)),
+                    0, 999);
+                _button.SetChalkboard(Presentation.BldgStatusCityHall(_session.Reputation, goalPct));
+                _button.SetPersistentHighlight(false);
+                break;
         }
     }
 

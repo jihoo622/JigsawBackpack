@@ -1134,6 +1134,46 @@
           "arguments": 2
         },
         {
+          "id": "bldgStatusMarketOpen",
+          "value": "물가 {0}% · 선호 {1}종",
+          "arguments": 2
+        },
+        {
+          "id": "bldgStatusMarketClosed",
+          "value": "영업 종료(밤)",
+          "arguments": 0
+        },
+        {
+          "id": "bldgStatusTavernOffers",
+          "value": "새 소문 · 의뢰 {0}건",
+          "arguments": 1
+        },
+        {
+          "id": "bldgStatusTavernDeliverable",
+          "value": "완료 가능 의뢰 {0}건",
+          "arguments": 1
+        },
+        {
+          "id": "bldgStatusRest",
+          "value": "휴식 1~4턴",
+          "arguments": 0
+        },
+        {
+          "id": "bldgStatusStation",
+          "value": "화차 {0}/{1} · 출발",
+          "arguments": 2
+        },
+        {
+          "id": "bldgStatusWorkshop",
+          "value": "{0} · {1}$",
+          "arguments": 2
+        },
+        {
+          "id": "bldgStatusCityHall",
+          "value": "평판 {0} · 목표 진행 {1}%",
+          "arguments": 2
+        },
+        {
           "id": "notebookTabMap",
           "value": "지도",
           "arguments": 0

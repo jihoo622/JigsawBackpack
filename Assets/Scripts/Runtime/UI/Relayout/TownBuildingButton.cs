@@ -37,6 +37,8 @@ public sealed class TownBuildingButton : MonoBehaviour, IPointerEnterHandler, IP
 
     public BuildingKind Kind => kind;
     bool isDisabled;
+    bool isHovered;
+    bool persistentHighlight;
     string disabledReason;
     Color baseWallColor;
     bool baseWallColorCaptured;
@@ -115,9 +117,19 @@ public sealed class TownBuildingButton : MonoBehaviour, IPointerEnterHandler, IP
 
     public void SetHoverHighlight(bool _hovered)
     {
+        isHovered = _hovered;
         if (highlightBorder)
         {
-            highlightBorder.enabled = _hovered;
+            highlightBorder.enabled = isHovered || persistentHighlight;
+        }
+    }
+
+    public void SetPersistentHighlight(bool _highlighted)
+    {
+        persistentHighlight = _highlighted;
+        if (highlightBorder)
+        {
+            highlightBorder.enabled = isHovered || persistentHighlight;
         }
     }
 

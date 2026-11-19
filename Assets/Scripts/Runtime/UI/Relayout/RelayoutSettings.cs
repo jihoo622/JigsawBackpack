@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-// R21: 개편 레이아웃 단계별 개발 중 기존 레이아웃과 전환하는 스위치. S7 완료 전까지 기본값은 꺼짐(0).
+// R21/R30: 개편 레이아웃과 기존 레이아웃 전환 스위치. S7부터 기본값은 켜짐(1).
 public static class RelayoutSettings
 {
     const string PREFS_KEY = "ui.relayout.enabled";
@@ -16,7 +16,7 @@ public static class RelayoutSettings
 
     public static bool Enabled
     {
-        get => PlayerPrefs.GetInt(PREFS_KEY, 0) != 0;
+        get => PlayerPrefs.GetInt(PREFS_KEY, 1) != 0;
         set
         {
             bool current = Enabled;

@@ -1909,11 +1909,16 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
         }
     }
 
+    bool suppressRestoreTrainWindows;
+
     void RenderBoards(int? _highlightedInstanceId = null)
     {
         if (UseMultiTrainWindows)
         {
-            trainWindowManager.RestoreOrEnsureDefault(session);
+            if (!suppressRestoreTrainWindows)
+            {
+                trainWindowManager.RestoreOrEnsureDefault(session);
+            }
             trainWindowManager.RefreshAllOpenWindows(session, RemainingSettlementHours(), session.TrainSynergyDelta,
                 drag?.InstanceId, _highlightedInstanceId, RefrigerationContacts);
         }
@@ -2131,11 +2136,19 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
         {
             input.CancelCapture();
         }
-        ClearDrag();
-        if (!hadDrag)
+        suppressRestoreTrainWindows = true;
+        try
         {
-            RenderBoards();
-            ShowItemDetails(null, null);
+            ClearDrag();
+            if (!hadDrag)
+            {
+                RenderBoards();
+                ShowItemDetails(null, null);
+            }
+        }
+        finally
+        {
+            suppressRestoreTrainWindows = false;
         }
     }
 

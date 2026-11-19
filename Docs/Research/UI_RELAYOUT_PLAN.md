@@ -75,6 +75,7 @@
 | R27 | 일정: H18·H20과 H17의 선로 쪽은 S3b(S4 다음), H17의 역사 창 쪽과 H19는 S6에서 한다. H19 규칙 변경은 서비스 수정과 함께 별도 커밋으로 둔다 | 선로·화차 창 코드를 먼저 안정시킨 뒤 마을 창을 붙인다 |
 | R28 | H21 적용: 창은 기본 크기로 고정하고 크기 저장값은 무시한다. 창 안 보드의 칸 크기는 창 기본 크기에서 한 번 계산해 고정한다(R11의 실시간 재계산 철회). 크기 조정 손잡이와 관련 문구를 없앤다 | 사용자 결정 반영. 칸 크기 계산식은 창마다 기본 칸 크기를 정하는 데만 쓴다 |
 | R29 | 화차 창 기본 크기를 56px 칸 7×5 보드에 맞춰 약 440×430으로 줄이고, 처음 여는 위치는 칸 배치표를 따른다: 1·2번째는 왼쪽 열 아래·위, 3~8번째는 마을 영역 위쪽부터 3열×2행, 그 뒤로는 24px씩 비켜 연다 | 크기 조정이 없어졌으므로 여러 창이 처음부터 겹치지 않아야 한다(S3b 스크린샷에서 3창이 거의 포개짐) |
+| R30 | S7에서 신규 개편 레이아웃을 **기본값**(`RelayoutSettings.Enabled` 기본 `1`)으로 전환한다. 구형 레이아웃은 당분간 스위치로 접근 가능한 fallback으로 유지하며, 구형 UI 오브젝트/코드 삭제는 별도 후속 작업으로 분리한다 | 코디네이터 결정. 기본 진입 경로를 신규 UI로 확정하되 회귀 비교용 fallback을 즉시 삭제하지 않는다 |
 | R2 | 시안 작성 전에 현재 화면을 전부 캡처하고 요소 목록(`UI_SCREEN_INVENTORY.md`)을 만든다 | 범위가 화면 전체라 빠뜨리는 기능이 없어야 한다 |
 
 ## 진행 단계
@@ -291,6 +292,15 @@ GameUI.prefab
 > **S5 구현 결과 (2026-11-19):** `MarketWindowView` + `MarketWindow.prefab`(1136, 96, 764×640 고정 크기, 상단 `CityTradePreferencesView` 시세 띠, 13×9 보드 56px 칸, 시장 화물 구매가 및 기차 화물 시장 위 드래그 판매가 라벨, 하단 조작 안내, 도착 시 `TryEnterMarket` 연동 자동 오픈(R5)·야간 차단/상태 배너 안내), `LensWindowView` + `LensWindow.prefab`(26, 134, 510×366 고정 크기, `현재/방문 도시/소문 도시` 탭 및 공개 규칙 준수, 도구줄 `렌즈 (L)` 및 화차 창 헤더 `렌즈` 버튼 토글), 배치 후보 표식 H16 채움 사각형 교정(양수 Δ만 표시), `PuzzleItemTooltipView` H16 직각/단색 스타일 전환(OFF 시 원복), `RelayoutS5Builder.cs`(`Tools/MyJG/UI/Relayout/S5 Build Market And Lens`) 구현 완료. Play Mode에서 도착 비겹침 오픈·실드롭/Ctrl+클릭 양방향 거래 금액 일치·방문/소문 탭 공개 규칙·양수 Δ 후보 필터링·H16 툴팁·야간 차단·Relayout OFF 보존·콘솔 에러 0건 확인(`.orca/analysis/relayout/s5/`).
 >
 > **S6 구현 결과 (2026-11-19):** S5 잔여 `MarketInfoPanel` 우측 돌출 수정(`RelayoutS5Builder` 스트레치 적용) 완료. **서비스 의뢰 규칙 변경**: `PuzzleInventory.CanPlaceAt`/`TryPlaceAt`/`CreatePoseAtSlot` 및 `PuzzleInventoryService`의 `EvaluateQuestAcceptAt`/`TryAcceptQuestAt`, `CanCompleteQuestCargoHere`/`TryCompleteQuestWithCargo`/`TryCompleteQuest`, `BuildQuestOfferBoard` 추가, 도착 시 전역 자동 완료 제거 및 최종 결산(`Settle()`) 직전 `CompleteArrivedQuests()` 실행(R26), OFF UI 최소 완료 경로(`TrainventoryQuestBoardPresenter` `완료` 버튼) 추가. **마을 창 5종 + 이동 배너**: `TavernWindowView`(소문 + 9×5 의뢰 게시판 드래그 수락·인도·거절 사유 배너), `RestWindowView`(1~4턴 휴식 + 아침까지 대기 + 결산 미리보기), `StationHallWindowView`(화차 드래그 선로 삽입 구매 + 판매 드롭 구역 + 노선도 출발 버튼), `WorkshopWindowView`(R17 단일 창 도시 작업장 전환·공터 차단), `CityHallWindowView`(물가·선호·산업·평판·결산 목표 읽기 전용), `TravelBannerView`(출발 확인 및 이동 진행 배너), `RelayoutRootController`/`PuzzleInventoryPresenter`/`PuzzleMapPresenter` 연동 및 `RelayoutS6Builder.cs`(`Tools/MyJG/UI/Relayout/S6 Build Town Windows`) 구현. Play Mode에서 시장 폭 수정·6종 창/배너·의뢰 수락/미완료 도착/인도/비의뢰 거절·2턴 휴식(+12h)·화차 드래그 구매/판매·작업장 공터 차단·Relayout OFF 보존·콘솔 에러 0건 확인(`.orca/analysis/relayout/s6/`).
+>
+> **S7 구현 결과 (2026-11-19):**
+> - **마을 건물 1줄 현황(`TownSceneView`/`TownBuildingButton`/`RelayoutS2Builder`)**: 시장(`물가 n% · 선호 m종` / `영업 종료(밤)`), 술집(`새 소문 · 의뢰 n건` / 완료 가능 의뢰 보유 시 `완료 가능 의뢰 n건` + `SetPersistentHighlight(true)` 테두리 강조), 여관(`휴식 1~4턴`), 역사(`화차 n/최대 · 출발`), 생산시설(작업장명·수수료 / 공터 디밍), 시청(`평판 n · 목표 진행 x%`)을 관련 이벤트(`TimeAdvanced`, `CityArrived`, `FundsChanged`, `QuestChanged`, `TavernRumorRecorded`, `PuzzleActionCommitted`, `PuzzleRun*`)로 갱신(매 프레임 폴링 없음).
+> - **기본 레이아웃 전환(R30)**: `RelayoutSettings.Enabled` 기본값을 `1`로 전환(`ui.*` PlayerPrefs 초기화 시 신규 레이아웃 기본 진입, 일시정지 토글로 구형 전환·복귀 가능).
+> - **문서 현행화**: `Docs/Management/UI_LAYOUT.md`, `CURRENT_STATE.md`, `HUD구성및플로우.md`, `UI_DESIGN_HANDOFF.md`를 구현 상태에 맞게 갱신하고 구형 개편 안내 배너 제거(`Docs/Legacy/` 미수정).
+> - **남은 일**:
+>   1. **구형 UI 삭제(별도 후속)**: `GameplayLayout` 및 구형 역/하단 바/구형 지도 코드·프리팹 정리.
+>   2. **팔레트 최종 선택**: 현재 `UIPalette.asset`은 팔레트 A 임시 적용 상태(사용자 최종 선택 대기).
+>   3. **플레이스홀더 아트 교체**: `PlatformScene`·`TownScene` 배경 및 건물 임시 사각형 아트를 본 스프라이트로 교체.
 
 ---
 

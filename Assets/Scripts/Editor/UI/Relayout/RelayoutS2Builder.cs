@@ -456,27 +456,27 @@ public static class RelayoutS2Builder
             var bTavern = CreateBuilding(rootRect, _labelTemplate, _palette, "Building_Tavern",
                 TownBuildingButton.BuildingKind.Tavern, 95f, 555f, 220f, 175f,
                 new Color(0.271f, 0.102f, 0.012f, 1f), new Color(0.961f, 0.620f, 0.043f, 1f),
-                "술집 (2)", hasRumorLine: true);
+                "술집 (2)", hasStatusLine: true);
 
             var bRest = CreateBuilding(rootRect, _labelTemplate, _palette, "Building_Rest",
                 TownBuildingButton.BuildingKind.Rest, 435f, 555f, 220f, 175f,
                 new Color(0.118f, 0.227f, 0.373f, 1f), new Color(0.376f, 0.647f, 0.980f, 1f),
-                "여관 (3)");
+                "여관 (3)", hasStatusLine: true);
 
             var bStation = CreateBuilding(rootRect, _labelTemplate, _palette, "Building_StationHall",
                 TownBuildingButton.BuildingKind.StationHall, 90f, 235f, 215f, 165f,
                 new Color(0.486f, 0.176f, 0.071f, 1f), new Color(0.992f, 0.729f, 0.455f, 1f),
-                "역사 (4)");
+                "역사 (4)", hasStatusLine: true);
 
             var bWorkshop = CreateBuilding(rootRect, _labelTemplate, _palette, "Building_Workshop",
                 TownBuildingButton.BuildingKind.Workshop, 825f, 310f, 270f, 180f,
                 new Color(0.153f, 0.153f, 0.165f, 1f), new Color(0.380f, 0.647f, 0.980f, 1f),
-                "생산시설 (5)", hasEmptyLot: true);
+                "생산시설 (5)", hasStatusLine: true, hasEmptyLot: true);
 
             var bCityHall = CreateBuilding(rootRect, _labelTemplate, _palette, "Building_CityHall",
                 TownBuildingButton.BuildingKind.CityHall, 435f, 50f, 240f, 175f,
                 new Color(0.200f, 0.255f, 0.333f, 1f), new Color(0.796f, 0.835f, 0.882f, 1f),
-                "시청 (6)");
+                "시청 (6)", hasStatusLine: true);
 
             var view = rootGo.AddComponent<TownSceneView>();
             var so = new SerializedObject(view);
