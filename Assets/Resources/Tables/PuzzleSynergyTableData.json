@@ -20,10 +20,10 @@
       "neighborTag": "Wood",
       "scope": "Both",
       "spatialRange": "Adjacent",
-      "multiplierPercent": 110,
-      "description": "목재와 인접 시 +10%",
-      "targetDescription": "목재와 인접 시 +10%",
-      "sourceDescription": "인접한 기계에게 +10%"
+      "multiplierPercent": 105,
+      "description": "목재와 인접 시 +5%",
+      "targetDescription": "목재와 인접 시 +5%",
+      "sourceDescription": "인접한 기계에게 +5%"
     },
     {
       "id": "foodNearSalt",
