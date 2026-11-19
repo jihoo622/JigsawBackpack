@@ -1409,7 +1409,7 @@ public static partial class Presentation
             string expensive = JoinTags(buckets.expensive);
             string rare = JoinTags(buckets.rare);
             string commonColor = ColorUtility.ToHtmlStringRGB(PuzzleMapVisited);
-            string expensiveColor = ColorUtility.ToHtmlStringRGB(PuzzleMapCurrent);
+            string expensiveColor = ColorUtility.ToHtmlStringRGB(TradeExpensiveColor);
             string rareColor = ColorUtility.ToHtmlStringRGB(PuzzleMapRare);
             trade = BasicData.Format("presentation.map.informationText9", commonColor, (string.IsNullOrEmpty(common) ? BasicData.Text("presentation.map.informationText14") : common)) +
                 BasicData.Format("presentation.map.informationText10", expensiveColor, (string.IsNullOrEmpty(expensive) ? BasicData.Text("presentation.map.informationText15") : expensive)) +
@@ -2138,6 +2138,8 @@ public static partial class Presentation
             _city.sellPercentOfFinalValue);
     }
 
+    public static Color TradeExpensiveColor => BasicData.Color("presentation.trade.expensiveResourceColor");
+
     internal static void CityTradeGradeInfo(PuzzleCityTradeGrade _grade, bool _withLink,
         out string _formattedLabel, out string _linkId, out Color _color, bool _bold = true)
     {
@@ -2152,7 +2154,7 @@ public static partial class Presentation
             case PuzzleCityTradeGrade.Expensive:
                 rawTitle = BasicData.Text("presentation.trade.expensiveResourceTitle");
                 _linkId = "expensive";
-                _color = PuzzleMapCurrent;
+                _color = TradeExpensiveColor;
                 break;
             case PuzzleCityTradeGrade.Rare:
                 rawTitle = BasicData.Format("presentation.trade.rareResourceTitle", RareSellPercent());
@@ -2209,7 +2211,7 @@ public static partial class Presentation
         string expensiveText = JoinTags(buckets.expensive);
         string rareText = JoinTags(buckets.rare);
         string commonColor = ColorUtility.ToHtmlStringRGB(PuzzleMapVisited);
-        string expensiveColor = ColorUtility.ToHtmlStringRGB(PuzzleMapCurrent);
+        string expensiveColor = ColorUtility.ToHtmlStringRGB(TradeExpensiveColor);
         string rareColor = ColorUtility.ToHtmlStringRGB(PuzzleMapRare);
         return BasicData.Format("presentation.trade.cityTagPreferences", commonColor, (string.IsNullOrEmpty(commonText) ? BasicData.Text("presentation.trade.cityTagPreferencesText3") : commonText)) +
             BasicData.Format("presentation.trade.cityTagPreferencesText2", expensiveColor, (string.IsNullOrEmpty(expensiveText) ? BasicData.Text("presentation.trade.cityTagPreferencesText4") : expensiveText)) +
@@ -2447,8 +2449,7 @@ public static partial class Presentation
         {
             return PuzzleTagTextOnBackground(PuzzleTagBackgroundColor(_tag));
         }
-        return IsFreshTag(_tag) ? BasicData.Color("presentation.tags.freshTextColor")
-            : BasicData.Color("presentation.tags.puzzleTagTextColor");
+        return IsQuestTag(_tag) ? PuzzleTooltipBodyBackground : PuzzleTooltipText;
     }
 
     public static Color PuzzleTagTextOnBackground(Color _background)
@@ -2468,26 +2469,14 @@ public static partial class Presentation
             (Mathf.Min(backgroundLuminance, textLuminance) + 0.05f);
     }
 
-    static bool IsFreshTag(string _tag)
+    static bool IsQuestTag(string _tag)
     {
-        return string.Equals(_tag, "Fresh", StringComparison.OrdinalIgnoreCase)
-            || string.Equals(_tag, "Refrigerator", StringComparison.OrdinalIgnoreCase);
+        return string.Equals(_tag, "Quest", StringComparison.OrdinalIgnoreCase);
     }
 
-    public static Color PuzzleTooltipTagBackground(string _tag, float _blend)
+    public static Color PuzzleTooltipTagTextColor(string _tag)
     {
-        Color background = PuzzleTagBackgroundColor(_tag);
-        return IsFreshTag(_tag) ? background
-            : UnityEngine.Color.Lerp(background, PuzzleTooltipBodyBackground, _blend);
-    }
-
-    public static Color PuzzleTooltipTagTextColor(string _tag, float _blend)
-    {
-        if (TableManager.Instance.Puzzle.tagPresentations.Any(_entry => _entry.id == _tag))
-        {
-            return PuzzleTagTextOnBackground(PuzzleTooltipTagBackground(_tag, _blend));
-        }
-        return IsFreshTag(_tag) ? PuzzleTagTextColor(_tag) : PuzzleTooltipText;
+        return PuzzleTagTextColor(_tag);
     }
 
     public static IReadOnlyList<string> PrioritizeTags(IEnumerable<string> _tags)

@@ -654,6 +654,7 @@ public static class BasicDataContract
         "presentation.tooltip.headerBackground",
         "presentation.tooltip.red",
         "presentation.tooltip.text",
+        "presentation.trade.expensiveResourceColor",
         "presentation.train.addWagonBox",
         "presentation.train.addWagonBoxDisabled",
         "presentation.train.addWagonTextDisabled",

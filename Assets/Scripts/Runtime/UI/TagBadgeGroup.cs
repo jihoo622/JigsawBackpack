@@ -13,7 +13,6 @@ public sealed class TagBadgeGroup : MonoBehaviour
     [SerializeField] TagBadgeView[] slots;
     [SerializeField] TMP_Text emptyLabel;
     [SerializeField] string emptyText = "없음";
-    [SerializeField] float badgeBlend = 0.25f;
     [SerializeField] float fontSizeOverride;
     [SerializeField] bool overrideBadgePadding;
     [SerializeField] RectOffset badgePadding;
@@ -71,7 +70,7 @@ public sealed class TagBadgeGroup : MonoBehaviour
             {
                 continue;
             }
-            view.Show(_entries[i], badgeBlend, fontSizeOverride, paddingOverride);
+            view.Show(_entries[i], fontSizeOverride, paddingOverride);
             view.transform.SetSiblingIndex(i);
         }
 
