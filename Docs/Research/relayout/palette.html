@@ -241,6 +241,36 @@
     color: #f87171;
     border: 1px solid rgba(239, 68, 68, 0.4);
   }
+  .preview-pair {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    padding: 8px;
+    background: #070a10;
+  }
+  .preview-sub-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--ui-sub);
+    margin-bottom: 4px;
+    display: flex;
+    justify-content: space-between;
+  }
+  .ramp-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 10px;
+  }
+  .ramp-card {
+    background: var(--ui-card);
+    border: 1px solid var(--ui-border);
+    border-radius: 8px;
+    padding: 10px 12px;
+  }
+  .ramp-title { font-size: 12px; font-weight: 700; color: var(--ui-sub); margin-bottom: 8px; }
+  .ramp-swatches { display: flex; flex-direction: column; gap: 5px; }
+  .ramp-item { display: flex; align-items: center; gap: 8px; font-size: 11.5px; }
+  .ramp-chip { width: 28px; height: 18px; border: 1px solid rgba(255,255,255,0.22); flex-shrink: 0; }
 </style>
 </head>
 <body>
@@ -279,7 +309,26 @@
   </section>
 
   <section class="card">
-    <h2>실제 화면 라이브 프리뷰 (5개 핵심 상태)</h2>
+    <h2>
+      <span id="lim-title">제한 32색 도트 팔레트 (RGB555 · 5-bit 스냅)</span>
+      <span style="display:flex;gap:8px;align-items:center;">
+        <a class="open-full-link" id="dl-gpl" href="palettes/a-limited.gpl" download>GIMP/Aseprite .gpl ⬇</a>
+        <a class="open-full-link" id="dl-hex" href="palettes/a-limited.hex" download>.hex ⬇</a>
+        <a class="open-full-link" id="open-lim-link" href="concept-3b.html?palette=a&limit=1" target="_blank">도트 모드 새 창 ↗</a>
+      </span>
+    </h2>
+    <div class="ramp-grid" id="ramp-grid"></div>
+  </section>
+
+  <section class="card">
+    <h2>토큰 → 램프 매핑 (제한 32색 모드)</h2>
+    <div style="max-height:360px;overflow:auto;">
+      <table class="swatch-table" id="mapping-table"></table>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>실제 화면 라이브 프리뷰 — 일반 vs 제한 32색 도트 나란히 비교</h2>
     <div class="preview-grid" id="preview-grid"></div>
   </section>
 
@@ -290,6 +339,7 @@
 </main>
 
 <script>
+  const LIMITED_DATA = {"a": {"count": 31, "ramps": [{"name": "무채색·바탕", "colors": [{"id": "n0", "v": "(1,1,2)", "hex": "#080810"}, {"id": "n1", "v": "(3,4,5)", "hex": "#182129"}, {"id": "n2", "v": "(7,8,10)", "hex": "#394252"}, {"id": "n3", "v": "(16,18,21)", "hex": "#8494ad"}, {"id": "n4", "v": "(20,22,25)", "hex": "#a5b5ce"}, {"id": "n5", "v": "(29,30,31)", "hex": "#eff7ff"}]}, {"name": "네이비 (UI 틀)", "colors": [{"id": "u0", "v": "(2,3,5)", "hex": "#101829"}, {"id": "u1", "v": "(3,5,8)", "hex": "#182942"}, {"id": "u2", "v": "(5,7,11)", "hex": "#29395a"}, {"id": "u3", "v": "(8,11,16)", "hex": "#425a84"}, {"id": "u4", "v": "(13,18,25)", "hex": "#6b94ce"}]}, {"name": "골드·노랑 (자금·화물)", "colors": [{"id": "g0", "v": "(9,5,1)", "hex": "#4a2908"}, {"id": "g1", "v": "(16,9,2)", "hex": "#844a10"}, {"id": "g2", "v": "(26,18,3)", "hex": "#d69418"}, {"id": "g3", "v": "(29,22,5)", "hex": "#efb529"}, {"id": "g4", "v": "(31,28,9)", "hex": "#ffe74a"}]}, {"name": "초록 (긍정·잔디)", "colors": [{"id": "p0", "v": "(3,7,4)", "hex": "#183921"}, {"id": "p1", "v": "(5,10,6)", "hex": "#295231"}, {"id": "p2", "v": "(4,15,8)", "hex": "#217b42"}, {"id": "p3", "v": "(9,24,13)", "hex": "#4ac66b"}, {"id": "p4", "v": "(22,30,24)", "hex": "#b5f7c6"}]}, {"name": "빨강·자주 (부정·희귀)", "colors": [{"id": "r0", "v": "(11,3,3)", "hex": "#5a1818"}, {"id": "r1", "v": "(18,4,4)", "hex": "#942121"}, {"id": "r2", "v": "(24,7,7)", "hex": "#c63939"}, {"id": "r3", "v": "(30,14,14)", "hex": "#f77373"}, {"id": "r4", "v": "(27,20,30)", "hex": "#dea5f7"}]}, {"name": "시안·파랑 (정보·수역)", "colors": [{"id": "c0", "v": "(3,7,12)", "hex": "#183963"}, {"id": "c1", "v": "(3,12,20)", "hex": "#1863a5"}, {"id": "c2", "v": "(7,22,30)", "hex": "#39b5f7"}, {"id": "c3", "v": "(16,26,31)", "hex": "#84d6ff"}, {"id": "c4", "v": "(18,14,28)", "hex": "#9473e7"}]}], "mappings": [["--bg-outer", "n0", "#080810", "(1,1,2)"], ["--bg-panel", "u0", "#101829", "(2,3,5)"], ["--bg-panel-2", "u1", "#182942", "(3,5,8)"], ["--bg-card", "u1", "#182942", "(3,5,8)"], ["--border", "u2", "#29395a", "(5,7,11)"], ["--border-bright", "u3", "#425a84", "(8,11,16)"], ["--text", "n5", "#eff7ff", "(29,30,31)"], ["--text-sub", "n4", "#a5b5ce", "(20,22,25)"], ["--text-muted", "n3", "#8494ad", "(16,18,21)"], ["--gold", "g3", "#efb529", "(29,22,5)"], ["--pos-soft", "p3", "#4ac66b", "(9,24,13)"], ["--neg-soft", "r3", "#f77373", "(30,14,14)"], ["--warn", "g2", "#d69418", "(26,18,3)"], ["--info", "c2", "#39b5f7", "(7,22,30)"], ["--tier-abundant", "n3", "#8494ad", "(16,18,21)"], ["--tier-preferred", "g3", "#efb529", "(29,22,5)"], ["--tier-rare", "r4", "#dea5f7", "(27,20,30)"], ["--tag-machinery", "g1", "#844a10", "(16,9,2)"], ["--tag-fish", "c1", "#1863a5", "(3,12,20)"], ["--tag-fruit", "r1", "#942121", "(18,4,4)"], ["--tag-salt", "u2", "#29395a", "(5,7,11)"], ["--tag-wood", "g0", "#4a2908", "(9,5,1)"], ["--tag-exempt", "p2", "#217b42", "(4,15,8)"], ["--cell-bg", "u2", "#29395a", "(5,7,11)"], ["--cell-blocked-bg", "n1", "#182129", "(3,4,5)"], ["--mg-blocked", "n1", "#182129", "(3,4,5)"], ["--mg-empty", "n2", "#394252", "(7,8,10)"], ["--mg-cargo-0", "g4", "#ffe74a", "(31,28,9)"], ["--mg-cargo-1", "g2", "#d69418", "(26,18,3)"], ["--scene-platform-bg", "u2", "#29395a", "(5,7,11)"], ["--scene-grass", "p0", "#183921", "(3,7,4)"], ["--scene-road", "n2", "#394252", "(7,8,10)"], ["--scene-sign-bg", "u0", "#101829", "(2,3,5)"]]}, "b": {"count": 31, "ramps": [{"name": "무채색·선로", "colors": [{"id": "n0", "v": "(2,1,1)", "hex": "#100808"}, {"id": "n1", "v": "(3,3,4)", "hex": "#181821"}, {"id": "n2", "v": "(9,9,10)", "hex": "#4a4a52"}, {"id": "n3", "v": "(15,14,13)", "hex": "#7b736b"}, {"id": "n4", "v": "(24,22,20)", "hex": "#c6b5a5"}, {"id": "n5", "v": "(30,29,27)", "hex": "#f7efde"}]}, {"name": "에스프레소·갈색 (UI 틀)", "colors": [{"id": "u0", "v": "(3,2,2)", "hex": "#181010"}, {"id": "u1", "v": "(5,4,3)", "hex": "#292118"}, {"id": "u2", "v": "(8,6,5)", "hex": "#423129"}, {"id": "u3", "v": "(12,10,8)", "hex": "#635242"}, {"id": "u4", "v": "(20,17,14)", "hex": "#a58c73"}]}, {"name": "황동·노랑 (자금·화물)", "colors": [{"id": "g0", "v": "(9,5,2)", "hex": "#4a2910"}, {"id": "g1", "v": "(17,10,3)", "hex": "#8c5218"}, {"id": "g2", "v": "(27,19,4)", "hex": "#de9c21"}, {"id": "g3", "v": "(29,22,6)", "hex": "#efb531"}, {"id": "g4", "v": "(31,28,9)", "hex": "#ffe74a"}]}, {"name": "청록·올리브 (긍정·잔디)", "colors": [{"id": "p0", "v": "(5,6,4)", "hex": "#293121"}, {"id": "p1", "v": "(8,9,6)", "hex": "#424a31"}, {"id": "p2", "v": "(3,14,13)", "hex": "#18736b"}, {"id": "p3", "v": "(11,27,24)", "hex": "#5adec6"}, {"id": "p4", "v": "(24,30,29)", "hex": "#c6f7ef"}]}, {"name": "코랄·로즈 (부정·희귀)", "colors": [{"id": "r0", "v": "(12,3,4)", "hex": "#631821"}, {"id": "r1", "v": "(19,4,6)", "hex": "#9c2131"}, {"id": "r2", "v": "(26,7,10)", "hex": "#d63952"}, {"id": "r3", "v": "(30,14,17)", "hex": "#f7738c"}, {"id": "r4", "v": "(29,22,26)", "hex": "#efb5d6"}]}, {"name": "강철 파랑 (정보·수역)", "colors": [{"id": "c0", "v": "(4,7,10)", "hex": "#213952"}, {"id": "c1", "v": "(4,13,18)", "hex": "#216b94"}, {"id": "c2", "v": "(10,21,28)", "hex": "#52ade7"}, {"id": "c3", "v": "(19,27,31)", "hex": "#9cdeff"}, {"id": "c4", "v": "(16,16,29)", "hex": "#8484ef"}]}], "mappings": [["--bg-outer", "n0", "#100808", "(2,1,1)"], ["--bg-panel", "u0", "#181010", "(3,2,2)"], ["--bg-panel-2", "u1", "#292118", "(5,4,3)"], ["--bg-card", "u1", "#292118", "(5,4,3)"], ["--border", "u2", "#423129", "(8,6,5)"], ["--border-bright", "u3", "#635242", "(12,10,8)"], ["--text", "n5", "#f7efde", "(30,29,27)"], ["--text-sub", "n4", "#c6b5a5", "(24,22,20)"], ["--text-muted", "u4", "#a58c73", "(20,17,14)"], ["--gold", "g3", "#efb531", "(29,22,6)"], ["--pos-soft", "p3", "#5adec6", "(11,27,24)"], ["--neg-soft", "r3", "#f7738c", "(30,14,17)"], ["--warn", "g2", "#de9c21", "(27,19,4)"], ["--info", "c2", "#52ade7", "(10,21,28)"], ["--tier-abundant", "u4", "#a58c73", "(20,17,14)"], ["--tier-preferred", "g3", "#efb531", "(29,22,6)"], ["--tier-rare", "r4", "#efb5d6", "(29,22,26)"], ["--tag-machinery", "g1", "#8c5218", "(17,10,3)"], ["--tag-fish", "c1", "#216b94", "(4,13,18)"], ["--tag-fruit", "r1", "#9c2131", "(19,4,6)"], ["--tag-salt", "u2", "#423129", "(8,6,5)"], ["--tag-wood", "g0", "#4a2910", "(9,5,2)"], ["--tag-exempt", "p2", "#18736b", "(3,14,13)"], ["--cell-bg", "u2", "#423129", "(8,6,5)"], ["--cell-blocked-bg", "n1", "#181821", "(3,3,4)"], ["--mg-blocked", "n1", "#181821", "(3,3,4)"], ["--mg-empty", "n2", "#4a4a52", "(9,9,10)"], ["--mg-cargo-0", "g4", "#ffe74a", "(31,28,9)"], ["--mg-cargo-1", "g2", "#de9c21", "(27,19,4)"], ["--scene-platform-bg", "u2", "#423129", "(8,6,5)"], ["--scene-grass", "p0", "#293121", "(5,6,4)"], ["--scene-road", "u2", "#423129", "(8,6,5)"], ["--scene-sign-bg", "u0", "#181010", "(3,2,2)"]]}, "c": {"count": 31, "ramps": [{"name": "먹색·회색 (텍스트·미니그리드)", "colors": [{"id": "n0", "v": "(3,3,4)", "hex": "#181821"}, {"id": "n1", "v": "(6,7,7)", "hex": "#313939"}, {"id": "n2", "v": "(10,11,11)", "hex": "#525a5a"}, {"id": "n3", "v": "(18,17,16)", "hex": "#948c84"}, {"id": "n4", "v": "(25,24,22)", "hex": "#cec6b5"}, {"id": "n5", "v": "(31,31,30)", "hex": "#fffff7"}]}, {"name": "양피지·크림 (UI 틀)", "colors": [{"id": "u0", "v": "(15,13,11)", "hex": "#7b6b5a"}, {"id": "u1", "v": "(21,19,16)", "hex": "#ad9c84"}, {"id": "u2", "v": "(28,26,23)", "hex": "#e7d6bd"}, {"id": "u3", "v": "(29,28,25)", "hex": "#efe7ce"}, {"id": "u4", "v": "(31,30,28)", "hex": "#fff7e7"}]}, {"name": "호박·노랑 (골드·화물)", "colors": [{"id": "g0", "v": "(12,6,1)", "hex": "#633108"}, {"id": "g1", "v": "(16,8,0)", "hex": "#844200"}, {"id": "g2", "v": "(25,14,2)", "hex": "#ce7310"}, {"id": "g3", "v": "(29,22,5)", "hex": "#efb529"}, {"id": "g4", "v": "(31,28,9)", "hex": "#ffe74a"}]}, {"name": "아침 초록 (긍정·잔디)", "colors": [{"id": "p0", "v": "(3,12,6)", "hex": "#186331"}, {"id": "p1", "v": "(6,16,8)", "hex": "#318442"}, {"id": "p2", "v": "(12,20,10)", "hex": "#63a552"}, {"id": "p3", "v": "(18,24,14)", "hex": "#94c673"}, {"id": "p4", "v": "(25,29,25)", "hex": "#ceefce"}]}, {"name": "크림슨·보라 (부정·희귀)", "colors": [{"id": "r0", "v": "(15,3,3)", "hex": "#7b1818"}, {"id": "r1", "v": "(20,3,3)", "hex": "#a51818"}, {"id": "r2", "v": "(28,22,22)", "hex": "#e7b5b5"}, {"id": "r3", "v": "(15,4,24)", "hex": "#7b21c6"}, {"id": "r4", "v": "(28,20,24)", "hex": "#e7a5c6"}]}, {"name": "코발트·하늘 (정보·수역)", "colors": [{"id": "c0", "v": "(2,11,19)", "hex": "#105a9c"}, {"id": "c1", "v": "(5,16,26)", "hex": "#2984d6"}, {"id": "c2", "v": "(14,24,30)", "hex": "#73c6f7"}, {"id": "c3", "v": "(24,28,31)", "hex": "#c6e7ff"}, {"id": "c4", "v": "(7,8,22)", "hex": "#3942b5"}]}], "mappings": [["--bg-outer", "u2", "#e7d6bd", "(28,26,23)"], ["--bg-panel", "u4", "#fff7e7", "(31,30,28)"], ["--bg-panel-2", "u3", "#efe7ce", "(29,28,25)"], ["--bg-card", "u2", "#e7d6bd", "(28,26,23)"], ["--border", "u1", "#ad9c84", "(21,19,16)"], ["--border-bright", "u0", "#7b6b5a", "(15,13,11)"], ["--text", "n0", "#181821", "(3,3,4)"], ["--text-sub", "n1", "#313939", "(6,7,7)"], ["--text-muted", "n2", "#525a5a", "(10,11,11)"], ["--gold", "g1", "#844200", "(16,8,0)"], ["--pos-soft", "p0", "#186331", "(3,12,6)"], ["--neg-soft", "r1", "#a51818", "(20,3,3)"], ["--warn", "g2", "#ce7310", "(25,14,2)"], ["--info", "c0", "#105a9c", "(2,11,19)"], ["--tier-abundant", "n2", "#525a5a", "(10,11,11)"], ["--tier-preferred", "g1", "#844200", "(16,8,0)"], ["--tier-rare", "r3", "#7b21c6", "(15,4,24)"], ["--tag-machinery", "g2", "#ce7310", "(25,14,2)"], ["--tag-fish", "c0", "#105a9c", "(2,11,19)"], ["--tag-fruit", "r1", "#a51818", "(20,3,3)"], ["--tag-salt", "n2", "#525a5a", "(10,11,11)"], ["--tag-wood", "g0", "#633108", "(12,6,1)"], ["--tag-exempt", "p0", "#186331", "(3,12,6)"], ["--cell-bg", "u3", "#efe7ce", "(29,28,25)"], ["--cell-blocked-bg", "u1", "#ad9c84", "(21,19,16)"], ["--mg-blocked", "n0", "#181821", "(3,3,4)"], ["--mg-empty", "n2", "#525a5a", "(10,11,11)"], ["--mg-cargo-0", "g4", "#ffe74a", "(31,28,9)"], ["--mg-cargo-1", "g3", "#efb529", "(29,22,5)"], ["--scene-platform-bg", "u2", "#e7d6bd", "(28,26,23)"], ["--scene-grass", "p3", "#94c673", "(18,24,14)"], ["--scene-road", "n3", "#948c84", "(18,17,16)"], ["--scene-sign-bg", "n1", "#313939", "(6,7,7)"]]}, "d": {"count": 29, "ramps": [{"name": "무채색 (고대비 그레이)", "colors": [{"id": "n0", "v": "(1,1,1)", "hex": "#080808"}, {"id": "n1", "v": "(3,3,4)", "hex": "#181821"}, {"id": "n2", "v": "(5,5,6)", "hex": "#292931"}, {"id": "n3", "v": "(9,9,10)", "hex": "#4a4a52"}, {"id": "n4", "v": "(15,15,17)", "hex": "#7b7b8c"}, {"id": "n5", "v": "(21,21,23)", "hex": "#adadbd"}, {"id": "n6", "v": "(27,27,28)", "hex": "#dedee7"}, {"id": "n7", "v": "(31,31,31)", "hex": "#ffffff"}]}, {"name": "골드·노랑 (자금·화물)", "colors": [{"id": "g0", "v": "(12,7,1)", "hex": "#633908"}, {"id": "g1", "v": "(20,12,2)", "hex": "#a56310"}, {"id": "g2", "v": "(29,22,5)", "hex": "#efb529"}, {"id": "g3", "v": "(31,24,6)", "hex": "#ffc631"}, {"id": "g4", "v": "(31,28,9)", "hex": "#ffe74a"}]}, {"name": "스카이 블루 (긍정 Δ)", "colors": [{"id": "b0", "v": "(2,8,13)", "hex": "#10426b"}, {"id": "b1", "v": "(2,15,24)", "hex": "#107bc6"}, {"id": "b2", "v": "(7,23,31)", "hex": "#39bdff"}, {"id": "b3", "v": "(24,29,31)", "hex": "#c6efff"}]}, {"name": "비비드 오렌지 (부정 Δ)", "colors": [{"id": "o0", "v": "(13,5,1)", "hex": "#6b2908"}, {"id": "o1", "v": "(23,8,2)", "hex": "#bd4210"}, {"id": "o2", "v": "(31,17,6)", "hex": "#ff8c31"}, {"id": "o3", "v": "(31,26,21)", "hex": "#ffd6ad"}]}, {"name": "바이올렛·핑크 (정보·희귀)", "colors": [{"id": "v0", "v": "(9,4,16)", "hex": "#4a2184"}, {"id": "v1", "v": "(17,6,12)", "hex": "#8c3163"}, {"id": "v2", "v": "(20,16,30)", "hex": "#a584f7"}, {"id": "v3", "v": "(30,19,26)", "hex": "#f79cd6"}]}, {"name": "장면 녹지 (잔디·숲)", "colors": [{"id": "s0", "v": "(4,6,4)", "hex": "#213121"}, {"id": "s1", "v": "(6,8,6)", "hex": "#314231"}, {"id": "s2", "v": "(8,11,8)", "hex": "#425a42"}, {"id": "s3", "v": "(12,11,8)", "hex": "#635a42"}]}], "mappings": [["--bg-outer", "n0", "#080808", "(1,1,1)"], ["--bg-panel", "n1", "#181821", "(3,3,4)"], ["--bg-panel-2", "n2", "#292931", "(5,5,6)"], ["--bg-card", "n2", "#292931", "(5,5,6)"], ["--border", "n3", "#4a4a52", "(9,9,10)"], ["--border-bright", "n4", "#7b7b8c", "(15,15,17)"], ["--text", "n7", "#ffffff", "(31,31,31)"], ["--text-sub", "n6", "#dedee7", "(27,27,28)"], ["--text-muted", "n5", "#adadbd", "(21,21,23)"], ["--gold", "g3", "#ffc631", "(31,24,6)"], ["--pos-soft", "b2", "#39bdff", "(7,23,31)"], ["--neg-soft", "o2", "#ff8c31", "(31,17,6)"], ["--warn", "o2", "#ff8c31", "(31,17,6)"], ["--info", "v2", "#a584f7", "(20,16,30)"], ["--tier-abundant", "n5", "#adadbd", "(21,21,23)"], ["--tier-preferred", "g3", "#ffc631", "(31,24,6)"], ["--tier-rare", "v3", "#f79cd6", "(30,19,26)"], ["--tag-machinery", "o1", "#bd4210", "(23,8,2)"], ["--tag-fish", "b1", "#107bc6", "(2,15,24)"], ["--tag-fruit", "v1", "#8c3163", "(17,6,12)"], ["--tag-salt", "n3", "#4a4a52", "(9,9,10)"], ["--tag-wood", "g0", "#633908", "(12,7,1)"], ["--tag-exempt", "b1", "#107bc6", "(2,15,24)"], ["--cell-bg", "n2", "#292931", "(5,5,6)"], ["--cell-blocked-bg", "n1", "#181821", "(3,3,4)"], ["--mg-blocked", "n1", "#181821", "(3,3,4)"], ["--mg-empty", "n3", "#4a4a52", "(9,9,10)"], ["--mg-cargo-0", "g4", "#ffe74a", "(31,28,9)"], ["--mg-cargo-1", "g2", "#efb529", "(29,22,5)"], ["--scene-platform-bg", "n2", "#292931", "(5,5,6)"], ["--scene-grass", "s1", "#314231", "(6,8,6)"], ["--scene-road", "n3", "#4a4a52", "(9,9,10)"], ["--scene-sign-bg", "n1", "#181821", "(3,3,4)"]]}};
   const CANDIDATES = {
     a: {
       title: 'A. 다크 네이비 (현행 정리)',
@@ -759,16 +809,69 @@
       `;
     }).join('');
 
-    // 2. Live Preview Iframes
+    // 1.5 Limited 32-color Ramp Chart & Mapping
+    const lim = LIMITED_DATA[p];
+    document.getElementById('lim-title').textContent = `제한 32색 도트 팔레트 (${lim.count}색 / 최대 32색 · RGB555 5-bit 스냅)`;
+    document.getElementById('dl-gpl').href = `palettes/${p}-limited.gpl`;
+    document.getElementById('dl-hex').href = `palettes/${p}-limited.hex`;
+    document.getElementById('open-lim-link').href = `concept-3b.html?palette=${p}&limit=1`;
+
+    document.getElementById('ramp-grid').innerHTML = lim.ramps.map(r => `
+      <div class="ramp-card">
+        <div class="ramp-title">${r.name} (${r.colors.length}색)</div>
+        <div class="ramp-swatches">
+          ${r.colors.map(c => `
+            <div class="ramp-item">
+              <span class="ramp-chip" style="background:${c.hex};"></span>
+              <code>${c.id}</code>
+              <code>${c.hex}</code>
+              <span style="color:var(--ui-sub);font-size:11px;">RGB555 ${c.v}</span>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `).join('');
+
+    document.getElementById('mapping-table').innerHTML = `
+      <thead><tr><th>시맨틱 토큰</th><th>램프 ID</th><th>색</th><th>8-bit Hex</th><th>5-bit (R,G,B)</th></tr></thead>
+      <tbody>
+        ${lim.mappings.map(([tok, cid, hex, v]) => `
+          <tr>
+            <td><code>${tok}</code></td>
+            <td><code>${cid}</code></td>
+            <td><span class="swatch-box" style="background:${hex};"></span></td>
+            <td><code>${hex}</code></td>
+            <td><code>${v}</code></td>
+          </tr>
+        `).join('')}
+      </tbody>
+    `;
+
+    // 2. Live Preview Iframes (Full vs Limited 32-color Side by Side)
     const previewEl = document.getElementById('preview-grid');
+    previewEl.style.gridTemplateColumns = '1fr';
     previewEl.innerHTML = KEY_STATES.map(st => `
       <div class="preview-item">
         <div class="preview-head">
           <span>${st.label}</span>
-          <a href="concept-3b.html?palette=${p}&state=${st.id}" target="_blank">1920×1080 열기 ↗</a>
+          <span style="display:flex;gap:12px;">
+            <a href="concept-3b.html?palette=${p}&state=${st.id}" target="_blank">일반 1920×1080 ↗</a>
+            <a href="concept-3b.html?palette=${p}&limit=1&state=${st.id}" target="_blank">도트 32색 1920×1080 ↗</a>
+          </span>
         </div>
-        <div class="iframe-wrap">
-          <iframe src="concept-3b.html?palette=${p}&state=${st.id}&embed=1" loading="lazy"></iframe>
+        <div class="preview-pair">
+          <div>
+            <div class="preview-sub-label"><span>일반 모드 (Full)</span></div>
+            <div class="iframe-wrap">
+              <iframe src="concept-3b.html?palette=${p}&state=${st.id}&embed=1" loading="lazy"></iframe>
+            </div>
+          </div>
+          <div>
+            <div class="preview-sub-label"><span>제한 32색 도트 모드 (&limit=1)</span></div>
+            <div class="iframe-wrap">
+              <iframe src="concept-3b.html?palette=${p}&limit=1&state=${st.id}&embed=1" loading="lazy"></iframe>
+            </div>
+          </div>
         </div>
       </div>
     `).join('');
