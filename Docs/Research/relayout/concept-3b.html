@@ -469,7 +469,7 @@
   }
   .status-banner.visible { display: flex; }
 
-  /* ── Popup Windows (Common Chrome) ── */
+  /* ── Popup Windows (Floating, Draggable, Resizable) ── */
   .popup-window {
     position: absolute;
     background: rgba(15, 23, 36, 0.96);
@@ -482,6 +482,7 @@
     z-index: 35;
     box-shadow: 0 18px 48px rgba(0, 0, 0, 0.72);
     backdrop-filter: blur(8px);
+    overflow: hidden;
   }
   .popup-window.visible { display: flex; }
   .win-header {
@@ -491,7 +492,10 @@
     border-bottom: 1px solid var(--border);
     padding-bottom: 8px;
     min-height: 36px;
+    cursor: grab;
+    flex-shrink: 0;
   }
+  .win-header:active { cursor: grabbing; }
   .win-title {
     font-size: 17px;
     font-weight: 800;
@@ -499,6 +503,7 @@
     display: flex;
     align-items: center;
     gap: 8px;
+    pointer-events: none;
   }
   .win-close {
     background: var(--bg-card);
@@ -512,6 +517,28 @@
     cursor: pointer;
   }
   .win-close:hover { border-color: var(--red-soft); color: var(--text); }
+
+  /* Resize Handles (Edges + Bottom-Right Corner) */
+  .resize-handle { position: absolute; z-index: 12; }
+  .resize-e { top: 8px; right: 0; width: 7px; bottom: 14px; cursor: ew-resize; }
+  .resize-s { left: 8px; bottom: 0; height: 7px; right: 14px; cursor: ns-resize; }
+  .resize-w { top: 8px; left: 0; width: 7px; bottom: 8px; cursor: ew-resize; }
+  .resize-n { top: 0; left: 8px; height: 7px; right: 8px; cursor: ns-resize; }
+  .resize-se {
+    right: 2px; bottom: 2px; width: 16px; height: 16px; cursor: nwse-resize;
+    background: linear-gradient(135deg, transparent 50%, rgba(148, 163, 184, 0.55) 50%, rgba(148, 163, 184, 0.55) 62%, transparent 62%, transparent 74%, rgba(240, 180, 41, 0.85) 74%);
+    border-radius: 0 0 8px 0;
+  }
+  .board-scroll-wrap {
+    overflow: auto;
+    max-width: 100%;
+    max-height: 100%;
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+    scrollbar-width: thin;
+    scrollbar-color: #475569 transparent;
+  }
 
   /* ── Train Window (PERSONAL — LEFT over Platform): (26, 516, 510, 544) ── */
   .train-window {
@@ -942,38 +969,33 @@
   .item-tooltip.visible { display: flex; }
   .tt-row { display: flex; justify-content: space-between; font-size: 14px; }
 
-  /* ── Modals (Pause & Run End) ── */
+  /* ── Modals (Pause & Run End — Floating & Resizable) ── */
   .modal-backdrop {
     position: absolute;
     inset: 0;
-    background: rgba(5, 8, 13, 0.75);
+    background: rgba(5, 8, 13, 0.65);
     display: none;
-    align-items: center;
-    justify-content: center;
     z-index: 100;
     backdrop-filter: blur(4px);
+    pointer-events: auto;
   }
-  .modal-backdrop.visible { display: flex; }
+  .modal-backdrop.visible { display: block; }
   .pause-modal {
-    width: 440px;
+    left: 740px; top: 260px; width: 440px; height: 420px;
     background: var(--bg-panel);
-    border: 1px solid var(--border-bright);
-    border-radius: 12px;
-    padding: 28px 36px;
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
+    border: 1.5px solid var(--border-bright);
+    padding: 16px 24px 22px;
+    gap: 12px;
     text-align: center;
+    z-index: 105;
   }
   .run-end-modal {
-    width: 640px;
+    left: 640px; top: 210px; width: 640px; height: 440px;
     background: var(--bg-panel);
     border: 2px solid var(--gold);
-    border-radius: 14px;
-    padding: 28px 34px;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
+    padding: 16px 26px 24px;
+    gap: 14px;
+    z-index: 105;
   }
   .stat-grid {
     display: grid;
@@ -1052,6 +1074,7 @@
   <button class="state-btn" data-state="pause">일시정지</button>
   <button class="state-btn" data-state="travel">이동 중</button>
   <button class="state-btn" data-state="many_wagons">다중 화차(11량·스크롤)</button>
+  <button class="state-btn" data-state="free_layout">창 자유 배치 예시</button>
   <button class="state-btn" data-state="run_end">결산 결과</button>
 </div>
 
@@ -1098,9 +1121,10 @@
       <div class="quick-toolbar">
         <button class="qt-btn" id="qt-notebook">📒 수첩 <span style="color:var(--gold);">(1)</span></button>
         <button class="qt-btn" id="qt-map">🗺 노선도 (M)</button>
-        <button class="qt-btn" id="qt-clear-win">🖼 배경만 보기</button>
+        <button class="qt-btn" id="qt-clear-win">🖼 배경만</button>
+        <button class="qt-btn" id="qt-reset-layout" title="모든 창 위치·크기 초기화">↺ 창 배치 초기화</button>
         <div class="qt-spacer"></div>
-        <span class="qt-hint">단축키 1~6 건물 · Tab 화차</span>
+        <span class="qt-hint">1~6 · Tab</span>
       </div>
 
       <!-- 3. LEFT PLATFORM SCENERY (Pure Background): (26, 134, 510, 929) -->
@@ -1368,7 +1392,7 @@
           <span style="color:var(--green-soft);font-weight:700;">다음 정산 +12$</span>
         </div>
         <div class="train-body">
-          <div class="grid-board grid-7x5" id="train-board"></div>
+          <div class="board-scroll-wrap" style="flex:1;"><div class="grid-board grid-7x5" id="train-board"></div></div>
           <div class="train-side-strip">
             <div class="held-delta-card" id="train-delta-card">
               <div class="held-delta-lbl">시너지 요약</div>
@@ -1445,7 +1469,7 @@
           </div>
         </div>
 
-        <div class="grid-board grid-13x9" id="market-board"></div>
+        <div class="board-scroll-wrap" style="flex:1;justify-content:center;"><div class="grid-board grid-13x9" id="market-board"></div></div>
 
         <div class="market-bottom-bar">
           <span>드래그 / Ctrl+클릭: 화차로 구매 · 기차 화물 드롭: 판매</span>
@@ -1553,8 +1577,8 @@
           <span style="color:var(--text-sub);">도시 특화 시설 (냉장 개조)</span>
           <span style="font-weight:700;color:var(--gold);">비용 150$/개 · 1턴(6h)</span>
         </div>
-        <div class="card-block" style="display:flex;flex-direction:column;align-items:center;gap:12px;">
-          <div class="grid-board grid-5x5" id="workshop-board"></div>
+        <div class="card-block" style="display:flex;flex-direction:column;align-items:center;gap:12px;flex:1;overflow:hidden;">
+          <div class="board-scroll-wrap" style="flex:1;justify-content:center;"><div class="grid-board grid-5x5" id="workshop-board"></div></div>
           <div style="width:100%;font-size:12.5px;color:var(--text-sub);line-height:1.6;background:var(--bg-panel-2);padding:10px 12px;border-radius:7px;">
             • 투입: <b>기계 프레임 (1개)</b> → 결과: <b style="color:#4ade80;">냉장 프레임</b> (인접 식품 보존 +50%)<br>
             • 소요 비용: <b>150$</b> (잔액 200$ → 50$) · 소요 시간: <b>1턴 (6시간)</b>
@@ -1840,30 +1864,38 @@
         <div style="font-size:12px;color:var(--text-sub);">• 인접 음식 시너지: 매 턴 +20% 누적</div>
       </div>
 
-      <!-- 17. PAUSE MODAL -->
+      <!-- 17. PAUSE MODAL (Floating & Resizable) -->
       <div class="modal-backdrop" id="pause-modal">
-        <div class="pause-modal">
-          <div style="font-size:28px;font-weight:800;margin-bottom:6px;">일시 정지</div>
+        <div class="popup-window pause-modal visible" id="pause-modal-win">
+          <div class="win-header">
+            <div class="win-title">⚙ 일시 정지</div>
+            <button class="win-close" id="btn-pause-close">✕</button>
+          </div>
           <button class="btn-gold">계속하기 (Esc)</button>
           <button class="btn-secondary">배치 후보 표시: 켜짐</button>
+          <button class="btn-secondary" id="btn-pause-reset-layout">↺ 창 배치 초기화</button>
           <button class="btn-secondary">처음부터 재시작</button>
           <button class="btn-secondary" style="border-color:var(--red);color:var(--red-soft);">게임 종료</button>
         </div>
       </div>
 
-      <!-- 18. RUN END MODAL -->
+      <!-- 18. RUN END MODAL (Floating & Resizable) -->
       <div class="modal-backdrop" id="run-end-modal">
-        <div class="run-end-modal">
+        <div class="popup-window run-end-modal visible" id="run-end-modal-win">
+          <div class="win-header">
+            <div class="win-title">🏁 런 결산 결과</div>
+            <button class="win-close" id="btn-runend-close">✕</button>
+          </div>
           <div style="text-align:center;">
             <div style="font-size:14px;color:var(--gold);font-weight:700;">14일(56턴) 정산 완료</div>
-            <div style="font-size:32px;font-weight:800;color:#4ade80;margin-top:4px;">목표 달성 · 운행 성공!</div>
+            <div style="font-size:30px;font-weight:800;color:#4ade80;margin-top:2px;">목표 달성 · 운행 성공!</div>
           </div>
           <div class="stat-grid">
             <div class="stat-box"><div style="font-size:12px;color:var(--text-sub);">최종 결산 자금</div><div style="font-size:24px;font-weight:800;color:var(--gold);">1,840$</div><div style="font-size:11px;color:#4ade80;">목표 1,500$ (+340$)</div></div>
             <div class="stat-box"><div style="font-size:12px;color:var(--text-sub);">최종 평판 / 화차</div><div style="font-size:24px;font-weight:800;">6 / 5량</div><div style="font-size:11px;color:var(--text-sub);">방문 역 9곳</div></div>
             <div class="stat-box"><div style="font-size:12px;color:var(--text-sub);">완료 의뢰 / 최고 시너지</div><div style="font-size:24px;font-weight:800;">4건 / +42$</div><div style="font-size:11px;color:var(--cyan);">누적 정산 수익 620$</div></div>
           </div>
-          <div style="display:flex;gap:12px;justify-content:center;margin-top:8px;">
+          <div style="display:flex;gap:12px;justify-content:center;margin-top:4px;">
             <button class="btn-gold" style="min-width:180px;">무한 모드 계속하기</button>
             <button class="btn-primary" style="min-width:160px;">새 런 시작</button>
             <button class="btn-secondary">종료</button>
@@ -1940,13 +1972,16 @@
   <ul>
     <li><b>정적 레이어 배경</b>: <code>PlatformScene</code>과 <code>TownScene</code>은 최하단 캔버스(<code>sortingOrder 0</code>)에 정적 이미지로 두고, 도시별 생산시설/공터 여부만 스프라이트 스왑으로 처리합니다.</li>
     <li><b>다이제틱 건물 버튼</b>: 6개 건물은 <code>Button</code> + 자식 상태 오브젝트(칠판 TMP, 말풍선, 굴뚝 파티클)로 구성하며, 호버 시 아웃라인 셰이더/하이라이트와 이름 라벨을 켭니다.</li>
-    <li><b>사전 배치 팝업 패널</b>: 개인 창(좌측)과 마을 창(우측)을 분리 배치해 중앙 선로(<code>549~640</code>)와 겹치지 않도록 하고, 각각 <code>SetActive</code> 토글로 제어합니다.</li>
+    <li><b>사전 배치 자유 창 시스템 (런타임 UI 생성 없음)</b>: 모든 팝업 창(화차·수첩·시장·술집·여관·역사·작업대·시청·일시정지·결산)은 프리팹에 미리 배치한 뒤 <code>SetActive</code>로 여닫습니다. 제목 표시줄에는 <code>IBeginDragHandler</code> / <code>IDragHandler</code>를, 우하단 모서리·가장자리에는 리사이즈 핸들 컴포넌트를 부착해 <code>RectTransform.sizeDelta</code>를 최소·최대 크기 안으로 제한합니다.</li>
+    <li><b>보드 셀 동적 재계산</b>: 창 크기 변경 시 보드 가용 영역에서 <code>cellSize = Mathf.Clamp(Mathf.Min(availW / cols, availH / rows), 40, 72)</code>를 계산해 <code>GridLayoutGroup.cellSize</code>와 배치 화물 좌표를 갱신하며, <code>40px</code> 미만에서는 미리 배치한 <code>ScrollRect</code>가 스크롤을 담당합니다.</li>
+    <li><b>창 순서·저장</b>: <code>IPointerDownHandler</code>에서 <code>transform.SetAsLastSibling()</code>으로 최상위로 올리고, 창별 <code>x, y, w, h</code>는 <code>PlayerPrefs</code>에 JSON으로 저장해 툴바·일시정지의 <code>창 배치 초기화</code> 버튼으로 복구합니다.</li>
   </ul>
 
-  <h2>6. 임의 결정 사항</h2>
+  <h2>6. 임의 결정 사항 및 자유 창 관리 규칙</h2>
   <ul>
+    <li><b>자유 창 규칙 (a)~(f)</b>: (a) 제목 표시줄 드래그 및 가장자리·우하단 모서리 리사이즈(창별 최소/최대 크기 제한), (b) 화면 경계(<code>0~1920</code>, <code>76~1080</code>) 클램프로 상단 HUD 비가림(중앙 선로나 마을 위로는 이동 허용, 기본값은 H10 배치), (c) 창 크기 연동 보드 셀 <code>40~72px</code> 재계산 및 <code>40px</code> 미만 스크롤, (d) 클릭 시 최상위(<code>z-index</code>) 승격, (e) 창별 위치·크기 저장(목업 <code>localStorage</code> / Unity <code>PlayerPrefs</code>) 및 툴바·일시정지 초기화 버튼, (f) 화면 가장자리 및 타 창 <code>12px</code> 스냅.</li>
     <li><b>시장 창 높이 690px 축소</b>: 행선지 렌즈 비교 정보를 좌측 개인 <code>TrainWindow</code> 하단으로 옮기고 시장 창 하단 빈 여백을 제거해, 시장 창 아래쪽 마을(여관 등)과 시야를 확보했습니다.</li>
-    <li><b>수첩 창 폭 522px 설정</b>: 지도·상성표 포함 모든 개인 창이 중앙 선로(<code>x=549</code>)를 절대 침범하지 않도록 승강장 폭(<code>522px</code>) 안에 맞췄으며, 상성표는 표 아래에 화물 태그를 세로 배치했습니다.</li>
+    <li><b>수첩 창 폭 522px 설정</b>: 지도·상성표 포함 모든 개인 창이 기본 상태에서 중앙 선로(<code>x=549</code>)를 침범하지 않도록 승강장 폭(<code>522px</code>) 안에 맞췄습니다.</li>
     <li><b>이동 중 연출 방식</b>: 노선도 배경이 없는 상태에서 이동감을 전달하기 위해 승강장에 속도선, 기관차 전조등·주행 표시를 넣고, 상단 중앙(690, 110)에 경로 진행 스트립을 띄우며 좌측 화차 창은 유지했습니다.</li>
   </ul>
 </section>
@@ -2084,6 +2119,21 @@
     });
   }
 
+  let trainCell = 56;
+  let marketCell = 56;
+  let workshopCell = 56;
+
+  function applyBoardGridSize(boardEl, cols, rows, cell) {
+    boardEl.style.width = (cols * cell) + 'px';
+    boardEl.style.height = (rows * cell) + 'px';
+    boardEl.style.gridTemplateColumns = `repeat(${cols}, ${cell}px)`;
+    boardEl.style.gridTemplateRows = `repeat(${rows}, ${cell}px)`;
+    boardEl.querySelectorAll('.cell').forEach(c => {
+      c.style.width = cell + 'px';
+      c.style.height = cell + 'px';
+    });
+  }
+
   function buildTrainGrid(showCands, showAffected) {
     currentShowCands = showCands;
     currentShowAffected = showAffected;
@@ -2112,7 +2162,6 @@
             cell.innerHTML = '<div class="cand-badge">③<br>+4$</div>';
           }
         }
-        // Live cargo placement on click to demonstrate live mini-grid update
         if (!isBlocked) {
           cell.style.cursor = 'pointer';
           cell.addEventListener('click', () => {
@@ -2132,13 +2181,14 @@
       const el = document.createElement('div');
       const isFirstAffected = showAffected && idx === 0;
       el.className = 'cargo-piece' + (isFirstAffected ? ' affected' : '');
-      el.style.left = (p.x * 56 + 2) + 'px';
-      el.style.top = (p.y * 56 + 2) + 'px';
-      el.style.width = (p.w * 56 - 4) + 'px';
-      el.style.height = (p.h * 56 - 4) + 'px';
+      el.style.left = (p.x * trainCell + 2) + 'px';
+      el.style.top = (p.y * trainCell + 2) + 'px';
+      el.style.width = (p.w * trainCell - 4) + 'px';
+      el.style.height = (p.h * trainCell - 4) + 'px';
       el.innerHTML = `<img src="${p.img}" alt="">` + (isFirstAffected ? '<span class="cargo-delta-badge">+20%</span>' : '');
       trainBoard.appendChild(el);
     });
+    applyBoardGridSize(trainBoard, 7, 5, trainCell);
   }
 
   function buildMarketGrid() {
@@ -2163,13 +2213,14 @@
     items.forEach(it => {
       const el = document.createElement('div');
       el.className = 'cargo-piece';
-      el.style.left = (it.x * 56 + 2) + 'px';
-      el.style.top = (it.y * 56 + 2) + 'px';
-      el.style.width = (it.w * 56 - 4) + 'px';
-      el.style.height = (it.h * 56 - 4) + 'px';
+      el.style.left = (it.x * marketCell + 2) + 'px';
+      el.style.top = (it.y * marketCell + 2) + 'px';
+      el.style.width = (it.w * marketCell - 4) + 'px';
+      el.style.height = (it.h * marketCell - 4) + 'px';
       el.innerHTML = `<img src="${it.img}" alt=""><span class="cargo-price-tag">${it.price}</span>`;
       marketBoard.appendChild(el);
     });
+    applyBoardGridSize(marketBoard, 13, 9, marketCell);
   }
 
   function buildWorkshopGrid() {
@@ -2181,10 +2232,13 @@
     }
     const el = document.createElement('div');
     el.className = 'cargo-piece';
-    el.style.left = '58px'; el.style.top = '58px';
-    el.style.width = '164px'; el.style.height = '108px';
+    el.style.left = (1 * workshopCell + 2) + 'px';
+    el.style.top = (1 * workshopCell + 2) + 'px';
+    el.style.width = (3 * workshopCell - 4) + 'px';
+    el.style.height = (2 * workshopCell - 4) + 'px';
     el.innerHTML = '<img src="assets/MachineFrame.png" alt="">';
     workshopBoard.appendChild(el);
+    applyBoardGridSize(workshopBoard, 5, 5, workshopCell);
   }
 
   function setState(state) {
@@ -2346,9 +2400,242 @@
       document.getElementById('platform-motion-lines').style.display = 'block';
       document.getElementById('rail-loco-status').textContent = '주행 중 ▶';
       document.getElementById('hud-city-region').textContent = '수도권 · 이동 중';
+    } else if (state === 'free_layout') {
+      applyDefaultLayouts(false);
+      // Showcase moved & resized windows (including overlapping rail strip per rule b, and rescaled cells 40..72px per rule c)
+      setWindowRect('train-window', { left: 20, top: 140, width: 610, height: 610 });
+      setWindowRect('market-window', { left: 660, top: 100, width: 610, height: 530 });
+      setWindowRect('tavern-window', { left: 1300, top: 480, width: 590, height: 540 });
+      trainWin.classList.add('visible');
+      marketWin.classList.add('visible');
+      tavernWin.classList.add('visible');
     } else if (state === 'run_end') {
       runEndModal.classList.add('visible');
     }
+    if (state !== 'free_layout') {
+      applySavedOrDefaultLayouts();
+    }
+  }
+
+  // ── Floating, Resizable, Snappable Window Manager ──
+  const STORAGE_KEY = 'tv_concept3b_win_layout_v1';
+  const SNAP_DIST = 12;
+  const HUD_BOTTOM = 76;
+  let topZ = 50;
+  let currentScale = 1;
+
+  const WINDOW_CONFIG = {
+    'train-window':        { left: 26,   top: 516, width: 510, height: 544, minW: 360, maxW: 840,  minH: 390, maxH: 940 },
+    'market-window':       { left: 1136, top: 96,  width: 764, height: 690, minW: 480, maxW: 1160, minH: 400, maxH: 960 },
+    'notebook-window':     { left: 16,   top: 128, width: 522, height: 928, minW: 390, maxW: 1100, minH: 440, maxH: 980 },
+    'tavern-window':       { left: 1136, top: 96,  width: 764, height: 520, minW: 400, maxW: 980,  minH: 340, maxH: 900 },
+    'rest-window':         { left: 1136, top: 96,  width: 764, height: 420, minW: 380, maxW: 960,  minH: 300, maxH: 820 },
+    'station-hall-window': { left: 1136, top: 96,  width: 764, height: 520, minW: 400, maxW: 980,  minH: 340, maxH: 900 },
+    'workshop-window':     { left: 1136, top: 96,  width: 764, height: 560, minW: 380, maxW: 920,  minH: 380, maxH: 920 },
+    'cityhall-window':     { left: 1136, top: 96,  width: 764, height: 470, minW: 380, maxW: 960,  minH: 320, maxH: 860 },
+    'pause-modal-win':     { left: 740,  top: 260, width: 440, height: 420, minW: 340, maxW: 720,  minH: 320, maxH: 680 },
+    'run-end-modal-win':   { left: 640,  top: 210, width: 640, height: 440, minW: 480, maxW: 980,  minH: 360, maxH: 780 }
+  };
+
+  function loadSavedLayouts() {
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); } catch { return {}; }
+  }
+  function saveWindowLayout(id, rect) {
+    const all = loadSavedLayouts();
+    all[id] = rect;
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(all)); } catch {}
+  }
+
+  function clampRect(id, rect) {
+    const cfg = WINDOW_CONFIG[id];
+    const w = Math.max(cfg.minW, Math.min(cfg.maxW, rect.width));
+    const h = Math.max(cfg.minH, Math.min(cfg.maxH, rect.height));
+    const l = Math.max(0, Math.min(1920 - w, rect.left));
+    const t = Math.max(HUD_BOTTOM, Math.min(1080 - h, rect.top));
+    return { left: Math.round(l), top: Math.round(t), width: Math.round(w), height: Math.round(h) };
+  }
+
+  function rescaleBoardForWindow(id, w, h) {
+    if (id === 'train-window') {
+      const availW = w - 120;
+      const availH = h - 260;
+      const next = Math.max(40, Math.min(72, Math.floor(Math.min(availW / 7, availH / 5))));
+      if (next !== trainCell) { trainCell = next; buildTrainGrid(currentShowCands, currentShowAffected); }
+      else { applyBoardGridSize(trainBoard, 7, 5, trainCell); }
+    } else if (id === 'market-window') {
+      const availW = w - 36;
+      const availH = h - 186;
+      const next = Math.max(40, Math.min(72, Math.floor(Math.min(availW / 13, availH / 9))));
+      if (next !== marketCell) { marketCell = next; buildMarketGrid(); }
+      else { applyBoardGridSize(marketBoard, 13, 9, marketCell); }
+    } else if (id === 'workshop-window') {
+      const availW = w - 70;
+      const availH = h - 280;
+      const next = Math.max(40, Math.min(72, Math.floor(Math.min(availW / 5, availH / 5))));
+      if (next !== workshopCell) { workshopCell = next; buildWorkshopGrid(); }
+      else { applyBoardGridSize(workshopBoard, 5, 5, workshopCell); }
+    }
+  }
+
+  function setWindowRect(id, rect) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const c = clampRect(id, rect);
+    el.style.left = c.left + 'px';
+    el.style.top = c.top + 'px';
+    el.style.width = c.width + 'px';
+    el.style.height = c.height + 'px';
+    rescaleBoardForWindow(id, c.width, c.height);
+  }
+
+  function applyDefaultLayouts(clearStorage = false) {
+    if (clearStorage) {
+      try { localStorage.removeItem(STORAGE_KEY); } catch {}
+    }
+    Object.keys(WINDOW_CONFIG).forEach(id => setWindowRect(id, WINDOW_CONFIG[id]));
+  }
+
+  function applySavedOrDefaultLayouts() {
+    const saved = loadSavedLayouts();
+    Object.keys(WINDOW_CONFIG).forEach(id => {
+      setWindowRect(id, saved[id] || WINDOW_CONFIG[id]);
+    });
+  }
+
+  function getSnapTargets(excludeId) {
+    const xs = [0, 1920];
+    const ys = [HUD_BOTTOM, 1080];
+    Object.keys(WINDOW_CONFIG).forEach(id => {
+      if (id === excludeId) return;
+      const el = document.getElementById(id);
+      if (!el || !el.classList.contains('visible')) return;
+      const l = parseFloat(el.style.left) || 0;
+      const t = parseFloat(el.style.top) || 0;
+      const w = parseFloat(el.style.width) || el.offsetWidth;
+      const h = parseFloat(el.style.height) || el.offsetHeight;
+      xs.push(l, l + w);
+      ys.push(t, t + h);
+    });
+    return { xs, ys };
+  }
+
+  function initFloatingWindows() {
+    Object.keys(WINDOW_CONFIG).forEach(id => {
+      const win = document.getElementById(id);
+      if (!win) return;
+
+      // Add resize handles (edges + bottom-right corner)
+      ['e', 's', 'w', 'n', 'se'].forEach(dir => {
+        const h = document.createElement('div');
+        h.className = `resize-handle resize-${dir}`;
+        win.appendChild(h);
+
+        h.addEventListener('pointerdown', (e) => {
+          e.stopPropagation();
+          e.preventDefault();
+          win.style.zIndex = ++topZ;
+          const startX = e.clientX, startY = e.clientY;
+          const startRect = {
+            left: parseFloat(win.style.left) || WINDOW_CONFIG[id].left,
+            top: parseFloat(win.style.top) || WINDOW_CONFIG[id].top,
+            width: parseFloat(win.style.width) || WINDOW_CONFIG[id].width,
+            height: parseFloat(win.style.height) || WINDOW_CONFIG[id].height
+          };
+          const cfg = WINDOW_CONFIG[id];
+          const targets = getSnapTargets(id);
+
+          function onMove(ev) {
+            const dx = (ev.clientX - startX) / currentScale;
+            const dy = (ev.clientY - startY) / currentScale;
+            let { left, top, width, height } = startRect;
+            if (dir.includes('e')) {
+              width = startRect.width + dx;
+              for (const tx of targets.xs) {
+                if (Math.abs((left + width) - tx) <= SNAP_DIST) { width = tx - left; break; }
+              }
+            }
+            if (dir.includes('s')) {
+              height = startRect.height + dy;
+              for (const ty of targets.ys) {
+                if (Math.abs((top + height) - ty) <= SNAP_DIST) { height = ty - top; break; }
+              }
+            }
+            if (dir.includes('w')) {
+              const nextW = Math.max(cfg.minW, Math.min(cfg.maxW, startRect.width - dx));
+              left = startRect.left + (startRect.width - nextW);
+              width = nextW;
+            }
+            if (dir.includes('n')) {
+              const nextH = Math.max(cfg.minH, Math.min(cfg.maxH, startRect.height - dy));
+              top = Math.max(HUD_BOTTOM, startRect.top + (startRect.height - nextH));
+              height = startRect.top + startRect.height - top;
+            }
+            setWindowRect(id, { left, top, width, height });
+          }
+          function onUp() {
+            window.removeEventListener('pointermove', onMove);
+            window.removeEventListener('pointerup', onUp);
+            saveWindowLayout(id, {
+              left: parseFloat(win.style.left),
+              top: parseFloat(win.style.top),
+              width: parseFloat(win.style.width),
+              height: parseFloat(win.style.height)
+            });
+          }
+          window.addEventListener('pointermove', onMove);
+          window.addEventListener('pointerup', onUp);
+        });
+      });
+
+      // Bring to front on click
+      win.addEventListener('pointerdown', () => {
+        if (!id.includes('modal')) win.style.zIndex = ++topZ;
+      });
+
+      // Drag by title bar
+      const header = win.querySelector('.win-header');
+      if (header) {
+        header.addEventListener('pointerdown', (e) => {
+          if (e.target.closest('button')) return;
+          e.preventDefault();
+          if (!id.includes('modal')) win.style.zIndex = ++topZ;
+          const startX = e.clientX, startY = e.clientY;
+          const startLeft = parseFloat(win.style.left) || WINDOW_CONFIG[id].left;
+          const startTop = parseFloat(win.style.top) || WINDOW_CONFIG[id].top;
+          const w = parseFloat(win.style.width) || WINDOW_CONFIG[id].width;
+          const h = parseFloat(win.style.height) || WINDOW_CONFIG[id].height;
+          const targets = getSnapTargets(id);
+
+          function onMove(ev) {
+            const dx = (ev.clientX - startX) / currentScale;
+            const dy = (ev.clientY - startY) / currentScale;
+            let nl = startLeft + dx;
+            let nt = startTop + dy;
+            for (const tx of targets.xs) {
+              if (Math.abs(nl - tx) <= SNAP_DIST) { nl = tx; break; }
+              if (Math.abs((nl + w) - tx) <= SNAP_DIST) { nl = tx - w; break; }
+            }
+            for (const ty of targets.ys) {
+              if (Math.abs(nt - ty) <= SNAP_DIST) { nt = ty; break; }
+              if (Math.abs((nt + h) - ty) <= SNAP_DIST) { nt = ty - h; break; }
+            }
+            setWindowRect(id, { left: nl, top: nt, width: w, height: h });
+          }
+          function onUp() {
+            window.removeEventListener('pointermove', onMove);
+            window.removeEventListener('pointerup', onUp);
+            saveWindowLayout(id, {
+              left: parseFloat(win.style.left),
+              top: parseFloat(win.style.top),
+              width: parseFloat(win.style.width),
+              height: parseFloat(win.style.height)
+            });
+          }
+          window.addEventListener('pointermove', onMove);
+          window.addEventListener('pointerup', onUp);
+        });
+      }
+    });
   }
 
   function scaleCanvas() {
@@ -2360,6 +2647,7 @@
     const vp = document.getElementById('stage-viewport');
     const maxW = embed ? window.innerWidth : Math.min(window.innerWidth - 32, 1920);
     const scale = embed ? Math.min(window.innerWidth / 1920, window.innerHeight / 1080) : Math.min(1, maxW / 1920);
+    currentScale = scale;
     canvas.style.transform = `scale(${scale})`;
     vp.style.width = Math.round(1920 * scale) + 'px';
     vp.style.height = Math.round(1080 * scale) + 'px';
@@ -2371,6 +2659,13 @@
   document.getElementById('qt-notebook').addEventListener('click', () => setState('notebook_rumor'));
   document.getElementById('qt-map').addEventListener('click', () => setState('notebook_map'));
   document.getElementById('qt-clear-win').addEventListener('click', () => setState('scene_only'));
+  document.getElementById('qt-reset-layout').addEventListener('click', () => applyDefaultLayouts(true));
+  document.getElementById('btn-pause-reset-layout').addEventListener('click', () => {
+    applyDefaultLayouts(true);
+    document.getElementById('pause-modal').classList.remove('visible');
+  });
+  document.getElementById('btn-pause-close').addEventListener('click', () => document.getElementById('pause-modal').classList.remove('visible'));
+  document.getElementById('btn-runend-close').addEventListener('click', () => document.getElementById('run-end-modal').classList.remove('visible'));
   document.getElementById('btn-hud-city').addEventListener('click', () => setState('city_hall'));
   document.getElementById('hud-rep-btn').addEventListener('click', () => setState('notebook_proficiency'));
   document.getElementById('hud-goal-btn').addEventListener('click', () => setState('city_hall'));
@@ -2415,6 +2710,7 @@
 
   buildMarketGrid();
   buildWorkshopGrid();
+  initFloatingWindows();
   const initParams = new URLSearchParams(window.location.search);
   setState(initParams.get('state') || 'arrival_default');
   scaleCanvas();
