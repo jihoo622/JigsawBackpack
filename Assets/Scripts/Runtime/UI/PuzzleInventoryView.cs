@@ -10,6 +10,8 @@ using TMPro;
 public sealed class PuzzleInventoryView : MonoBehaviour
 {
     const string ITEM_ICON_PATH = "PuzzleInventoryUI.itemIcons";
+    Texture2D occupancyHatchTexture;
+    Sprite occupancyHatchSprite;
 
     [Serializable]
     sealed class ItemIcon
@@ -255,8 +257,9 @@ public sealed class PuzzleInventoryView : MonoBehaviour
             index = RenderPose(placementSlots, index, placement.Pose, Vector2.zero, color,
                 iconIndex[placement.Definition.VisualKey].sprite, placement.Definition.IconSize, placement.Definition.IconOffset,
                 // 가치 변동, 공간 부족, 새로 생성된 산출물은 별도 상태지만 같은 알림 아이콘을 쓴다. 읽지 않은 쪽이 남아 있으면 아이콘은 유지한다.
-                placement.FreshnessPercent, placement.HasUnreadNotice,
-                Presentation.PuzzlePieceAccentOutline(placement.Definition, color.a));
+                placement.FreshnessPercent, placement.HasUnreadNotice
+                // , Presentation.PuzzlePieceAccentOutline(placement.Definition, color.a)
+                );
         }
 
         HideSlots(placementSlots, index);
@@ -384,7 +387,7 @@ public sealed class PuzzleInventoryView : MonoBehaviour
         }
 
         Vector2 boardOrigin = GhostParent.InverseTransformPoint(board.rectTransform.position);
-        RenderGhost(_pose, _item, boardOrigin, _freshness);
+        RenderGhost(_pose, _item, boardOrigin, _freshness, Color.clear);
     }
 
     // 놓을 자리가 없으면 잡은 칸의 중심이 커서 아래 오도록 커서를 따라간다.
@@ -398,7 +401,7 @@ public sealed class PuzzleInventoryView : MonoBehaviour
             return;
         }
 
-        RenderGhost(_pose, _item, local - GetCellCenter(_grabbedCell), _freshness);
+        RenderGhost(_pose, _item, local - GetCellCenter(_grabbedCell), _freshness, Color.white);
     }
 
     public void HideGhost()
@@ -406,12 +409,13 @@ public sealed class PuzzleInventoryView : MonoBehaviour
         HideSlots(ghostSlots);
     }
 
-    void RenderGhost(PuzzlePose _pose, PuzzleItemDefinition _item, Vector2 _offset, int? _freshness)
+    void RenderGhost(PuzzlePose _pose, PuzzleItemDefinition _item, Vector2 _offset, int? _freshness,
+        Color _outlineColor)
     {
         var ghost = Presentation.PuzzleGhost;
         int used = RenderPose(ghostSlots, 0, _pose, _offset, ghost,
             iconIndex[_item.VisualKey].sprite, _item.IconSize, _item.IconOffset, _freshness,
-            _outlineColor: Presentation.PuzzlePieceAccentOutline(_item, ghost.a));
+            _outlineColor: _outlineColor);
         HideSlots(ghostSlots, used);
     }
 
@@ -622,6 +626,7 @@ public sealed class PuzzleInventoryView : MonoBehaviour
             int hiddenEdges = GetHiddenEdges(cell.Position);
             _slots[index].Show(GetCellCenter(cell.Position) + _offset, cellSize, _color, hiddenEdges,
                 index == _start ? _icon : null, iconOffset, iconLayout.Size, _pose.ClockwiseTurns, _outlineColor, _useDashedOutline);
+            _slots[index].ShowOccupancyHatch(_slots == placementSlots ? GetOccupancyHatchSprite() : null);
             _slots[index].ShowFreshness(index == _start ? _freshness : null,
                 bottomLeft - cell.Position, boardTitle.font, freshnessMaterial);
             _slots[index].ShowSynergyNotice(index == _start && _showSynergyNotice,
@@ -781,8 +786,46 @@ public sealed class PuzzleInventoryView : MonoBehaviour
         Disabled?.Invoke();
     }
 
+    Sprite GetOccupancyHatchSprite()
+    {
+        if (occupancyHatchSprite)
+        {
+            return occupancyHatchSprite;
+        }
+
+        const int size = 64;
+        var pixels = new Color32[size * size];
+        for (int y = 0; y < size; y++)
+        {
+            for (int x = 0; x < size; x++)
+            {
+                byte alpha = (byte)((x + y) % 16 < 2 ? 255 : 0);
+                pixels[y * size + x] = new Color32(255, 255, 255, alpha);
+            }
+        }
+        occupancyHatchTexture = new Texture2D(size, size, TextureFormat.RGBA32, false)
+        {
+            name = "OccupancyHatch",
+            filterMode = FilterMode.Bilinear,
+            wrapMode = TextureWrapMode.Clamp
+        };
+        occupancyHatchTexture.SetPixels32(pixels);
+        occupancyHatchTexture.Apply(false, true);
+        occupancyHatchSprite = Sprite.Create(occupancyHatchTexture, new Rect(0, 0, size, size),
+            Vector2.one * 0.5f, size);
+        return occupancyHatchSprite;
+    }
+
     void OnDestroy()
     {
+        if (occupancyHatchSprite)
+        {
+            Destroy(occupancyHatchSprite);
+        }
+        if (occupancyHatchTexture)
+        {
+            Destroy(occupancyHatchTexture);
+        }
         if (freshnessMaterial)
         {
             Destroy(freshnessMaterial);

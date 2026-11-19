@@ -17,6 +17,7 @@ public sealed class PuzzleSlotVisual : MonoBehaviour
     Sprite[] fillSprites;
     Sprite outlineSprite;
     Sprite dashedOutlineSprite;
+    Image occupancyHatch;
     [SerializeField] TextMeshProUGUI deltaLabel;
     [SerializeField] TextMeshProUGUI freshnessLabel;
     [SerializeField] TextMeshProUGUI synergyNotice;
@@ -58,19 +59,14 @@ public sealed class PuzzleSlotVisual : MonoBehaviour
         Rect.localPosition = _center;
         Rect.localScale = Vector3.one * (_cellSize / Rect.rect.width);
 
-        bool hasFill = fillSprites != null;
-        // 채운 화물은 기본 테두리, 효과 품목은 전용 테두리 색이다. 미리보기 외곽선은 지정 색 그대로다.
-        var outlineColor = !hasFill ? _color : _outlineColor ?? Presentation.PuzzlePieceOutline(_color.a);
+        bool isItemSlot = fillSprites != null;
+        // 아이템 배경은 숨기고 아이콘과 외곽선만 표시한다.
+        var outlineColor = !isItemSlot ? _color : _outlineColor ?? Presentation.PuzzlePieceOutline(_color.a);
         var activeOutlineSprite = (_useDashedOutline && dashedOutlineSprite) ? dashedOutlineSprite : outlineSprite;
         for (int direction = 0; direction < DIRECTION_COUNT; direction++)
         {
             var fill = fillDirections[direction];
-            fill.enabled = hasFill;
-            if (hasFill)
-            {
-                fill.sprite = fillSprites[direction];
-                fill.color = _color;
-            }
+            fill.enabled = false;
 
             var outline = outlineDirections[direction];
             outline.enabled = (_hiddenEdges & (1 << direction)) == 0;
@@ -82,13 +78,36 @@ public sealed class PuzzleSlotVisual : MonoBehaviour
         }
 
         itemIcon.sprite = _icon;
-        itemIcon.enabled = hasFill && _icon;
+        itemIcon.enabled = isItemSlot && _icon;
         itemIcon.preserveAspect = true;
         itemIcon.color = Presentation.PuzzleItemIcon(_color.a);
         itemIcon.rectTransform.localPosition = _iconOffset * Rect.rect.width;
         itemIcon.rectTransform.sizeDelta = _iconSize * Rect.rect.width;
         itemIcon.rectTransform.localRotation = Quaternion.Euler(0f, 0f, -90f * _clockwiseTurns);
         gameObject.SetActive(true);
+    }
+
+    internal void ShowOccupancyHatch(Sprite _sprite)
+    {
+        if (_sprite && !occupancyHatch)
+        {
+            var hatch = new GameObject("OccupancyHatch", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+            var rect = (RectTransform)hatch.transform;
+            rect.SetParent(transform, false);
+            rect.SetAsFirstSibling();
+            rect.anchorMin = Vector2.zero;
+            rect.anchorMax = Vector2.one;
+            rect.offsetMin = Vector2.zero;
+            rect.offsetMax = Vector2.zero;
+            occupancyHatch = hatch.GetComponent<Image>();
+            occupancyHatch.raycastTarget = false;
+            occupancyHatch.color = new Color(1f, 1f, 1f, 0.12f);
+        }
+        if (occupancyHatch)
+        {
+            occupancyHatch.sprite = _sprite;
+            occupancyHatch.enabled = _sprite;
+        }
     }
 
     internal void ShowFreshness(int? _freshness, Vector2 _cellOffset, TMP_FontAsset _font, Material _material)

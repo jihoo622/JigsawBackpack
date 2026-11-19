@@ -2634,6 +2634,8 @@ public static partial class Presentation
     }
 
     // 효과 품목 전용 테두리. 냉장(신선 보존 효과) 품목은 하늘색, 배설물(Waste) 품목은 갈색이며 나머지는 기본 테두리다.
+    // 2026-11-19: 효과 표시 기준을 정리하는 동안 아이템 테두리 색을 기본 색으로 통일하기 위해 호출을 주석 처리했다.
+    // 효과별 테두리 색을 다시 사용할 수 있도록 원본 메서드는 보존한다.
     internal static Color? PuzzlePieceAccentOutline(PuzzleItemDefinition _item, float _alpha)
     {
         if (_item == null)
