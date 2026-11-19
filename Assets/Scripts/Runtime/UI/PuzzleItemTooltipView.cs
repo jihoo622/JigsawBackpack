@@ -239,16 +239,25 @@ public sealed class PuzzleItemTooltipView : PanelBase
 
         BeginShow(_item.DisplayName);
 
+        // 2026-11-19: 상점 툴팁 정보량을 줄이기 위해 시장에서는 '현재 적용 효과' 섹션을 숨긴다(JSON 데이터·표시 코드 흔적 유지).
+        bool showActiveEffects = _isTrainInventory || _isActionBoard;
         if (activeEffectsSection)
         {
-            activeEffectsSection.gameObject.SetActive(true);
+            activeEffectsSection.gameObject.SetActive(showActiveEffects);
         }
 
         UpdateCategoryBadges(_item);
 
         SetRow(baseValueLabelText, baseValueValueText,
             Presentation.PuzzleTooltipBaseValueLabel, Presentation.PuzzleTooltipActualValueValue(_item.BaseValue));
-        UpdateActiveEffects(_isTrainInventory, _isActionBoard, _activeEffects, _appliedPreservation);
+        if (showActiveEffects)
+        {
+            UpdateActiveEffects(_isTrainInventory, _isActionBoard, _activeEffects, _appliedPreservation);
+        }
+        // else
+        // {
+        //     UpdateActiveEffects(_isTrainInventory, _isActionBoard, _activeEffects, _appliedPreservation);
+        // }
         SetRow(actualValueLabelText, actualValueValueText,
             Presentation.PuzzleTooltipActualValueLabel(), Presentation.PuzzleTooltipActualValueValue(_actualValue));
 
