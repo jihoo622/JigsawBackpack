@@ -165,7 +165,10 @@
     --scene-canopy-fill: #475569; /* 플랫폼 지붕 외곽 */
     --scene-canopy-stroke: #64748b; /* 플랫폼 지붕 테두리 */
     --scene-canopy-inner: #334155; /* 플랫폼 지붕 내부 */
-    --scene-sign-bg: #0f1724; /* 플랫폼 역명판 배경 */
+    --scene-sign-bg: #0f1724; /* 플랫폼·건물 간판 배경 */
+    --scene-sign-gold: var(--gold); /* 간판 골드 텍스트 */
+    --scene-sign-info: var(--info-soft); /* 간판 정보 텍스트 */
+    --scene-bldg-empty-text: #94a3b8; /* 빈 공터 라벨 */
     --scene-bench-fill: #78350f; /* 벤치 나무 */
     --scene-bench-stroke: #a16207; /* 벤치 테두리 */
     --scene-crate-1-fill: #92400e; /* 상자 1 */
@@ -356,10 +359,10 @@
     --region-inter: #e7e0d6;
     --region-unvisited: #a89984;
 
-    --board-bg: #130e0c;
-    --cell-bg: #322822;
-    --cell-border: rgba(92, 73, 60, 0.5);
-    --cell-blocked-bg: #100c0a;
+    --board-bg: #1c1612;
+    --cell-bg: #44372e;
+    --cell-border: rgba(148, 122, 102, 0.58);
+    --cell-blocked-bg: #18130f;
     --cell-blocked-border: rgba(48, 37, 30, 0.4);
     --cand-1-bg: rgba(45, 212, 191, 0.34);
     --cand-1-border: #5eead4;
@@ -372,11 +375,11 @@
     --cargo-piece-border: #d6c7b4;
     --held-chip-bg: rgba(255, 249, 240, 0.96);
     --tooltip-border: #ebb038;
-    --mg-bg: #16100d;
-    --mg-blocked: #1e1612;
-    --mg-empty: #5c4d42;
-    --mg-cargo-0: #fbbf24;
-    --mg-cargo-1: #d97706;
+    --mg-bg: #161412;
+    --mg-blocked: #141416;
+    --mg-empty: #52525b;
+    --mg-cargo-0: #fde047;
+    --mg-cargo-1: #eab308;
 
     --scene-platform-bg: #453a32;
     --scene-platform-grid: #54473e;
@@ -553,12 +556,12 @@
     --cargo-piece-border: #9e8f77;
     --held-chip-bg: rgba(255, 255, 255, 0.98);
     --tooltip-border: #8c4f00;
-    --mg-bg: #e5dccb;
-    --mg-border: rgba(28, 32, 30, 0.18);
-    --mg-blocked: #cfc4b0;
-    --mg-empty: #b5aa97;
-    --mg-cargo-0: #b45309;
-    --mg-cargo-1: #7c2d12;
+    --mg-bg: #1f242c;
+    --mg-border: rgba(28, 32, 30, 0.35);
+    --mg-blocked: #14171c;
+    --mg-empty: #5c6470;
+    --mg-cargo-0: #fde047;
+    --mg-cargo-1: #eab308;
 
     --scene-platform-bg: #d6cec0;
     --scene-platform-grid: #c2b8a7;
@@ -567,7 +570,10 @@
     --scene-canopy-fill: #8c7b6b;
     --scene-canopy-stroke: #6e5e50;
     --scene-canopy-inner: #a39282;
-    --scene-sign-bg: #fbf8f2;
+    --scene-sign-bg: #26201a;
+    --scene-sign-gold: #fbbf24;
+    --scene-sign-info: #7dd3fc;
+    --scene-bldg-empty-text: #1c201e;
     --scene-rail-bg: #cfc5b4;
     --scene-rail-bed: #bfb4a2;
     --scene-rail-edge: #a69984;
@@ -735,7 +741,7 @@
     --mg-blocked: #18181b;
     --mg-empty: #52525b;
     --mg-cargo-0: #fde047;
-    --mg-cargo-1: #fb923c;
+    --mg-cargo-1: #eab308;
 
     --scene-platform-bg: #2e2e36;
     --scene-platform-grid: #3e3e48;
@@ -1903,8 +1909,8 @@
             <rect x="148" y="130" width="264" height="6"/><rect x="148" y="210" width="264" height="6"/>
             <rect x="148" y="290" width="264" height="6"/><rect x="148" y="370" width="264" height="6"/>
           </g>
-          <rect x="195" y="160" width="170" height="34" rx="5" fill="var(--scene-sign-bg)" stroke="var(--gold)" stroke-width="1.5"/>
-          <text x="280" y="182" fill="var(--gold)" font-size="14" font-weight="800" text-anchor="middle" id="platform-sign-text">금융마을 승강장 1번홈</text>
+          <rect x="195" y="160" width="170" height="34" rx="5" fill="var(--scene-sign-bg)" stroke="var(--scene-sign-gold)" stroke-width="1.5"/>
+          <text x="280" y="182" fill="var(--scene-sign-gold)" font-size="14" font-weight="800" text-anchor="middle" id="platform-sign-text">금융마을 승강장 1번홈</text>
 
           <!-- Benches & Cargo crates -->
           <rect x="165" y="510" width="70" height="24" rx="4" fill="var(--scene-bench-fill)" stroke="var(--scene-bench-stroke)"/>
@@ -2036,7 +2042,7 @@
             <circle cx="120" cy="74" r="12" fill="var(--gold)" opacity="0.85"/>
             <!-- Diegetic Goal Banner -->
             <rect x="40" y="114" width="160" height="24" rx="4" fill="var(--scene-sign-bg)" stroke="var(--info)" stroke-width="1.5"/>
-            <text x="120" y="130" fill="var(--info-soft)" font-size="11.5" font-weight="800" text-anchor="middle">평판 0 · 목표 1,500$</text>
+            <text x="120" y="130" fill="var(--scene-sign-info)" font-size="11.5" font-weight="800" text-anchor="middle">평판 0 · 목표 1,500$</text>
           </svg>
           <span class="building-hover-tag">시청 (6)</span>
         </button>
@@ -2109,13 +2115,13 @@
             <circle cx="234" cy="20" r="15" fill="var(--scene-fountain-center)" opacity="0.32"/>
             <text x="79" y="94" fill="var(--info)" font-size="26" text-anchor="middle">⚙</text>
             <rect x="44" y="114" width="182" height="24" rx="4" fill="var(--scene-sign-bg)" stroke="var(--info)" stroke-width="1.5"/>
-            <text x="135" y="130" fill="var(--info-soft)" font-size="11.5" font-weight="800" text-anchor="middle">냉장 개조 · 150$/개</text>
+            <text x="135" y="130" fill="var(--scene-sign-info)" font-size="11.5" font-weight="800" text-anchor="middle">냉장 개조 · 150$/개</text>
           </svg>
           <svg id="svg-empty-lot" viewBox="0 0 270 180" width="270" height="180">
             <rect x="14" y="18" width="242" height="142" rx="8" fill="var(--scene-bldg-empty-bg)" stroke="var(--scene-wagon-border)" stroke-width="2" stroke-dasharray="8 6"/>
             <circle cx="72" cy="64" r="16" fill="var(--scene-bldg-empty-bush)"/>
             <circle cx="198" cy="112" r="18" fill="var(--scene-bldg-empty-bush)"/>
-            <text x="135" y="96" fill="var(--text-muted)" font-size="14" font-weight="700" text-anchor="middle">빈 부지 (공터)</text>
+            <text x="135" y="96" fill="var(--scene-bldg-empty-text)" font-size="14" font-weight="700" text-anchor="middle">빈 부지 (공터)</text>
           </svg>
           <span class="building-hover-tag" id="bldg-workshop-tag">생산시설 없음 (공터)</span>
         </button>
@@ -2428,7 +2434,7 @@
 
               <!-- Fog of War Nodes -->
               <circle cx="165" cy="185" r="12" fill="var(--bg-card)" stroke="var(--region-mine)" stroke-width="3"/>
-              <text x="165" y="164" fill="var(--scene-bldg-inn-sub)" font-size="11.5" font-weight="700" text-anchor="middle">광산 지역 (안개)</text>
+              <text x="165" y="164" fill="var(--region-mine-text)" font-size="11.5" font-weight="700" text-anchor="middle">광산 지역 (안개)</text>
               <circle cx="80" cy="335" r="12" fill="var(--bg-card)" stroke="var(--region-industry)" stroke-width="3"/>
               <text x="80" y="314" fill="var(--region-industry-text)" font-size="11.5" font-weight="700" text-anchor="middle">에른아 공업역</text>
               <circle cx="180" cy="435" r="11" fill="var(--bg-card)" stroke="var(--region-pasture)" stroke-width="3"/>
