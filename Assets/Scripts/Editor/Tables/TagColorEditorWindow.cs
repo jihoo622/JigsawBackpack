@@ -18,6 +18,7 @@ public sealed class TagColorEditorWindow : EditorWindow
     const string TAGS_GROUP_ID = "presentation.tags";
     const string TOOLTIP_GROUP_ID = "presentation.tooltip";
     const string QUEST_GROUP_ID = "presentation.quest";
+    const string UI_FONT_PATH = "Assets/TextMesh Pro/Fonts/NotoSansKR-Medium.ttf";
     static readonly UTF8Encoding UTF8 = new UTF8Encoding(false);
 
     sealed class TagColorEntry
@@ -41,6 +42,7 @@ public sealed class TagColorEditorWindow : EditorWindow
     MessageType statusType = MessageType.None;
     Texture2D whiteTexture;
     GUIStyle badgeStyle;
+    Font uiFont;
 
     [MenuItem(MENU)]
     static void Open()
@@ -176,18 +178,29 @@ public sealed class TagColorEditorWindow : EditorWindow
 
     void DrawBadgePreview(string _text, Color _background, Color _textColor)
     {
-        Rect plateRect = GUILayoutUtility.GetRect(136f, 26f, GUILayout.Width(136f), GUILayout.Height(26f));
+        Rect plateRect = GUILayoutUtility.GetRect(136f, 28f, GUILayout.Width(136f), GUILayout.Height(28f));
         DrawSolidRect(plateRect, tooltipBackground);
 
         Rect badgeRect = new Rect(plateRect.x + 12f, plateRect.y + 4f, plateRect.width - 24f, plateRect.height - 8f);
         DrawSolidRect(badgeRect, _background);
 
-        badgeStyle ??= new GUIStyle(EditorStyles.boldLabel)
+        if (!uiFont)
+        {
+            uiFont = AssetDatabase.LoadAssetAtPath<Font>(UI_FONT_PATH);
+        }
+        badgeStyle ??= new GUIStyle(EditorStyles.label)
         {
             alignment = TextAnchor.MiddleCenter,
-            fontSize = 11
+            fontStyle = FontStyle.Bold,
+            fontSize = 12,
+            font = uiFont
         };
+        if (uiFont && badgeStyle.font != uiFont)
+        {
+            badgeStyle.font = uiFont;
+        }
         badgeStyle.normal.textColor = _textColor;
+        badgeStyle.hover.textColor = _textColor;
         GUI.Label(badgeRect, _text, badgeStyle);
     }
 
