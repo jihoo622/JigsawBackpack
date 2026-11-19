@@ -67,6 +67,38 @@ public readonly struct PuzzleRotation
             _ => throw new ArgumentOutOfRangeException(nameof(_clockwiseTurns))
         };
     }
+
+    // 직사각형 슬롯에 들어가는 첫 회전 방향을 찾는다. 테이블 검증과 재고 생성이 같은 판정을 쓴다.
+    public static bool TryFitIntoSlot(IReadOnlyList<Vector2Int> _cells, int _width, int _height,
+        out int _clockwiseTurns)
+    {
+        if (_cells == null || _cells.Count == 0 || _width <= 0 || _height <= 0)
+        {
+            _clockwiseTurns = 0;
+            return false;
+        }
+        for (int turn = 0; turn < TURN_COUNT; turn++)
+        {
+            var rotation = new PuzzleRotation(_cells, turn);
+            bool fits = true;
+            foreach (Vector2Int cell in _cells)
+            {
+                Vector2Int offset = rotation.GetBoardOffset(cell);
+                if (offset.x < 0 || offset.x >= _width || -offset.y < 0 || -offset.y >= _height)
+                {
+                    fits = false;
+                    break;
+                }
+            }
+            if (fits)
+            {
+                _clockwiseTurns = turn;
+                return true;
+            }
+        }
+        _clockwiseTurns = 0;
+        return false;
+    }
 }
 
 public sealed class PuzzlePose

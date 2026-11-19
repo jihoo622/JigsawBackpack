@@ -631,13 +631,31 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         slots.Sort((_left, _right) => StringComparer.Ordinal.Compare(_left.id, _right.id));
         foreach (var slot in slots)
         {
+            // 슬롯에 들어가는 후보만 추첨 후보로 쓴다. 후보마다 첫 허용 방향을 고르므로 방향 수가 확률에 개입하지 않는다.
+            var fitting = new List<string>();
+            var turns = new List<int>();
+            foreach (string pieceId in candidates)
+            {
+                if (definitions.TryGetValue(pieceId, out var definition) &&
+                    PuzzleRotation.TryFitIntoSlot(definition.Cells, slot.width, slot.height, out int turn))
+                {
+                    fitting.Add(pieceId);
+                    turns.Add(turn);
+                }
+            }
+            if (fitting.Count == 0)
+            {
+                throw new InvalidOperationException($"도시 '{_cityId}'의 재고 프로필 '{_stock.id}' 슬롯 '{slot.id}'" +
+                    $"({slot.width}×{slot.height})에 들어가는 품목이 없습니다. 테이블 검증을 다시 확인하세요.");
+            }
+            int pick = stockRandom.Next(fitting.Count);
             _placements.Add(new PuzzleStartingPlacementData
             {
                 id = _cityId + "." + slot.id,
-                pieceId = candidates[stockRandom.Next(candidates.Count)],
+                pieceId = fitting[pick],
                 x = slot.x,
                 y = slot.y,
-                clockwiseTurns = 0
+                clockwiseTurns = turns[pick]
             });
         }
     }
