@@ -95,59 +95,24 @@ public static class RelayoutS4Builder
         var synergyAsset = AssetDatabase.LoadAssetAtPath<GameObject>(SYNERGY_CHART_PREFAB);
         var gcRoot = PrefabUtility.LoadPrefabContents(GAME_CANVAS_PREFAB);
 
-        var rootGo = new GameObject("NotebookWindow", typeof(RectTransform));
+        var rootGo = RelayoutWindowKit.CreateWindow("NotebookWindow", null, string.Empty, 0f, 0f, 0f, 0f, false,
+            out var floatingWin, out var titleBar, out var titleText, out var closeBtn);
         try
         {
             rootGo.layer = 5;
             var rootRect = (RectTransform)rootGo.transform;
             SetTopLeftRect(rootRect, 16f, 128f, 522f, 928f);
 
-            var bg = rootGo.AddComponent<Image>();
-            bg.color = _palette.Panel;
-            BindPalette(rootGo, _palette, UIPalette.ColorRole.Panel);
-
-            var outline = rootGo.AddComponent<Outline>();
-            outline.effectColor = _palette.Border;
-            outline.effectDistance = new Vector2(2f, -2f);
-
-            var floatingWin = rootGo.AddComponent<FloatingWindow>();
-
-            // 제목줄 (32px)
-            var titleBar = NewRect("TitleBar", rootRect);
-            titleBar.anchorMin = new Vector2(0f, 1f);
-            titleBar.anchorMax = new Vector2(1f, 1f);
-            titleBar.pivot = new Vector2(0.5f, 1f);
-            titleBar.anchoredPosition = Vector2.zero;
-            titleBar.sizeDelta = new Vector2(0f, 32f);
-            var tbImg = titleBar.gameObject.AddComponent<Image>();
-            tbImg.color = _palette.Panel2;
-            BindPalette(titleBar.gameObject, _palette, UIPalette.ColorRole.Panel2);
-            titleBar.gameObject.AddComponent<FloatingWindowDragHandle>();
-
-            var titleText = CreateLabel(_labelTemplate, titleBar, "TitleText", 16f,
-                TextAlignmentOptions.Left, _palette, UIPalette.ColorRole.TitleText);
-            titleText.fontStyle = FontStyles.Bold;
             titleText.text = "수첩";
-            titleText.rectTransform.anchorMin = Vector2.zero;
-            titleText.rectTransform.anchorMax = Vector2.one;
-            titleText.rectTransform.offsetMin = new Vector2(12f, 0f);
-            titleText.rectTransform.offsetMax = new Vector2(-36f, 0f);
-
-            var closeBtn = CreateSmallButton(_buttonTemplate, _labelTemplate, titleBar, "CloseButton",
-                0f, 0f, 24f, 24f, "X", 14f, _palette);
-            var cRt = (RectTransform)closeBtn.transform;
-            cRt.anchorMin = new Vector2(1f, 0.5f);
-            cRt.anchorMax = new Vector2(1f, 0.5f);
-            cRt.pivot = new Vector2(1f, 0.5f);
-            cRt.anchoredPosition = new Vector2(-6f, 0f);
 
             // 5탭 바 (지도 / 소문 / 의뢰 / 숙련 / 상성표)
             var tabBar = NewRect("TabBar", rootRect);
             tabBar.anchorMin = new Vector2(0f, 1f);
             tabBar.anchorMax = new Vector2(1f, 1f);
             tabBar.pivot = new Vector2(0.5f, 1f);
-            tabBar.anchoredPosition = new Vector2(0f, -34f);
-            tabBar.sizeDelta = new Vector2(-12f, 36f);
+            // 제목줄(30) 아래 8px, 좌우 창 여백 8px.
+            tabBar.anchoredPosition = new Vector2(0f, -38f);
+            tabBar.sizeDelta = new Vector2(-16f, 36f);
             var hLayout = tabBar.gameObject.AddComponent<HorizontalLayoutGroup>();
             hLayout.spacing = 4f;
             hLayout.childControlWidth = true;
@@ -183,7 +148,7 @@ public static class RelayoutS4Builder
             contentArea.anchorMin = Vector2.zero;
             contentArea.anchorMax = Vector2.one;
             contentArea.offsetMin = new Vector2(8f, 8f);
-            contentArea.offsetMax = new Vector2(-8f, -74f);
+            contentArea.offsetMax = new Vector2(-8f, -82f); // 탭 줄(38~74) 아래 8px
             contentArea.gameObject.AddComponent<RectMask2D>();
 
             var winView = rootGo.AddComponent<NotebookWindowView>();
@@ -311,7 +276,28 @@ public static class RelayoutS4Builder
                         childRt.anchoredPosition = new Vector2(cursorX, 0f);
                         childRt.sizeDelta = new Vector2(ctrlWidths[c], MAP_CONTROL_BUTTON_HEIGHT);
                         cursorX += ctrlWidths[c] + MAP_CONTROL_GAP;
+                        // 원본 버튼 글자는 큰 지도 기준(자동 크기 20pt)이라 낮은 버튼 칸을 넘친다. 버튼 칸에 맞춘 고정 크기로 둔다.
+                        foreach (var ctrlText in childRt.GetComponentsInChildren<TextMeshProUGUI>(true))
+                        {
+                            // 배율 표시(ZoomPercent)는 칸 자체가 글자다. 자기 자신은 늘리지 않는다(줄 전체로 퍼진다).
+                            if (ctrlText.transform != childRt) Stretch(ctrlText.rectTransform);
+                            ctrlText.enableAutoSizing = false;
+                            ctrlText.fontSize = 14f;
+                            ctrlText.enableWordWrapping = false;
+                            ctrlText.alignment = TextAlignmentOptions.Center;
+                        }
                     }
+                }
+                // 노선 범례 글자 상자는 줄보다 위아래로 3px 커서 줄 밖으로 나간다. 줄 높이에 맞춘다.
+                foreach (var legendText in mapPanel.GetComponentsInChildren<TextMeshProUGUI>(true))
+                {
+                    if (!legendText.name.StartsWith("LineName_")) continue;
+                    // 줄은 격자 배치(칸 높이)이고 글자 상자는 가로 배치가 위치만 정한다. 높이만 칸 높이에 맞춘다.
+                    var grid = legendText.GetComponentInParent<GridLayoutGroup>(true);
+                    if (!grid) continue;
+                    var lt = legendText.rectTransform;
+                    lt.sizeDelta = new Vector2(lt.sizeDelta.x, grid.cellSize.y);
+                    legendText.alignment = TextAlignmentOptions.MidlineLeft;
                 }
                 // 도시 정보 띠: 컨트롤 줄 위에 고정 높이(3줄)로 둔다. 자동 줄바꿈, 넘치면 말줄임(띠 안에서만 보임).
                 var cityInfo = mapPanel.Find("CityInformation") as RectTransform;
@@ -412,7 +398,14 @@ public static class RelayoutS4Builder
                 var logScroll = logPanel.Find("LogScroll") as RectTransform;
                 if (logScroll) Stretch(logScroll);
                 var profPanel = logPanel.Find("ProficiencyPanel") as RectTransform;
-                if (profPanel) Stretch(profPanel);
+                if (profPanel)
+                {
+                    Stretch(profPanel);
+                    // 머리 3줄 높이를 글자 크기 × 1.5에 맞춘다(평판 20pt → 30, 안내 14pt → 22). 구분선(-80) 위에서 끝난다.
+                    FitProficiencyLine(profPanel, "Reputation", 0f, 30f);
+                    FitProficiencyLine(profPanel, "NextStage", -32f, 24f);
+                    FitProficiencyLine(profPanel, "Hint", -56f, 22f);
+                }
             }
 
             var embeddedNbView = nbInst.GetComponent<PuzzleTradeNotebookView>();
@@ -495,6 +488,15 @@ public static class RelayoutS4Builder
                 synPanel.anchoredPosition = Vector2.zero;
                 synScroll.viewport = synVp;
                 synScroll.content = synPanel;
+
+                // 품목별 태그 목록은 품목 수에 따라 길어진다(고정 600px을 넘침). 글자 높이에 맞춰 늘어나게 한다.
+                var itemTags = FindDeep(synPanel, "ItemTags");
+                if (itemTags && itemTags.GetComponent<TextMeshProUGUI>())
+                {
+                    var fitter = itemTags.GetComponent<ContentSizeFitter>() ?? itemTags.gameObject.AddComponent<ContentSizeFitter>();
+                    fitter.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
+                    fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+                }
             }
             var embeddedSynView = synInst.GetComponent<PuzzleSynergyChartView>();
             if (embeddedSynView)
@@ -764,6 +766,14 @@ public static class RelayoutS4Builder
         _rect.pivot = new Vector2(0f, 1f);
         _rect.anchoredPosition = new Vector2(_left, -_top);
         _rect.sizeDelta = new Vector2(_width, _height);
+    }
+
+    static void FitProficiencyLine(RectTransform _panel, string _name, float _y, float _height)
+    {
+        var rt = _panel.Find(_name) as RectTransform;
+        if (!rt) return;
+        rt.anchoredPosition = new Vector2(rt.anchoredPosition.x, _y);
+        rt.sizeDelta = new Vector2(rt.sizeDelta.x, _height);
     }
 
     static RectTransform NewRect(string _name, Transform _parent)

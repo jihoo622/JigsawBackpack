@@ -101,7 +101,8 @@ public static class RelayoutS6Builder
             var bodyRt = (RectTransform)clonedBoard.transform;
             bodyRt.anchorMin = Vector2.zero;
             bodyRt.anchorMax = Vector2.one;
-            bodyRt.offsetMin = new Vector2(12f, 52f);
+            // 아래 안내 줄(8~48) 위 간격 8px.
+            bodyRt.offsetMin = new Vector2(12f, 56f);
             bodyRt.offsetMax = new Vector2(-12f, -94f);
 
             var invView = clonedBoard.GetComponent<PuzzleInventoryView>();
@@ -113,8 +114,8 @@ public static class RelayoutS6Builder
             hintText.rectTransform.anchorMin = new Vector2(0f, 0f);
             hintText.rectTransform.anchorMax = new Vector2(1f, 0f);
             hintText.rectTransform.pivot = new Vector2(0.5f, 0f);
-            hintText.rectTransform.anchoredPosition = new Vector2(0f, 6f);
-            hintText.rectTransform.sizeDelta = new Vector2(-24f, 42f);
+            hintText.rectTransform.anchoredPosition = new Vector2(0f, 8f);
+            hintText.rectTransform.sizeDelta = new Vector2(-24f, 40f);
 
             var tv = rootGo.AddComponent<TavernWindowView>();
             var so = new SerializedObject(tv);
@@ -256,6 +257,15 @@ public static class RelayoutS6Builder
                 if (rSo.FindProperty("chipRoot").objectReferenceValue is GameObject chip && chip.transform is RectTransform chipRt)
                 {
                     SetAnchored(chipRt, 0f, 1f, 0f, 1f, 200f, -70f, 96f, 26f);
+                    // 칩 글자 상자는 옛 카드 크기 그대로라 칩보다 크다. 칩 칸에 맞춘다.
+                    foreach (var chipText in chipRt.GetComponentsInChildren<TextMeshProUGUI>(true))
+                    {
+                        RelayoutWindowKit.Stretch(chipText.rectTransform);
+                        chipText.alignment = TextAlignmentOptions.Center;
+                        chipText.enableAutoSizing = false;
+                        chipText.fontSize = Mathf.Min(chipText.fontSize, 14f);
+                        chipText.textWrappingMode = TextWrappingModes.NoWrap;
+                    }
                 }
                 if (rSo.FindProperty("selectionHighlight").objectReferenceValue is Image sel)
                 {
@@ -442,12 +452,29 @@ public static class RelayoutS6Builder
                 var tpGo = Object.Instantiate(srcTradePrefs.gameObject, rootRect, false);
                 tpGo.name = "TradePreferences";
                 var tpRt = (RectTransform)tpGo.transform;
-                SetAnchored(tpRt, 0f, 1f, 0f, 1f, 16f, -78f, 488f, 96f);
-                FitTradePrefRow(tpRt, "RegionPrice", 0f, 0f, 248f);
-                FitTradePrefRow(tpRt, "ExpensiveRow", 0f, -24f, 248f);
-                FitTradePrefRow(tpRt, "WasteRow", 0f, -48f, 248f);
-                FitTradePrefRow(tpRt, "CommonRow", 256f, 0f, 232f);
-                FitTradePrefRow(tpRt, "RareRow", 256f, -24f, 232f);
+                // 한 줄에 하나씩 전체 폭으로 둔다. 두 열로 나누면 품목 표가 많을 때 칸을 넘친다.
+                SetAnchored(tpRt, 0f, 1f, 0f, 1f, 16f, -78f, 488f, 120f);
+                FitTradePrefRow(tpRt, "RegionPrice", 0f, 0f, 488f);
+                FitTradePrefRow(tpRt, "ExpensiveRow", 0f, -24f, 488f);
+                FitTradePrefRow(tpRt, "WasteRow", 0f, -48f, 488f);
+                FitTradePrefRow(tpRt, "CommonRow", 0f, -72f, 488f);
+                FitTradePrefRow(tpRt, "RareRow", 0f, -96f, 488f);
+                // 쌓는 순서는 형제 순서를 따른다: 물가 · 선호 · 풍부 · 희귀 · 기피.
+                string[] rowOrder = { "RegionPrice", "ExpensiveRow", "CommonRow", "RareRow", "WasteRow" };
+                for (int r = 0; r < rowOrder.Length; r++)
+                {
+                    var row = tpRt.Find(rowOrder[r]);
+                    if (row) row.SetSiblingIndex(r);
+                }
+                // 도시에 해당 품목이 없어 숨겨진 줄이 빈칸으로 남지 않도록 위에서부터 차례로 쌓는다.
+                var vLayout = tpGo.GetComponent<VerticalLayoutGroup>() ?? tpGo.AddComponent<VerticalLayoutGroup>();
+                vLayout.spacing = 2f;
+                vLayout.padding = new RectOffset(0, 0, 0, 0);
+                vLayout.childAlignment = TextAnchor.UpperLeft;
+                vLayout.childControlWidth = true;
+                vLayout.childControlHeight = false;
+                vLayout.childForceExpandWidth = true;
+                vLayout.childForceExpandHeight = false;
                 clonedPrefs = tpGo.GetComponent<CityTradePreferencesView>();
             }
 
@@ -789,57 +816,10 @@ public static class RelayoutS6Builder
         out FloatingWindow _floatingWin,
         out TextMeshProUGUI _titleText)
     {
-        var rootGo = new GameObject(_name, typeof(RectTransform));
+        // 공용 창 틀(FloatingWindowFrame)의 변형으로 만든다. 바탕·테두리·제목줄·닫기는 틀이 가진다.
+        var rootGo = RelayoutWindowKit.CreateWindow(_name, _windowId, _title, _x, _y, _w, _h, false,
+            out _floatingWin, out _, out _titleText, out _);
         rootGo.layer = 5;
-        var rootRect = (RectTransform)rootGo.transform;
-        SetTopLeftRect(rootRect, _x, _y, _w, _h);
-
-        var bg = rootGo.AddComponent<Image>();
-        bg.color = _palette.Panel;
-        BindPalette(rootGo, _palette, UIPalette.ColorRole.Panel);
-
-        var outline = rootGo.AddComponent<Outline>();
-        outline.effectColor = _palette.Border;
-        outline.effectDistance = new Vector2(2f, -2f);
-
-        _floatingWin = rootGo.AddComponent<FloatingWindow>();
-
-        var titleBar = NewRect("TitleBar", rootRect);
-        titleBar.anchorMin = new Vector2(0f, 1f);
-        titleBar.anchorMax = new Vector2(1f, 1f);
-        titleBar.pivot = new Vector2(0.5f, 1f);
-        titleBar.anchoredPosition = Vector2.zero;
-        titleBar.sizeDelta = new Vector2(0f, 30f);
-        var tbImg = titleBar.gameObject.AddComponent<Image>();
-        tbImg.color = _palette.Panel2;
-        BindPalette(titleBar.gameObject, _palette, UIPalette.ColorRole.Panel2);
-        titleBar.gameObject.AddComponent<FloatingWindowDragHandle>();
-
-        _titleText = CreateLabel(_labelTemplate, titleBar, "TitleText", 16f, TextAlignmentOptions.Left, _palette, UIPalette.ColorRole.TitleText);
-        _titleText.fontStyle = FontStyles.Bold;
-        _titleText.text = _title;
-        _titleText.rectTransform.anchorMin = Vector2.zero;
-        _titleText.rectTransform.anchorMax = Vector2.one;
-        _titleText.rectTransform.offsetMin = new Vector2(12f, 0f);
-        _titleText.rectTransform.offsetMax = new Vector2(-36f, 0f);
-
-        var closeBtn = CreateButton(_buttonTemplate, titleBar, "CloseButton", "X", _palette, UIPalette.ColorRole.Panel);
-        var closeRt = (RectTransform)closeBtn.transform;
-        closeRt.anchorMin = new Vector2(1f, 0.5f);
-        closeRt.anchorMax = new Vector2(1f, 0.5f);
-        closeRt.pivot = new Vector2(1f, 0.5f);
-        closeRt.anchoredPosition = new Vector2(-4f, 0f);
-        closeRt.sizeDelta = new Vector2(24f, 22f);
-
-        var fwSo = new SerializedObject(_floatingWin);
-        fwSo.FindProperty("windowId").stringValue = _windowId;
-        fwSo.FindProperty("titleBar").objectReferenceValue = titleBar;
-        fwSo.FindProperty("closeButton").objectReferenceValue = closeBtn;
-        fwSo.FindProperty("defaultPosition").vector2Value = new Vector2(_x, _y);
-        fwSo.FindProperty("defaultSize").vector2Value = new Vector2(_w, _h);
-        fwSo.FindProperty("startOpen").boolValue = false;
-        fwSo.ApplyModifiedPropertiesWithoutUndo();
-
         return rootGo;
     }
 

@@ -208,7 +208,28 @@ public static class RelayoutS2Builder
                 clonedGameTime = Object.Instantiate(oldGameTime.gameObject, rootRect);
                 clonedGameTime.name = "Game Time";
                 var gtRect = (RectTransform)clonedGameTime.transform;
-                SetTopLeftRect(gtRect, 574f, 4f, 408f, 48f);
+                SetTopLeftRect(gtRect, 574f, 3f, 408f, 50f);
+                // 옛 상단 바 크기에 맞춘 글자 크기라 새 칸(50px)에서 넘친다. 시각 줄은 아래 22px(막대·정산)를 비우고 위 28px에 18pt로 둔다.
+                var gtText = clonedGameTime.GetComponent<TextMeshProUGUI>();
+                if (gtText)
+                {
+                    gtText.enableAutoSizing = false;
+                    gtText.fontSize = 18f;
+                    gtText.margin = new Vector4(0f, 0f, 0f, 22f);
+                    gtText.textWrappingMode = TextWrappingModes.NoWrap;
+                }
+                var settlement = FindDeep(clonedGameTime.transform, "Settlement") as RectTransform;
+                if (settlement)
+                {
+                    settlement.sizeDelta = new Vector2(208f, 22f);
+                    var stText = settlement.GetComponent<TextMeshProUGUI>();
+                    if (stText)
+                    {
+                        stText.enableAutoSizing = false;
+                        stText.fontSize = 13f;
+                        stText.textWrappingMode = TextWrappingModes.NoWrap;
+                    }
+                }
             }
 
             // 기존 Game Time 내부 참조 추출
@@ -238,12 +259,13 @@ public static class RelayoutS2Builder
             var fundsTitle = CreateLabel(_labelTemplate, rootRect, "FundsTitle", 12f,
                 TextAlignmentOptions.Right, _palette, UIPalette.ColorRole.TextSub);
             fundsTitle.text = "보유 자금";
-            SetTopLeftRect(fundsTitle.rectTransform, 1230f, 8f, 150f, 18f);
+            SetTopLeftRect(fundsTitle.rectTransform, 1230f, 4f, 150f, 18f);
 
             var fundsLabel = CreateLabel(_labelTemplate, rootRect, "FundsValue", 20f,
                 TextAlignmentOptions.Right, _palette, UIPalette.ColorRole.GoldAccent);
             fundsLabel.fontStyle = FontStyles.Bold;
-            SetTopLeftRect(fundsLabel.rectTransform, 1230f, 24f, 150f, 26f);
+            // 20pt 글자 높이(30px)에 맞춘다. 제목(4~22) 바로 아래.
+            SetTopLeftRect(fundsLabel.rectTransform, 1230f, 22f, 150f, 30f);
 
             // 결산·목표 버튼
             var clearBtn = CreatePillButton(_buttonTemplate, _labelTemplate, rootRect, "ClearButton",
@@ -608,7 +630,7 @@ public static class RelayoutS2Builder
 
         if (hasEmptyLot)
         {
-            var emptyLot = AddStaticRect(root, "EmptyLotVisual", 12f, 12f, _width - 24f, _height - 24f,
+            var emptyLot = AddStaticRect(root, "EmptyLotVisual", 16f, 16f, _width - 32f, _height - 32f,
                 new Color(0.212f, 0.271f, 0.212f, 0.65f));
             emptyLot.SetSiblingIndex(0);
             emptyLot.gameObject.SetActive(false);

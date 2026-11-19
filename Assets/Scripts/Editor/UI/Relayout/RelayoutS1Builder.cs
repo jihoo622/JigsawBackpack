@@ -36,8 +36,48 @@ public static class RelayoutS1Builder
         BuildPauseResetButton(log);
         var runEndPrefab = BuildRunEndModalPrefab(log, palette);
         UpdateGameCanvas(log, runEndPrefab);
+        FitObjectiveModal(log);
         AssetDatabase.SaveAssets();
         return log.ToString();
+    }
+
+    const string OBJECTIVE_PREFAB_PATH = "Assets/Art/UI/RepaymentObjective.prefab";
+
+    // 시작 목표 안내 창: 지도 미리보기를 숨긴 뒤(PuzzleObjectiveView) 1440×824 창에 큰 빈 자리가 남았다.
+    // 목표 금액 · 안내문 · 확인 버튼만 담는 1000×360 창으로 줄이고(안내문 두 줄) 위에서 아래로 차례로 둔다(여백 24, 간격 16).
+    static void FitObjectiveModal(StringBuilder _log)
+    {
+        var root = PrefabUtility.LoadPrefabContents(OBJECTIVE_PREFAB_PATH);
+        try
+        {
+            var popup = root.transform.Find("Overlay/Popup") as RectTransform;
+            if (!popup)
+            {
+                _log.AppendLine("목표 안내 창: Overlay/Popup 없음, 건너뜀");
+                return;
+            }
+            popup.sizeDelta = new Vector2(1000f, 360f);
+            PlaceCentered(popup, "RepaymentCost", new Vector2(0.5f, 1f), new Vector2(0f, -24f), new Vector2(504f, 76f));
+            PlaceCentered(popup, "Objective", new Vector2(0.5f, 0.5f), new Vector2(0f, 6f), new Vector2(940f, 104f));
+            PlaceCentered(popup, "Confirm", new Vector2(0.5f, 0f), new Vector2(0f, 24f), new Vector2(264f, 72f));
+            PrefabUtility.SaveAsPrefabAsset(root, OBJECTIVE_PREFAB_PATH);
+            _log.AppendLine("목표 안내 창 크기 정리 → " + OBJECTIVE_PREFAB_PATH);
+        }
+        finally
+        {
+            PrefabUtility.UnloadPrefabContents(root);
+        }
+    }
+
+    static void PlaceCentered(RectTransform _parent, string _name, Vector2 _anchor, Vector2 _pos, Vector2 _size)
+    {
+        var rt = _parent.Find(_name) as RectTransform;
+        if (!rt) return;
+        rt.anchorMin = _anchor;
+        rt.anchorMax = _anchor;
+        rt.pivot = _anchor;
+        rt.anchoredPosition = _pos;
+        rt.sizeDelta = _size;
     }
 
     static UIPalette EnsurePaletteAsset(StringBuilder _log)

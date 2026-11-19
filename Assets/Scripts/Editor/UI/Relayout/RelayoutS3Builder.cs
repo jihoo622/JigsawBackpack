@@ -304,7 +304,7 @@ public static class RelayoutS3Builder
         }
 
         // 라벨은 미니 격자 아래 한 줄('번호 · 적재 · 가치')에 둔다(목업 car-label).
-        var lbl = CreateLabel(_labelTemplate, carRect, "Label", 9.5f,
+        var lbl = CreateLabel(_labelTemplate, carRect, "Label", 9f,
             TextAlignmentOptions.Center, _palette, UIPalette.ColorRole.Text);
         lbl.enableWordWrapping = false;
         lbl.enableAutoSizing = false;
@@ -347,7 +347,8 @@ public static class RelayoutS3Builder
         TextMeshProUGUI _labelTemplate)
     {
         var layoutRoot = PrefabUtility.LoadPrefabContents(GAMEPLAY_LAYOUT_PREFAB);
-        var rootGo = new GameObject("TrainWindow", typeof(RectTransform));
+        var rootGo = RelayoutWindowKit.CreateWindow("TrainWindow", null, string.Empty, 0f, 0f, 0f, 0f, false,
+            out var floatingWin, out var titleBar, out var titleText, out var closeBtn);
         try
         {
             rootGo.layer = 5;
@@ -355,38 +356,9 @@ public static class RelayoutS3Builder
             // 목업 concept-3b 개인 창: (26, 516) 510×544. 56px 칸 7×5 보드(392×280)가 중심이다.
             SetTopLeftRect(rootRect, TRAIN_WINDOW_LEFT, TRAIN_WINDOW_TOP, TRAIN_WINDOW_WIDTH, TRAIN_WINDOW_HEIGHT);
 
-            var bg = rootGo.AddComponent<Image>();
-            bg.color = _palette.Panel;
-            BindPalette(rootGo, _palette, UIPalette.ColorRole.Panel);
-
-            var outline = rootGo.AddComponent<Outline>();
-            outline.effectColor = _palette.Border;
-            outline.effectDistance = new Vector2(2f, -2f);
-
-            var floatingWin = rootGo.AddComponent<FloatingWindow>();
-
-            // 제목줄 (30px)
-            var titleBar = NewRect("TitleBar", rootRect);
-            titleBar.anchorMin = new Vector2(0f, 1f);
-            titleBar.anchorMax = new Vector2(1f, 1f);
-            titleBar.pivot = new Vector2(0.5f, 1f);
-            titleBar.anchoredPosition = Vector2.zero;
-            titleBar.sizeDelta = new Vector2(0f, 30f);
-            var tbImg = titleBar.gameObject.AddComponent<Image>();
-            tbImg.color = _palette.Panel2;
-            BindPalette(titleBar.gameObject, _palette, UIPalette.ColorRole.Panel2);
-
-            var dragHandle = titleBar.gameObject.AddComponent<FloatingWindowDragHandle>();
-            new SerializedObject(dragHandle).ApplyModifiedPropertiesWithoutUndo();
-
-            var titleText = CreateLabel(_labelTemplate, titleBar, "TitleText", 16f,
-                TextAlignmentOptions.Left, _palette, UIPalette.ColorRole.TitleText);
-            titleText.fontStyle = FontStyles.Bold;
             titleText.text = "1번 · 고장난 칸 · 적재 0/12";
-            titleText.rectTransform.anchorMin = Vector2.zero;
-            titleText.rectTransform.anchorMax = Vector2.one;
-            titleText.rectTransform.offsetMin = new Vector2(12f, 0f);
-            titleText.rectTransform.offsetMax = new Vector2(-84f, 0f);
+            // 제목줄 오른쪽: 닫기(24) + 렌즈(44) 버튼과 간격
+            RelayoutWindowKit.ReserveTitleRight(titleText, 84f);
 
             var lensBtn = CreateSmallButton(_buttonTemplate, _labelTemplate, titleBar, "LensButton",
                 0f, 0f, 44f, 22f, "렌즈", 12f, _palette);
@@ -394,24 +366,16 @@ public static class RelayoutS3Builder
             lRt.anchorMin = new Vector2(1f, 0.5f);
             lRt.anchorMax = new Vector2(1f, 0.5f);
             lRt.pivot = new Vector2(1f, 0.5f);
-            lRt.anchoredPosition = new Vector2(-34f, 0f);
+            lRt.anchoredPosition = new Vector2(-32f, 0f);
             var lensLbl = lensBtn.GetComponentInChildren<TextMeshProUGUI>(true);
-
-            var closeBtn = CreateSmallButton(_buttonTemplate, _labelTemplate, titleBar, "CloseButton",
-                0f, 0f, 24f, 24f, "X", 14f, _palette);
-            var cRt = (RectTransform)closeBtn.transform;
-            cRt.anchorMin = new Vector2(1f, 0.5f);
-            cRt.anchorMax = new Vector2(1f, 0.5f);
-            cRt.pivot = new Vector2(1f, 0.5f);
-            cRt.anchoredPosition = new Vector2(-6f, 0f);
-
             // 기존 GameplayLayout의 Train Inventory 복제
             var oldTrainInv = FindDeep(layoutRoot.transform, "Train Inventory");
             GameObject clonedTrainInv = Object.Instantiate(oldTrainInv.gameObject, rootRect);
             clonedTrainInv.name = "TrainInventoryBody";
             // 본문: 보드(392×280) + 우측 열(88px, 간격 10px) = 490×280, 제목줄과 값 줄 아래 (10, 66).
             var bodyRt = (RectTransform)clonedTrainInv.transform;
-            SetTopLeftRect(bodyRt, 10f, 66f, 490f, 280f);
+            // 값 줄(38~64) 아래 간격 8px.
+            SetTopLeftRect(bodyRt, 10f, 72f, 490f, 280f);
 
             var invView = clonedTrainInv.GetComponent<PuzzleInventoryView>();
             var invSo = new SerializedObject(invView);
@@ -447,8 +411,16 @@ public static class RelayoutS3Builder
             {
                 var bvRt = oldBoardValue.rectTransform;
                 bvRt.SetParent(rootRect, false);
-                SetTopLeftRect(bvRt, 10f, 40f, 290f, 20f);
+                // 왼쪽 절반(10~247). 오른쪽 절반(255~500)의 다음 정산 요약과 8px 띄운다.
+                SetTopLeftRect(bvRt, 10f, 38f, 237f, 26f);
                 oldBoardValue.fontSize = 14f;
+                oldBoardValue.enableAutoSizing = false;
+                oldBoardValue.enableWordWrapping = false;
+                oldBoardValue.overflowMode = TextOverflowModes.Ellipsis;
+                oldBoardValue.alignment = TextAlignmentOptions.MidlineLeft;
+                oldBoardValue.margin = Vector4.zero;
+                // 옛 보드의 예시 문구는 이 칸보다 길다. 실행 중 값으로 채워지므로 비워 둔다.
+                oldBoardValue.text = string.Empty;
             }
             // 값 줄(목업 오른쪽): 다음 정산 요약을 같은 줄 오른쪽에 둔다. 2줄 렌즈 요약과 겹치지 않는다.
             var nextSettlementLbl = CreateLabel(_labelTemplate, rootRect, "NextSettlementSummary", 13f,
@@ -457,8 +429,11 @@ public static class RelayoutS3Builder
             nextSettlementLbl.rectTransform.anchorMin = new Vector2(0.5f, 1f);
             nextSettlementLbl.rectTransform.anchorMax = new Vector2(1f, 1f);
             nextSettlementLbl.rectTransform.pivot = new Vector2(1f, 1f);
-            nextSettlementLbl.rectTransform.anchoredPosition = new Vector2(-10f, -40f);
-            nextSettlementLbl.rectTransform.sizeDelta = new Vector2(0f, 20f);
+            nextSettlementLbl.rectTransform.anchoredPosition = new Vector2(-10f, -38f);
+            nextSettlementLbl.rectTransform.sizeDelta = new Vector2(-10f, 26f);
+            nextSettlementLbl.enableWordWrapping = false;
+            nextSettlementLbl.overflowMode = TextOverflowModes.Ellipsis;
+            nextSettlementLbl.alignment = TextAlignmentOptions.MidlineRight;
 
             // 목업에 없는 숙련 칩과 구분선은 숨긴다(값·정산 줄과 보드가 겹치지 않도록).
             var oldChips = FindDeep(clonedTrainInv.transform, "ProficiencyChips");
@@ -497,13 +472,14 @@ public static class RelayoutS3Builder
             var synergyLabel = CreateLabel(_labelTemplate, synergyCard, "SynergyLabel", 10f,
                 TextAlignmentOptions.Center, _palette, UIPalette.ColorRole.TextSub);
             synergyLabel.enableAutoSizing = false;
-            SetTopLeftRect(synergyLabel.rectTransform, 2f, 8f, 84f, 14f);
+            SetTopLeftRect(synergyLabel.rectTransform, 2f, 8f, 84f, 16f);
 
             var synergyNumber = CreateLabel(_labelTemplate, synergyCard, "SynergyNumber", 21f,
                 TextAlignmentOptions.Center, _palette, UIPalette.ColorRole.Positive);
             synergyNumber.fontStyle = FontStyles.Bold;
             synergyNumber.enableAutoSizing = false;
-            SetTopLeftRect(synergyNumber.rectTransform, 2f, 34f, 84f, 30f);
+            SetTopLeftRect(synergyNumber.rectTransform, 2f, 30f, 84f, 34f);
+            synergyNumber.text = string.Empty; // 실행 중 값으로 채운다
 
             var hintBox = NewRect("ControlsHint", bodyRt);
             SetTopLeftRect(hintBox, 402f, 184f, 88f, 96f);
@@ -571,7 +547,8 @@ public static class RelayoutS3Builder
             // 하단 2줄 렌즈 요약 (R14)
             // 렌즈 요약 footer (목업 .train-lens-footer): 아래쪽 (10, 356) 490×178, 2줄(견적·다음 정산 Δ).
             var lensFooter = NewRect("LensFooter", rootRect);
-            SetTopLeftRect(lensFooter, 10f, 356f, 490f, 178f);
+            // 보드(72~352) 아래 간격 8px, 창 아래 여백 8px.
+            SetTopLeftRect(lensFooter, 10f, 360f, 490f, 176f);
             var lfBg = lensFooter.gameObject.AddComponent<Image>();
             lfBg.color = _palette.Panel2;
             lfBg.raycastTarget = false;

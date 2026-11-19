@@ -22,8 +22,8 @@ public sealed class PuzzleSlotVisual : MonoBehaviour
     [SerializeField] TextMeshProUGUI freshnessLabel;
     [SerializeField] TextMeshProUGUI synergyNotice;
     [SerializeField] float freshnessFontScale = 0.3f;
-    [SerializeField] float freshnessWidthScale = 0.9f;
-    [SerializeField] float freshnessHeightScale = 0.35f;
+    [SerializeField] float freshnessWidthScale = 0.2f;
+    [SerializeField] float freshnessHeightScale = 0.45f;
     [SerializeField] float freshnessOffsetScale = 0.43f;
     [SerializeField] float synergyNoticeFontScale = 0.24f;
     [SerializeField] float synergyNoticeSizeScale = 0.3f;

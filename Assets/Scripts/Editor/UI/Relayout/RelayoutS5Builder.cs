@@ -54,53 +54,16 @@ public static class RelayoutS5Builder
         TextMeshProUGUI _labelTemplate)
     {
         var layoutRoot = PrefabUtility.LoadPrefabContents(GAMEPLAY_LAYOUT_PREFAB);
-        var rootGo = new GameObject("MarketWindow", typeof(RectTransform));
+        var rootGo = RelayoutWindowKit.CreateWindow("MarketWindow", null, string.Empty, 0f, 0f, 0f, 0f, false,
+            out var floatingWin, out var titleBar, out var titleText, out var closeBtn);
         try
         {
             rootGo.layer = 5;
             var rootRect = (RectTransform)rootGo.transform;
-            // 13×9 보드(56px 셀 = 728×504) + 시세 띠 + 하단 안내에 맞춘 고정 크기(764×640).
-            SetTopLeftRect(rootRect, 1136f, 136f, 764f, 640f);
+            // 13×9 보드(56px 셀 = 728×504) + 시세 띠 + 하단 안내에 맞춘 고정 크기(764×648).
+            SetTopLeftRect(rootRect, 1136f, 136f, 764f, 648f);
 
-            var bg = rootGo.AddComponent<Image>();
-            bg.color = _palette.Panel;
-            BindPalette(rootGo, _palette, UIPalette.ColorRole.Panel);
-
-            var outline = rootGo.AddComponent<Outline>();
-            outline.effectColor = _palette.Border;
-            outline.effectDistance = new Vector2(2f, -2f);
-
-            var floatingWin = rootGo.AddComponent<FloatingWindow>();
-
-            // 제목줄 (30px)
-            var titleBar = NewRect("TitleBar", rootRect);
-            titleBar.anchorMin = new Vector2(0f, 1f);
-            titleBar.anchorMax = new Vector2(1f, 1f);
-            titleBar.pivot = new Vector2(0.5f, 1f);
-            titleBar.anchoredPosition = Vector2.zero;
-            titleBar.sizeDelta = new Vector2(0f, 30f);
-            var tbImg = titleBar.gameObject.AddComponent<Image>();
-            tbImg.color = _palette.Panel2;
-            BindPalette(titleBar.gameObject, _palette, UIPalette.ColorRole.Panel2);
-
-            titleBar.gameObject.AddComponent<FloatingWindowDragHandle>();
-
-            var titleText = CreateLabel(_labelTemplate, titleBar, "TitleText", 16f,
-                TextAlignmentOptions.Left, _palette, UIPalette.ColorRole.TitleText);
-            titleText.fontStyle = FontStyles.Bold;
             titleText.text = "시장";
-            titleText.rectTransform.anchorMin = Vector2.zero;
-            titleText.rectTransform.anchorMax = Vector2.one;
-            titleText.rectTransform.offsetMin = new Vector2(12f, 0f);
-            titleText.rectTransform.offsetMax = new Vector2(-36f, 0f);
-
-            var closeBtn = CreateSmallButton(_buttonTemplate, _labelTemplate, titleBar, "CloseButton",
-                0f, 0f, 24f, 24f, "X", 14f, _palette);
-            var cRt = (RectTransform)closeBtn.transform;
-            cRt.anchorMin = new Vector2(1f, 0.5f);
-            cRt.anchorMax = new Vector2(1f, 0.5f);
-            cRt.pivot = new Vector2(1f, 0.5f);
-            cRt.anchoredPosition = new Vector2(-6f, 0f);
 
             // 기존 GameplayLayout의 Market Inventory 복제
             var oldMarketInv = FindDeep(layoutRoot.transform, "Market Inventory");
@@ -110,7 +73,7 @@ public static class RelayoutS5Builder
             var bodyRt = (RectTransform)clonedMarketInv.transform;
             bodyRt.anchorMin = Vector2.zero;
             bodyRt.anchorMax = Vector2.one;
-            bodyRt.offsetMin = new Vector2(8f, 34f);
+            bodyRt.offsetMin = new Vector2(8f, 42f); // 하단 줄(8~34) 위 간격 8px
             bodyRt.offsetMax = new Vector2(-8f, -32f);
 
             var invView = clonedMarketInv.GetComponent<PuzzleInventoryView>();
@@ -223,8 +186,9 @@ public static class RelayoutS5Builder
             bottomBar.anchorMin = new Vector2(0f, 0f);
             bottomBar.anchorMax = new Vector2(1f, 0f);
             bottomBar.pivot = new Vector2(0.5f, 0f);
-            bottomBar.anchoredPosition = new Vector2(0f, 4f);
-            bottomBar.sizeDelta = new Vector2(-12f, 26f);
+            // 창 여백 8px(기준값)을 좌·우·아래에 둔다.
+            bottomBar.anchoredPosition = new Vector2(0f, 8f);
+            bottomBar.sizeDelta = new Vector2(-16f, 26f);
             var bbImg = bottomBar.gameObject.AddComponent<Image>();
             bbImg.color = _palette.Panel2;
             bbImg.raycastTarget = false;
@@ -252,7 +216,7 @@ public static class RelayoutS5Builder
             fwSo.FindProperty("titleBar").objectReferenceValue = titleBar;
             fwSo.FindProperty("closeButton").objectReferenceValue = closeBtn;
             fwSo.FindProperty("defaultPosition").vector2Value = new Vector2(1136f, 136f);
-            fwSo.FindProperty("defaultSize").vector2Value = new Vector2(764f, 640f);
+            fwSo.FindProperty("defaultSize").vector2Value = new Vector2(764f, 648f);
             fwSo.FindProperty("startOpen").boolValue = false;
             fwSo.ApplyModifiedPropertiesWithoutUndo();
 
@@ -313,8 +277,8 @@ public static class RelayoutS5Builder
                 chipRt.anchorMax = new Vector2(1f, 0f);
                 chipRt.pivot = new Vector2(1f, 0f);
                 chipRt.anchoredPosition = new Vector2(-4f, 4f);
-                // 128px 슬롯 기준 92×40 → 56px 셀에서 약 40×18px 칩, 32pt → 14pt.
-                chipRt.sizeDelta = new Vector2(92f, 40f);
+                // 128px 슬롯 기준 92×48 → 56px 셀에서 약 40×21px 칩, 32pt → 14pt. 높이는 글자 크기 × 1.5.
+                chipRt.sizeDelta = new Vector2(92f, 48f);
 
                 var chipImg = chipGo.GetComponent<Image>();
                 chipImg.sprite = null;
@@ -350,51 +314,15 @@ public static class RelayoutS5Builder
         Button _buttonTemplate,
         TextMeshProUGUI _labelTemplate)
     {
-        var rootGo = new GameObject("LensWindow", typeof(RectTransform));
+        var rootGo = RelayoutWindowKit.CreateWindow("LensWindow", null, string.Empty, 0f, 0f, 0f, 0f, false,
+            out var floatingWin, out var titleBar, out var titleText, out var closeBtn);
         try
         {
             rootGo.layer = 5;
             var rootRect = (RectTransform)rootGo.transform;
             SetTopLeftRect(rootRect, 26f, 134f, 510f, 366f);
 
-            var bg = rootGo.AddComponent<Image>();
-            bg.color = _palette.Panel;
-            BindPalette(rootGo, _palette, UIPalette.ColorRole.Panel);
-
-            var outline = rootGo.AddComponent<Outline>();
-            outline.effectColor = _palette.Border;
-            outline.effectDistance = new Vector2(2f, -2f);
-
-            var floatingWin = rootGo.AddComponent<FloatingWindow>();
-
-            var titleBar = NewRect("TitleBar", rootRect);
-            titleBar.anchorMin = new Vector2(0f, 1f);
-            titleBar.anchorMax = new Vector2(1f, 1f);
-            titleBar.pivot = new Vector2(0.5f, 1f);
-            titleBar.anchoredPosition = Vector2.zero;
-            titleBar.sizeDelta = new Vector2(0f, 30f);
-            var tbImg = titleBar.gameObject.AddComponent<Image>();
-            tbImg.color = _palette.Panel2;
-            BindPalette(titleBar.gameObject, _palette, UIPalette.ColorRole.Panel2);
-
-            titleBar.gameObject.AddComponent<FloatingWindowDragHandle>();
-
-            var titleText = CreateLabel(_labelTemplate, titleBar, "TitleText", 16f,
-                TextAlignmentOptions.Left, _palette, UIPalette.ColorRole.TitleText);
-            titleText.fontStyle = FontStyles.Bold;
             titleText.text = Presentation.LensWindowTitle;
-            titleText.rectTransform.anchorMin = Vector2.zero;
-            titleText.rectTransform.anchorMax = Vector2.one;
-            titleText.rectTransform.offsetMin = new Vector2(12f, 0f);
-            titleText.rectTransform.offsetMax = new Vector2(-36f, 0f);
-
-            var closeBtn = CreateSmallButton(_buttonTemplate, _labelTemplate, titleBar, "CloseButton",
-                0f, 0f, 24f, 24f, "X", 14f, _palette);
-            var cRt = (RectTransform)closeBtn.transform;
-            cRt.anchorMin = new Vector2(1f, 0.5f);
-            cRt.anchorMax = new Vector2(1f, 0.5f);
-            cRt.pivot = new Vector2(1f, 0.5f);
-            cRt.anchoredPosition = new Vector2(-6f, 0f);
 
             var bodyRt = NewRect("LensBody", rootRect);
             bodyRt.anchorMin = Vector2.zero;
@@ -560,7 +488,7 @@ public static class RelayoutS5Builder
             RepositionToolbarChild(root.transform, "MapButton", 92f, 88f);
             RepositionToolbarChild(root.transform, "BackgroundOnlyButton", 266f, 96f);
             RepositionToolbarChild(root.transform, "ResetLayoutButton", 366f, 104f);
-            RepositionToolbarChild(root.transform, "ShortcutHintLabel", 474f, 30f);
+            RepositionToolbarChild(root.transform, "ShortcutHint", 474f, 28f); // 오른쪽 여백 8px
 
             var oldLens = root.transform.Find("LensButton");
             if (oldLens) Object.DestroyImmediate(oldLens.gameObject);
@@ -738,6 +666,9 @@ public static class RelayoutS5Builder
             label = CreateLabel(_labelTemplate, (RectTransform)go.transform, "Label", _fontSize,
                 TextAlignmentOptions.Center, _palette, UIPalette.ColorRole.Text);
         }
+        // 템플릿 글자 상자는 템플릿 버튼 크기 그대로라 새 버튼보다 클 수 있다. 버튼 칸에 맞춘다.
+        RelayoutWindowKit.Stretch(label.rectTransform);
+        label.enableAutoSizing = false;
         label.fontSize = _fontSize;
         label.alignment = TextAlignmentOptions.Center;
         label.text = _text;
