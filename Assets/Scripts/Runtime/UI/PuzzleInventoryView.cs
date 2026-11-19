@@ -65,6 +65,13 @@ public sealed class PuzzleInventoryView : MonoBehaviour
     [SerializeField] float synergyArrowHeightScale = 0.55f;
     [SerializeField] float synergyIncreaseLaneOffset = 0.08f;
     [SerializeField] float synergyDecreaseLaneOffset = 0.2f;
+    [SerializeField] bool dynamicCellSizing;
+    [SerializeField] ScrollRect boardScrollRect;
+    [SerializeField] RectTransform boardViewport;
+    [SerializeField] RectTransform boardContent;
+    [SerializeField] float minDynamicCellSize = 40f;
+    [SerializeField] float maxDynamicCellSize = 72f;
+    [SerializeField] FloatingWindow ownerWindow;
 
     void OnValidate()
     {
@@ -82,6 +89,16 @@ public sealed class PuzzleInventoryView : MonoBehaviour
     Vector2 gridMin;
     float cellSize;
     bool showSynergies;
+    bool initializedView;
+    PuzzleInventory lastRenderedInventory;
+    int? lastHiddenInstanceId;
+    int? lastHighlightedInstanceId;
+    IReadOnlyList<PuzzleRefrigerationContact> lastContacts;
+    IReadOnlyList<(PuzzlePose Pose, Vector2Int TargetCell, string Label)> lastCandidates;
+
+    public float CurrentCellSize => cellSize;
+    Transform CellParent => dynamicCellSizing && boardContent ? boardContent : board.rectTransform;
+    RectTransform CoordinateRect => dynamicCellSizing && boardContent ? boardContent : board.rectTransform;
 
     Camera EventCamera => canvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : canvas.worldCamera;
 
@@ -99,15 +116,16 @@ public sealed class PuzzleInventoryView : MonoBehaviour
     {
         showSynergies = _showSynergies;
         var parentCanvas = GetComponentInParent<Canvas>();
+        Transform cellParent = boardContent && dynamicCellSizing ? boardContent : (board ? board.rectTransform : null);
         if (!interaction || !parentCanvas || !board || !boardTitle || !boardTitle.font || !boardValue || !boardValue.font ||
             (_showSynergies && !synergySettlementNotice) ||
-            !moveGuide || !moveGuide.font ||
+            (!dynamicCellSizing && (!moveGuide || !moveGuide.font)) ||
 
             !flatTriangle || boardCells == null || boardCells.Distinct().Count() != boardCells.Length ||
-            boardCells.Any(image => !image || image.rectTransform.parent != board.rectTransform) ||
+            boardCells.Any(image => !image || image.rectTransform.parent != cellParent) ||
             !increaseArrow || !decreaseArrow || synergyArrows == null ||
             synergyArrows.Distinct().Count() != synergyArrows.Length ||
-            synergyArrows.Any(image => !image || image.rectTransform.parent != board.rectTransform))
+            synergyArrows.Any(image => !image || image.rectTransform.parent != cellParent))
         {
             throw new InvalidOperationException("화물 인벤토리 View의 Canvas 또는 프리팹 참조가 누락되었습니다.");
         }
@@ -125,9 +143,9 @@ public sealed class PuzzleInventoryView : MonoBehaviour
         var fillSprites = new[] { reference, eastFlatTriangle, southFlatTriangle, westFlatTriangle };
         if (!reference || !fillSprites.All(sprite => MatchesReference(sprite, reference)) ||
             !MatchesReference(flatOutline, reference) ||
-            !HasSlots(placementSlots, board.rectTransform, reference) ||
+            !HasSlots(placementSlots, cellParent, reference) ||
             !HasSlots(ghostSlots, ghostLayer ? ghostLayer : transform, reference) ||
-            !HasSlots(outlineSlots, board.rectTransform, reference))
+            !HasSlots(outlineSlots, cellParent, reference))
         {
             throw new InvalidOperationException("화물 슬롯의 스프라이트 참조·크기 또는 슬롯 구성이 올바르지 않습니다.");
         }
@@ -172,9 +190,110 @@ public sealed class PuzzleInventoryView : MonoBehaviour
 
     internal void SetTitle(string _title)
     {
+        initializedView = true;
         if (boardTitle)
         {
             boardTitle.text = _title;
+        }
+    }
+
+    void OnEnable()
+    {
+        if (ownerWindow)
+        {
+            ownerWindow.Resized += OnWindowResized;
+        }
+    }
+
+    void OnRectTransformDimensionsChange()
+    {
+        if (initializedView && dynamicCellSizing)
+        {
+            RecalculateLayout();
+        }
+    }
+
+    void OnWindowResized()
+    {
+        if (initializedView && dynamicCellSizing)
+        {
+            RecalculateLayout();
+        }
+    }
+
+    public void RecalculateLayout()
+    {
+        if (!initializedView || gridSize.x <= 0 || gridSize.y <= 0)
+        {
+            return;
+        }
+        UpdateLayoutMetrics();
+        UpdateBoardCellTransforms();
+        if (lastRenderedInventory != null)
+        {
+            RenderPlacements(lastRenderedInventory, lastHiddenInstanceId, lastHighlightedInstanceId, lastContacts);
+        }
+        if (lastCandidates != null && lastCandidates.Count > 0)
+        {
+            ShowPlacementCandidates(lastCandidates);
+        }
+    }
+
+    void UpdateLayoutMetrics()
+    {
+        if (dynamicCellSizing && boardViewport && boardContent)
+        {
+            float vw = Mathf.Max(1f, boardViewport.rect.width);
+            float vh = Mathf.Max(1f, boardViewport.rect.height);
+            float raw = Mathf.Min(vw / gridSize.x, vh / gridSize.y);
+            cellSize = Mathf.Clamp(raw, minDynamicCellSize, maxDynamicCellSize);
+
+            float totalW = gridSize.x * cellSize;
+            float totalH = gridSize.y * cellSize;
+            bool needsScroll = raw < minDynamicCellSize;
+            if (needsScroll)
+            {
+                boardContent.sizeDelta = new Vector2(Mathf.Max(vw, totalW), Mathf.Max(vh, totalH));
+                if (boardScrollRect)
+                {
+                    boardScrollRect.horizontal = totalW > vw + 0.5f;
+                    boardScrollRect.vertical = totalH > vh + 0.5f;
+                }
+            }
+            else
+            {
+                boardContent.sizeDelta = new Vector2(vw, vh);
+                boardContent.anchoredPosition = Vector2.zero;
+                if (boardScrollRect)
+                {
+                    boardScrollRect.horizontal = false;
+                    boardScrollRect.vertical = false;
+                }
+            }
+
+            // BoardContent는 좌상단 고정 앵커(0,1)이므로 rect.center 기준이 정확하다.
+            Rect contentRect = boardContent.rect;
+            gridMin = contentRect.center - new Vector2(gridSize.x, gridSize.y) * (cellSize * 0.5f);
+        }
+        else
+        {
+            Rect boardRect = board.rectTransform.rect;
+            cellSize = Mathf.Min(boardRect.width / gridSize.x, boardRect.height / gridSize.y);
+            gridMin = boardRect.center - new Vector2(gridSize.x, gridSize.y) * (cellSize * 0.5f);
+        }
+    }
+
+    void UpdateBoardCellTransforms()
+    {
+        long cellCount = (long)gridSize.x * gridSize.y;
+        for (int i = 0; i < boardCells.Length; i++)
+        {
+            var cell = boardCells[i];
+            if (i < cellCount && cell.enabled)
+            {
+                cell.rectTransform.localPosition = GetCellCenter(new Vector2Int(i % gridSize.x, i / gridSize.x));
+                cell.rectTransform.sizeDelta = Vector2.one * (cellSize - cellGap);
+            }
         }
     }
 
@@ -183,9 +302,7 @@ public sealed class PuzzleInventoryView : MonoBehaviour
         gridSize = new Vector2Int(_width, _height);
         blockedCells.Clear();
         blockedCells.UnionWith(_blockedCells);
-        Rect boardRect = board.rectTransform.rect;
-        cellSize = Mathf.Min(boardRect.width / _width, boardRect.height / _height);
-        gridMin = boardRect.center - new Vector2(_width, _height) * (cellSize * 0.5f);
+        UpdateLayoutMetrics();
 
         long cellCount = (long)_width * _height;
         for (int i = 0; i < boardCells.Length; i++)
@@ -200,6 +317,7 @@ public sealed class PuzzleInventoryView : MonoBehaviour
             }
         }
 
+        lastRenderedInventory = null;
         HideSlots(placementSlots);
         HideArrows();
         ClearDrag();
@@ -224,8 +342,14 @@ public sealed class PuzzleInventoryView : MonoBehaviour
 
     public bool TryGetBoardCell(Vector2 _screenPosition, out Vector2Int _cell)
     {
+        if (dynamicCellSizing && boardViewport &&
+            !RectTransformUtility.RectangleContainsScreenPoint(boardViewport, _screenPosition, EventCamera))
+        {
+            _cell = default;
+            return false;
+        }
         if (RectTransformUtility.ScreenPointToLocalPointInRectangle(
-            board.rectTransform, _screenPosition, EventCamera, out var local))
+            CoordinateRect, _screenPosition, EventCamera, out var local))
         {
             var position = (local - gridMin) / cellSize;
             _cell = new Vector2Int(Mathf.FloorToInt(position.x), Mathf.FloorToInt(position.y));
@@ -241,6 +365,10 @@ public sealed class PuzzleInventoryView : MonoBehaviour
         int? _hiddenInstanceId = null, int? _highlightedInstanceId = null,
         IReadOnlyList<PuzzleRefrigerationContact> _refrigerationContacts = null)
     {
+        lastRenderedInventory = _inventory;
+        lastHiddenInstanceId = _hiddenInstanceId;
+        lastHighlightedInstanceId = _highlightedInstanceId;
+        lastContacts = _refrigerationContacts;
         int index = 0;
         foreach (var placement in _inventory.Placements)
         {
@@ -383,7 +511,7 @@ public sealed class PuzzleInventoryView : MonoBehaviour
             return;
         }
 
-        Vector2 boardOrigin = GhostParent.InverseTransformPoint(board.rectTransform.position);
+        Vector2 boardOrigin = GhostParent.InverseTransformPoint(CoordinateRect.position);
         RenderGhost(_pose, _item, boardOrigin, _freshness);
     }
 
@@ -747,6 +875,7 @@ public sealed class PuzzleInventoryView : MonoBehaviour
     // 1순위는 자리 전체 외곽선, 2·3순위는 잡은 칸이 놓이는 칸에 배지로 둔다. 남는 표식은 숨긴다.
     internal void ShowPlacementCandidates(IReadOnlyList<(PuzzlePose Pose, Vector2Int TargetCell, string Label)> _candidates)
     {
+        lastCandidates = _candidates;
         int count = _candidates != null ? _candidates.Count : 0;
         int markerCount = candidateMarkers != null ? candidateMarkers.Length : 0;
         for (int i = 0; i < markerCount; i++)
@@ -776,6 +905,7 @@ public sealed class PuzzleInventoryView : MonoBehaviour
 
     internal void HidePlacementCandidates()
     {
+        lastCandidates = null;
         int markerCount = candidateMarkers != null ? candidateMarkers.Length : 0;
         for (int i = 0; i < markerCount; i++)
         {
@@ -889,6 +1019,10 @@ public sealed class PuzzleInventoryView : MonoBehaviour
 
     void OnDisable()
     {
+        if (ownerWindow)
+        {
+            ownerWindow.Resized -= OnWindowResized;
+        }
         StopSettlementFeedback();
         if (canvas)
         {

@@ -177,20 +177,13 @@ public static class RelayoutS2Builder
             outline.effectColor = _palette.Border;
             outline.effectDistance = new Vector2(1f, -1f);
 
-            // 도시 점 + 도시/지역명
-            var dot = NewRect("CityDot", rootRect);
-            SetTopLeftRect(dot, 18f, 22f, 12f, 12f);
-            var dotImg = dot.gameObject.AddComponent<Image>();
-            dotImg.sprite = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/Knob.psd");
-            dotImg.color = _palette.GoldAccent;
-            dotImg.raycastTarget = false;
-
+            // 도시/지역명 (장식 점 제거, 평면 텍스트)
             var cityLabel = CreateLabel(_labelTemplate, rootRect, "CityName", 20f,
                 TextAlignmentOptions.Left, _palette, UIPalette.ColorRole.Text);
             cityLabel.fontStyle = FontStyles.Bold;
             cityLabel.richText = true;
             cityLabel.overflowMode = TextOverflowModes.Ellipsis;
-            SetTopLeftRect(cityLabel.rectTransform, 40f, 8f, 320f, 40f);
+            SetTopLeftRect(cityLabel.rectTransform, 18f, 8f, 342f, 40f);
 
             AddDivider(rootRect, 372f, _palette);
 
@@ -400,54 +393,21 @@ public static class RelayoutS2Builder
             var rootRect = (RectTransform)rootGo.transform;
             SetTopLeftRect(rootRect, 26f, 134f, 510f, 929f);
 
-            // 플랫폼 바닥
+            // 평면 플랫폼 바닥 사각형
             var bg = rootGo.AddComponent<Image>();
-            bg.color = new Color(0.227f, 0.255f, 0.302f, 1f); // --scene-platform-bg #3a414d
+            bg.color = new Color(0.227f, 0.255f, 0.302f, 1f);
             bg.raycastTarget = false;
 
-            // 좌측 녹지
-            AddStaticRect(rootRect, "GrassStrip", 0f, 0f, 90f, 929f, new Color(0.173f, 0.231f, 0.176f, 1f));
-            var knob = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/Knob.psd");
-            float[] treeYs = { 90f, 260f, 450f, 650f, 830f };
-            for (int i = 0; i < treeYs.Length; i++)
-            {
-                var tree = AddStaticRect(rootRect, $"Tree_{i}", 21f, treeYs[i] - 24f, 48f, 48f,
-                    new Color(0.231f, 0.369f, 0.212f, 1f), knob);
-                AddStaticRect(tree, "CanopyInner", 8f, 8f, 32f, 32f,
-                    new Color(0.298f, 0.478f, 0.271f, 1f), knob);
-            }
-
-            // 타일 격자선
-            for (int y = 120; y < 929; y += 120)
-            {
-                AddStaticRect(rootRect, $"GridH_{y}", 90f, y, 420f, 1f, new Color(0.275f, 0.310f, 0.369f, 0.55f));
-            }
-            for (int x = 180; x < 510; x += 120)
-            {
-                AddStaticRect(rootRect, $"GridV_{x}", x, 0f, 1f, 929f, new Color(0.275f, 0.310f, 0.369f, 0.55f));
-            }
-
-            // 승강장 지붕(Canopy) & 점자 블록(Tactile) & 연석(Curb)
-            AddStaticRect(rootRect, "Canopy", 130f, 40f, 260f, 849f, new Color(0.200f, 0.255f, 0.333f, 0.42f));
-            AddStaticRect(rootRect, "TactileStrip", 472f, 0f, 14f, 929f, new Color(0.918f, 0.702f, 0.031f, 0.85f));
-            AddStaticRect(rootRect, "PlatformCurb", 494f, 0f, 16f, 929f, new Color(0.153f, 0.173f, 0.208f, 1f));
-
-            // 가로등 불빛
-            float[] lampYs = { 180f, 464f, 748f };
-            for (int i = 0; i < lampYs.Length; i++)
-            {
-                AddStaticRect(rootRect, $"LampGlow_{i}", 430f, lampYs[i] - 18f, 36f, 36f,
-                    new Color(0.996f, 0.941f, 0.541f, 0.22f), knob);
-                AddStaticRect(rootRect, $"LampCore_{i}", 442f, lampYs[i] - 6f, 12f, 12f,
-                    new Color(0.996f, 0.941f, 0.541f, 0.95f), knob);
-            }
+            var outline = rootGo.AddComponent<Outline>();
+            outline.effectColor = _palette.Border;
+            outline.effectDistance = new Vector2(1f, -1f);
 
             // 주행 중 속도선 (사전 배치 숨김)
             var speedLines = NewRect("TravelSpeedLines", rootRect);
             Stretch(speedLines);
             for (int i = 0; i < 6; i++)
             {
-                AddStaticRect(speedLines, $"Line_{i}", 60f + i * 75f, 80f + (i % 2) * 140f, 3f, 220f,
+                AddStaticRect(speedLines, $"Line_{i}", 60f + i * 75f, 80f + (i % 2) * 140f, 2f, 220f,
                     new Color(0.94f, 0.96f, 0.98f, 0.25f));
             }
             speedLines.gameObject.SetActive(false);
@@ -458,7 +418,7 @@ public static class RelayoutS2Builder
             so.ApplyModifiedPropertiesWithoutUndo();
 
             var saved = PrefabUtility.SaveAsPrefabAsset(rootGo, PLATFORM_PREFAB);
-            _log.AppendLine($"PlatformScene 프리팹 → {PLATFORM_PREFAB}");
+            _log.AppendLine($"PlatformScene 프리팹(평면 사각형) → {PLATFORM_PREFAB}");
             return saved;
         }
         finally
@@ -479,48 +439,44 @@ public static class RelayoutS2Builder
             var rootRect = (RectTransform)rootGo.transform;
             SetTopLeftRect(rootRect, 653f, 82f, 1247f, 977f);
 
-            // 마을 배경 (--scene-town-bg #3d4a3a)
+            // 평면 마을 바닥 사각형
             var bg = rootGo.AddComponent<Image>();
             bg.color = new Color(0.239f, 0.290f, 0.227f, 1f);
             bg.raycastTarget = false;
 
-            // 중앙 광장·도로 (정적 배경 레이어)
-            AddStaticRect(rootRect, "RoadHorizontal", 40f, 430f, 1160f, 78f, new Color(0.28f, 0.30f, 0.32f, 0.85f));
-            AddStaticRect(rootRect, "RoadVertical", 340f, 40f, 74f, 760f, new Color(0.28f, 0.30f, 0.32f, 0.85f));
-            var knob = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/Knob.psd");
-            AddStaticRect(rootRect, "PlazaCircle", 560f, 360f, 160f, 160f, new Color(0.32f, 0.35f, 0.37f, 0.9f), knob);
-            AddStaticRect(rootRect, "FountainWater", 605f, 405f, 70f, 70f, new Color(0.22f, 0.48f, 0.65f, 0.9f), knob);
+            var outline = rootGo.AddComponent<Outline>();
+            outline.effectColor = _palette.Border;
+            outline.effectDistance = new Vector2(1f, -1f);
 
-            // 6개 다이제틱 건물 (concept-3b 좌표 그대로)
+            // 6개 평면 사각형 건물 (concept-3b 좌표)
             var bMarket = CreateBuilding(rootRect, _labelTemplate, _palette, "Building_Market",
                 TownBuildingButton.BuildingKind.Market, 825f, 50f, 275f, 205f,
-                new Color(0.118f, 0.161f, 0.231f, 1f), new Color(0.725f, 0.110f, 0.110f, 1f),
-                _palette.GoldAccent, "시장 (1)", hasChalkboard: true);
+                new Color(0.118f, 0.161f, 0.231f, 1f), _palette.GoldAccent, "시장 (1)", hasStatusLine: true);
 
             var bTavern = CreateBuilding(rootRect, _labelTemplate, _palette, "Building_Tavern",
                 TownBuildingButton.BuildingKind.Tavern, 95f, 555f, 220f, 175f,
-                new Color(0.271f, 0.102f, 0.012f, 1f), new Color(0.471f, 0.208f, 0.059f, 1f),
-                new Color(0.961f, 0.620f, 0.043f, 1f), "술집 (2)", hasRumorBubble: true, hasWindowGlow: true);
+                new Color(0.271f, 0.102f, 0.012f, 1f), new Color(0.961f, 0.620f, 0.043f, 1f),
+                "술집 (2)", hasRumorLine: true);
 
             var bRest = CreateBuilding(rootRect, _labelTemplate, _palette, "Building_Rest",
                 TownBuildingButton.BuildingKind.Rest, 435f, 555f, 220f, 175f,
-                new Color(0.118f, 0.227f, 0.373f, 1f), new Color(0.118f, 0.251f, 0.686f, 0.8f),
-                new Color(0.376f, 0.647f, 0.980f, 1f), "여관 (3)", hasWindowGlow: true);
+                new Color(0.118f, 0.227f, 0.373f, 1f), new Color(0.376f, 0.647f, 0.980f, 1f),
+                "여관 (3)");
 
             var bStation = CreateBuilding(rootRect, _labelTemplate, _palette, "Building_StationHall",
                 TownBuildingButton.BuildingKind.StationHall, 90f, 235f, 215f, 165f,
-                new Color(0.486f, 0.176f, 0.071f, 1f), new Color(0.604f, 0.204f, 0.071f, 1f),
-                new Color(0.992f, 0.729f, 0.455f, 1f), "역사 (4)", hasClock: true);
+                new Color(0.486f, 0.176f, 0.071f, 1f), new Color(0.992f, 0.729f, 0.455f, 1f),
+                "역사 (4)");
 
             var bWorkshop = CreateBuilding(rootRect, _labelTemplate, _palette, "Building_Workshop",
                 TownBuildingButton.BuildingKind.Workshop, 825f, 310f, 270f, 180f,
-                new Color(0.153f, 0.153f, 0.165f, 1f), new Color(0.247f, 0.247f, 0.275f, 1f),
-                new Color(0.380f, 0.647f, 0.980f, 1f), "생산시설 (5)", hasWorkshopParts: true);
+                new Color(0.153f, 0.153f, 0.165f, 1f), new Color(0.380f, 0.647f, 0.980f, 1f),
+                "생산시설 (5)", hasEmptyLot: true);
 
             var bCityHall = CreateBuilding(rootRect, _labelTemplate, _palette, "Building_CityHall",
                 TownBuildingButton.BuildingKind.CityHall, 435f, 50f, 240f, 175f,
-                new Color(0.200f, 0.255f, 0.333f, 1f), new Color(0.278f, 0.333f, 0.412f, 1f),
-                new Color(0.796f, 0.835f, 0.882f, 1f), "시청 (6)");
+                new Color(0.200f, 0.255f, 0.333f, 1f), new Color(0.796f, 0.835f, 0.882f, 1f),
+                "시청 (6)");
 
             var view = rootGo.AddComponent<TownSceneView>();
             var so = new SerializedObject(view);
@@ -534,7 +490,7 @@ public static class RelayoutS2Builder
             so.ApplyModifiedPropertiesWithoutUndo();
 
             var saved = PrefabUtility.SaveAsPrefabAsset(rootGo, TOWN_PREFAB);
-            _log.AppendLine($"TownScene 프리팹 → {TOWN_PREFAB}");
+            _log.AppendLine($"TownScene 프리팹(평면 사각형 건물) → {TOWN_PREFAB}");
             return saved;
         }
         finally
@@ -554,14 +510,11 @@ public static class RelayoutS2Builder
         float _width,
         float _height,
         Color _wallColor,
-        Color _roofColor,
         Color _strokeColor,
         string _labelText,
-        bool hasChalkboard = false,
-        bool hasRumorBubble = false,
-        bool hasWindowGlow = false,
-        bool hasClock = false,
-        bool hasWorkshopParts = false)
+        bool hasStatusLine = false,
+        bool hasRumorLine = false,
+        bool hasEmptyLot = false)
     {
         var root = NewRect(_name, _parent);
         SetTopLeftRect(root, _left, _top, _width, _height);
@@ -576,9 +529,6 @@ public static class RelayoutS2Builder
         var button = root.gameObject.AddComponent<Button>();
         button.targetGraphic = wallImg;
 
-        // 지붕 장식
-        var roof = AddStaticRect(root, "Roof", 14f, 14f, _width - 28f, _height * 0.42f, _roofColor);
-
         // 호버 하이라이트 테두리 (금색, 기본 비활성)
         var highlightGo = NewRect("HoverHighlight", root);
         Stretch(highlightGo);
@@ -587,11 +537,11 @@ public static class RelayoutS2Builder
         hlImg.raycastTarget = false;
         var hlOutline = highlightGo.gameObject.AddComponent<Outline>();
         hlOutline.effectColor = _palette.GoldAccent;
-        hlOutline.effectDistance = new Vector2(3f, -3f);
+        hlOutline.effectDistance = new Vector2(2f, -2f);
         hlImg.enabled = false;
 
-        // 이름 라벨
-        var tagBg = AddStaticRect(root, "NameTagBg", 20f, _height - 38f, _width - 40f, 28f,
+        // 라벨
+        var tagBg = AddStaticRect(root, "NameTagBg", 16f, _height * 0.5f - 16f, _width - 32f, 32f,
             new Color(0.059f, 0.090f, 0.141f, 0.9f));
         var nameTag = CreateLabel(_labelTemplate, tagBg, "NameTag", 16f,
             TextAlignmentOptions.Center, _palette, UIPalette.ColorRole.Text);
@@ -606,61 +556,34 @@ public static class RelayoutS2Builder
         so.FindProperty("highlightBorder").objectReferenceValue = hlImg;
         so.FindProperty("nameTag").objectReferenceValue = nameTag;
 
-        if (hasChalkboard)
+        if (hasStatusLine)
         {
-            var cb = AddStaticRect(root, "Chalkboard", 24f, 64f, _width - 48f, 52f,
-                new Color(0.078f, 0.200f, 0.149f, 1f));
-            var cbText = CreateLabel(_labelTemplate, cb, "ChalkboardText", 12f,
+            var statusObj = AddStaticRect(root, "StatusLine", 16f, _height - 40f, _width - 32f, 24f, _palette.Panel);
+            var statusText = CreateLabel(_labelTemplate, statusObj, "StatusLineText", 12f,
                 TextAlignmentOptions.Center, _palette, UIPalette.ColorRole.GoldAccent);
-            Stretch(cbText.rectTransform);
-            cb.gameObject.SetActive(false);
-            so.FindProperty("chalkboardObject").objectReferenceValue = cb.gameObject;
-            so.FindProperty("chalkboardText").objectReferenceValue = cbText;
+            Stretch(statusText.rectTransform);
+            statusObj.gameObject.SetActive(false);
+            so.FindProperty("chalkboardObject").objectReferenceValue = statusObj.gameObject;
+            so.FindProperty("chalkboardText").objectReferenceValue = statusText;
         }
 
-        if (hasRumorBubble)
+        if (hasRumorLine)
         {
-            var bubble = AddStaticRect(root, "RumorBubble", _width - 130f, -14f, 140f, 28f, _palette.Panel);
-            var bText = CreateLabel(_labelTemplate, bubble, "RumorBubbleText", 12f,
+            var rumorObj = AddStaticRect(root, "RumorStatusLine", 16f, _height - 40f, _width - 32f, 24f, _palette.Panel);
+            var rumorText = CreateLabel(_labelTemplate, rumorObj, "RumorStatusText", 12f,
                 TextAlignmentOptions.Center, _palette, UIPalette.ColorRole.GoldAccent);
-            Stretch(bText.rectTransform);
-            bubble.gameObject.SetActive(false);
-            so.FindProperty("rumorBubbleObject").objectReferenceValue = bubble.gameObject;
-            so.FindProperty("rumorBubbleText").objectReferenceValue = bText;
+            Stretch(rumorText.rectTransform);
+            rumorObj.gameObject.SetActive(false);
+            so.FindProperty("rumorBubbleObject").objectReferenceValue = rumorObj.gameObject;
+            so.FindProperty("rumorBubbleText").objectReferenceValue = rumorText;
         }
 
-        if (hasWindowGlow)
+        if (hasEmptyLot)
         {
-            var glow = NewRect("WindowGlow", root);
-            Stretch(glow);
-            AddStaticRect(glow, "WinL", 24f, 30f, 40f, 22f, new Color(0.996f, 0.941f, 0.541f, 0.88f));
-            AddStaticRect(glow, "WinR", _width - 64f, 30f, 40f, 22f, new Color(0.996f, 0.941f, 0.541f, 0.88f));
-            glow.gameObject.SetActive(false);
-            so.FindProperty("windowGlowObject").objectReferenceValue = glow.gameObject;
-        }
-
-        if (hasClock)
-        {
-            var knob = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/Knob.psd");
-            var clock = AddStaticRect(root, "StationClock", _width * 0.5f - 20f, 36f, 40f, 40f,
-                _palette.Panel, knob);
-            clock.gameObject.SetActive(false);
-            so.FindProperty("clockObject").objectReferenceValue = clock.gameObject;
-        }
-
-        if (hasWorkshopParts)
-        {
-            var knob = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/Knob.psd");
-            var smoke = AddStaticRect(root, "ChimneySmoke", _width - 56f, 16f, 28f, 28f,
-                new Color(0.85f, 0.88f, 0.92f, 0.45f), knob);
-            smoke.gameObject.SetActive(false);
-
-            var emptyLot = AddStaticRect(root, "EmptyLotVisual", 12f, 12f, _width - 24f, _height - 54f,
-                new Color(0.212f, 0.271f, 0.212f, 0.92f));
+            var emptyLot = AddStaticRect(root, "EmptyLotVisual", 12f, 12f, _width - 24f, _height - 24f,
+                new Color(0.212f, 0.271f, 0.212f, 0.65f));
+            emptyLot.SetSiblingIndex(0);
             emptyLot.gameObject.SetActive(false);
-
-            so.FindProperty("chimneySmokeObject").objectReferenceValue = smoke.gameObject;
-            so.FindProperty("workshopVisual").objectReferenceValue = roof.gameObject;
             so.FindProperty("emptyLotVisual").objectReferenceValue = emptyLot.gameObject;
         }
 

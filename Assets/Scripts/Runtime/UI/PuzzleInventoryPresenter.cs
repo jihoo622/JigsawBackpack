@@ -31,8 +31,13 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
     int? wagonSalePreviewIndex;
     [SerializeField] PuzzleItemTooltipView keywordTooltipView;
     [SerializeField] PuzzleTrainBarView trainBarView;
+    [SerializeField] PuzzleInventoryView relayoutTrainView;
+    [SerializeField] RailStripView railStripView;
+    [SerializeField] TrainWindowView trainWindowView;
     [SerializeField] PauseMenu pauseMenu;
     [SerializeField] RunEndPresenter runEndPresenter;
+
+    PuzzleInventoryView ActiveTrainView => RelayoutSettings.Enabled && relayoutTrainView ? relayoutTrainView : trainView;
 
     [SerializeField] PuzzleInventoryInput input;
     PuzzleInventoryService session;
@@ -123,6 +128,10 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
         long trainCapacity = (long)session.Train.Width * session.Train.Height;
         long dragCapacity = System.Math.Max(trainCapacity, session.MarketCapacity);
         trainView.Initialize(trainCapacity, dragCapacity, Presentation.PuzzleTrainTitle(session.Train), session.ItemDefinitions, _showSynergies: true);
+        if (relayoutTrainView)
+        {
+            relayoutTrainView.Initialize(trainCapacity, dragCapacity, Presentation.PuzzleTrainTitle(session.Train), session.ItemDefinitions, _showSynergies: true);
+        }
         marketView.Initialize(session.MarketCapacity, dragCapacity, Presentation.PuzzleMarketTitle, session.ItemDefinitions, _showSynergies: false);
         ConfigureButcheryView();
         ConfigureModificationView();
@@ -142,6 +151,10 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
         input.Hovered += OnHovered;
         input.HoverEnded += OnHoverEnded;
         trainView.Disabled += OnViewDisabled;
+        if (relayoutTrainView)
+        {
+            relayoutTrainView.Disabled += OnViewDisabled;
+        }
         marketView.Disabled += OnViewDisabled;
         SubscribeLens();
         if (butcheryView)
@@ -185,6 +198,10 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
             trainBarView.OwnedWagonReleased += FinishWagonSale;
             trainBarView.OwnedWagonDragEnded += ClearWagonSalePreview;
         }
+        if (railStripView)
+        {
+            railStripView.WagonSelected += OnWagonSelected;
+        }
         stationActions = GetComponentInChildren<PuzzleStationActionsView>(true);
     }
 
@@ -198,6 +215,10 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
         if (trainView)
         {
             trainView.Disabled -= OnViewDisabled;
+        }
+        if (relayoutTrainView)
+        {
+            relayoutTrainView.Disabled -= OnViewDisabled;
         }
         if (marketView)
         {
@@ -269,6 +290,10 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
             trainBarView.OwnedWagonDragEnded -= ClearWagonSalePreview;
             trainBarView.CancelWagonDrag();
         }
+        if (railStripView)
+        {
+            railStripView.WagonSelected -= OnWagonSelected;
+        }
         HideWagonTooltip();
         OnViewDisabled();
         initialized = false;
@@ -305,7 +330,8 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
         }
 
         ClearKeywordHover();
-        if (TrainOperationsBlocked || !trainBarView || session.RunStatus != PuzzleRunStatus.InProgress)
+        bool hasWagonBar = RelayoutSettings.Enabled ? (bool)railStripView : (bool)trainBarView;
+        if (TrainOperationsBlocked || !hasWagonBar || session.RunStatus != PuzzleRunStatus.InProgress)
         {
             if (hoveredWagonIndex.HasValue)
             {
@@ -315,8 +341,10 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
             return;
         }
 
-        if (trainBarView.TryGetWagonAtScreenPosition(pointerPosition, out int wagonIndex) &&
-            wagonIndex < session.WagonCount && wagonIndex != session.CurrentWagonIndex)
+        bool overWagon = RelayoutSettings.Enabled && railStripView
+            ? railStripView.TryGetWagonAtScreenPosition(pointerPosition, out int wagonIndex)
+            : trainBarView.TryGetWagonAtScreenPosition(pointerPosition, out wagonIndex);
+        if (overWagon && wagonIndex < session.WagonCount && wagonIndex != session.CurrentWagonIndex)
         {
             if (hoveredWagonIndex != wagonIndex)
             {
@@ -354,8 +382,8 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
         }
 
         SetDragView(null);
-        trainView.SetTitle(Presentation.PuzzleTrainTitle(session.Train));
-        trainView.SetBoard(session.Train);
+        ActiveTrainView.SetTitle(Presentation.PuzzleTrainTitle(session.Train));
+        ActiveTrainView.SetBoard(session.Train);
         RenderBoards();
         RenderValues();
         RefreshTrainBar();
@@ -693,7 +721,7 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
             return;
         }
 
-        trainView.ShowCargoValueFeedback(pendingSettlementValue, pendingFreshnessLossValue,
+        ActiveTrainView.ShowCargoValueFeedback(pendingSettlementValue, pendingFreshnessLossValue,
             session.Train.Placements.Sum(item => item.FreshnessAdjustedValue), session.Train.Value.BaseValue);
         pendingSettlementValue = null;
         pendingFreshnessLossValue = null;
@@ -713,7 +741,7 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
         marketView.SetMarketOpen(session.CanTradeInMarket);
         RefreshWaitAction();
         marketView.SetBoardSize(session.Market.Width, session.Market.Height, session.Market.BlockedCells);
-        trainView.SetBoard(session.Train);
+        ActiveTrainView.SetBoard(session.Train);
         RenderBoards();
         RenderValues();
         ShowItemDetails(null, null);
@@ -755,7 +783,7 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
     void OnQuickTransferRequested(PointerEventData _eventData)
     {
         if (MarketOperationsBlocked || drag != null || session.RunStatus != PuzzleRunStatus.InProgress ||
-            !trainView.isActiveAndEnabled ||
+            !ActiveTrainView.isActiveAndEnabled ||
             !TryGetBoard(_eventData.position, out _, out var source, out var boardCell) ||
             !source.TryGetCell(boardCell, out var placement, out _))
         {
@@ -1127,9 +1155,9 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
     {
         if (IsOnScreen(_position))
         {
-            if (trainView && trainView.isActiveAndEnabled && trainView.TryGetBoardCell(_position, out _cell))
+            if (ActiveTrainView && ActiveTrainView.isActiveAndEnabled && ActiveTrainView.TryGetBoardCell(_position, out _cell))
             {
-                _view = trainView;
+                _view = ActiveTrainView;
                 _inventory = session.Train;
                 return true;
             }
@@ -1321,9 +1349,9 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
 
     void ClearBoardItemDetails()
     {
-        if (trainView)
+        if (ActiveTrainView)
         {
-            trainView.ShowItemDetails(null, default, default, default);
+            ActiveTrainView.ShowItemDetails(null, default, default, default);
         }
         if (marketView)
         {
@@ -1352,9 +1380,9 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
             {
                 tooltipView.Close();
             }
-            if (trainView)
+            if (ActiveTrainView)
             {
-                trainView.ShowItemDetails(null, default, default, default);
+                ActiveTrainView.ShowItemDetails(null, default, default, default);
             }
             if (marketView)
             {
@@ -1379,7 +1407,7 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
         var value = _placement.Owner.ValueOf(_placement.InstanceId);
         bool isActionBoard = session.IsButchery(_placement.Owner) || session.IsModification(_placement.Owner) ||
             session.IsRefining(_placement.Owner);
-        bool isTrain = _view == trainView || session.IsTrainWagon(_placement.Owner);
+        bool isTrain = _view == ActiveTrainView || session.IsTrainWagon(_placement.Owner);
         decimal actualValue = _placement.FreshnessAdjustedValue;
         var rate = item == null ? default : session.RateFor(item);
         (IReadOnlyList<string> General, IReadOnlyList<PuzzleTooltipEffectEntry> Synergies) effects =
@@ -1421,9 +1449,9 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
             }
         }
 
-        if (trainView)
+        if (ActiveTrainView)
         {
-            trainView.ShowItemDetails(_view == trainView ? item : null, value, actualValue, rate);
+            ActiveTrainView.ShowItemDetails(_view == ActiveTrainView ? item : null, value, actualValue, rate);
         }
         if (marketView)
         {
@@ -1455,9 +1483,9 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
 
     void RenderValues()
     {
-        if (trainView)
+        if (ActiveTrainView)
         {
-            trainView.ShowBoardValue(session.Train.Placements.Sum(_item => _item.FreshnessAdjustedValue), session.Train.Value.BaseValue);
+            ActiveTrainView.ShowBoardValue(session.Train.Placements.Sum(_item => _item.FreshnessAdjustedValue), session.Train.Value.BaseValue);
         }
         if (marketView)
         {
@@ -1474,9 +1502,9 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
 
     void RenderBoards(int? _highlightedInstanceId = null)
     {
-        if (trainView)
+        if (ActiveTrainView)
         {
-            trainView.RenderPlacements(session.Train, drag?.InstanceId, _highlightedInstanceId,
+            ActiveTrainView.RenderPlacements(session.Train, drag?.InstanceId, _highlightedInstanceId,
                 RefrigerationContacts(session.Train));
         }
         if (marketView)
@@ -1519,7 +1547,7 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
         {
             return refiningView;
         }
-        return session.IsTrainWagon(_inventory) ? trainView : marketView;
+        return session.IsTrainWagon(_inventory) ? ActiveTrainView : marketView;
     }
 
     // 도축대 View는 한 번 구성하면 된다. 열 때마다 크기와 상태 문구만 갱신한다.
@@ -1679,7 +1707,16 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
         lastSynergyPreviewRotation = -1;
         cachedSynergyDeltas.Clear();
 
-        if (trainView) trainView.ClearDrag();
+        if (trainView)
+        {
+            trainView.ClearDrag();
+            trainView.HidePlacementCandidates();
+        }
+        if (relayoutTrainView)
+        {
+            relayoutTrainView.ClearDrag();
+            relayoutTrainView.HidePlacementCandidates();
+        }
         if (marketView) marketView.ClearDrag();
         if (butcheryView) butcheryView.ClearDrag();
         if (modificationView) modificationView.ClearDrag();
@@ -1724,6 +1761,58 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
         {
             trainBarView.Refresh(session.TrainWagons, session.CurrentWagonIndex, session.MaxWagonCount, hoveredWagonIndex);
         }
+        if (RelayoutSettings.Enabled && session != null)
+        {
+            if (railStripView)
+            {
+                railStripView.Refresh(session.TrainWagons, session.CurrentWagonIndex, hoveredWagonIndex);
+            }
+            if (trainWindowView)
+            {
+                long remainingSettlementHours = 0;
+                double interval = TableManager.Instance != null && TableManager.Instance.IsValid
+                    ? TableManager.Instance.RequireValid().PuzzleSynergy.activationIntervalHours
+                    : 0d;
+                if (interval > 0d && session.Time != null)
+                {
+                    double now = session.Time.ElapsedHours + PuzzleTimeManager.HOURS_PER_TURN / 2d;
+                    double next = (System.Math.Floor(now / interval) + 1d) * interval;
+                    remainingSettlementHours = (long)(next - session.Time.ElapsedHours);
+                }
+                trainWindowView.SetHeader(session.Train, remainingSettlementHours, session.TrainSynergyDelta);
+            }
+        }
+    }
+
+    internal void RefreshForRelayoutSwitch()
+    {
+        if (!initialized || session == null)
+        {
+            return;
+        }
+        if (drag != null)
+        {
+            input.CancelCapture();
+            ClearDrag();
+        }
+        else
+        {
+            if (trainView)
+            {
+                trainView.ClearDrag();
+                trainView.HidePlacementCandidates();
+            }
+            if (relayoutTrainView)
+            {
+                relayoutTrainView.ClearDrag();
+                relayoutTrainView.HidePlacementCandidates();
+            }
+        }
+        ActiveTrainView.SetTitle(Presentation.PuzzleTrainTitle(session.Train));
+        ActiveTrainView.SetBoard(session.Train);
+        RenderBoards();
+        RenderValues();
+        RefreshTrainBar();
     }
 
     void RefreshWagonRefrigeration()
@@ -1775,8 +1864,8 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
         }
         input.CancelCapture();
         ClearDrag();
-        trainView.SetTitle(Presentation.PuzzleTrainTitle(session.Train));
-        trainView.SetBoard(session.Train);
+        ActiveTrainView.SetTitle(Presentation.PuzzleTrainTitle(session.Train));
+        ActiveTrainView.SetBoard(session.Train);
         RenderBoards();
         RenderValues();
         RefreshTrainBar();
@@ -1878,8 +1967,8 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
         {
             return;
         }
-        trainView.SetTitle(Presentation.PuzzleTrainTitle(session.Train));
-        trainView.SetBoard(session.Train);
+        ActiveTrainView.SetTitle(Presentation.PuzzleTrainTitle(session.Train));
+        ActiveTrainView.SetBoard(session.Train);
         RenderBoards();
         RenderValues();
         ShowItemDetails(null, null);
@@ -1970,8 +2059,8 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
 
     void RefreshSelectedWagon()
     {
-        trainView.SetTitle(Presentation.PuzzleTrainTitle(session.Train));
-        trainView.SetBoard(session.Train);
+        ActiveTrainView.SetTitle(Presentation.PuzzleTrainTitle(session.Train));
+        ActiveTrainView.SetBoard(session.Train);
         RenderBoards();
         RenderValues();
         ShowItemDetails(null, null);

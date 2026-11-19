@@ -35,6 +35,7 @@
 | H13 | 창 크기·위치 | 모든 UI 창을 크기 조정하고 자유롭게 옮길 수 있게 한다 |
 | H14 | 레이아웃 확정 | 시안 3b(H5~H13 반영)로 확정. 그 밖의 레이아웃 자료는 `Docs/Legacy/`로 격리한다 |
 | H15 | 제한 팔레트 | 팔레트마다 16비트 색 기준으로 압축한 제한판을 둔다. 도트 그래픽을 고려한다 |
+| H16 | 표현 제약 | Unity에서 그대로 만들 수 있는 형태만 쓴다. 둥근 모서리 없음, 임시 이모지 없음, 과도한 장식 없음. 허용: 단색 사각형(반투명 가능), 1~2px 단색 테두리, 글자, 기존 화물 스프라이트, 정사각 칸 격자. 건물은 이름표가 붙은 단색 사각형, 플랫폼은 단색 바닥 |
 | H9 | 오른쪽 마을 | 다이제틱 UI. 건물을 눌러 각 기능과 메뉴로 이동하며, 따로 된 역 행동 목록·탭은 없다. 상태는 간판·칠판·창문 불빛 같은 세계 안 표시로 보인다 |
 
 ## 임의 결정 기록
@@ -266,6 +267,8 @@ GameUI.prefab
 > **S1 구현 결과 (2026-11-19):** `Assets/Scripts/Runtime/UI/Windowing/`(`FloatingWindow`, `FloatingWindowMath`, `FloatingWindowDragHandle`, `FloatingWindowResizeHandle`, `FloatingWindowManager`, `UIPalette`, `UIPaletteBinder`), `Assets/Resources/UI/UIPalette.asset`, `RunEndView`/`RunEndPresenter` + `RunEndModal.prefab`, `PauseMenu` '창 배치 초기화' 버튼 및 Esc 스택 연동, `RelayoutS1Builder.cs`(`Tools/MyJG/UI/Relayout/S1 Build Window System`) 구현 및 플레이 스모크 캡처(`.orca/analysis/relayout/s1/`) 확인 완료. 거래 횟수(`trade count`)는 `PuzzleInventoryService`에 미추적 상태이므로 결산 모달에서 생략.
 >
 > **S2 구현 결과 (2026-11-19):** `RelayoutSettings`(R21, `ui.relayout.enabled` 기본 0), `RelayoutRootController`, `TopHudView`(`PuzzleCityView` HUD 분리 및 기존 게이지/평판 재사용), `QuickToolbarView`, `StatusBannerView`, `PlatformSceneView`, `TownSceneView` + `TownBuildingButton` 6종(시장·술집·여관·역사·생산시설·시청, 기존 역 행동 연결 및 `1~6` 단축키), `PauseMenu` 개발용 토글, `RelayoutS2Builder.cs`(`Tools/MyJG/UI/Relayout/S2 Build Fixed Frame` / `Toggle Relayout`) 구현 및 스모크 캡처(`.orca/analysis/relayout/s2/`) 확인 완료(콘솔 에러 0).
+>
+> **S3 구현 결과 (2026-11-19):** 중앙 선로 가상화 리스트(`RailStripView` + `RailWagonCarView` 14슬롯 풀, R8 2톤 미니 격자, R16), 기차 화차 부동 창(`TrainWindowView` + `FloatingWindow`, R14 2줄 렌즈 요약), `PuzzleInventoryView` 동적 셀 크기(`40~72px` + `ScrollRect`, R11) 및 `PuzzleInventoryPresenter` `ActiveTrainView` 전환/드래그 호버(`SwitchWagonDuringDrag`) 연동, `RelayoutS3Builder.cs`(`Tools/MyJG/UI/Relayout/S3 Build Rail And Train`) 구현 완료. 3량/11량 스크롤·소/대 리사이즈(40px/72px)·리사이즈(54.4px) 상태 실드롭(`(2,2)` 일치)·미니 격자 갱신·OFF 보존 캡처(`.orca/analysis/relayout/s3/`) 및 콘솔 에러 0건 확인.
 
 ---
 

@@ -2722,6 +2722,17 @@ public static partial class Presentation
     internal static string BuildingCityHall => BasicData.Text("presentation.inventory.bldgCityHall");
     internal static string BuildingCityHallPlaceholder => BasicData.Text("presentation.inventory.bldgCityHallPlaceholder");
     internal static string BuildingWorkshopEmpty => BasicData.Text("presentation.inventory.bldgWorkshopEmpty");
+    internal static string TrainWindowLensIdle => BasicData.Text("presentation.inventory.trainWindowLensIdle");
+
+    internal static string RailWagonLabel(int _number, int _usedCells, int _totalCells, long _cargoValue)
+    {
+        return BasicData.Format("presentation.inventory.railWagonLabel", _number, _usedCells, _totalCells, _cargoValue);
+    }
+
+    internal static string TrainWindowTitle(string _wagonTitle, int _usedCells, int _totalCells)
+    {
+        return BasicData.Format("presentation.inventory.trainWindowTitle", _wagonTitle, _usedCells, _totalCells);
+    }
 
     internal static string RelayoutToggle(bool _enabled)
     {

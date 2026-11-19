@@ -97,6 +97,9 @@ public sealed class RelayoutRootController : MonoBehaviour
             if (oldJourneyFooter) oldJourneyFooter.SetActive(defaultJourneyFooterActive);
             if (oldRumorSideHandle) oldRumorSideHandle.SetActive(defaultRumorSideHandleActive);
         }
+
+        var invPresenter = SceneServices.Find<PuzzleInventoryPresenter>(gameObject.scene);
+        invPresenter?.RefreshForRelayoutSwitch();
     }
 
     public void OpenStationBuilding(TownBuildingButton.BuildingKind _kind)

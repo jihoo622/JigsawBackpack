@@ -15,7 +15,11 @@ public sealed class UIPalette : ScriptableObject
         TextSub,
         GoldAccent,
         Positive,
-        Negative
+        Negative,
+        MiniGridEmpty,
+        MiniGridCargoA,
+        MiniGridCargoB,
+        MiniGridBlocked
     }
 
     // concept-3b 기본값: --bg-panel #0f1724, --bg-panel-2 #152033, --border #2a3f5a,
@@ -31,6 +35,10 @@ public sealed class UIPalette : ScriptableObject
     [SerializeField] Color goldAccent = new Color(0.9412f, 0.7059f, 0.1608f, 1f);
     [SerializeField] Color positive = new Color(0.1333f, 0.7725f, 0.3686f, 1f);
     [SerializeField] Color negative = new Color(0.9373f, 0.2667f, 0.2667f, 1f);
+    [SerializeField] Color miniGridEmpty = new Color(0.2784f, 0.3333f, 0.4118f, 1f);
+    [SerializeField] Color miniGridCargoA = new Color(0.9804f, 0.8000f, 0.0824f, 1f);
+    [SerializeField] Color miniGridCargoB = new Color(0.7922f, 0.5412f, 0.0157f, 1f);
+    [SerializeField] Color miniGridBlocked = new Color(0.0588f, 0.0902f, 0.1412f, 1f);
 
     public Color Panel => panel;
     public Color Panel2 => panel2;
@@ -42,6 +50,10 @@ public sealed class UIPalette : ScriptableObject
     public Color GoldAccent => goldAccent;
     public Color Positive => positive;
     public Color Negative => negative;
+    public Color MiniGridEmpty => miniGridEmpty;
+    public Color MiniGridCargoA => miniGridCargoA;
+    public Color MiniGridCargoB => miniGridCargoB;
+    public Color MiniGridBlocked => miniGridBlocked;
 
     public Color GetColor(ColorRole _role)
     {
@@ -57,6 +69,10 @@ public sealed class UIPalette : ScriptableObject
             ColorRole.GoldAccent => goldAccent,
             ColorRole.Positive => positive,
             ColorRole.Negative => negative,
+            ColorRole.MiniGridEmpty => miniGridEmpty,
+            ColorRole.MiniGridCargoA => miniGridCargoA,
+            ColorRole.MiniGridCargoB => miniGridCargoB,
+            ColorRole.MiniGridBlocked => miniGridBlocked,
             _ => text
         };
     }

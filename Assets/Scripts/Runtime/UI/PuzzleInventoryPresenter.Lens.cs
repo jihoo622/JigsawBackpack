@@ -32,9 +32,9 @@ public sealed partial class PuzzleInventoryPresenter
 
     PuzzleRouteLensView RouteLens => routeLens;
     // 렌즈는 기차 열에 있으므로 기차 보드가 보이고 이동 중이 아닐 때 연다.
-    bool LensAvailable => RouteLens && trainView && trainView.gameObject.activeInHierarchy && !TrainOperationsBlocked &&
+    bool LensAvailable => ActiveTrainView && ActiveTrainView.gameObject.activeInHierarchy && !TrainOperationsBlocked &&
         session != null && session.RunStatus == PuzzleRunStatus.InProgress;
-    bool LensVisible => RouteLens && RouteLens.IsShowing;
+    bool LensVisible => (RouteLens && RouteLens.IsShowing) || (RelayoutSettings.Enabled && trainWindowView && trainWindowView.gameObject.activeInHierarchy);
 
     void SubscribeLens()
     {
@@ -79,8 +79,12 @@ public sealed partial class PuzzleInventoryPresenter
             session.TryQuoteTrade(_placement, lensDirection, out long price) ? price : (long?)null;
         lensTitle = Presentation.RouteLensTitle(lensDefinition);
         lensTrade = Presentation.RouteLensTrade(lensDirection, quote, lensFundsBefore, null, _committed: false);
-        RouteLens.Show(lensTitle, lensTrade, JoinLensLines(lensSpotText, lensRankingText), LensDestinationText(),
-            Presentation.RouteLensFootnote(lensTab), lensTab, _tabsInteractable: false);
+        if (RouteLens)
+        {
+            RouteLens.Show(lensTitle, lensTrade, JoinLensLines(lensSpotText, lensRankingText), LensDestinationText(),
+                Presentation.RouteLensFootnote(lensTab), lensTab, _tabsInteractable: false);
+        }
+        trainWindowView?.SetLensSummary(lensTrade, lensSpotText);
     }
 
     // L2: 현재 화차·현재 회전의 상위 후보. 누름·회전·화차 전환 때만 계산한다.
@@ -89,9 +93,9 @@ public sealed partial class PuzzleInventoryPresenter
         lensMarkers.Clear();
         lensTopDeltas.Clear();
         lensRankingText = string.Empty;
-        if (trainView)
+        if (ActiveTrainView)
         {
-            trainView.HidePlacementCandidates();
+            ActiveTrainView.HidePlacementCandidates();
         }
         if (drag == null || session?.Train == null || !PuzzleLensSettings.ShowCandidates || lensRankingTooSlow)
         {
@@ -112,9 +116,9 @@ public sealed partial class PuzzleInventoryPresenter
             lensMarkers.Add((top.Pose, top.TargetCell, Presentation.RouteLensCandidateBadge(i + 1, top.SettlementDelta)));
         }
         lensRankingText = Presentation.RouteLensRanking(lensTopDeltas);
-        if (trainView && trainView.gameObject.activeInHierarchy)
+        if (ActiveTrainView && ActiveTrainView.gameObject.activeInHierarchy)
         {
-            trainView.ShowPlacementCandidates(lensMarkers);
+            ActiveTrainView.ShowPlacementCandidates(lensMarkers);
         }
     }
 
@@ -148,7 +152,11 @@ public sealed partial class PuzzleInventoryPresenter
             }
         }
         lensSpotText = spot;
-        RouteLens.SetPlacement(JoinLensLines(lensSpotText, lensRankingText));
+        if (RouteLens)
+        {
+            RouteLens.SetPlacement(JoinLensLines(lensSpotText, lensRankingText));
+        }
+        trainWindowView?.SetLensSummary(lensTrade, lensSpotText);
     }
 
     // 거래 직후 결과를 남긴다(D7: 다음 화물을 누를 때까지 유지). 실패·취소면 잡기 전 문맥을 그대로 둔다.
@@ -169,17 +177,21 @@ public sealed partial class PuzzleInventoryPresenter
             lensItemOnTrain = true;
             placement = lensSpotText ?? string.Empty;
         }
-        RouteLens.Show(lensTitle, lensTrade, placement, LensDestinationText(), Presentation.RouteLensFootnote(lensTab),
-            lensTab, _tabsInteractable: true);
+        if (RouteLens)
+        {
+            RouteLens.Show(lensTitle, lensTrade, placement, LensDestinationText(), Presentation.RouteLensFootnote(lensTab),
+                lensTab, _tabsInteractable: true);
+        }
+        trainWindowView?.SetLensSummary(lensTrade, lensSpotText);
     }
 
     void HideLens()
     {
         ResetLensSpot();
         lensMarkers.Clear();
-        if (trainView)
+        if (ActiveTrainView)
         {
-            trainView.HidePlacementCandidates();
+            ActiveTrainView.HidePlacementCandidates();
         }
         HideLensPanel();
     }
@@ -190,6 +202,7 @@ public sealed partial class PuzzleInventoryPresenter
         {
             RouteLens.Hide();
         }
+        trainWindowView?.SetLensSummary(string.Empty, string.Empty);
     }
 
     void ResetLensSpot()
@@ -230,12 +243,12 @@ public sealed partial class PuzzleInventoryPresenter
         else
         {
             lensRankingText = string.Empty;
-            if (trainView)
+            if (ActiveTrainView)
             {
-                trainView.HidePlacementCandidates();
+                ActiveTrainView.HidePlacementCandidates();
             }
         }
-        if (LensVisible)
+        if (RouteLens && RouteLens.IsShowing)
         {
             RouteLens.SetPlacement(JoinLensLines(lensSpotText, lensRankingText));
         }

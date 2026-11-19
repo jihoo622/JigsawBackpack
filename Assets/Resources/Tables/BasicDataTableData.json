@@ -964,6 +964,21 @@
           "id": "bldgWorkshopEmpty",
           "value": "이 역에는 생산시설이 없습니다 (공터).",
           "arguments": 0
+        },
+        {
+          "id": "railWagonLabel",
+          "value": "{0}번 · {1}/{2}\n{3:N0}$",
+          "arguments": 4
+        },
+        {
+          "id": "trainWindowTitle",
+          "value": "{0} · 적재 {1}/{2}",
+          "arguments": 3
+        },
+        {
+          "id": "trainWindowLensIdle",
+          "value": "화물을 잡으면 거래 견적과 다음 정산 Δ가 표시됩니다.",
+          "arguments": 0
         }
       ]
     },
