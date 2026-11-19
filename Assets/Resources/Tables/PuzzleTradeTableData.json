@@ -11,10 +11,10 @@
     {
       "id": "hopper",
       "displayName": "광석 호퍼",
-      "price": 180,
+      "price": 200,
       "board": {
-        "width": 7,
-        "height": 6,
+        "width": 6,
+        "height": 7,
         "blockedCells": [],
         "zones": [
           {
@@ -22,8 +22,8 @@
             "displayName": "광석·금속 칸",
             "x": 0,
             "y": 0,
-            "width": 7,
-            "height": 6,
+            "width": 6,
+            "height": 7,
             "allowedTags": [
               "Ore",
               "Metal"
@@ -37,10 +37,10 @@
     {
       "id": "flatbed",
       "displayName": "장물 평판 화차",
-      "price": 270,
+      "price": 350,
       "board": {
-        "width": 7,
-        "height": 3,
+        "width": 4,
+        "height": 7,
         "blockedCells": [],
         "startingPlacements": []
       },
@@ -65,11 +65,11 @@
     {
       "id": "coldbox",
       "displayName": "소형 냉장 화차",
-      "price": 300,
+      "price": 320,
       "modificationId": "refrigeration",
       "board": {
-        "width": 4,
-        "height": 4,
+        "width": 3,
+        "height": 6,
         "blockedCells": [],
         "startingPlacements": []
       },
@@ -80,17 +80,17 @@
       "displayName": "가축 화차",
       "price": 330,
       "board": {
-        "width": 7,
-        "height": 4,
+        "width": 4,
+        "height": 7,
         "blockedCells": [],
         "zones": [
           {
             "id": "waste",
             "displayName": "똥 전용칸",
-            "x": 6,
+            "x": 0,
             "y": 0,
-            "width": 1,
-            "height": 4,
+            "width": 4,
+            "height": 1,
             "allowedTags": [
               "Waste"
             ]
@@ -98,37 +98,38 @@
         ],
         "startingPlacements": []
       },
-      "description": "오른쪽 1열 4칸은 똥 전용칸이다. 배설된 똥은 전용칸부터 채운다."
+      "description": "아래쪽 1행 4칸은 똥 전용칸이다. 배설된 똥은 전용칸부터 채운다."
     },
     {
       "id": "granary",
-      "displayName": "곡물 화차",
-      "price": 360,
+      "displayName": "짐칸 화차",
+      "price": 200,
       "board": {
-        "width": 7,
-        "height": 6,
+        "width": 6,
+        "height": 7,
         "blockedCells": [],
         "zones": [
           {
-            "id": "grain",
-            "displayName": "곡물 칸",
+            "id": "cargo",
+            "displayName": "화물·상자 칸",
             "x": 0,
             "y": 0,
-            "width": 7,
-            "height": 6,
+            "width": 6,
+            "height": 7,
             "allowedTags": [
-              "Grain"
+              "Cargo",
+              "Box"
             ]
           }
         ],
         "startingPlacements": []
       },
-      "description": "곡물 전용. 넓은 대신 곡물만 실을 수 있다."
+      "description": "화물·상자만 실을 수 있다."
     },
     {
       "id": "refrigerated",
       "displayName": "냉장 화차",
-      "price": 480,
+      "price": 420,
       "modificationId": "refrigeration",
       "board": {
         "width": 5,
@@ -141,10 +142,10 @@
     {
       "id": "boxcar",
       "displayName": "대형 유개 화차",
-      "price": 675,
+      "price": 540,
       "board": {
-        "width": 7,
-        "height": 5,
+        "width": 5,
+        "height": 9,
         "blockedCells": [],
         "startingPlacements": []
       },
@@ -154,7 +155,7 @@
       "id": "garden",
       "displayName": "텃밭 화차",
       "price": 360,
-      "description": "텃밭: 곡물 1 + 똥 1 → 곡물 3(10턴, 자동 반복). 곡물 4×4칸·똥 1열 전용.",
+      "description": "텃밭: 곡물 1 + 똥 1 → 곡물 3(2턴, 자동 반복). 곡물 4×4칸·똥 1열 전용.",
       "processId": "process.garden",
       "board": {
         "width": 5,

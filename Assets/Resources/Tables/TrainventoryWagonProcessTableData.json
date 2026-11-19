@@ -16,7 +16,7 @@
       ],
       "outputPieceId": "piece.topNotch",
       "outputPerUnit": 3,
-      "hours": 60
+      "hours": 12
     },
     {
       "id": "process.smelt",
