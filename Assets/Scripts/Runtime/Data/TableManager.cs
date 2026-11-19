@@ -55,8 +55,8 @@ public sealed class TableManager
     public IReadOnlyList<PuzzleCityData> Cities { get; }
     public IReadOnlyList<PuzzleStartingPlacementData> TrainStartingPlacements { get; }
     public PuzzleBoardData StartingTrainBoard => Puzzle.startingTrain ?? Puzzle.train;
-    public PuzzleWagonProductData TutorialWagonProduct => PuzzleTrade.wagonProducts.First(
-        _product => _product.id == PuzzleTrade.tutorialWagonProductId);
+    public PuzzleWagonProductData DefaultWagonProduct => PuzzleTrade.wagonProducts.First(
+        _product => _product.id == PuzzleTrade.defaultWagonProductId);
 
     // 역이 파는 화차 상품. 가격 오름차순, 같으면 id 오름차순이다.
     public IReadOnlyList<PuzzleWagonProductData> WagonProductsOf(string _cityId)

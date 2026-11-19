@@ -1557,6 +1557,15 @@
     },
     {
       "id": "presentation.station",
+      "colors": [
+        {
+          "id": "specialWagonName",
+          "r": 0.4,
+          "g": 0.8,
+          "b": 1,
+          "a": 1
+        }
+      ],
       "texts": [
         {
           "id": "actionRumor",

@@ -315,6 +315,8 @@ public sealed class GameTableRules
     void ValidatePuzzleTrade(TableManager _tables)
     {
         const string PATH = nameof(PuzzleTradeTableData);
+        Check(_tables.PuzzleTrade.generalSpecialWagonsPerCity >= 0, PATH + ".generalSpecialWagonsPerCity",
+            "마을별 일반 특수 화차 수는 0 이상이어야 합니다.");
         Check(_tables.PuzzleTrade.startingFunds >= 0, PATH + ".startingFunds", "시작 자금은 0 이상이어야 합니다.");
         Check(_tables.PuzzleTrade.targetFunds > 0, PATH + ".targetFunds", "목표 잔액은 0보다 커야 합니다.");
         Check(_tables.PuzzleTrade.deadlineHours > 0, PATH + ".deadlineHours", "영업 기간은 양수여야 합니다. 결산은 기간이 끝나야 할 수 있습니다.");
@@ -334,10 +336,10 @@ public sealed class GameTableRules
         Check(IsFinitePositive(_tables.PuzzleTrade.travelArrivalHoldSeconds), PATH + ".travelArrivalHoldSeconds",
             "도착 표시 시간은 유한한 양수여야 합니다.");
         ValidateWagonProducts(_tables, _tables.PuzzleTrade.wagonProducts, PATH + ".wagonProducts");
-        Reference(_tables.PuzzleTrade.tutorialWagonProductId, PATH + ".tutorialWagonProductId",
+        Reference(_tables.PuzzleTrade.defaultWagonProductId, PATH + ".defaultWagonProductId",
             (_tables.PuzzleTrade.wagonProducts ?? Array.Empty<PuzzleWagonProductData>()).Any(
-                _product => _product != null && _product.id == _tables.PuzzleTrade.tutorialWagonProductId),
-            "튜토리얼 화차 상품");
+                _product => _product != null && _product.id == _tables.PuzzleTrade.defaultWagonProductId),
+            "기본 화차 상품");
     }
 
     // 품목 중 하나라도 가진 태그만 등록된 태그로 본다.
@@ -464,6 +466,13 @@ public sealed class GameTableRules
             Check(!string.IsNullOrWhiteSpace(product.displayName), path + ".displayName",
                 "화차 상품 이름이 필요합니다.");
             Check(product.price > 0, path + ".price", "화차 상품 가격은 양수여야 합니다.");
+            Check(!product.randomSale || string.IsNullOrEmpty(product.saleRegionId), path,
+                "지역 특색 화차와 일반 무작위 화차를 동시에 지정할 수 없습니다.");
+            if (!string.IsNullOrEmpty(product.saleRegionId))
+            {
+                Check(_tables.Cities.Any(_city => _city.regionId == product.saleRegionId), path + ".saleRegionId",
+                    "화차 판매 지역에 마을이 하나 이상 필요합니다.");
+            }
             Check(!string.IsNullOrWhiteSpace(product.description), path + ".description", "화차 효과 설명이 필요합니다.");
             foreach (string tag in product.freightExemptTags ?? Array.Empty<string>())
             {

@@ -1151,7 +1151,13 @@ public static partial class Presentation
     internal static string WagonProductLabel(PuzzleWagonProductData _product)
     {
         var board = TableManager.Instance.RequireValid().WagonBoardOf(_product);
-        return BasicData.Format("presentation.station.wagonProduct", _product.displayName, board.width, board.height, _product.price);
+        string name = _product.displayName;
+        if (_product.randomSale || !string.IsNullOrEmpty(_product.saleRegionId))
+        {
+            string color = ColorUtility.ToHtmlStringRGB(BasicData.Color("presentation.station.specialWagonName"));
+            name = $"<color=#{color}>{name}</color>";
+        }
+        return BasicData.Format("presentation.station.wagonProduct", name, board.width, board.height, _product.price);
     }
 
     // 화차 보드에서 화물을 실을 수 있는 칸 수.

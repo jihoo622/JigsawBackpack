@@ -119,8 +119,10 @@ public sealed class PuzzleTradeTableData
     public long startingWagonValue = -1;
     // 화차 판매가 비율(%). 상품은 price, 시작 화차는 startingWagonValue에 곱하고 내림한다.
     public int wagonSalePercent = -1;
-    // 첫 구매 전 모든 역에 단독 진열하는 튜토리얼 화차 상품 ID.
-    public string tutorialWagonProductId;
+    // 모든 마을에 기본 진열하는 일반 화차 상품 ID.
+    public string defaultWagonProductId;
+    // 마을마다 회차 시작에 추첨하는 일반 특수 화차 수(중복 없이 진열).
+    public int generalSpecialWagonsPerCity = 1;
     public PuzzleWagonProductData[] wagonProducts = Array.Empty<PuzzleWagonProductData>();
     // 목표 잔액(점수 기준). 영업 기간이 끝나 결산할 때 잔액이 이 값 이상이면 승리한다.
     public long targetFunds = -1;
@@ -138,6 +140,10 @@ public sealed class PuzzleWagonProductData
     // 화차 효과 설명. 상세·툴팁에 그대로 보인다.
     public string description;
     public string modificationId;
+    // 지역 특색 상품은 해당 지역의 마을 한 곳에서 회차 동안 판매한다.
+    public string saleRegionId;
+    // 일반 특수 상품은 모든 지역의 무작위 진열 후보가 된다.
+    public bool randomSale;
     // 이 태그를 가진 화물은 운임의 적재 칸 수에 넣지 않는다.
     public string[] freightExemptTags = Array.Empty<string>();
     // 화차 가공(TrainventoryWagonProcessTableData.processes의 id). 비어 있으면 가공하지 않는다.
