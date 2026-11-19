@@ -1174,6 +1174,11 @@
           "arguments": 2
         },
         {
+          "id": "bldgWorkshopNoneLabel",
+          "value": "시설 없음(공터)",
+          "arguments": 0
+        },
+        {
           "id": "notebookTabMap",
           "value": "지도",
           "arguments": 0

@@ -20,6 +20,18 @@ public static class RelayoutS4Builder
 
     const int PIN_POOL_SIZE = 16;
 
+    // 지도 탭 임베드 레이아웃 (수첩 창 522px - 본문 여백 16px = 본문 폭 506px, 범례/컨트롤 좌우 여백 4px씩 = 498px)
+    const float MAP_LEGEND_HEIGHT = 58f;          // 3행 x 18px + 행 간격 2px x 2
+    const float MAP_LEGEND_CELL_W = 162f;         // 3열 x 162px + 열 간격 4px x 2 = 494px (498px 이내)
+    const float MAP_LEGEND_CELL_H = 18f;
+    const float MAP_LEGEND_GAP_X = 4f;
+    const float MAP_LEGEND_GAP_Y = 2f;
+    const int MAP_LEGEND_COLUMNS = 3;
+    const float MAP_VIEWPORT_TOP_OFFSET = -106f;  // 검색줄(-4~-40) + 범례(-42~-100) 아래 여백 6px
+    const float MAP_CONTROL_HEIGHT = 36f;
+    const float MAP_CONTROL_BUTTON_HEIGHT = 32f;
+    const float MAP_CONTROL_GAP = 4f;
+
     [MenuItem(MENU)]
     static void BuildFromMenu()
     {
@@ -203,9 +215,52 @@ public static class RelayoutS4Builder
                     vp.anchorMin = Vector2.zero;
                     vp.anchorMax = Vector2.one;
                     vp.offsetMin = new Vector2(4f, 84f);
-                    vp.offsetMax = new Vector2(-4f, -44f);
+                    vp.offsetMax = new Vector2(-4f, MAP_VIEWPORT_TOP_OFFSET);
                     if (!vp.GetComponent<RectMask2D>()) vp.gameObject.AddComponent<RectMask2D>();
                 }
+                // 범례: 원본은 SubwayMapLabels(HorizontalLayoutGroup) 한 줄에 7개 항목이 모두 들어가 우측 창 경계에서 잘린다.
+                // 항목 부모인 SubwayMapLabels의 HLG를 3열 격자로 바꿔 3행으로 감싼다. 항목 글자는 12pt, 한 줄, 넘치면 말줄임.
+                var legend = mapPanel.Find("MapLegend") as RectTransform;
+                if (legend)
+                {
+                    legend.anchorMin = new Vector2(0f, 1f);
+                    legend.anchorMax = new Vector2(1f, 1f);
+                    legend.pivot = new Vector2(0.5f, 1f);
+                    legend.anchoredPosition = new Vector2(0f, -42f);
+                    legend.sizeDelta = new Vector2(-8f, MAP_LEGEND_HEIGHT);
+                    // 이전 빌드가 MapLegend 자신에 달아 둔 격자는 제거한다(멱등성).
+                    var staleGrid = legend.GetComponent<GridLayoutGroup>();
+                    if (staleGrid) Object.DestroyImmediate(staleGrid);
+
+                    var labelsRt = legend.Find("SubwayMapLabels") as RectTransform;
+                    if (labelsRt)
+                    {
+                        Stretch(labelsRt);
+                        var labelsHlg = labelsRt.GetComponent<HorizontalLayoutGroup>();
+                        if (labelsHlg) Object.DestroyImmediate(labelsHlg);
+                        var grid = labelsRt.GetComponent<GridLayoutGroup>() ?? labelsRt.gameObject.AddComponent<GridLayoutGroup>();
+                        grid.padding = new RectOffset(0, 0, 0, 0);
+                        grid.startCorner = GridLayoutGroup.Corner.UpperLeft;
+                        grid.startAxis = GridLayoutGroup.Axis.Horizontal;
+                        grid.cellSize = new Vector2(MAP_LEGEND_CELL_W, MAP_LEGEND_CELL_H);
+                        grid.spacing = new Vector2(MAP_LEGEND_GAP_X, MAP_LEGEND_GAP_Y);
+                        grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+                        grid.constraintCount = MAP_LEGEND_COLUMNS;
+                        grid.childAlignment = TextAnchor.MiddleLeft;
+                    }
+
+                    foreach (var legendText in legend.GetComponentsInChildren<TextMeshProUGUI>(true))
+                    {
+                        if (!legendText.name.StartsWith("LineName_")) continue;
+                        legendText.enableAutoSizing = false;
+                        legendText.fontSize = 12f;
+                        legendText.enableWordWrapping = false;
+                        legendText.overflowMode = TextOverflowModes.Ellipsis;
+                    }
+                }
+
+                // 하단 컨트롤 줄: 원본은 1036px 기준 절대 좌표(중심 앵커)라 우측 '현재 위치'가 창 밖으로 밀린다.
+                // 좌측 기준 고정 폭으로 순서대로 배치해 합계를 498px(본문 폭)에 맞춘다: 56+80+56+140+150 + 간격 4x4 = 498.
                 var ctrl = mapPanel.Find("MapControls") as RectTransform;
                 if (ctrl)
                 {
@@ -213,7 +268,22 @@ public static class RelayoutS4Builder
                     ctrl.anchorMax = new Vector2(1f, 0f);
                     ctrl.pivot = new Vector2(0.5f, 0f);
                     ctrl.anchoredPosition = new Vector2(0f, 4f);
-                    ctrl.sizeDelta = new Vector2(-8f, 36f);
+                    ctrl.sizeDelta = new Vector2(-8f, MAP_CONTROL_HEIGHT);
+
+                    string[] ctrlNames = { "ZoomOut", "ZoomPercent", "ZoomIn", "FitMap", "LocateCurrent" };
+                    float[] ctrlWidths = { 56f, 80f, 56f, 140f, 150f };
+                    float cursorX = 0f;
+                    for (int c = 0; c < ctrlNames.Length; c++)
+                    {
+                        var childRt = ctrl.Find(ctrlNames[c]) as RectTransform;
+                        if (!childRt) continue;
+                        childRt.anchorMin = new Vector2(0f, 0.5f);
+                        childRt.anchorMax = new Vector2(0f, 0.5f);
+                        childRt.pivot = new Vector2(0f, 0.5f);
+                        childRt.anchoredPosition = new Vector2(cursorX, 0f);
+                        childRt.sizeDelta = new Vector2(ctrlWidths[c], MAP_CONTROL_BUTTON_HEIGHT);
+                        cursorX += ctrlWidths[c] + MAP_CONTROL_GAP;
+                    }
                 }
                 var cityInfo = mapPanel.Find("CityInformation") as RectTransform;
                 if (cityInfo)

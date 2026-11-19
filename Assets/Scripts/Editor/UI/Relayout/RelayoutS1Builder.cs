@@ -241,7 +241,6 @@ public static class RelayoutS1Builder
                 btnY, btnW, btnH, "종료", _palette, out var quitLbl);
 
             var view = rootGo.AddComponent<RunEndView>();
-            var presenter = rootGo.AddComponent<RunEndPresenter>();
 
             var viewSo = new SerializedObject(view);
             viewSo.FindProperty("startOpen").boolValue = false;
@@ -265,10 +264,6 @@ public static class RelayoutS1Builder
             viewSo.FindProperty("quitLabel").objectReferenceValue = quitLbl;
             viewSo.FindProperty("palette").objectReferenceValue = _palette;
             viewSo.ApplyModifiedPropertiesWithoutUndo();
-
-            var presenterSo = new SerializedObject(presenter);
-            presenterSo.FindProperty("view").objectReferenceValue = view;
-            presenterSo.ApplyModifiedPropertiesWithoutUndo();
 
             rootGo.SetActive(false);
             var savedPrefab = PrefabUtility.SaveAsPrefabAsset(rootGo, RUN_END_PREFAB_PATH);
@@ -299,13 +294,16 @@ public static class RelayoutS1Builder
             modalInstance.name = RUN_END_MODAL_NAME;
 
             var inventoryInput = root.GetComponentInChildren<PuzzleInventoryInput>(true);
-            var runEndPresenter = modalInstance.GetComponent<RunEndPresenter>();
-            if (runEndPresenter && inventoryInput)
+            var oldModalPresenter = modalInstance.GetComponent<RunEndPresenter>();
+            if (oldModalPresenter) Object.DestroyImmediate(oldModalPresenter);
+            var runEndPresenter = overlayCanvas.GetComponent<RunEndPresenter>() ?? overlayCanvas.AddComponent<RunEndPresenter>();
+            var pSo = new SerializedObject(runEndPresenter);
+            pSo.FindProperty("view").objectReferenceValue = modalInstance.GetComponent<RunEndView>();
+            if (inventoryInput)
             {
-                var pSo = new SerializedObject(runEndPresenter);
                 pSo.FindProperty("inventoryInput").objectReferenceValue = inventoryInput;
-                pSo.ApplyModifiedPropertiesWithoutUndo();
             }
+            pSo.ApplyModifiedPropertiesWithoutUndo();
 
             var invPresenter = root.GetComponentInChildren<PuzzleInventoryPresenter>(true);
             if (invPresenter && runEndPresenter)

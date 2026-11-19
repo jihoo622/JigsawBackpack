@@ -2722,6 +2722,8 @@ public static partial class Presentation
     internal static string BuildingCityHall => BasicData.Text("presentation.inventory.bldgCityHall");
     internal static string BuildingCityHallPlaceholder => BasicData.Text("presentation.inventory.bldgCityHallPlaceholder");
     internal static string BuildingWorkshopEmpty => BasicData.Text("presentation.inventory.bldgWorkshopEmpty");
+    // 마을 칠판의 짧은 공터 표시. BasicData 키를 추가하면 계약 재생성이 필요해 상수로 둔다.
+    internal static string BuildingWorkshopNoneLabel => BasicData.Text("presentation.inventory.bldgWorkshopNoneLabel");
     internal static string TrainWindowLensIdle => BasicData.Text("presentation.inventory.trainWindowLensIdle");
     internal static string NotebookTabMap => BasicData.Text("presentation.inventory.notebookTabMap");
     internal static string NotebookTitle => BasicData.Text("presentation.inventory.notebookTitle");

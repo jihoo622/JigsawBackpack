@@ -836,7 +836,14 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
                 yield return HoldArrival();
                 session.ReportAutoTravelStopped("stop_reached");
                 EndAutoTravel();
-                view.Close();
+                if (embeddedInNotebook && notebookWindow && notebookWindow.FloatingWindow)
+                {
+                    notebookWindow.FloatingWindow.Close();
+                }
+                else
+                {
+                    view.Close();
+                }
                 yield break;
             }
 

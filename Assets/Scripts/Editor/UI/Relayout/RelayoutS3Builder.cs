@@ -373,8 +373,17 @@ public static class RelayoutS3Builder
             if (oldGuide) oldGuide.gameObject.SetActive(false);
             var oldWagonImg = FindDeep(clonedTrainInv.transform, "WagonImage");
             if (oldWagonImg) oldWagonImg.gameObject.SetActive(false);
-            var oldNotice = FindDeep(clonedTrainInv.transform, "SynergySettlementNotice");
-            if (oldNotice) oldNotice.gameObject.SetActive(false);
+            var oldNotice = FindDeep(clonedTrainInv.transform, "SynergySettlementNotice") as RectTransform;
+            if (oldNotice)
+            {
+                oldNotice.SetParent(bodyRt, false);
+                oldNotice.anchorMin = new Vector2(1f, 1f);
+                oldNotice.anchorMax = new Vector2(1f, 1f);
+                oldNotice.pivot = new Vector2(1f, 1f);
+                oldNotice.anchoredPosition = new Vector2(-6f, -2f);
+                oldNotice.sizeDelta = new Vector2(120f, 20f);
+                oldNotice.gameObject.SetActive(false);
+            }
             var oldEffects = FindDeep(clonedTrainInv.transform, "WagonActiveEffects");
             if (oldEffects) oldEffects.gameObject.SetActive(false);
             var oldRefrigBtn = FindDeep(clonedTrainInv.transform, "Wagon Refrigeration Button");
@@ -470,6 +479,11 @@ public static class RelayoutS3Builder
                             ? new Color(_palette.GoldAccent.r, _palette.GoldAccent.g, _palette.GoldAccent.b, 0.28f)
                             : new Color(_palette.GoldAccent.r, _palette.GoldAccent.g, _palette.GoldAccent.b, 0.18f);
                         mImg.raycastTarget = false;
+                    }
+                    for (int ch = 0; ch < markerRt.childCount; ch++)
+                    {
+                        var childImg = markerRt.GetChild(ch).GetComponent<Image>();
+                        if (childImg) childImg.enabled = false;
                     }
                     var mOut = markerRt.GetComponent<Outline>() ?? markerRt.gameObject.AddComponent<Outline>();
                     mOut.effectColor = _palette.GoldAccent;

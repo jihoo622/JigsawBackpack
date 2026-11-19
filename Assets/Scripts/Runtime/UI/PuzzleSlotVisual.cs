@@ -151,12 +151,15 @@ public sealed class PuzzleSlotVisual : MonoBehaviour
         if (deltaChip)
         {
             deltaChip.SetActive(true);
+            // 칩은 이 칸의 채움·아이콘보다 위에 그린다.
+            deltaChip.transform.SetAsLastSibling();
         }
         if (deltaLabel)
         {
             deltaLabel.text = _text;
             deltaLabel.color = _color;
             deltaLabel.enabled = true;
+            deltaLabel.rectTransform.SetAsLastSibling();
         }
     }
 

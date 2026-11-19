@@ -30,9 +30,23 @@ public sealed class RunEndPresenter : MonoBehaviour
         }
     }
 
+    void OnEnable()
+    {
+        GameEvents.PuzzleRunSettled += OnRunSettled;
+    }
+
     void OnDisable()
     {
+        GameEvents.PuzzleRunSettled -= OnRunSettled;
         RestoreRuntimeState();
+    }
+
+    void OnRunSettled(GameEvents.PuzzleRunInfo _info)
+    {
+        if (_info.session != null)
+        {
+            Show(_info.session);
+        }
     }
 
     internal void Show(PuzzleInventoryService _session)

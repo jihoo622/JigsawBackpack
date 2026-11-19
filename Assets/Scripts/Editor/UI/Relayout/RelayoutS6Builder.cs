@@ -60,7 +60,7 @@ public static class RelayoutS6Builder
         TextMeshProUGUI _labelTemplate)
     {
         var layoutRoot = PrefabUtility.LoadPrefabContents(GAMEPLAY_LAYOUT_PREFAB);
-        var rootGo = CreateWindowShell("TavernWindow", "tavern", "술집", 660f, 120f, 620f, 520f,
+        var rootGo = CreateWindowShell("TavernWindow", "tavern", "술집", 660f, 136f, 620f, 520f,
             _palette, _buttonTemplate, _labelTemplate, out var floatingWin, out var titleText);
         try
         {
@@ -207,7 +207,7 @@ public static class RelayoutS6Builder
         TextMeshProUGUI _labelTemplate)
     {
         var layoutRoot = PrefabUtility.LoadPrefabContents(GAMEPLAY_LAYOUT_PREFAB);
-        var rootGo = CreateWindowShell("StationHallWindow", "station_hall", "역사", 660f, 110f, 560f, 560f,
+        var rootGo = CreateWindowShell("StationHallWindow", "station_hall", "역사", 660f, 136f, 560f, 560f,
             _palette, _buttonTemplate, _labelTemplate, out var floatingWin, out var titleText);
         try
         {
@@ -215,6 +215,16 @@ public static class RelayoutS6Builder
             var actionsView = layoutRoot.GetComponentInChildren<PuzzleStationActionsView>(true);
             var srcRowsProp = new SerializedObject(actionsView).FindProperty("wagonProductRows");
             int rowCount = srcRowsProp != null ? Mathf.Min(srcRowsProp.arraySize, 4) : 0;
+
+            var dragPreviewGo = new GameObject("DragPreview", typeof(RectTransform), typeof(Image));
+            dragPreviewGo.layer = 5;
+            var dragPreviewRt = (RectTransform)dragPreviewGo.transform;
+            dragPreviewRt.SetParent(rootRect, false);
+            dragPreviewRt.sizeDelta = new Vector2(88f, 64f);
+            var dragPreviewImg = dragPreviewGo.GetComponent<Image>();
+            dragPreviewImg.raycastTarget = false;
+            dragPreviewImg.preserveAspect = true;
+            dragPreviewGo.SetActive(false);
 
             var clonedRows = new PuzzleWagonProductRow[rowCount];
             for (int i = 0; i < rowCount; i++)
@@ -225,8 +235,15 @@ public static class RelayoutS6Builder
                 rowGo.name = $"WagonProductRow_{i + 1}";
                 var rt = (RectTransform)rowGo.transform;
                 SetAnchored(rt, 0f, 1f, 0f, 1f, 16f, -44f - i * 82f, 528f, 74f);
-                clonedRows[i] = rowGo.GetComponent<PuzzleWagonProductRow>();
+                var rowComp = rowGo.GetComponent<PuzzleWagonProductRow>();
+                var rSo = new SerializedObject(rowComp);
+                rSo.FindProperty("dragPreview").objectReferenceValue = dragPreviewImg;
+                rSo.FindProperty("dragPreviewBox").vector2Value = new Vector2(88f, 64f);
+                rSo.FindProperty("dragPreviewOffset").vector2Value = Vector2.zero;
+                rSo.ApplyModifiedPropertiesWithoutUndo();
+                clonedRows[i] = rowComp;
             }
+            dragPreviewRt.SetAsLastSibling();
 
             var pageLabel = CreateLabel(_labelTemplate, rootRect, "PageLabel", 14f, TextAlignmentOptions.Left, _palette, UIPalette.ColorRole.TextSub);
             SetAnchored(pageLabel.rectTransform, 0f, 1f, 0f, 1f, 16f, -380f, 160f, 32f);
@@ -294,7 +311,7 @@ public static class RelayoutS6Builder
         TextMeshProUGUI _labelTemplate)
     {
         var canvasRoot = PrefabUtility.LoadPrefabContents(GAME_CANVAS_PREFAB);
-        var rootGo = CreateWindowShell("WorkshopWindow", "workshop", "생산시설", 660f, 120f, 560f, 480f,
+        var rootGo = CreateWindowShell("WorkshopWindow", "workshop", "생산시설", 660f, 136f, 560f, 480f,
             _palette, _buttonTemplate, _labelTemplate, out var floatingWin, out var titleText);
         try
         {
@@ -365,6 +382,7 @@ public static class RelayoutS6Builder
 
         var cloned = Object.Instantiate(_srcView.gameObject, secRt, false);
         cloned.name = "Board";
+        cloned.SetActive(true);
         var rt = (RectTransform)cloned.transform;
         rt.anchorMin = Vector2.zero;
         rt.anchorMax = Vector2.one;
@@ -691,6 +709,19 @@ public static class RelayoutS6Builder
         while (boardRt.childCount > 0)
         {
             boardRt.GetChild(0).SetParent(content, false);
+        }
+
+        // 클론한 보드 내의 불필요한 구형 헤더/배경/버튼 자식을 모두 숨긴다.
+        var clonedImg = _clonedBoard.GetComponent<Image>();
+        if (clonedImg) clonedImg.enabled = false;
+        for (int i = 0; i < _clonedBoard.transform.childCount; i++)
+        {
+            var ch = _clonedBoard.transform.GetChild(i);
+            if (ch == viewport || ch.name.Contains("DragBeam") || ch.name.Contains("Candidate"))
+            {
+                continue;
+            }
+            ch.gameObject.SetActive(false);
         }
 
         invSo.FindProperty("dynamicCellSizing").boolValue = true;

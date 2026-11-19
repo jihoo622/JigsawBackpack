@@ -24,6 +24,9 @@ public sealed class PuzzleInventoryView : MonoBehaviour
         Vector2Int.up, Vector2Int.right, Vector2Int.down, Vector2Int.left
     };
 
+    // 놓을 자리 후보 표식의 반투명 채움색(개편 레이아웃).
+    static readonly Color CANDIDATE_FILL_COLOR = new Color(0.95f, 0.82f, 0.35f, 0.35f);
+
     [SerializeField] Image board;
     [SerializeField] CanvasGroup interaction;
     [SerializeField] TextMeshProUGUI boardTitle;
@@ -706,6 +709,7 @@ public sealed class PuzzleInventoryView : MonoBehaviour
         var iconLayout = PuzzleIconLayout.Calculate(min, max, originalMin, originalMax,
             _iconSize, _iconOffset, _pose.ClockwiseTurns);
         Vector2 iconOffset = iconLayout.Center - (Vector2)_pose.Cells[0].Position;
+        PuzzleSlotVisual deltaSlot = null;
         foreach (var cell in _pose.Cells)
         {
             int hiddenEdges = GetHiddenEdges(cell.Position);
@@ -718,6 +722,7 @@ public sealed class PuzzleInventoryView : MonoBehaviour
             if (cell.Position == bottomRight && !string.IsNullOrEmpty(_deltaText))
             {
                 _slots[index].ShowDelta(_deltaText, _deltaColor ?? Color.white);
+                deltaSlot = _slots[index];
             }
             else
             {
@@ -737,6 +742,12 @@ public sealed class PuzzleInventoryView : MonoBehaviour
             {
                 first.SetAsLastSibling();
             }
+        }
+        // 가격 칩은 같은 자리의 다른 칸 채움보다 위에 그려져야 한다. 칩이 놓인 칸을 자리의 마지막 형제로 올린다.
+        // 칩 칸을 앞 순서에 두면 뒤에 그려지는 같은 자리의 칸 채움에 가려져 L자 자리에서 안 보인다.
+        if (deltaSlot)
+        {
+            deltaSlot.transform.SetAsLastSibling();
         }
         return index;
     }
@@ -858,7 +869,8 @@ public sealed class PuzzleInventoryView : MonoBehaviour
             var candidate = _candidates[i];
             Vector2 boardCenter;
             Vector2 size;
-            if (i == 0)
+            // 개편 레이아웃에서는 세 순위 모두 자리 전체 칸 영역을 채워 그린다. 기존 레이아웃은 기존 크기를 그대로 쓴다.
+            if (i == 0 || RelayoutSettings.Enabled)
             {
                 boardCenter = GetShapeCenter(candidate.Pose.Cells);
                 size = GetFootprintCellCount(candidate.Pose.Cells) * cellSize;
@@ -899,6 +911,12 @@ public sealed class PuzzleInventoryView : MonoBehaviour
             marker.anchorMin = marker.anchorMax = marker.pivot = new Vector2(0.5f, 0.5f);
             marker.localPosition = BoardToSpace(marker.parent, _boardCenter);
             marker.sizeDelta = _size;
+            // 개편 레이아웃의 표식은 반투명 채움 한 장이다. 종횡비를 유지하면 납작한 스프라이트가 얇은 띠로 줄어든다.
+            if (RelayoutSettings.Enabled && marker.TryGetComponent(out Image markerFill))
+            {
+                markerFill.preserveAspect = false;
+                markerFill.color = CANDIDATE_FILL_COLOR;
+            }
             SetRaycastTargetsOff(marker);
             marker.gameObject.SetActive(true);
         }

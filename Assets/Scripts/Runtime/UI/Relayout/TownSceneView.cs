@@ -202,6 +202,12 @@ public sealed class TownSceneView : MonoBehaviour
     {
         if (_session == null || _session.CityData == null)
         {
+            if (_button.Kind == TownBuildingButton.BuildingKind.Workshop)
+            {
+                // 생산시설은 도시 정보가 없어도 상태 줄을 항상 한 줄 보인다.
+                ApplyWorkshopStatusLine(_button, null, false);
+                return;
+            }
             _button.SetChalkboard(string.Empty);
             _button.SetPersistentHighlight(false);
             return;
@@ -247,18 +253,7 @@ public sealed class TownSceneView : MonoBehaviour
                 break;
 
             case TownBuildingButton.BuildingKind.Workshop:
-                if (_hasWorkshop)
-                {
-                    var ws = _session.ButcheryAction() ?? _session.ModificationAction() ?? _session.RefiningAction();
-                    string title = ws != null ? ws.title : string.Empty;
-                    long fee = ws != null && ws.extraCost > 0 ? ws.extraCost : 0;
-                    _button.SetChalkboard(fee > 0 ? Presentation.BldgStatusWorkshop(title, fee) : title);
-                }
-                else
-                {
-                    _button.SetChalkboard(string.Empty);
-                }
-                _button.SetPersistentHighlight(false);
+                ApplyWorkshopStatusLine(_button, _session, _hasWorkshop);
                 break;
 
             case TownBuildingButton.BuildingKind.CityHall:
@@ -269,6 +264,24 @@ public sealed class TownSceneView : MonoBehaviour
                 _button.SetPersistentHighlight(false);
                 break;
         }
+    }
+
+    // 생산시설 상태 줄. 시설이 있으면 이름과 수수료, 없으면 '시설 없음(공터)'을 흐리게 보인다.
+    static void ApplyWorkshopStatusLine(TownBuildingButton _button, PuzzleInventoryService _session, bool _hasWorkshop)
+    {
+        _button.SetPersistentHighlight(false);
+        if (_hasWorkshop && _session != null)
+        {
+            var ws = _session.ButcheryAction() ?? _session.ModificationAction() ?? _session.RefiningAction();
+            string title = ws != null ? ws.title : string.Empty;
+            long fee = ws != null && ws.extraCost > 0 ? ws.extraCost : 0;
+            _button.SetChalkboard(fee > 0 ? Presentation.BldgStatusWorkshop(title, fee) : title);
+            _button.SetChalkboardDimmed(false);
+            return;
+        }
+
+        _button.SetChalkboard(Presentation.BuildingWorkshopNoneLabel);
+        _button.SetChalkboardDimmed(true);
     }
 
     void OnBuildingHoveredChanged(TownBuildingButton.BuildingKind _kind, bool _entered, string _disabledReason)

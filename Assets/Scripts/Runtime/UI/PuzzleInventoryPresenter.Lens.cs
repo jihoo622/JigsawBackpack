@@ -270,9 +270,13 @@ public sealed partial class PuzzleInventoryPresenter
 
     string LensDestinationText()
     {
-        if (lensTab == PuzzleLensTab.Current || lensDefinition == null)
+        if (lensDefinition == null)
         {
             return string.Empty;
+        }
+        if (lensTab == PuzzleLensTab.Current)
+        {
+            return JoinLensLines(lensTrade, JoinLensLines(lensSpotText, lensRankingText));
         }
         return Presentation.RouteLensDestinations(session.LensDestinations(lensDefinition, lensValue, lensItemOnTrain), lensTab);
     }

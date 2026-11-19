@@ -166,6 +166,16 @@ public sealed class TownBuildingButton : MonoBehaviour, IPointerEnterHandler, IP
         if (chalkboardText) chalkboardText.text = active ? _text : string.Empty;
     }
 
+    // 칠판 글자를 흐리게 표시한다(예: 시설이 없는 공터).
+    public void SetChalkboardDimmed(bool _dimmed)
+    {
+        if (!chalkboardText)
+        {
+            return;
+        }
+        chalkboardText.alpha = _dimmed ? 0.48f : 1f;
+    }
+
     public void SetRumorBubble(string _text)
     {
         bool active = !string.IsNullOrEmpty(_text);

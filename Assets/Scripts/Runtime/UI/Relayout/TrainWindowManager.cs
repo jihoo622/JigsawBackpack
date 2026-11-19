@@ -329,9 +329,12 @@ public sealed class TrainWindowManager : MonoBehaviour
             restoredOpenWagons = true;
             restoredRunId = _session.RunId ?? string.Empty;
             RestoreOpenWagons(_session);
+            if (!HasAnyOpenWindow && _session.WagonCount > 0)
+            {
+                OpenOrFocusWagon(Mathf.Clamp(_session.CurrentWagonIndex, 0, _session.WagonCount - 1), _session, false);
+            }
         }
 
-        bool anyOpen = false;
         int cap = MaxWindowCount;
         seenWagonBuffer.Clear();
         for (int i = 0; i < cap; i++)
@@ -348,12 +351,6 @@ public sealed class TrainWindowManager : MonoBehaviour
                 continue;
             }
             win.BoundWagonIndex = idx;
-            anyOpen = true;
-        }
-
-        if (!anyOpen && _session.WagonCount > 0)
-        {
-            OpenOrFocusWagon(Mathf.Clamp(_session.CurrentWagonIndex, 0, _session.WagonCount - 1), _session, false);
         }
     }
 

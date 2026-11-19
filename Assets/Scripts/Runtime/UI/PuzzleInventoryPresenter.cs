@@ -545,6 +545,10 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
                 relayoutMarketView.SetBoardSize(session.Market.Width, session.Market.Height, session.Market.BlockedCells);
             }
             marketWindowView.SetOpen(open, false);
+            if (open)
+            {
+                RenderBoards();
+            }
         }
     }
 
@@ -2303,6 +2307,10 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
                 relayoutMarketView.SetBoardSize(session.Market.Width, session.Market.Height, session.Market.BlockedCells);
             }
             marketWindowView.SetOpen(open, false);
+            if (open)
+            {
+                RenderBoards();
+            }
         }
         RenderBoards();
         RenderValues();

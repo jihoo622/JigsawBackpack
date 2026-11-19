@@ -81,7 +81,17 @@ public sealed class WorkshopWindowView : MonoBehaviour
             {
                 return;
             }
+            if (floatingWindow)
+            {
+                floatingWindow.SetOpen(true, _persist);
+            }
+            else if (!gameObject.activeSelf)
+            {
+                gameObject.SetActive(true);
+            }
             OpenFacilityInSession();
+            Refresh();
+            return;
         }
         else
         {
@@ -96,10 +106,6 @@ public sealed class WorkshopWindowView : MonoBehaviour
         else if (gameObject.activeSelf != _open)
         {
             gameObject.SetActive(_open);
-        }
-        if (_open)
-        {
-            Refresh();
         }
     }
 
@@ -120,6 +126,7 @@ public sealed class WorkshopWindowView : MonoBehaviour
         {
             case WorkshopKind.Butchery:
                 if (butcherySection) butcherySection.SetActive(true);
+                if (butcheryBoardView) butcheryBoardView.gameObject.SetActive(true);
                 if (modificationSection) modificationSection.SetActive(false);
                 if (refiningSection) refiningSection.SetActive(false);
                 session.OpenButchery();
@@ -127,6 +134,7 @@ public sealed class WorkshopWindowView : MonoBehaviour
             case WorkshopKind.Modification:
                 if (butcherySection) butcherySection.SetActive(false);
                 if (modificationSection) modificationSection.SetActive(true);
+                if (modificationBoardView) modificationBoardView.gameObject.SetActive(true);
                 if (refiningSection) refiningSection.SetActive(false);
                 session.OpenModification();
                 break;
@@ -134,6 +142,7 @@ public sealed class WorkshopWindowView : MonoBehaviour
                 if (butcherySection) butcherySection.SetActive(false);
                 if (modificationSection) modificationSection.SetActive(false);
                 if (refiningSection) refiningSection.SetActive(true);
+                if (refiningBoardView) refiningBoardView.gameObject.SetActive(true);
                 session.OpenRefining();
                 break;
         }
