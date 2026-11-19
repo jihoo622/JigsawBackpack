@@ -368,10 +368,10 @@
   }
   #canvas-1920.is-night .scene-night-tint { display: block; }
 
-  /* ── Status Banner: (748, 90, 560, 34) ── */
+  /* ── Status Banner: (660, 90, 460, 34) — clear of RailStrip (<=640) & Town Windows (>=1136) ── */
   .status-banner {
     position: absolute;
-    left: 748px; top: 90px; width: 560px; height: 34px;
+    left: 660px; top: 90px; width: 460px; height: 34px;
     background: rgba(30, 27, 75, 0.94);
     border: 1px solid #6366f1;
     border-radius: 8px;
@@ -429,10 +429,10 @@
   }
   .win-close:hover { border-color: var(--red-soft); color: var(--text); }
 
-  /* ── Train Window (Anchored BOTTOM-RIGHT): (1386, 634, 518, 434) ── */
+  /* ── Train Window (PERSONAL — LEFT over Platform): (26, 516, 510, 544) ── */
   .train-window {
-    left: 1386px; top: 634px; width: 518px; height: 434px;
-    padding: 12px;
+    left: 26px; top: 516px; width: 510px; height: 544px;
+    padding: 10px;
     gap: 8px;
     z-index: 36;
   }
@@ -448,14 +448,14 @@
     align-items: flex-start;
   }
   .train-side-strip {
-    width: 94px;
+    width: 90px;
     height: 280px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
   }
 
-  /* ── Grids: Train 7x5 (56px cells), Market 13x9 (52px cells), Workshop 5x5 (56px cells) ── */
+  /* ── Grids: Train 7x5 (56px), Market 13x9 (56px), Workshop 5x5 (56px) ── */
   .grid-board {
     position: relative;
     background: #0b111b;
@@ -473,11 +473,11 @@
   .grid-7x5 .cell { width: 56px; height: 56px; }
 
   .grid-13x9 {
-    width: 676px; height: 468px;
-    grid-template-columns: repeat(13, 52px);
-    grid-template-rows: repeat(9, 52px);
+    width: 728px; height: 504px;
+    grid-template-columns: repeat(13, 56px);
+    grid-template-rows: repeat(9, 56px);
   }
-  .grid-13x9 .cell { width: 52px; height: 52px; }
+  .grid-13x9 .cell { width: 56px; height: 56px; }
 
   .grid-5x5 {
     width: 280px; height: 280px;
@@ -578,22 +578,38 @@
     border-radius: 6px;
     border: 1px solid rgba(42, 63, 90, 0.5);
   }
-  .train-bottom-strip {
+  /* ── Route-Lens Footer inside Personal Train Window ── */
+  .train-lens-footer {
     flex: 1;
     background: var(--bg-panel-2);
     border: 1px solid var(--border);
     border-radius: 8px;
-    padding: 6px 10px;
+    padding: 8px 10px;
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    font-size: 11.5px;
+    flex-direction: column;
+    justify-content: center;
+    gap: 6px;
   }
+  .tc-top { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+  .tc-item-name { font-size: 13px; font-weight: 700; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tc-quote { font-size: 12.5px; font-weight: 800; color: var(--gold); white-space: nowrap; }
+  .tc-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+  .tc-city-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 6px 7px;
+    font-size: 10.5px;
+    line-height: 1.35;
+  }
+  .tc-city-card.highlight { border-color: var(--green); background: rgba(20, 83, 45, 0.25); }
+  .tc-city-card.rumor { border-color: var(--cyan); background: rgba(12, 74, 110, 0.25); }
+  .tc-city-card.fog { opacity: 0.65; }
 
-  /* ── Left Popup Windows (Over Platform Area) ── */
-  /* Market Window: (16, 128, 712, 928) -> 52px cells (676x468), leaves x>=745 town visible */
+  /* ── Town-Related Windows (RIGHT over Town, never covering RailStrip x=549..640) ── */
+  /* Market Window: (1136, 96, 764, 690) -> 56px cells (728x504), compact footer, zero dead space */
   .market-window {
-    left: 16px; top: 128px; width: 712px; height: 928px;
+    left: 1136px; top: 96px; width: 764px; height: 690px;
   }
   .market-info-strip {
     background: var(--bg-card);
@@ -617,59 +633,21 @@
   .t-brown { background: #78350f; }
   .t-green { background: #15803d; }
 
-  .station-footer {
-    flex: 1;
+  .market-bottom-bar {
     background: var(--bg-panel-2);
     border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 12px 14px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-  }
-  .summary-split {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    height: 100%;
-  }
-  .summary-box {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 10px 12px;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-  }
-  .summary-box-title { font-size: 13px; font-weight: 700; color: var(--gold); display: flex; justify-content: space-between; }
-  .summary-box-body { font-size: 12.5px; color: var(--text-sub); line-height: 1.5; }
-
-  .trade-context-box {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    height: 100%;
-    justify-content: center;
-  }
-  .tc-top { display: flex; align-items: center; justify-content: space-between; }
-  .tc-item-name { font-size: 16px; font-weight: 700; color: var(--text); }
-  .tc-quote { font-size: 16px; font-weight: 800; color: var(--gold); }
-  .tc-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-  .tc-city-card {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
     border-radius: 7px;
-    padding: 8px 9px;
-    font-size: 11.5px;
+    padding: 7px 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    color: var(--text-sub);
   }
-  .tc-city-card.highlight { border-color: var(--green); background: rgba(20, 83, 45, 0.25); }
-  .tc-city-card.rumor { border-color: var(--cyan); background: rgba(12, 74, 110, 0.25); }
-  .tc-city-card.fog { opacity: 0.65; }
 
-  /* Compact Building Popup Windows over Left Platform: (16, 128, 520, ...) */
-  .left-building-window {
-    left: 16px; top: 128px; width: 520px;
+  /* Right Town Building Popup Windows: (1136, 96, 764, ...) */
+  .right-building-window {
+    left: 1136px; top: 96px; width: 764px;
   }
   .card-block {
     background: var(--bg-card);
@@ -702,25 +680,25 @@
     font-family: inherit; cursor: pointer;
   }
 
-  /* ── Notebook Window (Left-anchored over Platform & partial Town): (16, 128, 880, 928) ── */
+  /* ── Notebook Window (PERSONAL — LEFT over Platform, never covers RailStrip): (16, 128, 522, 928) ── */
   .notebook-window {
-    left: 16px; top: 128px; width: 880px; height: 928px;
+    left: 16px; top: 128px; width: 522px; height: 928px;
     z-index: 42;
   }
   .nb-tabs {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
-    gap: 8px;
-    height: 40px;
+    gap: 5px;
+    height: 38px;
   }
   .st-tab {
     background: var(--bg-card);
     border: 1px solid var(--border);
     border-radius: 7px;
     color: var(--text-sub);
-    font-size: 13.5px; font-weight: 600; font-family: inherit;
+    font-size: 12px; font-weight: 600; font-family: inherit;
     cursor: pointer;
-    display: flex; align-items: center; justify-content: center; gap: 5px;
+    display: flex; align-items: center; justify-content: center; gap: 3px;
   }
   .st-tab.active {
     background: var(--gold-dim);
@@ -863,10 +841,10 @@
   }
   .held-large-chip small { display: block; font-size: 11px; font-weight: 500; color: #bbf7d0; }
 
-  /* ── Item Tooltip ── */
+  /* ── Item Tooltip (PERSONAL — LEFT next to TrainWindow) ── */
   .item-tooltip {
     position: absolute;
-    left: 1170px; top: 730px; width: 300px;
+    left: 225px; top: 380px; width: 300px;
     background: rgba(15, 23, 36, 0.98);
     border: 2px solid #d4a373;
     border-radius: 10px;
@@ -1362,7 +1340,7 @@
         야간(00:00~06:00)에는 시장이 휴업합니다. 작업대·술집·여관을 이용하세요.
       </div>
 
-      <!-- 6. TRAIN WINDOW (Anchored BOTTOM-RIGHT): (1396, 634, 508, 434) -->
+      <!-- 6. TRAIN WINDOW (PERSONAL — LEFT over Platform): (26, 516, 510, 544) -->
       <section class="popup-window train-window visible" id="train-window">
         <div class="win-header">
           <div class="win-title">
@@ -1391,13 +1369,46 @@
             </div>
           </div>
         </div>
-        <div class="train-bottom-strip">
-          <span style="color:var(--text-sub);">중앙 선로에서 화차 클릭으로 전환</span>
-          <span style="color:var(--gold);font-weight:700;">3/4량 운행 중</span>
+        <!-- Route-Lens Footer (Personal Trade Context & Destination Comparison) -->
+        <div class="train-lens-footer">
+          <div id="footer-idle-summary" style="display:flex;flex-direction:column;gap:5px;">
+            <div style="display:flex;justify-content:space-between;font-size:12px;">
+              <span style="color:var(--gold);font-weight:700;">행선지 렌즈 대기</span>
+              <span style="color:var(--cyan);">최근 소문: 신도시 북부 (과일 ↑)</span>
+            </div>
+            <div style="font-size:11.5px;color:var(--text-sub);line-height:1.45;">
+              • 화물을 집으면 <b>견적, 잔액 전후, 정산 Δ, 행선지 비교</b>가 표시됩니다.<br>
+              • 중앙 선로의 화차 차량을 클릭해 다른 칸으로 전환하세요.
+            </div>
+          </div>
+
+          <div id="footer-holding-context" style="display:none;flex-direction:column;gap:6px;">
+            <div class="tc-top">
+              <div class="tc-item-name" id="tc-item-title">과일 상자 (음식 · 과일 · 화물)</div>
+              <div class="tc-quote" id="tc-quote-text">구매 20$ · 잔액 200$ → 180$</div>
+            </div>
+            <div class="tc-grid">
+              <div class="tc-city-card highlight">
+                <div style="color:#4ade80;font-weight:700;">방문 · 아이포트 중앙</div>
+                <div style="font-size:12px;font-weight:800;margin:2px 0;">선호 130% · 예상 26$</div>
+                <div style="color:var(--text-sub);">운임 9$(적재포함) · 1턴</div>
+              </div>
+              <div class="tc-city-card rumor">
+                <div style="color:var(--cyan);font-weight:700;">소문 · 신도시 북부</div>
+                <div style="font-size:11.5px;font-weight:700;margin:2px 0;">"과일 수요가 높다"</div>
+                <div style="color:var(--text-sub);">12시간 전 · 운임 8$ · 1턴</div>
+              </div>
+              <div class="tc-city-card fog">
+                <div style="color:var(--text-sub);font-weight:700;">미확인 · 일반 마을</div>
+                <div style="font-size:11.5px;font-weight:700;margin:2px 0;">등급·가격 미공개</div>
+                <div style="color:var(--text-sub);">운임 10$ · 1턴</div>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
-      <!-- 7. MARKET WINDOW (Left over Platform, 52px cells): (16, 128, 712, 928) -->
+      <!-- 7. MARKET WINDOW (TOWN — RIGHT over Town, 56px cells): (1136, 96, 764, 690) -->
       <aside class="popup-window market-window visible" id="market-window">
         <div class="win-header">
           <div class="win-title">
@@ -1422,52 +1433,14 @@
 
         <div class="grid-board grid-13x9" id="market-board"></div>
 
-        <div class="station-footer">
-          <div class="summary-split" id="footer-idle-summary">
-            <div class="summary-box">
-              <div class="summary-box-title"><span>최근 소문 요약</span><span style="color:var(--cyan);">수첩 ↗</span></div>
-              <div class="summary-box-body">
-                • <b>신도시 북부</b>: "과일 수요가 높다" <span style="color:var(--text-muted);">(12시간 전)</span><br>
-                • 소문은 술집에서 무료로 들을 수 있습니다 (48시간 유효).
-              </div>
-            </div>
-            <div class="summary-box">
-              <div class="summary-box-title"><span>진행 중 의뢰 (0/1)</span><span style="color:var(--cyan);">술집 ↗</span></div>
-              <div class="summary-box-body">
-                진행 중인 의뢰가 없습니다.<br>
-                마을 술집 건물에서 보증금을 걸고 의뢰를 수락하세요.
-              </div>
-            </div>
-          </div>
-
-          <div class="trade-context-box" id="footer-holding-context" style="display:none;">
-            <div class="tc-top">
-              <div class="tc-item-name" id="tc-item-title">과일 상자 (음식 · 과일 · 화물)</div>
-              <div class="tc-quote" id="tc-quote-text">구매 20$ · 잔액 200$ → 180$</div>
-            </div>
-            <div class="tc-grid">
-              <div class="tc-city-card highlight">
-                <div style="color:#4ade80;font-weight:700;">방문 · 아이포트 중앙</div>
-                <div style="font-size:14px;font-weight:800;margin:3px 0;">선호 130% · 예상 26$</div>
-                <div style="color:var(--text-sub);">운임 9$ (적재 포함) · 1턴</div>
-              </div>
-              <div class="tc-city-card rumor">
-                <div style="color:var(--cyan);font-weight:700;">소문 · 신도시 북부</div>
-                <div style="font-size:13px;font-weight:700;margin:3px 0;">"과일 수요가 높다"</div>
-                <div style="color:var(--text-sub);">12시간 전 · 운임 8$ · 1턴</div>
-              </div>
-              <div class="tc-city-card fog">
-                <div style="color:var(--text-sub);font-weight:700;">미확인 · 일반 마을</div>
-                <div style="font-size:13px;font-weight:700;margin:3px 0;">등급·가격 미공개</div>
-                <div style="color:var(--text-sub);">운임 10$ · 1턴</div>
-              </div>
-            </div>
-          </div>
+        <div class="market-bottom-bar">
+          <span>드래그 / Ctrl+클릭: 화차로 구매 · 기차 화물 드롭: 판매</span>
+          <span style="color:var(--gold);font-weight:700;">매 턴(6h) 재입고</span>
         </div>
       </aside>
 
-      <!-- 8. TAVERN WINDOW (Left over Platform): (16, 128, 520, 620) -->
-      <aside class="popup-window left-building-window" id="tavern-window">
+      <!-- 8. TAVERN WINDOW (TOWN — RIGHT): (1136, 96, 764, ...) -->
+      <aside class="popup-window right-building-window" id="tavern-window">
         <div class="win-header">
           <div class="win-title">🍺 금융마을 술집 · 의뢰 게시판</div>
           <button class="win-close" data-close-win>닫기 ✕</button>
@@ -1499,8 +1472,8 @@
         </div>
       </aside>
 
-      <!-- 9. REST WINDOW (INN, Left over Platform): (16, 128, 520, 440) -->
-      <aside class="popup-window left-building-window" id="rest-window">
+      <!-- 9. REST WINDOW (TOWN — RIGHT): (1136, 96, 764, ...) -->
+      <aside class="popup-window right-building-window" id="rest-window">
         <div class="win-header">
           <div class="win-title">🛏 여관 · 휴식 및 시간 대기</div>
           <button class="win-close" data-close-win>닫기 ✕</button>
@@ -1523,8 +1496,8 @@
         </div>
       </aside>
 
-      <!-- 10. STATION HALL WINDOW (Left over Platform): (16, 128, 520, 620) -->
-      <aside class="popup-window left-building-window" id="station-hall-window">
+      <!-- 10. STATION HALL WINDOW (TOWN — RIGHT): (1136, 96, 764, ...) -->
+      <aside class="popup-window right-building-window" id="station-hall-window">
         <div class="win-header">
           <div class="win-title">🏛 역사 · 화차 시설 및 출발</div>
           <button class="win-close" data-close-win>닫기 ✕</button>
@@ -1556,8 +1529,8 @@
         </div>
       </aside>
 
-      <!-- 11. WORKSHOP WINDOW (Left over Platform): (16, 128, 520, 620) -->
-      <aside class="popup-window left-building-window" id="workshop-window">
+      <!-- 11. WORKSHOP WINDOW (TOWN — RIGHT): (1136, 96, 764, ...) -->
+      <aside class="popup-window right-building-window" id="workshop-window">
         <div class="win-header">
           <div class="win-title">⚙ 에른아 공업역 작업대 · 냉장 개조</div>
           <button class="win-close" data-close-win>닫기 ✕</button>
@@ -1576,8 +1549,8 @@
         </div>
       </aside>
 
-      <!-- 12. CITY HALL WINDOW (Left over Platform): (16, 128, 520, 560) -->
-      <aside class="popup-window left-building-window" id="cityhall-window">
+      <!-- 12. CITY HALL WINDOW (TOWN — RIGHT): (1136, 96, 764, ...) -->
+      <aside class="popup-window right-building-window" id="cityhall-window">
         <div class="win-header">
           <div class="win-title">🏛 시청 · 금융마을 정보 및 결산 목표</div>
           <button class="win-close" data-close-win>닫기 ✕</button>
@@ -1609,7 +1582,7 @@
         </div>
       </aside>
 
-      <!-- 13. NOTEBOOK WINDOW (Left-anchored, 5 tabs): (16, 128, 880, 928) -->
+      <!-- 13. NOTEBOOK WINDOW (PERSONAL — LEFT over Platform, 5 tabs): (16, 128, 522, 928) -->
       <aside class="popup-window notebook-window" id="notebook-window">
         <div class="win-header">
           <div class="win-title">📒 여행 수첩</div>
@@ -1617,23 +1590,22 @@
         </div>
         <div class="nb-tabs">
           <button class="st-tab active" data-nb="map">🗺 지도</button>
-          <button class="st-tab" data-nb="rumor">💬 소문 (1)</button>
-          <button class="st-tab" data-nb="quest">📜 의뢰 (0/1)</button>
+          <button class="st-tab" data-nb="rumor">💬 소문(1)</button>
+          <button class="st-tab" data-nb="quest">📜 의뢰(0/1)</button>
           <button class="st-tab" data-nb="proficiency">⭐ 숙련</button>
           <button class="st-tab" data-nb="synergy">📊 상성표</button>
         </div>
 
         <!-- TAB: MAP -->
         <div class="nb-body" id="nb-map">
-          <div class="nb-map-toolbar">
-            <input class="map-search" type="text" placeholder="역·지역 검색..." readonly>
+          <div class="nb-map-toolbar" style="flex-wrap:wrap;">
+            <input class="map-search" type="text" placeholder="역·지역 검색..." readonly style="width:140px;">
             <button class="qt-btn">-</button>
             <span style="font-size:12px;color:var(--text-sub);">65%</span>
             <button class="qt-btn">+</button>
             <button class="qt-btn">전체</button>
             <button class="qt-btn">현재역</button>
-            <div class="qt-spacer"></div>
-            <span id="nb-map-cargo-chip" style="display:none;background:var(--gold-dim);border:1px solid var(--gold);color:var(--gold);padding:3px 10px;border-radius:6px;font-size:12px;font-weight:700;">
+            <span id="nb-map-cargo-chip" style="display:none;background:var(--gold-dim);border:1px solid var(--gold);color:var(--gold);padding:2px 8px;border-radius:6px;font-size:11.5px;font-weight:700;width:100%;text-align:center;">
               선택 화물 핀: 과일 상자 (20$)
             </span>
           </div>
@@ -1785,33 +1757,27 @@
         </div>
 
         <!-- TAB: SYNERGY -->
-        <div class="nb-body" id="nb-synergy" style="display:none;">
-          <div style="display:grid;grid-template-columns:1.75fr 1fr;gap:14px;height:100%;">
-            <div>
-              <table class="synergy-table">
-                <tr><th>↓ 옆에 닿으면 →</th><th>가축</th><th>물고기</th><th>음식</th><th>소금</th><th>거름</th><th>물</th><th>목재</th></tr>
-                <tr><th>모든 화물</th><td></td><td></td><td></td><td></td><td class="syn-neg">-50%</td><td></td><td></td></tr>
-                <tr><th>화물</th><td class="syn-neg">-10%</td><td></td><td class="syn-pos">+20%</td><td></td><td></td><td></td><td></td></tr>
-                <tr><th>물고기</th><td></td><td></td><td></td><td></td><td></td><td class="syn-pos">+30%</td><td></td></tr>
-                <tr><th>음식</th><td></td><td></td><td></td><td class="syn-pos">+20%</td><td></td><td></td><td></td></tr>
-                <tr><th>기계</th><td></td><td></td><td></td><td></td><td></td><td></td><td class="syn-pos">+10%</td></tr>
-                <tr><th>금속</th><td></td><td class="syn-neg">-20%</td><td></td><td></td><td></td><td class="syn-neg">-20%</td><td></td></tr>
-                <tr><th>목재</th><td></td><td class="syn-neg">-10%</td><td></td><td></td><td></td><td class="syn-neg">-10%</td><td></td></tr>
-              </table>
-              <div style="font-size:12.5px;color:var(--text-sub);margin-top:12px;line-height:1.7;">
-                • 맞닿은 면 하나마다 효과를 합산해 매 턴(6h) 정산에 누적됩니다.<br>
-                • 우하단 기차 보드가 가려지지 않으므로 배치를 보면서 상성을 대조할 수 있습니다.
-              </div>
+        <div class="nb-body" id="nb-synergy" style="display:none;gap:14px;">
+          <div>
+            <table class="synergy-table" style="font-size:12px;">
+              <tr><th>↓ 닿으면 →</th><th>가축</th><th>물고기</th><th>음식</th><th>소금</th><th>거름</th><th>물</th><th>목재</th></tr>
+              <tr><th>모든 화물</th><td></td><td></td><td></td><td></td><td class="syn-neg">-50%</td><td></td><td></td></tr>
+              <tr><th>화물</th><td class="syn-neg">-10%</td><td></td><td class="syn-pos">+20%</td><td></td><td></td><td></td><td></td></tr>
+              <tr><th>물고기</th><td></td><td></td><td></td><td></td><td></td><td class="syn-pos">+30%</td><td></td></tr>
+              <tr><th>음식</th><td></td><td></td><td></td><td class="syn-pos">+20%</td><td></td><td></td><td></td></tr>
+              <tr><th>기계</th><td></td><td></td><td></td><td></td><td></td><td></td><td class="syn-pos">+10%</td></tr>
+              <tr><th>금속</th><td></td><td class="syn-neg">-20%</td><td></td><td></td><td></td><td class="syn-neg">-20%</td><td></td></tr>
+              <tr><th>목재</th><td></td><td class="syn-neg">-10%</td><td></td><td></td><td></td><td class="syn-neg">-10%</td><td></td></tr>
+            </table>
+            <div style="font-size:12px;color:var(--text-sub);margin-top:8px;line-height:1.55;">
+              • 맞닿은 면 하나마다 효과를 합산해 매 턴(6h) 정산에 누적됩니다.
             </div>
-            <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:12px;font-size:12.5px;line-height:2;">
-              <b style="color:var(--gold);font-size:14px;">주요 화물 태그</b><br>
-              사과: <span class="tag-chip t-red">과일</span> <span class="tag-chip t-orange">음식</span><br>
-              물고기: <span class="tag-chip t-blue">물고기</span> <span class="tag-chip t-orange">음식</span><br>
-              소금 자루: <span class="tag-chip t-slate">소금</span><br>
-              목재 묶음: <span class="tag-chip t-brown">목재</span> <span class="tag-chip t-slate">화물</span><br>
-              기계 프레임: <span class="tag-chip t-orange">기계</span><br>
-              소: <span class="tag-chip t-brown">가축</span> <span class="tag-chip t-orange">음식</span>
-            </div>
+          </div>
+          <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:12px;font-size:12.5px;line-height:2;">
+            <b style="color:var(--gold);font-size:14px;">주요 화물 태그</b><br>
+            사과: <span class="tag-chip t-red">과일</span> <span class="tag-chip t-orange">음식</span> · 물고기: <span class="tag-chip t-blue">물고기</span> <span class="tag-chip t-orange">음식</span><br>
+            소금 자루: <span class="tag-chip t-slate">소금</span> · 목재 묶음: <span class="tag-chip t-brown">목재</span> <span class="tag-chip t-slate">화물</span><br>
+            기계 프레임: <span class="tag-chip t-orange">기계</span> · 소: <span class="tag-chip t-brown">가축</span> <span class="tag-chip t-orange">음식</span>
           </div>
         </div>
       </aside>
@@ -1831,8 +1797,8 @@
         </div>
       </div>
 
-      <!-- 15. HELD CARGO GHOST + LARGE DELTA CHIP -->
-      <div class="held-ghost" id="held-ghost" style="left:1605px;top:745px;">
+      <!-- 15. HELD CARGO GHOST + LARGE DELTA CHIP (Inside TrainWindow 7x5 board, clear of side strip & candidates) -->
+      <div class="held-ghost" id="held-ghost" style="left:82px;top:614px;">
         <div class="held-piece-box" style="width:56px;height:56px;">
           <img id="held-ghost-img" src="assets/FruitCrate.png" alt="과일 상자" style="width:100%;height:100%;object-fit:contain;">
         </div>
@@ -1903,15 +1869,14 @@
   <ul>
     <li><b>오른쪽 마을을 다이제틱 UI로 전환</b>: 별도의 5탭 역 독이나 행동 목록 메뉴를 완전히 제거하고, 마을 건물 자체(<code>시장 / 술집 / 여관 / 역사 / 시청 / 생산시설·공터</code>)를 클릭해 해당 팝업 창을 여는 구조로 바꿨습니다. 건물 외관에 물가 칠판, 소문 말풍선, 굴뚝 연기, 시계 등 상태를 직접 녹였습니다.</li>
     <li><b>중앙 선로 스트립(549~640)에 탑뷰 내 열차 실물 배치</b>: 요약 블록 대신 기관차와 최대 8량 화차를 연결된 탑뷰 차량으로 그려 현장감을 살리고, 각 차량 위 작은 라벨(<code>1 · 6/22 · 65$</code>)로 적재·가치를 표시합니다.</li>
-    <li><b>창 배치 재편 (좌측 팝업 + 우하단 화차 창)</b>: 왼쪽 승강장(26~536)은 순수 배경으로 두고 모든 건물/수첩 팝업 창을 그 위에 띄웁니다. 선택된 화차의 7×5 인벤토리 창은 <b>우하단(1396, 634)</b>에 고정해 시장 창(좌측)과 겹치지 않으며, 오른쪽 마을의 6개 건물이 모두 가려지지 않고 클릭 가능하게 유지됩니다.</li>
+    <li><b>창 배치 재편 (개인 창 좌측 + 마을 창 우측 + 중앙 선로 상시 비가림)</b>: 선택된 화차의 7×5 인벤토리·행선지 렌즈 비교·여행 수첩·화물 툴팁 등 <b>개인 창</b>은 왼쪽 승강장 위(<code>x=16~538</code>)에 열고, 시장(13×9)·술집·여관·역사·작업대·시청 등 <b>마을 관련 창</b>은 오른쪽 마을 위(<code>x=1136~1900</code>)에 엽니다. 중앙 선로(<code>549~640</code>)는 어떤 창도 덮지 않아 거래 중에도 화차를 클릭해 전환할 수 있습니다.</li>
     <li><b>철도 노선도를 수첩 첫 번째 탭(<code>지도</code>)으로 통합</b>: 수첩 5탭(<code>지도 / 소문 / 의뢰 / 숙련 / 상성표</code>) 안에서 안개 4단계, 검색, 경로 계획, 마지막 선택 화물의 행선지 핀을 제공합니다.</li>
     <li><b>보조 단축키 지원</b>: 건물 클릭 외에 키보드 단축키(<code>1</code> 시장, <code>2</code> 술집, <code>3</code> 여관, <code>4</code> 역사, <code>5</code> 생산시설, <code>6</code> 시청, <code>M</code> 수첩·지도, <code>N</code> 수첩, <code>Tab</code> 화차 전환, <code>Esc</code> 일시정지/창 닫기)를 보조 경로로 제공합니다.</li>
   </ul>
 
   <h2>2. 보드 셀 크기 선정 근거</h2>
   <ul>
-    <li><b>기차(7×5) 및 작업대(5×5) 보드 — 56 × 56 px</b>: 우하단 기차 창(508×434)과 좌측 작업대 창(520×620)에 여유 있게 들어가며 시안 3과 동일한 시인성을 유지합니다.</li>
-    <li><b>시장(13×9) 보드 — 52 × 52 px</b>: 최소 기준(≥ 52px)을 지키면서 가로 폭을 <code>676px</code>(창 폭 <code>712px</code>)로 줄여, 좌측 시장 창이 열려 있을 때도 오른쪽 마을의 6개 건물이 모두 노출되도록 설계했습니다.</li>
+    <li><b>기차(7×5)·시장(13×9)·작업대(5×5) 보드 모두 56 × 56 px</b>: 시장 창이 오른쪽 마을 영역(폭 <code>764px</code>)으로 이동하면서 하단 불필요 여백을 제거(높이 <code>690px</code>)하고, 시장 셀 크기를 다시 <b>56px</b>(<code>728×504</code>)로 복원해 시안 3과 동일한 1:1 드래그 스케일을 확보했습니다.</li>
   </ul>
 
   <h2>3. 1920×1080 영역 및 팝업 창 좌표 표 (좌상단 원점)</h2>
@@ -1922,14 +1887,13 @@
     <tbody>
       <tr><td><code>TopHUD</code> (상단 고정 바)</td><td>16</td><td>12</td><td>1888</td><td>56</td><td>현재역, 기한, 시계·정산, 평판, 자금, 목표, 일시정지</td></tr>
       <tr><td><code>QuickToolbar</code> (좌상단 빠른 도구)</td><td>26</td><td>82</td><td>510</td><td>38</td><td>수첩, 노선도(M), 배경만 보기, 단축키 안내</td></tr>
-      <tr><td><code>PlatformScene</code> (좌측 승강장 순수 배경)</td><td>26</td><td>134</td><td>510</td><td>929</td><td>상호작용 없는 승강장 배경; 좌측 팝업 창이 위에 열림</td></tr>
-      <tr><td><code>RailStrip</code> (중앙 선로 + 탑뷰 내 열차)</td><td>549</td><td>82</td><td>91</td><td>998</td><td>탑뷰 기관차 + 최대 8량 화차 (클릭 시 우하단 화차 창 열림)</td></tr>
-      <tr><td><code>TownScene</code> (우측 마을 다이제틱 UI)</td><td>653</td><td>82</td><td>1247</td><td>977</td><td>6개 건물 버튼(칠판·말풍선·연기·시계 내장), 모두 비가림 배치</td></tr>
-      <tr><td><code>TrainWindow</code> (우하단 화차 창)</td><td>1386</td><td>634</td><td>518</td><td>434</td><td>7×5 보드(56px 셀, 392×280) + Δ 스트립 + 안내</td></tr>
-      <tr><td><code>MarketWindow</code> (좌측 시장 창)</td><td>16</td><td>128</td><td>712</td><td>928</td><td>물가·등급 띠 + 13×9 보드(52px 셀, 676×468) + 하단 요약/거래 컨텍스트</td></tr>
-      <tr><td><code>TavernWindow</code> / <code>StationHallWindow</code> / <code>WorkshopWindow</code></td><td>16</td><td>128</td><td>520</td><td>620</td><td>좌측 승강장 위에 열리는 개별 건물 팝업 창</td></tr>
-      <tr><td><code>RestWindow</code> / <code>CityHallWindow</code></td><td>16</td><td>128</td><td>520</td><td>440 / 560</td><td>여관 휴식 창 / 시청(도시 정보·목표 진행률) 창</td></tr>
-      <tr><td><code>NotebookWindow</code> (수첩 5탭 창)</td><td>16</td><td>128</td><td>880</td><td>928</td><td>지도(노선도·경로계획·화물 핀) / 소문 / 의뢰 / 숙련 / 상성표</td></tr>
+      <tr><td><code>PlatformScene</code> (좌측 승강장 순수 배경)</td><td>26</td><td>134</td><td>510</td><td>929</td><td>상호작용 없는 승강장 배경; 개인 창이 위에 열림</td></tr>
+      <tr><td><code>RailStrip</code> (중앙 선로 + 탑뷰 내 열차)</td><td>549</td><td>82</td><td>91</td><td>998</td><td>탑뷰 기관차 + 최대 8량 화차 (상시 비가림, 클릭 전환)</td></tr>
+      <tr><td><code>TownScene</code> (우측 마을 다이제틱 UI)</td><td>653</td><td>82</td><td>1247</td><td>977</td><td>6개 건물 버튼(칠판·말풍선·연기·시계 내장)</td></tr>
+      <tr><td><code>TrainWindow</code> (좌측 개인 화차 창)</td><td>26</td><td>516</td><td>510</td><td>544</td><td>7×5 보드(56px) + Δ 스트립 + 하단 행선지 렌즈 비교</td></tr>
+      <tr><td><code>NotebookWindow</code> (좌측 개인 수첩 5탭)</td><td>16</td><td>128</td><td>522</td><td>928</td><td>지도(노선도·경로계획·화물 핀) / 소문 / 의뢰 / 숙련 / 상성표</td></tr>
+      <tr><td><code>MarketWindow</code> (우측 마을 시장 창)</td><td>1136</td><td>96</td><td>764</td><td>690</td><td>물가·등급 띠 + 13×9 보드(56px, 728×504) + 조작 바</td></tr>
+      <tr><td><code>Tavern / Rest / StationHall / Workshop / CityHall</code></td><td>1136</td><td>96</td><td>764</td><td>440~600</td><td>우측 마을 위에 열리는 개별 건물 팝업 창</td></tr>
       <tr><td><code>TravelBanner</code> (이동 진행 스트립)</td><td>690</td><td>110</td><td>680</td><td>110</td><td>출발→도착 진행 바, 시각, 운임 표시</td></tr>
       <tr><td><code>PauseModal</code> / <code>RunEndModal</code></td><td>740 / 640</td><td>286 / 210</td><td>440 / 640</td><td>508 / 660</td><td>중앙 모달 + 딤 오버레이</td></tr>
     </tbody>
@@ -1942,18 +1906,18 @@
     </thead>
     <tbody>
       <tr><td><code>City Navigation</code> (상단 HUD, 시계, 정산, 평판, 자금, 목표)</td><td><code>TopHUD</code> (16, 12, 1888, 56) + <code>⚙ 일시정지</code></td></tr>
-      <tr><td><code>JourneyFooter</code> (야간/상태 안내 띠)</td><td><code>StatusBanner</code> (748, 90, 560, 34)</td></tr>
-      <tr><td><code>Train Inventory</code> + <code>Board</code> + <code>MoveGuide</code> + <code>TrainBar</code></td><td>우하단 <code>TrainWindow</code> (1396, 634, 508, 434) + 중앙 <code>RailStrip</code> 탑뷰 차량</td></tr>
-      <tr><td><code>StationHome</code> (행동 목록 6카드, 요약)</td><td>우측 <code>TownScene</code> 다이제틱 건물 6종으로 대체, 요약은 <code>MarketWindow</code> 하단에 배치</td></tr>
-      <tr><td><code>Market Inventory</code> + <code>MarketTradePreferences</code></td><td>좌측 <code>MarketWindow</code> (16, 128, 712, 928) + 마을 시장 칠판</td></tr>
-      <tr><td><code>RouteLens</code> + <code>Candidate1~3</code></td><td>잡은 화물 옆 대형 Δ 칩 + 긍정 후보 칸 채움 + 시장 창 하단 + <code>수첩·지도</code> 핀</td></tr>
-      <tr><td><code>Tavern</code> + <code>Quest Board</code></td><td>좌측 <code>TavernWindow</code> (마을 술집 클릭) + 말풍선</td></tr>
-      <tr><td><code>RestContent</code> (1~4턴 + 아침까지 대기)</td><td>좌측 <code>RestWindow</code> (마을 여관 클릭)</td></tr>
-      <tr><td><code>WagonShop</code></td><td>좌측 <code>StationHallWindow</code> (마을 역사 클릭 — 화차 시설 + 출발 통합)</td></tr>
-      <tr><td><code>Modification</code> (개조/도축/정제 작업대)</td><td>좌측 <code>WorkshopWindow</code> (생산시설 클릭, 없는 도시는 <code>공터</code> 표시)</td></tr>
-      <tr><td><code>PuzzleWorldMap</code> + <code>RoutePlan/Card</code> + <code>MapControls</code></td><td><code>NotebookWindow</code> &gt; <code>지도</code> 탭 (16, 128, 880, 928)</td></tr>
-      <tr><td><code>RumorLogPanel</code> (소문·의뢰·숙련·상성표)</td><td><code>NotebookWindow</code> &gt; <code>소문 / 의뢰 / 숙련 / 상성표</code> 탭</td></tr>
-      <tr><td><code>PuzzleItemTooltip</code></td><td><code>ItemTooltip</code> (우하단 화차 창 옆)</td></tr>
+      <tr><td><code>JourneyFooter</code> (야간/상태 안내 띠)</td><td><code>StatusBanner</code> (660, 90, 460, 34)</td></tr>
+      <tr><td><code>Train Inventory</code> + <code>Board</code> + <code>MoveGuide</code> + <code>TrainBar</code></td><td>좌측 <code>TrainWindow</code> (26, 516, 510, 544) + 중앙 <code>RailStrip</code> 탑뷰 차량</td></tr>
+      <tr><td><code>StationHome</code> (행동 목록 6카드, 요약)</td><td>우측 <code>TownScene</code> 다이제틱 건물 6종으로 대체</td></tr>
+      <tr><td><code>Market Inventory</code> + <code>MarketTradePreferences</code></td><td>우측 <code>MarketWindow</code> (1136, 96, 764, 690) + 마을 시장 칠판</td></tr>
+      <tr><td><code>RouteLens</code> + <code>Candidate1~3</code></td><td>잡은 화물 옆 대형 Δ 칩 + 긍정 후보 칸 채움 + <code>TrainWindow</code> 하단 비교 + <code>수첩·지도</code> 핀</td></tr>
+      <tr><td><code>Tavern</code> + <code>Quest Board</code></td><td>우측 <code>TavernWindow</code> (마을 술집 클릭) + 말풍선</td></tr>
+      <tr><td><code>RestContent</code> (1~4턴 + 아침까지 대기)</td><td>우측 <code>RestWindow</code> (마을 여관 클릭)</td></tr>
+      <tr><td><code>WagonShop</code></td><td>우측 <code>StationHallWindow</code> (마을 역사 클릭 — 화차 시설 + 출발 통합)</td></tr>
+      <tr><td><code>Modification</code> (개조/도축/정제 작업대)</td><td>우측 <code>WorkshopWindow</code> (생산시설 클릭, 없는 도시는 <code>공터</code> 표시)</td></tr>
+      <tr><td><code>PuzzleWorldMap</code> + <code>RoutePlan/Card</code> + <code>MapControls</code></td><td>좌측 <code>NotebookWindow</code> &gt; <code>지도</code> 탭 (16, 128, 522, 928)</td></tr>
+      <tr><td><code>RumorLogPanel</code> (소문·의뢰·숙련·상성표)</td><td>좌측 <code>NotebookWindow</code> &gt; <code>소문 / 의뢰 / 숙련 / 상성표</code> 탭</td></tr>
+      <tr><td><code>PuzzleItemTooltip</code></td><td>좌측 <code>ItemTooltip</code> (화차 창 상단)</td></tr>
       <tr><td><code>Pause Menu</code> / <code>TravelOverlay</code> / <code>RunEnd</code></td><td><code>PauseModal</code> / <code>TravelBanner</code> + 선로·승강장 연출 / <code>RunEndModal</code></td></tr>
     </tbody>
   </table>
@@ -1962,14 +1926,14 @@
   <ul>
     <li><b>정적 레이어 배경</b>: <code>PlatformScene</code>과 <code>TownScene</code>은 최하단 캔버스(<code>sortingOrder 0</code>)에 정적 이미지로 두고, 도시별 생산시설/공터 여부만 스프라이트 스왑으로 처리합니다.</li>
     <li><b>다이제틱 건물 버튼</b>: 6개 건물은 <code>Button</code> + 자식 상태 오브젝트(칠판 TMP, 말풍선, 굴뚝 파티클)로 구성하며, 호버 시 아웃라인 셰이더/하이라이트와 이름 라벨을 켭니다.</li>
-    <li><b>사전 배치 팝업 패널</b>: 좌측 창들(<code>MarketWindow</code>, <code>TavernWindow</code> 등)은 상호 배타적으로 <code>SetActive</code> 토글하고, 우하단 <code>TrainWindow</code>는 선로 차량 클릭 시 독립적으로 열립니다.</li>
+    <li><b>사전 배치 팝업 패널</b>: 개인 창(좌측)과 마을 창(우측)을 분리 배치해 중앙 선로(<code>549~640</code>)와 겹치지 않도록 하고, 각각 <code>SetActive</code> 토글로 제어합니다.</li>
   </ul>
 
   <h2>6. 임의 결정 사항</h2>
   <ul>
-    <li><b>시장 창 셀 크기 52px 적용</b>: 좌측 승강장 위에 시장 창을 열면서도 오른쪽 마을 6개 건물을 모두 클릭 가능하게 남기기 위해 시장 보드만 최소 기준인 52px(676×468)을 채택했습니다.</li>
-    <li><b>수첩 창 폭 880px 설정</b>: 지도 탭과 상성표 탭의 가독성을 확보하면서도 우하단 화차 창(x=1396) 및 마을 주요 건물과 겹치지 않도록 좌측 상단(16, 128) 기준 880×928 크기로 정했습니다.</li>
-    <li><b>이동 중 연출 방식</b>: 노선도 배경이 없는 상태에서 이동감을 전달하기 위해 승강장에 속도선, 기관차 전조등·주행 표시를 넣고, 상단 중앙(690, 110)에 경로 진행 스트립을 띄우며 우하단 화차 창은 유지했습니다.</li>
+    <li><b>시장 창 높이 690px 축소</b>: 행선지 렌즈 비교 정보를 좌측 개인 <code>TrainWindow</code> 하단으로 옮기고 시장 창 하단 빈 여백을 제거해, 시장 창 아래쪽 마을(여관 등)과 시야를 확보했습니다.</li>
+    <li><b>수첩 창 폭 522px 설정</b>: 지도·상성표 포함 모든 개인 창이 중앙 선로(<code>x=549</code>)를 절대 침범하지 않도록 승강장 폭(<code>522px</code>) 안에 맞췄으며, 상성표는 표 아래에 화물 태그를 세로 배치했습니다.</li>
+    <li><b>이동 중 연출 방식</b>: 노선도 배경이 없는 상태에서 이동감을 전달하기 위해 승강장에 속도선, 기관차 전조등·주행 표시를 넣고, 상단 중앙(690, 110)에 경로 진행 스트립을 띄우며 좌측 화차 창은 유지했습니다.</li>
   </ul>
 </section>
 
@@ -2040,10 +2004,10 @@
     items.forEach(it => {
       const el = document.createElement('div');
       el.className = 'cargo-piece';
-      el.style.left = (it.x * 52 + 2) + 'px';
-      el.style.top = (it.y * 52 + 2) + 'px';
-      el.style.width = (it.w * 52 - 4) + 'px';
-      el.style.height = (it.h * 52 - 4) + 'px';
+      el.style.left = (it.x * 56 + 2) + 'px';
+      el.style.top = (it.y * 56 + 2) + 'px';
+      el.style.width = (it.w * 56 - 4) + 'px';
+      el.style.height = (it.h * 56 - 4) + 'px';
       el.innerHTML = `<img src="${it.img}" alt=""><span class="cargo-price-tag">${it.price}</span>`;
       marketBoard.appendChild(el);
     });
