@@ -60,6 +60,7 @@
 | R18 | O5: "배경만 보기"는 열린 창만 잠시 숨기고(열림 상태 기억 후 복원) 상단 정보 바·도구줄·선로는 그대로 둔다 | 배경을 보려는 목적에 맞고 조작 수단을 잃지 않는다 |
 | R19 | O6: 글자 입력 칸에 포커스가 있으면 단축키 전체를 막는다(기존 `GameEvents.TextInputFocusChanged` 구독) | 지도 검색 중 숫자·문자가 창을 여닫지 않게 한다 |
 | R20 | 창 테두리·제목줄 등 새 UI 색은 색 정의 에셋 하나에서 읽는다. 팔레트 확정 전에는 현행 색(후보 A)을 넣어 두고, 확정되면 에셋 값만 바꾼다 | 팔레트 결정과 구현을 병행한다 |
+| R21 | 단계별 구현 중에도 게임이 계속 플레이 가능하도록 `RelayoutSettings.Enabled`(`PlayerPrefs` 키 `"ui.relayout.enabled"`, S7 전까지 기본값 `0`) 뒤에 새 레이아웃을 둔다. 에디터 메뉴 `Tools/MyJG/UI/Relayout/Toggle Relayout` 및 개발/에디터 일시정지 메뉴 토글을 제공한다 | S2~S6 사이 기존 기능 회귀 없이 점진적 전환·검증이 가능하게 한다 |
 | R22 | 제한판 규격: 색은 RGB555(SNES식 15비트, RGB565에서도 정확) 격자에 맞춘다(채널 5비트 v → 8비트 (v<<3)|(v>>2)). 후보마다 최대 32색, 5~6개 색상 램프(램프당 3~6단, 밝은 쪽은 따뜻하게·어두운 쪽은 차갑게 색조 이동) + 검정·흰색 계열. 모든 토큰은 이 32색 중 하나에 대응한다 | 16비트 기기 팔레트 감각을 살리면서 UI 의미 색을 모두 담을 수 있는 최소 규모다 |
 | R23 | 제한판 표현 규칙: 반투명·그라데이션·그림자·흐림 없음, 1~2px 단단한 테두리, 둥근 모서리 대신 직각 또는 2px 계단 모서리. 가독성 기준(본문 4.5:1 등)과 미니 격자 색 의미는 유지하고, 32색 안에서 못 지키면 넘기지 말고 보고한다. 제한판은 Aseprite·GIMP용 `.gpl`·`.hex`로도 내보낸다 | 도트 그림과 UI가 같은 색표를 쓰고, 그림 작업자가 바로 쓸 수 있게 한다 |
 | R2 | 시안 작성 전에 현재 화면을 전부 캡처하고 요소 목록(`UI_SCREEN_INVENTORY.md`)을 만든다 | 범위가 화면 전체라 빠뜨리는 기능이 없어야 한다 |
@@ -263,6 +264,8 @@ GameUI.prefab
 | **S7** | **다이제틱 상태 연동 + 구형 UI 정리 + 문서 현행화** | 수정: `TownSceneView.cs`, `PlatformSceneView.cs`, `GameUI.prefab`, `GameCanvas.prefab`<br>제거/비활성: 구형 `GameplayLayout`, `FixedBottomBar`, `PuzzleWorldMap` 루트<br>문서: `Docs/Management/UI_LAYOUT.md`, `CURRENT_STATE.md`, `HUD구성및플로우.md`, `UI_DESIGN_HANDOFF.md` | `Tools/MyJG/UI/Relayout/S7 Finalize And Cleanup` | 마을 건물 위 물가 칠판·소문 말풍선·굴뚝 연기·야간 불빛 실시간 반영, 이동 중 승강장 속도선, 전체 창 닫고 `배경만 보기` 확인, 전체 루프(도착→거래→의뢰→작업대→휴식→이동→결산) 플레이 통과 | 구형 프리팹 참조를 참조하는 테스트/에디터 스크립트(`RouteLensUIBuilder.cs` 등) 컴파일 오류 점검 필요 |
 
 > **S1 구현 결과 (2026-11-19):** `Assets/Scripts/Runtime/UI/Windowing/`(`FloatingWindow`, `FloatingWindowMath`, `FloatingWindowDragHandle`, `FloatingWindowResizeHandle`, `FloatingWindowManager`, `UIPalette`, `UIPaletteBinder`), `Assets/Resources/UI/UIPalette.asset`, `RunEndView`/`RunEndPresenter` + `RunEndModal.prefab`, `PauseMenu` '창 배치 초기화' 버튼 및 Esc 스택 연동, `RelayoutS1Builder.cs`(`Tools/MyJG/UI/Relayout/S1 Build Window System`) 구현 및 플레이 스모크 캡처(`.orca/analysis/relayout/s1/`) 확인 완료. 거래 횟수(`trade count`)는 `PuzzleInventoryService`에 미추적 상태이므로 결산 모달에서 생략.
+>
+> **S2 구현 결과 (2026-11-19):** `RelayoutSettings`(R21, `ui.relayout.enabled` 기본 0), `RelayoutRootController`, `TopHudView`(`PuzzleCityView` HUD 분리 및 기존 게이지/평판 재사용), `QuickToolbarView`, `StatusBannerView`, `PlatformSceneView`, `TownSceneView` + `TownBuildingButton` 6종(시장·술집·여관·역사·생산시설·시청, 기존 역 행동 연결 및 `1~6` 단축키), `PauseMenu` 개발용 토글, `RelayoutS2Builder.cs`(`Tools/MyJG/UI/Relayout/S2 Build Fixed Frame` / `Toggle Relayout`) 구현 및 스모크 캡처(`.orca/analysis/relayout/s2/`) 확인 완료(콘솔 에러 0).
 
 ---
 

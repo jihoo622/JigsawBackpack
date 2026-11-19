@@ -23,6 +23,8 @@ public sealed class PuzzleCityView : MonoBehaviour
     [SerializeField] TextMeshProUGUI clearLabel;
     [SerializeField] Button waitButton;
     [SerializeField] TextMeshProUGUI waitLabel;
+    [SerializeField] TopHudView topHudView;
+    [SerializeField] StatusBannerView statusBannerView;
 
     internal event Action WaitRequested;
 
@@ -82,6 +84,10 @@ public sealed class PuzzleCityView : MonoBehaviour
         }
 
         clearLabel.text = Presentation.PuzzleClearButton(_clearCost);
+        if (topHudView)
+        {
+            topHudView.Initialize(_clearCost);
+        }
     }
 
     internal void InitializeTown(Func<string> _getRumor)
@@ -122,6 +128,10 @@ public sealed class PuzzleCityView : MonoBehaviour
     internal void ShowCity(string _name)
     {
         cityName.text = _name;
+        if (topHudView)
+        {
+            topHudView.ShowCity(_name);
+        }
     }
 
     // 지금 턴의 한가운데를 가운데 고정한 24시간 창(앞뒤 12시간)이다. 표시선은 움직이지 않고 턴이 지나면 낮·밤 구간이 한 칸 밀린다.
@@ -167,6 +177,10 @@ public sealed class PuzzleCityView : MonoBehaviour
     {
         timeLabel.text = Presentation.PuzzleTime(_time);
         ShowDayNight(_time);
+        if (topHudView)
+        {
+            topHudView.ShowTime(_time);
+        }
         if (deadlineTitle)
         {
             deadlineTitle.text = Presentation.TimeDeadlineTitle;
@@ -199,10 +213,18 @@ public sealed class PuzzleCityView : MonoBehaviour
     internal void ShowEndless()
     {
         clearLabel.text = Presentation.PuzzleEndlessLabel;
+        if (topHudView)
+        {
+            topHudView.ShowEndless();
+        }
     }
 
     internal void ShowFunds(long _funds, bool _canClear)
     {
+        if (topHudView)
+        {
+            topHudView.ShowFunds(_funds, _canClear);
+        }
         clearButton.interactable = _canClear;
         funds.richText = true;
         if (!displayedFunds.HasValue)
@@ -280,5 +302,9 @@ public sealed class PuzzleCityView : MonoBehaviour
     {
         tradeStatus.richText = true;
         tradeStatus.text = _status;
+        if (statusBannerView)
+        {
+            statusBannerView.ShowStatus(_status);
+        }
     }
 }

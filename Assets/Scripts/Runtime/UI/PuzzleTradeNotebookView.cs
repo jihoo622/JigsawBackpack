@@ -61,6 +61,11 @@ public sealed class PuzzleTradeNotebookView : PanelBase
     internal event Action<PuzzleNotebookTab> TabSelected;
     internal event Action Shown;
 
+    public void Toggle()
+    {
+        ToggleLog();
+    }
+
     public void OpenTab(PuzzleNotebookTab _tab)
     {
         TabSelected?.Invoke(_tab);

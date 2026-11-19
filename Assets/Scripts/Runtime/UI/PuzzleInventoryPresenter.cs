@@ -69,6 +69,20 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
     bool TrainOperationsBlocked => isTravelOpen;
     bool MarketOperationsBlocked => isMapOpen || isTravelOpen;
 
+    internal bool AreShortcutsBlocked()
+    {
+        if (MarketOperationsBlocked || session == null || session.RunStatus != PuzzleRunStatus.InProgress)
+        {
+            return true;
+        }
+        if (pauseMenu && pauseMenu.IsOpen)
+        {
+            return true;
+        }
+        var runEnd = ResolveRunEndPresenter();
+        return runEnd && runEnd.IsOpen;
+    }
+
     void Start()
     {
         if (!initialized || !objectiveView || session.RunStatus != PuzzleRunStatus.InProgress)

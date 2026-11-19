@@ -15,6 +15,7 @@ public sealed class RunEndPresenter : MonoBehaviour
     bool restoreInventoryInput;
     GameObject previousSelection;
 
+    internal bool IsOpen => view && view.IsOpen;
     internal bool CanShow => isActiveAndEnabled && view && !view.IsOpen;
 
     void Awake()

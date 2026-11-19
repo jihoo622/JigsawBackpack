@@ -889,6 +889,81 @@
           "id": "runEndQuit",
           "value": "종료",
           "arguments": 0
+        },
+        {
+          "id": "relayoutToggleOn",
+          "value": "새 화면 배치: 켜짐",
+          "arguments": 0
+        },
+        {
+          "id": "relayoutToggleOff",
+          "value": "새 화면 배치: 꺼짐",
+          "arguments": 0
+        },
+        {
+          "id": "topHudPause",
+          "value": "일시정지 (Esc)",
+          "arguments": 0
+        },
+        {
+          "id": "qtNotebook",
+          "value": "수첩 (N)",
+          "arguments": 0
+        },
+        {
+          "id": "qtMap",
+          "value": "노선도 (M)",
+          "arguments": 0
+        },
+        {
+          "id": "qtBackgroundOnly",
+          "value": "배경만 보기",
+          "arguments": 0
+        },
+        {
+          "id": "qtShortcutHint",
+          "value": "1~6",
+          "arguments": 0
+        },
+        {
+          "id": "bldgMarket",
+          "value": "시장 (1)",
+          "arguments": 0
+        },
+        {
+          "id": "bldgTavern",
+          "value": "술집 (2)",
+          "arguments": 0
+        },
+        {
+          "id": "bldgRest",
+          "value": "여관 (3)",
+          "arguments": 0
+        },
+        {
+          "id": "bldgStation",
+          "value": "역사 (4)",
+          "arguments": 0
+        },
+        {
+          "id": "bldgWorkshop",
+          "value": "생산시설 (5)",
+          "arguments": 0
+        },
+        {
+          "id": "bldgCityHall",
+          "value": "시청 (6)",
+          "arguments": 0
+        },
+        {
+          "id": "bldgCityHallPlaceholder",
+          "value": "시청 창은 S6에서 구현됩니다.",
+          "arguments": 0
+        },
+        {
+          "id": "bldgWorkshopEmpty",
+          "value": "이 역에는 생산시설이 없습니다 (공터).",
+          "arguments": 0
         }
       ]
     },

@@ -2709,6 +2709,24 @@ public static partial class Presentation
     internal static string RunEndQuestsLabel => BasicData.Text("presentation.inventory.runEndQuestsLabel");
     internal static string RunEndRestart => BasicData.Text("presentation.inventory.runEndRestart");
     internal static string RunEndQuit => BasicData.Text("presentation.inventory.runEndQuit");
+    internal static string TopHudPause => BasicData.Text("presentation.inventory.topHudPause");
+    internal static string QuickToolbarNotebook => BasicData.Text("presentation.inventory.qtNotebook");
+    internal static string QuickToolbarMap => BasicData.Text("presentation.inventory.qtMap");
+    internal static string QuickToolbarBackgroundOnly => BasicData.Text("presentation.inventory.qtBackgroundOnly");
+    internal static string QuickToolbarShortcutHint => BasicData.Text("presentation.inventory.qtShortcutHint");
+    internal static string BuildingMarket => BasicData.Text("presentation.inventory.bldgMarket");
+    internal static string BuildingTavern => BasicData.Text("presentation.inventory.bldgTavern");
+    internal static string BuildingRest => BasicData.Text("presentation.inventory.bldgRest");
+    internal static string BuildingStation => BasicData.Text("presentation.inventory.bldgStation");
+    internal static string BuildingWorkshop => BasicData.Text("presentation.inventory.bldgWorkshop");
+    internal static string BuildingCityHall => BasicData.Text("presentation.inventory.bldgCityHall");
+    internal static string BuildingCityHallPlaceholder => BasicData.Text("presentation.inventory.bldgCityHallPlaceholder");
+    internal static string BuildingWorkshopEmpty => BasicData.Text("presentation.inventory.bldgWorkshopEmpty");
+
+    internal static string RelayoutToggle(bool _enabled)
+    {
+        return BasicData.Text(_enabled ? "presentation.inventory.relayoutToggleOn" : "presentation.inventory.relayoutToggleOff");
+    }
 
     internal static string RunEndMoney(long _amount)
     {
