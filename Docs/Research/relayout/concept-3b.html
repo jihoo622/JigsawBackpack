@@ -228,7 +228,7 @@
     z-index: 5;
   }
 
-  /* ── Middle Rail Strip (Top-Down Parked Train): (549, 82, 91, 998) ── */
+  /* ── Middle Rail Strip (Vertically Scrollable Parked Train): (549, 82, 91, 998) ── */
   .rail-strip {
     position: absolute;
     left: 549px; top: 82px; width: 91px; height: 998px;
@@ -239,8 +239,6 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 12px 6px 10px;
-    gap: 0;
     overflow: hidden;
   }
   .rail-track-bg {
@@ -249,6 +247,59 @@
     pointer-events: none;
     z-index: 0;
   }
+  .rail-scroll-viewport {
+    position: relative;
+    z-index: 2;
+    flex: 1;
+    width: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 26px 4px 28px;
+    gap: 0;
+    scrollbar-width: thin;
+    scrollbar-color: #475569 transparent;
+  }
+  .rail-scroll-viewport::-webkit-scrollbar { width: 4px; }
+  .rail-scroll-viewport::-webkit-scrollbar-track { background: transparent; }
+  .rail-scroll-viewport::-webkit-scrollbar-thumb { background: #475569; border-radius: 3px; }
+  .rail-fade-top, .rail-fade-bottom {
+    position: absolute;
+    left: 0; right: 0;
+    height: 36px;
+    pointer-events: none;
+    z-index: 4;
+    display: flex;
+    justify-content: center;
+  }
+  .rail-fade-top {
+    top: 0;
+    align-items: flex-start;
+    padding-top: 3px;
+    background: linear-gradient(180deg, rgba(15, 23, 36, 0.94) 0%, rgba(15, 23, 36, 0) 100%);
+  }
+  .rail-fade-bottom {
+    bottom: 0;
+    align-items: flex-end;
+    padding-bottom: 4px;
+    background: linear-gradient(0deg, rgba(15, 23, 36, 0.94) 0%, rgba(15, 23, 36, 0) 100%);
+  }
+  .rail-arrow-btn {
+    pointer-events: auto;
+    background: rgba(27, 40, 56, 0.92);
+    border: 1px solid var(--border-bright);
+    color: var(--gold);
+    border-radius: 4px;
+    padding: 1px 10px;
+    font-size: 10px;
+    font-weight: 800;
+    cursor: pointer;
+    line-height: 1.3;
+  }
+  .rail-arrow-btn:hover { background: var(--gold-dim); border-color: var(--gold); }
+
   .train-car-btn {
     position: relative;
     z-index: 2;
@@ -260,23 +311,55 @@
     flex-direction: column;
     align-items: center;
     transition: transform 0.15s, filter 0.15s;
+    flex-shrink: 0;
   }
-  .train-car-btn:hover { transform: scale(1.03); filter: brightness(1.1); }
+  .train-car-btn:hover { transform: scale(1.02); filter: brightness(1.08); }
   .train-car-btn.active {
     filter: drop-shadow(0 0 10px rgba(240, 180, 41, 0.95));
   }
-  .train-car-btn.empty { cursor: default; opacity: 0.45; }
-  .train-car-btn.empty:hover { transform: none; filter: none; }
+  .wagon-car-shell {
+    width: 81px;
+    border-radius: 6px;
+    padding: 5px 3px 4px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    border: 2px solid #64748b;
+    background: #334155;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.45);
+  }
+  .wagon-car-shell.type-basic { background: #6c2710; border-color: #c2410c; }
+  .wagon-car-shell.type-fridge { background: #0c4a6e; border-color: #38bdf8; }
+  .wagon-car-shell.type-std { background: #334155; border-color: #94a3b8; }
+  .train-car-btn.active .wagon-car-shell {
+    border-color: var(--gold);
+    box-shadow: inset 0 0 8px rgba(240, 180, 41, 0.35);
+  }
+
+  /* 7x5 Mini-Grid Preview (9px squares, 1.5px/2px gaps, GitHub-style gray/yellow) */
+  .mini-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 9px);
+    grid-template-rows: repeat(5, 9px);
+    gap: 1.5px;
+    background: #0d1219;
+    padding: 3px;
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+  }
+  .mg-cell { width: 9px; height: 9px; border-radius: 1.5px; }
+  .mg-blocked { background: #141922; }
+  .mg-empty { background: #4b5563; }
+  .mg-cargo-0 { background: #fde047; }
+  .mg-cargo-1 { background: #eab308; }
+
   .car-label {
-    position: absolute;
-    bottom: 6px;
-    left: 50%;
-    transform: translateX(-50%);
     background: rgba(15, 23, 36, 0.92);
     border: 1px solid var(--border-bright);
     border-radius: 4px;
-    padding: 1px 5px;
-    font-size: 10px;
+    padding: 1px 4px;
+    font-size: 9.5px;
     font-weight: 800;
     color: var(--text);
     white-space: nowrap;
@@ -294,6 +377,7 @@
     background: #64748b;
     border-left: 2px solid #94a3b8;
     border-right: 2px solid #94a3b8;
+    flex-shrink: 0;
   }
 
   /* ── Right Town Scene (Diegetic UI): (653, 82, 1247, 977) ── */
@@ -967,6 +1051,7 @@
   <button class="state-btn" data-state="tooltip">툴팁</button>
   <button class="state-btn" data-state="pause">일시정지</button>
   <button class="state-btn" data-state="travel">이동 중</button>
+  <button class="state-btn" data-state="many_wagons">다중 화차(11량·스크롤)</button>
   <button class="state-btn" data-state="run_end">결산 결과</button>
 </div>
 
@@ -1068,7 +1153,7 @@
         </svg>
       </div>
 
-      <!-- 4. MIDDLE RAIL STRIP (MY TRAIN PARKED TOP-DOWN): (549, 82, 91, 998) -->
+      <!-- 4. MIDDLE RAIL STRIP (SCROLLABLE TOP-DOWN PARKED TRAIN + 7x5 MINI-GRIDS): (549, 82, 91, 998) -->
       <aside class="rail-strip" id="rail-strip">
         <svg class="rail-track-bg" viewBox="0 0 91 998" width="91" height="998" xmlns="http://www.w3.org/2000/svg">
           <rect width="91" height="998" fill="#1b1f26"/>
@@ -1094,103 +1179,32 @@
           <rect x="67" y="0" width="5" height="998" fill="#94a3b8"/>
         </svg>
 
-        <!-- Top-Down Locomotive -->
-        <div class="train-car-btn" style="cursor:default;" title="기관차">
-          <svg viewBox="0 0 74 106" width="74" height="106">
-            <!-- Headlight beam (visible in travel) -->
-            <polygon id="loco-headlight" points="22,6 52,6 66,0 8,0" fill="#fef08a" opacity="0.25"/>
-            <!-- Cowcatcher / front bumper -->
-            <polygon points="18,12 56,12 50,4 24,4" fill="#475569" stroke="#94a3b8" stroke-width="1.5"/>
-            <!-- Boiler body -->
-            <rect x="15" y="12" width="44" height="58" rx="10" fill="#92400e" stroke="#f59e0b" stroke-width="2"/>
-            <rect x="21" y="18" width="32" height="44" rx="6" fill="#78350f"/>
-            <!-- Smokestack -->
-            <circle cx="37" cy="26" r="8" fill="#1e293b" stroke="#cbd5e1" stroke-width="2"/>
-            <circle cx="37" cy="26" r="3" fill="#0f1724"/>
-            <!-- Cab roof -->
-            <rect x="11" y="66" width="52" height="36" rx="4" fill="#b45309" stroke="#fcd34d" stroke-width="2"/>
-            <rect x="17" y="72" width="40" height="22" rx="2" fill="#78350f"/>
-          </svg>
-          <span class="car-label" id="rail-loco-status">기관차</span>
+        <div class="rail-fade-top">
+          <button class="rail-arrow-btn" id="rail-scroll-up" title="위로 스크롤">▲</button>
         </div>
 
-        <div class="car-coupler"></div>
+        <div class="rail-scroll-viewport" id="rail-scroll-viewport">
+          <!-- Top-Down Locomotive -->
+          <div class="train-car-btn" style="cursor:default;" title="기관차">
+            <svg viewBox="0 0 74 96" width="74" height="96">
+              <polygon id="loco-headlight" points="22,6 52,6 66,0 8,0" fill="#fef08a" opacity="0.25"/>
+              <polygon points="18,12 56,12 50,4 24,4" fill="#475569" stroke="#94a3b8" stroke-width="1.5"/>
+              <rect x="15" y="12" width="44" height="50" rx="10" fill="#92400e" stroke="#f59e0b" stroke-width="2"/>
+              <rect x="21" y="18" width="32" height="38" rx="6" fill="#78350f"/>
+              <circle cx="37" cy="25" r="7.5" fill="#1e293b" stroke="#cbd5e1" stroke-width="2"/>
+              <circle cx="37" cy="25" r="3" fill="#0f1724"/>
+              <rect x="11" y="58" width="52" height="34" rx="4" fill="#b45309" stroke="#fcd34d" stroke-width="2"/>
+              <rect x="17" y="64" width="40" height="20" rx="2" fill="#78350f"/>
+            </svg>
+            <span class="car-label" id="rail-loco-status">기관차</span>
+          </div>
 
-        <!-- Wagon 1 (Selected, Default) -->
-        <button class="train-car-btn active" data-wagon="1" title="1번 · 고장난 칸">
-          <svg viewBox="0 0 74 104" width="74" height="104">
-            <rect x="10" y="3" width="54" height="98" rx="5" fill="#7c2d12" stroke="#f0b429" stroke-width="2.5"/>
-            <rect x="15" y="9" width="44" height="86" rx="2" fill="#9a3412"/>
-            <g stroke="#7c2d12" stroke-width="2">
-              <line x1="15" y1="26" x2="59" y2="26"/><line x1="15" y1="44" x2="59" y2="44"/>
-              <line x1="15" y1="62" x2="59" y2="62"/><line x1="15" y1="80" x2="59" y2="80"/>
-            </g>
-            <line x1="37" y1="9" x2="37" y2="95" stroke="#c2410c" stroke-width="2"/>
-          </svg>
-          <span class="car-label">1 · 6/22 · 65$</span>
-        </button>
+          <div id="rail-wagons-container" style="display:flex;flex-direction:column;align-items:center;width:100%;"></div>
+        </div>
 
-        <div class="car-coupler"></div>
-
-        <!-- Wagon 2 (Refrigerated) -->
-        <button class="train-car-btn" data-wagon="2" title="2번 · 냉장 화차">
-          <svg viewBox="0 0 74 104" width="74" height="104">
-            <rect x="10" y="3" width="54" height="98" rx="5" fill="#0369a1" stroke="#7dd3fc" stroke-width="2"/>
-            <rect x="15" y="9" width="44" height="86" rx="2" fill="#0284c7"/>
-            <rect x="23" y="20" width="28" height="16" rx="2" fill="#e0f2fe"/>
-            <rect x="23" y="66" width="28" height="16" rx="2" fill="#e0f2fe"/>
-          </svg>
-          <span class="car-label">2 · 0/25 · 0$</span>
-        </button>
-
-        <div class="car-coupler"></div>
-
-        <!-- Wagon 3 (Standard) -->
-        <button class="train-car-btn" data-wagon="3" title="3번 · 일반 화차">
-          <svg viewBox="0 0 74 104" width="74" height="104">
-            <rect x="10" y="3" width="54" height="98" rx="5" fill="#334155" stroke="#94a3b8" stroke-width="2"/>
-            <rect x="15" y="9" width="44" height="86" rx="2" fill="#475569"/>
-            <g stroke="#334155" stroke-width="2">
-              <line x1="15" y1="28" x2="59" y2="28"/><line x1="15" y1="52" x2="59" y2="52"/>
-              <line x1="15" y1="76" x2="59" y2="76"/>
-            </g>
-          </svg>
-          <span class="car-label">3 · 4/18 · 42$</span>
-        </button>
-
-        <div class="car-coupler"></div>
-
-        <!-- Empty slots 4..8 -->
-        <button class="train-car-btn empty" disabled>
-          <svg viewBox="0 0 74 92" width="74" height="92">
-            <rect x="14" y="6" width="46" height="80" rx="4" fill="none" stroke="#475569" stroke-width="1.5" stroke-dasharray="5 4"/>
-          </svg>
-          <span class="car-label" style="opacity:0.7;">4 빈</span>
-        </button>
-        <button class="train-car-btn empty" disabled>
-          <svg viewBox="0 0 74 92" width="74" height="92">
-            <rect x="14" y="6" width="46" height="80" rx="4" fill="none" stroke="#475569" stroke-width="1.5" stroke-dasharray="5 4"/>
-          </svg>
-          <span class="car-label" style="opacity:0.7;">5 빈</span>
-        </button>
-        <button class="train-car-btn empty" disabled>
-          <svg viewBox="0 0 74 92" width="74" height="92">
-            <rect x="14" y="6" width="46" height="80" rx="4" fill="none" stroke="#475569" stroke-width="1.5" stroke-dasharray="5 4"/>
-          </svg>
-          <span class="car-label" style="opacity:0.7;">6 빈</span>
-        </button>
-        <button class="train-car-btn empty" disabled>
-          <svg viewBox="0 0 74 92" width="74" height="92">
-            <rect x="14" y="6" width="46" height="80" rx="4" fill="none" stroke="#475569" stroke-width="1.5" stroke-dasharray="5 4"/>
-          </svg>
-          <span class="car-label" style="opacity:0.7;">7 빈</span>
-        </button>
-        <button class="train-car-btn empty" disabled>
-          <svg viewBox="0 0 74 92" width="74" height="92">
-            <rect x="14" y="6" width="46" height="80" rx="4" fill="none" stroke="#475569" stroke-width="1.5" stroke-dasharray="5 4"/>
-          </svg>
-          <span class="car-label" style="opacity:0.7;">8 빈</span>
-        </button>
+        <div class="rail-fade-bottom">
+          <button class="rail-arrow-btn" id="rail-scroll-down" title="아래로 스크롤">▼ <span id="rail-count-badge" style="font-weight:600;color:#cbd5e1;">3량</span></button>
+        </div>
       </aside>
 
       <!-- 5. RIGHT TOWN SCENE (DIEGETIC UI): (653, 82, 1247, 977) -->
@@ -1510,7 +1524,7 @@
           <button class="btn-primary" id="btn-open-map-from-station">🗺 노선도 열기</button>
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center;padding:0 4px;">
-          <span style="font-size:14px;font-weight:700;">화차 시설 (무료 증차 · 최대 8량)</span>
+          <span style="font-size:14px;font-weight:700;">화차 시설 (무료 증차 · 세로 스크롤 편성)</span>
           <span style="font-size:12.5px;font-weight:700;color:var(--gold);">현재 3/4량 (평판 상한)</span>
         </div>
         <div class="quest-card">
@@ -1577,7 +1591,7 @@
           <div style="font-size:14px;font-weight:800;color:#4ade80;margin-bottom:6px;">평판 및 화차 상한</div>
           <div style="font-size:12.5px;color:var(--text-sub);line-height:1.6;">
             • 현재 평판: <b>0</b> (다음 단계 평판 4까지 4)<br>
-            • 동시 의뢰 상한: <b>1개</b> · 화차 증차 상한: <b>4 / 8량</b>
+            • 동시 의뢰 상한: <b>1개</b> · 현재 편성: <b>3량</b> (평판에 따라 증차)
           </div>
         </div>
       </aside>
@@ -1868,7 +1882,7 @@
   <h2>1. 시안 3 대비 변경점 및 이유</h2>
   <ul>
     <li><b>오른쪽 마을을 다이제틱 UI로 전환</b>: 별도의 5탭 역 독이나 행동 목록 메뉴를 완전히 제거하고, 마을 건물 자체(<code>시장 / 술집 / 여관 / 역사 / 시청 / 생산시설·공터</code>)를 클릭해 해당 팝업 창을 여는 구조로 바꿨습니다. 건물 외관에 물가 칠판, 소문 말풍선, 굴뚝 연기, 시계 등 상태를 직접 녹였습니다.</li>
-    <li><b>중앙 선로 스트립(549~640)에 탑뷰 내 열차 실물 배치</b>: 요약 블록 대신 기관차와 최대 8량 화차를 연결된 탑뷰 차량으로 그려 현장감을 살리고, 각 차량 위 작은 라벨(<code>1 · 6/22 · 65$</code>)로 적재·가치를 표시합니다.</li>
+    <li><b>중앙 선로 스트립(549~640)에 세로 스크롤 탑뷰 열차 + 7×5 미니 그리드 배치</b>: 8량 제한을 없애고 상하 페이드·▲▼ 버튼·휠 스크롤을 지원하는 세로 선로 위에 기관차와 모든 화차를 배치했습니다. 각 화차 위에는 7×5 미니 그리드(빈 칸=회색, 화물=2톤 노랑, 막힌 칸=어두운 색)와 <code>번호 · 적재 · 가치</code> 라벨을 실시간으로 표시합니다.</li>
     <li><b>창 배치 재편 (개인 창 좌측 + 마을 창 우측 + 중앙 선로 상시 비가림)</b>: 선택된 화차의 7×5 인벤토리·행선지 렌즈 비교·여행 수첩·화물 툴팁 등 <b>개인 창</b>은 왼쪽 승강장 위(<code>x=16~538</code>)에 열고, 시장(13×9)·술집·여관·역사·작업대·시청 등 <b>마을 관련 창</b>은 오른쪽 마을 위(<code>x=1136~1900</code>)에 엽니다. 중앙 선로(<code>549~640</code>)는 어떤 창도 덮지 않아 거래 중에도 화차를 클릭해 전환할 수 있습니다.</li>
     <li><b>철도 노선도를 수첩 첫 번째 탭(<code>지도</code>)으로 통합</b>: 수첩 5탭(<code>지도 / 소문 / 의뢰 / 숙련 / 상성표</code>) 안에서 안개 4단계, 검색, 경로 계획, 마지막 선택 화물의 행선지 핀을 제공합니다.</li>
     <li><b>보조 단축키 지원</b>: 건물 클릭 외에 키보드 단축키(<code>1</code> 시장, <code>2</code> 술집, <code>3</code> 여관, <code>4</code> 역사, <code>5</code> 생산시설, <code>6</code> 시청, <code>M</code> 수첩·지도, <code>N</code> 수첩, <code>Tab</code> 화차 전환, <code>Esc</code> 일시정지/창 닫기)를 보조 경로로 제공합니다.</li>
@@ -1888,7 +1902,7 @@
       <tr><td><code>TopHUD</code> (상단 고정 바)</td><td>16</td><td>12</td><td>1888</td><td>56</td><td>현재역, 기한, 시계·정산, 평판, 자금, 목표, 일시정지</td></tr>
       <tr><td><code>QuickToolbar</code> (좌상단 빠른 도구)</td><td>26</td><td>82</td><td>510</td><td>38</td><td>수첩, 노선도(M), 배경만 보기, 단축키 안내</td></tr>
       <tr><td><code>PlatformScene</code> (좌측 승강장 순수 배경)</td><td>26</td><td>134</td><td>510</td><td>929</td><td>상호작용 없는 승강장 배경; 개인 창이 위에 열림</td></tr>
-      <tr><td><code>RailStrip</code> (중앙 선로 + 탑뷰 내 열차)</td><td>549</td><td>82</td><td>91</td><td>998</td><td>탑뷰 기관차 + 최대 8량 화차 (상시 비가림, 클릭 전환)</td></tr>
+      <tr><td><code>RailStrip</code> (중앙 선로 + 세로 스크롤 열차)</td><td>549</td><td>82</td><td>91</td><td>998</td><td>탑뷰 기관차 + 모든 화차(8량 초과 스크롤, 7×5 미니 그리드 내장)</td></tr>
       <tr><td><code>TownScene</code> (우측 마을 다이제틱 UI)</td><td>653</td><td>82</td><td>1247</td><td>977</td><td>6개 건물 버튼(칠판·말풍선·연기·시계 내장)</td></tr>
       <tr><td><code>TrainWindow</code> (좌측 개인 화차 창)</td><td>26</td><td>516</td><td>510</td><td>544</td><td>7×5 보드(56px) + Δ 스트립 + 하단 행선지 렌즈 비교</td></tr>
       <tr><td><code>NotebookWindow</code> (좌측 개인 수첩 5탭)</td><td>16</td><td>128</td><td>522</td><td>928</td><td>지도(노선도·경로계획·화물 핀) / 소문 / 의뢰 / 숙련 / 상성표</td></tr>
@@ -1941,16 +1955,152 @@
   const trainBoard = document.getElementById('train-board');
   const marketBoard = document.getElementById('market-board');
   const workshopBoard = document.getElementById('workshop-board');
+  const railWagonsContainer = document.getElementById('rail-wagons-container');
+  const railViewport = document.getElementById('rail-scroll-viewport');
 
-  const blockedTrain = new Set(['0,0','1,0','2,0','3,0','4,0','0,1','1,1','2,1','3,1','4,1','0,2','3,4']);
+  const blockedDefault = new Set(['0,0','1,0','2,0','3,0','4,0','0,1','1,1','2,1','3,1','4,1','0,2','3,4']);
+  const blockedFridge = new Set(['0,0','6,0','0,4','6,4','3,2']);
+  const blockedStd = new Set(['0,0','1,0','6,4','5,4']);
+
+  const baseWagons = [
+    {
+      id: 1, title: '🚂 1번 · 고장난 칸', typeClass: 'type-basic', cap: 22, blocked: blockedDefault,
+      pieces: [
+        { x: 1, y: 2, w: 2, h: 1, img: 'assets/WoodBundle.png', shade: 0, value: 28 },
+        { x: 0, y: 3, w: 1, h: 2, img: 'assets/WoodBundle.png', shade: 1, value: 22 },
+        { x: 5, y: 0, w: 1, h: 1, img: 'assets/Apple.png', shade: 0, value: 15 }
+      ]
+    },
+    {
+      id: 2, title: '❄ 2번 · 냉장 화차', typeClass: 'type-fridge', cap: 30, blocked: blockedFridge,
+      pieces: [
+        { x: 1, y: 1, w: 1, h: 1, img: 'assets/Fish.png', shade: 0, value: 22 },
+        { x: 2, y: 1, w: 1, h: 1, img: 'assets/Apple.png', shade: 1, value: 15 },
+        { x: 4, y: 2, w: 2, h: 1, img: 'assets/CowMeat.png', shade: 0, value: 48 }
+      ]
+    },
+    {
+      id: 3, title: '📦 3번 · 일반 화차', typeClass: 'type-std', cap: 31, blocked: blockedStd,
+      pieces: [
+        { x: 2, y: 1, w: 2, h: 2, img: 'assets/ElbowLeft.png', shade: 0, value: 42 },
+        { x: 5, y: 0, w: 1, h: 1, img: 'assets/SaltSack.png', shade: 1, value: 16 }
+      ]
+    }
+  ];
+
+  function createManyWagons() {
+    const extra = [];
+    for (let i = 4; i <= 11; i++) {
+      const isFridge = i % 3 === 0;
+      extra.push({
+        id: i,
+        title: (isFridge ? '❄ ' : '📦 ') + i + '번 · ' + (isFridge ? '냉장 화차' : '일반 화차'),
+        typeClass: isFridge ? 'type-fridge' : 'type-std',
+        cap: isFridge ? 30 : 31,
+        blocked: isFridge ? blockedFridge : blockedStd,
+        pieces: i === 10
+          ? [{ x: 1, y: 1, w: 3, h: 2, img: 'assets/MachineFrame.png', shade: 0, value: 68 }]
+          : (i % 2 === 0
+              ? [{ x: 2, y: 2, w: 2, h: 1, img: 'assets/Cow.png', shade: 0, value: 54 }, { x: 4, y: 2, w: 1, h: 1, img: 'assets/SaltSack.png', shade: 1, value: 16 }]
+              : [{ x: 1, y: 1, w: 1, h: 1, img: 'assets/FruitCrate.png', shade: 0, value: 20 }])
+      });
+    }
+    return [...JSON.parse(JSON.stringify(baseWagons)).map((w, idx) => ({ ...w, blocked: baseWagons[idx].blocked })), ...extra];
+  }
+
+  let wagonsData = baseWagons.map(w => ({ ...w, pieces: w.pieces.map(p => ({ ...p })) }));
+  let activeWagonId = 1;
+  let currentShowCands = false;
+  let currentShowAffected = false;
+
+  function getWagonStats(wagon) {
+    let used = 0;
+    let val = 0;
+    wagon.pieces.forEach(p => {
+      used += p.w * p.h;
+      val += p.value || 15;
+    });
+    return { used, val };
+  }
+
+  function renderRailStrip(scrollSelectedIntoView = false) {
+    railWagonsContainer.innerHTML = '';
+    document.getElementById('rail-count-badge').textContent = wagonsData.length + '량';
+
+    wagonsData.forEach(wagon => {
+      const coupler = document.createElement('div');
+      coupler.className = 'car-coupler';
+      railWagonsContainer.appendChild(coupler);
+
+      const stats = getWagonStats(wagon);
+      const btn = document.createElement('button');
+      btn.className = 'train-car-btn' + (wagon.id === activeWagonId ? ' active' : '');
+      btn.dataset.wagon = wagon.id;
+      btn.title = wagon.title;
+
+      // Build cell map for 7x5 mini-grid
+      const cellMap = new Map();
+      wagon.pieces.forEach(p => {
+        for (let dy = 0; dy < p.h; dy++) {
+          for (let dx = 0; dx < p.w; dx++) {
+            cellMap.set(`${p.x + dx},${p.y + dy}`, p.shade);
+          }
+        }
+      });
+
+      let gridHtml = '<div class="mini-grid">';
+      for (let y = 0; y < 5; y++) {
+        for (let x = 0; x < 7; x++) {
+          const k = `${x},${y}`;
+          if (wagon.blocked.has(k)) {
+            gridHtml += '<div class="mg-cell mg-blocked"></div>';
+          } else if (cellMap.has(k)) {
+            gridHtml += `<div class="mg-cell mg-cargo-${cellMap.get(k)}"></div>`;
+          } else {
+            gridHtml += '<div class="mg-cell mg-empty"></div>';
+          }
+        }
+      }
+      gridHtml += '</div>';
+
+      btn.innerHTML = `
+        <div class="wagon-car-shell ${wagon.typeClass}">
+          ${gridHtml}
+          <span class="car-label">${wagon.id} · ${stats.used}/${wagon.cap} · ${stats.val}$</span>
+        </div>
+      `;
+
+      btn.addEventListener('click', () => {
+        activeWagonId = wagon.id;
+        renderRailStrip(true);
+        buildTrainGrid(currentShowCands, currentShowAffected);
+        document.getElementById('train-window').classList.add('visible');
+      });
+
+      railWagonsContainer.appendChild(btn);
+      if (scrollSelectedIntoView && wagon.id === activeWagonId) {
+        railViewport.scrollTop = Math.max(0, btn.offsetTop - (railViewport.clientHeight / 2) + (btn.offsetHeight / 2));
+      }
+    });
+  }
+
   function buildTrainGrid(showCands, showAffected) {
+    currentShowCands = showCands;
+    currentShowAffected = showAffected;
+    const wagon = wagonsData.find(w => w.id === activeWagonId) || wagonsData[0];
+    const stats = getWagonStats(wagon);
+    document.getElementById('train-win-title').textContent = wagon.title;
+    document.getElementById('train-win-cap').textContent = `적재 ${stats.used}/${wagon.cap}칸`;
+    document.getElementById('train-win-val').innerHTML = `가치 ${stats.val}$ <small style="color:var(--text-sub);font-weight:400;">(기본 ${Math.max(0, stats.val - 15)}$)</small>`;
+
     trainBoard.innerHTML = '';
     for (let y = 0; y < 5; y++) {
       for (let x = 0; x < 7; x++) {
         const key = `${x},${y}`;
         const cell = document.createElement('div');
-        cell.className = 'cell' + (blockedTrain.has(key) ? ' blocked' : '');
-        if (showCands) {
+        const isBlocked = wagon.blocked.has(key);
+        cell.className = 'cell' + (isBlocked ? ' blocked' : '');
+        if (showCands && !isBlocked) {
           if (x === 3 && y === 2) {
             cell.classList.add('cand-1');
             cell.innerHTML = '<div class="cand-badge">①<br>+12$</div>';
@@ -1962,22 +2112,31 @@
             cell.innerHTML = '<div class="cand-badge">③<br>+4$</div>';
           }
         }
+        // Live cargo placement on click to demonstrate live mini-grid update
+        if (!isBlocked) {
+          cell.style.cursor = 'pointer';
+          cell.addEventListener('click', () => {
+            const occupied = wagon.pieces.some(p => x >= p.x && x < p.x + p.w && y >= p.y && y < p.y + p.h);
+            if (!occupied) {
+              const nextShade = wagon.pieces.length % 2;
+              wagon.pieces.push({ x, y, w: 1, h: 1, img: 'assets/FruitCrate.png', shade: nextShade, value: 20 });
+              buildTrainGrid(currentShowCands, currentShowAffected);
+              renderRailStrip(false);
+            }
+          });
+        }
         trainBoard.appendChild(cell);
       }
     }
-    const pieces = [
-      { x: 1, y: 2, w: 2, h: 1, img: 'assets/WoodBundle.png', affected: showAffected },
-      { x: 0, y: 3, w: 1, h: 2, img: 'assets/WoodBundle.png', affected: false },
-      { x: 5, y: 0, w: 1, h: 1, img: 'assets/Apple.png', affected: false }
-    ];
-    pieces.forEach(p => {
+    wagon.pieces.forEach((p, idx) => {
       const el = document.createElement('div');
-      el.className = 'cargo-piece' + (p.affected ? ' affected' : '');
+      const isFirstAffected = showAffected && idx === 0;
+      el.className = 'cargo-piece' + (isFirstAffected ? ' affected' : '');
       el.style.left = (p.x * 56 + 2) + 'px';
       el.style.top = (p.y * 56 + 2) + 'px';
       el.style.width = (p.w * 56 - 4) + 'px';
       el.style.height = (p.h * 56 - 4) + 'px';
-      el.innerHTML = `<img src="${p.img}" alt="">` + (p.affected ? '<span class="cargo-delta-badge">+20%</span>' : '');
+      el.innerHTML = `<img src="${p.img}" alt="">` + (isFirstAffected ? '<span class="cargo-delta-badge">+20%</span>' : '');
       trainBoard.appendChild(el);
     });
   }
@@ -2085,9 +2244,19 @@
     document.getElementById('train-delta-sub').textContent = '매 턴 누적';
     document.getElementById('held-ghost-img').src = 'assets/FruitCrate.png';
 
-    buildTrainGrid(false, false);
+    // Reset wagons to 3 default unless many_wagons
+    if (state === 'many_wagons') {
+      wagonsData = createManyWagons();
+      activeWagonId = 10;
+    } else {
+      wagonsData = baseWagons.map(w => ({ ...w, pieces: w.pieces.map(p => ({ ...p })) }));
+      if (activeWagonId > 3) activeWagonId = 1;
+    }
 
-    if (state === 'arrival_default') {
+    buildTrainGrid(false, false);
+    renderRailStrip(state === 'many_wagons');
+
+    if (state === 'arrival_default' || state === 'many_wagons') {
       trainWin.classList.add('visible');
       marketWin.classList.add('visible');
     } else if (state === 'scene_only') {
@@ -2220,18 +2389,16 @@
   document.querySelectorAll('[data-close-win]').forEach(btn => {
     btn.addEventListener('click', () => btn.closest('.popup-window').classList.remove('visible'));
   });
-  document.querySelectorAll('.train-car-btn[data-wagon]').forEach(w => {
-    w.addEventListener('click', () => {
-      document.querySelectorAll('.train-car-btn').forEach(x => x.classList.remove('active'));
-      w.classList.add('active');
-      const num = w.dataset.wagon;
-      const titles = { '1': '🚂 1번 · 고장난 칸', '2': '❄ 2번 · 냉장 화차', '3': '📦 3번 · 일반 화차' };
-      const caps = { '1': '적재 6/22칸', '2': '적재 0/25칸', '3': '적재 4/18칸' };
-      document.getElementById('train-win-title').textContent = titles[num];
-      document.getElementById('train-win-cap').textContent = caps[num];
-      document.getElementById('train-window').classList.add('visible');
-    });
+  document.getElementById('rail-scroll-up').addEventListener('click', () => {
+    railViewport.scrollBy({ top: -110, behavior: 'smooth' });
   });
+  document.getElementById('rail-scroll-down').addEventListener('click', () => {
+    railViewport.scrollBy({ top: 110, behavior: 'smooth' });
+  });
+  railViewport.addEventListener('wheel', (e) => {
+    e.preventDefault();
+    railViewport.scrollTop += e.deltaY;
+  }, { passive: false });
 
   // Secondary keyboard shortcuts
   window.addEventListener('keydown', (e) => {
