@@ -60,7 +60,7 @@ public static class RelayoutS6Builder
         TextMeshProUGUI _labelTemplate)
     {
         var layoutRoot = PrefabUtility.LoadPrefabContents(GAMEPLAY_LAYOUT_PREFAB);
-        var rootGo = CreateWindowShell("TavernWindow", "tavern", "술집", 1136f, 136f, 620f, 520f,
+        var rootGo = CreateWindowShell("TavernWindow", "tavern", "술집", 1136f, 136f, 620f, 576f,
             _palette, _buttonTemplate, _labelTemplate, out var floatingWin, out var titleText);
         try
         {
@@ -71,7 +71,7 @@ public static class RelayoutS6Builder
             rumorBar.anchorMin = new Vector2(0f, 1f);
             rumorBar.anchorMax = new Vector2(1f, 1f);
             rumorBar.pivot = new Vector2(0.5f, 1f);
-            rumorBar.anchoredPosition = new Vector2(0f, -34f);
+            rumorBar.anchoredPosition = new Vector2(0f, -38f); // 제목줄(30) 아래 8px
             rumorBar.sizeDelta = new Vector2(-16f, 54f);
             var rbImg = rumorBar.gameObject.AddComponent<Image>();
             rbImg.color = _palette.Panel2;
@@ -101,21 +101,78 @@ public static class RelayoutS6Builder
             var bodyRt = (RectTransform)clonedBoard.transform;
             bodyRt.anchorMin = Vector2.zero;
             bodyRt.anchorMax = Vector2.one;
-            // 아래 안내 줄(8~48) 위 간격 8px.
-            bodyRt.offsetMin = new Vector2(12f, 56f);
-            bodyRt.offsetMax = new Vector2(-12f, -94f);
+            // 소문 줄(38~92) 아래 8px, 의뢰 정보 카드(8~132) 위 8px.
+            bodyRt.offsetMin = new Vector2(12f, 140f);
+            bodyRt.offsetMax = new Vector2(-12f, -100f);
 
             var invView = clonedBoard.GetComponent<PuzzleInventoryView>();
             PrepareClonedBoard(clonedBoard, invView, _palette, 504f, 320f, 40f, 52f);
 
-            // 하단 안내/세부 정보 줄 (44px)
-            var hintText = CreateLabel(_labelTemplate, rootRect, "HintText", 13f, TextAlignmentOptions.Left, _palette, UIPalette.ColorRole.TextSub);
+            // 하단 의뢰 정보 카드(596×124): 게시판 화물에 마우스를 올리면 제목 · 네 칸(최단 이동·기한·보수·숙련) · 실패 조건을 보여 준다.
+            // 올리지 않았을 때는 가운데 안내 문구만 보인다.
+            var card = NewRect("QuestDetailCard", rootRect);
+            SetAnchored(card, 0f, 0f, 1f, 0f, 0f, 0f, 0f, 0f);
+            card.pivot = new Vector2(0.5f, 0f);
+            card.anchoredPosition = new Vector2(0f, 8f);
+            card.sizeDelta = new Vector2(-24f, 124f);
+            var cardImg = card.gameObject.AddComponent<Image>();
+            cardImg.color = _palette.Panel2;
+            cardImg.raycastTarget = false;
+            BindPalette(card.gameObject, _palette, UIPalette.ColorRole.Panel2);
+
+            var hintText = CreateLabel(_labelTemplate, card, "HintText", 13f, TextAlignmentOptions.Center, _palette, UIPalette.ColorRole.TextSub);
             hintText.textWrappingMode = TextWrappingModes.Normal;
-            hintText.rectTransform.anchorMin = new Vector2(0f, 0f);
-            hintText.rectTransform.anchorMax = new Vector2(1f, 0f);
-            hintText.rectTransform.pivot = new Vector2(0.5f, 0f);
-            hintText.rectTransform.anchoredPosition = new Vector2(0f, 8f);
-            hintText.rectTransform.sizeDelta = new Vector2(-24f, 40f);
+            hintText.rectTransform.anchorMin = Vector2.zero;
+            hintText.rectTransform.anchorMax = Vector2.one;
+            hintText.rectTransform.offsetMin = new Vector2(12f, 8f);
+            hintText.rectTransform.offsetMax = new Vector2(-12f, -8f);
+
+            var detailRoot = NewRect("Detail", card);
+            detailRoot.anchorMin = Vector2.zero;
+            detailRoot.anchorMax = Vector2.one;
+            detailRoot.offsetMin = Vector2.zero;
+            detailRoot.offsetMax = Vector2.zero;
+
+            var detailTitle = CreateLabel(_labelTemplate, detailRoot, "DetailTitle", 16f, TextAlignmentOptions.MidlineLeft, _palette, UIPalette.ColorRole.TitleText);
+            detailTitle.fontStyle = FontStyles.Bold;
+            detailTitle.textWrappingMode = TextWrappingModes.NoWrap;
+            detailTitle.overflowMode = TextOverflowModes.Ellipsis;
+            SetAnchored(detailTitle.rectTransform, 0f, 1f, 1f, 1f, 12f, -10f, -24f, 24f);
+
+            const float STAT_TOP = 40f, STAT_H = 44f, STAT_GAP = 8f, CARD_INNER = 572f;
+            float statW = (CARD_INNER - STAT_GAP * 3f) / 4f;
+            var statLabels = new TextMeshProUGUI[4];
+            var statValues = new TextMeshProUGUI[4];
+            for (int i = 0; i < 4; i++)
+            {
+                var cell = NewRect("Stat_" + i, detailRoot);
+                SetAnchored(cell, 0f, 1f, 0f, 1f, 12f + i * (statW + STAT_GAP), -STAT_TOP, statW, STAT_H);
+                var cellImg = cell.gameObject.AddComponent<Image>();
+                cellImg.color = _palette.Panel;
+                cellImg.raycastTarget = false;
+                BindPalette(cell.gameObject, _palette, UIPalette.ColorRole.Panel);
+
+                statLabels[i] = CreateLabel(_labelTemplate, cell, "Label", 11f, TextAlignmentOptions.MidlineLeft, _palette, UIPalette.ColorRole.TextSub);
+                statLabels[i].textWrappingMode = TextWrappingModes.NoWrap;
+                SetAnchored(statLabels[i].rectTransform, 0f, 1f, 1f, 1f, 8f, -4f, -16f, 16f);
+
+                statValues[i] = CreateLabel(_labelTemplate, cell, "Value", 15f, TextAlignmentOptions.MidlineLeft, _palette, UIPalette.ColorRole.Text);
+                statValues[i].fontStyle = FontStyles.Bold;
+                statValues[i].textWrappingMode = TextWrappingModes.NoWrap;
+                statValues[i].overflowMode = TextOverflowModes.Ellipsis;
+                SetAnchored(statValues[i].rectTransform, 0f, 1f, 1f, 1f, 8f, -20f, -16f, 22f);
+            }
+            // 보수는 금색으로 강조한다.
+            statValues[2].color = _palette.GoldAccent;
+            BindPalette(statValues[2].gameObject, _palette, UIPalette.ColorRole.GoldAccent);
+
+            var detailPenalty = CreateLabel(_labelTemplate, detailRoot, "DetailPenalty", 13f, TextAlignmentOptions.MidlineLeft, _palette, UIPalette.ColorRole.Text);
+            detailPenalty.color = _palette.Negative;
+            BindPalette(detailPenalty.gameObject, _palette, UIPalette.ColorRole.Negative);
+            detailPenalty.textWrappingMode = TextWrappingModes.NoWrap;
+            detailPenalty.overflowMode = TextOverflowModes.Ellipsis;
+            SetAnchored(detailPenalty.rectTransform, 0f, 1f, 1f, 1f, 12f, -92f, -24f, 22f);
+            detailRoot.gameObject.SetActive(false);
 
             var tv = rootGo.AddComponent<TavernWindowView>();
             var so = new SerializedObject(tv);
@@ -126,6 +183,18 @@ public static class RelayoutS6Builder
             so.FindProperty("rumorText").objectReferenceValue = rumorText;
             so.FindProperty("questBoardView").objectReferenceValue = invView;
             so.FindProperty("hintText").objectReferenceValue = hintText;
+            so.FindProperty("detailRoot").objectReferenceValue = detailRoot.gameObject;
+            so.FindProperty("detailTitle").objectReferenceValue = detailTitle;
+            so.FindProperty("detailPenalty").objectReferenceValue = detailPenalty;
+            var labelsProp = so.FindProperty("detailStatLabels");
+            var valuesProp = so.FindProperty("detailStatValues");
+            labelsProp.arraySize = 4;
+            valuesProp.arraySize = 4;
+            for (int i = 0; i < 4; i++)
+            {
+                labelsProp.GetArrayElementAtIndex(i).objectReferenceValue = statLabels[i];
+                valuesProp.GetArrayElementAtIndex(i).objectReferenceValue = statValues[i];
+            }
             so.ApplyModifiedPropertiesWithoutUndo();
 
             var saved = PrefabUtility.SaveAsPrefabAsset(rootGo, TAVERN_PREFAB);
@@ -211,7 +280,7 @@ public static class RelayoutS6Builder
         TextMeshProUGUI _labelTemplate)
     {
         var layoutRoot = PrefabUtility.LoadPrefabContents(GAMEPLAY_LAYOUT_PREFAB);
-        var rootGo = CreateWindowShell("StationHallWindow", "station_hall", "역사", 1136f, 136f, 560f, 316f,
+        var rootGo = CreateWindowShell("StationHallWindow", "station_hall", "역사", 1136f, 136f, 560f, 246f,
             _palette, _buttonTemplate, _labelTemplate, out var floatingWin, out var titleText);
         try
         {
@@ -239,7 +308,8 @@ public static class RelayoutS6Builder
                 var rowGo = Object.Instantiate(srcRow.gameObject, rootRect, false);
                 rowGo.name = $"WagonProductRow_{i + 1}";
                 var rt = (RectTransform)rowGo.transform;
-                SetAnchored(rt, 0f, 1f, 0f, 1f, 16f, -40f - i * 132f, 528f, 120f);
+                // 화차 카드: 제목줄(30) 아래 8px, 좌우 16px. 아래 판매·출발 줄과 8px.
+                SetAnchored(rt, 0f, 1f, 0f, 1f, 16f, -38f - i * 128f, 528f, 120f);
                 var rowComp = rowGo.GetComponent<PuzzleWagonProductRow>();
                 var rSo = new SerializedObject(rowComp);
                 rSo.FindProperty("dragPreview").objectReferenceValue = dragPreviewImg;
@@ -248,15 +318,30 @@ public static class RelayoutS6Builder
                 // 카드 내부 배치: 왼쪽 그림, 오른쪽 이름·크기·가격(label)과 칸수 칩을 한 덩어리로 둔다.
                 if (rSo.FindProperty("artwork").objectReferenceValue is Image art)
                 {
-                    SetAnchored(art.rectTransform, 0f, 1f, 0f, 1f, 12f, -12f, 176f, 96f);
+                    // 그림은 90도 돌려 맞추는 상자(QuarterTurnFitter) 안에 있어 그림 자체 위치는 상자 가운데로 되돌아간다. 상자를 옮긴다.
+                    var artBox = art.rectTransform.parent as RectTransform;
+                    var artTarget = artBox && artBox.GetComponent<QuarterTurnFitter>() ? artBox : art.rectTransform;
+                    SetAnchored(artTarget, 0f, 1f, 0f, 1f, 12f, -12f, 176f, 96f);
                 }
+                // 오른쪽 열(x 204, 폭 312): 이름·크기·가격(2줄) → 실을 수 있는 칸 칩 → 끌어 구매 안내.
                 if (rSo.FindProperty("label").objectReferenceValue is TextMeshProUGUI cardLabel)
                 {
-                    SetAnchored(cardLabel.rectTransform, 0f, 1f, 0f, 1f, 200f, -14f, 316f, 48f);
+                    SetAnchored(cardLabel.rectTransform, 0f, 1f, 0f, 1f, 204f, -12f, 312f, 52f);
+                    cardLabel.enableAutoSizing = false;
+                    cardLabel.fontSize = 14f;
+                    cardLabel.richText = true;
+                    cardLabel.alignment = TextAlignmentOptions.TopLeft;
+                    cardLabel.textWrappingMode = TextWrappingModes.NoWrap;
+                    cardLabel.overflowMode = TextOverflowModes.Ellipsis;
+                    cardLabel.color = _palette.Text;
                 }
+                var dragHint = CreateLabel(_labelTemplate, rt, "DragHint", 12f, TextAlignmentOptions.MidlineLeft, _palette, UIPalette.ColorRole.TextSub);
+                dragHint.text = Presentation.WagonProductDragHint;
+                dragHint.textWrappingMode = TextWrappingModes.NoWrap;
+                SetAnchored(dragHint.rectTransform, 0f, 1f, 0f, 1f, 204f, -92f, 312f, 18f);
                 if (rSo.FindProperty("chipRoot").objectReferenceValue is GameObject chip && chip.transform is RectTransform chipRt)
                 {
-                    SetAnchored(chipRt, 0f, 1f, 0f, 1f, 200f, -70f, 96f, 26f);
+                    SetAnchored(chipRt, 0f, 1f, 0f, 1f, 204f, -64f, 72f, 24f);
                     // 칩 글자 상자는 옛 카드 크기 그대로라 칩보다 크다. 칩 칸에 맞춘다.
                     foreach (var chipText in chipRt.GetComponentsInChildren<TextMeshProUGUI>(true))
                     {
@@ -280,15 +365,17 @@ public static class RelayoutS6Builder
             dragPreviewRt.SetAsLastSibling();
 
             // 페이저 줄: 카드 바로 아래, 페이지 표시 왼쪽 · 다음 버튼 오른쪽
-            var pageLabel = CreateLabel(_labelTemplate, rootRect, "PageLabel", 14f, TextAlignmentOptions.Left, _palette, UIPalette.ColorRole.TextSub);
-            SetAnchored(pageLabel.rectTransform, 0f, 1f, 0f, 1f, 16f, -174f, 160f, 32f);
-
-            var nextPageBtn = CreateButton(_buttonTemplate, rootRect, "NextPageButton", "다음", _palette, UIPalette.ColorRole.Panel2);
-            SetAnchored(nextPageBtn.GetComponent<RectTransform>(), 0f, 1f, 0f, 1f, 424f, -174f, 120f, 32f);
+            // 넘김(상품이 여러 장일 때만 보임)은 제목줄 오른쪽, 닫기 버튼 왼쪽에 둔다. 본문에 빈 줄이 남지 않는다.
+            var titleBar = (RectTransform)titleText.transform.parent;
+            var nextPageBtn = CreateButton(_buttonTemplate, titleBar, "NextPageButton", "다음", _palette, UIPalette.ColorRole.Panel);
+            SetAnchored(nextPageBtn.GetComponent<RectTransform>(), 1f, 0.5f, 1f, 0.5f, -88f, 11f, 56f, 22f);
+            var pageLabel = CreateLabel(_labelTemplate, titleBar, "PageLabel", 12f, TextAlignmentOptions.MidlineRight, _palette, UIPalette.ColorRole.TextSub);
+            SetAnchored(pageLabel.rectTransform, 1f, 0.5f, 1f, 0.5f, -156f, 11f, 64f, 22f);
+            RelayoutWindowKit.ReserveTitleRight(titleText, 164f);
 
             // 판매 드롭 구역과 출발 버튼: 같은 줄, 같은 높이
             var sellZone = NewRect("SellDropZone", rootRect);
-            SetAnchored(sellZone, 0f, 1f, 0f, 1f, 16f, -220f, 360f, 76f);
+            SetAnchored(sellZone, 0f, 1f, 0f, 1f, 16f, -166f, 360f, 72f);
             var sellImg = sellZone.gameObject.AddComponent<Image>();
             sellImg.color = _palette.Panel2;
             BindPalette(sellZone.gameObject, _palette, UIPalette.ColorRole.Panel2);
@@ -304,7 +391,7 @@ public static class RelayoutS6Builder
             sellLabel.rectTransform.offsetMax = new Vector2(-8f, -4f);
 
             var departBtn = CreateButton(_buttonTemplate, rootRect, "DepartButton", "출발 (지도)", _palette, UIPalette.ColorRole.GoldAccent);
-            SetAnchored(departBtn.GetComponent<RectTransform>(), 0f, 1f, 0f, 1f, 392f, -220f, 152f, 76f);
+            SetAnchored(departBtn.GetComponent<RectTransform>(), 0f, 1f, 0f, 1f, 392f, -166f, 152f, 72f);
             var departLabel = departBtn.GetComponentInChildren<TextMeshProUGUI>(true);
 
             // 하단 중복 안내(판매 문구 반복)는 만들지 않는다. statusText는 null로 두면 뷰가 쓰지 않는다.
@@ -788,15 +875,8 @@ public static class RelayoutS6Builder
             {
                 var markerRt = candProp.GetArrayElementAtIndex(c).objectReferenceValue as RectTransform;
                 if (!markerRt) continue;
-                var mImg = markerRt.GetComponent<Image>();
-                if (mImg)
-                {
-                    mImg.sprite = null;
-                    mImg.type = Image.Type.Simple;
-                    mImg.color = c == 0
-                        ? new Color(_palette.GoldAccent.r, _palette.GoldAccent.g, _palette.GoldAccent.b, 0.28f)
-                        : new Color(_palette.BorderBright.r, _palette.BorderBright.g, _palette.BorderBright.b, 0.28f);
-                }
+                RelayoutWindowKit.StyleCandidateMarker(markerRt,
+                    new Color(_palette.GoldAccent.r, _palette.GoldAccent.g, _palette.GoldAccent.b, 0.22f), _palette.GoldAccent);
             }
         }
         invSo.ApplyModifiedPropertiesWithoutUndo();

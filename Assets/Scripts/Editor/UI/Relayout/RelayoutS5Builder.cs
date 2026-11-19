@@ -164,19 +164,8 @@ public static class RelayoutS5Builder
                 {
                     var markerRt = candProp.GetArrayElementAtIndex(c).objectReferenceValue as RectTransform;
                     if (!markerRt) continue;
-                    var mImg = markerRt.GetComponent<Image>();
-                    if (mImg)
-                    {
-                        mImg.sprite = null;
-                        mImg.type = Image.Type.Simple;
-                        mImg.color = c == 0
-                            ? new Color(_palette.GoldAccent.r, _palette.GoldAccent.g, _palette.GoldAccent.b, 0.28f)
-                            : new Color(_palette.GoldAccent.r, _palette.GoldAccent.g, _palette.GoldAccent.b, 0.18f);
-                        mImg.raycastTarget = false;
-                    }
-                    var mOut = markerRt.GetComponent<Outline>() ?? markerRt.gameObject.AddComponent<Outline>();
-                    mOut.effectColor = _palette.GoldAccent;
-                    mOut.effectDistance = new Vector2(2f, -2f);
+                    RelayoutWindowKit.StyleCandidateMarker(markerRt,
+                        new Color(_palette.GoldAccent.r, _palette.GoldAccent.g, _palette.GoldAccent.b, 0.22f), _palette.GoldAccent);
                 }
             }
             invSo.ApplyModifiedPropertiesWithoutUndo();

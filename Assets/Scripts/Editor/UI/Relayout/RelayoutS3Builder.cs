@@ -521,25 +521,8 @@ public static class RelayoutS3Builder
                     markerRt.anchorMax = new Vector2(0.5f, 0.5f);
                     markerRt.pivot = new Vector2(0.5f, 0.5f);
                     markerRt.localScale = Vector3.one;
-                    var mImg = markerRt.GetComponent<Image>();
-                    if (mImg)
-                    {
-                        mImg.enabled = true;
-                        mImg.sprite = null;
-                        mImg.type = Image.Type.Simple;
-                        mImg.color = c == 0
-                            ? new Color(_palette.GoldAccent.r, _palette.GoldAccent.g, _palette.GoldAccent.b, 0.28f)
-                            : new Color(_palette.GoldAccent.r, _palette.GoldAccent.g, _palette.GoldAccent.b, 0.18f);
-                        mImg.raycastTarget = false;
-                    }
-                    for (int ch = 0; ch < markerRt.childCount; ch++)
-                    {
-                        var childImg = markerRt.GetChild(ch).GetComponent<Image>();
-                        if (childImg) childImg.enabled = false;
-                    }
-                    var mOut = markerRt.GetComponent<Outline>() ?? markerRt.gameObject.AddComponent<Outline>();
-                    mOut.effectColor = _palette.GoldAccent;
-                    mOut.effectDistance = new Vector2(2f, -2f);
+                    RelayoutWindowKit.StyleCandidateMarker(markerRt,
+                        new Color(_palette.GoldAccent.r, _palette.GoldAccent.g, _palette.GoldAccent.b, 0.22f), _palette.GoldAccent);
                 }
             }
             invSo.ApplyModifiedPropertiesWithoutUndo();

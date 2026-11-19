@@ -27,8 +27,11 @@ public sealed class PuzzleInventoryView : MonoBehaviour
     };
 
     // 놓을 자리 후보 표식의 반투명 채움색(개편 레이아웃).
-    static readonly Color CANDIDATE_FILL_COLOR = new Color(0.95f, 0.82f, 0.35f, 0.55f);
-    static readonly Color CANDIDATE_LABEL_COLOR = new Color(0.07f, 0.09f, 0.13f, 1f);
+    // 아래 화물이 보이도록 옅게 채운다(테두리는 표식의 선 4개가 그린다).
+    static readonly Color CANDIDATE_FILL_COLOR = new Color(0.95f, 0.82f, 0.35f, 0.22f);
+    static readonly Color CANDIDATE_LABEL_COLOR = new Color(0.98f, 0.86f, 0.42f, 1f);
+    // 순위·가치 글자 뒤 어두운 바탕(화물 그림 위에서도 읽히게)
+    const string CANDIDATE_LABEL_PLATE = "<mark=#0E1520E6 padding=\"6,6,2,2\">";
 
     [SerializeField] Image board;
     [SerializeField] CanvasGroup interaction;
@@ -924,13 +927,16 @@ public sealed class PuzzleInventoryView : MonoBehaviour
         var label = candidateLabels != null && _index < candidateLabels.Length ? candidateLabels[_index] : null;
         if (label)
         {
-            label.text = _label ?? string.Empty;
+            label.text = RelayoutSettings.Enabled && !string.IsNullOrEmpty(_label)
+                ? CANDIDATE_LABEL_PLATE + _label + "</mark>"
+                : _label ?? string.Empty;
             label.rectTransform.localPosition = BoardToSpace(label.rectTransform.parent, _boardCenter);
             label.raycastTarget = false;
-            // 개편 레이아웃은 금색 반투명 채움 위에 놓이므로 같은 금색 글자는 묻힌다. 진한 글자로 대비를 준다.
+            // 개편 레이아웃은 옅은 채움 위 화물 그림과 겹치므로 어두운 바탕 위 밝은 글자로 대비를 준다.
             if (RelayoutSettings.Enabled)
             {
                 label.color = CANDIDATE_LABEL_COLOR;
+                label.richText = true;
                 label.fontStyle = FontStyles.Bold;
             }
             label.gameObject.SetActive(true);

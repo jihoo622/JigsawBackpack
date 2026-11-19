@@ -262,6 +262,58 @@ public static class RelayoutWindowKit
         so.ApplyModifiedPropertiesWithoutUndo();
     }
 
+    const string CANDIDATE_EDGE_PREFIX = "CandidateEdge_";
+
+    // 배치 후보 표식: 옅은 채움 + 2px 테두리 선 4개.
+    // uGUI Outline 효과는 테두리만이 아니라 채움 전체를 불투명한 효과 색으로 네 번 더 그려서 반투명 채움이 불투명해진다. 그래서 쓰지 않는다.
+    public static void StyleCandidateMarker(RectTransform _marker, Color _fill, Color _border, float _borderWidth = 2f)
+    {
+        var outline = _marker.GetComponent<Outline>();
+        if (outline) Object.DestroyImmediate(outline, true);
+
+        var img = _marker.GetComponent<Image>();
+        if (img)
+        {
+            img.enabled = true;
+            img.sprite = null;
+            img.type = Image.Type.Simple;
+            img.color = _fill;
+            img.raycastTarget = false;
+        }
+        // 옛 표식의 자식 그림(윗선 등)은 끄고, 테두리 선만 쓴다.
+        for (int i = 0; i < _marker.childCount; i++)
+        {
+            var child = _marker.GetChild(i);
+            if (child.name.StartsWith(CANDIDATE_EDGE_PREFIX)) continue;
+            var childImg = child.GetComponent<Image>();
+            if (childImg) childImg.enabled = false;
+        }
+        Edge(_marker, "Top", new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, _borderWidth), _border);
+        Edge(_marker, "Bottom", new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, _borderWidth), _border);
+        Edge(_marker, "Left", new Vector2(0f, 0f), new Vector2(0f, 1f), new Vector2(0f, 0.5f), new Vector2(_borderWidth, 0f), _border);
+        Edge(_marker, "Right", new Vector2(1f, 0f), new Vector2(1f, 1f), new Vector2(1f, 0.5f), new Vector2(_borderWidth, 0f), _border);
+    }
+
+    static void Edge(RectTransform _parent, string _side, Vector2 _min, Vector2 _max, Vector2 _pivot, Vector2 _size, Color _color)
+    {
+        var t = _parent.Find(CANDIDATE_EDGE_PREFIX + _side) as RectTransform;
+        if (!t)
+        {
+            t = NewRect(CANDIDATE_EDGE_PREFIX + _side, _parent);
+            t.gameObject.AddComponent<Image>();
+        }
+        t.anchorMin = _min;
+        t.anchorMax = _max;
+        t.pivot = _pivot;
+        t.anchoredPosition = Vector2.zero;
+        t.sizeDelta = _size;
+        var img = t.GetComponent<Image>();
+        img.enabled = true;
+        img.sprite = null;
+        img.color = _color;
+        img.raycastTarget = false;
+    }
+
     public static RectTransform NewRect(string _name, Transform _parent)
     {
         var go = new GameObject(_name, typeof(RectTransform));

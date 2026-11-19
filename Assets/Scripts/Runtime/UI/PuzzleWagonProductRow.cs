@@ -57,7 +57,8 @@ public sealed class PuzzleWagonProductRow : MonoBehaviour, IBeginDragHandler, ID
         gameObject.SetActive(product != null);
         if (product != null)
         {
-            label.text = Presentation.WagonProductLabel(product);
+            // 개편 역사 창 카드는 이름·크기·가격을 줄을 나눠 보여 준다.
+            label.text = RelayoutSettings.Enabled ? Presentation.WagonProductCard(product) : Presentation.WagonProductLabel(product);
             if (chipLabel != null)
             {
                 chipLabel.text = Presentation.WagonCellsChip(Presentation.WagonUsableCells(product));

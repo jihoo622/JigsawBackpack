@@ -764,6 +764,22 @@ public static partial class Presentation
             _offer.ProficiencyXp);
     }
 
+    // 개편 술집 창 의뢰 정보 카드: 제목 · 네 칸(최단 이동 · 기한 · 보수 · 숙련) · 실패 조건.
+    internal static string QuestCardTitle(TrainventoryQuestOffer _offer) =>
+        BasicData.Format("presentation.quest.cardTitle", QuestCargoName(_offer.PieceId), QuestCityName(_offer.TargetCityId));
+    internal static string QuestCardTravelLabel => BasicData.Text("presentation.quest.cardTravelLabel");
+    internal static string QuestCardDeadlineLabel => BasicData.Text("presentation.quest.cardDeadlineLabel");
+    internal static string QuestCardRewardLabel => BasicData.Text("presentation.quest.cardRewardLabel");
+    internal static string QuestCardProficiencyLabel => BasicData.Text("presentation.quest.cardProficiencyLabel");
+    internal static string QuestCardTravel(TrainventoryQuestOffer _offer) => TurnSpan(PuzzleTimeManager.HoursOf(_offer.TravelTurns));
+    internal static string QuestCardDeadline(TrainventoryQuestOffer _offer) => TurnSpan(_offer.DeadlineHours);
+    internal static string QuestCardReward(TrainventoryQuestOffer _offer) =>
+        BasicData.Format("presentation.quest.cardRewardValue", _offer.Reward);
+    internal static string QuestCardProficiency(TrainventoryQuestOffer _offer) =>
+        BasicData.Format("presentation.quest.cardProficiencyValue", PuzzleTagLabel(_offer.ProficiencyTag), _offer.ProficiencyXp);
+    internal static string QuestCardPenalty(TrainventoryQuestOffer _offer) =>
+        BasicData.Format("presentation.quest.cardPenalty", QuestPenaltyText(_offer.PenaltyId, _offer.Deposit, _offer.SourceCityId));
+
     internal static string QuestAcceptLabel(TrainventoryQuestOffer _offer)
     {
         return _offer.Deposit > 0
@@ -1349,6 +1365,15 @@ public static partial class Presentation
     internal static string StationWagonShop => BasicData.Text("presentation.station.wagonShop");
     internal static string StationWagonShopPage(int _page, int _pageCount) =>
         BasicData.Format("presentation.station.wagonShopPage", _page, _pageCount);
+    // 개편 역사 창 화차 카드: 이름(크게) · 보드 크기 · 가격.
+    internal static string WagonProductCard(PuzzleWagonProductData _product)
+    {
+        var board = TableManager.Instance.RequireValid().WagonBoardOf(_product);
+        return BasicData.Format("presentation.station.wagonProductCard", _product.displayName, board.width, board.height, _product.price);
+    }
+
+    public static string WagonProductDragHint => BasicData.Text("presentation.station.wagonProductDragHint");
+
     internal static string WagonProductLabel(PuzzleWagonProductData _product)
     {
         var board = TableManager.Instance.RequireValid().WagonBoardOf(_product);

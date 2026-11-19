@@ -1811,7 +1811,7 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
         if (_view == ActiveQuestBoardView && _placement != null && tavernWindowView &&
             questOfferByInstanceId.TryGetValue(_placement.InstanceId, out var hoveredOffer))
         {
-            tavernWindowView.SetHint(Presentation.QuestOffer(hoveredOffer));
+            tavernWindowView.ShowQuestDetail(hoveredOffer);
         }
 
         if (tooltipView && drag == null && (_position.HasValue || hoverPosition.HasValue))

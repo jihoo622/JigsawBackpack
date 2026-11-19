@@ -1986,6 +1986,42 @@
         {
           "id": "separator",
           "value": "\n\n"
+        },
+        {
+          "id": "cardTravelLabel",
+          "value": "최단 이동"
+        },
+        {
+          "id": "cardDeadlineLabel",
+          "value": "기한"
+        },
+        {
+          "id": "cardRewardLabel",
+          "value": "보수"
+        },
+        {
+          "id": "cardProficiencyLabel",
+          "value": "숙련"
+        },
+        {
+          "id": "cardRewardValue",
+          "value": "{0:N0}$ + 화물 가치",
+          "arguments": 1
+        },
+        {
+          "id": "cardProficiencyValue",
+          "value": "{0} +{1:N0}",
+          "arguments": 2
+        },
+        {
+          "id": "cardPenalty",
+          "value": "실패 시 {0}",
+          "arguments": 1
+        },
+        {
+          "id": "cardTitle",
+          "value": "{0} → {1}",
+          "arguments": 2
         }
       ]
     },
@@ -2207,6 +2243,15 @@
           "id": "restLater",
           "value": ">",
           "arguments": 0
+        },
+        {
+          "id": "wagonProductCard",
+          "value": "<size=18><b>{0}</b></size>\n보드 {1}×{2} · <b>{3:N0}$</b>",
+          "arguments": 4
+        },
+        {
+          "id": "wagonProductDragHint",
+          "value": "선로로 끌어 놓으면 구매"
         }
       ]
     },
