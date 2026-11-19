@@ -60,7 +60,7 @@ public static class RelayoutS6Builder
         TextMeshProUGUI _labelTemplate)
     {
         var layoutRoot = PrefabUtility.LoadPrefabContents(GAMEPLAY_LAYOUT_PREFAB);
-        var rootGo = CreateWindowShell("TavernWindow", "tavern", "술집", 660f, 136f, 620f, 520f,
+        var rootGo = CreateWindowShell("TavernWindow", "tavern", "술집", 1136f, 136f, 620f, 520f,
             _palette, _buttonTemplate, _labelTemplate, out var floatingWin, out var titleText);
         try
         {
@@ -144,36 +144,39 @@ public static class RelayoutS6Builder
         Button _buttonTemplate,
         TextMeshProUGUI _labelTemplate)
     {
-        var rootGo = CreateWindowShell("RestWindow", "rest", "여관", 700f, 180f, 440f, 310f,
+        var rootGo = CreateWindowShell("RestWindow", "rest", "여관", 1136f, 136f, 440f, 300f,
             _palette, _buttonTemplate, _labelTemplate, out var floatingWin, out var titleText);
         try
         {
             var rootRect = (RectTransform)rootGo.transform;
 
+            // 턴 조절 줄(-, 턴 표시, +)
             var earlierBtn = CreateButton(_buttonTemplate, rootRect, "EarlierButton", "-", _palette, UIPalette.ColorRole.Panel2);
-            SetAnchored(earlierBtn.GetComponent<RectTransform>(), 0f, 1f, 0f, 1f, 20f, -54f, 44f, 38f);
+            SetAnchored(earlierBtn.GetComponent<RectTransform>(), 0f, 1f, 0f, 1f, 20f, -42f, 44f, 38f);
 
             var turnLabel = CreateLabel(_labelTemplate, rootRect, "TurnLabel", 15f, TextAlignmentOptions.Center, _palette, UIPalette.ColorRole.Text);
-            SetAnchored(turnLabel.rectTransform, 0f, 1f, 0f, 1f, 72f, -54f, 296f, 38f);
+            SetAnchored(turnLabel.rectTransform, 0f, 1f, 0f, 1f, 72f, -42f, 296f, 38f);
 
             var laterBtn = CreateButton(_buttonTemplate, rootRect, "LaterButton", "+", _palette, UIPalette.ColorRole.Panel2);
-            SetAnchored(laterBtn.GetComponent<RectTransform>(), 0f, 1f, 0f, 1f, 376f, -54f, 44f, 38f);
+            SetAnchored(laterBtn.GetComponent<RectTransform>(), 0f, 1f, 0f, 1f, 376f, -42f, 44f, 38f);
 
+            // 실행 줄: 휴식과 아침까지 대기는 같은 크기·같은 버튼 스타일로 나란히 둔다.
             var restBtn = CreateButton(_buttonTemplate, rootRect, "RestButton", "휴식", _palette, UIPalette.ColorRole.Panel2);
-            SetAnchored(restBtn.GetComponent<RectTransform>(), 0f, 1f, 0f, 1f, 20f, -108f, 192f, 42f);
+            SetAnchored(restBtn.GetComponent<RectTransform>(), 0f, 1f, 0f, 1f, 20f, -92f, 192f, 40f);
             var restBtnLabel = restBtn.GetComponentInChildren<TextMeshProUGUI>(true);
 
             var waitMorningBtn = CreateButton(_buttonTemplate, rootRect, "WaitMorningButton", "아침까지 대기", _palette, UIPalette.ColorRole.Panel2);
-            SetAnchored(waitMorningBtn.GetComponent<RectTransform>(), 0f, 1f, 0f, 1f, 228f, -108f, 192f, 42f);
+            SetAnchored(waitMorningBtn.GetComponent<RectTransform>(), 0f, 1f, 0f, 1f, 228f, -92f, 192f, 40f);
             var waitMorningLabel = waitMorningBtn.GetComponentInChildren<TextMeshProUGUI>(true);
 
             var settlementText = CreateLabel(_labelTemplate, rootRect, "SettlementPreviewText", 14f, TextAlignmentOptions.Left, _palette, UIPalette.ColorRole.GoldAccent);
             settlementText.textWrappingMode = TextWrappingModes.Normal;
-            SetAnchored(settlementText.rectTransform, 0f, 1f, 0f, 1f, 20f, -168f, 400f, 52f);
+            SetAnchored(settlementText.rectTransform, 0f, 1f, 0f, 1f, 20f, -144f, 400f, 48f);
 
+            // 도움말은 최대 4줄까지 들어가도록 높이를 넉넉히 둔다(창 하단에서 잘리지 않게).
             var statusText = CreateLabel(_labelTemplate, rootRect, "StatusText", 13f, TextAlignmentOptions.Left, _palette, UIPalette.ColorRole.TextSub);
             statusText.textWrappingMode = TextWrappingModes.Normal;
-            SetAnchored(statusText.rectTransform, 0f, 1f, 0f, 1f, 20f, -228f, 400f, 56f);
+            SetAnchored(statusText.rectTransform, 0f, 1f, 0f, 1f, 20f, -200f, 400f, 80f);
 
             var rv = rootGo.AddComponent<RestWindowView>();
             var so = new SerializedObject(rv);
@@ -207,14 +210,15 @@ public static class RelayoutS6Builder
         TextMeshProUGUI _labelTemplate)
     {
         var layoutRoot = PrefabUtility.LoadPrefabContents(GAMEPLAY_LAYOUT_PREFAB);
-        var rootGo = CreateWindowShell("StationHallWindow", "station_hall", "역사", 660f, 136f, 560f, 560f,
+        var rootGo = CreateWindowShell("StationHallWindow", "station_hall", "역사", 1136f, 136f, 560f, 316f,
             _palette, _buttonTemplate, _labelTemplate, out var floatingWin, out var titleText);
         try
         {
             var rootRect = (RectTransform)rootGo.transform;
             var actionsView = layoutRoot.GetComponentInChildren<PuzzleStationActionsView>(true);
             var srcRowsProp = new SerializedObject(actionsView).FindProperty("wagonProductRows");
-            int rowCount = srcRowsProp != null ? Mathf.Min(srcRowsProp.arraySize, 4) : 0;
+            // 상품 카드는 한 장씩 보여 주고 다음 버튼으로 넘긴다(페이지당 1개). 빈 슬롯이 남지 않도록 1개만 복제한다.
+            int rowCount = srcRowsProp != null ? Mathf.Min(srcRowsProp.arraySize, 1) : 0;
 
             var dragPreviewGo = new GameObject("DragPreview", typeof(RectTransform), typeof(Image));
             dragPreviewGo.layer = 5;
@@ -234,25 +238,47 @@ public static class RelayoutS6Builder
                 var rowGo = Object.Instantiate(srcRow.gameObject, rootRect, false);
                 rowGo.name = $"WagonProductRow_{i + 1}";
                 var rt = (RectTransform)rowGo.transform;
-                SetAnchored(rt, 0f, 1f, 0f, 1f, 16f, -44f - i * 82f, 528f, 74f);
+                SetAnchored(rt, 0f, 1f, 0f, 1f, 16f, -40f - i * 132f, 528f, 120f);
                 var rowComp = rowGo.GetComponent<PuzzleWagonProductRow>();
                 var rSo = new SerializedObject(rowComp);
                 rSo.FindProperty("dragPreview").objectReferenceValue = dragPreviewImg;
                 rSo.FindProperty("dragPreviewBox").vector2Value = new Vector2(88f, 64f);
                 rSo.FindProperty("dragPreviewOffset").vector2Value = Vector2.zero;
+                // 카드 내부 배치: 왼쪽 그림, 오른쪽 이름·크기·가격(label)과 칸수 칩을 한 덩어리로 둔다.
+                if (rSo.FindProperty("artwork").objectReferenceValue is Image art)
+                {
+                    SetAnchored(art.rectTransform, 0f, 1f, 0f, 1f, 12f, -12f, 176f, 96f);
+                }
+                if (rSo.FindProperty("label").objectReferenceValue is TextMeshProUGUI cardLabel)
+                {
+                    SetAnchored(cardLabel.rectTransform, 0f, 1f, 0f, 1f, 200f, -14f, 316f, 48f);
+                }
+                if (rSo.FindProperty("chipRoot").objectReferenceValue is GameObject chip && chip.transform is RectTransform chipRt)
+                {
+                    SetAnchored(chipRt, 0f, 1f, 0f, 1f, 200f, -70f, 96f, 26f);
+                }
+                if (rSo.FindProperty("selectionHighlight").objectReferenceValue is Image sel)
+                {
+                    sel.rectTransform.anchorMin = Vector2.zero;
+                    sel.rectTransform.anchorMax = Vector2.one;
+                    sel.rectTransform.offsetMin = Vector2.zero;
+                    sel.rectTransform.offsetMax = Vector2.zero;
+                }
                 rSo.ApplyModifiedPropertiesWithoutUndo();
                 clonedRows[i] = rowComp;
             }
             dragPreviewRt.SetAsLastSibling();
 
+            // 페이저 줄: 카드 바로 아래, 페이지 표시 왼쪽 · 다음 버튼 오른쪽
             var pageLabel = CreateLabel(_labelTemplate, rootRect, "PageLabel", 14f, TextAlignmentOptions.Left, _palette, UIPalette.ColorRole.TextSub);
-            SetAnchored(pageLabel.rectTransform, 0f, 1f, 0f, 1f, 16f, -380f, 160f, 32f);
+            SetAnchored(pageLabel.rectTransform, 0f, 1f, 0f, 1f, 16f, -174f, 160f, 32f);
 
             var nextPageBtn = CreateButton(_buttonTemplate, rootRect, "NextPageButton", "다음", _palette, UIPalette.ColorRole.Panel2);
-            SetAnchored(nextPageBtn.GetComponent<RectTransform>(), 0f, 1f, 0f, 1f, 434f, -380f, 110f, 32f);
+            SetAnchored(nextPageBtn.GetComponent<RectTransform>(), 0f, 1f, 0f, 1f, 424f, -174f, 120f, 32f);
 
+            // 판매 드롭 구역과 출발 버튼: 같은 줄, 같은 높이
             var sellZone = NewRect("SellDropZone", rootRect);
-            SetAnchored(sellZone, 0f, 1f, 0f, 1f, 16f, -424f, 360f, 76f);
+            SetAnchored(sellZone, 0f, 1f, 0f, 1f, 16f, -220f, 360f, 76f);
             var sellImg = sellZone.gameObject.AddComponent<Image>();
             sellImg.color = _palette.Panel2;
             BindPalette(sellZone.gameObject, _palette, UIPalette.ColorRole.Panel2);
@@ -268,11 +294,10 @@ public static class RelayoutS6Builder
             sellLabel.rectTransform.offsetMax = new Vector2(-8f, -4f);
 
             var departBtn = CreateButton(_buttonTemplate, rootRect, "DepartButton", "출발 (지도)", _palette, UIPalette.ColorRole.GoldAccent);
-            SetAnchored(departBtn.GetComponent<RectTransform>(), 0f, 1f, 0f, 1f, 392f, -424f, 152f, 76f);
+            SetAnchored(departBtn.GetComponent<RectTransform>(), 0f, 1f, 0f, 1f, 392f, -220f, 152f, 76f);
             var departLabel = departBtn.GetComponentInChildren<TextMeshProUGUI>(true);
 
-            var statusText = CreateLabel(_labelTemplate, rootRect, "StatusText", 12f, TextAlignmentOptions.Left, _palette, UIPalette.ColorRole.TextSub);
-            SetAnchored(statusText.rectTransform, 0f, 1f, 0f, 1f, 16f, -512f, 528f, 34f);
+            // 하단 중복 안내(판매 문구 반복)는 만들지 않는다. statusText는 null로 두면 뷰가 쓰지 않는다.
 
             var sh = rootGo.AddComponent<StationHallWindowView>();
             var so = new SerializedObject(sh);
@@ -290,7 +315,6 @@ public static class RelayoutS6Builder
             so.FindProperty("sellZoneLabel").objectReferenceValue = sellLabel;
             so.FindProperty("departButton").objectReferenceValue = departBtn;
             so.FindProperty("departButtonLabel").objectReferenceValue = departLabel;
-            so.FindProperty("statusText").objectReferenceValue = statusText;
             so.ApplyModifiedPropertiesWithoutUndo();
 
             var saved = PrefabUtility.SaveAsPrefabAsset(rootGo, STATION_HALL_PREFAB);
@@ -311,7 +335,7 @@ public static class RelayoutS6Builder
         TextMeshProUGUI _labelTemplate)
     {
         var canvasRoot = PrefabUtility.LoadPrefabContents(GAME_CANVAS_PREFAB);
-        var rootGo = CreateWindowShell("WorkshopWindow", "workshop", "생산시설", 660f, 136f, 560f, 480f,
+        var rootGo = CreateWindowShell("WorkshopWindow", "workshop", "생산시설", 1136f, 136f, 560f, 480f,
             _palette, _buttonTemplate, _labelTemplate, out var floatingWin, out var titleText);
         try
         {
@@ -400,7 +424,7 @@ public static class RelayoutS6Builder
         TextMeshProUGUI _labelTemplate)
     {
         var layoutRoot = PrefabUtility.LoadPrefabContents(GAMEPLAY_LAYOUT_PREFAB);
-        var rootGo = CreateWindowShell("CityHallWindow", "city_hall", "시청", 700f, 140f, 520f, 400f,
+        var rootGo = CreateWindowShell("CityHallWindow", "city_hall", "시청", 1136f, 136f, 520f, 400f,
             _palette, _buttonTemplate, _labelTemplate, out var floatingWin, out var titleText);
         try
         {
@@ -928,6 +952,10 @@ public static class RelayoutS6Builder
         BindPalette(go, _palette, _bgRole);
         var btn = go.AddComponent<Button>();
         btn.targetGraphic = img;
+        // 비활성 색을 불투명하게 둔다. 기본값은 반투명이라 비활성 버튼(예: 낮의 '아침까지 대기')이 바탕 없이 글자만 보인다.
+        var colors = btn.colors;
+        colors.disabledColor = new Color(0.7f, 0.7f, 0.7f, 1f);
+        btn.colors = colors;
 
         var lbl = CreateLabel(_template ? _template.GetComponentInChildren<TextMeshProUGUI>(true) : null,
             rt, "Label", 14f, TextAlignmentOptions.Center, _palette, UIPalette.ColorRole.Text);

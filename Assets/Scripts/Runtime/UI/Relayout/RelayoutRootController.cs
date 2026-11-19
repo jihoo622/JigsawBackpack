@@ -161,6 +161,7 @@ public sealed class RelayoutRootController : MonoBehaviour
         var session = SceneServices.For<PuzzleInventoryService>(gameObject.scene);
         if (_kind == TownBuildingButton.BuildingKind.CityHall && cityHallWindow)
         {
+            CloseOtherTownWindows(_kind);
             cityHallWindow.SetOpen(true);
             return;
         }
@@ -186,23 +187,27 @@ public sealed class RelayoutRootController : MonoBehaviour
                     return;
                 }
                 session.TryEnterMarket();
+                CloseOtherTownWindows(_kind);
                 marketWindow.SetOpen(true);
                 return;
 
             case TownBuildingButton.BuildingKind.Tavern when tavernWindow:
                 if (session.TryEnterTavern())
                 {
+                    CloseOtherTownWindows(_kind);
                     tavernWindow.SetOpen(true);
                 }
                 return;
 
             case TownBuildingButton.BuildingKind.Rest when restWindow:
+                CloseOtherTownWindows(_kind);
                 restWindow.SetOpen(true);
                 return;
 
             case TownBuildingButton.BuildingKind.StationHall when stationHallWindow:
                 if (session.TryEnterWagonFacility())
                 {
+                    CloseOtherTownWindows(_kind);
                     stationHallWindow.SetOpen(true);
                 }
                 return;
@@ -213,6 +218,7 @@ public sealed class RelayoutRootController : MonoBehaviour
                     statusBannerView?.ShowStatus(Presentation.BuildingWorkshopEmpty);
                     return;
                 }
+                CloseOtherTownWindows(_kind);
                 workshopWindow.SetOpen(true);
                 return;
         }
@@ -239,6 +245,36 @@ public sealed class RelayoutRootController : MonoBehaviour
         if (oldGameplayLayout) oldGameplayLayout.SetActive(true);
         if (oldTrainColumn) oldTrainColumn.SetActive(false);
         if (oldFixedBottomBar) oldFixedBottomBar.SetActive(false);
+    }
+
+    // 마을 창(시장·술집·여관·역사·생산시설·시청)은 겹치지 않도록 한 번에 하나만 연다.
+    // _keep으로 넘긴 건물의 창을 제외한 나머지 마을 창을 모두 닫는다. 개인 창(화차·노트·렌즈)은 건드리지 않는다.
+    void CloseOtherTownWindows(TownBuildingButton.BuildingKind _keep)
+    {
+        if (_keep != TownBuildingButton.BuildingKind.Market && marketWindow && marketWindow.IsOpen)
+        {
+            marketWindow.SetOpen(false);
+        }
+        if (_keep != TownBuildingButton.BuildingKind.Tavern && tavernWindow && tavernWindow.IsOpen)
+        {
+            tavernWindow.SetOpen(false);
+        }
+        if (_keep != TownBuildingButton.BuildingKind.Rest && restWindow && restWindow.IsOpen)
+        {
+            restWindow.SetOpen(false);
+        }
+        if (_keep != TownBuildingButton.BuildingKind.StationHall && stationHallWindow && stationHallWindow.IsOpen)
+        {
+            stationHallWindow.SetOpen(false);
+        }
+        if (_keep != TownBuildingButton.BuildingKind.Workshop && workshopWindow && workshopWindow.IsOpen)
+        {
+            workshopWindow.SetOpen(false);
+        }
+        if (_keep != TownBuildingButton.BuildingKind.CityHall && cityHallWindow && cityHallWindow.IsOpen)
+        {
+            cityHallWindow.SetOpen(false);
+        }
     }
 
     void OnDepartureRequested()

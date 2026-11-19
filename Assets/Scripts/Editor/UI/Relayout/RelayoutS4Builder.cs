@@ -31,6 +31,13 @@ public static class RelayoutS4Builder
     const float MAP_CONTROL_HEIGHT = 36f;
     const float MAP_CONTROL_BUTTON_HEIGHT = 32f;
     const float MAP_CONTROL_GAP = 4f;
+    // 하단 구조(아래→위): 컨트롤 줄 4~40 → 여백 4 → 도시 정보 띠 44~110(3줄 고정) → 여백 6 → 지도 뷰포트
+    const float MAP_INFO_BOTTOM = 44f;            // 도시 정보 띠 하단 (컨트롤 줄 상단 40 + 여백 4)
+    const float MAP_INFO_HEIGHT = 66f;            // 14pt 3줄 + 여유
+    const float MAP_INFO_FONT_SIZE = 14f;
+    const float MAP_VIEWPORT_BOTTOM_OFFSET = 116f; // 정보 띠 상단 110 + 여백 6
+    const float MAP_SIDE_INSET = 4f;              // 뷰포트 좌우 여백(뷰포트와 동일 영역을 쓰는 오버레이 기준)
+    const float MAP_BOTTOM_CARD_BOTTOM = 120f;    // 뷰포트 하단 안쪽 카드(거래 선호·의뢰 요약)의 하단 위치
 
     [MenuItem(MENU)]
     static void BuildFromMenu()
@@ -189,6 +196,8 @@ public static class RelayoutS4Builder
             Stretch((RectTransform)mapInst.transform);
             // 외부 Canvas가 있으면 의존성 순서(GraphicRaycaster → CanvasScaler → Canvas)대로 제거해 클립되게 한다.
             StripCanvases(mapInst);
+            // 루트 Canvas가 빠지면 그 순간의 게임 뷰 크기가 루트 RectTransform에 남는다. 제거한 뒤 다시 창에 맞춘다.
+            Stretch((RectTransform)mapInst.transform);
 
             var mapPanel = FindDeep(mapInst.transform, "MapPanel") as RectTransform;
             if (mapPanel)
@@ -214,9 +223,28 @@ public static class RelayoutS4Builder
                 {
                     vp.anchorMin = Vector2.zero;
                     vp.anchorMax = Vector2.one;
-                    vp.offsetMin = new Vector2(4f, 84f);
-                    vp.offsetMax = new Vector2(-4f, MAP_VIEWPORT_TOP_OFFSET);
+                    vp.offsetMin = new Vector2(MAP_SIDE_INSET, MAP_VIEWPORT_BOTTOM_OFFSET);
+                    vp.offsetMax = new Vector2(-MAP_SIDE_INSET, MAP_VIEWPORT_TOP_OFFSET);
                     if (!vp.GetComponent<RectMask2D>()) vp.gameObject.AddComponent<RectMask2D>();
+                }
+
+                // 뷰포트와 같은 영역을 쓰는 오버레이(이동 확인·경로 계획): 원본은 MapPanel 전체(0~1)를 덮어 하단 정보/컨트롤 줄까지 가린다.
+                // 뷰포트 영역으로 맞추고 클립해 창 밖·하단 줄로 새지 않게 한다.
+                foreach (string overlayName in new[] { "MapTravelPanel", "RoutePlan" })
+                {
+                    var overlay = mapPanel.Find(overlayName) as RectTransform;
+                    if (!overlay) continue;
+                    FitToViewportRect(overlay);
+                }
+
+                // 도시 호버 툴팁(TownTooltip): 맵 루트의 중첩 프리팹으로 MapPanel 밖(루트 직계)에 있어 원본 캔버스 기준으로 떠서
+                // 창 왼쪽 가장자리에 세로 막대처럼 삐져나온다. 뷰포트 영역 클립 컨테이너 아래로 옮겨 창 밖으로 나가지 않게 한다.
+                var tooltipRt = mapInst.transform.Find("TownTooltip") as RectTransform;
+                if (tooltipRt)
+                {
+                    var tooltipClip = NewRect("TooltipClip", mapPanel);
+                    FitToViewportRect(tooltipClip);
+                    tooltipRt.SetParent(tooltipClip, false);
                 }
                 // 범례: 원본은 SubwayMapLabels(HorizontalLayoutGroup) 한 줄에 7개 항목이 모두 들어가 우측 창 경계에서 잘린다.
                 // 항목 부모인 SubwayMapLabels의 HLG를 3열 격자로 바꿔 3행으로 감싼다. 항목 글자는 12pt, 한 줄, 넘치면 말줄임.
@@ -285,14 +313,49 @@ public static class RelayoutS4Builder
                         cursorX += ctrlWidths[c] + MAP_CONTROL_GAP;
                     }
                 }
+                // 도시 정보 띠: 컨트롤 줄 위에 고정 높이(3줄)로 둔다. 자동 줄바꿈, 넘치면 말줄임(띠 안에서만 보임).
                 var cityInfo = mapPanel.Find("CityInformation") as RectTransform;
                 if (cityInfo)
                 {
                     cityInfo.anchorMin = new Vector2(0f, 0f);
                     cityInfo.anchorMax = new Vector2(1f, 0f);
                     cityInfo.pivot = new Vector2(0.5f, 0f);
-                    cityInfo.anchoredPosition = new Vector2(0f, 44f);
-                    cityInfo.sizeDelta = new Vector2(-8f, 34f);
+                    cityInfo.anchoredPosition = new Vector2(0f, MAP_INFO_BOTTOM);
+                    cityInfo.sizeDelta = new Vector2(-8f, MAP_INFO_HEIGHT);
+                    if (!cityInfo.GetComponent<RectMask2D>()) cityInfo.gameObject.AddComponent<RectMask2D>();
+
+                    var infoText = cityInfo.GetComponent<TextMeshProUGUI>() ?? cityInfo.GetComponentInChildren<TextMeshProUGUI>(true);
+                    if (infoText)
+                    {
+                        infoText.enableAutoSizing = false;
+                        infoText.fontSize = MAP_INFO_FONT_SIZE;
+                        infoText.enableWordWrapping = true;
+                        infoText.overflowMode = TextOverflowModes.Ellipsis;
+                        infoText.alignment = TextAlignmentOptions.TopLeft;
+                    }
+                }
+
+                // 뷰포트 안쪽 하단 카드: 원본은 정보 띠 아래(-650/-708, 상단 기준)라 뷰포트 영역에 겹친다.
+                // 뷰포트 하단 안쪽(MAP_BOTTOM_CARD_BOTTOM 기준)으로 옮기고 폭 밖은 클립한다.
+                var tradePrefs = mapPanel.Find("MapTradePreferences") as RectTransform;
+                if (tradePrefs)
+                {
+                    tradePrefs.anchorMin = new Vector2(0f, 0f);
+                    tradePrefs.anchorMax = new Vector2(1f, 0f);
+                    tradePrefs.pivot = new Vector2(0.5f, 0f);
+                    tradePrefs.anchoredPosition = new Vector2(0f, MAP_BOTTOM_CARD_BOTTOM);
+                    tradePrefs.sizeDelta = new Vector2(-MAP_SIDE_INSET * 4f, 56f);
+                    if (!tradePrefs.GetComponent<RectMask2D>()) tradePrefs.gameObject.AddComponent<RectMask2D>();
+                }
+                var questInfo = mapPanel.Find("CityQuestInformation") as RectTransform;
+                if (questInfo)
+                {
+                    questInfo.anchorMin = new Vector2(0f, 0f);
+                    questInfo.anchorMax = new Vector2(1f, 0f);
+                    questInfo.pivot = new Vector2(0.5f, 0f);
+                    questInfo.anchoredPosition = new Vector2(0f, MAP_BOTTOM_CARD_BOTTOM + 58f);
+                    questInfo.sizeDelta = new Vector2(-MAP_SIDE_INSET * 4f, 22f);
+                    if (!questInfo.GetComponent<RectMask2D>()) questInfo.gameObject.AddComponent<RectMask2D>();
                 }
             }
 
@@ -383,9 +446,32 @@ public static class RelayoutS4Builder
             Stretch(synScrollRt);
             var synScroll = synScrollGo.AddComponent<ScrollRect>();
             synScroll.horizontal = true;
-            synScroll.vertical = true;
+            // 상성표는 창보다 넓고 높이는 창 안에 들어간다. 세로 스크롤을 끄면 마우스 휠이 가로로 넘긴다.
+            synScroll.vertical = false;
             synScroll.movementType = ScrollRect.MovementType.Clamped;
             synScroll.scrollSensitivity = 36f;
+
+            // 넘겨 볼 수 있다는 것을 알 수 있게 아래쪽에 단색 가로 스크롤바를 둔다.
+            var hBar = NewRect("HorizontalScrollbar", synScrollRt);
+            hBar.anchorMin = new Vector2(0f, 0f);
+            hBar.anchorMax = new Vector2(1f, 0f);
+            hBar.pivot = new Vector2(0.5f, 0f);
+            hBar.anchoredPosition = Vector2.zero;
+            hBar.sizeDelta = new Vector2(0f, 12f);
+            var hBarBg = hBar.gameObject.AddComponent<Image>();
+            hBarBg.color = _palette.Border;
+            var hSliding = NewRect("SlidingArea", hBar);
+            Stretch(hSliding);
+            var hHandle = NewRect("Handle", hSliding);
+            Stretch(hHandle);
+            var hHandleImg = hHandle.gameObject.AddComponent<Image>();
+            hHandleImg.color = _palette.GoldAccent;
+            var hScrollbar = hBar.gameObject.AddComponent<Scrollbar>();
+            hScrollbar.direction = Scrollbar.Direction.LeftToRight;
+            hScrollbar.handleRect = hHandle;
+            hScrollbar.targetGraphic = hHandleImg;
+            synScroll.horizontalScrollbar = hScrollbar;
+            synScroll.horizontalScrollbarVisibility = ScrollRect.ScrollbarVisibility.AutoHide;
 
             var synVp = NewRect("Viewport", synScrollRt);
             Stretch(synVp);
@@ -398,6 +484,7 @@ public static class RelayoutS4Builder
             synInst.name = "EmbeddedSynergyChart";
             Stretch((RectTransform)synInst.transform);
             StripCanvases(synInst);
+            Stretch((RectTransform)synInst.transform);
 
             var synPanel = synInst.transform.Find("ChartPanel") as RectTransform;
             if (synPanel)
@@ -700,6 +787,16 @@ public static class RelayoutS4Builder
         _rect.anchorMin = Vector2.zero;
         _rect.anchorMax = Vector2.one;
         _rect.offsetMin = _rect.offsetMax = Vector2.zero;
+    }
+
+    // 지도 뷰포트와 같은 사각형(좌우 여백 MAP_SIDE_INSET, 하단 MAP_VIEWPORT_BOTTOM_OFFSET, 상단 MAP_VIEWPORT_TOP_OFFSET)에 맞추고 RectMask2D로 클립한다.
+    static void FitToViewportRect(RectTransform _rect)
+    {
+        _rect.anchorMin = Vector2.zero;
+        _rect.anchorMax = Vector2.one;
+        _rect.offsetMin = new Vector2(MAP_SIDE_INSET, MAP_VIEWPORT_BOTTOM_OFFSET);
+        _rect.offsetMax = new Vector2(-MAP_SIDE_INSET, MAP_VIEWPORT_TOP_OFFSET);
+        if (!_rect.GetComponent<RectMask2D>()) _rect.gameObject.AddComponent<RectMask2D>();
     }
 
     static void RemoveChildrenNamed(Transform _parent, string _name)

@@ -169,13 +169,17 @@ public sealed class StationHallWindowView : MonoBehaviour
                 productRows[i].SetSelected(false);
             }
         }
+        // 상품이 한 쪽뿐이면 넘김 줄은 쓸모가 없으므로 숨긴다.
+        bool paged = totalPages > 1;
         if (pageLabel)
         {
             pageLabel.text = $"{page + 1} / {totalPages}";
+            pageLabel.gameObject.SetActive(paged);
         }
         if (nextPageButton)
         {
-            nextPageButton.interactable = totalPages > 1;
+            nextPageButton.interactable = paged;
+            nextPageButton.gameObject.SetActive(paged);
         }
     }
 

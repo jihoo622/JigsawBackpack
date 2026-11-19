@@ -60,7 +60,7 @@ public static class RelayoutS5Builder
             rootGo.layer = 5;
             var rootRect = (RectTransform)rootGo.transform;
             // 13×9 보드(56px 셀 = 728×504) + 시세 띠 + 하단 안내에 맞춘 고정 크기(764×640).
-            SetTopLeftRect(rootRect, 1136f, 96f, 764f, 640f);
+            SetTopLeftRect(rootRect, 1136f, 136f, 764f, 640f);
 
             var bg = rootGo.AddComponent<Image>();
             bg.color = _palette.Panel;
@@ -251,7 +251,7 @@ public static class RelayoutS5Builder
             fwSo.FindProperty("windowId").stringValue = "market";
             fwSo.FindProperty("titleBar").objectReferenceValue = titleBar;
             fwSo.FindProperty("closeButton").objectReferenceValue = closeBtn;
-            fwSo.FindProperty("defaultPosition").vector2Value = new Vector2(1136f, 96f);
+            fwSo.FindProperty("defaultPosition").vector2Value = new Vector2(1136f, 136f);
             fwSo.FindProperty("defaultSize").vector2Value = new Vector2(764f, 640f);
             fwSo.FindProperty("startOpen").boolValue = false;
             fwSo.ApplyModifiedPropertiesWithoutUndo();
