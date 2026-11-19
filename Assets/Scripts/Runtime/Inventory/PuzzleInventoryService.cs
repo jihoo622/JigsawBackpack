@@ -22,6 +22,8 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
     int lastRumorVisit = -1;
     System.Random stockRandom = new System.Random();
     System.Random wagonDamageRandom = new System.Random();
+    // 식물 발아 전용 난수 상태. 시장·화차 난수와 분리하고 TimeAdvancePlan 사본으로 옮겨 커밋할 때만 진행시킨다.
+    ulong plantRandomState = (ulong)(uint)new System.Random().Next() << 32 | (ulong)(uint)new System.Random().Next() | 1UL;
 
     internal readonly struct TavernRumor
     {
@@ -533,6 +535,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         stockRandom = new System.Random(_seed);
         questRandom = new System.Random(_seed);
         wagonDamageRandom = new System.Random(_seed);
+        plantRandomState = (ulong)(uint)_seed * 0x9E3779B97F4A7C15UL | 1UL;
     }
 
     internal void Initialize()
@@ -850,6 +853,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         internal int nextBindingId;
         internal int lastInstanceId;
         internal long marketRestocks;
+        internal ulong plantRandomState;
         internal decimal? cargoValueBeforeSettlement;
         internal decimal? cargoValueBeforeFreshnessLoss;
 
@@ -902,6 +906,10 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
             long bindingHours = (long)woodBinding.requiredTurns * PuzzleTimeManager.HOURS_PER_TURN;
             var machineryGrowth = tables.PuzzleMechanic.machineryGrowth;
             var saltData = tables.PuzzleMechanic.salt;
+            var plantData = tables.PuzzleMechanic.plant;
+            long plantIntervalHours = (long)plantData.germinationIntervalTurns * PuzzleTimeManager.HOURS_PER_TURN;
+            // 발아 난수는 사본에서만 진행시키고 커밋 때만 원본에 반영한다. 미리보기는 원본 상태를 그대로 둔다.
+            plan.plantRandomState = plantRandomState;
             long cursor = Time.ElapsedHours;
             var growth = new List<PuzzleGrowth>();
             var selectedWagon = wagons[CurrentWagonIndex];
@@ -933,6 +941,8 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
                 step = Math.Min(step, HoursUntilWagonProcess(wagons));
                 step = Math.Min(step, HoursUntilFeeding(wagons, plan.feedingProgress, animals.animalTag,
                     feedIntervalHours, animalEventsThrough - cursor));
+                step = Math.Min(step, HoursUntilPlantGermination(wagons, plantIntervalHours, cursor));
+                step = Math.Min(step, HoursUntilPlantCatalystCheck(wagons, cursor));
                 long boundary = cursor + step;
                 // 정산·배설·만료·조합 뒤 섭취하며 각 가속의 완료는 즉시 반영한다. 나머지 성장·출산은 그 뒤 처리한다.
                 long activations = boundary / synergyInterval - cursor / synergyInterval;
@@ -1010,6 +1020,13 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
                 {
                     CompleteBreeding(plan, SelectBreedingPairs(wagons, plan.breedingProgress), breedingHours,
                         holdHours);
+                }
+                // 자연 발아는 인스턴스 ID 순서로 처리한다. 앞선 성장이 점유를 바꾸면 뒤 식물은 후보를 다시 계산한다.
+                AdvancePlants(plan, wagons, plantIntervalHours, boundary);
+                // 물·거름 촉매는 턴 경계에서 자연 발아 뒤에 검사한다. 새 줄기를 포함해 처리 가능한 쌍이 없을 때까지 반복한다.
+                if (boundary % PuzzleTimeManager.HOURS_PER_TURN == 0)
+                {
+                    AdvancePlantCatalysts(wagons, plantData);
                 }
                 cursor = boundary;
             }
@@ -1956,6 +1973,185 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         _plan.feedingProgress = progress;
     }
 
+    // 식물 발아의 다음 경계. 성장 대기 중인 식물과 도달 시각이 지난 식물은 다음 턴 경계를, 나머지는 남은 발아 시간을 제시한다.
+    static long HoursUntilPlantGermination(PuzzleInventory[] _wagons, long _intervalHours, long _cursor)
+    {
+        long next = long.MaxValue;
+        long nextTurn = PuzzleTimeManager.HOURS_PER_TURN - _cursor % PuzzleTimeManager.HOURS_PER_TURN;
+        foreach (var plant in _wagons.SelectMany(_wagon => _wagon.Placements))
+        {
+            if (!PuzzlePlantGrowth.IsPlant(plant) || plant.OwnedHours < 0)
+            {
+                continue;
+            }
+            next = Math.Min(next, plant.PlantSpaceBlocked || plant.PlantGrowthElapsedHours >= _intervalHours
+                ? nextTurn
+                : _intervalHours - plant.PlantGrowthElapsedHours);
+        }
+        return next;
+    }
+
+    // 촉매 접촉은 턴 경계에 검사하므로 보유 중인 식물이 있으면 다음 턴 경계를 항상 사건으로 제시한다.
+    static long HoursUntilPlantCatalystCheck(PuzzleInventory[] _wagons, long _cursor)
+    {
+        foreach (var plant in _wagons.SelectMany(_wagon => _wagon.Placements))
+        {
+            if (PuzzlePlantGrowth.IsPlant(plant) && plant.OwnedHours >= 0)
+            {
+                return PuzzleTimeManager.HOURS_PER_TURN - _cursor % PuzzleTimeManager.HOURS_PER_TURN;
+            }
+        }
+        return long.MaxValue;
+    }
+
+    // 자연 발아. 발아 경계에 닿은 식물은 인스턴스 ID 순서로 후보를 안정 좌표 순서로 정하고 전용 난수로 한 칸을 골라
+    // 성장한 뒤 실제 가치에 품목 기본 가치 한 번분을 더하고 시계를 초기화한다.
+    // 후보가 없으면 그 식물만 대기시키고 이후 턴 경계마다 공간을 다시 본다. 대기 중에는 성장하지 않아 가치도 그대로다.
+    void AdvancePlants(TimeAdvancePlan _plan, PuzzleInventory[] _wagons, long _intervalHours, long _boundary)
+    {
+        bool turnBoundary = _boundary % PuzzleTimeManager.HOURS_PER_TURN == 0;
+        var plants = _wagons.SelectMany(_wagon => _wagon.Placements)
+            .Where(_item => PuzzlePlantGrowth.IsPlant(_item) && _item.OwnedHours >= 0)
+            .OrderBy(_item => _item.InstanceId)
+            .ToArray();
+        foreach (var plant in plants)
+        {
+            if (plant.PlantSpaceBlocked ? !turnBoundary : plant.PlantGrowthElapsedHours < _intervalHours)
+            {
+                continue;
+            }
+
+            var candidates = PuzzlePlantGrowth.Candidates(plant);
+            if (candidates.Count == 0)
+            {
+                if (!plant.PlantSpaceBlocked)
+                {
+                    plant.WaitForPlantSpace();
+                }
+                continue;
+            }
+
+            int index = PuzzlePlantGrowth.NextIndex(ref _plan.plantRandomState, candidates.Count);
+            if (!plant.Owner.TryExtendPlant(plant, candidates[index], plant.Definition.BaseValue) ||
+                !plant.Owner.TryGetPlacement(plant.InstanceId, out var grown))
+            {
+                plant.WaitForPlantSpace();
+                continue;
+            }
+            grown.PlantGrowthElapsedHours = 0;
+            grown.PlantSpaceBlocked = false;
+        }
+    }
+
+    // 물·거름 촉매. 자연 발아가 없는 턴 경계에도 식물이 촉매와 맞닿으면 소비하고 접촉한 칸으로 한 칸 성장한다.
+    // 성장으로 생긴 새 줄기를 포함해 쌍을 다시 계산하므로 처리 가능한 쌍이 없어지면 끝나고, 매 반복에서
+    // 촉매가 한 개 이상 소비되어 유한하게 종료한다. 촉매가 없거나 실패만 남으면 더 돌리지 않는다.
+    static void AdvancePlantCatalysts(PuzzleInventory[] _wagons, PuzzlePlantGrowthData _plantData)
+    {
+        while (true)
+        {
+            var pairs = SelectPlantCatalystPairs(_wagons, _plantData);
+            if (pairs.Count == 0)
+            {
+                return;
+            }
+            bool applied = false;
+            foreach (var pair in pairs)
+            {
+                applied |= ApplyPlantCatalystPair(pair);
+            }
+            if (!applied)
+            {
+                return;
+            }
+        }
+    }
+
+    // 식물 칸과 같은 객차의 물·거름 품목을 일대일로 잇는다. 경쟁 순서는 객차, 식물 인스턴스 ID, 접촉 칸 좌표(y→x),
+    // 촉매 인스턴스 ID 순으로 두고 먼저 온 쌍부터 소비·성장 대상으로 확정해 같은 촉매나 식물을 두 번 쓰지 않는다.
+    static List<(PuzzlePlacement Plant, PuzzlePlacement Catalyst, Vector2Int Target)> SelectPlantCatalystPairs(
+        PuzzleInventory[] _wagons, PuzzlePlantGrowthData _plantData)
+    {
+        var candidates = new List<(int wagonIndex, PuzzlePlacement plant, PuzzlePlacement catalyst,
+            Vector2Int target)>();
+        for (int i = 0; i < _wagons.Length; i++)
+        {
+            foreach (var plant in _wagons[i].Placements
+                .Where(_item => PuzzlePlantGrowth.IsPlant(_item) && _item.OwnedHours >= 0)
+                .OrderBy(_item => _item.InstanceId))
+            {
+                foreach (Vector2Int target in PuzzlePlantGrowth.ContactCells(plant))
+                {
+                    var catalyst = _wagons[i].PlacementAt(target);
+                    if (catalyst == null || ReferenceEquals(catalyst, plant) ||
+                        !(catalyst.Definition.Tags.Contains(_plantData.waterTag) ||
+                          catalyst.Definition.Tags.Contains(_plantData.fertilizerTag)))
+                    {
+                        continue;
+                    }
+                    candidates.Add((i, plant, catalyst, target));
+                }
+            }
+        }
+
+        var pairs = new List<(PuzzlePlacement Plant, PuzzlePlacement Catalyst, Vector2Int Target)>();
+        var grownPlants = new HashSet<int>();
+        var usedCatalysts = new HashSet<int>();
+        foreach (var candidate in candidates
+            .OrderBy(_candidate => _candidate.wagonIndex)
+            .ThenBy(_candidate => _candidate.plant.InstanceId)
+            .ThenBy(_candidate => _candidate.target.y)
+            .ThenBy(_candidate => _candidate.target.x)
+            .ThenBy(_candidate => _candidate.catalyst.InstanceId))
+        {
+            if (grownPlants.Contains(candidate.plant.InstanceId) ||
+                usedCatalysts.Contains(candidate.catalyst.InstanceId))
+            {
+                continue;
+            }
+            grownPlants.Add(candidate.plant.InstanceId);
+            usedCatalysts.Add(candidate.catalyst.InstanceId);
+            pairs.Add((candidate.plant, candidate.catalyst, candidate.target));
+        }
+        return pairs;
+    }
+
+    // 선택된 쌍 하나를 소비·성장한다. 촉매가 점유를 비운 칸으로만 성장하므로 소모와 성장이 한 몸처럼
+    // 동작하고, 성장 직전 조건이 무너진 쌍은 촉매를 소비하지 않고 거절한다. 성공하면 발아 시계와 대기를 초기화한다.
+    static bool ApplyPlantCatalystPair((PuzzlePlacement Plant, PuzzlePlacement Catalyst, Vector2Int Target) _pair)
+    {
+        var wagon = _pair.Plant.Owner;
+        if (!wagon.TryGetPlacement(_pair.Plant.InstanceId, out var plant) ||
+            !wagon.TryGetPlacement(_pair.Catalyst.InstanceId, out var catalyst) ||
+            !ReferenceEquals(wagon.PlacementAt(_pair.Target), catalyst))
+        {
+            return false;
+        }
+
+        var rotation = new PuzzleRotation(plant.LocalCells, plant.Pose.ClockwiseTurns);
+        Vector2Int local = rotation.GetLocalCell(_pair.Target - plant.Pose.Origin);
+        PuzzleBoardZone zone = wagon.ZoneAt(_pair.Target);
+        if (plant.LocalCells.Contains(local) ||
+            (zone != null && !zone.Accepts(plant.Definition, plant.LocalCells.Count + 1)))
+        {
+            return false;
+        }
+
+        if (!wagon.Remove(catalyst))
+        {
+            return false;
+        }
+        if (!wagon.TryExtendPlant(plant, _pair.Target, plant.Definition.BaseValue) ||
+            !wagon.TryGetPlacement(plant.InstanceId, out var grown))
+        {
+            Debug.LogError("물·거름 촉매 성장 보장 확인을 통과하지 못했다.");
+            return true;
+        }
+        grown.PlantGrowthElapsedHours = 0;
+        grown.PlantSpaceBlocked = false;
+        return true;
+    }
+
     static bool CanConsumeGrain(PuzzlePlacement _placement, IReadOnlyList<BreedingPair> _pairs)
     {
         if (_placement.OwnedHours < 0)
@@ -2023,6 +2219,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         PruneAnimalStates();
         lastInstanceId = _plan.lastInstanceId;
         nextBindingId = _plan.nextBindingId;
+        plantRandomState = _plan.plantRandomState;
         for (long opening = 0; opening < _plan.marketRestocks; opening++)
         {
             foreach (var city in tables.Cities)
@@ -2401,7 +2598,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         }
 
         int startRotation = ((_preferredClockwiseTurns % PuzzleRotation.TURN_COUNT) + PuzzleRotation.TURN_COUNT) % PuzzleRotation.TURN_COUNT;
-        var grabbedCell = _original.Definition.Cells[0];
+        var grabbedCell = _original.LocalCells[0];
         var evaluation = EvaluateDrop(_original, _destination, grabbedCell, Vector2Int.zero, startRotation);
         if (evaluation.TradeFailure != PuzzleTradeFailure.None ||
             evaluation.Placement.Failure == PuzzlePlacementFailure.StaleSource ||
@@ -2414,7 +2611,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         for (int hour = 0; hour < PuzzleRotation.TURN_COUNT; hour++)
         {
             int rotation = (startRotation + hour) % PuzzleRotation.TURN_COUNT;
-            var offset = new PuzzleRotation(_original.Definition.Cells, rotation).GetBoardOffset(grabbedCell);
+            var offset = new PuzzleRotation(_original.LocalCells, rotation).GetBoardOffset(grabbedCell);
             for (int y = _destination.Height - 1; y >= 0; y--)
             {
                 for (int x = 0; x < _destination.Width; x++)

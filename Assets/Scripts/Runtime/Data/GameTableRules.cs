@@ -1172,6 +1172,26 @@ public sealed class GameTableRules
             Check(salt.usesPerItem >= 1, SALT_PATH + ".usesPerItem", "소금 사용 횟수는 1 이상이어야 합니다.");
         }
 
+        var plant = _tables.PuzzleMechanic.plant;
+        const string PLANT_PATH = PATH + ".plant";
+        Check(plant != null, PLANT_PATH, "식물 발아 설정이 필요합니다.");
+        if (plant != null)
+        {
+            bool TagKnown(string _tag)
+            {
+                return tags.Contains(_tag) || Presentation.HasBuiltInPuzzleTag(_tag);
+            }
+            Reference(plant.plantTag, PLANT_PATH + ".plantTag", TagKnown(plant.plantTag), "식물 태그");
+            Reference(plant.waterTag, PLANT_PATH + ".waterTag", TagKnown(plant.waterTag), "물 태그");
+            Reference(plant.fertilizerTag, PLANT_PATH + ".fertilizerTag", TagKnown(plant.fertilizerTag), "거름 태그");
+            var distinctPlantTags = new[] { plant.plantTag, plant.waterTag, plant.fertilizerTag }
+                .Where(_tag => !string.IsNullOrEmpty(_tag)).Distinct(StringComparer.Ordinal).Count();
+            Check(distinctPlantTags == 3, PLANT_PATH, "식물·물·거름 태그는 서로 달라야 합니다.");
+            Check(plant.germinationIntervalTurns >= 1, PLANT_PATH + ".germinationIntervalTurns",
+                "발아 간격은 1턴 이상이어야 합니다.");
+            Check(!string.IsNullOrWhiteSpace(plant.description), PLANT_PATH + ".description", "식물 발아 설명이 필요합니다.");
+        }
+
         var upgrades = _tables.PuzzleMechanic.upgrades ?? Array.Empty<PuzzleItemUpgradeData>();
         for (int i = 0; i < upgrades.Length; i++)
         {
@@ -1496,6 +1516,7 @@ public sealed class GameTableRules
             {
                 string path = $"{PATH}.pieces[{i}]";
                 ValidateGrowth(_tables, piece, path);
+                ValidatePlantSeed(_tables, piece, path);
                 var shape = ValidatePiece(piece, maxSide, path, _tables);
                 if (shape != null)
                 {
@@ -1592,6 +1613,35 @@ public sealed class GameTableRules
         {
             Check(!(adult.tags ?? Array.Empty<string>()).Contains(PuzzleItemDefinition.BABY_TAG),
                 _path + ".adultPieceId", "성체 화물에는 Baby 태그를 둘 수 없습니다.");
+        }
+    }
+
+    // 식물 품목 계약. Plant 태그 품목만 씨앗 좌표를 가지고, 초기에는 씨앗 1칸 품목만 허용한다.
+    // 좌표 누락, 칸·태그와의 모순, Plant 태그 없이 씨앗 좌표만 있는 품목을 항목별로 보고한다.
+    void ValidatePlantSeed(TableManager _tables, PuzzlePieceData _piece, string _path)
+    {
+        var plant = _tables.PuzzleMechanic.plant;
+        if (plant == null)
+        {
+            return;
+        }
+
+        var tags = _piece.tags ?? Array.Empty<string>();
+        if (!tags.Contains(plant.plantTag))
+        {
+            Check(_piece.seedX < 0 && _piece.seedY < 0, _path + ".seedX", "씨앗 좌표는 Plant 태그 품목만 가질 수 있습니다.");
+            return;
+        }
+
+        Check(!tags.Contains(plant.waterTag) && !tags.Contains(plant.fertilizerTag), _path + ".tags",
+            "식물 품목은 물·거름 태그를 겸할 수 없습니다.");
+        bool hasSeed = _piece.seedX >= 0 && _piece.seedY >= 0;
+        Check(hasSeed, _path + ".seedX", "식물 품목에는 씨앗 좌표(seedX·seedY)가 필요합니다.");
+        Check(_piece.cells != null && _piece.cells.Length == 1, _path + ".cells", "식물 품목은 처음에 씨앗 1칸이어야 합니다.");
+        if (hasSeed && _piece.cells != null && _piece.cells.Length == 1)
+        {
+            Check(_piece.seedX == _piece.cells[0].x && _piece.seedY == _piece.cells[0].y, _path + ".seedX",
+                "씨앗 좌표는 품목의 칸 좌표와 일치해야 합니다.");
         }
     }
 

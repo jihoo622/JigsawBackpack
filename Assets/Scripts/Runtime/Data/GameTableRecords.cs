@@ -91,6 +91,8 @@ public sealed class PuzzlePieceData
     public string adultPieceId, growthDescription;
     public int growthHours, growthBlockedHours;
     public int shelfLifeHours;
+    // 식물 품목의 씨앗 기준 칸. Plant 태그 품목만 가진고 cells의 좌표 하나를 가리킨다. -1은 미설정.
+    public int seedX = -1, seedY = -1;
     public PuzzleCellData[] cells = Array.Empty<PuzzleCellData>();
 }
 
@@ -351,6 +353,17 @@ public sealed class PuzzleSaltUseData
     public string saltTag, description;
     // 누락이 0이라는 정상값으로 위장되지 않도록 하는 검증용 값이다.
     public int usesPerItem = -1;
+}
+
+// 식물 발아 규칙. plantTag 품목은 germinationIntervalTurns마다 성장 가능한 칸 중 하나로 한 칸 자란다.
+// 씨앗만 있을 때는 로컬 북쪽 한 칸만 후보이고, 발아 후에는 씨앗을 제외한 모든 줄기에서 상하좌우로 뻗는다.
+// 같은 객차의 물·거름 태그 품목은 다음 턴에 소비되고 접촉 방향의 한 칸 성장을 촉발한다.
+[Serializable]
+public sealed class PuzzlePlantGrowthData
+{
+    public string plantTag, waterTag, fertilizerTag, description;
+    // 누락이 0이라는 정상값으로 위장되지 않도록 하는 검증용 값이다.
+    public int germinationIntervalTurns = -1;
 }
 
 // 강화 효과의 종류. 테이블의 effect 문자열과 이름이 같아야 한다.

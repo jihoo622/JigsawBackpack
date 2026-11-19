@@ -1833,6 +1833,13 @@
           "g": 0.36,
           "b": 0.62,
           "a": 1.0
+        },
+        {
+          "id": "plantBackground",
+          "r": 0.4,
+          "g": 0.7333333333333333,
+          "b": 0.4156862745098039,
+          "a": 1.0
         }
       ],
       "numbers": [
@@ -1885,6 +1892,11 @@
         {
           "id": "metalPriority",
           "value": 3,
+          "whole": true
+        },
+        {
+          "id": "plantPriority",
+          "value": 9,
           "whole": true
         },
         {
@@ -1989,6 +2001,10 @@
         {
           "id": "questLabel",
           "value": "의뢰"
+        },
+        {
+          "id": "plantLabel",
+          "value": "식물"
         }
       ]
     },

@@ -81,12 +81,12 @@ public sealed class PuzzleInventory
         return zoneByCell.TryGetValue(_position, out var zone) ? zone : null;
     }
 
-    // 포즈의 모든 칸이 그 화물을 받는지. 구역 밖 칸은 제한이 없다.
+    // 포즈의 모든 칸이 그 화물을 받는지. 구역 밖 칸은 제한이 없다. 수용 한계는 배치할 칸 수로 본다.
     bool ZonesAccept(IReadOnlyList<PuzzleCell> _cells, PuzzleItemDefinition _definition)
     {
         foreach (var cell in _cells)
         {
-            if (zoneByCell.TryGetValue(cell.Position, out var zone) && !zone.Accepts(_definition))
+            if (zoneByCell.TryGetValue(cell.Position, out var zone) && !zone.Accepts(_definition, _cells.Count))
             {
                 return false;
             }
@@ -206,7 +206,10 @@ public sealed class PuzzleInventory
             AppliedUpgradeIds = _source.AppliedUpgradeIds,
             SaltUsesRemaining = _source.SaltUsesRemaining,
             BindingId = _source.BindingId,
-            BindingLocalOffset = _source.BindingLocalOffset
+            BindingLocalOffset = _source.BindingLocalOffset,
+            PlantStemCells = _source.PlantStemCells,
+            PlantGrowthElapsedHours = _source.PlantGrowthElapsedHours,
+            PlantSpaceBlocked = _source.PlantSpaceBlocked
         };
     }
 
@@ -255,6 +258,24 @@ public sealed class PuzzleInventory
 
     // 이 보드가 지금 점유한 칸 수. 노선 이동 비용의 보유량 계산에 쓴다.
     internal int OccupiedCells => occupancy.Count;
+
+    // 식물이 성장할 수 있는 보드 칸인지. 경계·막힘·점유와 전용 구역 규칙을 함께 본다.
+    internal bool CanGrowInto(Vector2Int _position, PuzzleItemDefinition _definition, int _cellCount)
+    {
+        if (!InBounds(_position) || occupancy.ContainsKey(_position))
+        {
+            return false;
+        }
+        PuzzleBoardZone zone = ZoneAt(_position);
+        return zone == null || zone.Accepts(_definition, _cellCount);
+    }
+
+    // 해당 보드 칸을 점유한 배치. 비어 있으면 null이다.
+    internal PuzzlePlacement PlacementAt(Vector2Int _position)
+    {
+        return occupancy.TryGetValue(_position, out var entry) &&
+            placements.TryGetValue(entry.InstanceId, out var placement) ? placement : null;
+    }
 
     // 성장 대상을 결정적 순서로 처리한다. 성체 자리가 있으면 시계를 흘려보내고 완성이면 교체하고,
     // 없으면 그 품목의 성장만 대기 지점에서 멈춘다. 다른 화물의 성장·신선도와 게임 진행은 막지 않는다.
@@ -354,7 +375,8 @@ public sealed class PuzzleInventory
             return new PuzzlePlacementResult(PuzzlePlacementFailure.InvalidDestination);
         }
 
-        var failure = _destination.CreatePoseAtSlot(_original.Definition.Cells, _grabbedCell, _targetCell, _clockwiseTurns,
+        // 이미 배치된 화물은 정의가 아니라 인스턴스의 전체 형태(줄기 포함)로 움직인다.
+        var failure = _destination.CreatePoseAtSlot(_original.LocalCells, _grabbedCell, _targetCell, _clockwiseTurns,
             out var candidate);
         if (failure != PuzzlePlacementFailure.None)
         {
@@ -487,6 +509,60 @@ public sealed class PuzzleInventory
         return true;
     }
 
+    // 식물 성장 확장 원시 동작. 씨앗·줄기 품목의 보드 후보 칸 하나를 줄기 칸으로 더한다.
+    // 보드 경계·막힌 칸·다른 화물 점유·전용 구역을 통과해야만 형태와 점유가 바뀌고, 기존 칸의 보드 위치는
+    // 그대로 유지된다. 인스턴스 ID·시간 상태·강화는 보존하고 실제 가치에 _valueDelta를 더한다. 실패하면 보드는 그대로다.
+    internal bool TryExtendPlant(PuzzlePlacement _placement, Vector2Int _boardCell, decimal _valueDelta = 0)
+    {
+        if (!IsCurrentPlacement(_placement) || _placement.Definition.SeedCell == null ||
+            !InBounds(_boardCell) ||
+            (occupancy.TryGetValue(_boardCell, out var occupant) && occupant.InstanceId != _placement.InstanceId))
+        {
+            return false;
+        }
+
+        var rotation = new PuzzleRotation(_placement.LocalCells, _placement.Pose.ClockwiseTurns);
+        Vector2Int local = rotation.GetLocalCell(_boardCell - _placement.Pose.Origin);
+        if (_placement.LocalCells.Contains(local))
+        {
+            return false;
+        }
+
+        var shape = new List<Vector2Int>(_placement.LocalCells) { local };
+        var grown = new PuzzleRotation(shape, _placement.Pose.ClockwiseTurns);
+        Vector2Int anchor = shape[0];
+        Vector2Int origin = _placement.Pose.Origin -
+            (grown.GetBoardOffset(anchor) - rotation.GetBoardOffset(anchor));
+        if (!TryCreatePose(shape, origin, grown, out var pose))
+        {
+            return false;
+        }
+        foreach (var cell in pose.Cells)
+        {
+            if (!InBounds(cell.Position))
+            {
+                return false;
+            }
+        }
+        if (CheckPlacement(pose.Cells, _placement.InstanceId, _placement.Definition) != PuzzlePlacementFailure.None)
+        {
+            return false;
+        }
+
+        // 기존 칸은 쉰 뒤 새 형태 한 번으로 다시 점유한다. 점유했던 후보 칸은 위 확인으로 비어 있다.
+        ClearOccupancy(_placement);
+        var grownPlacement = CopyPlacement(_placement, _placement.Definition, this, pose, _placement.ActualValue);
+        grownPlacement.PlantStemCells = shape.GetRange(_placement.Definition.Cells.Count,
+            shape.Count - _placement.Definition.Cells.Count);
+        if (_valueDelta != 0)
+        {
+            grownPlacement.AddPlantGrowthValue(_valueDelta);
+        }
+        StorePlacement(grownPlacement);
+        RecalculateValue();
+        return true;
+    }
+
     // 잡은 회원의 목표 포즈(_anchorPose)와 강체로 함께 움직이는 회원 전원의 포즈. 드래그 고스트 표시용이며
     // 대상 보드는 검사하지 않는다. 수식은 EvaluateBundleMove와 같은 틀을 쓴다.
     internal List<(PuzzlePlacement Member, PuzzlePose Pose)> GetBundleGhostPoses(
@@ -520,12 +596,12 @@ public sealed class PuzzleInventory
             PuzzleRotation.TURN_COUNT;
         foreach (var member in BundleMembers(_original))
         {
-            var rotation = new PuzzleRotation(member.Definition.Cells,
+            var rotation = new PuzzleRotation(member.LocalCells,
                 (member.Pose.ClockwiseTurns + delta) % PuzzleRotation.TURN_COUNT);
             var first = member.Pose.Cells[0];
             if (!TryTranslate(anchorCell, RotateBoard(first.Position - grabbedPosition, delta), out var mappedFirst) ||
                 !TryTranslate(mappedFirst, -rotation.GetBoardOffset(first.OriginalCell), out var origin) ||
-                !TryCreatePose(member.Definition.Cells, origin, rotation, out var pose))
+                !TryCreatePose(member.LocalCells, origin, rotation, out var pose))
             {
                 continue;
             }
@@ -555,12 +631,12 @@ public sealed class PuzzleInventory
         var poses = new List<(PuzzlePlacement, PuzzlePose)>(members.Count);
         foreach (var member in members)
         {
-            var rotation = new PuzzleRotation(member.Definition.Cells,
+            var rotation = new PuzzleRotation(member.LocalCells,
                 (member.Pose.ClockwiseTurns + delta) % PuzzleRotation.TURN_COUNT);
             var first = member.Pose.Cells[0];
             if (!TryTranslate(_targetCell, RotateBoard(first.Position - grabbedPosition, delta), out var mappedFirst) ||
                 !TryTranslate(mappedFirst, -rotation.GetBoardOffset(first.OriginalCell), out var origin) ||
-                !TryCreatePose(member.Definition.Cells, origin, rotation, out var pose))
+                !TryCreatePose(member.LocalCells, origin, rotation, out var pose))
             {
                 return PuzzlePlacementFailure.CellOutsideBoard;
             }
@@ -969,10 +1045,10 @@ public sealed class PuzzleInventory
         return placements.TryGetValue(_placement.InstanceId, out var current) && ReferenceEquals(current, _placement);
     }
 
-    internal PuzzlePose GetDragPose(PuzzleItemDefinition _definition, Vector2Int _grabbedCell, int _clockwiseTurns)
+    internal PuzzlePose GetDragPose(IReadOnlyList<Vector2Int> _shape, Vector2Int _grabbedCell, int _clockwiseTurns)
     {
         // 보드 밖의 고스트는 잡은 슬롯을 (0, 0)에 둔 포즈에서 상대 위치를 읽는다.
-        CreatePoseAtSlot(_definition.Cells, _grabbedCell, Vector2Int.zero, _clockwiseTurns, out var pose);
+        CreatePoseAtSlot(_shape, _grabbedCell, Vector2Int.zero, _clockwiseTurns, out var pose);
         return pose;
     }
 
@@ -1122,10 +1198,10 @@ internal sealed class PuzzleBoardZone
         Cells = cells.AsReadOnly();
     }
 
-    internal bool Accepts(PuzzleItemDefinition _definition)
+    internal bool Accepts(PuzzleItemDefinition _definition, int _cellCount)
     {
         return _definition != null && _definition.Tags.Any(allowedTags.Contains) &&
-            (MaxPieceCells <= 0 || _definition.Cells.Count <= MaxPieceCells);
+            (MaxPieceCells <= 0 || _cellCount <= MaxPieceCells);
     }
 }
 

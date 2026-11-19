@@ -40,6 +40,8 @@ public sealed class PuzzleItemDefinition
     internal string GrowthDescription { get; }
     internal long GrowthHours { get; }
     internal long GrowthBlockedHours { get; }
+    // 품목 로컬 기준의 씨앗 칸. 씨앗 좌표를 가진 품목(식물)만 두고 그 외에는 null이다.
+    internal Vector2Int? SeedCell { get; }
     // 성체 자리를 확인하기 시작하는 진행. 이 시각 이후 자리가 없으면 성장은 여기에서 대기한다.
     internal long GrowthFreezeHours => GrowthHours - GrowthBlockedHours;
 
@@ -72,6 +74,7 @@ public sealed class PuzzleItemDefinition
         GrowthDescription = _item.growthDescription;
         GrowthHours = (long)_item.growthHours;
         GrowthBlockedHours = (long)_item.growthBlockedHours;
+        SeedCell = _item.seedX >= 0 && _item.seedY >= 0 ? new Vector2Int(_item.seedX, _item.seedY) : null;
         HasDurability = Tags.Contains(BasicData.Text("rules.items.durabilityTag"));
         Cells = Array.AsReadOnly(_item.cells.OrderBy(_cell => _cell.y).ThenBy(_cell => _cell.x)
             .Select(_cell => new Vector2Int(_cell.x, _cell.y)).ToArray());

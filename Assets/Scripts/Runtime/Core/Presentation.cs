@@ -1566,6 +1566,7 @@ public static partial class Presentation
         { "Meat", "presentation.tags.meatLabel" },
         { "Animal", "presentation.tags.animalLabel" },
         { "Fruit", "presentation.tags.fruitLabel" },
+        { "Plant", "presentation.tags.plantLabel" },
         { "Waste", "presentation.tags.wasteLabel" },
         { "Box", "presentation.tags.boxLabel" },
         { "Fresh", "presentation.tags.refrigeratorLabel" },
@@ -2019,6 +2020,21 @@ public static partial class Presentation
                     growthTargets), null));
         }
 
+        // 식물 발아는 태그 기반의 인스턴스 효과다. 주기는 표를 읽고, 객차 안의 보유 식물에만 현재 발아 진행도와
+        // 공간 부족을 붙인다. 시장·도축·개조 보드에는 설명만 보인다.
+        var plantGrowth = tables.PuzzleMechanic.plant;
+        if (_item.Tags.Contains(plantGrowth.plantTag))
+        {
+            long plantIntervalHours = (long)plantGrowth.germinationIntervalTurns * PuzzleTimeManager.HOURS_PER_TURN;
+            PuzzleProgressDisplay? plantProgress =
+                isTrain && _placement != null && _placement.OwnedHours >= 0
+                    ? new PuzzleProgressDisplay(_placement.PlantGrowthElapsedHours, plantIntervalHours,
+                        _placement.PlantSpaceBlocked)
+                    : null;
+            general.Add(new PuzzleEffectDisplay(PuzzleTooltipEffectDescription(plantGrowth.description),
+                plantProgress));
+        }
+
         foreach (var rule in tables.SynergiesFor(_scope))
         {
             bool isPenalty = rule.multiplierPercent < 100;
@@ -2417,6 +2433,7 @@ public static partial class Presentation
             "meat" => BasicData.Color("presentation.tags.meatBackground"),       // 고기: 딥 레드
             "animal" => BasicData.Color("presentation.tags.animalBackground"),    // 가축: 탄/레더 탠
             "fruit" => BasicData.Color("presentation.tags.fruitBackground"),      // 과일: 사과 레드
+            "plant" => BasicData.Color("presentation.tags.plantBackground"),      // 식물: 어린잎 그린
             "quest" => BasicData.Color("presentation.tags.questBackground"),
             "waste" => BasicData.Color("presentation.tags.wasteBackground"),
             "ore" => BasicData.Color("presentation.tags.oreBackground"),
@@ -2495,6 +2512,7 @@ public static partial class Presentation
             "food" => BasicData.Int("presentation.tags.foodPriority"),
             "meat" => BasicData.Int("presentation.tags.meatPriority"),
             "fruit" => BasicData.Int("presentation.tags.fruitPriority"),
+            "plant" => BasicData.Int("presentation.tags.plantPriority"),
             "animal" => BasicData.Int("presentation.tags.animalPriority"),
             "water" => BasicData.Int("presentation.tags.waterPriority"),
             "salt" => BasicData.Int("presentation.tags.saltPriority"),

@@ -56,6 +56,20 @@ public readonly struct PuzzleRotation
         return new Vector2Int(normalized.x, -normalized.y);
     }
 
+    // GetBoardOffset의 역변환. 원점 기준 보드 오프셋을 회전 전 조각 로컬 좌표로 바꾼다.
+    public Vector2Int GetLocalCell(Vector2Int _boardOffset)
+    {
+        var rotated = new Vector2Int(_boardOffset.x + minimum.x, minimum.y - _boardOffset.y);
+        return ClockwiseTurns switch
+        {
+            0 => rotated,
+            1 => new Vector2Int(rotated.y, -rotated.x),
+            2 => new Vector2Int(-rotated.x, -rotated.y),
+            3 => new Vector2Int(-rotated.y, rotated.x),
+            _ => throw new ArgumentOutOfRangeException(nameof(ClockwiseTurns))
+        };
+    }
+
     static Vector2Int RotateLocal(Vector2Int _cell, int _clockwiseTurns)
     {
         return _clockwiseTurns switch
@@ -95,6 +109,27 @@ public sealed class PuzzlePlacement
     public PuzzleItemDefinition Definition { get; }
     public PuzzleInventory Owner { get; }
     public PuzzlePose Pose { get; }
+    // 이 인스턴스가 품목 로컬에서 차지하는 칸 전체. 정의 칸을 앞에 두고 줄기 칸을 뒤에 더한다.
+    // 줄기가 없으면 정의 칸과 같은 목록이며, 포즈 생성·점유·표시의 형태 원본으로 쓴다.
+    public IReadOnlyList<Vector2Int> LocalCells
+    {
+        get
+        {
+            if (PlantStemCells.Count == 0)
+            {
+                return Definition.Cells;
+            }
+            var cells = new List<Vector2Int>(Definition.Cells);
+            foreach (Vector2Int cell in PlantStemCells)
+            {
+                if (!cells.Contains(cell))
+                {
+                    cells.Add(cell);
+                }
+            }
+            return cells;
+        }
+    }
     // 공통 시계의 시너지 정산마다 변화량을 누적한다. 배치 변경만으로는 바뀌지 않는다.
     public decimal ActualValue { get; private set; }
     internal bool HasUnreadSynergySettlement { get; set; }
@@ -120,6 +155,13 @@ public sealed class PuzzlePlacement
     internal int BindingId { get; set; }
     // 결합 구성 정보. 묶음 기준 회원을 원점으로 한 묶음 로컬 좌표의 오프셋으로, 상대 배치를 보존한다.
     internal Vector2Int BindingLocalOffset { get; set; }
+    // 품목 로컬 좌표의 줄기 칸. 정의 칸과 같은 틀이고 씨앗 칸은 포함하지 않는다. 비어 있으면 정의 칸만 쓴다.
+    // 사본·이동·반영과 함께 옮겨지고 품목 정의에는 남기지 않는다.
+    internal IReadOnlyList<Vector2Int> PlantStemCells { get; set; } = Array.Empty<Vector2Int>();
+    // 다음 발아까지 쌓은 게임 시간. 한 칸 성장하면 초기화하고 공간 부족 대기에 멈춘다.
+    internal long PlantGrowthElapsedHours { get; set; }
+    // 자랄 칸이 없어 발아를 대기 중인지. 사본·커밋에서 발아 시계와 함께 옮긴다.
+    internal bool PlantSpaceBlocked { get; set; }
     const int NO_SALT_TRACKING = -1;
     long ShelfLifeHours => Definition.ShelfLifeHours;
     // 남은 유통기한 시간. 유통기한이 없는 품목은 null이다.
@@ -230,6 +272,23 @@ public sealed class PuzzlePlacement
         GrowthSpaceBlocked = false;
     }
 
+    // 자랄 칸이 없어 발아를 대기한다. 발아 시계는 대기 시작 지점에서 멈추고 새 대기는 알림을 한 번 남긴다.
+    internal void WaitForPlantSpace()
+    {
+        if (!PlantSpaceBlocked)
+        {
+            HasUnreadSpaceNotice = true;
+            Owner.HasUnreadEventNotice = true;
+        }
+        PlantSpaceBlocked = true;
+    }
+
+    /// <summary>식물이 한 칸 성장한만큼의 품목 기본 가치를 실제 가치에 더한다. 시너지 정산과 무관하다.</summary>
+    internal void AddPlantGrowthValue(decimal _amount)
+    {
+        ActualValue = checked(ActualValue + _amount);
+    }
+
     internal static PuzzleFreshnessBand FreshnessBand(int _percent)
     {
         if (_percent <= 0)
@@ -292,6 +351,9 @@ public sealed class PuzzlePlacement
         OwnedHours = _owned ? 0 : -1;
         GrowthElapsedHours = _owned ? 0 : -1;
         GrowthSpaceBlocked = false;
+        // 식물 발아 시계는 소유 시작에 0에서 다시 시작하고 미소유 보드에서는 흐르지 않는다(소유 가드는 시간 경계에서 확인).
+        PlantGrowthElapsedHours = 0;
+        PlantSpaceBlocked = false;
         HasUnreadSynergySettlement = false;
         HasUnreadSpaceNotice = false;
         HasUnreadSpawnNotice = false;
@@ -319,6 +381,11 @@ public sealed class PuzzlePlacement
             if (Definition.GrowthHours > 0 && !GrowthSpaceBlocked)
             {
                 GrowthElapsedHours = checked(GrowthElapsedHours + _hours);
+            }
+            // 식물의 발아 시계는 보유 시간과 따로 간다. 공간 부족 대기 중에는 멈춘다.
+            if (Definition.SeedCell != null && !PlantSpaceBlocked)
+            {
+                PlantGrowthElapsedHours = checked(PlantGrowthElapsedHours + _hours);
             }
             if (RemainingShelfLifeHours.HasValue)
             {
@@ -384,6 +451,9 @@ public sealed class PuzzlePlacement
         SaltUsesRemaining = _staged.SaltUsesRemaining;
         BindingId = _staged.BindingId;
         BindingLocalOffset = _staged.BindingLocalOffset;
+        PlantStemCells = _staged.PlantStemCells;
+        PlantGrowthElapsedHours = _staged.PlantGrowthElapsedHours;
+        PlantSpaceBlocked = _staged.PlantSpaceBlocked;
         HasUnreadSynergySettlement = _staged.HasUnreadSynergySettlement;
         HasUnreadSpaceNotice = _staged.HasUnreadSpaceNotice;
         HasUnreadSpawnNotice = _staged.HasUnreadSpawnNotice;

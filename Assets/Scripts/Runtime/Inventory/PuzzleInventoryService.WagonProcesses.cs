@@ -31,7 +31,7 @@ public sealed partial class PuzzleInventoryService
         }
         return _wagon.Placements
             .Where(_item => !_item.Definition.Tags.Any(exempt.Contains))
-            .Sum(_item => _item.Definition.Cells.Count);
+            .Sum(_item => _item.Pose.Cells.Count);
     }
 
     static bool InputsPresent(PuzzleInventory _wagon, PuzzleWagonProcessState _state)
@@ -76,7 +76,7 @@ public sealed partial class PuzzleInventoryService
         var items = _wagon.Placements.OrderBy(_item => _item.InstanceId).ToArray();
         foreach (var primary in items.Where(_item => _item.Definition.Tags.Contains(_process.primaryTag)))
         {
-            int cells = primary.Definition.Cells.Count;
+            int cells = primary.Pose.Cells.Count;
             if (type == TrainventoryWagonProcessType.Crush)
             {
                 if (cells > 1)
@@ -93,7 +93,7 @@ public sealed partial class PuzzleInventoryService
             {
                 int need = checked(input.countPerUnit * cells);
                 var picks = items
-                    .Where(_item => !chosen.Contains(_item) && _item.Definition.Cells.Count == 1 &&
+                    .Where(_item => !chosen.Contains(_item) && _item.Pose.Cells.Count == 1 &&
                         _item.Definition.Tags.Contains(input.tag))
                     .Take(need)
                     .ToArray();

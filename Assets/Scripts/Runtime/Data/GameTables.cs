@@ -77,6 +77,7 @@ public sealed class PuzzleMechanicTableData
     public PuzzleWoodBindingData woodBinding;
     public PuzzleMachineryGrowthData machineryGrowth;
     public PuzzleSaltUseData salt;
+    public PuzzlePlantGrowthData plant;
     public PuzzleItemUpgradeData[] upgrades = Array.Empty<PuzzleItemUpgradeData>();
 }
 

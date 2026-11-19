@@ -34,7 +34,7 @@ internal sealed class PuzzleInventoryDrag
 
     public PuzzlePose GetGhostPose()
     {
-        return Source.GetDragPose(Definition, grabbedCell, clockwiseTurns);
+        return Source.GetDragPose(original.LocalCells, grabbedCell, clockwiseTurns);
     }
 
     // 묶음 회원이 잡은 조각의 고스트 포즈(_anchorPose)와 강체로 함께 움직이는 표시용 포즈. 잡은 조각 제외.
