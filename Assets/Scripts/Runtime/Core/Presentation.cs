@@ -1774,10 +1774,10 @@ public static partial class Presentation
             FormatEffectPercentage(value));
     }
 
-    internal static string PuzzleAnimalBreedingEffect(string _description, long _hours, string _offspringName, int _count)
+    internal static string PuzzleAnimalBreedingEffect(string _description, long _hours, string _offspringName, int _count, string _parentName)
     {
         return PuzzleTooltipEffectDescription(string.Format(_description,
-            TurnSpan(_hours), _offspringName, _count));
+            TurnSpan(_hours), _offspringName, _count, _parentName));
     }
 
     internal static string PuzzleAnimalGrowthEffect(string _description, long _hours, string _adultName, long _blockedHours)
@@ -1789,7 +1789,7 @@ public static partial class Presentation
     internal static string PuzzleAnimalWasteEffect(string _description, int _intervalHours, string _wasteName, int _count)
     {
         return PuzzleTooltipEffectDescription(string.Format(_description,
-            _intervalHours, _wasteName, _count));
+            TurnSpan((long)_intervalHours), _wasteName, _count));
     }
 
     static string PuzzleAnimalFeedEffect(string _description, int _intervalHours, int _reductionHours)
@@ -1931,7 +1931,7 @@ public static partial class Presentation
                     breedingProgress = new PuzzleProgressDisplay(pairedHours, breedingHours, pairedBlocked);
                 }
                 general.Add(new PuzzleEffectDisplay(PuzzleAnimalBreedingEffect(breeding.description,
-                    breedingHours, offspring.displayName, breeding.offspringCount), breedingProgress));
+                    breedingHours, offspring.displayName, breeding.offspringCount, _item.DisplayName), breedingProgress));
                 general.Add(new PuzzleEffectDisplay(PuzzleAnimalFeedEffect(animals.breedingFeedDescription,
                     animals.feedIntervalHours, animals.breedingFeedReductionHours)));
             }

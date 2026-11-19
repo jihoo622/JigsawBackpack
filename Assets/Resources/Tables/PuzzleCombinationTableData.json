@@ -8,7 +8,7 @@
       "partnerPieceId": "piece.saltSack",
       "resultPieceId": "piece.pickledFish",
       "requiredHours": 12,
-      "description": "소금과 {0} 동안 인접 시 {1} 생성"
+      "description": "소금과 {0} 동안 인접 시 {1}로 변환"
     },
     {
       "id": "combine.pickledBeef",
@@ -16,7 +16,7 @@
       "partnerPieceId": "piece.saltSack",
       "resultPieceId": "piece.pickledBeef",
       "requiredHours": 12,
-      "description": "소금과 {0} 동안 인접 시 {1} 생성"
+      "description": "소금과 {0} 동안 인접 시 {1}로 변환"
     },
     {
       "id": "combine.pickledMeat",
@@ -24,7 +24,7 @@
       "partnerPieceId": "piece.saltSack",
       "resultPieceId": "piece.pickledMeat",
       "requiredHours": 12,
-      "description": "소금과 {0} 동안 인접 시 {1} 생성"
+      "description": "소금과 {0} 동안 인접 시 {1}로 변환"
     }
   ]
 }

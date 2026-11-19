@@ -993,7 +993,7 @@ public sealed class GameTableRules
             ValidateBreedingPiece(_tables, rule.parentPieceId, animals.animalTag, path + ".parentPieceId", _isParent: true);
             ValidateBreedingPiece(_tables, rule.offspringPieceId, animals.animalTag, path + ".offspringPieceId");
             Check(rule.offspringCount > 0, path + ".offspringCount", "자식 수량은 양수여야 합니다.");
-            ValidateEffectDescription(rule.description, path + ".description", string.Empty, string.Empty, rule.offspringCount);
+            ValidateEffectDescription(rule.description, path + ".description", string.Empty, string.Empty, rule.offspringCount, string.Empty);
         }
 
         foreach (var piece in _tables.Pieces)
