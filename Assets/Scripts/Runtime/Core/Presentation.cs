@@ -308,10 +308,12 @@ public static partial class Presentation
         return regionId != null;
     }
 
-    // 미리보기 카드 제목 색. 링크 글자색과 맞춘다(역·지역은 지역 색).
+    // 미리보기 카드 제목 색. 도시·지역은 마을권 색(링크 글자색과 동일), 나머지는 기본 툴팁 텍스트 색.
     public static Color EntityPreviewTitleColor(EntityLinkKind _kind, string _id)
     {
-        return _kind == EntityLinkKind.City || _kind == EntityLinkKind.Region ? EntityLinkTextColor(_kind, _id) : PuzzleHeading;
+        return _kind == EntityLinkKind.City || _kind == EntityLinkKind.Region
+            ? EntityLinkTextColor(_kind, _id)
+            : PuzzleTooltipText;
     }
 
     static string EntityLinkPrefix(EntityLinkKind _kind)
@@ -1161,14 +1163,14 @@ public static partial class Presentation
 
     internal static string WagonSaleAmount(long _price, bool _showPlus = false)
     {
-        string color = ColorUtility.ToHtmlStringRGB(BasicData.Color("presentation.itemInfo.positive"));
+        string color = ColorUtility.ToHtmlStringRGB(PuzzleTooltipGreen);
         string sign = _showPlus && _price > 0 ? "+" : string.Empty;
         return $"<color=#{color}>{sign}{_price:N0} $</color>";
     }
 
     internal static string WagonSaleNotice(string _reason)
     {
-        string color = ColorUtility.ToHtmlStringRGB(BasicData.Color("presentation.itemInfo.negative"));
+        string color = ColorUtility.ToHtmlStringRGB(PuzzleTooltipRed);
         return $"<color=#{color}>{BasicData.Text("rules.wagon." + _reason)}</color>";
     }
     public static string StationMarket => BasicData.Text("presentation.station.market");
@@ -1605,7 +1607,8 @@ public static partial class Presentation
     public static Color PuzzleTooltipBodyBackground => BasicData.Color("presentation.tooltip.bodyBackground");
     public static Color PuzzleTooltipDivider => BasicData.Color("presentation.tooltip.divider");
     public static Color PuzzleTooltipText => BasicData.Color("presentation.tooltip.text");
-    public static Color PuzzleTooltipGold => BasicData.Color("presentation.tooltip.gold");
+    // 기본 텍스트와 중립 색을 동일 색으로 통합한다.
+    public static Color PuzzleTooltipGold => PuzzleTooltipText;
     public static Color PuzzleTooltipGreen => BasicData.Color("presentation.tooltip.green");
     public static Color PuzzleTooltipRed => BasicData.Color("presentation.tooltip.red");
 

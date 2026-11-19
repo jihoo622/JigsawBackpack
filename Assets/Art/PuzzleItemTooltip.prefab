@@ -11637,8 +11637,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 16
-  m_fontSizeBase: 16
+  m_fontSize: 14
+  m_fontSizeBase: 14
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 14
@@ -11838,8 +11838,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 16
-  m_fontSizeBase: 16
+  m_fontSize: 14
+  m_fontSizeBase: 14
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 14
@@ -11964,7 +11964,7 @@ MonoBehaviour:
   emptyLabel: {fileID: 560000000000000057}
   emptyText: "\uC5C6\uC74C"
   badgeBlend: 0.35
-  fontSizeOverride: 12
+  fontSizeOverride: 11
   overrideBadgePadding: 1
   badgePadding:
     m_Left: 6
@@ -12065,8 +12065,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 16
-  m_fontSizeBase: 16
+  m_fontSize: 14
+  m_fontSizeBase: 14
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 14
@@ -12266,8 +12266,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 16
-  m_fontSizeBase: 16
+  m_fontSize: 14
+  m_fontSizeBase: 14
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 14
@@ -12392,7 +12392,7 @@ MonoBehaviour:
   emptyLabel: {fileID: 560000000000000077}
   emptyText: "\uC5C6\uC74C"
   badgeBlend: 0.35
-  fontSizeOverride: 12
+  fontSizeOverride: 11
   overrideBadgePadding: 1
   badgePadding:
     m_Left: 6
@@ -12493,8 +12493,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 16
-  m_fontSizeBase: 16
+  m_fontSize: 14
+  m_fontSizeBase: 14
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 14
@@ -12694,8 +12694,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 16
-  m_fontSizeBase: 16
+  m_fontSize: 14
+  m_fontSizeBase: 14
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 14
@@ -12820,7 +12820,7 @@ MonoBehaviour:
   emptyLabel: {fileID: 560000000000000097}
   emptyText: "\uC5C6\uC74C"
   badgeBlend: 0.35
-  fontSizeOverride: 12
+  fontSizeOverride: 11
   overrideBadgePadding: 1
   badgePadding:
     m_Left: 6
@@ -12921,8 +12921,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 16
-  m_fontSizeBase: 16
+  m_fontSize: 14
+  m_fontSizeBase: 14
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 14
@@ -13123,8 +13123,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 16
-  m_fontSizeBase: 16
+  m_fontSize: 14
+  m_fontSizeBase: 14
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 14
@@ -13249,7 +13249,7 @@ MonoBehaviour:
   emptyLabel: {fileID: 560000000000000117}
   emptyText: "\uC5C6\uC74C"
   badgeBlend: 0.35
-  fontSizeOverride: 12
+  fontSizeOverride: 11
   overrideBadgePadding: 1
   badgePadding:
     m_Left: 6
@@ -13350,8 +13350,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 16
-  m_fontSizeBase: 16
+  m_fontSize: 14
+  m_fontSizeBase: 14
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 14
@@ -13487,8 +13487,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 16
-  m_fontSizeBase: 16
+  m_fontSize: 14
+  m_fontSizeBase: 14
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 14
