@@ -2133,7 +2133,6 @@
     backdrop-filter: none;
   }
   :root[data-limit="1"] .rail-scroll-fade { display: none !important; }
-  :root[data-limit="1"] .resize-se { background: var(--border-bright) !important; }
   :root[data-limit="1"] .loco-wrap,
   :root[data-limit="1"] .loco-wrap.is-moving { filter: none !important; }
     :root[data-limit="1"] .scene-night-tint { opacity: 0.55; }
@@ -3019,7 +3018,6 @@
     backdrop-filter: none;
   }
   :root[data-limit="1"] .rail-scroll-fade { display: none !important; }
-  :root[data-limit="1"] .resize-se { background: var(--border-bright) !important; }
   :root[data-limit="1"] .loco-wrap,
   :root[data-limit="1"] .loco-wrap.is-moving { filter: none !important; }
     :root[data-limit="1"] .scene-night-tint { opacity: 0.55; }
@@ -3508,17 +3506,6 @@
   }
   .win-close:hover { border-color: var(--red-soft); color: var(--text); }
 
-  /* Resize Handles (Edges + Bottom-Right Corner) */
-  .resize-handle { position: absolute; z-index: 12; }
-  .resize-e { top: 8px; right: 0; width: 7px; bottom: 14px; cursor: ew-resize; }
-  .resize-s { left: 8px; bottom: 0; height: 7px; right: 14px; cursor: ns-resize; }
-  .resize-w { top: 8px; left: 0; width: 7px; bottom: 8px; cursor: ew-resize; }
-  .resize-n { top: 0; left: 8px; height: 7px; right: 8px; cursor: ns-resize; }
-  .resize-se {
-    right: 2px; bottom: 2px; width: 16px; height: 16px; cursor: nwse-resize;
-    background: var(--border-bright);
-    border-radius: 0;
-  }
   .board-scroll-wrap {
     overflow: auto;
     max-width: 100%;
@@ -4875,14 +4862,14 @@
     </li>
     <li><b>정적 레이어 배경</b>: <code>PlatformScene</code>과 <code>TownScene</code>은 최하단 캔버스(<code>sortingOrder 0</code>)에 단색 <code>Image</code> 사각형으로 두고, 도시별 생산시설/공터 여부만 라벨·색상 스왑으로 처리합니다.</li>
     <li><b>다이제틱 건물 버튼</b>: 6개 건물은 단색 사각형 <code>Image</code> + <code>Button</code> + 자식 상태 오브젝트(건물명 <code>TextMeshProUGUI</code> 1개, 상태 <code>TextMeshProUGUI</code> 최대 1줄)로 구성합니다.</li>
-    <li><b>사전 배치 자유 창 시스템 (런타임 UI 생성 없음)</b>: 모든 팝업 창(화차·수첩·시장·술집·여관·역사·작업대·시청·일시정지·결산)은 프리팹에 미리 배치한 뒤 <code>SetActive</code>로 여닫습니다. 제목 표시줄에는 <code>IBeginDragHandler</code> / <code>IDragHandler</code>를, 우하단 모서리·가장자리에는 리사이즈 핸들 컴포넌트를 부착해 <code>RectTransform.sizeDelta</code>를 최소·최대 크기 안으로 제한합니다.</li>
-    <li><b>보드 셀 동적 재계산</b>: 창 크기 변경 시 보드 가용 영역에서 <code>cellSize = Mathf.Clamp(Mathf.Min(availW / cols, availH / rows), 40, 72)</code>를 계산해 <code>GridLayoutGroup.cellSize</code>와 배치 화물 좌표를 갱신하며, <code>40px</code> 미만에서는 미리 배치한 <code>ScrollRect</code>가 스크롤을 담당합니다.</li>
-    <li><b>창 순서·저장</b>: <code>IPointerDownHandler</code>에서 <code>transform.SetAsLastSibling()</code>으로 최상위로 올리고, 창별 <code>x, y, w, h</code>는 <code>PlayerPrefs</code>에 JSON으로 저장해 툴바·일시정지의 <code>창 배치 초기화</code> 버튼으로 복구합니다.</li>
+    <li><b>사전 배치 자유 이동 창 시스템 (고정 크기 · 런타임 UI 생성 없음)</b>: 모든 팝업 창(화차·수첩·시장·술집·여관·역사·작업대·시청·일시정지·결산)은 고정 크기 프리팹에 미리 배치한 뒤 <code>SetActive</code>로 여닫습니다. 제목 표시줄에는 <code>IBeginDragHandler</code> / <code>IDragHandler</code>를 부착해 화면 경계(<code>0~1920</code>, <code>76~1080</code>) 내 드래그 이동·스냅만 허용하며 리사이즈 핸들은 두지 않습니다.</li>
+    <li><b>고정 보드 셀 크기</b>: 기차(7×5)·시장(13×9)·작업대(5×5) 보드는 창별 고정 <code>56px</code> <code>GridLayoutGroup.cellSize</code>를 유지합니다.</li>
+    <li><b>창 순서·위치 저장</b>: <code>IPointerDownHandler</code>에서 <code>transform.SetAsLastSibling()</code>으로 최상위로 올리고, 창별 위치(<code>x, y</code>)만 <code>PlayerPrefs</code>에 JSON으로 저장해 툴바·일시정지의 <code>창 배치 초기화</code> 버튼으로 복구합니다.</li>
   </ul>
 
   <h2>6. 임의 결정 사항 및 자유 창 관리 규칙</h2>
   <ul>
-    <li><b>자유 창 규칙 (a)~(f)</b>: (a) 제목 표시줄 드래그 및 가장자리·우하단 모서리 리사이즈(창별 최소/최대 크기 제한), (b) 화면 경계(<code>0~1920</code>, <code>76~1080</code>) 클램프로 상단 HUD 비가림(중앙 선로나 마을 위로는 이동 허용, 기본값은 H10 배치), (c) 창 크기 연동 보드 셀 <code>40~72px</code> 재계산 및 <code>40px</code> 미만 스크롤, (d) 클릭 시 최상위(<code>z-index</code>) 승격, (e) 창별 위치·크기 저장(목업 <code>localStorage</code> / Unity <code>PlayerPrefs</code>) 및 툴바·일시정지 초기화 버튼, (f) 화면 가장자리 및 타 창 <code>12px</code> 스냅.</li>
+    <li><b>자유 이동 창 규칙 (a)~(e)</b>: (a) 제목 표시줄 드래그 이동 전용(창 크기 고정, 리사이즈 없음), (b) 화면 경계(<code>0~1920</code>, <code>76~1080</code>) 클램프로 상단 HUD 비가림(중앙 선로나 마을 위로는 이동 허용, 기본값은 H10 배치), (c) 창별 보드 셀 크기 <code>56px</code> 고정, (d) 클릭 시 최상위(<code>z-index</code>) 승격, (e) 창별 위치(<code>x, y</code>) 저장(목업 <code>localStorage</code> / Unity <code>PlayerPrefs</code>) 및 툴바·일시정지 초기화 버튼 + 화면 가장자리·타 창 <code>12px</code> 스냅.</li>
     <li><b>시장 창 높이 690px 축소</b>: 행선지 렌즈 비교 정보를 좌측 개인 <code>TrainWindow</code> 하단으로 옮기고 시장 창 하단 빈 여백을 제거해, 시장 창 아래쪽 마을(여관 등)과 시야를 확보했습니다.</li>
     <li><b>수첩 창 폭 522px 설정</b>: 지도·상성표 포함 모든 개인 창이 기본 상태에서 중앙 선로(<code>x=549</code>)를 침범하지 않도록 승강장 폭(<code>522px</code>) 안에 맞췄습니다.</li>
     <li><b>이동 중 연출 방식</b>: 노선도 배경이 없는 상태에서 이동감을 전달하기 위해 승강장에 속도선, 기관차 전조등·주행 표시를 넣고, 상단 중앙(690, 110)에 경로 진행 스트립을 띄우며 좌측 화차 창은 유지했습니다.</li>
@@ -5305,10 +5292,10 @@
       document.getElementById('hud-city-region').textContent = '수도권 · 이동 중';
     } else if (state === 'free_layout') {
       applyDefaultLayouts(false);
-      // Showcase moved & resized windows (including overlapping rail strip per rule b, and rescaled cells 40..72px per rule c)
-      setWindowRect('train-window', { left: 20, top: 140, width: 610, height: 610 });
-      setWindowRect('market-window', { left: 660, top: 100, width: 610, height: 530 });
-      setWindowRect('tavern-window', { left: 1300, top: 480, width: 590, height: 540 });
+      // Showcase moved windows only (fixed default sizes, fixed 56px board cells)
+      setWindowRect('train-window', { left: 20, top: 140 });
+      setWindowRect('market-window', { left: 560, top: 100 });
+      setWindowRect('tavern-window', { left: 1140, top: 500 });
       trainWin.classList.add('visible');
       marketWin.classList.add('visible');
       tavernWin.classList.add('visible');
@@ -5320,75 +5307,52 @@
     }
   }
 
-  // ── Floating, Resizable, Snappable Window Manager ──
-  const STORAGE_KEY = 'tv_concept3b_win_layout_v1';
+  // ── Floating, Fixed-Size, Snappable Window Manager ──
+  const STORAGE_KEY = 'tv_concept3b_win_pos_v1';
   const SNAP_DIST = 12;
   const HUD_BOTTOM = 76;
   let topZ = 50;
   let currentScale = 1;
 
   const WINDOW_CONFIG = {
-    'train-window':        { left: 26,   top: 516, width: 510, height: 544, minW: 360, maxW: 840,  minH: 390, maxH: 940 },
-    'market-window':       { left: 1136, top: 96,  width: 764, height: 690, minW: 480, maxW: 1160, minH: 400, maxH: 960 },
-    'notebook-window':     { left: 16,   top: 128, width: 522, height: 928, minW: 390, maxW: 1100, minH: 440, maxH: 980 },
-    'tavern-window':       { left: 1136, top: 96,  width: 764, height: 520, minW: 400, maxW: 980,  minH: 340, maxH: 900 },
-    'rest-window':         { left: 1136, top: 96,  width: 764, height: 420, minW: 380, maxW: 960,  minH: 300, maxH: 820 },
-    'station-hall-window': { left: 1136, top: 96,  width: 764, height: 520, minW: 400, maxW: 980,  minH: 340, maxH: 900 },
-    'workshop-window':     { left: 1136, top: 96,  width: 764, height: 560, minW: 380, maxW: 920,  minH: 380, maxH: 920 },
-    'cityhall-window':     { left: 1136, top: 96,  width: 764, height: 470, minW: 380, maxW: 960,  minH: 320, maxH: 860 },
-    'pause-modal-win':     { left: 740,  top: 260, width: 440, height: 420, minW: 340, maxW: 720,  minH: 320, maxH: 680 },
-    'run-end-modal-win':   { left: 640,  top: 210, width: 640, height: 440, minW: 480, maxW: 980,  minH: 360, maxH: 780 }
+    'train-window':        { left: 26,   top: 516, width: 510, height: 544 },
+    'market-window':       { left: 1136, top: 96,  width: 764, height: 690 },
+    'notebook-window':     { left: 16,   top: 128, width: 522, height: 928 },
+    'tavern-window':       { left: 1136, top: 96,  width: 764, height: 520 },
+    'rest-window':         { left: 1136, top: 96,  width: 764, height: 420 },
+    'station-hall-window': { left: 1136, top: 96,  width: 764, height: 520 },
+    'workshop-window':     { left: 1136, top: 96,  width: 764, height: 560 },
+    'cityhall-window':     { left: 1136, top: 96,  width: 764, height: 470 },
+    'pause-modal-win':     { left: 740,  top: 260, width: 440, height: 420 },
+    'run-end-modal-win':   { left: 640,  top: 210, width: 640, height: 440 }
   };
 
   function loadSavedLayouts() {
     try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); } catch { return {}; }
   }
-  function saveWindowLayout(id, rect) {
+  function saveWindowLayout(id, pos) {
     const all = loadSavedLayouts();
-    all[id] = rect;
+    all[id] = { left: pos.left, top: pos.top };
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(all)); } catch {}
   }
 
-  function clampRect(id, rect) {
+  function clampRect(id, pos) {
     const cfg = WINDOW_CONFIG[id];
-    const w = Math.max(cfg.minW, Math.min(cfg.maxW, rect.width));
-    const h = Math.max(cfg.minH, Math.min(cfg.maxH, rect.height));
-    const l = Math.max(0, Math.min(1920 - w, rect.left));
-    const t = Math.max(HUD_BOTTOM, Math.min(1080 - h, rect.top));
-    return { left: Math.round(l), top: Math.round(t), width: Math.round(w), height: Math.round(h) };
+    const w = cfg.width;
+    const h = cfg.height;
+    const l = Math.max(0, Math.min(1920 - w, pos.left));
+    const t = Math.max(HUD_BOTTOM, Math.min(1080 - h, pos.top));
+    return { left: Math.round(l), top: Math.round(t), width: w, height: h };
   }
 
-  function rescaleBoardForWindow(id, w, h) {
-    if (id === 'train-window') {
-      const availW = w - 120;
-      const availH = h - 260;
-      const next = Math.max(40, Math.min(72, Math.floor(Math.min(availW / 7, availH / 5))));
-      if (next !== trainCell) { trainCell = next; buildTrainGrid(currentShowCands, currentShowAffected); }
-      else { applyBoardGridSize(trainBoard, 7, 5, trainCell); }
-    } else if (id === 'market-window') {
-      const availW = w - 36;
-      const availH = h - 186;
-      const next = Math.max(40, Math.min(72, Math.floor(Math.min(availW / 13, availH / 9))));
-      if (next !== marketCell) { marketCell = next; buildMarketGrid(); }
-      else { applyBoardGridSize(marketBoard, 13, 9, marketCell); }
-    } else if (id === 'workshop-window') {
-      const availW = w - 70;
-      const availH = h - 280;
-      const next = Math.max(40, Math.min(72, Math.floor(Math.min(availW / 5, availH / 5))));
-      if (next !== workshopCell) { workshopCell = next; buildWorkshopGrid(); }
-      else { applyBoardGridSize(workshopBoard, 5, 5, workshopCell); }
-    }
-  }
-
-  function setWindowRect(id, rect) {
+  function setWindowRect(id, pos) {
     const el = document.getElementById(id);
     if (!el) return;
-    const c = clampRect(id, rect);
+    const c = clampRect(id, pos);
     el.style.left = c.left + 'px';
     el.style.top = c.top + 'px';
     el.style.width = c.width + 'px';
     el.style.height = c.height + 'px';
-    rescaleBoardForWindow(id, c.width, c.height);
   }
 
   function applyDefaultLayouts(clearStorage = false) {
@@ -5414,8 +5378,8 @@
       if (!el || !el.classList.contains('visible')) return;
       const l = parseFloat(el.style.left) || 0;
       const t = parseFloat(el.style.top) || 0;
-      const w = parseFloat(el.style.width) || el.offsetWidth;
-      const h = parseFloat(el.style.height) || el.offsetHeight;
+      const w = WINDOW_CONFIG[id].width;
+      const h = WINDOW_CONFIG[id].height;
       xs.push(l, l + w);
       ys.push(t, t + h);
     });
@@ -5426,69 +5390,6 @@
     Object.keys(WINDOW_CONFIG).forEach(id => {
       const win = document.getElementById(id);
       if (!win) return;
-
-      // Add resize handles (edges + bottom-right corner)
-      ['e', 's', 'w', 'n', 'se'].forEach(dir => {
-        const h = document.createElement('div');
-        h.className = `resize-handle resize-${dir}`;
-        win.appendChild(h);
-
-        h.addEventListener('pointerdown', (e) => {
-          e.stopPropagation();
-          e.preventDefault();
-          win.style.zIndex = ++topZ;
-          const startX = e.clientX, startY = e.clientY;
-          const startRect = {
-            left: parseFloat(win.style.left) || WINDOW_CONFIG[id].left,
-            top: parseFloat(win.style.top) || WINDOW_CONFIG[id].top,
-            width: parseFloat(win.style.width) || WINDOW_CONFIG[id].width,
-            height: parseFloat(win.style.height) || WINDOW_CONFIG[id].height
-          };
-          const cfg = WINDOW_CONFIG[id];
-          const targets = getSnapTargets(id);
-
-          function onMove(ev) {
-            const dx = (ev.clientX - startX) / currentScale;
-            const dy = (ev.clientY - startY) / currentScale;
-            let { left, top, width, height } = startRect;
-            if (dir.includes('e')) {
-              width = startRect.width + dx;
-              for (const tx of targets.xs) {
-                if (Math.abs((left + width) - tx) <= SNAP_DIST) { width = tx - left; break; }
-              }
-            }
-            if (dir.includes('s')) {
-              height = startRect.height + dy;
-              for (const ty of targets.ys) {
-                if (Math.abs((top + height) - ty) <= SNAP_DIST) { height = ty - top; break; }
-              }
-            }
-            if (dir.includes('w')) {
-              const nextW = Math.max(cfg.minW, Math.min(cfg.maxW, startRect.width - dx));
-              left = startRect.left + (startRect.width - nextW);
-              width = nextW;
-            }
-            if (dir.includes('n')) {
-              const nextH = Math.max(cfg.minH, Math.min(cfg.maxH, startRect.height - dy));
-              top = Math.max(HUD_BOTTOM, startRect.top + (startRect.height - nextH));
-              height = startRect.top + startRect.height - top;
-            }
-            setWindowRect(id, { left, top, width, height });
-          }
-          function onUp() {
-            window.removeEventListener('pointermove', onMove);
-            window.removeEventListener('pointerup', onUp);
-            saveWindowLayout(id, {
-              left: parseFloat(win.style.left),
-              top: parseFloat(win.style.top),
-              width: parseFloat(win.style.width),
-              height: parseFloat(win.style.height)
-            });
-          }
-          window.addEventListener('pointermove', onMove);
-          window.addEventListener('pointerup', onUp);
-        });
-      });
 
       // Bring to front on click
       win.addEventListener('pointerdown', () => {
@@ -5505,8 +5406,8 @@
           const startX = e.clientX, startY = e.clientY;
           const startLeft = parseFloat(win.style.left) || WINDOW_CONFIG[id].left;
           const startTop = parseFloat(win.style.top) || WINDOW_CONFIG[id].top;
-          const w = parseFloat(win.style.width) || WINDOW_CONFIG[id].width;
-          const h = parseFloat(win.style.height) || WINDOW_CONFIG[id].height;
+          const w = WINDOW_CONFIG[id].width;
+          const h = WINDOW_CONFIG[id].height;
           const targets = getSnapTargets(id);
 
           function onMove(ev) {
@@ -5522,16 +5423,14 @@
               if (Math.abs(nt - ty) <= SNAP_DIST) { nt = ty; break; }
               if (Math.abs((nt + h) - ty) <= SNAP_DIST) { nt = ty - h; break; }
             }
-            setWindowRect(id, { left: nl, top: nt, width: w, height: h });
+            setWindowRect(id, { left: nl, top: nt });
           }
           function onUp() {
             window.removeEventListener('pointermove', onMove);
             window.removeEventListener('pointerup', onUp);
             saveWindowLayout(id, {
               left: parseFloat(win.style.left),
-              top: parseFloat(win.style.top),
-              width: parseFloat(win.style.width),
-              height: parseFloat(win.style.height)
+              top: parseFloat(win.style.top)
             });
           }
           window.addEventListener('pointermove', onMove);
