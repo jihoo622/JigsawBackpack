@@ -253,13 +253,14 @@ public sealed class PuzzleItemTooltipView : PanelBase
         if (showActiveEffects)
         {
             UpdateActiveEffects(_isTrainInventory, _isActionBoard, _activeEffects, _appliedPreservation);
+            SetRow(actualValueLabelText, actualValueValueText,
+                Presentation.PuzzleTooltipActualValueLabel(), Presentation.PuzzleTooltipActualValueValue(_actualValue));
         }
-        // else
-        // {
-        //     UpdateActiveEffects(_isTrainInventory, _isActionBoard, _activeEffects, _appliedPreservation);
-        // }
-        SetRow(actualValueLabelText, actualValueValueText,
-            Presentation.PuzzleTooltipActualValueLabel(), Presentation.PuzzleTooltipActualValueValue(_actualValue));
+        else
+        {
+            // 상점(시장)에서는 아직 보유 전이라 '현재 가치'가 기본 가치와 동일하므로 숨긴다.
+            SetRowActive(actualValueLabelText, actualValueValueText, false);
+        }
 
         if (_isTrainInventory || _isActionBoard)
         {

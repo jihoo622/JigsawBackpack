@@ -680,8 +680,7 @@
       "displayName": "빈 상자",
       "description": "다른 상품과 구분되는 빈 운송 상자.",
       "tags": [
-        "Cargo",
-        "Box"
+        "Cargo"
       ],
       "visualKey": "cargo.smallCrate",
       "slotCount": 1,

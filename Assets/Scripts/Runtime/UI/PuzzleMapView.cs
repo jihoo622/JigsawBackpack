@@ -978,6 +978,11 @@ public sealed class PuzzleMapView : PanelBase
         tooltipStatRows.Add(("소요시간", Presentation.TurnSpan(_eval.TravelHours)));
 
         string fareText = $"<color=#{ColorUtility.ToHtmlStringRGB(Presentation.PuzzleTooltipRed)}>{_eval.Cost:N0}$</color>";
+        if (_eval.IsSuccess || _eval.Failure == PuzzleTravelFailure.InsufficientFunds)
+        {
+            int costPerCell = TableManager.Instance.PuzzleRoute.costPerCell;
+            fareText += $"\n<size=70%>(기본 {_eval.BaseCost:N0} + 거리 {_eval.DistanceCost:N0} + {_eval.Cells:N0}칸×{costPerCell:N0})</size>";
+        }
         tooltipStatRows.Add(("운임비", fareText));
 
         string arrivalStr = Presentation.GameTimestamp(_session.ElapsedTime + _eval.TravelHours);

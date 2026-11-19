@@ -111,20 +111,19 @@
         "zones": [
           {
             "id": "cargo",
-            "displayName": "화물·상자 칸",
+            "displayName": "화물 칸",
             "x": 0,
             "y": 0,
             "width": 6,
             "height": 7,
             "allowedTags": [
-              "Cargo",
-              "Box"
+              "Cargo"
             ]
           }
         ],
         "startingPlacements": []
       },
-      "description": "화물·상자만 실을 수 있다."
+      "description": "화물만 실을 수 있다."
     },
     {
       "id": "refrigerated",
