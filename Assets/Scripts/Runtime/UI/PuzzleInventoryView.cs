@@ -66,12 +66,10 @@ public sealed class PuzzleInventoryView : MonoBehaviour
     [SerializeField] float synergyIncreaseLaneOffset = 0.08f;
     [SerializeField] float synergyDecreaseLaneOffset = 0.2f;
     [SerializeField] bool dynamicCellSizing;
-    [SerializeField] ScrollRect boardScrollRect;
     [SerializeField] RectTransform boardViewport;
     [SerializeField] RectTransform boardContent;
     [SerializeField] float minDynamicCellSize = 40f;
     [SerializeField] float maxDynamicCellSize = 72f;
-    [SerializeField] FloatingWindow ownerWindow;
 
     void OnValidate()
     {
@@ -197,48 +195,6 @@ public sealed class PuzzleInventoryView : MonoBehaviour
         }
     }
 
-    void OnEnable()
-    {
-        if (ownerWindow)
-        {
-            ownerWindow.Resized += OnWindowResized;
-        }
-    }
-
-    void OnRectTransformDimensionsChange()
-    {
-        if (initializedView && dynamicCellSizing)
-        {
-            RecalculateLayout();
-        }
-    }
-
-    void OnWindowResized()
-    {
-        if (initializedView && dynamicCellSizing)
-        {
-            RecalculateLayout();
-        }
-    }
-
-    public void RecalculateLayout()
-    {
-        if (!initializedView || gridSize.x <= 0 || gridSize.y <= 0)
-        {
-            return;
-        }
-        UpdateLayoutMetrics();
-        UpdateBoardCellTransforms();
-        if (lastRenderedInventory != null)
-        {
-            RenderPlacements(lastRenderedInventory, lastHiddenInstanceId, lastHighlightedInstanceId, lastContacts);
-        }
-        if (lastCandidates != null && lastCandidates.Count > 0)
-        {
-            ShowPlacementCandidates(lastCandidates);
-        }
-    }
-
     void UpdateLayoutMetrics()
     {
         if (dynamicCellSizing && boardViewport && boardContent)
@@ -248,28 +204,8 @@ public sealed class PuzzleInventoryView : MonoBehaviour
             float raw = Mathf.Min(vw / gridSize.x, vh / gridSize.y);
             cellSize = Mathf.Clamp(raw, minDynamicCellSize, maxDynamicCellSize);
 
-            float totalW = gridSize.x * cellSize;
-            float totalH = gridSize.y * cellSize;
-            bool needsScroll = raw < minDynamicCellSize;
-            if (needsScroll)
-            {
-                boardContent.sizeDelta = new Vector2(Mathf.Max(vw, totalW), Mathf.Max(vh, totalH));
-                if (boardScrollRect)
-                {
-                    boardScrollRect.horizontal = totalW > vw + 0.5f;
-                    boardScrollRect.vertical = totalH > vh + 0.5f;
-                }
-            }
-            else
-            {
-                boardContent.sizeDelta = new Vector2(vw, vh);
-                boardContent.anchoredPosition = Vector2.zero;
-                if (boardScrollRect)
-                {
-                    boardScrollRect.horizontal = false;
-                    boardScrollRect.vertical = false;
-                }
-            }
+            boardContent.sizeDelta = new Vector2(vw, vh);
+            boardContent.anchoredPosition = Vector2.zero;
 
             // BoardContent는 좌상단 고정 앵커(0,1)이므로 rect.center 기준이 정확하다.
             Rect contentRect = boardContent.rect;
@@ -1019,10 +955,6 @@ public sealed class PuzzleInventoryView : MonoBehaviour
 
     void OnDisable()
     {
-        if (ownerWindow)
-        {
-            ownerWindow.Resized -= OnWindowResized;
-        }
         StopSettlementFeedback();
         if (canvas)
         {

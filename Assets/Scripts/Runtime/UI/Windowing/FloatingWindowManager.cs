@@ -129,7 +129,10 @@ public sealed class FloatingWindowManager : MonoBehaviour
             return false;
         }
 
-        topMost.Close();
+        if (!topMost.CloseBlocked)
+        {
+            topMost.Close();
+        }
         return true;
     }
 

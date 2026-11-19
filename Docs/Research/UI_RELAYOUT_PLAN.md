@@ -36,6 +36,11 @@
 | H14 | 레이아웃 확정 | 시안 3b(H5~H13 반영)로 확정. 그 밖의 레이아웃 자료는 `Docs/Legacy/`로 격리한다 |
 | H15 | 제한 팔레트 | 팔레트마다 16비트 색 기준으로 압축한 제한판을 둔다. 도트 그래픽을 고려한다 |
 | H16 | 표현 제약 | Unity에서 그대로 만들 수 있는 형태만 쓴다. 둥근 모서리 없음, 임시 이모지 없음, 과도한 장식 없음. 허용: 단색 사각형(반투명 가능), 1~2px 단색 테두리, 글자, 기존 화물 스프라이트, 정사각 칸 격자. 건물은 이름표가 붙은 단색 사각형, 플랫폼은 단색 바닥 |
+| H17 | 화차 구매·판매 | 역사 창의 화차 상품을 선로로 끌어다 놓으면 구매, 선로의 화차를 역사 쪽으로 끌어다 놓으면 판매. 버튼식 구매는 쓰지 않는다 |
+| H18 | 화차 창 여러 개 | 화차 인벤토리 창을 여러 개 동시에 띄울 수 있다. 원칙은 전부 가능하고, 부하가 문제면 기초데이터에서 개수 제한을 건다 |
+| H19 | 의뢰 조작 | 의뢰 게시판을 그리드 인벤토리로 둔다. 의뢰 화물 정보에 기한·보수·목적지를 보인다. 수락은 게시판에서 화차로 끌어다 놓기(구매처럼), 완료는 목적지 게시판으로 끌어다 놓기(판매처럼)만으로 한다(규칙 변경, 게임 기획서 11장 반영) |
+| H20 | 화차 순서 | 선로에서 화차를 끌어다 놓아 순서를 바꾼다 |
+| H21 | 크기 조정 철회 | 창 크기 조정 기능을 뺀다(H13의 크기 조정 부분 철회). 창 이동·붙음·위치 저장·배치 초기화는 유지 |
 | H9 | 오른쪽 마을 | 다이제틱 UI. 건물을 눌러 각 기능과 메뉴로 이동하며, 따로 된 역 행동 목록·탭은 없다. 상태는 간판·칠판·창문 불빛 같은 세계 안 표시로 보인다 |
 
 ## 임의 결정 기록
@@ -64,6 +69,11 @@
 | R21 | 단계별 구현 중에도 게임이 계속 플레이 가능하도록 `RelayoutSettings.Enabled`(`PlayerPrefs` 키 `"ui.relayout.enabled"`, S7 전까지 기본값 `0`) 뒤에 새 레이아웃을 둔다. 에디터 메뉴 `Tools/MyJG/UI/Relayout/Toggle Relayout` 및 개발/에디터 일시정지 메뉴 토글을 제공한다 | S2~S6 사이 기존 기능 회귀 없이 점진적 전환·검증이 가능하게 한다 |
 | R22 | 제한판 규격: 색은 RGB555(SNES식 15비트, RGB565에서도 정확) 격자에 맞춘다(채널 5비트 v → 8비트 (v<<3)|(v>>2)). 후보마다 최대 32색, 5~6개 색상 램프(램프당 3~6단, 밝은 쪽은 따뜻하게·어두운 쪽은 차갑게 색조 이동) + 검정·흰색 계열. 모든 토큰은 이 32색 중 하나에 대응한다 | 16비트 기기 팔레트 감각을 살리면서 UI 의미 색을 모두 담을 수 있는 최소 규모다 |
 | R23 | 제한판 표현 규칙: 반투명·그라데이션·그림자·흐림 없음, 1~2px 단단한 테두리, 둥근 모서리 대신 직각 또는 2px 계단 모서리. 가독성 기준(본문 4.5:1 등)과 미니 격자 색 의미는 유지하고, 32색 안에서 못 지키면 넘기지 말고 보고한다. 제한판은 Aseprite·GIMP용 `.gpl`·`.hex`로도 내보낸다 | 도트 그림과 UI가 같은 색표를 쓰고, 그림 작업자가 바로 쓸 수 있게 한다 |
+| R24 | H17 판매 놓는 곳: 열린 역사 창의 판매 영역 또는 마을의 역사 건물. 구매 시 선로의 화차 사이에 놓으면 그 자리에 들어간다(구매 후 기존 `TryMoveWagon`으로 위치 지정). 판정·금액은 기존 `TryPurchaseWagon`·`TrySellWagon` 그대로 | 끌어 놓기 로직은 이미 있어 화면만 옮긴다 |
+| R25 | H18 구현: 실행 중 UI 생성 금지 규칙에 따라 화차 창을 미리 N개 배치한다. N은 기초데이터 `ui.maxTrainWindows`(기본 16)이고 빌더가 그 수만큼 만든다(값을 바꾸면 빌더를 다시 실행). 이미 열린 화차를 누르면 그 창을 앞으로, 상한을 넘으면 가장 오래 안 만진 창을 새 화차로 바꾼다. 창끼리 화물을 끌어 옮기면 화차 간 이동이다. 새 창은 앞 창에서 24px씩 비켜 연다 | 사용자 지시(전부 가능, 필요하면 기초데이터로 제한)를 규칙 안에서 구현한다 |
+| R26 | H19 세부: 의뢰 게시판 격자는 9×5, 의뢰 화물은 화물 모양 그대로 놓인다. 다른 마을 의뢰 화물·일반 화물은 게시판에 놓을 수 없다. 받은 마을 게시판으로 되돌려 놓는 취소는 두지 않는다(기존 규칙에 취소 없음). 마지막 턴 행동으로 결산될 때 이미 목적지에 와 있는 진행 중 의뢰는 결산 직전에 완료로 처리한다 | 끌어 놓을 기회가 없는 결산 순간에 손해를 보지 않게 한다 |
+| R27 | 일정: H18·H20과 H17의 선로 쪽은 S3b(S4 다음), H17의 역사 창 쪽과 H19는 S6에서 한다. H19 규칙 변경은 서비스 수정과 함께 별도 커밋으로 둔다 | 선로·화차 창 코드를 먼저 안정시킨 뒤 마을 창을 붙인다 |
+| R28 | H21 적용: 창은 기본 크기로 고정하고 크기 저장값은 무시한다. 창 안 보드의 칸 크기는 창 기본 크기에서 한 번 계산해 고정한다(R11의 실시간 재계산 철회). 크기 조정 손잡이와 관련 문구를 없앤다 | 사용자 결정 반영. 칸 크기 계산식은 창마다 기본 칸 크기를 정하는 데만 쓴다 |
 | R2 | 시안 작성 전에 현재 화면을 전부 캡처하고 요소 목록(`UI_SCREEN_INVENTORY.md`)을 만든다 | 범위가 화면 전체라 빠뜨리는 기능이 없어야 한다 |
 
 ## 진행 단계
@@ -146,18 +156,17 @@ GameUI.prefab
 
 ### 6-3. 창 시스템 (`FloatingWindow` 공용 컴포넌트)
 
-신규 `Assets/Scripts/Runtime/UI/Windowing/` 아래 3개 컴포넌트를 둔다.
+신규 `Assets/Scripts/Runtime/UI/Windowing/` 아래 2개 핵심 컴포넌트(`FloatingWindow`, `FloatingWindowManager`) + `FloatingWindowDragHandle`을 둔다.
 
-- **`FloatingWindow.cs`** (모든 창 루트 프리팹에 부착):
-  - `[SerializeField] string windowId`, `RectTransform titleBar`, `Button closeButton`, `Vector2 defaultPosition`, `Vector2 defaultSize`, `Vector2 minSize`, `Vector2 maxSize`, `bool startOpen`.
+- **`FloatingWindow.cs`** (모든 창 루트 프리팹에 부착, **고정 크기 — H21에 의해 H13의 크기 조정 부분 철회**):
+  - `[SerializeField] string windowId`, `RectTransform titleBar`, `Button closeButton`, `Vector2 defaultPosition`, `Vector2 defaultSize`, `bool startOpen`.
   - **제목줄 드래그**: `titleBar`에 부착된 `FloatingWindowDragHandle`(`IBeginDragHandler`, `IDragHandler`)가 `RectTransform.anchoredPosition`을 이동.
-  - **가장자리·모서리 리사이즈**: 상/하/좌/우 4변(두께 `8px`)과 우하단 모서리(`18×18px`)에 사전 배치된 `FloatingWindowResizeHandle`(`IBeginDragHandler`, `IDragHandler`, `IEndDragHandler`)이 `minSize`~`maxSize` 범위 내로 `sizeDelta`와 위치를 갱신하고 `Resized` 이벤트를 발행.
   - **화면·HUD 클램프**: `1920×1080` 기준 `x: [0, 1920 - w]`, `y: [76, 1080 - h]`로 제한해 상단 `TopHUD`(`y=12..68`)를 침범하지 못하게 함(R10). 중앙 선로(`549..640`)나 마을 위로 옮기는 것은 허용하되 기본 위치는 H10을 따름.
   - **최상위 승격**: `IPointerDownHandler`에서 `transform.SetAsLastSibling()` 호출.
-  - **12px 스냅**: 드래그/리사이즈 중 화면 4변(`0, 1920, 76, 1080`) 및 다른 열린 `FloatingWindow` 외곽선과 `12px` 이내로 근접하면 자석처럼 붙임.
-  - **영속성(PlayerPrefs)**: `OnEndDrag` / `OnResizeEnd` / `SetOpen` 시 `windowId` 키(`ui.win.<windowId>`)로 `{x, y, w, h}` JSON 저장.
+  - **12px 스냅**: 드래그 중 화면 4변(`0, 1920, 76, 1080`) 및 다른 열린 `FloatingWindow` 외곽선과 `12px` 이내로 근접하면 자석처럼 붙임.
+  - **영속성(PlayerPrefs)**: `EndDrag` / `SetOpen` 시 `windowId` 키(`ui.win.<windowId>`)로 `{x, y, open}` JSON 저장(구버전 저장값의 `w, h`는 무시하고 `defaultSize` 사용).
 - **`FloatingWindowManager.cs`** (`FloatingWindowCanvas`에 부착):
-  - 씬 내 모든 `FloatingWindow` 등록, 스냅 대상 목록 제공, `ResetAllLayouts()`(H10 기본 좌표·크기로 복구), `ToggleBackgroundOnly()`(열린 창 일괄 숨김/복원), `TryConsumeCancel()`(가장 위(`GetSiblingIndex()` 최대)에 있는 열린 창 닫기 → 없으면 `PauseModal`로 넘김).
+  - 씬 내 모든 `FloatingWindow` 등록, 스냅 대상 목록 제공, `ResetAllLayouts()`(H10 기본 좌표로 복구), `ToggleBackgroundOnly()`(열린 창 일괄 숨김/복원), `TryConsumeCancel()`(가장 위(`GetSiblingIndex()` 최대)에 있는 열린 창 닫기 → 없으면 `PauseModal`로 넘김).
 
 ### 6-4. 창별 내용 및 보드 셀 크기 동적 재계산
 
@@ -269,6 +278,10 @@ GameUI.prefab
 > **S2 구현 결과 (2026-11-19):** `RelayoutSettings`(R21, `ui.relayout.enabled` 기본 0), `RelayoutRootController`, `TopHudView`(`PuzzleCityView` HUD 분리 및 기존 게이지/평판 재사용), `QuickToolbarView`, `StatusBannerView`, `PlatformSceneView`, `TownSceneView` + `TownBuildingButton` 6종(시장·술집·여관·역사·생산시설·시청, 기존 역 행동 연결 및 `1~6` 단축키), `PauseMenu` 개발용 토글, `RelayoutS2Builder.cs`(`Tools/MyJG/UI/Relayout/S2 Build Fixed Frame` / `Toggle Relayout`) 구현 및 스모크 캡처(`.orca/analysis/relayout/s2/`) 확인 완료(콘솔 에러 0).
 >
 > **S3 구현 결과 (2026-11-19):** 중앙 선로 가상화 리스트(`RailStripView` + `RailWagonCarView` 14슬롯 풀, R8 2톤 미니 격자, R16), 기차 화차 부동 창(`TrainWindowView` + `FloatingWindow`, R14 2줄 렌즈 요약), `PuzzleInventoryView` 동적 셀 크기(`40~72px` + `ScrollRect`, R11) 및 `PuzzleInventoryPresenter` `ActiveTrainView` 전환/드래그 호버(`SwitchWagonDuringDrag`) 연동, `RelayoutS3Builder.cs`(`Tools/MyJG/UI/Relayout/S3 Build Rail And Train`) 구현 완료. 3량/11량 스크롤·소/대 리사이즈(40px/72px)·리사이즈(54.4px) 상태 실드롭(`(2,2)` 일치)·미니 격자 갱신·OFF 보존 캡처(`.orca/analysis/relayout/s3/`) 및 콘솔 에러 0건 확인.
+>
+> **S4 구현 결과 (2026-11-19):** S3 잔여 이슈(`TrainWindow` 내 `LocomotiveArtwork` 숨김) 수정 및 5탭 수첩 부동 창(`NotebookWindowView` + `MapDestinationPinView` 16개 풀 + `NotebookWindow.prefab`, 기본 `(16,128,522,928)`), `PuzzleWorldMap`/`PuzzleTradeNotebookView`/`PuzzleSynergyChartView`(불투명 배경 + `ScrollRect` + `RectMask2D`, 중첩 `Canvas` 제거) 임베드, `QuickToolbarView`(`수첩(N)`/`노선도(M)`)·`EntityLinkNavigation`·`PuzzleInventoryPresenter`(R6 마지막 선택 화물 핀) 연동, `RelayoutS4Builder.cs`(`Tools/MyJG/UI/Relayout/S4 Build Notebook Window`) 구현 완료. 5탭 전환·방문/소문 핀·검색/경로 계획·소/대 리사이즈(420×520, 900×920)·OFF 구형 수첩/지도 보존 캡처(`.orca/analysis/relayout/s4/`) 및 콘솔 에러 0건 확인.
+>
+> **H21 리사이즈 제거 (2026-11-19):** H13의 창 크기 조정 부분 철회에 따라 `FloatingWindowResizeHandle` 삭제, `FloatingWindow`의 `minSize`/`maxSize`/`Resized`/`BeginResize`/`UpdateResize`/`EndResize` 및 `w, h` 저장 제거(기존 PlayerPrefs의 `w, h`는 무시하고 `x, y, open`만 유지), `RelayoutS3Builder`/`RelayoutS4Builder`의 리사이즈 핸들 제거, `PuzzleInventoryView` 보드 셀 크기 고정(기본 사각형 기준 40~72px 1회 계산, 리사이즈 재계산 및 보드 스크롤 모드 제거) 반영 완료.
 
 ---
 

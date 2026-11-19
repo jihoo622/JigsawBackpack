@@ -8,6 +8,10 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
     [SerializeField] Button closeButton;
     [SerializeField] PuzzleMapTravelView travelView;
     [SerializeField] PuzzleRoutePlanPresenter routePlanPresenter;
+    [SerializeField] bool embeddedInNotebook;
+    [SerializeField] NotebookWindowView notebookWindow;
+
+    public bool IsEmbeddedInNotebook => embeddedInNotebook;
 
     PuzzleInventoryService session;
     string pendingCityId;
@@ -85,6 +89,14 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
         view.Close();
     }
 
+    internal void OpenFromNotebook() => OpenMap();
+
+    internal void FocusFromNotebook(GameEvents.MapFocusInfo _info) => OnMapFocusRequested(_info);
+
+    internal void PlanRouteFromNotebook(GameEvents.RoutePlanRequestInfo _info) => OnRoutePlanRequested(_info);
+
+    internal bool IsTravelAnimating => phase == TravelPhase.Traveling || phase == TravelPhase.AutoTraveling || phase == TravelPhase.Arrived;
+
     void OpenMap()
     {
         Refresh();
@@ -98,8 +110,20 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
 
     void OnMapToggleRequested(GameEvents.MapToggleInfo _info)
     {
+        if (embeddedInNotebook)
+        {
+            return;
+        }
         if (_info.sceneHandle != gameObject.scene.handle || phase == TravelPhase.Traveling)
         {
+            return;
+        }
+        if (embeddedInNotebook && notebookWindow)
+        {
+            if (phase == TravelPhase.None)
+            {
+                notebookWindow.ToggleMapTab();
+            }
             return;
         }
         if (view.IsOpen)
@@ -114,8 +138,17 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
 
     void OnMapRequested(GameEvents.MapRequestInfo _info)
     {
+        if (embeddedInNotebook)
+        {
+            return;
+        }
         if (_info.sceneHandle == gameObject.scene.handle && phase == TravelPhase.None)
         {
+            if (embeddedInNotebook && notebookWindow)
+            {
+                notebookWindow.OpenTab(NotebookWindowView.NotebookWindowTab.Map);
+                return;
+            }
             OpenMap();
         }
     }
@@ -150,7 +183,11 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
                 return;
             }
 
-            if (!view.IsOpen)
+            if (embeddedInNotebook && notebookWindow)
+            {
+                notebookWindow.OpenTab(NotebookWindowView.NotebookWindowTab.Map);
+            }
+            else if (!view.IsOpen)
             {
                 OpenMap();
             }
@@ -165,7 +202,11 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
                 return;
             }
 
-            if (!view.IsOpen)
+            if (embeddedInNotebook && notebookWindow)
+            {
+                notebookWindow.OpenTab(NotebookWindowView.NotebookWindowTab.Map);
+            }
+            else if (!view.IsOpen)
             {
                 OpenMap();
             }
@@ -481,6 +522,10 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
         travelView.BeginJourney(TableManager.Instance.CityPrice(session.CurrentCityId).displayName,
             TableManager.Instance.CityPrice(pendingCityId).displayName, evaluation.Cost, session.ElapsedTime,
             session.ElapsedTime + evaluation.TravelHours);
+        if (embeddedInNotebook && notebookWindow && notebookWindow.FloatingWindow)
+        {
+            notebookWindow.FloatingWindow.CloseBlocked = true;
+        }
         travelRoutine = StartCoroutine(TravelTo(pendingCityId));
     }
 
@@ -497,7 +542,14 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
             yield return HoldArrival();
             travelRoutine = null;
             AbortTravel();
-            view.Close();
+            if (embeddedInNotebook && notebookWindow && notebookWindow.FloatingWindow)
+            {
+                notebookWindow.FloatingWindow.Close();
+            }
+            else
+            {
+                view.Close();
+            }
         }
         else
         {
@@ -552,6 +604,10 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
         pendingCityId = null;
         travelView.Close();
         view.SetInteraction(true);
+        if (embeddedInNotebook && notebookWindow && notebookWindow.FloatingWindow)
+        {
+            notebookWindow.FloatingWindow.CloseBlocked = false;
+        }
         if (routePlanPresenter)
         {
             routePlanPresenter.SetAutoTraveling(false);
@@ -757,6 +813,10 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
         phase = TravelPhase.None;
         travelView.Close();
         view.SetInteraction(true);
+        if (embeddedInNotebook && notebookWindow && notebookWindow.FloatingWindow)
+        {
+            notebookWindow.FloatingWindow.CloseBlocked = false;
+        }
         if (routePlanPresenter)
         {
             routePlanPresenter.SetAutoTraveling(false);

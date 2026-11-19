@@ -979,6 +979,41 @@
           "id": "trainWindowLensIdle",
           "value": "화물을 잡으면 거래 견적과 다음 정산 Δ가 표시됩니다.",
           "arguments": 0
+        },
+        {
+          "id": "notebookTabMap",
+          "value": "지도",
+          "arguments": 0
+        },
+        {
+          "id": "notebookMapPinVisited",
+          "value": "{0}% · {1:N0}$ · 운임 {2:N0}$",
+          "arguments": 3
+        },
+        {
+          "id": "notebookMapPinVisitedNoFare",
+          "value": "{0}% · {1:N0}$",
+          "arguments": 2
+        },
+        {
+          "id": "notebookMapPinRumor",
+          "value": "{0} · 운임 {1:N0}$",
+          "arguments": 2
+        },
+        {
+          "id": "notebookMapPinNoQuote",
+          "value": "{0}% · 견적 없음 · 운임 {1:N0}$",
+          "arguments": 2
+        },
+        {
+          "id": "notebookMapPinNoQuoteNoFare",
+          "value": "{0}% · 견적 없음",
+          "arguments": 1
+        },
+        {
+          "id": "notebookMapPinOverflow",
+          "value": "+{0}곳",
+          "arguments": 1
         }
       ]
     },

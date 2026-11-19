@@ -74,6 +74,7 @@ public sealed partial class PuzzleInventoryPresenter
         lensDefinition = _placement.Definition;
         lensValue = _placement.FreshnessAdjustedValue;
         lensItemOnTrain = !fromMarket;
+        notebookWindowView?.SetLastSelectedCargo(lensDefinition, lensValue, lensItemOnTrain, _placement.InstanceId);
         lensFundsBefore = session.Funds;
         long? quote = lensDirection != PuzzleTradeDirection.None &&
             session.TryQuoteTrade(_placement, lensDirection, out long price) ? price : (long?)null;
@@ -203,10 +204,12 @@ public sealed partial class PuzzleInventoryPresenter
             RouteLens.Hide();
         }
         trainWindowView?.SetLensSummary(string.Empty, string.Empty);
+        notebookWindowView?.ClearLastSelectedCargo();
     }
 
     void ResetLensSpot()
     {
+        notebookWindowView?.ClearLastSelectedCargo();
         lensSpotText = null;
         cachedLensSpot = null;
         lastLensSpotDestination = null;

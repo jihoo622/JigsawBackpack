@@ -2723,6 +2723,33 @@ public static partial class Presentation
     internal static string BuildingCityHallPlaceholder => BasicData.Text("presentation.inventory.bldgCityHallPlaceholder");
     internal static string BuildingWorkshopEmpty => BasicData.Text("presentation.inventory.bldgWorkshopEmpty");
     internal static string TrainWindowLensIdle => BasicData.Text("presentation.inventory.trainWindowLensIdle");
+    internal static string NotebookTabMap => BasicData.Text("presentation.inventory.notebookTabMap");
+
+    internal static string NotebookMapPinVisited(int _sellPercent, long? _quote, long? _fare)
+    {
+        if (_quote.HasValue)
+        {
+            return _fare.HasValue
+                ? BasicData.Format("presentation.inventory.notebookMapPinVisited", _sellPercent, _quote.Value, _fare.Value)
+                : BasicData.Format("presentation.inventory.notebookMapPinVisitedNoFare", _sellPercent, _quote.Value);
+        }
+        return _fare.HasValue
+            ? BasicData.Format("presentation.inventory.notebookMapPinNoQuote", _sellPercent, _fare.Value)
+            : BasicData.Format("presentation.inventory.notebookMapPinNoQuoteNoFare", _sellPercent);
+    }
+
+    internal static string NotebookMapPinOverflow(int _count)
+    {
+        return BasicData.Format("presentation.inventory.notebookMapPinOverflow", _count);
+    }
+
+    internal static string NotebookMapPinRumor(string _rumorMessage, long? _fare)
+    {
+        string text = string.IsNullOrEmpty(_rumorMessage) ? BasicData.Text("presentation.inventory.routeLensRumorFallback") : _rumorMessage;
+        return _fare.HasValue
+            ? BasicData.Format("presentation.inventory.notebookMapPinRumor", text, _fare.Value)
+            : text;
+    }
 
     internal static string RailWagonLabel(int _number, int _usedCells, int _totalCells, long _cargoValue)
     {

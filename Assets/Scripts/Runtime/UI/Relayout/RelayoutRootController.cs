@@ -14,8 +14,12 @@ public sealed class RelayoutRootController : MonoBehaviour
     [SerializeField] GameObject oldCityNavigation;
     [SerializeField] GameObject oldJourneyFooter;
     [SerializeField] GameObject oldRumorSideHandle;
+    [SerializeField] GameObject oldRumorLogPanel;
+    [SerializeField] GameObject oldPuzzleWorldMap;
+    [SerializeField] GameObject oldPuzzleSynergyChart;
     [SerializeField] PuzzleStationActionsPresenter stationActionsPresenter;
     [SerializeField] StatusBannerView statusBannerView;
+    [SerializeField] NotebookWindowView notebookWindow;
 
     bool defaultsCaptured;
     bool defaultGameplayLayoutActive;
@@ -24,6 +28,9 @@ public sealed class RelayoutRootController : MonoBehaviour
     bool defaultCityNavigationActive;
     bool defaultJourneyFooterActive;
     bool defaultRumorSideHandleActive;
+    bool defaultRumorLogPanelActive;
+    bool defaultPuzzleWorldMapActive;
+    bool defaultPuzzleSynergyChartActive;
 
     void Awake()
     {
@@ -34,6 +41,11 @@ public sealed class RelayoutRootController : MonoBehaviour
     {
         CaptureDefaultsIfNeeded();
         RelayoutSettings.Changed += ApplyRelayoutState;
+        GameEvents.MapToggleRequested += OnMapToggleRequested;
+        GameEvents.MapRequested += OnMapRequested;
+        GameEvents.MapFocusRequested += OnMapFocusRequested;
+        GameEvents.RoutePlanRequested += OnRoutePlanRequested;
+        GameEvents.NotebookOpenRequested += OnNotebookOpenRequested;
         if (stationActionsPresenter)
         {
             stationActionsPresenter.ReturnedHome += OnStationReturnedHome;
@@ -44,6 +56,11 @@ public sealed class RelayoutRootController : MonoBehaviour
     void OnDisable()
     {
         RelayoutSettings.Changed -= ApplyRelayoutState;
+        GameEvents.MapToggleRequested -= OnMapToggleRequested;
+        GameEvents.MapRequested -= OnMapRequested;
+        GameEvents.MapFocusRequested -= OnMapFocusRequested;
+        GameEvents.RoutePlanRequested -= OnRoutePlanRequested;
+        GameEvents.NotebookOpenRequested -= OnNotebookOpenRequested;
         if (stationActionsPresenter)
         {
             stationActionsPresenter.ReturnedHome -= OnStationReturnedHome;
@@ -57,12 +74,27 @@ public sealed class RelayoutRootController : MonoBehaviour
             return;
         }
         defaultsCaptured = true;
+        if (!oldPuzzleWorldMap)
+        {
+            var maps = FindObjectsByType<PuzzleMapPresenter>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            for (int i = 0; i < maps.Length; i++)
+            {
+                if (maps[i] && !maps[i].IsEmbeddedInNotebook)
+                {
+                    oldPuzzleWorldMap = maps[i].gameObject;
+                    break;
+                }
+            }
+        }
         defaultGameplayLayoutActive = oldGameplayLayout && oldGameplayLayout.activeSelf;
         defaultTrainColumnActive = oldTrainColumn && oldTrainColumn.activeSelf;
         defaultFixedBottomBarActive = oldFixedBottomBar && oldFixedBottomBar.activeSelf;
         defaultCityNavigationActive = oldCityNavigation && oldCityNavigation.activeSelf;
         defaultJourneyFooterActive = oldJourneyFooter && oldJourneyFooter.activeSelf;
         defaultRumorSideHandleActive = oldRumorSideHandle && oldRumorSideHandle.activeSelf;
+        defaultRumorLogPanelActive = oldRumorLogPanel && oldRumorLogPanel.activeSelf;
+        defaultPuzzleWorldMapActive = oldPuzzleWorldMap && oldPuzzleWorldMap.activeSelf;
+        defaultPuzzleSynergyChartActive = oldPuzzleSynergyChart && oldPuzzleSynergyChart.activeSelf;
     }
 
     public void ApplyRelayoutState(bool _enabled)
@@ -86,6 +118,9 @@ public sealed class RelayoutRootController : MonoBehaviour
             if (oldCityNavigation) oldCityNavigation.SetActive(false);
             if (oldJourneyFooter) oldJourneyFooter.SetActive(false);
             if (oldRumorSideHandle) oldRumorSideHandle.SetActive(false);
+            if (oldRumorLogPanel) oldRumorLogPanel.SetActive(false);
+            if (oldPuzzleWorldMap) oldPuzzleWorldMap.SetActive(false);
+            if (oldPuzzleSynergyChart) oldPuzzleSynergyChart.SetActive(false);
             if (oldGameplayLayout) oldGameplayLayout.SetActive(false);
         }
         else
@@ -96,6 +131,9 @@ public sealed class RelayoutRootController : MonoBehaviour
             if (oldCityNavigation) oldCityNavigation.SetActive(defaultCityNavigationActive);
             if (oldJourneyFooter) oldJourneyFooter.SetActive(defaultJourneyFooterActive);
             if (oldRumorSideHandle) oldRumorSideHandle.SetActive(defaultRumorSideHandleActive);
+            if (oldRumorLogPanel) oldRumorLogPanel.SetActive(defaultRumorLogPanelActive);
+            if (oldPuzzleWorldMap) oldPuzzleWorldMap.SetActive(defaultPuzzleWorldMapActive);
+            if (oldPuzzleSynergyChart) oldPuzzleSynergyChart.SetActive(defaultPuzzleSynergyChartActive);
         }
 
         var invPresenter = SceneServices.Find<PuzzleInventoryPresenter>(gameObject.scene);
@@ -141,5 +179,57 @@ public sealed class RelayoutRootController : MonoBehaviour
             if (oldGameplayLayout) oldGameplayLayout.SetActive(false);
             if (worldSceneCanvas) worldSceneCanvas.SetActive(true);
         }
+    }
+
+    void OnMapToggleRequested(GameEvents.MapToggleInfo _info)
+    {
+        if (!RelayoutSettings.Enabled || !notebookWindow || _info.sceneHandle != gameObject.scene.handle)
+        {
+            return;
+        }
+        notebookWindow.ToggleMapTab();
+    }
+
+    void OnMapRequested(GameEvents.MapRequestInfo _info)
+    {
+        if (!RelayoutSettings.Enabled || !notebookWindow || _info.sceneHandle != gameObject.scene.handle)
+        {
+            return;
+        }
+        notebookWindow.OpenTab(NotebookWindowView.NotebookWindowTab.Map);
+    }
+
+    void OnMapFocusRequested(GameEvents.MapFocusInfo _info)
+    {
+        if (!RelayoutSettings.Enabled || !notebookWindow || _info.sceneHandle != gameObject.scene.handle)
+        {
+            return;
+        }
+        notebookWindow.FocusMap(_info);
+    }
+
+    void OnRoutePlanRequested(GameEvents.RoutePlanRequestInfo _info)
+    {
+        if (!RelayoutSettings.Enabled || !notebookWindow || _info.sceneHandle != gameObject.scene.handle)
+        {
+            return;
+        }
+        notebookWindow.PlanRouteFromMap(_info);
+    }
+
+    void OnNotebookOpenRequested(PuzzleNotebookTab _tab)
+    {
+        if (!RelayoutSettings.Enabled || !notebookWindow)
+        {
+            return;
+        }
+        var winTab = _tab switch
+        {
+            PuzzleNotebookTab.Quests => NotebookWindowView.NotebookWindowTab.Quests,
+            PuzzleNotebookTab.Proficiency => NotebookWindowView.NotebookWindowTab.Proficiency,
+            PuzzleNotebookTab.Synergy => NotebookWindowView.NotebookWindowTab.Synergy,
+            _ => NotebookWindowView.NotebookWindowTab.Rumors
+        };
+        notebookWindow.OpenTab(winTab);
     }
 }

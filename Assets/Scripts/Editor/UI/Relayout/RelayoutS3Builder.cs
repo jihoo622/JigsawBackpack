@@ -357,6 +357,8 @@ public static class RelayoutS3Builder
             if (oldEffects) oldEffects.gameObject.SetActive(false);
             var oldRefrigBtn = FindDeep(clonedTrainInv.transform, "Wagon Refrigeration Button");
             if (oldRefrigBtn) oldRefrigBtn.gameObject.SetActive(false);
+            var oldLocoArt = FindDeep(clonedTrainInv.transform, "LocomotiveArtwork");
+            if (oldLocoArt) oldLocoArt.gameObject.SetActive(false);
 
             var oldBoardValue = invSo.FindProperty("boardValue").objectReferenceValue as TextMeshProUGUI;
             if (oldBoardValue)
@@ -397,28 +399,17 @@ public static class RelayoutS3Builder
                 oldDivider.sizeDelta = new Vector2(-8f, 2f);
             }
 
-            // 동적 셀 크기 + ScrollRect 구성
+            // 고정 창 비율 맞춤 셀 크기(40~72px) 뷰포트 구성
             var boardImg = invSo.FindProperty("board").objectReferenceValue as Image;
             var boardRt = boardImg.rectTransform;
             boardImg.enabled = false;
-            var scrollGo = new GameObject("BoardScrollRect", typeof(RectTransform));
-            scrollGo.layer = 5;
-            scrollGo.transform.SetParent(bodyRt, false);
-            var scrollRt = (RectTransform)scrollGo.transform;
-            scrollRt.anchorMin = Vector2.zero;
-            scrollRt.anchorMax = Vector2.one;
-            scrollRt.offsetMin = new Vector2(4f, 4f);
-            scrollRt.offsetMax = new Vector2(-4f, -94f);
-            var scroll = scrollGo.AddComponent<ScrollRect>();
-            scroll.movementType = ScrollRect.MovementType.Clamped;
-            scroll.scrollSensitivity = 36f;
 
-            var viewport = NewRect("BoardViewport", scrollRt);
-            Stretch(viewport);
+            var viewport = NewRect("BoardViewport", bodyRt);
+            viewport.anchorMin = Vector2.zero;
+            viewport.anchorMax = Vector2.one;
+            viewport.offsetMin = new Vector2(4f, 4f);
+            viewport.offsetMax = new Vector2(-4f, -94f);
             viewport.gameObject.AddComponent<RectMask2D>();
-            var vpImg = viewport.gameObject.AddComponent<Image>();
-            vpImg.color = new Color(0f, 0f, 0f, 0f);
-            vpImg.raycastTarget = true;
 
             // BoardContent는 좌상단 고정 앵커(0,1)를 사용해 sizeDelta가 부모 크기에 더해지지 않도록 한다.
             var content = NewRect("BoardContent", viewport);
@@ -428,9 +419,6 @@ public static class RelayoutS3Builder
             content.anchoredPosition = Vector2.zero;
             content.sizeDelta = new Vector2(478f, 360f);
 
-            scroll.viewport = viewport;
-            scroll.content = content;
-
             // 보드 하위 슬롯들을 BoardContent로 이동 (boardCells, placementSlots, outlineSlots, synergyArrows, PlacementCandidates)
             for (int i = boardRt.childCount - 1; i >= 0; i--)
             {
@@ -438,12 +426,10 @@ public static class RelayoutS3Builder
             }
 
             invSo.FindProperty("dynamicCellSizing").boolValue = true;
-            invSo.FindProperty("boardScrollRect").objectReferenceValue = scroll;
             invSo.FindProperty("boardViewport").objectReferenceValue = viewport;
             invSo.FindProperty("boardContent").objectReferenceValue = content;
             invSo.FindProperty("minDynamicCellSize").floatValue = 40f;
             invSo.FindProperty("maxDynamicCellSize").floatValue = 72f;
-            invSo.FindProperty("ownerWindow").objectReferenceValue = floatingWin;
             invSo.ApplyModifiedPropertiesWithoutUndo();
 
             // 하단 2줄 렌즈 요약 (R14)
@@ -474,27 +460,13 @@ public static class RelayoutS3Builder
             spotLine.rectTransform.offsetMin = new Vector2(10f, 2f);
             spotLine.rectTransform.offsetMax = new Vector2(-10f, 0f);
 
-            // 4변(8px) + 우하단 모서리(18×18) 리사이즈 핸들
-            AddResizeHandle(rootRect, floatingWin, "ResizeTop", FloatingWindowMath.ResizeEdge.Top,
-                new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f), Vector2.zero, new Vector2(-16f, 8f));
-            AddResizeHandle(rootRect, floatingWin, "ResizeBottom", FloatingWindowMath.ResizeEdge.Bottom,
-                new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0.5f, 0f), Vector2.zero, new Vector2(-16f, 8f));
-            AddResizeHandle(rootRect, floatingWin, "ResizeLeft", FloatingWindowMath.ResizeEdge.Left,
-                new Vector2(0f, 0f), new Vector2(0f, 1f), new Vector2(0f, 0.5f), Vector2.zero, new Vector2(8f, -16f));
-            AddResizeHandle(rootRect, floatingWin, "ResizeRight", FloatingWindowMath.ResizeEdge.Right,
-                new Vector2(1f, 0f), new Vector2(1f, 1f), new Vector2(1f, 0.5f), Vector2.zero, new Vector2(8f, -16f));
-            AddResizeHandle(rootRect, floatingWin, "ResizeBottomRight", FloatingWindowMath.ResizeEdge.BottomRight,
-                new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(1f, 0f), Vector2.zero, new Vector2(18f, 18f));
-
-            // FloatingWindow 직렬화
+            // FloatingWindow 직렬화 (고정 크기)
             var fwSo = new SerializedObject(floatingWin);
             fwSo.FindProperty("windowId").stringValue = "train";
             fwSo.FindProperty("titleBar").objectReferenceValue = titleBar;
             fwSo.FindProperty("closeButton").objectReferenceValue = closeBtn;
             fwSo.FindProperty("defaultPosition").vector2Value = new Vector2(26f, 516f);
             fwSo.FindProperty("defaultSize").vector2Value = new Vector2(510f, 544f);
-            fwSo.FindProperty("minSize").vector2Value = new Vector2(320f, 340f);
-            fwSo.FindProperty("maxSize").vector2Value = new Vector2(960f, 960f);
             fwSo.FindProperty("startOpen").boolValue = true;
             fwSo.ApplyModifiedPropertiesWithoutUndo();
 
@@ -559,33 +531,6 @@ public static class RelayoutS3Builder
         {
             PrefabUtility.UnloadPrefabContents(root);
         }
-    }
-
-    static void AddResizeHandle(
-        RectTransform _parent,
-        FloatingWindow _win,
-        string _name,
-        FloatingWindowMath.ResizeEdge _edge,
-        Vector2 _anchorMin,
-        Vector2 _anchorMax,
-        Vector2 _pivot,
-        Vector2 _pos,
-        Vector2 _size)
-    {
-        var rt = NewRect(_name, _parent);
-        rt.anchorMin = _anchorMin;
-        rt.anchorMax = _anchorMax;
-        rt.pivot = _pivot;
-        rt.anchoredPosition = _pos;
-        rt.sizeDelta = _size;
-        var img = rt.gameObject.AddComponent<Image>();
-        img.color = new Color(0f, 0f, 0f, 0f);
-        img.raycastTarget = true;
-        var handle = rt.gameObject.AddComponent<FloatingWindowResizeHandle>();
-        var so = new SerializedObject(handle);
-        so.FindProperty("window").objectReferenceValue = _win;
-        so.FindProperty("edge").enumValueIndex = (int)_edge;
-        so.ApplyModifiedPropertiesWithoutUndo();
     }
 
     static Button CreateSmallButton(

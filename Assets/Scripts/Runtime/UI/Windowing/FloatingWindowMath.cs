@@ -4,17 +4,6 @@ using UnityEngine;
 // 부동 창 시스템의 순수 좌표·스냅·클램프 수학 유틸리티(1920×1080 좌상단 원점 기준).
 public static class FloatingWindowMath
 {
-    [System.Flags]
-    public enum ResizeEdge
-    {
-        None = 0,
-        Left = 1 << 0,
-        Right = 1 << 1,
-        Top = 1 << 2,
-        Bottom = 1 << 3,
-        BottomRight = Right | Bottom
-    }
-
     public const float ReferenceWidth = 1920f;
     public const float ReferenceHeight = 1080f;
     public const float TopHudSafeY = 76f;
@@ -81,66 +70,6 @@ public static class FloatingWindowMath
         return ClampRect(moved, _minY, _screenW, _screenH);
     }
 
-    // 가장자리/모서리 드래그에 따라 크기를 조절하고 최소·최대 크기, 스냅, 화면 클램프를 적용한다.
-    public static Rect ResizeRect(
-        Rect _startRect,
-        ResizeEdge _edges,
-        Vector2 _deltaTopLeft,
-        Vector2 _minSize,
-        Vector2 _maxSize,
-        IReadOnlyList<Rect> _others = null,
-        float _snapDistance = DefaultSnapDistance,
-        float _minY = TopHudSafeY,
-        float _screenW = ReferenceWidth,
-        float _screenH = ReferenceHeight)
-    {
-        float minW = Mathf.Max(1f, _minSize.x);
-        float minH = Mathf.Max(1f, _minSize.y);
-        float maxW = Mathf.Max(minW, _maxSize.x);
-        float maxH = Mathf.Max(minH, _maxSize.y);
-
-        float left = _startRect.xMin;
-        float right = _startRect.xMax;
-        float top = _startRect.yMin;
-        float bottom = _startRect.yMax;
-
-        if ((_edges & ResizeEdge.Left) != 0)
-        {
-            float candidate = left + _deltaTopLeft.x;
-            candidate = SnapEdgeX(candidate, _others, _snapDistance, _screenW);
-            candidate = Mathf.Max(0f, candidate);
-            float w = Mathf.Clamp(right - candidate, minW, maxW);
-            left = right - w;
-        }
-        else if ((_edges & ResizeEdge.Right) != 0)
-        {
-            float candidate = right + _deltaTopLeft.x;
-            candidate = SnapEdgeX(candidate, _others, _snapDistance, _screenW);
-            candidate = Mathf.Min(_screenW, candidate);
-            float w = Mathf.Clamp(candidate - left, minW, maxW);
-            right = left + w;
-        }
-
-        if ((_edges & ResizeEdge.Top) != 0)
-        {
-            float candidate = top + _deltaTopLeft.y;
-            candidate = SnapEdgeY(candidate, _others, _snapDistance, _minY, _screenH);
-            candidate = Mathf.Max(_minY, candidate);
-            float h = Mathf.Clamp(bottom - candidate, minH, maxH);
-            top = bottom - h;
-        }
-        else if ((_edges & ResizeEdge.Bottom) != 0)
-        {
-            float candidate = bottom + _deltaTopLeft.y;
-            candidate = SnapEdgeY(candidate, _others, _snapDistance, _minY, _screenH);
-            candidate = Mathf.Min(_screenH, candidate);
-            float h = Mathf.Clamp(candidate - top, minH, maxH);
-            bottom = top + h;
-        }
-
-        return ClampRect(Rect.MinMaxRect(left, top, right, bottom), _minY, _screenW, _screenH);
-    }
-
     // RectTransform을 1920×1080 좌상단 원점 사각형으로 변환한다.
     public static Rect ToTopLeftRect(
         RectTransform _rect,
@@ -182,40 +111,6 @@ public static class FloatingWindowMath
             return parentRt.rect.size;
         }
         return new Vector2(_fallbackW, _fallbackH);
-    }
-
-    static float SnapEdgeX(float _value, IReadOnlyList<Rect> _others, float _snapDistance, float _screenW)
-    {
-        float bestDelta = 0f;
-        float bestAbs = _snapDistance + 0.001f;
-        TrySnapAxis(_value, 0f, ref bestDelta, ref bestAbs);
-        TrySnapAxis(_value, _screenW, ref bestDelta, ref bestAbs);
-        if (_others != null)
-        {
-            for (int i = 0; i < _others.Count; i++)
-            {
-                TrySnapAxis(_value, _others[i].xMin, ref bestDelta, ref bestAbs);
-                TrySnapAxis(_value, _others[i].xMax, ref bestDelta, ref bestAbs);
-            }
-        }
-        return _value + bestDelta;
-    }
-
-    static float SnapEdgeY(float _value, IReadOnlyList<Rect> _others, float _snapDistance, float _minY, float _screenH)
-    {
-        float bestDelta = 0f;
-        float bestAbs = _snapDistance + 0.001f;
-        TrySnapAxis(_value, _minY, ref bestDelta, ref bestAbs);
-        TrySnapAxis(_value, _screenH, ref bestDelta, ref bestAbs);
-        if (_others != null)
-        {
-            for (int i = 0; i < _others.Count; i++)
-            {
-                TrySnapAxis(_value, _others[i].yMin, ref bestDelta, ref bestAbs);
-                TrySnapAxis(_value, _others[i].yMax, ref bestDelta, ref bestAbs);
-            }
-        }
-        return _value + bestDelta;
     }
 
     static void TrySnapAxis(float _source, float _target, ref float _bestDelta, ref float _bestAbs)

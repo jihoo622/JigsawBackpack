@@ -34,6 +34,7 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
     [SerializeField] PuzzleInventoryView relayoutTrainView;
     [SerializeField] RailStripView railStripView;
     [SerializeField] TrainWindowView trainWindowView;
+    [SerializeField] NotebookWindowView notebookWindowView;
     [SerializeField] PauseMenu pauseMenu;
     [SerializeField] RunEndPresenter runEndPresenter;
 

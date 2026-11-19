@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-// 자유 이동·크기 조절·스냅·영속성을 제공하는 공용 부동 창 컴포넌트.
+// 자유 이동·스냅·영속성을 제공하는 공용 부동 창 컴포넌트(고정 크기).
 [DisallowMultipleComponent]
 [RequireComponent(typeof(RectTransform))]
 public sealed class FloatingWindow : MonoBehaviour, IPointerDownHandler
@@ -13,8 +13,6 @@ public sealed class FloatingWindow : MonoBehaviour, IPointerDownHandler
     {
         public float x;
         public float y;
-        public float w;
-        public float h;
         public bool open;
     }
 
@@ -25,8 +23,6 @@ public sealed class FloatingWindow : MonoBehaviour, IPointerDownHandler
     [SerializeField] Button closeButton;
     [SerializeField] Vector2 defaultPosition = new Vector2(120f, 120f);
     [SerializeField] Vector2 defaultSize = new Vector2(480f, 400f);
-    [SerializeField] Vector2 minSize = new Vector2(280f, 200f);
-    [SerializeField] Vector2 maxSize = new Vector2(1600f, 960f);
     [SerializeField] bool startOpen = true;
 
     RectTransform rectTransform;
@@ -36,10 +32,9 @@ public sealed class FloatingWindow : MonoBehaviour, IPointerDownHandler
     bool initialized;
     bool hiddenForBackgroundOnly;
 
-    public event Action Resized;
-
     public string WindowId => string.IsNullOrEmpty(windowId) ? gameObject.name : windowId;
     public bool IsOpen { get; private set; }
+    public bool CloseBlocked { get; set; }
     public Rect CurrentRect => currentRect;
     public RectTransform TitleBar => titleBar;
 
@@ -89,10 +84,21 @@ public sealed class FloatingWindow : MonoBehaviour, IPointerDownHandler
 
     public void Open() => SetOpen(true);
 
-    public void Close() => SetOpen(false);
+    public void Close()
+    {
+        if (CloseBlocked)
+        {
+            return;
+        }
+        SetOpen(false);
+    }
 
     public void SetOpen(bool _open, bool _persist = true)
     {
+        if (!_open && CloseBlocked)
+        {
+            return;
+        }
         InitializeIfNeeded();
         hiddenForBackgroundOnly = false;
         IsOpen = _open;
@@ -130,7 +136,6 @@ public sealed class FloatingWindow : MonoBehaviour, IPointerDownHandler
         rect = FloatingWindowMath.ClampRect(rect, FloatingWindowMath.TopHudSafeY, screenSize.x, screenSize.y);
         ApplyRect(rect);
         SaveState();
-        Resized?.Invoke();
     }
 
     internal void BeginDrag()
@@ -158,35 +163,6 @@ public sealed class FloatingWindow : MonoBehaviour, IPointerDownHandler
     internal void EndDrag()
     {
         SaveState();
-    }
-
-    internal void BeginResize()
-    {
-        InitializeIfNeeded();
-        BringToFront();
-        dragStartRect = currentRect;
-    }
-
-    internal void UpdateResize(FloatingWindowMath.ResizeEdge _edge, Vector2 _cumulativeDeltaTopLeft)
-    {
-        Vector2 screenSize = GetScreenSize();
-        var others = ResolveManager()?.GetOtherOpenRects(this);
-        var resized = FloatingWindowMath.ResizeRect(
-            dragStartRect, _edge, _cumulativeDeltaTopLeft, minSize, maxSize, others,
-            FloatingWindowMath.DefaultSnapDistance, FloatingWindowMath.TopHudSafeY, screenSize.x, screenSize.y);
-        bool sizeChanged = !Mathf.Approximately(resized.width, currentRect.width) ||
-                           !Mathf.Approximately(resized.height, currentRect.height);
-        ApplyRect(resized);
-        if (sizeChanged)
-        {
-            Resized?.Invoke();
-        }
-    }
-
-    internal void EndResize()
-    {
-        SaveState();
-        Resized?.Invoke();
     }
 
     void InitializeIfNeeded()
@@ -235,27 +211,18 @@ public sealed class FloatingWindow : MonoBehaviour, IPointerDownHandler
             try
             {
                 var saved = JsonUtility.FromJson<SavedWindowState>(PlayerPrefs.GetString(key));
-                if (saved.w > 0f && saved.h > 0f)
+                var clamped = FloatingWindowMath.ClampRect(
+                    new Rect(saved.x, saved.y, defaultSize.x, defaultSize.y),
+                    FloatingWindowMath.TopHudSafeY,
+                    screenSize.x,
+                    screenSize.y);
+                ApplyRect(clamped);
+                IsOpen = saved.open;
+                if (!hiddenForBackgroundOnly && gameObject.activeSelf != IsOpen)
                 {
-                    float minW = Mathf.Max(1f, minSize.x);
-                    float minH = Mathf.Max(1f, minSize.y);
-                    float maxW = Mathf.Max(minW, maxSize.x);
-                    float maxH = Mathf.Max(minH, maxSize.y);
-                    float w = Mathf.Clamp(saved.w, minW, maxW);
-                    float h = Mathf.Clamp(saved.h, minH, maxH);
-                    var clamped = FloatingWindowMath.ClampRect(
-                        new Rect(saved.x, saved.y, w, h),
-                        FloatingWindowMath.TopHudSafeY,
-                        screenSize.x,
-                        screenSize.y);
-                    ApplyRect(clamped);
-                    IsOpen = saved.open;
-                    if (!hiddenForBackgroundOnly && gameObject.activeSelf != IsOpen)
-                    {
-                        gameObject.SetActive(IsOpen);
-                    }
-                    return;
+                    gameObject.SetActive(IsOpen);
                 }
+                return;
             }
             catch (Exception)
             {
@@ -282,8 +249,6 @@ public sealed class FloatingWindow : MonoBehaviour, IPointerDownHandler
         {
             x = currentRect.x,
             y = currentRect.y,
-            w = currentRect.width,
-            h = currentRect.height,
             open = IsOpen
         };
         PlayerPrefs.SetString(PREFS_PREFIX + WindowId, JsonUtility.ToJson(state));

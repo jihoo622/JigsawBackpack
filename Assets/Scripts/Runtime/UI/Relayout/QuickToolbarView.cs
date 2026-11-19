@@ -17,6 +17,7 @@ public sealed class QuickToolbarView : MonoBehaviour
     [SerializeField] TextMeshProUGUI resetLayoutLabel;
     [SerializeField] TextMeshProUGUI shortcutHintLabel;
     [SerializeField] PuzzleTradeNotebookView notebookView;
+    [SerializeField] NotebookWindowView notebookWindowView;
     [SerializeField] FloatingWindowManager windowManager;
     [SerializeField] PuzzleInventoryPresenter inventoryPresenter;
 
@@ -87,6 +88,11 @@ public sealed class QuickToolbarView : MonoBehaviour
 
     void OnNotebookClicked()
     {
+        if (RelayoutSettings.Enabled && notebookWindowView)
+        {
+            notebookWindowView.ToggleLastTab();
+            return;
+        }
         var nb = notebookView ? notebookView : SceneServices.Find<PuzzleTradeNotebookView>(gameObject.scene);
         nb?.Toggle();
     }
