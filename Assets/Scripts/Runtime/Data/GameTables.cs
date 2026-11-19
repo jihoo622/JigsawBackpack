@@ -119,6 +119,8 @@ public sealed class PuzzleTradeTableData
     public long startingWagonValue = -1;
     // 화차 판매가 비율(%). 상품은 price, 시작 화차는 startingWagonValue에 곱하고 내림한다.
     public int wagonSalePercent = -1;
+    // 첫 구매 전 모든 역에 단독 진열하는 튜토리얼 화차 상품 ID.
+    public string tutorialWagonProductId;
     public PuzzleWagonProductData[] wagonProducts = Array.Empty<PuzzleWagonProductData>();
     // 목표 잔액(점수 기준). 영업 기간이 끝나 결산할 때 잔액이 이 값 이상이면 승리한다.
     public long targetFunds = -1;

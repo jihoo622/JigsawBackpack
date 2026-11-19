@@ -7,7 +7,20 @@
   "wagonRefrigerationCost": 120,
   "startingWagonValue": 80,
   "wagonSalePercent": 40,
+  "tutorialWagonProductId": "beginner",
   "wagonProducts": [
+    {
+      "id": "beginner",
+      "displayName": "초심자용 화차",
+      "price": 150,
+      "board": {
+        "width": 5,
+        "height": 4,
+        "blockedCells": [],
+        "startingPlacements": []
+      },
+      "description": "처음 구매하는 5×4 화차. 특수 효과 없음."
+    },
     {
       "id": "hopper",
       "displayName": "광석 호퍼",

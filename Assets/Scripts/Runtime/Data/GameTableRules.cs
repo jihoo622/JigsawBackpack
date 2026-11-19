@@ -334,6 +334,10 @@ public sealed class GameTableRules
         Check(IsFinitePositive(_tables.PuzzleTrade.travelArrivalHoldSeconds), PATH + ".travelArrivalHoldSeconds",
             "도착 표시 시간은 유한한 양수여야 합니다.");
         ValidateWagonProducts(_tables, _tables.PuzzleTrade.wagonProducts, PATH + ".wagonProducts");
+        Reference(_tables.PuzzleTrade.tutorialWagonProductId, PATH + ".tutorialWagonProductId",
+            (_tables.PuzzleTrade.wagonProducts ?? Array.Empty<PuzzleWagonProductData>()).Any(
+                _product => _product != null && _product.id == _tables.PuzzleTrade.tutorialWagonProductId),
+            "튜토리얼 화차 상품");
     }
 
     // 품목 중 하나라도 가진 태그만 등록된 태그로 본다.

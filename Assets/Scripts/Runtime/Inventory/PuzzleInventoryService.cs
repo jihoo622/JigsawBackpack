@@ -16,6 +16,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
     IReadOnlyList<PuzzleSynergyRuleData> marketRules;
     int lastInstanceId;
     int lastWagonNumber;
+    bool tutorialWagonPurchased;
     string currentCityId;
     readonly HashSet<string> visitedCities = new HashSet<string>(StringComparer.Ordinal);
     readonly List<TavernRumor> tavernRumors = new List<TavernRumor>();
@@ -98,8 +99,10 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
     public PuzzleInventory CurrentTrainWagon => (trainWagons.Count > CurrentWagonIndex && CurrentWagonIndex >= 0) ? trainWagons[CurrentWagonIndex] : null;
     public PuzzleInventory Train => CurrentTrainWagon;
     public int WagonCount => trainWagons.Count;
-    // 지금 역의 화차 시설이 파는 화차. 역마다 다르다(PuzzleTableData.cities[].wagonProductIds).
-    internal IReadOnlyList<PuzzleWagonProductData> WagonProductsHere => tables.WagonProductsOf(CurrentCityId);
+    // 튜토리얼 화차를 사기 전에는 모든 역에 이 상품만 진열한다. 구매 후에는 역별 기존 목록을 쓴다.
+    internal IReadOnlyList<PuzzleWagonProductData> WagonProductsHere => tutorialWagonPurchased
+        ? tables.WagonProductsOf(CurrentCityId)
+        : new[] { tables.TutorialWagonProduct };
     PuzzleWagonProductData CheapestWagonHere => WagonProductsHere.FirstOrDefault();
     // 이 역에서 가장 싼 화차의 가격. 화차를 팔지 않는 역이면 0이다.
     public long NextWagonCost => CheapestWagonHere?.price ?? 0;
@@ -407,6 +410,8 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         Funds -= _cost;
         lastInstanceId = nextInstanceId;
         CurrentWagonIndex = trainWagons.Count - 1;
+        tutorialWagonPurchased |= string.Equals(_productId, tables.PuzzleTrade.tutorialWagonProductId,
+            StringComparison.Ordinal);
         GameEvents.RaiseFundsChanged(this, previousFunds);
         RecordAction(PuzzleActionKind.AddWagon, _productId: _productId, _modificationId: _modificationId);
         return true;
@@ -592,6 +597,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         CityMoveCount = 0;
         RunStatus = PuzzleRunStatus.InProgress;
         trainWagons.Clear();
+        tutorialWagonPurchased = false;
         lastWagonNumber = train.WagonNumber = 1;
         train.WagonSalePrice = validatedTables.WagonSalePrice(validatedTables.PuzzleTrade.startingWagonValue);
         trainWagons.Add(train);
