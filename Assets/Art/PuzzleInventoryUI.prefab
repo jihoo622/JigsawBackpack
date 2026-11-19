@@ -65,7 +65,7 @@ MonoBehaviour:
   itemDetails: {fileID: 820488757614130048}
   itemIcons:
   - key: cargo.elbowLeft
-    sprite: {fileID: 21300000, guid: 806cbaf4c36046c9ace88fac78f1a205, type: 3}
+    sprite: {fileID: 21300000, guid: 3e28a3c0ec8e33647bb87ce2341a2fff, type: 3}
   - key: cargo.smallCrate
     sprite: {fileID: 21300000, guid: c36343f63a7c44a28f3fc36cf7b7e8dc, type: 3}
   - key: cargo.grainSack
@@ -104,6 +104,8 @@ MonoBehaviour:
     sprite: {fileID: 21300000, guid: f9c2c794b1bade44a9a53828fd4c25c9, type: 3}
   - key: cargo.meatPackage
     sprite: {fileID: 21300000, guid: 962cda9249c7eba4c80ad736eb2b98f2, type: 3}
+  - key: cargo.piece.box
+    sprite: {fileID: 21300000, guid: a3ff6813ce0ce3a49b43fb1f74587905, type: 3}
   flatTriangle: {fileID: 11400000, guid: 4e2099728f0543fd97fdcad40817628a, type: 3}
   eastFlatTriangle: {fileID: 21300000, guid: cd201bef2f7ef0dc183bae0cf1666f94, type: 3}
   southFlatTriangle: {fileID: 21300000, guid: f2334a0000de83a06a5126bbaaec1ca0, type: 3}

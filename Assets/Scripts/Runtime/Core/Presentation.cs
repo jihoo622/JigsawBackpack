@@ -308,10 +308,12 @@ public static partial class Presentation
         return regionId != null;
     }
 
-    // 미리보기 카드 제목 색. 링크 글자색과 맞춘다(역·지역은 지역 색).
+    // 미리보기 카드 제목 색. 도시·지역은 마을권 색(링크 글자색과 동일), 나머지는 기본 툴팁 텍스트 색.
     public static Color EntityPreviewTitleColor(EntityLinkKind _kind, string _id)
     {
-        return _kind == EntityLinkKind.City || _kind == EntityLinkKind.Region ? EntityLinkTextColor(_kind, _id) : PuzzleHeading;
+        return _kind == EntityLinkKind.City || _kind == EntityLinkKind.Region
+            ? EntityLinkTextColor(_kind, _id)
+            : PuzzleTooltipText;
     }
 
     static string EntityLinkPrefix(EntityLinkKind _kind)
@@ -464,7 +466,8 @@ public static partial class Presentation
 
     // 마우스를 올렸을 때 보이는 미리보기 카드 내용(제목 + 상단 표 행 + 본문 줄). 링크 없이 글자만 쓴다(카드는 입력을 받지 않는다).
     internal static void EntityPreview(EntityLinkKind _kind, string _id, PuzzleInventoryService _session,
-        out string _title, List<(string label, string value)> _statRows, List<string> _lines)
+        out string _title, List<(string label, string value)> _statRows, List<string> _lines,
+        bool _includeCurrentLine = true)
     {
         _statRows?.Clear();
         _lines.Clear();
@@ -473,7 +476,7 @@ public static partial class Presentation
         switch (_kind)
         {
             case EntityLinkKind.City:
-                PreviewCity(_id, _session, _statRows, _lines);
+                PreviewCity(_id, _session, _statRows, _lines, _includeCurrentLine);
                 break;
             case EntityLinkKind.Region:
                 if (tables.TryGetRegion(_id, out var region))
@@ -516,7 +519,7 @@ public static partial class Presentation
     }
 
     static void PreviewCity(string _cityId, PuzzleInventoryService _session,
-        List<(string label, string value)> _statRows, List<string> _lines)
+        List<(string label, string value)> _statRows, List<string> _lines, bool _includeCurrentLine = true)
     {
         var tables = TableManager.Instance;
         if (!tables.HasCity(_cityId))
@@ -539,7 +542,10 @@ public static partial class Presentation
         {
             if (_cityId == _session.CurrentCityId)
             {
-                _lines.Add(BasicData.Text("presentation.link.previewCurrent"));
+                if (_includeCurrentLine)
+                {
+                    _lines.Add(BasicData.Text("presentation.link.previewCurrent"));
+                }
             }
             else
             {
@@ -831,6 +837,28 @@ public static partial class Presentation
             .OrderBy(_quest => _quest.DeadlineHours)
             .Select(_quest => BasicData.Format("presentation.quest.mapInformation", QuestCargoName(_quest.PieceId),
                 TurnSpan(Math.Max(0, _quest.DeadlineHours - _session.ElapsedTime)), _quest.Reward)));
+    }
+
+    internal static string BuildTownHeaderStatus(string _cityId, PuzzleInventoryService _session)
+    {
+        if (_session == null || string.IsNullOrEmpty(_cityId))
+        {
+            return null;
+        }
+        bool isCurrent = string.Equals(_cityId, _session.CurrentCityId, StringComparison.Ordinal);
+        string questBadge = QuestMapBadge(_session, _cityId);
+        string questText = string.IsNullOrEmpty(questBadge)
+            ? null
+            : $"<color=#{ColorUtility.ToHtmlStringRGB(QuestMapMarker)}>{questBadge}</color>";
+        if (isCurrent && !string.IsNullOrEmpty(questText))
+        {
+            return $"{BasicData.Text("presentation.link.previewCurrent")} · {questText}";
+        }
+        if (isCurrent)
+        {
+            return BasicData.Text("presentation.link.previewCurrent");
+        }
+        return questText;
     }
 
     // 숙련 레벨이 오를 때 하단 상태 줄 끝에 붙이는 알림.
@@ -1336,14 +1364,14 @@ public static partial class Presentation
 
     internal static string WagonSaleAmount(long _price, bool _showPlus = false)
     {
-        string color = ColorUtility.ToHtmlStringRGB(BasicData.Color("presentation.itemInfo.positive"));
+        string color = ColorUtility.ToHtmlStringRGB(PuzzleTooltipGreen);
         string sign = _showPlus && _price > 0 ? "+" : string.Empty;
         return $"<color=#{color}>{sign}{_price:N0} $</color>";
     }
 
     internal static string WagonSaleNotice(string _reason)
     {
-        string color = ColorUtility.ToHtmlStringRGB(BasicData.Color("presentation.itemInfo.negative"));
+        string color = ColorUtility.ToHtmlStringRGB(PuzzleTooltipRed);
         return $"<color=#{color}>{BasicData.Text("rules.wagon." + _reason)}</color>";
     }
     public static string StationMarket => BasicData.Text("presentation.station.market");
@@ -1582,7 +1610,7 @@ public static partial class Presentation
             string expensive = JoinTags(buckets.expensive);
             string rare = JoinTags(buckets.rare);
             string commonColor = ColorUtility.ToHtmlStringRGB(PuzzleMapVisited);
-            string expensiveColor = ColorUtility.ToHtmlStringRGB(PuzzleMapCurrent);
+            string expensiveColor = ColorUtility.ToHtmlStringRGB(TradeExpensiveColor);
             string rareColor = ColorUtility.ToHtmlStringRGB(PuzzleMapRare);
             trade = BasicData.Format("presentation.map.informationText9", commonColor, (string.IsNullOrEmpty(common) ? BasicData.Text("presentation.map.informationText14") : common)) +
                 BasicData.Format("presentation.map.informationText10", expensiveColor, (string.IsNullOrEmpty(expensive) ? BasicData.Text("presentation.map.informationText15") : expensive)) +
@@ -1780,7 +1808,8 @@ public static partial class Presentation
     public static Color PuzzleTooltipBodyBackground => BasicData.Color("presentation.tooltip.bodyBackground");
     public static Color PuzzleTooltipDivider => BasicData.Color("presentation.tooltip.divider");
     public static Color PuzzleTooltipText => BasicData.Color("presentation.tooltip.text");
-    public static Color PuzzleTooltipGold => BasicData.Color("presentation.tooltip.gold");
+    // 기본 텍스트와 중립 색을 동일 색으로 통합한다.
+    public static Color PuzzleTooltipGold => PuzzleTooltipText;
     public static Color PuzzleTooltipGreen => BasicData.Color("presentation.tooltip.green");
     public static Color PuzzleTooltipRed => BasicData.Color("presentation.tooltip.red");
 
@@ -1946,10 +1975,10 @@ public static partial class Presentation
             FormatEffectPercentage(value));
     }
 
-    internal static string PuzzleAnimalBreedingEffect(string _description, long _hours, string _offspringName, int _count)
+    internal static string PuzzleAnimalBreedingEffect(string _description, long _hours, string _offspringName, int _count, string _parentName)
     {
         return PuzzleTooltipEffectDescription(string.Format(_description,
-            TurnSpan(_hours), _offspringName, _count));
+            TurnSpan(_hours), _offspringName, _count, _parentName));
     }
 
     internal static string PuzzleAnimalGrowthEffect(string _description, long _hours, string _adultName, long _blockedHours)
@@ -1961,7 +1990,7 @@ public static partial class Presentation
     internal static string PuzzleAnimalWasteEffect(string _description, int _intervalHours, string _wasteName, int _count)
     {
         return PuzzleTooltipEffectDescription(string.Format(_description,
-            _intervalHours, _wasteName, _count));
+            TurnSpan((long)_intervalHours), _wasteName, _count));
     }
 
     static string PuzzleAnimalFeedEffect(string _description, int _intervalHours, int _reductionHours)
@@ -2103,7 +2132,7 @@ public static partial class Presentation
                     breedingProgress = new PuzzleProgressDisplay(pairedHours, breedingHours, pairedBlocked);
                 }
                 general.Add(new PuzzleEffectDisplay(PuzzleAnimalBreedingEffect(breeding.description,
-                    breedingHours, offspring.displayName, breeding.offspringCount), breedingProgress));
+                    breedingHours, offspring.displayName, breeding.offspringCount, _item.DisplayName), breedingProgress));
                 general.Add(new PuzzleEffectDisplay(PuzzleAnimalFeedEffect(animals.breedingFeedDescription,
                     animals.feedIntervalHours, animals.breedingFeedReductionHours)));
             }
@@ -2310,8 +2339,10 @@ public static partial class Presentation
             _city.sellPercentOfFinalValue);
     }
 
+    public static Color TradeExpensiveColor => BasicData.Color("presentation.trade.expensiveResourceColor");
+
     internal static void CityTradeGradeInfo(PuzzleCityTradeGrade _grade, bool _withLink,
-        out string _formattedLabel, out string _linkId, out Color _color)
+        out string _formattedLabel, out string _linkId, out Color _color, bool _bold = true)
     {
         string rawTitle;
         switch (_grade)
@@ -2324,7 +2355,7 @@ public static partial class Presentation
             case PuzzleCityTradeGrade.Expensive:
                 rawTitle = BasicData.Text("presentation.trade.expensiveResourceTitle");
                 _linkId = "expensive";
-                _color = PuzzleMapCurrent;
+                _color = TradeExpensiveColor;
                 break;
             case PuzzleCityTradeGrade.Rare:
                 rawTitle = BasicData.Format("presentation.trade.rareResourceTitle", RareSellPercent());
@@ -2346,14 +2377,15 @@ public static partial class Presentation
         string content = _withLink && !string.IsNullOrEmpty(_linkId)
             ? $"<link=\"{_linkId}\">{rawTitle}</link>"
             : rawTitle;
-        _formattedLabel = $"<color=#{ColorUtility.ToHtmlStringRGB(_color)}><b>{content}</b></color>";
+        string inner = _bold ? $"<b>{content}</b>" : content;
+        _formattedLabel = $"<color=#{ColorUtility.ToHtmlStringRGB(_color)}>{inner}</color>";
     }
 
     internal static string CityTradeWasteSuffix => "(+10$)";
 
     const string REGION_PRICE_LINK_PREFIX = "regionPrice:";
 
-    internal static string CityTradeRegionPriceText(int _buyPercent, int _sellPercent, bool _withLink = false)
+    internal static string CityTradeRegionPriceText(int _buyPercent, int _sellPercent, bool _withLink = false, bool _bold = true)
     {
         bool samePercent = _buyPercent == _sellPercent;
         string rawText = samePercent
@@ -2364,11 +2396,12 @@ public static partial class Presentation
             ? $"<link=\"{REGION_PRICE_LINK_PREFIX}{_buyPercent}:{_sellPercent}\">{rawText}</link>"
             : rawText;
 
+        string inner = _bold ? $"<b>{content}</b>" : content;
         if (_buyPercent != 100 || _sellPercent != 100)
         {
-            return $"<color=#{ColorUtility.ToHtmlStringRGB(PuzzleTooltipGold)}><b>{content}</b></color>";
+            return $"<color=#{ColorUtility.ToHtmlStringRGB(PuzzleTooltipGold)}>{inner}</color>";
         }
-        return $"<b>{content}</b>";
+        return inner;
     }
 
     // 도시의 태그 규칙을 판매 등급 기준으로 흔함/귀함/희귀로 묶는다. 임의 배율이나 일반(100%)은 표시하지 않는다.
@@ -2379,7 +2412,7 @@ public static partial class Presentation
         string expensiveText = JoinTags(buckets.expensive);
         string rareText = JoinTags(buckets.rare);
         string commonColor = ColorUtility.ToHtmlStringRGB(PuzzleMapVisited);
-        string expensiveColor = ColorUtility.ToHtmlStringRGB(PuzzleMapCurrent);
+        string expensiveColor = ColorUtility.ToHtmlStringRGB(TradeExpensiveColor);
         string rareColor = ColorUtility.ToHtmlStringRGB(PuzzleMapRare);
         return BasicData.Format("presentation.trade.cityTagPreferences", commonColor, (string.IsNullOrEmpty(commonText) ? BasicData.Text("presentation.trade.cityTagPreferencesText3") : commonText)) +
             BasicData.Format("presentation.trade.cityTagPreferencesText2", expensiveColor, (string.IsNullOrEmpty(expensiveText) ? BasicData.Text("presentation.trade.cityTagPreferencesText4") : expensiveText)) +
@@ -2396,6 +2429,27 @@ public static partial class Presentation
             return string.Empty;
         }
         return BasicData.Format(_textKey, ColorUtility.ToHtmlStringRGB(PuzzleTooltipGreen), PuzzleTagLabel("Waste"));
+    }
+
+    internal static void BuildTownTooltipRumorLines(string _cityId, PuzzleInventoryService _session,
+        List<string> _lines, out string _header)
+    {
+        _lines.Clear();
+        _header = null;
+        if (_session?.TavernRumors == null || (_session.HasVisitedCity(_cityId)))
+        {
+            return;
+        }
+        foreach (var rumor in _session.TavernRumors)
+        {
+            if (!string.Equals(rumor.TargetCityId, _cityId, StringComparison.Ordinal))
+            {
+                continue;
+            }
+            _header ??= SummaryRumorTitle;
+            string plain = Regex.Replace(TavernRumorMessage(rumor), @"</?link(?:=[^>]*)?>", string.Empty);
+            _lines.Add($"• {plain}");
+        }
     }
 
     internal static bool TryGetTradeKeywordTooltip(string _linkId, out string _title, out string _description)
@@ -2596,8 +2650,7 @@ public static partial class Presentation
         {
             return PuzzleTagTextOnBackground(PuzzleTagBackgroundColor(_tag));
         }
-        return IsFreshTag(_tag) ? BasicData.Color("presentation.tags.freshTextColor")
-            : BasicData.Color("presentation.tags.puzzleTagTextColor");
+        return IsQuestTag(_tag) || IsFreshTag(_tag) ? PuzzleTooltipBodyBackground : PuzzleTooltipText;
     }
 
     public static Color PuzzleTagTextOnBackground(Color _background)
@@ -2617,26 +2670,20 @@ public static partial class Presentation
             (Mathf.Min(backgroundLuminance, textLuminance) + 0.05f);
     }
 
+    static bool IsQuestTag(string _tag)
+    {
+        return string.Equals(_tag, "Quest", StringComparison.OrdinalIgnoreCase);
+    }
+
     static bool IsFreshTag(string _tag)
     {
         return string.Equals(_tag, "Fresh", StringComparison.OrdinalIgnoreCase)
             || string.Equals(_tag, "Refrigerator", StringComparison.OrdinalIgnoreCase);
     }
 
-    public static Color PuzzleTooltipTagBackground(string _tag, float _blend)
+    public static Color PuzzleTooltipTagTextColor(string _tag)
     {
-        Color background = PuzzleTagBackgroundColor(_tag);
-        return IsFreshTag(_tag) ? background
-            : UnityEngine.Color.Lerp(background, PuzzleTooltipBodyBackground, _blend);
-    }
-
-    public static Color PuzzleTooltipTagTextColor(string _tag, float _blend)
-    {
-        if (TableManager.Instance.Puzzle.tagPresentations.Any(_entry => _entry.id == _tag))
-        {
-            return PuzzleTagTextOnBackground(PuzzleTooltipTagBackground(_tag, _blend));
-        }
-        return IsFreshTag(_tag) ? PuzzleTagTextColor(_tag) : PuzzleTooltipText;
+        return PuzzleTagTextColor(_tag);
     }
 
     public static IReadOnlyList<string> PrioritizeTags(IEnumerable<string> _tags)
@@ -2946,6 +2993,8 @@ public static partial class Presentation
     }
 
     // 효과 품목 전용 테두리. 냉장(신선 보존 효과) 품목은 하늘색, 배설물(Waste) 품목은 갈색이며 나머지는 기본 테두리다.
+    // 2026-11-19: 효과 표시 기준을 정리하는 동안 아이템 테두리 색을 기본 색으로 통일하기 위해 호출을 주석 처리했다.
+    // 효과별 테두리 색을 다시 사용할 수 있도록 원본 메서드는 보존한다.
     internal static Color? PuzzlePieceAccentOutline(PuzzleItemDefinition _item, float _alpha)
     {
         if (_item == null)

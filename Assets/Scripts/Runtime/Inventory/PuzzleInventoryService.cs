@@ -17,12 +17,12 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
     int lastInstanceId;
     int lastWagonNumber;
     internal string RunId { get; private set; } = string.Empty;
+    bool tutorialWagonPurchased;
     string currentCityId;
     readonly HashSet<string> visitedCities = new HashSet<string>(StringComparer.Ordinal);
     readonly List<TavernRumor> tavernRumors = new List<TavernRumor>();
     int lastRumorVisit = -1;
     System.Random stockRandom = new System.Random();
-    System.Random wagonDamageRandom = new System.Random();
 
     internal readonly struct TavernRumor
     {
@@ -100,8 +100,10 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
     public PuzzleInventory CurrentTrainWagon => (trainWagons.Count > CurrentWagonIndex && CurrentWagonIndex >= 0) ? trainWagons[CurrentWagonIndex] : null;
     public PuzzleInventory Train => CurrentTrainWagon;
     public int WagonCount => trainWagons.Count;
-    // 지금 역의 화차 시설이 파는 화차. 역마다 다르다(PuzzleTableData.cities[].wagonProductIds).
-    internal IReadOnlyList<PuzzleWagonProductData> WagonProductsHere => tables.WagonProductsOf(CurrentCityId);
+    // 튜토리얼 화차를 사기 전에는 모든 역에 이 상품만 진열한다. 구매 후에는 역별 기존 목록을 쓴다.
+    internal IReadOnlyList<PuzzleWagonProductData> WagonProductsHere => tutorialWagonPurchased
+        ? tables.WagonProductsOf(CurrentCityId)
+        : new[] { tables.TutorialWagonProduct };
     PuzzleWagonProductData CheapestWagonHere => WagonProductsHere.FirstOrDefault();
     // 이 역에서 가장 싼 화차의 가격. 화차를 팔지 않는 역이면 0이다.
     public long NextWagonCost => CheapestWagonHere?.price ?? 0;
@@ -248,6 +250,16 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         return true;
     }
 
+    // 에디터 화차 그리드 테스트 도구가 현재 세션의 화차 보드 모양을 즉시 바꿀 때 호출한다.
+    public int ReshapeWagonForTest(PuzzleInventory _wagon, PuzzleBoardData _board)
+    {
+        if (_wagon == null || _board == null || !IsTrainWagon(_wagon))
+        {
+            return 0;
+        }
+        return _wagon.ReshapeBoard(_board, ref lastInstanceId);
+    }
+
     internal bool TryMoveWagon(int _sourceIndex, int _destinationIndex)
     {
         // 제자리 놓기는 상태 변화가 없는 조작이므로 기록하지 않는다.
@@ -377,9 +389,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
 
         var trainRules = tables.SynergiesFor(PuzzleSynergyScope.Train);
         int nextInstanceId = lastInstanceId;
-        // 상품 보드(구역 포함)에 구매 시 무작위 파손 칸을 더한다.
-        var ownedCargo = trainWagons.SelectMany(wagon => wagon.Placements).Select(placement => placement.Definition);
-        var board = PuzzleWagonDamage.Roll(tables.WagonBoardOf(_product), definitions.Values, ownedCargo, wagonDamageRandom);
+        var board = tables.WagonBoardOf(_product);
         var newWagon = new PuzzleInventory(board, Array.Empty<PuzzleStartingPlacementData>(), definitions, trainRules,
             ref nextInstanceId);
         newWagon.SynergyComboBonusPercent = SynergyComboBonusPercent;
@@ -401,6 +411,8 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         Funds -= _cost;
         lastInstanceId = nextInstanceId;
         CurrentWagonIndex = trainWagons.Count - 1;
+        tutorialWagonPurchased |= string.Equals(_productId, tables.PuzzleTrade.tutorialWagonProductId,
+            StringComparison.Ordinal);
         GameEvents.RaiseFundsChanged(this, previousFunds);
         RecordAction(PuzzleActionKind.AddWagon, _productId: _productId, _modificationId: _modificationId);
         return true;
@@ -529,7 +541,6 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
     {
         stockRandom = new System.Random(_seed);
         questRandom = new System.Random(_seed);
-        wagonDamageRandom = new System.Random(_seed);
     }
 
     internal void Initialize()
@@ -588,6 +599,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         CityMoveCount = 0;
         RunStatus = PuzzleRunStatus.InProgress;
         trainWagons.Clear();
+        tutorialWagonPurchased = false;
         lastWagonNumber = train.WagonNumber = 1;
         train.WagonSalePrice = validatedTables.WagonSalePrice(validatedTables.PuzzleTrade.startingWagonValue);
         trainWagons.Add(train);
@@ -627,13 +639,31 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         slots.Sort((_left, _right) => StringComparer.Ordinal.Compare(_left.id, _right.id));
         foreach (var slot in slots)
         {
+            // 슬롯에 들어가는 후보만 추첨 후보로 쓴다. 후보마다 첫 허용 방향을 고르므로 방향 수가 확률에 개입하지 않는다.
+            var fitting = new List<string>();
+            var turns = new List<int>();
+            foreach (string pieceId in candidates)
+            {
+                if (definitions.TryGetValue(pieceId, out var definition) &&
+                    PuzzleRotation.TryFitIntoSlot(definition.Cells, slot.width, slot.height, out int turn))
+                {
+                    fitting.Add(pieceId);
+                    turns.Add(turn);
+                }
+            }
+            if (fitting.Count == 0)
+            {
+                throw new InvalidOperationException($"도시 '{_cityId}'의 재고 프로필 '{_stock.id}' 슬롯 '{slot.id}'" +
+                    $"({slot.width}×{slot.height})에 들어가는 품목이 없습니다. 테이블 검증을 다시 확인하세요.");
+            }
+            int pick = stockRandom.Next(fitting.Count);
             _placements.Add(new PuzzleStartingPlacementData
             {
                 id = _cityId + "." + slot.id,
-                pieceId = candidates[stockRandom.Next(candidates.Count)],
+                pieceId = fitting[pick],
                 x = slot.x,
                 y = slot.y,
-                clockwiseTurns = 0
+                clockwiseTurns = turns[pick]
             });
         }
     }

@@ -53,8 +53,8 @@ public sealed class GameTableRules
         issues = _issues;
     }
 
-    // 화물칸 화면(PuzzleInventoryUI 프리팹)에 미리 배치한 칸 슬롯 수.
-    const int MAX_WAGON_BOARD_CELLS = 42;
+    // 화차 보드 최대 크기(10×10 = 100칸). PuzzleInventoryView.EnsureCapacity가 필요한 만큼 슬롯을 자동 복제한다.
+    const int MAX_WAGON_BOARD_CELLS = 100;
 
     // 턴제: 테이블의 시간 값은 턴 길이(6시간)의 배수여야 턴 경계에서만 사건이 일어난다.
     void CheckTurnHours(long _hours, string _path, string _pieceId = null, string _field = null)
@@ -334,6 +334,10 @@ public sealed class GameTableRules
         Check(IsFinitePositive(_tables.PuzzleTrade.travelArrivalHoldSeconds), PATH + ".travelArrivalHoldSeconds",
             "도착 표시 시간은 유한한 양수여야 합니다.");
         ValidateWagonProducts(_tables, _tables.PuzzleTrade.wagonProducts, PATH + ".wagonProducts");
+        Reference(_tables.PuzzleTrade.tutorialWagonProductId, PATH + ".tutorialWagonProductId",
+            (_tables.PuzzleTrade.wagonProducts ?? Array.Empty<PuzzleWagonProductData>()).Any(
+                _product => _product != null && _product.id == _tables.PuzzleTrade.tutorialWagonProductId),
+            "튜토리얼 화차 상품");
     }
 
     // 품목 중 하나라도 가진 태그만 등록된 태그로 본다.
@@ -993,7 +997,7 @@ public sealed class GameTableRules
             ValidateBreedingPiece(_tables, rule.parentPieceId, animals.animalTag, path + ".parentPieceId", _isParent: true);
             ValidateBreedingPiece(_tables, rule.offspringPieceId, animals.animalTag, path + ".offspringPieceId");
             Check(rule.offspringCount > 0, path + ".offspringCount", "자식 수량은 양수여야 합니다.");
-            ValidateEffectDescription(rule.description, path + ".description", string.Empty, string.Empty, rule.offspringCount);
+            ValidateEffectDescription(rule.description, path + ".description", string.Empty, string.Empty, rule.offspringCount, string.Empty);
         }
 
         foreach (var piece in _tables.Pieces)
@@ -1646,9 +1650,7 @@ public sealed class GameTableRules
         {
             var ids = group.pieceIds ?? Array.Empty<string>();
             Check(ids.Length > 0 && ids.Distinct(StringComparer.Ordinal).Count() == ids.Length,
-                _path, "각 추첨 그룹에는 중복 없는 후보가 필요합니다.");
-            Check((group.slots ?? Array.Empty<PuzzleMarketStockSlotData>()).Length > 0,
-                _path, "각 추첨 그룹에는 배치 슬롯이 필요합니다.");
+                $"{_path}[{group.id}].pieceIds", "각 추첨 그룹에는 중복 없는 후보가 필요합니다.");
         }
         if (_tables.TryGetRegion(_city.regionId, out var region) && !region.tradeHub)
         {
@@ -1661,37 +1663,9 @@ public sealed class GameTableRules
                 }
             }
         }
-        var stock = new PuzzleMarketStockData
-        {
-            pieceIds = (general.pieceIds ?? Array.Empty<string>()).Concat(regional.pieceIds ?? Array.Empty<string>())
-                .Distinct(StringComparer.Ordinal).ToArray(),
-            slots = (general.slots ?? Array.Empty<PuzzleMarketStockSlotData>())
-                .Concat(regional.slots ?? Array.Empty<PuzzleMarketStockSlotData>()).ToArray()
-        };
-        Check(stock != null, _path, "일반 물품 추첨 설정이 필요합니다.");
-        if (stock == null || _city.market == null)
+        if (_city.market == null)
         {
             return;
-        }
-        var slots = stock.slots ?? Array.Empty<PuzzleMarketStockSlotData>();
-        var candidates = stock.pieceIds ?? Array.Empty<string>();
-        Check(slots.Length > 0, _path + ".slots", "일반 물품 배치 슬롯이 필요합니다.");
-        Check(candidates.Length > 0, _path + ".pieceIds", "일반 물품 추첨 후보가 필요합니다.");
-        var candidateIds = new HashSet<string>(StringComparer.Ordinal);
-        var shapes = new Dictionary<string, Vector2Int[]>(StringComparer.Ordinal);
-        foreach (string id in candidates)
-        {
-            Check(candidateIds.Add(id), _path + ".pieceIds", $"후보 '{id}'가 중복되었습니다.");
-            bool exists = _tables.TryGetPiece(id, out var piece);
-            Reference(id, _path + ".pieceIds", exists, "일반 물품");
-            if (exists)
-            {
-                Check(!piece.excludeFromMarket, _path + ".pieceIds", $"'{id}'는 시장 재고에 둘 수 없습니다.", id, "excludeFromMarket");
-            }
-            if (exists && _shapes.TryGetValue(piece, out var shape))
-            {
-                shapes[id] = shape;
-            }
         }
         var occupied = new HashSet<Vector2Int>();
         foreach (var placement in _city.market.startingPlacements ?? Array.Empty<PuzzleStartingPlacementData>())
@@ -1712,11 +1686,44 @@ public sealed class GameTableRules
                 occupied.Add(new Vector2Int(placement.x, placement.y) + rotation.GetBoardOffset(cell));
             }
         }
-        for (int i = 0; i < slots.Length; i++)
+        ValidateStockProfile(_tables, _city, general, _shapes, _placementIds, occupied, _path);
+        ValidateStockProfile(_tables, _city, regional, _shapes, _placementIds, occupied, _path);
+    }
+
+    // 프로필 하나의 후보와 슬롯만 견준다. 다른 프로필의 후보가 이 프로필의 슬롯에 들어가야 할 이유는 없다.
+    void ValidateStockProfile(TableManager _tables, PuzzleCityData _city, PuzzleMarketStockData _profile,
+        Dictionary<PuzzlePieceData, Vector2Int[]> _shapes, HashSet<string> _placementIds,
+        HashSet<Vector2Int> _occupied, string _path)
+    {
+        if (_profile == null)
         {
-            var slot = slots[i];
-            string path = $"{_path}.slots[{i}]";
-            Check(slot != null, path, "일반 물품 슬롯이 필요합니다.");
+            return;
+        }
+        string profilePath = $"{_path}[{_profile.id}]";
+        var candidates = _profile.pieceIds ?? Array.Empty<string>();
+        var declaredSlots = _profile.slots ?? Array.Empty<PuzzleMarketStockSlotData>();
+        Check(candidates.Length > 0, profilePath + ".pieceIds", "재고 추첨 후보가 필요합니다.");
+        Check(declaredSlots.Length > 0, profilePath + ".slots", "재고 배치 슬롯이 필요합니다.");
+        var shapes = new Dictionary<string, Vector2Int[]>(StringComparer.Ordinal);
+        foreach (string id in candidates)
+        {
+            bool exists = _tables.TryGetPiece(id, out var piece);
+            Reference(id, profilePath + ".pieceIds", exists, "재고 품목");
+            if (exists)
+            {
+                Check(!piece.excludeFromMarket, profilePath + ".pieceIds", $"'{id}'는 시장 재고에 둘 수 없습니다.", id, "excludeFromMarket");
+            }
+            if (exists && _shapes.TryGetValue(piece, out var shape))
+            {
+                shapes[id] = shape;
+            }
+        }
+        var slots = new List<PuzzleMarketStockSlotData>();
+        for (int i = 0; i < declaredSlots.Length; i++)
+        {
+            var slot = declaredSlots[i];
+            string path = $"{profilePath}.slots[{i}]";
+            Check(slot != null, path, "재고 슬롯이 필요합니다.");
             if (slot == null)
             {
                 continue;
@@ -1726,25 +1733,34 @@ public sealed class GameTableRules
             bool valid = slot.width > 0 && slot.height > 0 && slot.x >= 0 && slot.y >= 0 &&
                 (long)slot.x + slot.width <= _city.market.width && slot.y < _city.market.height &&
                 (long)slot.y - slot.height + 1 >= 0;
-            Check(valid, path, "일반 물품 슬롯 전체가 시장 격자 안에 있어야 합니다.");
+            Check(valid, path, "재고 슬롯 전체가 시장 격자 안에 있어야 합니다.");
             if (!valid)
             {
                 continue;
             }
-            foreach (var shape in shapes.OrderBy(_shape => _shape.Key, StringComparer.Ordinal))
-            {
-                var rotation = new PuzzleRotation(shape.Value, 0);
-                Check(shape.Value.All(_cell => rotation.GetBoardOffset(_cell).x < slot.width &&
-                    -rotation.GetBoardOffset(_cell).y < slot.height), path, "모든 후보가 각 슬롯 크기 안에 들어가야 합니다.", shape.Key, "cells");
-            }
+            slots.Add(slot);
             for (int x = 0; x < slot.width; x++)
             {
                 for (int y = 0; y < slot.height; y++)
                 {
-                    Check(occupied.Add(new Vector2Int(slot.x + x, slot.y - y)), path,
-                        "일반 물품 슬롯이 특산품 또는 다른 슬롯과 겹칩니다.");
+                    Check(_occupied.Add(new Vector2Int(slot.x + x, slot.y - y)), path,
+                        "재고 슬롯이 특산품 또는 다른 슬롯과 겹칩니다.");
                 }
             }
+        }
+        for (int i = 0; i < slots.Count; i++)
+        {
+            var slot = slots[i];
+            bool filled = shapes.Keys.OrderBy(_id => _id, StringComparer.Ordinal)
+                .Any(_id => PuzzleRotation.TryFitIntoSlot(shapes[_id], slot.width, slot.height, out _));
+            Check(filled, $"{profilePath}.slots[{slot.id}]",
+                $"'{_profile.id}' 슬롯 '{slot.id}'({slot.width}×{slot.height})에 들어가는 후보가 없습니다.");
+        }
+        foreach (string id in shapes.Keys.OrderBy(_id => _id, StringComparer.Ordinal))
+        {
+            bool placed = slots.Any(_slot => PuzzleRotation.TryFitIntoSlot(shapes[id], _slot.width, _slot.height, out _));
+            Check(placed, profilePath + ".pieceIds", $"'{_profile.id}' 후보 '{id}'가 이 프로필의 어떤 슬롯에도 들어가지 않습니다.",
+                id, "cells");
         }
     }
 

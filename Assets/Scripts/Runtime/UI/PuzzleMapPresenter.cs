@@ -478,29 +478,7 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
             }
         }
 
-        var city = TableManager.Instance.CityPrice(_cityId);
-        var region = TableManager.Instance.Region(city.regionId);
-        bool visited = session.HasVisitedCity(_cityId);
-        string quests = Presentation.QuestMapInformation(session, _cityId);
-        if (visited)
-        {
-            string heading = Presentation.PuzzleMapCityHeading(city, true, isCurrent, isConnected, eval, region);
-            var tradePreferences = Presentation.GetCityTradePreferences(city);
-            view.ShowVisitedInformation(heading, tradePreferences, quests);
-        }
-        else
-        {
-            string information = Presentation.PuzzleMapInformation(
-                city,
-                false,
-                isCurrent,
-                isConnected,
-                eval,
-                region,
-                session.TavernRumors);
-            view.ShowInformation(string.IsNullOrEmpty(quests) ? information
-                : information + BasicData.Text("presentation.quest.separator") + quests);
-        }
+        view.ShowInformation(Presentation.PuzzleMapHint);
 
         var node = System.Array.Find(view.Nodes, n => n && string.Equals(n.CityId, _cityId, System.StringComparison.Ordinal));
         view.ShowTownTooltip(_cityId, eval, isCurrent, isConnected, node ? (RectTransform)node.transform : null, session);

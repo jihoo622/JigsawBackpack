@@ -13,32 +13,29 @@ public readonly struct TagBadgeEntry
     public readonly string CustomText;
     public readonly Color BackgroundColor;
     public readonly Color? TextColor;
-    public readonly float BlendOverride;
 
     TagBadgeEntry(
         bool _isTagId,
         string _tagId,
         string _customText,
         Color _backgroundColor,
-        Color? _textColor,
-        float _blendOverride)
+        Color? _textColor)
     {
         IsTagId = _isTagId;
         TagId = _tagId;
         CustomText = _customText;
         BackgroundColor = _backgroundColor;
         TextColor = _textColor;
-        BlendOverride = _blendOverride;
     }
 
-    public static TagBadgeEntry FromTag(string _tagId, float _blendOverride = -1f)
+    public static TagBadgeEntry FromTag(string _tagId)
     {
-        return new TagBadgeEntry(true, _tagId, null, default, null, _blendOverride);
+        return new TagBadgeEntry(true, _tagId, null, default, null);
     }
 
     public static TagBadgeEntry Custom(string _text, Color _backgroundColor, Color? _textColor = null)
     {
-        return new TagBadgeEntry(false, null, _text, _backgroundColor, _textColor, -1f);
+        return new TagBadgeEntry(false, null, _text, _backgroundColor, _textColor);
     }
 }
 
@@ -50,7 +47,6 @@ public sealed class TagBadgeView : MonoBehaviour
     [SerializeField] Image plate;
     [SerializeField] TMP_Text label;
     [SerializeField] HorizontalLayoutGroup layoutGroup;
-    [SerializeField] float defaultBlend = 0.25f;
     [SerializeField] float fontSizeOverride;
 
     float baseFontSize = -1f;
@@ -61,17 +57,17 @@ public sealed class TagBadgeView : MonoBehaviour
         EnsureComponents();
     }
 
-    public void ShowTag(string _tagId, float _blend = -1f, float _fontSizeOverride = 0f, RectOffset _paddingOverride = null)
+    public void ShowTag(string _tagId, float _fontSizeOverride = 0f, RectOffset _paddingOverride = null)
     {
-        Show(TagBadgeEntry.FromTag(_tagId, _blend), -1f, _fontSizeOverride, _paddingOverride);
+        Show(TagBadgeEntry.FromTag(_tagId), _fontSizeOverride, _paddingOverride);
     }
 
     public void Show(string _text, Color _backgroundColor, Color? _textColor = null, float _fontSizeOverride = 0f, RectOffset _paddingOverride = null)
     {
-        Show(TagBadgeEntry.Custom(_text, _backgroundColor, _textColor), -1f, _fontSizeOverride, _paddingOverride);
+        Show(TagBadgeEntry.Custom(_text, _backgroundColor, _textColor), _fontSizeOverride, _paddingOverride);
     }
 
-    public void Show(TagBadgeEntry _entry, float _groupBlend = -1f, float _fontSizeOverride = 0f, RectOffset _paddingOverride = null)
+    public void Show(TagBadgeEntry _entry, float _fontSizeOverride = 0f, RectOffset _paddingOverride = null)
     {
         if (!EnsureComponents())
         {
@@ -89,12 +85,9 @@ public sealed class TagBadgeView : MonoBehaviour
                 Hide();
                 return;
             }
-            float blend = _entry.BlendOverride >= 0f
-                ? _entry.BlendOverride
-                : (_groupBlend >= 0f ? _groupBlend : defaultBlend);
             text = Presentation.PuzzleTagLabel(_entry.TagId);
-            backgroundColor = Presentation.PuzzleTooltipTagBackground(_entry.TagId, blend);
-            textColor = Presentation.PuzzleTooltipTagTextColor(_entry.TagId, blend);
+            backgroundColor = Presentation.PuzzleTagBackgroundColor(_entry.TagId);
+            textColor = Presentation.PuzzleTooltipTagTextColor(_entry.TagId);
         }
         else
         {

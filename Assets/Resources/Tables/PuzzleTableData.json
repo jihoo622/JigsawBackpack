@@ -4,14 +4,14 @@
   "pieces": [
     {
       "id": "piece.elbowLeft",
-      "displayName": "왼쪽 모서리 상자",
-      "description": "왼쪽으로 꺾인 세 칸 화물.",
+      "displayName": "늘어진 상자",
+      "description": "늘어진 상자",
       "tags": [
         "Cargo",
         "Wood"
       ],
       "visualKey": "cargo.elbowLeft",
-      "slotCount": 3,
+      "slotCount": 5,
       "cells": [
         {
           "x": 0,
@@ -22,15 +22,31 @@
           "west": "Flat"
         },
         {
-          "x": 0,
-          "y": 1,
+          "x": 1,
+          "y": 0,
           "north": "Flat",
           "east": "Flat",
           "south": "Flat",
           "west": "Flat"
         },
         {
-          "x": 1,
+          "x": 2,
+          "y": 0,
+          "north": "Flat",
+          "east": "Flat",
+          "south": "Flat",
+          "west": "Flat"
+        },
+        {
+          "x": 3,
+          "y": 0,
+          "north": "Flat",
+          "east": "Flat",
+          "south": "Flat",
+          "west": "Flat"
+        },
+        {
+          "x": 2,
           "y": 1,
           "north": "Flat",
           "east": "Flat",
@@ -39,7 +55,7 @@
         }
       ],
       "durability": 100,
-      "baseValue": 32,
+      "baseValue": 50,
       "synergyEffects": [
         {
           "ruleId": "cargoNearAnimal",
@@ -76,10 +92,10 @@
         "enabled": false,
         "reductionPercent": 0
       },
-      "iconWidth": -1.0,
-      "iconHeight": -1.0,
-      "iconOffsetX": 0.0,
-      "iconOffsetY": 0.0
+      "iconWidth": 4.3,
+      "iconHeight": 3.4,
+      "iconOffsetX": 0.005,
+      "iconOffsetY": 0.005
     },
     {
       "id": "piece.fourNotches",
@@ -681,14 +697,46 @@
       "description": "다른 상품과 구분되는 빈 운송 상자.",
       "tags": [
         "Cargo",
-        "Box"
+        "Wood"
       ],
-      "visualKey": "cargo.smallCrate",
-      "slotCount": 1,
+      "visualKey": "cargo.piece.box",
+      "slotCount": 5,
       "cells": [
         {
           "x": 0,
+          "y": 1,
+          "north": "Flat",
+          "east": "Flat",
+          "south": "Flat",
+          "west": "Flat"
+        },
+        {
+          "x": 1,
           "y": 0,
+          "north": "Flat",
+          "east": "Flat",
+          "south": "Flat",
+          "west": "Flat"
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "north": "Flat",
+          "east": "Flat",
+          "south": "Flat",
+          "west": "Flat"
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "north": "Flat",
+          "east": "Flat",
+          "south": "Flat",
+          "west": "Flat"
+        },
+        {
+          "x": 2,
+          "y": 2,
           "north": "Flat",
           "east": "Flat",
           "south": "Flat",
@@ -696,7 +744,7 @@
         }
       ],
       "durability": 100,
-      "baseValue": 10,
+      "baseValue": 50,
       "synergyEffects": [
         {
           "ruleId": "cargoNearAnimal",
@@ -718,8 +766,8 @@
         "enabled": false,
         "reductionPercent": 0
       },
-      "iconWidth": 1.5,
-      "iconHeight": 1.5
+      "iconWidth": 3.4,
+      "iconHeight": 3.4
     },
     {
       "id": "piece.meat",
@@ -1580,15 +1628,9 @@
     }
   ],
   "train": {
-    "width": 7,
-    "height": 5,
-    "startingPlacements": []
-  },
-  "startingTrain": {
-    "displayName": "고장난 칸",
-    "description": "처음부터 연결된 화차. 파손된 칸에는 화물을 실을 수 없다.",
-    "width": 7,
-    "height": 5,
+    "width": 5,
+    "height": 3,
+    "startingPlacements": [],
     "blockedCells": [
       {
         "x": 3,
@@ -1601,46 +1643,26 @@
       {
         "x": 4,
         "y": 2
-      },
+      }
+    ]
+  },
+  "startingTrain": {
+    "displayName": "고장난 칸",
+    "description": "처음부터 연결된 화차. 파손된 칸에는 화물을 실을 수 없다.",
+    "width": 5,
+    "height": 3,
+    "blockedCells": [
       {
-        "x": 0,
-        "y": 3
-      },
-      {
-        "x": 1,
-        "y": 3
-      },
-      {
-        "x": 2,
-        "y": 3
+        "x": 3,
+        "y": 0
       },
       {
         "x": 3,
-        "y": 3
+        "y": 2
       },
       {
         "x": 4,
-        "y": 3
-      },
-      {
-        "x": 0,
-        "y": 4
-      },
-      {
-        "x": 1,
-        "y": 4
-      },
-      {
-        "x": 2,
-        "y": 4
-      },
-      {
-        "x": 3,
-        "y": 4
-      },
-      {
-        "x": 4,
-        "y": 4
+        "y": 2
       }
     ],
     "startingPlacements": [
@@ -1660,12 +1682,15 @@
       }
     ]
   },
-  "startCity": "city.finance",
+  "startCity": "city.erna",
   "cities": [
     {
       "id": "city.riobruk",
       "workshopIds": [],
-      "wagonProductIds": ["hopper", "crusher"],
+      "wagonProductIds": [
+        "hopper",
+        "crusher"
+      ],
       "displayName": "리오브루크",
       "regionId": "region.mine",
       "specialtyTag": "Ore",
@@ -1740,7 +1765,10 @@
     {
       "id": "city.daran",
       "workshopIds": [],
-      "wagonProductIds": ["hopper", "flatbed"],
+      "wagonProductIds": [
+        "hopper",
+        "flatbed"
+      ],
       "displayName": "다르안",
       "regionId": "region.mine",
       "specialtyTag": "Salt",
@@ -1808,7 +1836,9 @@
     {
       "id": "city.rasenton",
       "workshopIds": [],
-      "wagonProductIds": ["flatbed"],
+      "wagonProductIds": [
+        "flatbed"
+      ],
       "landmark": true,
       "displayName": "라센턴",
       "regionId": "region.mine",
@@ -1877,7 +1907,10 @@
     {
       "id": "city.karka",
       "workshopIds": [],
-      "wagonProductIds": ["hopper", "crusher"],
+      "wagonProductIds": [
+        "hopper",
+        "crusher"
+      ],
       "displayName": "카르카",
       "regionId": "region.mine",
       "specialtyTag": "Salt",
@@ -1951,7 +1984,9 @@
     {
       "id": "city.rasenpol",
       "workshopIds": [],
-      "wagonProductIds": ["livestock"],
+      "wagonProductIds": [
+        "livestock"
+      ],
       "displayName": "라센폴",
       "regionId": "region.ranch",
       "specialtyTag": "Animal",
@@ -2013,7 +2048,10 @@
     {
       "id": "city.heilheim",
       "workshopIds": [],
-      "wagonProductIds": ["livestock", "standard"],
+      "wagonProductIds": [
+        "livestock",
+        "standard"
+      ],
       "landmark": true,
       "displayName": "헤일하임",
       "regionId": "region.ranch",
@@ -2075,8 +2113,13 @@
     },
     {
       "id": "city.darpol",
-      "workshopIds": ["workshop.darpolButchery"],
-      "wagonProductIds": ["livestock", "coldbox"],
+      "workshopIds": [
+        "workshop.darpolButchery"
+      ],
+      "wagonProductIds": [
+        "livestock",
+        "coldbox"
+      ],
       "displayName": "다르폴",
       "regionId": "region.ranch",
       "specialtyTag": "Animal",
@@ -2144,7 +2187,9 @@
     {
       "id": "city.osgrad",
       "workshopIds": [],
-      "wagonProductIds": ["standard"],
+      "wagonProductIds": [
+        "standard"
+      ],
       "displayName": "오스그라드",
       "regionId": "region.ranch",
       "specialtyTag": "Meat",
@@ -2226,8 +2271,13 @@
     },
     {
       "id": "city.erna",
-      "workshopIds": ["workshop.ernaModification"],
-      "wagonProductIds": ["flatbed", "standard"],
+      "workshopIds": [
+        "workshop.ernaModification"
+      ],
+      "wagonProductIds": [
+        "flatbed",
+        "standard"
+      ],
       "landmark": true,
       "displayName": "에른아 공업역",
       "regionId": "region.industry",
@@ -2296,7 +2346,10 @@
     {
       "id": "city.porber",
       "workshopIds": [],
-      "wagonProductIds": ["flatbed", "smelter"],
+      "wagonProductIds": [
+        "flatbed",
+        "smelter"
+      ],
       "displayName": "포르베르",
       "regionId": "region.industry",
       "specialtyTag": "Machinery",
@@ -2364,7 +2417,9 @@
     {
       "id": "city.karport",
       "workshopIds": [],
-      "wagonProductIds": ["standard"],
+      "wagonProductIds": [
+        "standard"
+      ],
       "displayName": "카르포트",
       "regionId": "region.industry",
       "specialtyTag": "Machinery",
@@ -2431,8 +2486,14 @@
     },
     {
       "id": "city.nornova",
-      "workshopIds": ["workshop.nornovaRefinery"],
-      "wagonProductIds": ["flatbed", "boxcar", "smelter"],
+      "workshopIds": [
+        "workshop.nornovaRefinery"
+      ],
+      "wagonProductIds": [
+        "flatbed",
+        "boxcar",
+        "smelter"
+      ],
       "displayName": "노르노바",
       "regionId": "region.industry",
       "specialtyTag": "Machinery",
@@ -2500,7 +2561,10 @@
     {
       "id": "city.aiport",
       "workshopIds": [],
-      "wagonProductIds": ["standard", "boxcar"],
+      "wagonProductIds": [
+        "standard",
+        "boxcar"
+      ],
       "landmark": true,
       "displayName": "아이포트 중앙",
       "regionId": "region.capital",
@@ -2575,7 +2639,9 @@
     {
       "id": "city.trenford",
       "workshopIds": [],
-      "wagonProductIds": ["standard"],
+      "wagonProductIds": [
+        "standard"
+      ],
       "displayName": "트렌포드",
       "regionId": "region.capital",
       "specialtyTag": "",
@@ -2649,7 +2715,9 @@
     {
       "id": "city.sergrad",
       "workshopIds": [],
-      "wagonProductIds": ["boxcar"],
+      "wagonProductIds": [
+        "boxcar"
+      ],
       "displayName": "세르그라드",
       "regionId": "region.capital",
       "specialtyTag": "",
@@ -2723,7 +2791,10 @@
     {
       "id": "city.diaan",
       "workshopIds": [],
-      "wagonProductIds": ["standard", "refrigerated"],
+      "wagonProductIds": [
+        "standard",
+        "refrigerated"
+      ],
       "displayName": "디아안",
       "regionId": "region.capital",
       "specialtyTag": "",
@@ -2797,7 +2868,9 @@
     {
       "id": "city.teratia",
       "workshopIds": [],
-      "wagonProductIds": ["refrigerated"],
+      "wagonProductIds": [
+        "refrigerated"
+      ],
       "displayName": "테라티아",
       "regionId": "region.coast",
       "specialtyTag": "Fish",
@@ -2871,7 +2944,9 @@
     {
       "id": "city.teraka",
       "workshopIds": [],
-      "wagonProductIds": ["coldbox"],
+      "wagonProductIds": [
+        "coldbox"
+      ],
       "displayName": "테라카",
       "regionId": "region.coast",
       "specialtyTag": "Water",
@@ -2951,7 +3026,10 @@
     {
       "id": "city.pioa",
       "workshopIds": [],
-      "wagonProductIds": ["refrigerated", "coldbox"],
+      "wagonProductIds": [
+        "refrigerated",
+        "coldbox"
+      ],
       "landmark": true,
       "displayName": "피오아 항",
       "regionId": "region.coast",
@@ -3026,7 +3104,9 @@
     {
       "id": "city.valenrie",
       "workshopIds": [],
-      "wagonProductIds": ["coldbox"],
+      "wagonProductIds": [
+        "coldbox"
+      ],
       "displayName": "발렌리에",
       "regionId": "region.coast",
       "specialtyTag": "Water",
@@ -3106,7 +3186,10 @@
     {
       "id": "city.ibt",
       "workshopIds": [],
-      "wagonProductIds": ["granary", "garden"],
+      "wagonProductIds": [
+        "granary",
+        "garden"
+      ],
       "landmark": true,
       "displayName": "이브트",
       "regionId": "region.farm",
@@ -3169,7 +3252,10 @@
     {
       "id": "city.terapol",
       "workshopIds": [],
-      "wagonProductIds": ["granary", "coldbox"],
+      "wagonProductIds": [
+        "granary",
+        "coldbox"
+      ],
       "displayName": "테라폴",
       "regionId": "region.farm",
       "specialtyTag": "Fruit",
@@ -3231,7 +3317,10 @@
     {
       "id": "city.berska",
       "workshopIds": [],
-      "wagonProductIds": ["granary", "standard"],
+      "wagonProductIds": [
+        "granary",
+        "standard"
+      ],
       "displayName": "베르스카",
       "regionId": "region.farm",
       "specialtyTag": "Wood",
@@ -3293,7 +3382,10 @@
     {
       "id": "city.dart",
       "workshopIds": [],
-      "wagonProductIds": ["granary", "garden"],
+      "wagonProductIds": [
+        "granary",
+        "garden"
+      ],
       "displayName": "다르트",
       "regionId": "region.farm",
       "specialtyTag": "Grain",
@@ -3355,7 +3447,9 @@
     {
       "id": "city.heilford",
       "workshopIds": [],
-      "wagonProductIds": ["standard"],
+      "wagonProductIds": [
+        "standard"
+      ],
       "displayName": "헤일포드",
       "regionId": "region.industry",
       "specialtyTag": "Machinery",
@@ -3429,7 +3523,9 @@
     {
       "id": "city.finance",
       "workshopIds": [],
-      "wagonProductIds": ["standard"],
+      "wagonProductIds": [
+        "standard"
+      ],
       "landmark": true,
       "displayName": "금융마을",
       "regionId": "region.capital",
@@ -3504,7 +3600,9 @@
     {
       "id": "city.teragrad",
       "workshopIds": [],
-      "wagonProductIds": ["flatbed"],
+      "wagonProductIds": [
+        "flatbed"
+      ],
       "displayName": "테라그라드",
       "regionId": "region.industry",
       "specialtyTag": "Machinery",
@@ -3572,7 +3670,9 @@
     {
       "id": "city.sera",
       "workshopIds": [],
-      "wagonProductIds": ["livestock"],
+      "wagonProductIds": [
+        "livestock"
+      ],
       "landmark": true,
       "displayName": "세르아",
       "regionId": "region.ranch",
@@ -3641,7 +3741,10 @@
     {
       "id": "city.osber",
       "workshopIds": [],
-      "wagonProductIds": ["hopper", "standard"],
+      "wagonProductIds": [
+        "hopper",
+        "standard"
+      ],
       "displayName": "오스베르",
       "regionId": "region.mine",
       "specialtyTag": "Salt",
@@ -3709,7 +3812,10 @@
     {
       "id": "city.mert",
       "workshopIds": [],
-      "wagonProductIds": ["standard", "hopper"],
+      "wagonProductIds": [
+        "standard",
+        "hopper"
+      ],
       "displayName": "메르트",
       "regionId": "region.common",
       "specialtyTag": "",
@@ -3752,7 +3858,9 @@
     {
       "id": "city.rasburk",
       "workshopIds": [],
-      "wagonProductIds": ["flatbed"],
+      "wagonProductIds": [
+        "flatbed"
+      ],
       "displayName": "라스부르크",
       "regionId": "region.mine",
       "specialtyTag": "Salt",
@@ -3934,10 +4042,10 @@
       "slots": [
         {
           "id": "region",
-          "x": 6,
-          "y": 6,
-          "width": 3,
-          "height": 2
+          "x": 0,
+          "y": 2,
+          "width": 4,
+          "height": 3
         }
       ]
     },
@@ -3951,7 +4059,7 @@
           "id": "region",
           "x": 6,
           "y": 6,
-          "width": 3,
+          "width": 4,
           "height": 2
         }
       ]
@@ -3966,7 +4074,7 @@
           "id": "region",
           "x": 6,
           "y": 6,
-          "width": 3,
+          "width": 4,
           "height": 2
         }
       ]
@@ -4015,9 +4123,9 @@
         {
           "id": "random.3",
           "x": 9,
-          "y": 6,
-          "width": 3,
-          "height": 2
+          "y": 4,
+          "width": 4,
+          "height": 3
         }
       ]
     },
@@ -4031,7 +4139,7 @@
           "id": "region",
           "x": 6,
           "y": 6,
-          "width": 3,
+          "width": 4,
           "height": 2
         }
       ]
@@ -4047,7 +4155,7 @@
           "id": "region",
           "x": 6,
           "y": 6,
-          "width": 3,
+          "width": 4,
           "height": 2
         }
       ]
@@ -4062,7 +4170,7 @@
           "id": "region",
           "x": 6,
           "y": 6,
-          "width": 3,
+          "width": 4,
           "height": 2
         }
       ]

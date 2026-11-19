@@ -25,6 +25,7 @@ public sealed class CityTradePreferencesView : MonoBehaviour
     [SerializeField] TMP_Text regionPriceLabel;
     [SerializeField] bool useKeywordLinks;
     [SerializeField] bool alignTitleColumn;
+    [SerializeField] bool boldTitles = true;
 
     internal void Show(PuzzleCityTradePreferencesData _data)
     {
@@ -48,7 +49,7 @@ public sealed class CityTradePreferencesView : MonoBehaviour
         if (regionPriceLabel)
         {
             regionPriceLabel.text = Presentation.CityTradeRegionPriceText(
-                _data.BuyPercentOfBaseValue, _data.SellPercentOfFinalValue, useKeywordLinks);
+                _data.BuyPercentOfBaseValue, _data.SellPercentOfFinalValue, useKeywordLinks, boldTitles);
             regionPriceLabel.raycastTarget = useKeywordLinks;
             regionPriceLabel.ForceMeshUpdate();
             regionPriceLabel.gameObject.SetActive(true);
@@ -116,7 +117,7 @@ public sealed class CityTradePreferencesView : MonoBehaviour
 
         if (_slot.titleLabel)
         {
-            Presentation.CityTradeGradeInfo(_slot.grade, useKeywordLinks, out string formattedTitle, out _, out _);
+            Presentation.CityTradeGradeInfo(_slot.grade, useKeywordLinks, out string formattedTitle, out _, out _, boldTitles);
             _slot.titleLabel.text = formattedTitle;
             _slot.titleLabel.raycastTarget = useKeywordLinks;
             _slot.titleLabel.ForceMeshUpdate();
@@ -192,7 +193,7 @@ public sealed class CityTradePreferencesView : MonoBehaviour
         }
     }
 
-    void RebuildLayout()
+    internal void RebuildLayout()
     {
         if (!gameObject.activeInHierarchy)
         {

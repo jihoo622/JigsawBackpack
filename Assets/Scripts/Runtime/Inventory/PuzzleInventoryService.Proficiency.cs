@@ -155,12 +155,14 @@ public sealed partial class PuzzleInventoryService
         return ProficiencyTagsOf(_definition).Select(ProficiencyLevel).DefaultIfEmpty(0).Max();
     }
 
-    // 같은 방문 중 산 마을에 되파는 것은 구매 취소다. 품목이 그대로면 낸 금액을 그대로 돌려받는다.
+    // 같은 방문 중 산 마을에 시간이 흐르지 않고 가치도 그대로인 채 되파는 것은 구매 취소다. 낸 금액을 그대로 돌려받는다.
     internal bool IsPurchaseCancel(PuzzlePlacement _item, out long _refund)
     {
         _refund = 0;
         if (_item == null || !tradeOrigins.TryGetValue(_item.InstanceId, out var origin) || !origin.Purchased ||
             origin.Visit != CityMoveCount ||
+            _item.OwnedHours != 0 ||
+            _item.FreshnessAdjustedValue != origin.ValueAtPurchase ||
             !string.Equals(origin.CityId, CurrentCityId, StringComparison.Ordinal) ||
             !string.Equals(origin.PieceId, _item.Definition.Id, StringComparison.Ordinal))
         {
@@ -207,11 +209,11 @@ public sealed partial class PuzzleInventoryService
         return true;
     }
 
-    // 시장에서 산 화물의 구입 마을·방문·품목과 낸 금액을 기록한다.
+    // 시장에서 산 화물의 구입 마을·방문·품목과 낸 금액, 구입 당시 가치를 기록한다.
     void RecordPurchase(PuzzlePlacement _item, long _paid)
     {
         tradeOrigins[_item.InstanceId] = new TrainventoryTradeOrigin(CurrentCityId, CityMoveCount, _item.Definition.Id,
-            _paid, true);
+            _paid, _item.FreshnessAdjustedValue, true);
     }
 
     // 작업대(도축·개조·정제) 산출물과 의뢰 화물은 그 마을에서 얻은 화물로 본다. 이미 기록이 있으면 유지한다.
@@ -219,7 +221,7 @@ public sealed partial class PuzzleInventoryService
     {
         if (!tradeOrigins.ContainsKey(_instanceId))
         {
-            tradeOrigins.Add(_instanceId, new TrainventoryTradeOrigin(CurrentCityId, CityMoveCount, null, 0, false));
+            tradeOrigins.Add(_instanceId, new TrainventoryTradeOrigin(CurrentCityId, CityMoveCount, null, 0, 0m, false));
         }
     }
 
@@ -332,14 +334,17 @@ internal readonly struct TrainventoryTradeOrigin
     // 산 품목. 만료로 다른 품목(똥 등)이 되면 구매 취소가 아니다. 구입이 아니면 비어 있다.
     internal string PieceId { get; }
     internal long Paid { get; }
+    internal decimal ValueAtPurchase { get; }
     internal bool Purchased { get; }
 
-    internal TrainventoryTradeOrigin(string _cityId, int _visit, string _pieceId, long _paid, bool _purchased)
+    internal TrainventoryTradeOrigin(string _cityId, int _visit, string _pieceId, long _paid, decimal _valueAtPurchase,
+        bool _purchased)
     {
         CityId = _cityId;
         Visit = _visit;
         PieceId = _pieceId;
         Paid = _paid;
+        ValueAtPurchase = _valueAtPurchase;
         Purchased = _purchased;
     }
 }

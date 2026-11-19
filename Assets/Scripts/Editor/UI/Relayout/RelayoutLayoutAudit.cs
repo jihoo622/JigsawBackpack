@@ -265,7 +265,7 @@ public static class RelayoutLayoutAudit
     // 세로 열 정렬: x 범위가 2개 이상의 형제와 겹치는 요소들의 왼쪽 가장자리를 최빈값과 비교한다.
     static void CheckAlign(List<RectTransform> kids, Dictionary<RectTransform, Rect> rects, RectTransform rootRt, List<Finding> list)
     {
-        var column = kids.Where(a => !IsDecor(a) && kids.Count(b => b != a && XOverlaps(rects[a], rects[b])) >= 2).ToList();
+        var column = kids.Where(a => !IsDecor(a) && !IsInsideScrollContent(a, rootRt) && kids.Count(b => b != a && XOverlaps(rects[a], rects[b])) >= 2).ToList();
         if (column.Count < 3) return;
 
         // 최빈 왼쪽 가장자리(동률이면 작은 값), 정수 px로 반올림해 비교

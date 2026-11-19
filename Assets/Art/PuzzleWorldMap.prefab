@@ -970,9 +970,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\uC5ED\uC744 \uD074\uB9AD\uD574 \uC774\uB3D9\uD569\uB2C8\uB2E4. \uC0C9
-    \uB178\uC120\uC740 \uC9C0\uC5ED \uB0B4\uBD80, \uD770 \uC5F0\uACB0\uC120\uC740
-    \uC9C0\uC5ED \uAC04 \uC774\uB3D9\uC785\uB2C8\uB2E4."
+  m_text: "\uC5ED \uD074\uB9AD: \uC774\uB3D9 \xB7 \uD720: \uD655\uB300/\uCD95\uC18C
+    \xB7 \uB4DC\uB798\uADF8: \uC9C0\uB3C4 \uC774\uB3D9"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: b2eeb73aa1ee10b48a7fe11797ba93c5, type: 2}
   m_sharedMaterial: {fileID: -3217437318264749832, guid: b2eeb73aa1ee10b48a7fe11797ba93c5, type: 2}
@@ -1079,8 +1078,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 24, y: -616}
-  m_SizeDelta: {x: 1036, y: 32}
+  m_AnchoredPosition: {x: 24, y: -702}
+  m_SizeDelta: {x: 1036, y: 26}
   m_Pivot: {x: 0, y: 1}
 --- !u!222 &700372
 CanvasRenderer:
@@ -1138,15 +1137,15 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 20
-  m_fontSizeBase: 20
+  m_fontSize: 16
+  m_fontSizeBase: 16
   m_fontWeight: 400
   m_enableAutoSizing: 1
-  m_fontSizeMin: 18
-  m_fontSizeMax: 24
+  m_fontSizeMin: 14
+  m_fontSizeMax: 18
   m_fontStyle: 0
   m_HorizontalAlignment: 1
-  m_VerticalAlignment: 256
+  m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
   m_characterHorizontalScale: 1
@@ -15107,7 +15106,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 24, y: -112}
-  m_SizeDelta: {x: 1036, y: 496}
+  m_SizeDelta: {x: 1036, y: 582}
   m_Pivot: {x: 0, y: 1}
 --- !u!222 &5325208533361930783
 CanvasRenderer:

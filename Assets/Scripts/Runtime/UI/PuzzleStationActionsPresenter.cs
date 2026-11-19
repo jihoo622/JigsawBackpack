@@ -33,6 +33,7 @@ public sealed class PuzzleStationActionsPresenter : MonoBehaviour
         GameEvents.ModificationChanged += OnModificationChanged;
         GameEvents.RefiningChanged += OnRefiningChanged;
         GameEvents.FundsChanged += OnFundsChanged;
+        GameEvents.PuzzleActionCommitted += OnPuzzleActionCommitted;
         GameEvents.PuzzleRunEnded += OnRunEnded;
         GameEvents.PuzzleRunContinued += OnRunContinued;
         Refresh();
@@ -63,6 +64,7 @@ public sealed class PuzzleStationActionsPresenter : MonoBehaviour
         GameEvents.ModificationChanged -= OnModificationChanged;
         GameEvents.RefiningChanged -= OnRefiningChanged;
         GameEvents.FundsChanged -= OnFundsChanged;
+        GameEvents.PuzzleActionCommitted -= OnPuzzleActionCommitted;
         GameEvents.PuzzleRunEnded -= OnRunEnded;
         GameEvents.PuzzleRunContinued -= OnRunContinued;
     }
@@ -527,6 +529,15 @@ public sealed class PuzzleStationActionsPresenter : MonoBehaviour
         if (_info.session == session)
         {
             Refresh();
+        }
+    }
+
+    void OnPuzzleActionCommitted(GameEvents.PuzzleActionInfo _info)
+    {
+        if (_info.session == session && _info.action == PuzzleActionKind.AddWagon &&
+            _info.failure == null && view.IsWagonShopOpen)
+        {
+            view.ShowWagonShop(session.WagonProductsHere);
         }
     }
 

@@ -21,6 +21,7 @@ public sealed class PuzzleItemTooltipView : PanelBase
     [SerializeField] CanvasGroup canvasGroup;
     [SerializeField] RectTransform pointer;
     [SerializeField] TextMeshProUGUI itemNameText;
+    [SerializeField] TextMeshProUGUI headerStatusText;
     [SerializeField] TagBadgeGroup categoryBadgeGroup;
     [System.Serializable]
     struct EffectRow
@@ -57,6 +58,9 @@ public sealed class PuzzleItemTooltipView : PanelBase
     [SerializeField] TextMeshProUGUI freshnessValueText;
     [SerializeField] TextMeshProUGUI shelfLifeLabelText;
     [SerializeField] TextMeshProUGUI shelfLifeValueText;
+    [SerializeField] GameObject cityTradeSection;
+    [SerializeField] TextMeshProUGUI cityTradeHeaderText;
+    [SerializeField] CityTradePreferencesView cityTradePreferences;
 
     [Header("Layout & Movement")]
     [SerializeField] float defaultFollowSpeed = 25f;
@@ -202,7 +206,7 @@ public sealed class PuzzleItemTooltipView : PanelBase
         }
     }
 
-    void BeginShow(string _title, Color? _titleColor = null)
+    void BeginShow(string _title, Color? _titleColor = null, string _headerStatus = null)
     {
         EnsureInitialized();
         ApplyRelayoutStyle(RelayoutSettings.Enabled);
@@ -210,6 +214,11 @@ public sealed class PuzzleItemTooltipView : PanelBase
         {
             synergySection.SetActive(false);
         }
+        if (cityTradeSection)
+        {
+            cityTradeSection.SetActive(false);
+        }
+        cityTradePreferences?.Hide();
         needsSnap = true;
         SetOpen(true);
 
@@ -228,6 +237,17 @@ public sealed class PuzzleItemTooltipView : PanelBase
             else if (hasDefaultTitleColor)
             {
                 itemNameText.color = defaultTitleColor;
+            }
+        }
+
+        if (headerStatusText)
+        {
+            bool hasStatus = !string.IsNullOrEmpty(_headerStatus);
+            headerStatusText.gameObject.SetActive(hasStatus);
+            if (hasStatus)
+            {
+                headerStatusText.color = Presentation.PuzzleTooltipText;
+                headerStatusText.text = _headerStatus;
             }
         }
     }
@@ -311,18 +331,28 @@ public sealed class PuzzleItemTooltipView : PanelBase
 
         BeginShow(_item.DisplayName);
 
+        // 2026-11-19: 상점 툴팁 정보량을 줄이기 위해 시장에서는 '현재 적용 효과' 섹션을 숨긴다(JSON 데이터·표시 코드 흔적 유지).
+        bool showActiveEffects = _isTrainInventory || _isActionBoard;
         if (activeEffectsSection)
         {
-            activeEffectsSection.gameObject.SetActive(true);
+            activeEffectsSection.gameObject.SetActive(showActiveEffects);
         }
 
         UpdateCategoryBadges(_item);
 
         SetRow(baseValueLabelText, baseValueValueText,
             Presentation.PuzzleTooltipBaseValueLabel, Presentation.PuzzleTooltipActualValueValue(_item.BaseValue));
-        UpdateActiveEffects(_isTrainInventory, _isActionBoard, _activeEffects, _appliedPreservation);
-        SetRow(actualValueLabelText, actualValueValueText,
-            Presentation.PuzzleTooltipActualValueLabel(), Presentation.PuzzleTooltipActualValueValue(_actualValue));
+        if (showActiveEffects)
+        {
+            UpdateActiveEffects(_isTrainInventory, _isActionBoard, _activeEffects, _appliedPreservation);
+            SetRow(actualValueLabelText, actualValueValueText,
+                Presentation.PuzzleTooltipActualValueLabel(), Presentation.PuzzleTooltipActualValueValue(_actualValue));
+        }
+        else
+        {
+            // 상점(시장)에서는 아직 보유 전이라 '현재 가치'가 기본 가치와 동일하므로 숨긴다.
+            SetRowActive(actualValueLabelText, actualValueValueText, false);
+        }
 
         if (_isTrainInventory || _isActionBoard)
         {
@@ -402,9 +432,10 @@ public sealed class PuzzleItemTooltipView : PanelBase
     internal void ShowEntityInfo(string _title, Color? _titleColor, IReadOnlyList<string> _lines,
         Vector2 _screenPosition, IReadOnlyList<string> _tags = null,
         IReadOnlyList<(string label, string value)> _statRows = null, bool _aboveAnchor = false,
-        string _effectHeader = null, IReadOnlyList<string> _effectLines = null)
+        string _effectHeader = null, IReadOnlyList<string> _effectLines = null,
+        PuzzleCityTradePreferencesData? _tradePreferences = null, string _headerStatus = null)
     {
-        BeginShow(_title, _titleColor);
+        BeginShow(_title, _titleColor, _headerStatus);
         UpdateCategoryBadges(_tags);
         if (_statRows != null && _statRows.Count > 0)
         {
@@ -415,6 +446,7 @@ public sealed class PuzzleItemTooltipView : PanelBase
             HideAllStatRows();
         }
         PopulateActiveEffectSection(_effectHeader, _effectLines);
+        PopulateCityTradeSection(_tradePreferences);
         PopulatePlainEffectSection(_lines);
         RebuildLayouts();
         if (_aboveAnchor)
@@ -425,6 +457,26 @@ public sealed class PuzzleItemTooltipView : PanelBase
         {
             SetPointerPosition(_screenPosition);
         }
+    }
+
+    void PopulateCityTradeSection(PuzzleCityTradePreferencesData? _tradePreferences)
+    {
+        bool show = _tradePreferences is { IsValid: true } && cityTradeSection && cityTradePreferences;
+        if (cityTradeSection)
+        {
+            cityTradeSection.SetActive(show);
+        }
+        if (!show)
+        {
+            cityTradePreferences?.Hide();
+            return;
+        }
+        if (cityTradeHeaderText)
+        {
+            cityTradeHeaderText.color = Presentation.PuzzleTooltipText;
+            cityTradeHeaderText.text = "시세";
+        }
+        cityTradePreferences.Show(_tradePreferences.Value);
     }
 
     void PopulateActiveEffectSection(string _headerText, IReadOnlyList<string> _lines)
@@ -540,9 +592,9 @@ public sealed class PuzzleItemTooltipView : PanelBase
         SetPlainStatSlot(actualValueLabelText, actualValueValueText, _rows, 1);
         SetPlainStatSlot(sellRateLabelText, sellRateValueText, _rows, 2);
         SetPlainStatSlot(buyRateLabelText, buyRateValueText, _rows, 3);
-        SetRowActive(futureValueLabelText, futureValueValueText, false);
-        SetRowActive(freshnessLabelText, freshnessValueText, false);
-        SetRowActive(shelfLifeLabelText, shelfLifeValueText, false);
+        SetPlainStatSlot(futureValueLabelText, futureValueValueText, _rows, 4);
+        SetPlainStatSlot(freshnessLabelText, freshnessValueText, _rows, 5);
+        SetPlainStatSlot(shelfLifeLabelText, shelfLifeValueText, _rows, 6);
     }
 
     void SetPlainStatSlot(TextMeshProUGUI _label, TextMeshProUGUI _value,
@@ -709,15 +761,24 @@ public sealed class PuzzleItemTooltipView : PanelBase
         {
             LayoutRebuilder.ForceRebuildLayoutImmediate(activeEffectsSection);
         }
+        if (cityTradeSection && cityTradeSection.activeSelf)
+        {
+            cityTradePreferences?.RebuildLayout();
+            LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)cityTradeSection.transform);
+        }
         RebuildEffectLayout(generalEffectSection, generalEffectListRoot);
         RebuildEffectLayout(synergySection, synergyListRoot);
         if (bodyRect)
         {
             LayoutRebuilder.ForceRebuildLayoutImmediate(bodyRect);
         }
-        if (itemNameText && itemNameText.transform.parent is RectTransform headerRect)
+        if (itemNameText && itemNameText.transform.parent is RectTransform titleRowRect)
         {
-            LayoutRebuilder.ForceRebuildLayoutImmediate(headerRect);
+            LayoutRebuilder.ForceRebuildLayoutImmediate(titleRowRect);
+            if (titleRowRect.parent is RectTransform headerRect)
+            {
+                LayoutRebuilder.ForceRebuildLayoutImmediate(headerRect);
+            }
         }
         if (panelRect)
         {

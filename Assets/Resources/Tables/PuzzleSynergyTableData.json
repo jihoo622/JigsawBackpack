@@ -20,10 +20,10 @@
       "neighborTag": "Wood",
       "scope": "Both",
       "spatialRange": "Adjacent",
-      "multiplierPercent": 110,
-      "description": "목재와 인접 시 +10%",
-      "targetDescription": "목재와 인접 시 +10%",
-      "sourceDescription": "인접한 기계에게 +10%"
+      "multiplierPercent": 105,
+      "description": "목재와 인접 시 +5%",
+      "targetDescription": "목재와 인접 시 +5%",
+      "sourceDescription": "인접한 기계에게 +5%"
     },
     {
       "id": "foodNearSalt",
@@ -134,7 +134,7 @@
     "wasteTag": "Waste",
     "grainTag": "Grain",
     "wastePieceId": "piece.poo",
-    "wasteDescription": "{0}시간마다 객차 빈 칸에 {1} {2}개 생성",
+    "wasteDescription": "{0}마다 객차 빈 칸에 {1} {2}개 생성",
     "wasteIntervalHours": 48,
     "wasteCountPerAnimal": 1,
     "breedingHours": 24,
@@ -142,15 +142,15 @@
     "feedIntervalHours": 6,
     "breedingFeedReductionHours": 12,
     "growthFeedReductionHours": 24,
-    "breedingFeedDescription": "{0}마다 같은 객차의 곡물 1개를 먹으면 번식 쌍의 남은 시간 {1} 단축 (짝이 없거나 공간 부족 대기 중이면 섭취하지 않음)",
-    "growthFeedDescription": "{0}마다 같은 객차의 곡물 1개를 먹으면 자신의 남은 성장 시간 {1} 단축 (공간 부족 대기 중이면 섭취하지 않음)",
+    "breedingFeedDescription": "{0}마다 같은 객차의 곡물 1개를 먹으면 번식 쌍의 남은 시간 {1} 단축 (짝이 없거나 새끼를 낳을 공간이 부족하면 먹지 않음)",
+    "growthFeedDescription": "{0}마다 같은 객차의 곡물 1개를 먹으면 자신의 남은 성장 시간 {1} 단축 (성장할 공간이 부족하면 먹지 않음)",
     "note": "grainTag·feedIntervalTurns·breedingFeedReductionTurns·growthFeedReductionTurns는 소·송아지의 곡물 섭취 규칙 원본이다. 같은 객차에서 grainTag 품목을 feedIntervalTurns마다 하나 소비하고, 소는 번식 쌍의 진행을 breedingFeedReductionTurns만큼, 송아지는 자신의 성장을 growthFeedReductionTurns만큼 앞당긴다. 섭취 대상은 animalTag 품목이며 번식 가능한 짝이 없거나 공간 부족 대기 중이면 소비하지 않는다.",
     "breeding": [
       {
         "parentPieceId": "piece.cow",
         "offspringPieceId": "piece.babyCow",
         "offspringCount": 1,
-        "description": "같은 종류 2마리가 {0} 동안 인접 시 {1} {2}마리 출산"
+        "description": "{3} 2마리가 {0} 동안 인접 시 {1} {2}마리 출산"
       }
     ]
   }
