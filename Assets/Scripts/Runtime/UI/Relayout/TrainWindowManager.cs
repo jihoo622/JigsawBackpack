@@ -33,6 +33,8 @@ public sealed class TrainWindowManager : MonoBehaviour
     long focusCounter;
     int lastOpenedIndex = -1;
     bool restoredOpenWagons;
+    // 런 시작 직후 첫 복원이 실패하면 창 계층이 준비될 때까지 다음 프레임에 다시 시도한다.
+    PuzzleInventoryService pendingRestoreSession;
     string restoredRunId = string.Empty;
     bool suppressOpenChanged;
     Canvas rootCanvas;
@@ -318,6 +320,14 @@ public sealed class TrainWindowManager : MonoBehaviour
         OpenWindowsChanged?.Invoke();
     }
 
+    void LateUpdate()
+    {
+        if (pendingRestoreSession != null && !restoredOpenWagons)
+        {
+            RestoreOrEnsureDefault(pendingRestoreSession);
+        }
+    }
+
     public void RestoreOrEnsureDefault(PuzzleInventoryService _session)
     {
         if (_session == null || windows == null || windows.Length == 0)
@@ -334,6 +344,7 @@ public sealed class TrainWindowManager : MonoBehaviour
             }
             // 런 시작 직후에는 창 계층이 아직 켜지지 않아 열기가 실패할 수 있다. 실제로 창이 열렸을 때만 복원을 끝낸 것으로 본다.
             restoredOpenWagons = HasAnyOpenWindow;
+            pendingRestoreSession = restoredOpenWagons ? null : _session;
         }
 
         int cap = MaxWindowCount;
