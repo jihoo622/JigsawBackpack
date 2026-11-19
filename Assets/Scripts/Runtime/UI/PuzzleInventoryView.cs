@@ -70,6 +70,8 @@ public sealed class PuzzleInventoryView : MonoBehaviour
 
     readonly HashSet<Vector2Int> piecePositions = new();
     readonly HashSet<Vector2Int> blockedCells = new();
+    readonly HashSet<Vector2Int> woodEffectCells = new();
+    readonly Dictionary<Vector2Int, Color> boardCellBaseColors = new();
     Dictionary<string, ItemIcon> iconIndex;
     Material freshnessMaterial;
     Coroutine settlementFeedback;
@@ -177,22 +179,26 @@ public sealed class PuzzleInventoryView : MonoBehaviour
 
     internal void SetBoardSize(int _width, int _height, IReadOnlyCollection<Vector2Int> _blockedCells)
     {
+        ClearWoodEffectCells();
         gridSize = new Vector2Int(_width, _height);
         blockedCells.Clear();
         blockedCells.UnionWith(_blockedCells);
         Rect boardRect = board.rectTransform.rect;
         cellSize = Mathf.Min(boardRect.width / _width, boardRect.height / _height);
         gridMin = boardRect.center - new Vector2(_width, _height) * (cellSize * 0.5f);
+        boardCellBaseColors.Clear();
 
         long cellCount = (long)_width * _height;
         for (int i = 0; i < boardCells.Length; i++)
         {
             var cell = boardCells[i];
-            cell.enabled = i < cellCount && !blockedCells.Contains(new Vector2Int(i % _width, i / _width));
+            Vector2Int position = new Vector2Int(i % _width, i / _width);
+            cell.enabled = i < cellCount && !blockedCells.Contains(position);
             if (cell.enabled)
             {
                 cell.color = Presentation.PuzzleCell;
-                cell.rectTransform.localPosition = GetCellCenter(new Vector2Int(i % _width, i / _width));
+                boardCellBaseColors[position] = cell.color;
+                cell.rectTransform.localPosition = GetCellCenter(position);
                 cell.rectTransform.sizeDelta = Vector2.one * (cellSize - cellGap);
             }
         }
@@ -214,6 +220,7 @@ public sealed class PuzzleInventoryView : MonoBehaviour
                 if (index >= 0 && index < boardCells.Length && boardCells[index].enabled)
                 {
                     boardCells[index].color = Presentation.PuzzleZoneCellColor(zone);
+                    boardCellBaseColors[position] = boardCells[index].color;
                 }
             }
         }
@@ -235,8 +242,9 @@ public sealed class PuzzleInventoryView : MonoBehaviour
     }
 
     internal void RenderPlacements(PuzzleInventory _inventory,
-        int? _hiddenInstanceId = null, int? _highlightedInstanceId = null,
-        IReadOnlyList<PuzzleRefrigerationContact> _refrigerationContacts = null)
+        int? _hiddenInstanceId = null, IReadOnlyCollection<int> _highlightedInstanceIds = null,
+        IReadOnlyList<PuzzleRefrigerationContact> _refrigerationContacts = null,
+        IReadOnlyCollection<int> _woodTargetInstanceIds = null)
     {
         int index = 0;
         foreach (var placement in _inventory.Placements)
@@ -246,9 +254,15 @@ public sealed class PuzzleInventoryView : MonoBehaviour
                 continue;
             }
 
-            var color = placement.InstanceId == _highlightedInstanceId
-                ? Presentation.PuzzleMoveTarget
-                : Presentation.PuzzlePiece;
+            bool highlighted = _highlightedInstanceIds != null &&
+                _highlightedInstanceIds.Contains(placement.InstanceId);
+            bool woodTarget = _woodTargetInstanceIds != null &&
+                _woodTargetInstanceIds.Contains(placement.InstanceId);
+            var color = woodTarget
+                ? Presentation.PuzzleTooltipGreen
+                : highlighted
+                    ? Presentation.PuzzleMoveTarget
+                    : Presentation.PuzzlePiece;
             index = RenderPose(placementSlots, index, placement.Pose, Vector2.zero, color,
                 iconIndex[placement.Definition.VisualKey].sprite, placement.Definition.IconSize, placement.Definition.IconOffset,
                 // 가치 변동, 공간 부족, 새로 생성된 산출물은 별도 상태지만 같은 알림 아이콘을 쓴다. 읽지 않은 쪽이 남아 있으면 아이콘은 유지한다.
@@ -657,7 +671,7 @@ public sealed class PuzzleInventoryView : MonoBehaviour
         return index;
     }
 
-    public void ClearDrag()
+    internal void ClearDrag()
     {
         originalSlotPose = null;
         previewSlotPose = null;
@@ -665,6 +679,47 @@ public sealed class PuzzleInventoryView : MonoBehaviour
         HideSlots(outlineSlots);
         HideDragBeam();
         HideAdjacentSynergyPreview();
+        ClearWoodEffectCells();
+    }
+
+    internal void ShowWoodEffectCells(IReadOnlyCollection<Vector2Int> _cells)
+    {
+        ClearWoodEffectCells();
+        if (_cells == null || boardCells == null || gridSize.x <= 0 || gridSize.y <= 0)
+        {
+            return;
+        }
+
+        foreach (var position in _cells)
+        {
+            long index = (long)position.y * gridSize.x + position.x;
+            if (index < 0 || index >= boardCells.Length || !boardCells[index] || !boardCells[index].enabled)
+            {
+                continue;
+            }
+            boardCells[index].color = Presentation.PuzzleTooltipGreen;
+            woodEffectCells.Add(position);
+        }
+    }
+
+    internal void ClearWoodEffectCells()
+    {
+        if (boardCells == null)
+        {
+            woodEffectCells.Clear();
+            return;
+        }
+
+        foreach (var position in woodEffectCells)
+        {
+            long index = (long)position.y * gridSize.x + position.x;
+            if (index >= 0 && index < boardCells.Length && boardCells[index] &&
+                boardCellBaseColors.TryGetValue(position, out Color baseColor))
+            {
+                boardCells[index].color = baseColor;
+            }
+        }
+        woodEffectCells.Clear();
     }
 
     internal void ShowBoardValue(decimal _actualValue, long _baseValue)
@@ -787,6 +842,7 @@ public sealed class PuzzleInventoryView : MonoBehaviour
     void OnDisable()
     {
         StopSettlementFeedback();
+        ClearWoodEffectCells();
         if (canvas)
         {
             ClearDrag();

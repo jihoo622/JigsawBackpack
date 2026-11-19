@@ -1540,6 +1540,60 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         return slots;
     }
 
+    internal (IReadOnlyList<Vector2Int> Cells, IReadOnlyList<int> PlacementIds) GetWoodBindingVisualization(
+        PuzzlePlacement _placement)
+    {
+        if (_placement?.Owner == null || !IsTrainWagon(_placement.Owner) || !IsWoodItem(_placement.Definition))
+        {
+            return (Array.Empty<Vector2Int>(), Array.Empty<int>());
+        }
+
+        var members = _placement.Owner.BundleMembers(_placement);
+        var bundleIds = new HashSet<int>();
+        var bundleCells = new HashSet<Vector2Int>();
+        foreach (var member in members)
+        {
+            bundleIds.Add(member.InstanceId);
+            foreach (var cell in member.Pose.Cells)
+            {
+                bundleCells.Add(cell.Position);
+            }
+        }
+
+        var cells = new HashSet<Vector2Int>();
+        var placementIds = new HashSet<int>();
+        string woodTag = tables.PuzzleMechanic.woodBinding.woodTag;
+        foreach (var member in members)
+        {
+            foreach (var target in BindingSlots(member))
+            {
+                if (!member.Owner.IsUsableCell(target) || bundleCells.Contains(target))
+                {
+                    continue;
+                }
+
+                if (member.Owner.TryGetCell(target, out var occupant, out _))
+                {
+                    if (!bundleIds.Contains(occupant.InstanceId) &&
+                        occupant.Definition != null && occupant.Definition.Tags.Contains(woodTag))
+                    {
+                        cells.Add(target);
+                        foreach (var targetMember in occupant.Owner.BundleMembers(occupant))
+                        {
+                            placementIds.Add(targetMember.InstanceId);
+                        }
+                    }
+                    continue;
+                }
+
+                cells.Add(target);
+            }
+        }
+
+        return (cells.OrderBy(_cell => _cell.y).ThenBy(_cell => _cell.x).ToList(),
+            placementIds.OrderBy(_id => _id).ToList());
+    }
+
     // 북쪽 바깥 칸에 다른 목재를 받은 쌍을 후보로 고른다. 같은 두 인스턴스는 키 하나로 보이고,
     // 같은 묶음 내부 쌍은 버린다. 묶음 충돌은 걸러 내지 않고 경계 처리로 넘겨 진행도가 사라지지 않게 한다.
     static List<BindingPair> SelectBindingPairs(PuzzleInventory[] _wagons,
@@ -2251,6 +2305,8 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
     // 툴팁이 표시하는 목재 묶음의 이름과 결합 효과 설명. 원본은 기계공학 표의 woodBinding이다.
     internal string WoodBundleName => tables.PuzzleMechanic.woodBinding.bundleName;
     internal string WoodBundleDescription => tables.PuzzleMechanic.woodBinding.description;
+    internal bool IsWoodItem(PuzzleItemDefinition _definition) => _definition != null &&
+        _definition.Tags.Contains(tables.PuzzleMechanic.woodBinding.woodTag);
 
     // 지정 도시에서 주어진 가치의 거래 금액. 경제 분석이 다른 도시를 같은 공식으로 견적한다.
     internal bool TryQuoteTradeAt(string _cityId, PuzzleItemDefinition _definition, decimal _value,

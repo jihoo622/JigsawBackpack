@@ -41,6 +41,10 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
     Vector2 pointerPosition;
     Vector2? hoverPosition;
     int? currentHoveredInstanceId;
+    PuzzlePlacement currentHoveredPlacement;
+    readonly HashSet<int> hoveredHighlightIds = new();
+    IReadOnlyList<Vector2Int> hoveredWoodEffectCells = new Vector2Int[0];
+    IReadOnlyList<int> hoveredWoodTargetIds = new int[0];
     string currentHoveredKeywordId;
     int? hoveredWagonIndex;
     PuzzleItemTooltipView KeywordTooltipView => keywordTooltipView ? keywordTooltipView : tooltipView;
@@ -214,7 +218,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             tooltipView.Close();
         }
         ClearKeywordHover();
-        currentHoveredInstanceId = null;
+        ClearHoveredPlacement();
         isMapOpen = false;
         HasActiveDrag = false;
         pendingSettlementValue = null;
@@ -422,14 +426,14 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         marketView.SetBoardSize(session.Market.Width, session.Market.Height, session.Market.BlockedCells);
         if (currentHoveredInstanceId.HasValue && !session.Train.Placements.Any(_item => _item.InstanceId == currentHoveredInstanceId.Value))
         {
-            currentHoveredInstanceId = null;
+            ClearHoveredPlacement();
             if (tooltipView)
             {
                 tooltipView.Close();
             }
         }
         marketView.ShowItemDetails(null, default, default, default);
-        RenderBoards(currentHoveredInstanceId);
+        RenderBoards(HoveredHighlightIds);
     }
 
     // 역 시설 진입은 시간을 쓰지 않아 TimeAdvanced가 오지 않는다. 진입이 확정되면 시장 보드의 거래 가능 여부만 바로 다시 그린다.
@@ -578,7 +582,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
                     trainBarView.CancelWagonDrag();
                 }
                 hoverPosition = null;
-                currentHoveredInstanceId = null;
+                ClearHoveredPlacement();
                 if (input)
                 {
                     input.CancelCapture();
@@ -616,7 +620,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             if (currentHoveredInstanceId.HasValue && !session.Train.Placements.Any(p => p.InstanceId == currentHoveredInstanceId.Value))
             {
                 hoverPosition = null;
-                currentHoveredInstanceId = null;
+                ClearHoveredPlacement();
                 if (tooltipView)
                 {
                     tooltipView.Close();
@@ -690,7 +694,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         cityView.ShowTradeStatus(string.Empty);
         pointerPosition = position;
         input.CapturePointer(_eventData.pointerId);
-        currentHoveredInstanceId = null;
+        ClearHoveredPlacement();
         if (tooltipView)
         {
             tooltipView.Close();
@@ -1137,8 +1141,8 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             bool tooltipClosed = tooltipView && (!tooltipView.IsOpen || !tooltipView.gameObject.activeInHierarchy);
             if (currentHoveredInstanceId != placement.InstanceId || tooltipClosed)
             {
-                currentHoveredInstanceId = placement.InstanceId;
-                RenderBoards(placement.InstanceId);
+                SetHoveredPlacement(placement);
+                RenderBoards(hoveredHighlightIds);
                 ShowItemDetails(view, placement, _position);
             }
             else if (tooltipView)
@@ -1150,7 +1154,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
 
         if (currentHoveredInstanceId.HasValue || (tooltipView && tooltipView.IsOpen && currentHoveredKeywordId == null))
         {
-            currentHoveredInstanceId = null;
+            ClearHoveredPlacement();
             RenderBoards();
             if (currentHoveredKeywordId == null)
             {
@@ -1171,7 +1175,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         }
 
         hoverPosition = null;
-        currentHoveredInstanceId = null;
+        ClearHoveredPlacement();
         RenderBoards();
         if (currentHoveredKeywordId == null)
         {
@@ -1187,7 +1191,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
     {
         if (TrainOperationsBlocked || drag != null)
         {
-            currentHoveredInstanceId = null;
+            ClearHoveredPlacement();
             ClearKeywordHover();
             if (tooltipView)
             {
@@ -1200,13 +1204,13 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             board.TryGetCell(boardCell, out var placement, out _))
         {
             ClearKeywordHover(_closeSharedTooltip: false);
-            currentHoveredInstanceId = placement.InstanceId;
-            RenderBoards(placement.InstanceId);
+            SetHoveredPlacement(placement);
+            RenderBoards(hoveredHighlightIds);
             ShowItemDetails(view, placement, position);
             return;
         }
 
-        currentHoveredInstanceId = null;
+        ClearHoveredPlacement();
         RenderBoards();
         if (currentHoveredKeywordId == null)
         {
@@ -1296,7 +1300,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
     {
         if (_placement == null)
         {
-            currentHoveredInstanceId = null;
+            ClearHoveredPlacement();
             if (tooltipView)
             {
                 tooltipView.Close();
@@ -1329,16 +1333,21 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         bool isActionBoard = session.IsButchery(_placement.Owner) || session.IsModification(_placement.Owner) ||
             session.IsRefining(_placement.Owner);
         bool isTrain = _view == trainView || session.IsTrainWagon(_placement.Owner);
-        // 목재 묶음 회원은 원자에 모인 묶음 가치와 표의 묶음 이름·설명으로 표시한다.
+        // 목재 묶음 회원은 원자에 모인 묶음 가치로 표시하고, Wood 태그 품목은 모두 표의 결합 설명을 공유한다.
         bool bound = _placement.BindingId != 0;
         decimal actualValue = _placement.Owner.BundleValueOf(_placement.InstanceId);
         string bundleName = bound ? session.WoodBundleName : null;
         var rate = item == null ? default : session.RateFor(item);
         (IReadOnlyList<string> General, IReadOnlyList<PuzzleTooltipEffectEntry> Synergies) effects =
             BuildEffectDescriptions(_placement, isTrain, isActionBoard);
-        if (bound)
+        bool showsWoodBinding = bound || session.IsWoodItem(item);
+        if (showsWoodBinding)
         {
-            effects = (new List<string>(effects.General) { session.WoodBundleDescription }, effects.Synergies);
+            effects = (new List<string>(effects.General)
+                {
+                    Presentation.PuzzleTooltipEffectDescription(session.WoodBundleDescription)
+                },
+                effects.Synergies);
         }
         long? previewHours = session.PreviewHours;
         long? previewActivations = null;
@@ -1372,7 +1381,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
                 _placement.HasUnreadSynergySettlement = false;
                 _placement.HasUnreadSpaceNotice = false;
                 _placement.HasUnreadSpawnNotice = false;
-                RenderBoards(_placement.InstanceId);
+                RenderBoards(hoveredHighlightIds);
                 RefreshTrainBar();
             }
         }
@@ -1428,28 +1437,82 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         }
     }
 
-    void RenderBoards(int? _highlightedInstanceId = null)
+    void SetHoveredPlacement(PuzzlePlacement _placement)
+    {
+        currentHoveredInstanceId = _placement?.InstanceId;
+        currentHoveredPlacement = _placement;
+        hoveredHighlightIds.Clear();
+        foreach (int instanceId in BundleHighlightIds(_placement))
+        {
+            hoveredHighlightIds.Add(instanceId);
+        }
+
+        (IReadOnlyList<Vector2Int> cells, IReadOnlyList<int> targetIds) = session.GetWoodBindingVisualization(_placement);
+        hoveredWoodEffectCells = cells;
+        hoveredWoodTargetIds = targetIds;
+    }
+
+    void ClearHoveredPlacement()
+    {
+        currentHoveredInstanceId = null;
+        currentHoveredPlacement = null;
+        hoveredHighlightIds.Clear();
+        hoveredWoodEffectCells = new Vector2Int[0];
+        hoveredWoodTargetIds = new int[0];
+    }
+
+    IReadOnlyCollection<int> HoveredHighlightIds => currentHoveredInstanceId.HasValue ? hoveredHighlightIds : null;
+
+    IReadOnlyCollection<int> BundleHighlightIds(PuzzlePlacement _placement)
+    {
+        if (_placement == null)
+        {
+            return null;
+        }
+        if (_placement.Owner == null)
+        {
+            return new[] { _placement.InstanceId };
+        }
+
+        var ids = new HashSet<int>();
+        foreach (var member in _placement.Owner.BundleMembers(_placement))
+        {
+            ids.Add(member.InstanceId);
+        }
+        if (ids.Count == 0)
+        {
+            ids.Add(_placement.InstanceId);
+        }
+        return ids;
+    }
+
+    void RenderBoards(IReadOnlyCollection<int> _highlightedInstanceIds = null)
     {
         if (trainView)
         {
-            trainView.RenderPlacements(session.Train, drag?.InstanceId, _highlightedInstanceId,
-                RefrigerationContacts(session.Train));
+            trainView.RenderPlacements(session.Train, drag?.InstanceId, _highlightedInstanceIds,
+                RefrigerationContacts(session.Train), hoveredWoodTargetIds);
+            trainView.ShowWoodEffectCells(hoveredWoodEffectCells);
         }
         if (marketView)
         {
-            marketView.RenderPlacements(session.Market, drag?.InstanceId, _highlightedInstanceId);
+            marketView.RenderPlacements(session.Market, drag?.InstanceId, _highlightedInstanceIds, null, null);
+            marketView.ClearWoodEffectCells();
         }
         if (ButcheryViewReady)
         {
-            butcheryView.RenderPlacements(session.ButcheryBoard(), drag?.InstanceId, _highlightedInstanceId);
+            butcheryView.RenderPlacements(session.ButcheryBoard(), drag?.InstanceId, _highlightedInstanceIds, null, null);
+            butcheryView.ClearWoodEffectCells();
         }
         if (ModificationViewReady)
         {
-            modificationView.RenderPlacements(session.ModificationBoard(), drag?.InstanceId, _highlightedInstanceId);
+            modificationView.RenderPlacements(session.ModificationBoard(), drag?.InstanceId, _highlightedInstanceIds, null, null);
+            modificationView.ClearWoodEffectCells();
         }
         if (RefiningViewReady)
         {
-            refiningView.RenderPlacements(session.RefiningBoard(), drag?.InstanceId, _highlightedInstanceId);
+            refiningView.RenderPlacements(session.RefiningBoard(), drag?.InstanceId, _highlightedInstanceIds, null, null);
+            refiningView.ClearWoodEffectCells();
         }
     }
 

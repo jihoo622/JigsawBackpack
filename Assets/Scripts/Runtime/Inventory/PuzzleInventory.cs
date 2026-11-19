@@ -251,6 +251,8 @@ public sealed class PuzzleInventory
         return false;
     }
 
+    internal bool IsUsableCell(Vector2Int _position) => InBounds(_position);
+
     // 이 보드가 지금 점유한 칸 수. 노선 이동 비용의 보유량 계산에 쓴다.
     internal int OccupiedCells => occupancy.Count;
 

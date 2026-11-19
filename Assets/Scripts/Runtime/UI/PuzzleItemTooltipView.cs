@@ -257,7 +257,7 @@ public sealed class PuzzleItemTooltipView : PanelBase
 
         UpdateEffectSection(generalEffectSection, generalEffectHeaderText, generalEffectSlots, _generalEffects,
             Presentation.PuzzleTooltipGeneralEffectHeader(), _showEmpty: (_synergyEffects?.Count ?? 0) == 0);
-        // UpdateSynergySection(_synergyEffects);
+        UpdateSynergySection(_synergyEffects);
 
         if (futureValueLabelText || futureValueValueText)
         {
@@ -368,7 +368,7 @@ public sealed class PuzzleItemTooltipView : PanelBase
 
         UpdateEffectSection(generalEffectSection, generalEffectHeaderText, generalEffectSlots, _generalEffects,
             Presentation.PuzzleTooltipGeneralEffectHeader(), _showEmpty: (_synergies?.Count ?? 0) == 0);
-        // UpdateSynergySection(_synergies);
+        UpdateSynergySection(_synergies);
         RebuildLayouts();
         SetPointerPosition(_screenPosition);
     }

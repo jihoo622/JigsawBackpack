@@ -4,15 +4,15 @@
   "woodBinding": {
     "woodTag": "Wood",
     "bundleName": "목재 묶음",
-    "description": "목재의 각 칸에서 북쪽(로컬 (0, 1), 회전하면 함께 회전) 방향으로 맞닿은 다른 목재를 1턴 동안 유지하면 하나의 목재 묶음으로 합쳐집니다. 묶음 가치는 합친 두 가치의 120%이며, 묶음은 모든 작업에서 하나의 아이템으로 다룹니다.",
+    "description": "목재의 상단 방향에 다른 목재가 있다면, 해당 목재에 이 아이템을 합치고 두 아이템의 가치를 합한 뒤에 150% 성장시킨다.",
     "requiredTurns": 1,
-    "valuePercent": 120
+    "valuePercent": 150
   },
   "machineryGrowth": {
     "machineryTag": "Machinery",
-    "description": "닿은 면이 2면 이상인 물건의 가치를 기본 가치의 10%씩 턴마다 성장시킵니다.",
+    "description": "닿은 면이 2면 이상인 물건의 가치를 기본 가치의 20%씩 턴마다 성장시킵니다.",
     "minContactCells": 2,
-    "growthPercentPerTurn": 10
+    "growthPercentPerTurn": 20
   },
   "salt": {
     "saltTag": "Salt",
