@@ -1,8 +1,10 @@
 # 행선지 렌즈(L안) 구현 계획 v2 — develop 기준
+>
+> **개편 확정 후 유효 범위(2026-11-19):** §0 develop 규칙 비교, §4 정보 공개 규칙, 계산 계층(배치 정산 Δ·상위 후보·행선지 공개 정보)은 그대로 유효하다. 렌즈 패널 위치(E1, 기차 보드 아래)·후보 표식 모양·일시정지 토글 위치 같은 화면 배치는 [전체 화면 배치 개편 계획](UI_RELAYOUT_PLAN.md)과 [시안 3b](relayout/concept-3b.html)로 대체됐다.
 
 > 작성일: 2026-11-19 · 기준: `origin/develop` 893737a (작업 브랜치 `feature/route-lens`)
-> 상태: **계획. 코드·프리팹 미착수**
-> 근거: [L안 제안](ROUTE_LENS_UI_PROPOSAL.md) · [R5 구현 영향](GRID_INVENTORY_LAYOUT_IMPLEMENTATION_IMPACT.md) · [현 UI 감사](CURRENT_UI_LAYOUT_AUDIT.md)
+> 상태: **구현 완료(feature/route-lens). 화면 배치는 개편안으로 대체됨**
+> 근거: [L안 제안](../Legacy/UI/ROUTE_LENS_UI_PROPOSAL.md) · [R5 구현 영향](../Legacy/UI/GRID_INVENTORY_LAYOUT_IMPLEMENTATION_IMPACT.md) · [현 UI 감사](../Legacy/UI/CURRENT_UI_LAYOUT_AUDIT.md) (모두 과거 자료)
 > v1(같은 날)은 `turnBase-전환` 브랜치를 기준으로 썼다. 그 브랜치는 develop과 갈라져 develop에만 있는 21커밋(6시간 턴제, 보드 7×5·13×9, 안개 지도, 역별 화차 등)을 반영하지 못했다. v1 기준 코드 초안은 `git stash` `stash@{0}`에 보관했다.
 > 아래 사실은 develop 코드·테이블·프리팹 YAML을 정적으로 읽어 확인했다. 프리팹 좌표는 YAML에서 앵커를 손으로 계산한 값이라 Unity 에디터 확인이 필요하다.
 

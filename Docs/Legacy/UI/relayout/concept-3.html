@@ -1462,7 +1462,7 @@
       <!-- 11. HELD CARGO GHOST + LARGE DELTA CHIP -->
       <div class="held-ghost" id="held-ghost" style="left:215px;top:548px;">
         <div class="held-piece-box" style="width:56px;height:56px;">
-          <img id="held-ghost-img" src="assets/FruitCrate.png" alt="과일 상자" style="width:100%;height:100%;object-fit:contain;">
+          <img id="held-ghost-img" src="../../../Research/relayout/assets/FruitCrate.png" alt="과일 상자" style="width:100%;height:100%;object-fit:contain;">
         </div>
         <div class="held-large-chip">
           다음 정산 +12$
@@ -1629,9 +1629,9 @@
     }
     // Placed cargo on train
     const pieces = [
-      { x: 1, y: 2, w: 2, h: 1, img: 'assets/WoodBundle.png', affected: showAffected },
-      { x: 0, y: 3, w: 1, h: 2, img: 'assets/WoodBundle.png', affected: false },
-      { x: 5, y: 0, w: 1, h: 1, img: 'assets/Apple.png', affected: false }
+      { x: 1, y: 2, w: 2, h: 1, img: '../../../Research/relayout/assets/WoodBundle.png', affected: showAffected },
+      { x: 0, y: 3, w: 1, h: 2, img: '../../../Research/relayout/assets/WoodBundle.png', affected: false },
+      { x: 5, y: 0, w: 1, h: 1, img: '../../../Research/relayout/assets/Apple.png', affected: false }
     ];
     pieces.forEach(p => {
       const el = document.createElement('div');
@@ -1653,16 +1653,16 @@
       marketBoard.appendChild(cell);
     }
     const items = [
-      { x: 1, y: 1, w: 1, h: 3, img: 'assets/WoodBundle.png', price: '28$' },
-      { x: 5, y: 1, w: 1, h: 1, img: 'assets/SmallCrate.png', price: '13$' },
-      { x: 8, y: 1, w: 1, h: 1, img: 'assets/WaterBarrel.png', price: '18$' },
-      { x: 10, y: 1, w: 1, h: 1, img: 'assets/Apple.png', price: '15$' },
-      { x: 1, y: 4, w: 1, h: 1, img: 'assets/FruitCrate.png', price: '20$' },
-      { x: 5, y: 3, w: 2, h: 2, img: 'assets/ElbowLeft.png', price: '42$' },
-      { x: 8, y: 3, w: 3, h: 2, img: 'assets/MachineFrame.png', price: '68$' },
-      { x: 3, y: 6, w: 1, h: 1, img: 'assets/Fish.png', price: '22$' },
-      { x: 6, y: 6, w: 1, h: 1, img: 'assets/SaltSack.png', price: '16$' },
-      { x: 10, y: 6, w: 2, h: 1, img: 'assets/Cow.png', price: '54$' }
+      { x: 1, y: 1, w: 1, h: 3, img: '../../../Research/relayout/assets/WoodBundle.png', price: '28$' },
+      { x: 5, y: 1, w: 1, h: 1, img: '../../../Research/relayout/assets/SmallCrate.png', price: '13$' },
+      { x: 8, y: 1, w: 1, h: 1, img: '../../../Research/relayout/assets/WaterBarrel.png', price: '18$' },
+      { x: 10, y: 1, w: 1, h: 1, img: '../../../Research/relayout/assets/Apple.png', price: '15$' },
+      { x: 1, y: 4, w: 1, h: 1, img: '../../../Research/relayout/assets/FruitCrate.png', price: '20$' },
+      { x: 5, y: 3, w: 2, h: 2, img: '../../../Research/relayout/assets/ElbowLeft.png', price: '42$' },
+      { x: 8, y: 3, w: 3, h: 2, img: '../../../Research/relayout/assets/MachineFrame.png', price: '68$' },
+      { x: 3, y: 6, w: 1, h: 1, img: '../../../Research/relayout/assets/Fish.png', price: '22$' },
+      { x: 6, y: 6, w: 1, h: 1, img: '../../../Research/relayout/assets/SaltSack.png', price: '16$' },
+      { x: 10, y: 6, w: 2, h: 1, img: '../../../Research/relayout/assets/Cow.png', price: '54$' }
     ];
     items.forEach(it => {
       const el = document.createElement('div');
@@ -1687,7 +1687,7 @@
     el.className = 'cargo-piece';
     el.style.left = '58px'; el.style.top = '58px';
     el.style.width = '164px'; el.style.height = '108px';
-    el.innerHTML = '<img src="assets/MachineFrame.png" alt="">';
+    el.innerHTML = '<img src="../../../Research/relayout/assets/MachineFrame.png" alt="">';
     workshopBoard.appendChild(el);
   }
 
@@ -1725,7 +1725,7 @@
     document.getElementById('svg-route-label').style.display = 'block';
     svgLensPins.style.display = 'none';
     svgTrain.style.display = 'none';
-    document.getElementById('held-ghost-img').src = 'assets/FruitCrate.png';
+    document.getElementById('held-ghost-img').src = '../../../Research/relayout/assets/FruitCrate.png';
     document.getElementById('station-night-badge').style.display = 'none';
     document.getElementById('hud-city-name').textContent = '금융마을';
     document.getElementById('hud-city-region').textContent = '수도권 · 현재 정차 중';
@@ -1766,7 +1766,7 @@
     } else if (state === 'train_rearrange') {
       buildTrainGrid(true, true);
       heldGhost.classList.add('visible');
-      document.getElementById('held-ghost-img').src = 'assets/SmallCrate.png';
+      document.getElementById('held-ghost-img').src = '../../../Research/relayout/assets/SmallCrate.png';
       svgLensPins.style.display = 'block';
       document.getElementById('footer-idle-summary').style.display = 'none';
       document.getElementById('footer-holding-context').style.display = 'flex';

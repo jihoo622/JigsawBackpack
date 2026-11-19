@@ -1,5 +1,7 @@
 # 게임 UI 배치
 
+> **화면 배치 개편 확정(2026-11-19):** 이 문서는 개편 전 현재 구현을 기록한다. 새 배치는 [시안 3b](../Research/relayout/concept-3b.html)와 [전체 화면 배치 개편 계획](../Research/UI_RELAYOUT_PLAN.md)을 따르며, 구현 후 이 문서를 다시 쓴다.
+
 `feature/improve_layout` 및 `develop`·`feature/route-lens`(행선지 렌즈) 기준 구현 반영. 플레이 확인 전(※ 기차·시장 보드 좌표 일부는 초기 5×5·7×6 기준이 남아 있으며, 최신 실측은 [행선지 렌즈 구현 계획 v2](../Research/ROUTE_LENS_IMPLEMENTATION_PLAN.md) §0-1·P0 표를 따른다).
 
 UI 배치 원본은 프리팹이며 Game 씬 UI는 패널별 프리팹(`Assets/Art/UI/`) 인스턴스다. 배치는 프리팹에서 수정하며 런타임에 UI 오브젝트와 Layout Group을 동적 생성하지 않는다. CanvasScaler는 1920×1080 기준 Expand 모드를 유지한다.

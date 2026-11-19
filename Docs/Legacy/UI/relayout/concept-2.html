@@ -873,7 +873,7 @@ function cargoEl({ x, y, w, h, img, price, cls = '', chip = '' }) {
   const height = h * CELL - 4;
   return `
     <div class="cargo-piece ${cls}" style="left:${left}px;top:${top}px;width:${width}px;height:${height}px;">
-      <img src="./assets/${img}" alt="">
+      <img src="../../../Research/relayout/assets/${img}" alt="">
       ${price ? `<span class="price-tag">${price}$</span>` : ''}
       ${chip ? `<span class="synergy-chip">${chip}</span>` : ''}
     </div>
@@ -1021,7 +1021,7 @@ function renderMarketShelf(state) {
             <div class="info-card-title"><span>선택/호버 화물 미리보기</span><span style="color:var(--gold);">사과 (과일)</span></div>
             <div style="display:flex;align-items:center;gap:12px;margin:8px 0;">
               <div style="width:52px;height:52px;background:#eef3fa;border-radius:6px;padding:6px;display:flex;align-items:center;justify-content:center;">
-                <img src="./assets/Apple.png" style="max-width:100%;max-height:100%;">
+                <img src="../../../Research/relayout/assets/Apple.png" style="max-width:100%;max-height:100%;">
               </div>
               <div>
                 <div style="font-size:16px;font-weight:700;">사과 <span class="tag-pill tag-fruit">과일</span></div>
@@ -1530,7 +1530,7 @@ function renderOverlays(state) {
     html += `
       <div class="held-ghost" style="left:650px;top:545px;">
         <div class="held-box" style="width:${2*CELL}px;height:${2*CELL}px;">
-          <img src="./assets/FruitCrate.png" style="max-width:100%;max-height:100%;">
+          <img src="../../../Research/relayout/assets/FruitCrate.png" style="max-width:100%;max-height:100%;">
         </div>
         <div class="held-delta-chip">다음 정산 +12$ · 24$</div>
       </div>
@@ -1539,7 +1539,7 @@ function renderOverlays(state) {
     html += `
       <div class="held-ghost" style="left:580px;top:730px;">
         <div class="held-box" style="width:${2*CELL}px;height:${1*CELL}px;">
-          <img src="./assets/Fish.png" style="max-width:100%;max-height:100%;">
+          <img src="../../../Research/relayout/assets/Fish.png" style="max-width:100%;max-height:100%;">
         </div>
         <div class="held-delta-chip">다음 정산 +9$</div>
       </div>
