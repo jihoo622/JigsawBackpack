@@ -34,10 +34,14 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
     [SerializeField] PuzzleInventoryView relayoutTrainView;
     [SerializeField] RailStripView railStripView;
     [SerializeField] TrainWindowView trainWindowView;
+    [SerializeField] TrainWindowManager trainWindowManager;
+    [SerializeField] TownSceneView townSceneView;
+    [SerializeField] StatusBannerView statusBannerView;
     [SerializeField] NotebookWindowView notebookWindowView;
     [SerializeField] PauseMenu pauseMenu;
     [SerializeField] RunEndPresenter runEndPresenter;
 
+    bool UseMultiTrainWindows => RelayoutSettings.Enabled && trainWindowManager;
     PuzzleInventoryView ActiveTrainView => RelayoutSettings.Enabled && relayoutTrainView ? relayoutTrainView : trainView;
 
     [SerializeField] PuzzleInventoryInput input;
@@ -129,7 +133,24 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
         long trainCapacity = (long)session.Train.Width * session.Train.Height;
         long dragCapacity = System.Math.Max(trainCapacity, session.MarketCapacity);
         trainView.Initialize(trainCapacity, dragCapacity, Presentation.PuzzleTrainTitle(session.Train), session.ItemDefinitions, _showSynergies: true);
-        if (relayoutTrainView)
+        bool relayoutViewInitialized = false;
+        if (trainWindowManager && trainWindowManager.Windows != null)
+        {
+            var wins = trainWindowManager.Windows;
+            for (int i = 0; i < wins.Count; i++)
+            {
+                var iv = wins[i] ? wins[i].InventoryView : null;
+                if (iv)
+                {
+                    iv.Initialize(trainCapacity, dragCapacity, Presentation.PuzzleTrainTitle(session.Train), session.ItemDefinitions, _showSynergies: true);
+                    if (iv == relayoutTrainView)
+                    {
+                        relayoutViewInitialized = true;
+                    }
+                }
+            }
+        }
+        if (relayoutTrainView && !relayoutViewInitialized)
         {
             relayoutTrainView.Initialize(trainCapacity, dragCapacity, Presentation.PuzzleTrainTitle(session.Train), session.ItemDefinitions, _showSynergies: true);
         }
@@ -201,7 +222,15 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
         }
         if (railStripView)
         {
-            railStripView.WagonSelected += OnWagonSelected;
+            railStripView.WagonSelected += OnRelayoutWagonSelected;
+            railStripView.WagonReordered += OnWagonMoved;
+            railStripView.WagonDraggedOutside += OnRelayoutWagonDraggedOutside;
+            railStripView.WagonDragEndedOutside += OnRelayoutWagonDragEndedOutside;
+        }
+        if (trainWindowManager)
+        {
+            trainWindowManager.WagonFocused += OnRelayoutWagonFocused;
+            trainWindowManager.OpenWindowsChanged += OnRelayoutOpenWindowsChanged;
         }
         stationActions = GetComponentInChildren<PuzzleStationActionsView>(true);
     }
@@ -213,6 +242,10 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
             return;
         }
 
+        if (trainWindowManager)
+        {
+            trainWindowManager.ClearAllDragVisuals();
+        }
         if (trainView)
         {
             trainView.Disabled -= OnViewDisabled;
@@ -293,7 +326,15 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
         }
         if (railStripView)
         {
-            railStripView.WagonSelected -= OnWagonSelected;
+            railStripView.WagonSelected -= OnRelayoutWagonSelected;
+            railStripView.WagonReordered -= OnWagonMoved;
+            railStripView.WagonDraggedOutside -= OnRelayoutWagonDraggedOutside;
+            railStripView.WagonDragEndedOutside -= OnRelayoutWagonDragEndedOutside;
+        }
+        if (trainWindowManager)
+        {
+            trainWindowManager.WagonFocused -= OnRelayoutWagonFocused;
+            trainWindowManager.OpenWindowsChanged -= OnRelayoutOpenWindowsChanged;
         }
         HideWagonTooltip();
         OnViewDisabled();
@@ -377,14 +418,26 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
 
     void SwitchWagonDuringDrag(int _index)
     {
+        if (UseMultiTrainWindows)
+        {
+            // 드래그 출발 창과 현재 대상 창은 LRU 교체에서 제외한다.
+            var switchedWin = trainWindowManager.OpenOrFocusWagon(_index, session, true, drag?.Source, dragView);
+            if (!switchedWin)
+            {
+                return;
+            }
+        }
         if (!session.SelectWagon(_index))
         {
             return;
         }
 
-        SetDragView(null);
-        ActiveTrainView.SetTitle(Presentation.PuzzleTrainTitle(session.Train));
-        ActiveTrainView.SetBoard(session.Train);
+        if (!UseMultiTrainWindows)
+        {
+            SetDragView(null);
+            ActiveTrainView.SetTitle(Presentation.PuzzleTrainTitle(session.Train));
+            ActiveTrainView.SetBoard(session.Train);
+        }
         RenderBoards();
         RenderValues();
         RefreshTrainBar();
@@ -784,7 +837,7 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
     void OnQuickTransferRequested(PointerEventData _eventData)
     {
         if (MarketOperationsBlocked || drag != null || session.RunStatus != PuzzleRunStatus.InProgress ||
-            !ActiveTrainView.isActiveAndEnabled ||
+            !(UseMultiTrainWindows ? trainWindowManager.HasAnyOpenWindow : (ActiveTrainView && ActiveTrainView.isActiveAndEnabled)) ||
             !TryGetBoard(_eventData.position, out _, out var source, out var boardCell) ||
             !source.TryGetCell(boardCell, out var placement, out _))
         {
@@ -1144,19 +1197,36 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
             return;
         }
 
+        var prev = dragView;
         var sourceView = drag != null ? ViewFor(drag.Source) : null;
-        if (dragView && dragView != sourceView)
+        if (prev)
         {
-            dragView.ClearDrag();
+            if (prev != sourceView)
+            {
+                prev.ClearDrag();
+            }
+            prev.HidePlacementCandidates();
         }
         dragView = _next;
+        if (drag != null && _next)
+        {
+            UpdateLensRanking();
+        }
     }
 
     bool TryGetBoard(Vector2 _position, out PuzzleInventoryView _view, out PuzzleInventory _inventory, out Vector2Int _cell)
     {
         if (IsOnScreen(_position))
         {
-            if (ActiveTrainView && ActiveTrainView.isActiveAndEnabled && ActiveTrainView.TryGetBoardCell(_position, out _cell))
+            if (UseMultiTrainWindows)
+            {
+                if (trainWindowManager.TryGetWindowAtScreenPosition(_position, null, out var tw, out _inventory, out _cell))
+                {
+                    _view = tw ? tw.InventoryView : null;
+                    return _view != null;
+                }
+            }
+            else if (ActiveTrainView && ActiveTrainView.isActiveAndEnabled && ActiveTrainView.TryGetBoardCell(_position, out _cell))
             {
                 _view = ActiveTrainView;
                 _inventory = session.Train;
@@ -1450,7 +1520,19 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
             }
         }
 
-        if (ActiveTrainView)
+        if (UseMultiTrainWindows && trainWindowManager.Windows != null)
+        {
+            var wins = trainWindowManager.Windows;
+            for (int i = 0; i < wins.Count; i++)
+            {
+                var iv = wins[i] ? wins[i].InventoryView : null;
+                if (iv && wins[i].FloatingWindow && wins[i].FloatingWindow.IsOpen)
+                {
+                    iv.ShowItemDetails(_view == iv ? item : null, value, actualValue, rate);
+                }
+            }
+        }
+        else if (ActiveTrainView)
         {
             ActiveTrainView.ShowItemDetails(_view == ActiveTrainView ? item : null, value, actualValue, rate);
         }
@@ -1484,7 +1566,22 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
 
     void RenderValues()
     {
-        if (ActiveTrainView)
+        if (UseMultiTrainWindows && trainWindowManager.Windows != null)
+        {
+            var wins = trainWindowManager.Windows;
+            for (int i = 0; i < wins.Count; i++)
+            {
+                var w = wins[i];
+                if (!w || !w.FloatingWindow || !w.FloatingWindow.IsOpen || !w.InventoryView) continue;
+                var wagon = w.BoundWagon;
+                if (wagon != null && session.IsTrainWagon(wagon))
+                {
+                    w.InventoryView.ShowBoardValue(wagon.Placements.Sum(_item => _item.FreshnessAdjustedValue), wagon.Value.BaseValue);
+                    w.SetHeader(wagon, RemainingSettlementHours(), session.TrainSynergyDelta);
+                }
+            }
+        }
+        else if (ActiveTrainView)
         {
             ActiveTrainView.ShowBoardValue(session.Train.Placements.Sum(_item => _item.FreshnessAdjustedValue), session.Train.Value.BaseValue);
         }
@@ -1503,7 +1600,13 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
 
     void RenderBoards(int? _highlightedInstanceId = null)
     {
-        if (ActiveTrainView)
+        if (UseMultiTrainWindows)
+        {
+            trainWindowManager.RestoreOrEnsureDefault(session);
+            trainWindowManager.RefreshAllOpenWindows(session, RemainingSettlementHours(), session.TrainSynergyDelta,
+                drag?.InstanceId, _highlightedInstanceId, RefrigerationContacts);
+        }
+        else if (ActiveTrainView)
         {
             ActiveTrainView.RenderPlacements(session.Train, drag?.InstanceId, _highlightedInstanceId,
                 RefrigerationContacts(session.Train));
@@ -1547,6 +1650,10 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
         if (session.IsRefining(_inventory) && refiningView)
         {
             return refiningView;
+        }
+        if (UseMultiTrainWindows && session.IsTrainWagon(_inventory))
+        {
+            return trainWindowManager.GetViewForInventory(_inventory, session)?.InventoryView;
         }
         return session.IsTrainWagon(_inventory) ? ActiveTrainView : marketView;
     }
@@ -1708,6 +1815,10 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
         lastSynergyPreviewRotation = -1;
         cachedSynergyDeltas.Clear();
 
+        if (trainWindowManager)
+        {
+            trainWindowManager.ClearAllDragVisuals();
+        }
         if (trainView)
         {
             trainView.ClearDrag();
@@ -1768,7 +1879,7 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
             {
                 railStripView.Refresh(session.TrainWagons, session.CurrentWagonIndex, hoveredWagonIndex);
             }
-            if (trainWindowView)
+            if (!UseMultiTrainWindows && trainWindowView)
             {
                 long remainingSettlementHours = 0;
                 double interval = TableManager.Instance != null && TableManager.Instance.IsValid
@@ -1798,7 +1909,11 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
         }
         else
         {
-            if (trainView)
+            if (trainWindowManager)
+        {
+            trainWindowManager.ClearAllDragVisuals();
+        }
+        if (trainView)
             {
                 trainView.ClearDrag();
                 trainView.HidePlacementCandidates();
@@ -1809,8 +1924,11 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
                 relayoutTrainView.HidePlacementCandidates();
             }
         }
-        ActiveTrainView.SetTitle(Presentation.PuzzleTrainTitle(session.Train));
-        ActiveTrainView.SetBoard(session.Train);
+        if (!UseMultiTrainWindows && ActiveTrainView)
+        {
+            ActiveTrainView.SetTitle(Presentation.PuzzleTrainTitle(session.Train));
+            ActiveTrainView.SetBoard(session.Train);
+        }
         RenderBoards();
         RenderValues();
         RefreshTrainBar();
@@ -1865,8 +1983,11 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
         }
         input.CancelCapture();
         ClearDrag();
-        ActiveTrainView.SetTitle(Presentation.PuzzleTrainTitle(session.Train));
-        ActiveTrainView.SetBoard(session.Train);
+        if (!UseMultiTrainWindows && ActiveTrainView)
+        {
+            ActiveTrainView.SetTitle(Presentation.PuzzleTrainTitle(session.Train));
+            ActiveTrainView.SetBoard(session.Train);
+        }
         RenderBoards();
         RenderValues();
         RefreshTrainBar();
@@ -1968,19 +2089,169 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
         {
             return;
         }
-        ActiveTrainView.SetTitle(Presentation.PuzzleTrainTitle(session.Train));
-        ActiveTrainView.SetBoard(session.Train);
+        if (!UseMultiTrainWindows && ActiveTrainView)
+        {
+            ActiveTrainView.SetTitle(Presentation.PuzzleTrainTitle(session.Train));
+            ActiveTrainView.SetBoard(session.Train);
+        }
         RenderBoards();
         RenderValues();
         ShowItemDetails(null, null);
         RefreshTrainBar();
     }
 
+    void OnRelayoutWagonSelected(int _index)
+    {
+        if (session == null || _index < 0 || _index >= session.WagonCount)
+        {
+            return;
+        }
+        if (UseMultiTrainWindows)
+        {
+            trainWindowManager.OpenOrFocusWagon(_index, session);
+        }
+        OnWagonSelected(_index);
+    }
+
+    void OnRelayoutWagonFocused(int _index)
+    {
+        if (session != null && _index >= 0 && _index < session.WagonCount && session.CurrentWagonIndex != _index)
+        {
+            session.SelectWagon(_index);
+            RefreshTrainBar();
+        }
+    }
+
+    void OnRelayoutOpenWindowsChanged()
+    {
+        if (session != null)
+        {
+            RenderBoards();
+            RenderValues();
+            RefreshTrainBar();
+        }
+    }
+
+    void OnRelayoutWagonDraggedOutside(int _index, Vector2 _screenPos)
+    {
+        if (_index < 0 || MarketOperationsBlocked || !IsWagonSaleDropPosition(_screenPos))
+        {
+            ClearWagonSalePreview();
+            return;
+        }
+        if (wagonSalePreviewIndex == _index)
+        {
+            return;
+        }
+        wagonSalePreviewIndex = _index;
+        string failure = session.WagonSaleFailure(_index);
+        string msg = failure == null
+            ? BasicData.Format("rules.wagon.salePreview", Presentation.WagonSaleAmount(session.TrainWagons[_index].WagonSalePrice))
+            : Presentation.WagonSaleNotice(failure);
+        statusBannerView?.ShowStatus(msg);
+        cityView.ShowTradeStatus(msg);
+    }
+
+    void OnRelayoutWagonDragEndedOutside(int _index, Vector2 _screenPos)
+    {
+        ClearWagonSalePreview();
+        if (_index < 0 || MarketOperationsBlocked || !IsWagonSaleDropPosition(_screenPos))
+        {
+            return;
+        }
+
+        var wagon = _index < session.WagonCount ? session.TrainWagons[_index] : null;
+        if (!session.TrySellWagon(_index, out string failure))
+        {
+            string failMsg = Presentation.WagonSaleNotice(failure);
+            statusBannerView?.ShowStatus(failMsg);
+            cityView.ShowTradeStatus(failMsg);
+            return;
+        }
+
+        HideWagonTooltip();
+        RefreshSelectedWagon();
+        string okMsg = BasicData.Format("rules.wagon.saleComplete", wagon.WagonNumber,
+            Presentation.WagonSaleAmount(wagon.WagonSalePrice, _showPlus: true));
+        statusBannerView?.ShowStatus(okMsg);
+        cityView.ShowTradeStatus(okMsg);
+    }
+
+    bool IsWagonSaleDropPosition(Vector2 _screenPos)
+    {
+        if (townSceneView && townSceneView.IsScreenPointOverBuilding(TownBuildingButton.BuildingKind.StationHall, _screenPos))
+        {
+            return true;
+        }
+        if (stationActions && stationActions.IsWagonShopOpen && UnityEngine.EventSystems.EventSystem.current)
+        {
+            var data = new UnityEngine.EventSystems.PointerEventData(UnityEngine.EventSystems.EventSystem.current) { position = _screenPos };
+            var hits = new List<UnityEngine.EventSystems.RaycastResult>();
+            UnityEngine.EventSystems.EventSystem.current.RaycastAll(data, hits);
+            for (int i = 0; i < hits.Count; i++)
+            {
+                if (stationActions.IsWagonShopTarget(hits[i].gameObject))
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    // S6 역사 창에서 구매한 화차를 선로 삽입 지점에 놓을 때 호출한다(R24).
+    public bool TryDropPurchasedWagonAtScreenPosition(PuzzleWagonProductData _product, Vector2 _screenPos)
+    {
+        if (MarketOperationsBlocked || session == null || _product == null || !railStripView ||
+            !railStripView.TryGetInsertionIndexAtScreenPosition(_screenPos, out int insertionIndex))
+        {
+            return false;
+        }
+        if (!session.TryPurchaseWagon(_product.id, out string failureReason))
+        {
+            statusBannerView?.ShowStatus(failureReason);
+            cityView.ShowTradeStatus(failureReason);
+            return false;
+        }
+        int newIndex = session.WagonCount - 1;
+        var purchasedWagon = session.TrainWagons[newIndex];
+        int clampedTarget = Mathf.Clamp(insertionIndex, 0, newIndex);
+        if (clampedTarget != newIndex)
+        {
+            session.TryMoveWagon(newIndex, clampedTarget);
+        }
+        if (UseMultiTrainWindows)
+        {
+            trainWindowManager.OpenOrFocusWagon(purchasedWagon, session);
+        }
+        RefreshSelectedWagon();
+        return true;
+    }
+
+    long RemainingSettlementHours()
+    {
+        double interval = TableManager.Instance != null && TableManager.Instance.IsValid
+            ? TableManager.Instance.RequireValid().PuzzleSynergy.activationIntervalHours
+            : 0d;
+        if (interval > 0d && session?.Time != null)
+        {
+            double now = session.Time.ElapsedHours + PuzzleTimeManager.HOURS_PER_TURN / 2d;
+            double next = (System.Math.Floor(now / interval) + 1d) * interval;
+            return (long)(next - session.Time.ElapsedHours);
+        }
+        return 0;
+    }
+
     void OnWagonMoved(int _sourceIndex, int _destinationIndex)
     {
         if (!TrainOperationsBlocked && drag == null && session.TryMoveWagon(_sourceIndex, _destinationIndex))
         {
+            RenderBoards();
             RefreshTrainBar();
+            if (UseMultiTrainWindows)
+            {
+                trainWindowManager.SavePersistence(session);
+            }
         }
     }
 
@@ -2060,8 +2331,11 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
 
     void RefreshSelectedWagon()
     {
-        ActiveTrainView.SetTitle(Presentation.PuzzleTrainTitle(session.Train));
-        ActiveTrainView.SetBoard(session.Train);
+        if (!UseMultiTrainWindows && ActiveTrainView)
+        {
+            ActiveTrainView.SetTitle(Presentation.PuzzleTrainTitle(session.Train));
+            ActiveTrainView.SetBoard(session.Train);
+        }
         RenderBoards();
         RenderValues();
         ShowItemDetails(null, null);

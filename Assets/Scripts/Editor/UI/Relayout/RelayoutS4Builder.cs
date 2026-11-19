@@ -421,12 +421,24 @@ public static class RelayoutS4Builder
         lbl.rectTransform.offsetMin = new Vector2(4f, 0f);
         lbl.rectTransform.offsetMax = new Vector2(-4f, 0f);
 
+        var leaderRt = NewRect("LeaderLine", rt);
+        leaderRt.anchorMin = new Vector2(0.5f, 0f);
+        leaderRt.anchorMax = new Vector2(0.5f, 0f);
+        leaderRt.pivot = new Vector2(0.5f, 1f);
+        leaderRt.anchoredPosition = Vector2.zero;
+        leaderRt.sizeDelta = new Vector2(1f, 0f);
+        var leaderImg = leaderRt.gameObject.AddComponent<Image>();
+        leaderImg.color = _palette.GoldAccent;
+        leaderImg.raycastTarget = false;
+        leaderRt.gameObject.SetActive(false);
+
         var pin = rt.gameObject.AddComponent<MapDestinationPinView>();
         var so = new SerializedObject(pin);
         so.FindProperty("rectTransform").objectReferenceValue = rt;
         so.FindProperty("background").objectReferenceValue = bg;
         so.FindProperty("border").objectReferenceValue = border;
         so.FindProperty("label").objectReferenceValue = lbl;
+        so.FindProperty("leaderLine").objectReferenceValue = leaderImg;
         so.ApplyModifiedPropertiesWithoutUndo();
         rt.gameObject.SetActive(false);
         return pin;

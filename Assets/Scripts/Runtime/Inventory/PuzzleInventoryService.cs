@@ -16,6 +16,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
     IReadOnlyList<PuzzleSynergyRuleData> marketRules;
     int lastInstanceId;
     int lastWagonNumber;
+    internal string RunId { get; private set; } = string.Empty;
     string currentCityId;
     readonly HashSet<string> visitedCities = new HashSet<string>(StringComparer.Ordinal);
     readonly List<TavernRumor> tavernRumors = new List<TavernRumor>();
@@ -573,6 +574,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         ItemDefinitions = definitions.Values;
         MarketCapacity = marketCapacity;
         currentCityId = tables.Puzzle.startCity;
+        RunId = Guid.NewGuid().ToString("N");
         visitedCities.Clear();
         visitedCities.Add(currentCityId);
         ResetFog();

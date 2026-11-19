@@ -38,6 +38,9 @@ public sealed class FloatingWindow : MonoBehaviour, IPointerDownHandler
     public Rect CurrentRect => currentRect;
     public RectTransform TitleBar => titleBar;
 
+    public event Action Focused;
+    public event Action<bool> OpenChanged;
+
     void Awake()
     {
         InitializeIfNeeded();
@@ -80,6 +83,23 @@ public sealed class FloatingWindow : MonoBehaviour, IPointerDownHandler
     public void BringToFront()
     {
         transform.SetAsLastSibling();
+        Focused?.Invoke();
+    }
+
+    public void SetPosition(Vector2 _topLeftPos, bool _persist = true)
+    {
+        InitializeIfNeeded();
+        Vector2 screenSize = GetScreenSize();
+        var clamped = FloatingWindowMath.ClampRect(
+            new Rect(_topLeftPos.x, _topLeftPos.y, currentRect.width, currentRect.height),
+            FloatingWindowMath.TopHudSafeY,
+            screenSize.x,
+            screenSize.y);
+        ApplyRect(clamped);
+        if (_persist)
+        {
+            SaveState();
+        }
     }
 
     public void Open() => SetOpen(true);
@@ -101,6 +121,7 @@ public sealed class FloatingWindow : MonoBehaviour, IPointerDownHandler
         }
         InitializeIfNeeded();
         hiddenForBackgroundOnly = false;
+        bool changed = IsOpen != _open;
         IsOpen = _open;
         if (gameObject.activeSelf != _open)
         {
@@ -113,6 +134,10 @@ public sealed class FloatingWindow : MonoBehaviour, IPointerDownHandler
         if (_persist)
         {
             SaveState();
+        }
+        if (changed)
+        {
+            OpenChanged?.Invoke(_open);
         }
     }
 

@@ -172,6 +172,17 @@ public static class RelayoutS3Builder
                 6f, 972f, 79f, 22f, "▼", 12f, _palette);
 
             var stripView = rootGo.AddComponent<RailStripView>();
+            var insRect = NewRect("InsertionLine", content);
+            insRect.anchorMin = new Vector2(0f, 1f);
+            insRect.anchorMax = new Vector2(1f, 1f);
+            insRect.pivot = new Vector2(0.5f, 0.5f);
+            insRect.anchoredPosition = Vector2.zero;
+            insRect.sizeDelta = new Vector2(-4f, 2f);
+            var insImg = insRect.gameObject.AddComponent<Image>();
+            insImg.color = _palette.GoldAccent;
+            insImg.raycastTarget = false;
+            insRect.gameObject.SetActive(false);
+
             var so = new SerializedObject(stripView);
             so.FindProperty("scrollRect").objectReferenceValue = scrollRect;
             so.FindProperty("viewport").objectReferenceValue = viewport;
@@ -180,6 +191,7 @@ public static class RelayoutS3Builder
             so.FindProperty("scrollDownButton").objectReferenceValue = downBtn;
             so.FindProperty("topFade").objectReferenceValue = topFadeRect.GetComponent<Image>();
             so.FindProperty("bottomFade").objectReferenceValue = bfImg;
+            so.FindProperty("insertionLine").objectReferenceValue = insImg;
             so.FindProperty("carHeight").floatValue = 102f;
             var poolProp = so.FindProperty("carPool");
             poolProp.arraySize = pool.Length;
@@ -288,7 +300,8 @@ public static class RelayoutS3Builder
         {
             rootGo.layer = 5;
             var rootRect = (RectTransform)rootGo.transform;
-            SetTopLeftRect(rootRect, 26f, 516f, 510f, 544f);
+            // R29: 56px 칸 7×5 보드 기준 440×430 기본 크기.
+            SetTopLeftRect(rootRect, 26f, 633f, 440f, 430f);
 
             var bg = rootGo.AddComponent<Image>();
             bg.color = _palette.Panel;
@@ -300,13 +313,13 @@ public static class RelayoutS3Builder
 
             var floatingWin = rootGo.AddComponent<FloatingWindow>();
 
-            // 제목줄 (32px)
+            // 제목줄 (30px)
             var titleBar = NewRect("TitleBar", rootRect);
             titleBar.anchorMin = new Vector2(0f, 1f);
             titleBar.anchorMax = new Vector2(1f, 1f);
             titleBar.pivot = new Vector2(0.5f, 1f);
             titleBar.anchoredPosition = Vector2.zero;
-            titleBar.sizeDelta = new Vector2(0f, 32f);
+            titleBar.sizeDelta = new Vector2(0f, 30f);
             var tbImg = titleBar.gameObject.AddComponent<Image>();
             tbImg.color = _palette.Panel2;
             BindPalette(titleBar.gameObject, _palette, UIPalette.ColorRole.Panel2);
@@ -338,8 +351,8 @@ public static class RelayoutS3Builder
             var bodyRt = (RectTransform)clonedTrainInv.transform;
             bodyRt.anchorMin = Vector2.zero;
             bodyRt.anchorMax = Vector2.one;
-            bodyRt.offsetMin = new Vector2(8f, 50f);
-            bodyRt.offsetMax = new Vector2(-8f, -36f);
+            bodyRt.offsetMin = new Vector2(8f, 44f);
+            bodyRt.offsetMax = new Vector2(-8f, -32f);
 
             var invView = clonedTrainInv.GetComponent<PuzzleInventoryView>();
             var invSo = new SerializedObject(invView);
@@ -368,17 +381,17 @@ public static class RelayoutS3Builder
                 bvRt.anchorMax = new Vector2(1f, 1f);
                 bvRt.pivot = new Vector2(0.5f, 1f);
                 bvRt.anchoredPosition = new Vector2(0f, -2f);
-                bvRt.sizeDelta = new Vector2(-12f, 24f);
-                oldBoardValue.fontSize = 15f;
+                bvRt.sizeDelta = new Vector2(-12f, 20f);
+                oldBoardValue.fontSize = 14f;
             }
             // 다음 정산 요약 라벨 추가 (화물 가치 줄 아래 단독 줄로 겹침 완전 방지)
-            var nextSettlementLbl = CreateLabel(_labelTemplate, bodyRt, "NextSettlementSummary", 14f,
+            var nextSettlementLbl = CreateLabel(_labelTemplate, bodyRt, "NextSettlementSummary", 13f,
                 TextAlignmentOptions.Left, _palette, UIPalette.ColorRole.Positive);
             nextSettlementLbl.rectTransform.anchorMin = new Vector2(0f, 1f);
             nextSettlementLbl.rectTransform.anchorMax = new Vector2(1f, 1f);
             nextSettlementLbl.rectTransform.pivot = new Vector2(0.5f, 1f);
-            nextSettlementLbl.rectTransform.anchoredPosition = new Vector2(0f, -26f);
-            nextSettlementLbl.rectTransform.sizeDelta = new Vector2(-12f, 22f);
+            nextSettlementLbl.rectTransform.anchoredPosition = new Vector2(0f, -22f);
+            nextSettlementLbl.rectTransform.sizeDelta = new Vector2(-12f, 18f);
 
             var oldChips = FindDeep(clonedTrainInv.transform, "ProficiencyChips") as RectTransform;
             if (oldChips)
@@ -386,8 +399,8 @@ public static class RelayoutS3Builder
                 oldChips.anchorMin = new Vector2(0f, 1f);
                 oldChips.anchorMax = new Vector2(1f, 1f);
                 oldChips.pivot = new Vector2(0.5f, 1f);
-                oldChips.anchoredPosition = new Vector2(0f, -50f);
-                oldChips.sizeDelta = new Vector2(-8f, 36f);
+                oldChips.anchoredPosition = new Vector2(0f, -40f);
+                oldChips.sizeDelta = new Vector2(-8f, 26f);
             }
             var oldDivider = FindDeep(clonedTrainInv.transform, "HeaderDivider") as RectTransform;
             if (oldDivider)
@@ -395,11 +408,11 @@ public static class RelayoutS3Builder
                 oldDivider.anchorMin = new Vector2(0f, 1f);
                 oldDivider.anchorMax = new Vector2(1f, 1f);
                 oldDivider.pivot = new Vector2(0.5f, 1f);
-                oldDivider.anchoredPosition = new Vector2(0f, -88f);
+                oldDivider.anchoredPosition = new Vector2(0f, -67f);
                 oldDivider.sizeDelta = new Vector2(-8f, 2f);
             }
 
-            // 고정 창 비율 맞춤 셀 크기(40~72px) 뷰포트 구성
+            // 고정 창 비율 맞춤 셀 크기(56px 기준) 뷰포트 구성 (416×280)
             var boardImg = invSo.FindProperty("board").objectReferenceValue as Image;
             var boardRt = boardImg.rectTransform;
             boardImg.enabled = false;
@@ -407,8 +420,8 @@ public static class RelayoutS3Builder
             var viewport = NewRect("BoardViewport", bodyRt);
             viewport.anchorMin = Vector2.zero;
             viewport.anchorMax = Vector2.one;
-            viewport.offsetMin = new Vector2(4f, 4f);
-            viewport.offsetMax = new Vector2(-4f, -94f);
+            viewport.offsetMin = new Vector2(4f, 2f);
+            viewport.offsetMax = new Vector2(-4f, -72f);
             viewport.gameObject.AddComponent<RectMask2D>();
 
             // BoardContent는 좌상단 고정 앵커(0,1)를 사용해 sizeDelta가 부모 크기에 더해지지 않도록 한다.
@@ -417,12 +430,12 @@ public static class RelayoutS3Builder
             content.anchorMax = new Vector2(0f, 1f);
             content.pivot = new Vector2(0f, 1f);
             content.anchoredPosition = Vector2.zero;
-            content.sizeDelta = new Vector2(478f, 360f);
+            content.sizeDelta = new Vector2(416f, 280f);
 
-            // 보드 하위 슬롯들을 BoardContent로 이동 (boardCells, placementSlots, outlineSlots, synergyArrows, PlacementCandidates)
-            for (int i = boardRt.childCount - 1; i >= 0; i--)
+            // 보드 하위 슬롯들을 BoardContent로 순서대로 이동 (boardCells → placementSlots → outlineSlots → synergyArrows → PlacementCandidates)
+            while (boardRt.childCount > 0)
             {
-                boardRt.GetChild(i).SetParent(content, false);
+                boardRt.GetChild(0).SetParent(content, false);
             }
 
             invSo.FindProperty("dynamicCellSizing").boolValue = true;
@@ -438,36 +451,36 @@ public static class RelayoutS3Builder
             lensFooter.anchorMax = new Vector2(1f, 0f);
             lensFooter.pivot = new Vector2(0.5f, 0f);
             lensFooter.anchoredPosition = new Vector2(0f, 4f);
-            lensFooter.sizeDelta = new Vector2(-12f, 44f);
+            lensFooter.sizeDelta = new Vector2(-12f, 38f);
             var lfBg = lensFooter.gameObject.AddComponent<Image>();
             lfBg.color = _palette.Panel2;
             lfBg.raycastTarget = false;
             BindPalette(lensFooter.gameObject, _palette, UIPalette.ColorRole.Panel2);
 
-            var tradeLine = CreateLabel(_labelTemplate, lensFooter, "LensTradeLine", 14f,
+            var tradeLine = CreateLabel(_labelTemplate, lensFooter, "LensTradeLine", 13f,
                 TextAlignmentOptions.Left, _palette, UIPalette.ColorRole.Text);
             tradeLine.overflowMode = TextOverflowModes.Ellipsis;
             tradeLine.rectTransform.anchorMin = new Vector2(0f, 0.5f);
             tradeLine.rectTransform.anchorMax = new Vector2(1f, 1f);
             tradeLine.rectTransform.offsetMin = new Vector2(10f, 0f);
-            tradeLine.rectTransform.offsetMax = new Vector2(-10f, -2f);
+            tradeLine.rectTransform.offsetMax = new Vector2(-10f, -1f);
 
-            var spotLine = CreateLabel(_labelTemplate, lensFooter, "LensSpotLine", 14f,
+            var spotLine = CreateLabel(_labelTemplate, lensFooter, "LensSpotLine", 13f,
                 TextAlignmentOptions.Left, _palette, UIPalette.ColorRole.TextSub);
             spotLine.overflowMode = TextOverflowModes.Ellipsis;
             spotLine.rectTransform.anchorMin = new Vector2(0f, 0f);
             spotLine.rectTransform.anchorMax = new Vector2(1f, 0.5f);
-            spotLine.rectTransform.offsetMin = new Vector2(10f, 2f);
+            spotLine.rectTransform.offsetMin = new Vector2(10f, 1f);
             spotLine.rectTransform.offsetMax = new Vector2(-10f, 0f);
 
-            // FloatingWindow 직렬화 (고정 크기)
+            // FloatingWindow 직렬화 (고정 크기 440×430)
             var fwSo = new SerializedObject(floatingWin);
             fwSo.FindProperty("windowId").stringValue = "train";
             fwSo.FindProperty("titleBar").objectReferenceValue = titleBar;
             fwSo.FindProperty("closeButton").objectReferenceValue = closeBtn;
-            fwSo.FindProperty("defaultPosition").vector2Value = new Vector2(26f, 516f);
-            fwSo.FindProperty("defaultSize").vector2Value = new Vector2(510f, 544f);
-            fwSo.FindProperty("startOpen").boolValue = true;
+            fwSo.FindProperty("defaultPosition").vector2Value = new Vector2(26f, 633f);
+            fwSo.FindProperty("defaultSize").vector2Value = new Vector2(440f, 430f);
+            fwSo.FindProperty("startOpen").boolValue = false;
             fwSo.ApplyModifiedPropertiesWithoutUndo();
 
             // TrainWindowView 직렬화
@@ -506,26 +519,65 @@ public static class RelayoutS3Builder
             }
 
             var floatingCanvas = root.transform.Find("FloatingWindowCanvas");
-            GameObject trainWinInst = null;
+            int maxTrainWindows = Mathf.Max(1, BasicData.Int("ui.maxTrainWindows"));
+            var trainWindows = new TrainWindowView[maxTrainWindows];
+            TrainWindowManager twManager = null;
             if (floatingCanvas)
             {
-                RemoveChildrenNamed(floatingCanvas, "TrainWindow");
-                trainWinInst = (GameObject)PrefabUtility.InstantiatePrefab(_trainWindowPrefab, floatingCanvas);
+                for (int c = floatingCanvas.childCount - 1; c >= 0; c--)
+                {
+                    if (floatingCanvas.GetChild(c).name.StartsWith("TrainWindow"))
+                    {
+                        Object.DestroyImmediate(floatingCanvas.GetChild(c).gameObject);
+                    }
+                }
+                for (int i = 0; i < maxTrainWindows; i++)
+                {
+                    var inst = (GameObject)PrefabUtility.InstantiatePrefab(_trainWindowPrefab, floatingCanvas);
+                    inst.name = $"TrainWindow_{i}";
+                    var fw = inst.GetComponent<FloatingWindow>();
+                    if (fw)
+                    {
+                        var fwSo = new SerializedObject(fw);
+                        fwSo.FindProperty("windowId").stringValue = $"train.{i}";
+                        fwSo.FindProperty("startOpen").boolValue = false;
+                        fwSo.FindProperty("defaultPosition").vector2Value = TrainWindowManager.GetDefaultSlotPosition(i);
+                        fwSo.FindProperty("defaultSize").vector2Value = new Vector2(440f, 430f);
+                        fwSo.ApplyModifiedPropertiesWithoutUndo();
+                    }
+                    trainWindows[i] = inst.GetComponent<TrainWindowView>();
+                }
+                twManager = floatingCanvas.GetComponent<TrainWindowManager>();
+                if (!twManager)
+                {
+                    twManager = floatingCanvas.gameObject.AddComponent<TrainWindowManager>();
+                }
+                var tmSo = new SerializedObject(twManager);
+                var winProp = tmSo.FindProperty("windows");
+                winProp.arraySize = maxTrainWindows;
+                for (int i = 0; i < maxTrainWindows; i++)
+                {
+                    winProp.GetArrayElementAtIndex(i).objectReferenceValue = trainWindows[i];
+                }
+                tmSo.ApplyModifiedPropertiesWithoutUndo();
             }
 
             var invPresenter = root.GetComponent<PuzzleInventoryPresenter>();
             if (invPresenter)
             {
                 var pSo = new SerializedObject(invPresenter);
-                var trainWinView = trainWinInst ? trainWinInst.GetComponent<TrainWindowView>() : null;
-                pSo.FindProperty("relayoutTrainView").objectReferenceValue = trainWinView ? trainWinView.InventoryView : null;
+                var firstWin = trainWindows.Length > 0 ? trainWindows[0] : null;
+                pSo.FindProperty("relayoutTrainView").objectReferenceValue = firstWin ? firstWin.InventoryView : null;
                 pSo.FindProperty("railStripView").objectReferenceValue = railInst ? railInst.GetComponent<RailStripView>() : null;
-                pSo.FindProperty("trainWindowView").objectReferenceValue = trainWinView;
+                pSo.FindProperty("trainWindowView").objectReferenceValue = firstWin;
+                pSo.FindProperty("trainWindowManager").objectReferenceValue = twManager;
+                pSo.FindProperty("townSceneView").objectReferenceValue = root.GetComponentInChildren<TownSceneView>(true);
+                pSo.FindProperty("statusBannerView").objectReferenceValue = root.GetComponentInChildren<StatusBannerView>(true);
                 pSo.ApplyModifiedPropertiesWithoutUndo();
             }
 
             PrefabUtility.SaveAsPrefabAsset(root, GAME_CANVAS_PREFAB);
-            _log.AppendLine($"GameCanvas 업데이트 (RailStrip, TrainWindow 연결) → {GAME_CANVAS_PREFAB}");
+            _log.AppendLine($"GameCanvas 업데이트 (RailStrip, TrainWindow×{maxTrainWindows} 연결) → {GAME_CANVAS_PREFAB}");
         }
         finally
         {

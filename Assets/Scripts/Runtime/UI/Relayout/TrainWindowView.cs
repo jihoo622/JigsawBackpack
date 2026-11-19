@@ -14,6 +14,8 @@ public sealed class TrainWindowView : MonoBehaviour
 
     public FloatingWindow FloatingWindow => floatingWindow;
     public PuzzleInventoryView InventoryView => inventoryView;
+    public PuzzleInventory BoundWagon { get; set; }
+    public int BoundWagonIndex { get; set; } = -1;
 
     void Awake()
     {
@@ -24,10 +26,7 @@ public sealed class TrainWindowView : MonoBehaviour
     {
         if (titleText && _wagon != null)
         {
-            titleText.text = Presentation.TrainWindowTitle(
-                Presentation.PuzzleTrainTitle(_wagon),
-                _wagon.OccupiedCells,
-                _wagon.UsableCellCount);
+            titleText.text = Presentation.TrainWindowTitle(_wagon);
         }
         if (nextSettlementText)
         {

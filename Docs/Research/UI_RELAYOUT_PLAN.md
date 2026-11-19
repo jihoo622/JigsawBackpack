@@ -74,6 +74,7 @@
 | R26 | H19 세부: 의뢰 게시판 격자는 9×5, 의뢰 화물은 화물 모양 그대로 놓인다. 다른 마을 의뢰 화물·일반 화물은 게시판에 놓을 수 없다. 받은 마을 게시판으로 되돌려 놓는 취소는 두지 않는다(기존 규칙에 취소 없음). 마지막 턴 행동으로 결산될 때 이미 목적지에 와 있는 진행 중 의뢰는 결산 직전에 완료로 처리한다 | 끌어 놓을 기회가 없는 결산 순간에 손해를 보지 않게 한다 |
 | R27 | 일정: H18·H20과 H17의 선로 쪽은 S3b(S4 다음), H17의 역사 창 쪽과 H19는 S6에서 한다. H19 규칙 변경은 서비스 수정과 함께 별도 커밋으로 둔다 | 선로·화차 창 코드를 먼저 안정시킨 뒤 마을 창을 붙인다 |
 | R28 | H21 적용: 창은 기본 크기로 고정하고 크기 저장값은 무시한다. 창 안 보드의 칸 크기는 창 기본 크기에서 한 번 계산해 고정한다(R11의 실시간 재계산 철회). 크기 조정 손잡이와 관련 문구를 없앤다 | 사용자 결정 반영. 칸 크기 계산식은 창마다 기본 칸 크기를 정하는 데만 쓴다 |
+| R29 | 화차 창 기본 크기를 56px 칸 7×5 보드에 맞춰 약 440×430으로 줄이고, 처음 여는 위치는 칸 배치표를 따른다: 1·2번째는 왼쪽 열 아래·위, 3~8번째는 마을 영역 위쪽부터 3열×2행, 그 뒤로는 24px씩 비켜 연다 | 크기 조정이 없어졌으므로 여러 창이 처음부터 겹치지 않아야 한다(S3b 스크린샷에서 3창이 거의 포개짐) |
 | R2 | 시안 작성 전에 현재 화면을 전부 캡처하고 요소 목록(`UI_SCREEN_INVENTORY.md`)을 만든다 | 범위가 화면 전체라 빠뜨리는 기능이 없어야 한다 |
 
 ## 진행 단계
@@ -282,6 +283,10 @@ GameUI.prefab
 > **S4 구현 결과 (2026-11-19):** S3 잔여 이슈(`TrainWindow` 내 `LocomotiveArtwork` 숨김) 수정 및 5탭 수첩 부동 창(`NotebookWindowView` + `MapDestinationPinView` 16개 풀 + `NotebookWindow.prefab`, 기본 `(16,128,522,928)`), `PuzzleWorldMap`/`PuzzleTradeNotebookView`/`PuzzleSynergyChartView`(불투명 배경 + `ScrollRect` + `RectMask2D`, 중첩 `Canvas` 제거) 임베드, `QuickToolbarView`(`수첩(N)`/`노선도(M)`)·`EntityLinkNavigation`·`PuzzleInventoryPresenter`(R6 마지막 선택 화물 핀) 연동, `RelayoutS4Builder.cs`(`Tools/MyJG/UI/Relayout/S4 Build Notebook Window`) 구현 완료. 5탭 전환·방문/소문 핀·검색/경로 계획·소/대 리사이즈(420×520, 900×920)·OFF 구형 수첩/지도 보존 캡처(`.orca/analysis/relayout/s4/`) 및 콘솔 에러 0건 확인.
 >
 > **H21 리사이즈 제거 (2026-11-19):** H13의 창 크기 조정 부분 철회에 따라 `FloatingWindowResizeHandle` 삭제, `FloatingWindow`의 `minSize`/`maxSize`/`Resized`/`BeginResize`/`UpdateResize`/`EndResize` 및 `w, h` 저장 제거(기존 PlayerPrefs의 `w, h`는 무시하고 `x, y, open`만 유지), `RelayoutS3Builder`/`RelayoutS4Builder`의 리사이즈 핸들 제거, `PuzzleInventoryView` 보드 셀 크기 고정(기본 사각형 기준 40~72px 1회 계산, 리사이즈 재계산 및 보드 스크롤 모드 제거) 반영 완료.
+>
+> **S3b 구현 결과 (2026-11-19):** S4 잔여 이슈(`NotebookWindow` 제목 `'수첩'` 변경, `MapDestinationPinView` 1px 리더 라인 + 수직 스태킹으로 겹침 방지) 수정 완료. `ui.maxTrainWindows`(기본 16) 기반 다중 화차 창(`TrainWindowManager` + `TrainWindow_0..15`, 24px 계단식 오프셋, LRU 교체, 창별/열린 화차 영속성, `PuzzleInventoryPresenter`/렌즈 다중 보드 라우팅, H18/R25), 선로 드래그 순서 변경(삽입선·상하 자동 스크롤·`TryMoveWagon`, H20), 선로 화차 → 마을 `역사` 드래그 판매(`PreviewWagonSale`/`TrySellWagon`, H17/R24) 및 S6 구매 드롭 타깃(`TryDropPurchasedWagonAtScreenPosition`) 구현 완료. Play Mode에서 3창 동시 오픈·창 A→창 B 실드롭 이동(`piece.verticalPair`, `w0:4->2, w1:0->2`)·드래그 순서 변경(`1,2->2,1`)·`역사` 드래그 판매(`3->2`, `+120$`)·LRU 교체(`maxWin=2` 시 `[0,2]` 유지)·Relayout OFF 보존·콘솔 에러 0건 확인(`.orca/analysis/relayout/s3b/`).
+>
+> **S3b 리뷰 수정 (2026-11-19):** R29 화차 창 기본 크기(440×430, 7×5 보드 56px 칸) 및 1~8번 비겹침 슬롯 배치(이후 24px 계단) 적용, `TrainWindowManager`의 인덱스 기반 바인딩을 `PuzzleInventory` 참조 기반으로 전환(화차당 최대 1창·이동 추적·판매 시 자동 닫힘 및 `RenderValues`/`RefreshTrainBar` 다중 창 보호), `RailWagonCarView`/`RailStripView` 드래그 시작 화차 캡처 및 자동 스크롤 시 첫 표시 인덱스 변경 시에만 풀 재바인딩, LRU 교체 시 드래그 출발/대상 창 보호 및 보류, 창 이동 시 이전 창 배치 후보 숨김 및 새 대상 창 `UpdateLensRanking` 재계산, 구매 드롭 시 `purchasedWagon` 참조 기준 창 열기, 열림 영속성 `RunId`+`WagonNumber` 키잉 및 변경 시마다 저장, `EventCamera` 사용 및 `relayoutTrainView` 초기화 보장을 반영하고 Play Mode 재검증(`fix_*.png`, 콘솔 에러 0건) 완료.
 
 ---
 

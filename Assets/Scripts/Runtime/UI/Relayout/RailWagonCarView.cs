@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-// S3: 중앙 선로의 가상화 화차 슬롯(R8 7×5 미니 격자 포함).
+// S3/S3b: 중앙 선로의 가상화 화차 슬롯(R8 7×5 미니 격자 포함, H20 순서 드래그 + H17 판매 드래그).
 [DisallowMultipleComponent]
-public sealed class RailWagonCarView : MonoBehaviour
+public sealed class RailWagonCarView : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
     public const int MINI_COLS = 7;
     public const int MINI_ROWS = 6;
@@ -23,8 +24,13 @@ public sealed class RailWagonCarView : MonoBehaviour
 
     readonly Dictionary<int, int> placementToneById = new();
     readonly List<int> neighborTones = new();
+    bool isDragging;
+    int dragCapturedWagonIndex = -1;
 
     public event Action<int> Selected;
+    public event Action<int, PointerEventData> DragStarted;
+    public event Action<int, PointerEventData> Dragged;
+    public event Action<int, PointerEventData> DragEnded;
 
     public int BoundWagonIndex { get; private set; } = -1;
     public RectTransform RectTransform => rectTransform ? rectTransform : (RectTransform)transform;
@@ -39,6 +45,8 @@ public sealed class RailWagonCarView : MonoBehaviour
 
     void OnDisable()
     {
+        isDragging = false;
+        dragCapturedWagonIndex = -1;
         if (button)
         {
             button.onClick.RemoveListener(OnClicked);
@@ -178,9 +186,48 @@ public sealed class RailWagonCarView : MonoBehaviour
 
     void OnClicked()
     {
+        if (isDragging)
+        {
+            return;
+        }
         if (BoundWagonIndex >= 0)
         {
             Selected?.Invoke(BoundWagonIndex);
+        }
+    }
+
+    public void OnBeginDrag(PointerEventData _eventData)
+    {
+        if (BoundWagonIndex < 0)
+        {
+            return;
+        }
+        isDragging = true;
+        dragCapturedWagonIndex = BoundWagonIndex;
+        DragStarted?.Invoke(dragCapturedWagonIndex, _eventData);
+    }
+
+    public void OnDrag(PointerEventData _eventData)
+    {
+        if (!isDragging || dragCapturedWagonIndex < 0)
+        {
+            return;
+        }
+        Dragged?.Invoke(dragCapturedWagonIndex, _eventData);
+    }
+
+    public void OnEndDrag(PointerEventData _eventData)
+    {
+        if (!isDragging)
+        {
+            return;
+        }
+        isDragging = false;
+        int captured = dragCapturedWagonIndex;
+        dragCapturedWagonIndex = -1;
+        if (captured >= 0)
+        {
+            DragEnded?.Invoke(captured, _eventData);
         }
     }
 }

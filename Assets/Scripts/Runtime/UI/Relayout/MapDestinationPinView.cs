@@ -10,8 +10,10 @@ public sealed class MapDestinationPinView : MonoBehaviour
     [SerializeField] Image background;
     [SerializeField] Outline border;
     [SerializeField] TextMeshProUGUI label;
+    [SerializeField] Image leaderLine;
 
     public RectTransform RectTransform => rectTransform ? rectTransform : (RectTransform)transform;
+    public Color BorderColor => border ? border.effectColor : Color.white;
 
     public void Show(string _text, Color _backgroundColor, Color _borderColor, Color _textColor)
     {
@@ -39,5 +41,24 @@ public sealed class MapDestinationPinView : MonoBehaviour
     public void SetPosition(Vector2 _localPos)
     {
         RectTransform.anchoredPosition = _localPos;
+    }
+
+    public void SetLeader(float _height, Color _color)
+    {
+        if (!leaderLine)
+        {
+            return;
+        }
+        bool show = _height > 1f;
+        if (leaderLine.gameObject.activeSelf != show)
+        {
+            leaderLine.gameObject.SetActive(show);
+        }
+        if (show)
+        {
+            leaderLine.color = _color;
+            var rt = leaderLine.rectTransform;
+            rt.sizeDelta = new Vector2(1f, _height);
+        }
     }
 }

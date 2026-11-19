@@ -4,6 +4,17 @@
   "note": "공통 표시·UI 배치·제작·규칙 참조 값을 그룹과 항목 ID로 관리한다. 전체 키는 그룹 ID와 항목 ID를 점으로 연결한다.",
   "groups": [
     {
+      "id": "ui",
+      "numbers": [
+        {
+          "id": "maxTrainWindows",
+          "value": 16,
+          "whole": true,
+          "positive": true
+        }
+      ]
+    },
+    {
       "id": "editor.MapPresentationTool",
       "numbers": [
         {
@@ -972,8 +983,12 @@
         },
         {
           "id": "trainWindowTitle",
-          "value": "{0} · 적재 {1}/{2}",
-          "arguments": 3
+          "value": "{0}번 · {1} · 적재 {2}/{3}",
+          "arguments": 4
+        },
+        {
+          "id": "trainWindowDefaultName",
+          "value": "일반 화차"
         },
         {
           "id": "trainWindowLensIdle",
@@ -983,6 +998,11 @@
         {
           "id": "notebookTabMap",
           "value": "지도",
+          "arguments": 0
+        },
+        {
+          "id": "notebookTitle",
+          "value": "수첩",
           "arguments": 0
         },
         {

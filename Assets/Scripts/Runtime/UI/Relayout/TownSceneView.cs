@@ -13,6 +13,28 @@ public sealed class TownSceneView : MonoBehaviour
     bool textInputFocused;
     string activeHoverReason;
 
+    public bool IsScreenPointOverBuilding(TownBuildingButton.BuildingKind _kind, Vector2 _screenPos)
+    {
+        if (!gameObject.activeInHierarchy || buildings == null)
+        {
+            return false;
+        }
+        var canvas = GetComponentInParent<Canvas>();
+        Camera cam = canvas && canvas.rootCanvas && canvas.rootCanvas.renderMode != RenderMode.ScreenSpaceOverlay
+            ? canvas.rootCanvas.worldCamera
+            : null;
+        for (int i = 0; i < buildings.Length; i++)
+        {
+            var b = buildings[i];
+            if (b && b.Kind == _kind && b.gameObject.activeInHierarchy &&
+                RectTransformUtility.RectangleContainsScreenPoint((RectTransform)b.transform, _screenPos, cam))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
     void OnEnable()
     {
         if (buildings != null)

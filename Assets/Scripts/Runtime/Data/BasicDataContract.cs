@@ -57,6 +57,7 @@ public static class BasicDataContract
         "rules.freshness.mediumThreshold",
         "rules.freshness.mediumValuePercent",
         "rules.player.dashChargesMaximum",
+        "ui.maxTrainWindows",
     };
     public static readonly string[] Texts =
     {
@@ -139,6 +140,7 @@ public static class BasicDataContract
         "presentation.inventory.notebookMapPinVisited",
         "presentation.inventory.notebookMapPinVisitedNoFare",
         "presentation.inventory.notebookTabMap",
+        "presentation.inventory.notebookTitle",
         "presentation.inventory.objectiveHint",
         "presentation.inventory.qtBackgroundOnly",
         "presentation.inventory.qtMap",
@@ -198,6 +200,7 @@ public static class BasicDataContract
         "presentation.inventory.titleText4",
         "presentation.inventory.titleText5",
         "presentation.inventory.topHudPause",
+        "presentation.inventory.trainWindowDefaultName",
         "presentation.inventory.trainWindowLensIdle",
         "presentation.inventory.trainWindowTitle",
         "presentation.inventory.travelArrived",
@@ -810,6 +813,7 @@ public static class BasicDataContract
             { "presentation.inventory.notebookMapPinVisited", 3 },
             { "presentation.inventory.notebookMapPinVisitedNoFare", 2 },
             { "presentation.inventory.notebookTabMap", 0 },
+            { "presentation.inventory.notebookTitle", 0 },
             { "presentation.inventory.objectiveHint", 1 },
             { "presentation.inventory.qtBackgroundOnly", 0 },
             { "presentation.inventory.qtMap", 0 },
@@ -869,8 +873,9 @@ public static class BasicDataContract
             { "presentation.inventory.titleText4", 0 },
             { "presentation.inventory.titleText5", 0 },
             { "presentation.inventory.topHudPause", 0 },
+            { "presentation.inventory.trainWindowDefaultName", 0 },
             { "presentation.inventory.trainWindowLensIdle", 0 },
-            { "presentation.inventory.trainWindowTitle", 3 },
+            { "presentation.inventory.trainWindowTitle", 4 },
             { "presentation.inventory.travelArrived", 0 },
             { "presentation.inventory.travelBreakdown", 3 },
             { "presentation.inventory.travelCancel", 0 },

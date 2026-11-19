@@ -36,6 +36,8 @@ public sealed class NotebookWindowView : MonoBehaviour
     [SerializeField] UIPalette palette;
 
     readonly List<(PuzzleMapNodeView node, MapDestinationPinView pin)> activePins = new();
+    readonly List<Rect> placedPinRects = new();
+    readonly List<(int index, Vector2 nodePos)> pinLayoutWork = new();
     NotebookWindowTab currentTab = NotebookWindowTab.Map;
     PuzzleItemDefinition lastCargoDef;
     decimal lastCargoValue;
@@ -86,18 +88,83 @@ public sealed class NotebookWindowView : MonoBehaviour
         {
             return;
         }
+        LayoutActivePins();
+    }
+
+    void LayoutActivePins()
+    {
+        placedPinRects.Clear();
+        pinLayoutWork.Clear();
+
+        RectTransform pinsParent = null;
         for (int i = 0; i < activePins.Count; i++)
         {
             var (node, pin) = activePins[i];
-            if (node && pin && node.gameObject.activeInHierarchy)
+            if (!node || !pin || !node.gameObject.activeInHierarchy)
             {
-                pin.transform.position = node.transform.position;
-                ((RectTransform)pin.transform).anchoredPosition += new Vector2(0f, 22f);
+                if (pin) pin.Hide();
+                continue;
             }
-            else if (pin)
+            if (!pinsParent)
             {
-                pin.Hide();
+                pinsParent = pin.transform.parent as RectTransform;
             }
+            if (!pinsParent)
+            {
+                continue;
+            }
+            Vector2 nodeLocal = pinsParent.InverseTransformPoint(node.transform.position);
+            pinLayoutWork.Add((i, nodeLocal));
+            // 도시 노드·라벨 영역(110×26)도 겹침 회피 대상으로 등록한다.
+            placedPinRects.Add(new Rect(nodeLocal.x - 55f, nodeLocal.y - 14f, 110f, 28f));
+        }
+
+        if (pinLayoutWork.Count == 0)
+        {
+            return;
+        }
+
+        // 아래쪽 노드부터 배치한 뒤 위로 26px씩 스태킹해 겹침을 방지한다.
+        pinLayoutWork.Sort((_a, _b) =>
+        {
+            int cmp = _a.nodePos.y.CompareTo(_b.nodePos.y);
+            return cmp != 0 ? cmp : _a.nodePos.x.CompareTo(_b.nodePos.x);
+        });
+
+        const float pinW = 180f;
+        const float pinH = 22f;
+        const float padX = 4f;
+        const float stepY = 26f;
+
+        for (int k = 0; k < pinLayoutWork.Count; k++)
+        {
+            var (idx, nodeLocal) = pinLayoutWork[k];
+            var pin = activePins[idx].pin;
+            float x = nodeLocal.x;
+            float y = nodeLocal.y + 22f;
+
+            for (int guard = 0; guard < 12; guard++)
+            {
+                var candidate = new Rect(x - pinW * 0.5f - padX, y, pinW + padX * 2f, pinH + 2f);
+                bool overlaps = false;
+                for (int r = 0; r < placedPinRects.Count; r++)
+                {
+                    if (candidate.Overlaps(placedPinRects[r]))
+                    {
+                        overlaps = true;
+                        break;
+                    }
+                }
+                if (!overlaps)
+                {
+                    break;
+                }
+                y += stepY;
+            }
+
+            pin.transform.position = pinsParent.TransformPoint(new Vector3(x, y, 0f));
+            pin.SetLeader(Mathf.Max(0f, y - nodeLocal.y), pin.BorderColor);
+            placedPinRects.Add(new Rect(x - pinW * 0.5f - padX, y, pinW + padX * 2f, pinH + 2f));
         }
     }
 
@@ -277,10 +344,10 @@ public sealed class NotebookWindowView : MonoBehaviour
             Color textCol = pal ? pal.Text : Color.white;
 
             pin.Show(text, bgCol, borderCol, textCol);
-            pin.transform.position = node.transform.position;
-            ((RectTransform)pin.transform).anchoredPosition += new Vector2(0f, 22f);
             activePins.Add((node, pin));
         }
+
+        LayoutActivePins();
 
         if (overflowCount > 0 && pinOverflowLabel)
         {
@@ -329,7 +396,7 @@ public sealed class NotebookWindowView : MonoBehaviour
 
     void RefreshTabLabels()
     {
-        if (titleText) titleText.text = Presentation.RumorLogTitle;
+        if (titleText) titleText.text = Presentation.NotebookTitle;
         if (tabLabels == null || tabLabels.Length < 5) return;
         if (tabLabels[0]) tabLabels[0].text = Presentation.NotebookTabMap;
         if (tabLabels[1]) tabLabels[1].text = Presentation.RumorLogRumorTab;

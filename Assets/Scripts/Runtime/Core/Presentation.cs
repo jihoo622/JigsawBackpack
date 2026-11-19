@@ -2724,6 +2724,7 @@ public static partial class Presentation
     internal static string BuildingWorkshopEmpty => BasicData.Text("presentation.inventory.bldgWorkshopEmpty");
     internal static string TrainWindowLensIdle => BasicData.Text("presentation.inventory.trainWindowLensIdle");
     internal static string NotebookTabMap => BasicData.Text("presentation.inventory.notebookTabMap");
+    internal static string NotebookTitle => BasicData.Text("presentation.inventory.notebookTitle");
 
     internal static string NotebookMapPinVisited(int _sellPercent, long? _quote, long? _fare)
     {
@@ -2756,9 +2757,15 @@ public static partial class Presentation
         return BasicData.Format("presentation.inventory.railWagonLabel", _number, _usedCells, _totalCells, _cargoValue);
     }
 
-    internal static string TrainWindowTitle(string _wagonTitle, int _usedCells, int _totalCells)
+    internal static string TrainWindowTitle(PuzzleInventory _wagon)
     {
-        return BasicData.Format("presentation.inventory.trainWindowTitle", _wagonTitle, _usedCells, _totalCells);
+        string wagonName = !string.IsNullOrEmpty(_wagon.WagonProduct?.displayName)
+            ? _wagon.WagonProduct.displayName
+            : (!string.IsNullOrEmpty(_wagon.DisplayName)
+                ? _wagon.DisplayName
+                : BasicData.Text("presentation.inventory.trainWindowDefaultName"));
+        return BasicData.Format("presentation.inventory.trainWindowTitle",
+            _wagon.WagonNumber, wagonName, _wagon.OccupiedCells, _wagon.UsableCellCount);
     }
 
     internal static string RelayoutToggle(bool _enabled)
