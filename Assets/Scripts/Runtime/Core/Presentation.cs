@@ -2449,7 +2449,7 @@ public static partial class Presentation
         {
             return PuzzleTagTextOnBackground(PuzzleTagBackgroundColor(_tag));
         }
-        return IsQuestTag(_tag) ? PuzzleTooltipBodyBackground : PuzzleTooltipText;
+        return IsQuestTag(_tag) || IsFreshTag(_tag) ? PuzzleTooltipBodyBackground : PuzzleTooltipText;
     }
 
     public static Color PuzzleTagTextOnBackground(Color _background)
@@ -2472,6 +2472,12 @@ public static partial class Presentation
     static bool IsQuestTag(string _tag)
     {
         return string.Equals(_tag, "Quest", StringComparison.OrdinalIgnoreCase);
+    }
+
+    static bool IsFreshTag(string _tag)
+    {
+        return string.Equals(_tag, "Fresh", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(_tag, "Refrigerator", StringComparison.OrdinalIgnoreCase);
     }
 
     public static Color PuzzleTooltipTagTextColor(string _tag)

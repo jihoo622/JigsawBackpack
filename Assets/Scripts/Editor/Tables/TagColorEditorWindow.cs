@@ -28,6 +28,7 @@ public sealed class TagColorEditorWindow : EditorWindow
         public string note;
         public bool isBackground;
         public bool isQuest;
+        public bool usesDarkText;
         public Color color;
         public Color originalColor;
         public string hexInput;
@@ -36,7 +37,7 @@ public sealed class TagColorEditorWindow : EditorWindow
     readonly List<TagColorEntry> entries = new List<TagColorEntry>();
     Color tooltipBackground = new Color32(30, 32, 41, 255);
     Color tooltipText = new Color32(246, 239, 223, 255);
-    Color questMarkerColor = new Color32(102, 217, 255, 255);
+    Color questMarkerColor = new Color32(92, 208, 248, 255);
     Vector2 scroll;
     string statusMessage;
     MessageType statusType = MessageType.None;
@@ -220,7 +221,7 @@ public sealed class TagColorEditorWindow : EditorWindow
 
     Color ResolveBadgeTextColor(TagColorEntry _entry)
     {
-        return _entry.isQuest ? tooltipBackground : tooltipText;
+        return _entry.usesDarkText ? tooltipBackground : tooltipText;
     }
 
     void LoadFromDisk()
@@ -274,6 +275,7 @@ public sealed class TagColorEditorWindow : EditorWindow
                 note = ResolveNote(id),
                 isBackground = isBackground,
                 isQuest = id == "questBackground",
+                usesDarkText = id == "questBackground" || id == "freshBackground",
                 color = color,
                 originalColor = color,
                 hexInput = ToHex(color)
