@@ -2522,7 +2522,7 @@
         },
         {
           "id": "freshnessValue",
-          "value": "<color=#{0}><size=150%>{1}</size></color>",
+          "value": "<color=#{0}>{1}</color>",
           "arguments": 2
         },
         {

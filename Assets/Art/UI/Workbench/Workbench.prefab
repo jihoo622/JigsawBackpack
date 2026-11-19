@@ -2646,7 +2646,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 2070135207562291526}
   synergyNotice: {fileID: 6855918546754146204}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -3887,7 +3887,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 1021097831401313743}
   synergyNotice: {fileID: 7928916190249505008}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -4691,7 +4691,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 6223886338247578176}
   synergyNotice: {fileID: 1482905919433674359}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -5072,7 +5072,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 78461471224549619}
   synergyNotice: {fileID: 1850218310872044983}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -6538,7 +6538,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 286385711181174298}
   synergyNotice: {fileID: 508595401816774665}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -7655,7 +7655,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 6738099646502393854}
   synergyNotice: {fileID: 8144150017448796641}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -9134,7 +9134,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 7513152913745406354}
   synergyNotice: {fileID: 7855196328630359334}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -9364,7 +9364,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 5757420092090766470}
   synergyNotice: {fileID: 3957850754147424940}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -9444,7 +9444,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 1984340341500116994}
   synergyNotice: {fileID: 2495710239923134289}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -12547,7 +12547,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 2430494175972428247}
   synergyNotice: {fileID: 6616095750049637382}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -13276,7 +13276,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 1785794135371802051}
   synergyNotice: {fileID: 7874775373091342260}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -15231,7 +15231,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 4085937073166673271}
   synergyNotice: {fileID: 489032608645002795}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -15823,7 +15823,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 1288114740922871833}
   synergyNotice: {fileID: 5174479915217008736}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -16278,7 +16278,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 355827501834264436}
   synergyNotice: {fileID: 474331819615712700}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -16933,7 +16933,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 6206544288431093672}
   synergyNotice: {fileID: 5937948604638784497}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -17088,7 +17088,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 5258719490936052635}
   synergyNotice: {fileID: 2874071377345762197}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -17680,7 +17680,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 5977340864796683609}
   synergyNotice: {fileID: 1959024341287844703}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -18047,7 +18047,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 6381301589985305111}
   synergyNotice: {fileID: 8209375546869404639}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -20538,7 +20538,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 6166612174260887545}
   synergyNotice: {fileID: 838533480921687705}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -23116,7 +23116,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 4044311563665072255}
   synergyNotice: {fileID: 3429368672847838496}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -23633,7 +23633,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 1444340772334781210}
   synergyNotice: {fileID: 9169988134732503467}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -25387,7 +25387,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 8920536447161540179}
   synergyNotice: {fileID: 6832543635758210772}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -26129,7 +26129,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 1689721287465120645}
   synergyNotice: {fileID: 2783966021725614082}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -26359,7 +26359,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 5729265598103065361}
   synergyNotice: {fileID: 4583351371491275402}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -27888,7 +27888,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 6890478193278164233}
   synergyNotice: {fileID: 2272843333424900017}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -32152,7 +32152,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 7343153891372817527}
   synergyNotice: {fileID: 7728648587462688337}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -32682,7 +32682,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 192626374525209227}
   synergyNotice: {fileID: 4455285303588910992}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -33863,7 +33863,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 7510257927450723133}
   synergyNotice: {fileID: 3961097702362699440}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -34155,7 +34155,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 5208659731903984513}
   synergyNotice: {fileID: 5046347064242479905}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -35546,7 +35546,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 2271441961814352256}
   synergyNotice: {fileID: 2207434058149873532}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -36937,7 +36937,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 3119904616395316775}
   synergyNotice: {fileID: 1391881045914674179}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -38178,7 +38178,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 2944079053015683186}
   synergyNotice: {fileID: 6751736916839839201}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -42540,7 +42540,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 1638992931061141873}
   synergyNotice: {fileID: 4053040864907271602}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -42845,7 +42845,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 6892992098524085754}
   synergyNotice: {fileID: 8202752840029971699}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -43000,7 +43000,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 4880057455515373738}
   synergyNotice: {fileID: 8136017237612642203}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -44466,7 +44466,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 3451189988247195044}
   synergyNotice: {fileID: 1752143394984037268}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -47243,7 +47243,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 2065167246651107346}
   synergyNotice: {fileID: 4692755247098162411}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -47623,7 +47623,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 507977918045748805}
   synergyNotice: {fileID: 8619659433680388089}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -47703,7 +47703,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 6777066258322390860}
   synergyNotice: {fileID: 4444199345572153043}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -47920,7 +47920,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 9074214686655651888}
   synergyNotice: {fileID: 1968452554138455100}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -48150,7 +48150,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 278317630332112882}
   synergyNotice: {fileID: 3941232921748176672}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -50578,7 +50578,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 2480071081916362267}
   synergyNotice: {fileID: 2154941974169131989}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -51457,7 +51457,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 1543142455878894085}
   synergyNotice: {fileID: 433799989898646921}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -51912,7 +51912,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 6694377035028433409}
   synergyNotice: {fileID: 8033850767890196417}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -52804,7 +52804,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 1290313509298650252}
   synergyNotice: {fileID: 8243259558879663134}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -53983,7 +53983,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 1547876429824553281}
   synergyNotice: {fileID: 3702641941290560993}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -56062,7 +56062,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 656075793738411604}
   synergyNotice: {fileID: 2314642130084698931}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -56367,7 +56367,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 870678191463903489}
   synergyNotice: {fileID: 5070700553137727497}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -56597,7 +56597,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 530288003821717776}
   synergyNotice: {fileID: 5319802642277963775}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -57489,7 +57489,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 5507501135123165624}
   synergyNotice: {fileID: 4383039632361196937}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -58968,7 +58968,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 5789333934461437534}
   synergyNotice: {fileID: 6890279828120531658}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -60222,7 +60222,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 4205448418300166546}
   synergyNotice: {fileID: 4149886440817955119}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -61225,7 +61225,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 348155496805453683}
   synergyNotice: {fileID: 4288818992625178215}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -61305,7 +61305,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 5555602972327070151}
   synergyNotice: {fileID: 6971818774487093432}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -64307,7 +64307,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 3140974711237540044}
   synergyNotice: {fileID: 7770017294973609941}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -64899,7 +64899,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 7187390498588883625}
   synergyNotice: {fileID: 841295934344577204}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -66877,7 +66877,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 5720668890555376579}
   synergyNotice: {fileID: 2018638148507540442}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -69654,7 +69654,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 597936431047751887}
   synergyNotice: {fileID: 830937739697353776}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -69884,7 +69884,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 1399824188314618143}
   synergyNotice: {fileID: 5438313481160865139}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -71288,7 +71288,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 8729079711337998031}
   synergyNotice: {fileID: 961062126184994197}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -73341,7 +73341,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 6553625977697008326}
   synergyNotice: {fileID: 1470706509552995715}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -74370,7 +74370,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 8838855562821590353}
   synergyNotice: {fileID: 5113072928351198923}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -74738,7 +74738,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 6064533720902401076}
   synergyNotice: {fileID: 8341721199711278997}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -75493,7 +75493,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 3405169640342284333}
   synergyNotice: {fileID: 5559570429221142501}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -77233,7 +77233,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 3991978358938803646}
   synergyNotice: {fileID: 990032601491966239}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -77613,7 +77613,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 7597538173380113473}
   synergyNotice: {fileID: 2519818725627415604}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -77980,7 +77980,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 2328668431931402261}
   synergyNotice: {fileID: 5009149057466080417}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -78060,7 +78060,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 5340520730733081132}
   synergyNotice: {fileID: 4082378512499940995}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -78802,7 +78802,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 7897177042097106675}
   synergyNotice: {fileID: 2175974182924563336}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -79306,7 +79306,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 5573897484546670647}
   synergyNotice: {fileID: 1072057270436553921}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -79686,7 +79686,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 6673395805430460835}
   synergyNotice: {fileID: 1323420269585664463}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -83050,7 +83050,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 6579471480098831582}
   synergyNotice: {fileID: 1188667503294239519}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -85465,7 +85465,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 7370250765450308896}
   synergyNotice: {fileID: 3231950867788172449}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -85832,7 +85832,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 6207361808014942991}
   synergyNotice: {fileID: 1234967395355388306}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -86137,7 +86137,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 3106314883694706050}
   synergyNotice: {fileID: 4940638826193519663}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -88552,7 +88552,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 1306971667229900161}
   synergyNotice: {fileID: 8955808566966729875}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -90269,7 +90269,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 7185370730767521938}
   synergyNotice: {fileID: 3814920555880520088}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -90786,7 +90786,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 1684681045779774726}
   synergyNotice: {fileID: 877253611153223369}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -92040,7 +92040,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 455548424481451943}
   synergyNotice: {fileID: 8408724632581720320}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -92994,7 +92994,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 2994334972583269594}
   synergyNotice: {fileID: 8437571614420793659}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -93211,7 +93211,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 3529932985655906404}
   synergyNotice: {fileID: 7447823251617586675}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -94540,7 +94540,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 5263852112065617915}
   synergyNotice: {fileID: 4492450975051527930}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -95207,7 +95207,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 6189378751340766284}
   synergyNotice: {fileID: 1585713711547627619}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -104698,7 +104698,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 3734909218559463195}
   synergyNotice: {fileID: 8759948140276557126}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -105427,7 +105427,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 406572564012072820}
   synergyNotice: {fileID: 1660468062957541890}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -106006,7 +106006,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 6984820245615064150}
   synergyNotice: {fileID: 8818703092746565515}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -111819,7 +111819,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 7913276010332013241}
   synergyNotice: {fileID: 5751064966182677180}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -118379,7 +118379,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 436055931377909099}
   synergyNotice: {fileID: 5432667743204865730}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -120507,7 +120507,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 8176270752668158602}
   synergyNotice: {fileID: 1465831031625398291}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -124709,7 +124709,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 2101152615151420924}
   synergyNotice: {fileID: 5736983843165275210}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -124864,7 +124864,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 1504769947039811411}
   synergyNotice: {fileID: 8760952651095819018}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -125306,7 +125306,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 7853057588645800}
   synergyNotice: {fileID: 4546640484105952177}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -127347,7 +127347,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 6064361783548293734}
   synergyNotice: {fileID: 6971755611530386955}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -128539,7 +128539,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 2093288090194041827}
   synergyNotice: {fileID: 1566093698070731712}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -129992,7 +129992,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 6287593463312495895}
   synergyNotice: {fileID: 8295543833556874952}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -131622,7 +131622,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 677089964850950001}
   synergyNotice: {fileID: 2043299270146076064}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -131702,7 +131702,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 6475779134979134100}
   synergyNotice: {fileID: 5553436573874900510}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -132431,7 +132431,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 5284726600230807686}
   synergyNotice: {fileID: 2860496995938248789}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -132648,7 +132648,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 1474473377826848921}
   synergyNotice: {fileID: 70562188371544458}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -133028,7 +133028,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 321311241722233080}
   synergyNotice: {fileID: 5794430150216781114}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -133845,7 +133845,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 293549004919297433}
   synergyNotice: {fileID: 4903381148272797579}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -134150,7 +134150,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 8864060785919975549}
   synergyNotice: {fileID: 2652989490732234930}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -136790,7 +136790,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 242879719573470173}
   synergyNotice: {fileID: 4510924098429822619}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -137095,7 +137095,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 7920938916141927041}
   synergyNotice: {fileID: 3606191658746268474}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -139549,7 +139549,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 83085042521267445}
   synergyNotice: {fileID: 3658771877892420723}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -141739,7 +141739,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 6456745408929841162}
   synergyNotice: {fileID: 1841479605853374762}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -142781,7 +142781,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 1910842469251432741}
   synergyNotice: {fileID: 4456550772794912126}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -143298,7 +143298,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 1060456829728468146}
   synergyNotice: {fileID: 6773590387998160894}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -143603,7 +143603,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 6530087266156025575}
   synergyNotice: {fileID: 1742073863232736272}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -147115,7 +147115,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 9028006647402226414}
   synergyNotice: {fileID: 8595600345149337415}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -148069,7 +148069,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 152725632677360906}
   synergyNotice: {fileID: 1942293032078757034}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -148436,7 +148436,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 6682663359949060476}
   synergyNotice: {fileID: 5791351470277683105}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -150440,7 +150440,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 8807915648345512722}
   synergyNotice: {fileID: 587189464362538507}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -151782,7 +151782,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 8945688808662131098}
   synergyNotice: {fileID: 6360577225231369970}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -152674,7 +152674,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 7684458544014034762}
   synergyNotice: {fileID: 8603057214444470690}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -153354,7 +153354,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 5610304878879818555}
   synergyNotice: {fileID: 7616103533322985905}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -154921,7 +154921,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 7135253674938181089}
   synergyNotice: {fileID: 8075260370516458929}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -155663,7 +155663,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 6070977083203280680}
   synergyNotice: {fileID: 3215306567009546943}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -157654,7 +157654,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 4867633003982065904}
   synergyNotice: {fileID: 3433155116031543598}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -157884,7 +157884,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 2984167801945748709}
   synergyNotice: {fileID: 8958479264504579033}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -158039,7 +158039,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 5364230512021315068}
   synergyNotice: {fileID: 4069426819281844947}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -158543,7 +158543,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 5403955745983083608}
   synergyNotice: {fileID: 3790180493402777689}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -159334,7 +159334,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 4954023086008208989}
   synergyNotice: {fileID: 723097874045175869}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -159564,7 +159564,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 6907711103818031112}
   synergyNotice: {fileID: 6497272131416737618}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -159719,7 +159719,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 6681544214162939266}
   synergyNotice: {fileID: 88643189955234451}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
@@ -159949,7 +159949,7 @@ MonoBehaviour:
   deltaLabel: {fileID: 0}
   freshnessLabel: {fileID: 5845353883942397007}
   synergyNotice: {fileID: 6295302993950557419}
-  freshnessFontScale: 0.3
+  freshnessFontScale: 0.45
   freshnessWidthScale: 0.9
   freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
