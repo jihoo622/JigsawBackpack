@@ -2770,6 +2770,9 @@ public static partial class Presentation
             _wagon.WagonNumber, wagonName, _wagon.OccupiedCells, _wagon.UsableCellCount);
     }
 
+    internal static string PlatformSignTitle(string _cityName) =>
+        BasicData.Format("presentation.inventory.platformSignTitle", _cityName);
+
     public static string MarketWindowTitle(string _cityName) =>
         BasicData.Format("presentation.inventory.marketWindowTitle", _cityName);
     public static string MarketWindowHint => BasicData.Text("presentation.inventory.marketWindowHint");

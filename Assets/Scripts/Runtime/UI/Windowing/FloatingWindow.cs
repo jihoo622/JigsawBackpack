@@ -29,6 +29,11 @@ public sealed class FloatingWindow : MonoBehaviour, IPointerDownHandler
     FloatingWindowManager manager;
     Rect dragStartRect;
     Rect currentRect;
+    // 사용자가 정한(또는 기본) 위치. 화면 크기에 맞춰 가둔 값(currentRect)과 따로 둔다.
+    // 첫 배치 때는 캔버스 크기 조정이 아직 안 돼 부모 크기가 실제 픽셀 크기로 잡힐 수 있으므로, 부모 크기가 바뀌면 이 값으로 다시 가둔다.
+    Rect desiredRect;
+    Vector2 placedForParentSize;
+    bool dragging;
     bool initialized;
     bool hiddenForBackgroundOnly;
 
@@ -86,16 +91,30 @@ public sealed class FloatingWindow : MonoBehaviour, IPointerDownHandler
         Focused?.Invoke();
     }
 
+    void PlaceAt(Rect _desired)
+    {
+        desiredRect = _desired;
+        Vector2 screenSize = GetScreenSize();
+        placedForParentSize = screenSize;
+        ApplyRect(FloatingWindowMath.ClampRect(_desired, FloatingWindowMath.TopHudSafeY, screenSize.x, screenSize.y));
+    }
+
+    void LateUpdate()
+    {
+        if (!initialized || dragging)
+        {
+            return;
+        }
+        if (GetScreenSize() != placedForParentSize)
+        {
+            PlaceAt(desiredRect);
+        }
+    }
+
     public void SetPosition(Vector2 _topLeftPos, bool _persist = true)
     {
         InitializeIfNeeded();
-        Vector2 screenSize = GetScreenSize();
-        var clamped = FloatingWindowMath.ClampRect(
-            new Rect(_topLeftPos.x, _topLeftPos.y, currentRect.width, currentRect.height),
-            FloatingWindowMath.TopHudSafeY,
-            screenSize.x,
-            screenSize.y);
-        ApplyRect(clamped);
+        PlaceAt(new Rect(_topLeftPos.x, _topLeftPos.y, currentRect.width, currentRect.height));
         if (_persist)
         {
             SaveState();
@@ -156,10 +175,7 @@ public sealed class FloatingWindow : MonoBehaviour, IPointerDownHandler
     public void ResetLayout()
     {
         InitializeIfNeeded();
-        Vector2 screenSize = GetScreenSize();
-        var rect = new Rect(defaultPosition.x, defaultPosition.y, defaultSize.x, defaultSize.y);
-        rect = FloatingWindowMath.ClampRect(rect, FloatingWindowMath.TopHudSafeY, screenSize.x, screenSize.y);
-        ApplyRect(rect);
+        PlaceAt(new Rect(defaultPosition.x, defaultPosition.y, defaultSize.x, defaultSize.y));
         SaveState();
     }
 
@@ -168,6 +184,7 @@ public sealed class FloatingWindow : MonoBehaviour, IPointerDownHandler
         InitializeIfNeeded();
         BringToFront();
         dragStartRect = currentRect;
+        dragging = true;
     }
 
     internal void UpdateDrag(Vector2 _cumulativeDeltaTopLeft)
@@ -187,6 +204,9 @@ public sealed class FloatingWindow : MonoBehaviour, IPointerDownHandler
 
     internal void EndDrag()
     {
+        dragging = false;
+        desiredRect = currentRect;
+        placedForParentSize = GetScreenSize();
         SaveState();
     }
 
@@ -236,12 +256,7 @@ public sealed class FloatingWindow : MonoBehaviour, IPointerDownHandler
             try
             {
                 var saved = JsonUtility.FromJson<SavedWindowState>(PlayerPrefs.GetString(key));
-                var clamped = FloatingWindowMath.ClampRect(
-                    new Rect(saved.x, saved.y, defaultSize.x, defaultSize.y),
-                    FloatingWindowMath.TopHudSafeY,
-                    screenSize.x,
-                    screenSize.y);
-                ApplyRect(clamped);
+                PlaceAt(new Rect(saved.x, saved.y, defaultSize.x, defaultSize.y));
                 IsOpen = saved.open;
                 if (!hiddenForBackgroundOnly && gameObject.activeSelf != IsOpen)
                 {
@@ -255,12 +270,7 @@ public sealed class FloatingWindow : MonoBehaviour, IPointerDownHandler
             }
         }
 
-        var defRect = FloatingWindowMath.ClampRect(
-            new Rect(defaultPosition.x, defaultPosition.y, defaultSize.x, defaultSize.y),
-            FloatingWindowMath.TopHudSafeY,
-            screenSize.x,
-            screenSize.y);
-        ApplyRect(defRect);
+        PlaceAt(new Rect(defaultPosition.x, defaultPosition.y, defaultSize.x, defaultSize.y));
         IsOpen = startOpen;
         if (!hiddenForBackgroundOnly && gameObject.activeSelf != IsOpen)
         {

@@ -7,17 +7,21 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 // S3/S3b: 중앙 선로의 가상화 화차 슬롯(R8 7×5 미니 격자 포함, H20 순서 드래그 + H17 판매 드래그).
+// 목업 concept-3b: 미니 격자 아래에 '번호 · 적재 · 가치' 한 줄 라벨, 선택 차량은 금색 테두리(상하좌우 4개 평면 사각형).
 [DisallowMultipleComponent]
 public sealed class RailWagonCarView : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
     public const int MINI_COLS = 7;
-    public const int MINI_ROWS = 6;
+    // 화차 보드는 7×5(PuzzleTableData train)라서 목업과 같이 5행만 그린다.
+    public const int MINI_ROWS = 5;
     public const int MINI_CELL_COUNT = MINI_COLS * MINI_ROWS;
 
     [SerializeField] RectTransform rectTransform;
     [SerializeField] Button button;
     [SerializeField] Image background;
     [SerializeField] Image highlightBorder;
+    // 테두리 4변(위·오른쪽·아래·왼쪽) 순서. 선택·호버 때만 켠다. 외곽선(Outline)은 칸 틴트 알파에 곱해져 흐려지므로 쓰지 않는다.
+    [SerializeField] Image[] borderEdges;
     [SerializeField] TextMeshProUGUI label;
     [SerializeField] Image[] miniGridCells;
     [SerializeField] UIPalette palette;
@@ -67,7 +71,9 @@ public sealed class RailWagonCarView : MonoBehaviour, IBeginDragHandler, IDragHa
         {
             decimal rawVal = _wagon.Placements.Sum(_p => _p.FreshnessAdjustedValue);
             long value = Decimal.ToInt64(Decimal.Round(rawVal, 0, MidpointRounding.AwayFromZero));
-            label.text = Presentation.RailWagonLabel(_wagon.WagonNumber, _wagon.OccupiedCells, _wagon.UsableCellCount, value);
+            // 기존 문자열은 '번호 · 적재' 줄과 '가치' 줄로 나뉘므로, 목업처럼 한 줄(· 구분)로 이어 붙인다.
+            label.text = Presentation.RailWagonLabel(_wagon.WagonNumber, _wagon.OccupiedCells, _wagon.UsableCellCount, value)
+                .Replace("\n", " · ");
         }
 
         if (highlightBorder)
@@ -75,17 +81,40 @@ public sealed class RailWagonCarView : MonoBehaviour, IBeginDragHandler, IDragHa
             highlightBorder.enabled = _selected || _hovered;
             if (pal)
             {
+                // 칸 전체 틴트(채움)는 반투명, 테두리는 아래 borderEdges가 불투명 색으로 그린다.
                 var c = _selected ? pal.GoldAccent : pal.BorderBright;
                 c.a = 0.16f;
                 highlightBorder.color = c;
             }
         }
+        SetBorderEdges(_selected || _hovered, _selected, pal);
         if (background && pal)
         {
             background.color = _selected ? pal.Panel2 : pal.Panel;
         }
 
         RenderMiniGrid(_wagon, pal);
+    }
+
+    // 선택은 금색, 호버는 밝은 테두리 색으로 4변을 켠다.
+    void SetBorderEdges(bool _visible, bool _selected, UIPalette _pal)
+    {
+        if (borderEdges == null || !_pal)
+        {
+            return;
+        }
+        var edgeColor = _selected ? _pal.GoldAccent : _pal.BorderBright;
+        edgeColor.a = 1f;
+        for (int i = 0; i < borderEdges.Length; i++)
+        {
+            var edge = borderEdges[i];
+            if (!edge)
+            {
+                continue;
+            }
+            edge.color = edgeColor;
+            edge.enabled = _visible;
+        }
     }
 
     public void Unbind()

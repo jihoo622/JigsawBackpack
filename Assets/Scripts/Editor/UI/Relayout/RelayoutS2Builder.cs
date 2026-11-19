@@ -84,7 +84,7 @@ public static class RelayoutS2Builder
             var topHudPrefab = BuildTopHudPrefab(log, palette, buttonTemplate, labelTemplate);
             var toolbarPrefab = BuildQuickToolbarPrefab(log, palette, buttonTemplate, labelTemplate);
             var bannerPrefab = BuildStatusBannerPrefab(log, palette, labelTemplate);
-            var platformPrefab = BuildPlatformScenePrefab(log, palette);
+            var platformPrefab = BuildPlatformScenePrefab(log, palette, labelTemplate);
             var townPrefab = BuildTownScenePrefab(log, palette, labelTemplate);
 
             UpdateGameCanvas(log, topHudPrefab, toolbarPrefab, bannerPrefab, platformPrefab, townPrefab);
@@ -384,7 +384,7 @@ public static class RelayoutS2Builder
         }
     }
 
-    static GameObject BuildPlatformScenePrefab(StringBuilder _log, UIPalette _palette)
+    static GameObject BuildPlatformScenePrefab(StringBuilder _log, UIPalette _palette, TextMeshProUGUI _labelTemplate)
     {
         var rootGo = new GameObject("PlatformScene", typeof(RectTransform));
         try
@@ -393,7 +393,7 @@ public static class RelayoutS2Builder
             var rootRect = (RectTransform)rootGo.transform;
             SetTopLeftRect(rootRect, 26f, 134f, 510f, 929f);
 
-            // 평면 플랫폼 바닥 사각형
+            // 평면 플랫폼 바닥 사각형 (concept-3b palette a: --scene-platform-bg #3a414d)
             var bg = rootGo.AddComponent<Image>();
             bg.color = new Color(0.227f, 0.255f, 0.302f, 1f);
             bg.raycastTarget = false;
@@ -401,6 +401,23 @@ public static class RelayoutS2Builder
             var outline = rootGo.AddComponent<Outline>();
             outline.effectColor = _palette.Border;
             outline.effectDistance = new Vector2(1f, -1f);
+
+            // 선로 쪽 승강장 연석 (mockup: x 492, 폭 18, 전체 높이, --scene-platform-edge #272c35)
+            AddStaticRect(rootRect, "PlatformEdge", 492f, 0f, 18f, 929f,
+                new Color(0.153f, 0.173f, 0.208f, 1f));
+
+            // 간판판 (mockup: 170, 160, 220x34, --scene-sign-bg #0f1724, 골드 2px 테두리)
+            var signRect = AddStaticRect(rootRect, "SignPlate", 170f, 160f, 220f, 34f,
+                new Color(0.059f, 0.090f, 0.141f, 1f));
+            var signOutline = signRect.gameObject.AddComponent<Outline>();
+            signOutline.effectColor = _palette.GoldAccent;
+            signOutline.effectDistance = new Vector2(2f, -2f);
+            // 간판 글자는 런타임에 PlatformSceneView가 현재 도시 이름으로 채운다(기본 빈 값).
+            var signText = CreateLabel(_labelTemplate, signRect, "SignText", 14f,
+                TextAlignmentOptions.Center, _palette, UIPalette.ColorRole.GoldAccent);
+            signText.fontStyle = FontStyles.Bold;
+            signText.text = string.Empty;
+            Stretch(signText.rectTransform);
 
             // 주행 중 속도선 (사전 배치 숨김)
             var speedLines = NewRect("TravelSpeedLines", rootRect);
@@ -415,6 +432,7 @@ public static class RelayoutS2Builder
             var view = rootGo.AddComponent<PlatformSceneView>();
             var so = new SerializedObject(view);
             so.FindProperty("travelSpeedLines").objectReferenceValue = speedLines.gameObject;
+            so.FindProperty("signText").objectReferenceValue = signText;
             so.ApplyModifiedPropertiesWithoutUndo();
 
             var saved = PrefabUtility.SaveAsPrefabAsset(rootGo, PLATFORM_PREFAB);
@@ -439,14 +457,24 @@ public static class RelayoutS2Builder
             var rootRect = (RectTransform)rootGo.transform;
             SetTopLeftRect(rootRect, 653f, 82f, 1247f, 977f);
 
-            // 평면 마을 바닥 사각형
+            // 평면 마을 바닥 사각형 (concept-3b palette a: --scene-grass #3b4d3b)
             var bg = rootGo.AddComponent<Image>();
-            bg.color = new Color(0.239f, 0.290f, 0.227f, 1f);
+            bg.color = new Color(0.231f, 0.302f, 0.231f, 1f);
             bg.raycastTarget = false;
 
             var outline = rootGo.AddComponent<Outline>();
             outline.effectColor = _palette.Border;
             outline.effectDistance = new Vector2(1f, -1f);
+
+            // 도로·광장은 건물보다 먼저 추가해 건물 뒤에 깔린다 (mockup --scene-road #4b5563, --scene-plaza-*).
+            // 가로 도로: y 420, 높이 96, 전체 폭
+            AddStaticRect(rootRect, "RoadHorizontal", 0f, 420f, 1247f, 96f, new Color(0.294f, 0.333f, 0.388f, 1f));
+            // 세로 도로 2개: x 315 / x 705, 폭 94, 전체 높이
+            AddStaticRect(rootRect, "RoadVerticalWest", 315f, 0f, 94f, 977f, new Color(0.294f, 0.333f, 0.388f, 1f));
+            AddStaticRect(rootRect, "RoadVerticalEast", 705f, 0f, 94f, 977f, new Color(0.294f, 0.333f, 0.388f, 1f));
+            // 중앙 광장: (425, 315), 265x220, 테두리 2px(--scene-plaza-border #94a3b8), 바닥 #64748b
+            AddStaticRect(rootRect, "PlazaBorder", 425f, 315f, 265f, 220f, new Color(0.580f, 0.639f, 0.722f, 1f));
+            AddStaticRect(rootRect, "PlazaFloor", 427f, 317f, 261f, 216f, new Color(0.392f, 0.455f, 0.545f, 1f));
 
             // 6개 평면 사각형 건물 (concept-3b 좌표)
             var bMarket = CreateBuilding(rootRect, _labelTemplate, _palette, "Building_Market",

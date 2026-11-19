@@ -9,20 +9,17 @@ public sealed class TrainWindowManager : MonoBehaviour
     const string OPEN_WAGONS_KEY = "ui.train.openWagons";
     const float CASCADE_OFFSET = 24f;
     const float SLOT_OCCUPIED_TOLERANCE = 24f;
-    const float DEFAULT_WINDOW_WIDTH = 440f;
-    const float DEFAULT_WINDOW_HEIGHT = 430f;
+    const float DEFAULT_WINDOW_WIDTH = 510f;
+    const float DEFAULT_WINDOW_HEIGHT = 544f;
 
-    // R29: 1번째 왼쪽 열 아래, 2번째 왼쪽 열 위, 3~8번째 마을 위쪽 3열×2행.
+    // 목업 concept-3b 배치: 1번째 창은 왼쪽 하단 (26, 516)에 정확히 놓는다.
+    // 2번째 이후는 마을 상단(x 653부터, y 134)에 가로로 타일링하고, 슬롯이 모두 차면 24px 계단식으로 이어진다.
+    // 1920 폭에는 510px 창이 2열까지만 들어가므로 마을 상단 슬롯은 2개만 둔다.
     static readonly Vector2[] FirstOpenSlots =
     {
-        new Vector2(26f, 633f),
-        new Vector2(26f, 134f),
+        new Vector2(26f, 516f),
         new Vector2(653f, 134f),
-        new Vector2(1056f, 134f),
-        new Vector2(1460f, 134f),
-        new Vector2(653f, 580f),
-        new Vector2(1056f, 580f),
-        new Vector2(1460f, 580f),
+        new Vector2(1173f, 134f),
     };
 
     [SerializeField] TrainWindowView[] windows;
