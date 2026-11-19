@@ -857,12 +857,9 @@ public sealed class PuzzleMapView : PanelBase
         }
         foreach (var routeTime in routeTimes)
         {
-            if (tables.TryGetRoute(routeTime.fromCityId, routeTime.toCityId, out var route))
-            {
-                routeTime.label.text = Presentation.PuzzleMapRouteFare(route, tables.PuzzleRoute);
-            }
             routeTime.label.color = Presentation.PuzzleHeading;
         }
+        RefreshRouteFares(0);
 
         if (routeLines != null)
         {
@@ -918,6 +915,23 @@ public sealed class PuzzleMapView : PanelBase
         string rest = _name.Substring(_prefix.Length);
         int cut = rest.IndexOf('_');
         return int.TryParse(cut >= 0 ? rest.Substring(0, cut) : rest, out _index);
+    }
+
+    // 노선 운임 라벨을 실제 차감액으로 다시 쓴다. 적재 칸 요금이 들어가므로 기차 화물이 바뀌면 다시 불러야 한다.
+    internal void RefreshRouteFares(int _trainCells)
+    {
+        if (routeTimes == null)
+        {
+            return;
+        }
+        var tables = TableManager.Instance;
+        foreach (var routeTime in routeTimes)
+        {
+            if (routeTime?.label && tables.TryGetRoute(routeTime.fromCityId, routeTime.toCityId, out var route))
+            {
+                routeTime.label.text = Presentation.PuzzleMapRouteFare(route, tables.PuzzleRoute, _trainCells);
+            }
+        }
     }
 
     internal void ShowTownTooltip(string _toCityId, PuzzleTravelResult _eval, bool _isCurrent, bool _isConnected,

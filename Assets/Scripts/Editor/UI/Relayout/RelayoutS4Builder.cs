@@ -438,19 +438,19 @@ public static class RelayoutS4Builder
             var synScrollRt = (RectTransform)synScrollGo.transform;
             Stretch(synScrollRt);
             var synScroll = synScrollGo.AddComponent<ScrollRect>();
-            synScroll.horizontal = true;
-            // 상성표는 창보다 넓고 높이는 창 안에 들어간다. 세로 스크롤을 끄면 마우스 휠이 가로로 넘긴다.
-            synScroll.vertical = false;
+            // 상성표는 수첩 폭(494)에 맞춘 작은 칸으로 줄이고, 아래 설명·품목 태그까지 세로로 이어 붙여 세로로 넘긴다.
+            synScroll.horizontal = false;
+            synScroll.vertical = true;
             synScroll.movementType = ScrollRect.MovementType.Clamped;
             synScroll.scrollSensitivity = 36f;
 
-            // 넘겨 볼 수 있다는 것을 알 수 있게 아래쪽에 단색 가로 스크롤바를 둔다.
-            var hBar = NewRect("HorizontalScrollbar", synScrollRt);
-            hBar.anchorMin = new Vector2(0f, 0f);
-            hBar.anchorMax = new Vector2(1f, 0f);
-            hBar.pivot = new Vector2(0.5f, 0f);
+            // 넘겨 볼 수 있다는 것을 알 수 있게 오른쪽에 단색 세로 스크롤바를 둔다.
+            var hBar = NewRect("VerticalScrollbar", synScrollRt);
+            hBar.anchorMin = new Vector2(1f, 0f);
+            hBar.anchorMax = new Vector2(1f, 1f);
+            hBar.pivot = new Vector2(1f, 0.5f);
             hBar.anchoredPosition = Vector2.zero;
-            hBar.sizeDelta = new Vector2(0f, 12f);
+            hBar.sizeDelta = new Vector2(8f, 0f);
             var hBarBg = hBar.gameObject.AddComponent<Image>();
             hBarBg.color = _palette.Border;
             var hSliding = NewRect("SlidingArea", hBar);
@@ -460,14 +460,15 @@ public static class RelayoutS4Builder
             var hHandleImg = hHandle.gameObject.AddComponent<Image>();
             hHandleImg.color = _palette.GoldAccent;
             var hScrollbar = hBar.gameObject.AddComponent<Scrollbar>();
-            hScrollbar.direction = Scrollbar.Direction.LeftToRight;
+            hScrollbar.direction = Scrollbar.Direction.BottomToTop;
             hScrollbar.handleRect = hHandle;
             hScrollbar.targetGraphic = hHandleImg;
-            synScroll.horizontalScrollbar = hScrollbar;
-            synScroll.horizontalScrollbarVisibility = ScrollRect.ScrollbarVisibility.AutoHide;
+            synScroll.verticalScrollbar = hScrollbar;
+            synScroll.verticalScrollbarVisibility = ScrollRect.ScrollbarVisibility.AutoHide;
 
             var synVp = NewRect("Viewport", synScrollRt);
             Stretch(synVp);
+            synVp.offsetMax = new Vector2(-12f, 0f); // 스크롤바(8) + 간격 4
             synVp.gameObject.AddComponent<RectMask2D>();
             var synVpImg = synVp.gameObject.AddComponent<Image>();
             synVpImg.color = new Color(0f, 0f, 0f, 0f);
@@ -489,14 +490,7 @@ public static class RelayoutS4Builder
                 synScroll.viewport = synVp;
                 synScroll.content = synPanel;
 
-                // 품목별 태그 목록은 품목 수에 따라 길어진다(고정 600px을 넘침). 글자 높이에 맞춰 늘어나게 한다.
-                var itemTags = FindDeep(synPanel, "ItemTags");
-                if (itemTags && itemTags.GetComponent<TextMeshProUGUI>())
-                {
-                    var fitter = itemTags.GetComponent<ContentSizeFitter>() ?? itemTags.gameObject.AddComponent<ContentSizeFitter>();
-                    fitter.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
-                    fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
-                }
+                FitSynergyChartToNotebook(synPanel);
             }
             var embeddedSynView = synInst.GetComponent<PuzzleSynergyChartView>();
             if (embeddedSynView)
@@ -766,6 +760,81 @@ public static class RelayoutS4Builder
         _rect.pivot = new Vector2(0f, 1f);
         _rect.anchoredPosition = new Vector2(_left, -_top);
         _rect.sizeDelta = new Vector2(_width, _height);
+    }
+
+    // 상성표 원본(1792×648, 칸 160×52, 오른쪽에 품목 태그 열)은 전체 화면용이라 수첩(본문 폭 494)에 비해 너무 크다.
+    // 칸을 60×52(8열 × 60 + 간격 2 = 494)으로 줄이고 글자는 칸에 맞춰 9~14pt(행 머리는 7pt까지)로 자동 조절한다.
+    // 표 · 설명 · 품목 태그를 세로로 차례로 쌓고(세로 배치), 패널 높이는 내용에 맞춘다(세로 스크롤).
+    const float SYN_WIDTH = 494f;
+
+    static void FitSynergyChartToNotebook(RectTransform _panel)
+    {
+        _panel.sizeDelta = new Vector2(SYN_WIDTH, _panel.sizeDelta.y);
+        var panelLayout = _panel.GetComponent<VerticalLayoutGroup>() ?? _panel.gameObject.AddComponent<VerticalLayoutGroup>();
+        panelLayout.childControlWidth = true;
+        panelLayout.childControlHeight = true;
+        panelLayout.childForceExpandWidth = true;
+        panelLayout.childForceExpandHeight = false;
+        var panelFitter = _panel.GetComponent<ContentSizeFitter>() ?? _panel.gameObject.AddComponent<ContentSizeFitter>();
+        panelFitter.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
+        panelFitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+
+        var body = _panel.Find("Body") as RectTransform;
+        if (!body) return;
+        var bodyLayout = body.GetComponent<VerticalLayoutGroup>() ?? body.gameObject.AddComponent<VerticalLayoutGroup>();
+        bodyLayout.padding = new RectOffset(0, 0, 0, 8);
+        bodyLayout.spacing = 12f;
+        bodyLayout.childAlignment = TextAnchor.UpperLeft;
+        bodyLayout.childControlWidth = true;
+        bodyLayout.childControlHeight = true;
+        bodyLayout.childForceExpandWidth = true;
+        bodyLayout.childForceExpandHeight = false;
+
+        var grid = body.Find("Grid") ? body.Find("Grid").GetComponent<GridLayoutGroup>() : null;
+        if (grid)
+        {
+            grid.cellSize = new Vector2(60f, 52f);
+            grid.spacing = new Vector2(2f, 2f);
+            foreach (var text in grid.GetComponentsInChildren<TextMeshProUGUI>(true))
+            {
+                text.enableAutoSizing = true;
+                // 행 머리(예: 모든 화물(거름·가축 제외))는 세 줄까지 들어가도록 더 작게 줄일 수 있게 한다.
+                text.fontSizeMin = text.transform.parent.name.StartsWith("Row") ? 7f : 9f;
+                text.fontSizeMax = 14f;
+                text.enableWordWrapping = true;
+                text.margin = new Vector4(2f, 1f, 2f, 1f);
+            }
+            // 축 설명(이 화물이 ↓ / 옆에 닿으면 →)은 60px 모서리 칸에 들어가지 않는다. 표 위 한 줄 설명으로 옮기고 모서리 칸은 비운다.
+            var corner = grid.transform.Find("Corner");
+            var cornerText = corner ? corner.GetComponentInChildren<TextMeshProUGUI>(true) : null;
+            if (cornerText)
+            {
+                cornerText.transform.SetParent(body, false);
+                cornerText.transform.SetSiblingIndex(grid.transform.GetSiblingIndex());
+                cornerText.name = "AxisCaption";
+                cornerText.enableAutoSizing = false;
+                cornerText.fontSize = 12f;
+                cornerText.alignment = TextAlignmentOptions.MidlineLeft;
+                cornerText.enableWordWrapping = true;
+                cornerText.margin = Vector4.zero;
+            }
+        }
+        FitSynergyText(body, "Notes", 12f);
+        FitSynergyText(body, "ItemTitle", 15f);
+        FitSynergyText(body, "ItemTags", 13f);
+        var oldFitter = body.Find("ItemTags") ? body.Find("ItemTags").GetComponent<ContentSizeFitter>() : null;
+        if (oldFitter) Object.DestroyImmediate(oldFitter, true);
+    }
+
+    static void FitSynergyText(RectTransform _body, string _name, float _fontSize)
+    {
+        var t = _body.Find(_name);
+        var text = t ? t.GetComponent<TextMeshProUGUI>() : null;
+        if (!text) return;
+        text.enableAutoSizing = false;
+        text.fontSize = _fontSize;
+        text.enableWordWrapping = true;
+        text.overflowMode = TextOverflowModes.Overflow;
     }
 
     static void FitProficiencyLine(RectTransform _panel, string _name, float _y, float _height)

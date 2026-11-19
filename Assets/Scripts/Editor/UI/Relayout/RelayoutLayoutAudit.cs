@@ -196,7 +196,9 @@ public static class RelayoutLayoutAudit
             if (fullBleed) continue;
 
             float left = r.xMin - w.xMin, right = w.xMax - r.xMax, bottom = r.yMin - w.yMin;
-            if (left < minPadding || right < minPadding || bottom < minPadding)
+            // 배율 때문에 생기는 0.5px 미만 반올림 차이는 여백 부족으로 보지 않는다.
+            float need = minPadding - 0.5f;
+            if (left < need || right < need || bottom < need)
             {
                 Add(list, RULE_EDGE, path,
                     "창 가장자리까지 왼쪽 " + Px(left) + "px, 오른쪽 " + Px(right) + "px, 아래 " + Px(bottom) + "px (기준 " + minPadding + "px)");
@@ -220,7 +222,8 @@ public static class RelayoutLayoutAudit
                 Add(list, RULE_TEXT, path, "isTextOverflowing = true (상자 " + Px(boxW) + "x" + Px(boxH) + "px)");
             if (!tmp.enableWordWrapping && tmp.preferredWidth > boxW + TEXT_TOL)
                 Add(list, RULE_TEXT, path, "줄바꿈 꺼짐: 필요 가로 " + Px(tmp.preferredWidth) + "px > 상자 " + Px(boxW) + "px");
-            if (tmp.preferredHeight > boxH + TEXT_TOL)
+            // 자동 크기 글자는 선호 높이를 최대 글자 크기로 계산한다. 실제로 줄여 맞췄는지는 isTextOverflowing으로만 본다.
+            if (!tmp.enableAutoSizing && tmp.preferredHeight > boxH + TEXT_TOL)
                 Add(list, RULE_TEXT, path, "필요 세로 " + Px(tmp.preferredHeight) + "px > 상자 " + Px(boxH) + "px");
         }
     }

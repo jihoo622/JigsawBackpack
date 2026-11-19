@@ -1682,10 +1682,20 @@ public static partial class Presentation
         return BasicData.Format("presentation.map.time", PuzzleTimeManager.TurnsOf(_hours));
     }
 
-    // 지도 노선 라벨: 기본 운임(기본요금 + 거리 요금). 적재 요금은 화물에 따라 달라 빼고 표시한다.
+    // 지도 노선 라벨(에디터 배치 도구용): 기본 운임(기본요금 + 거리 요금). 적재 요금은 화물에 따라 달라 빼고 표시한다.
     public static string PuzzleMapRouteFare(PuzzleRouteData _route, PuzzleRouteTableData _rules)
     {
         return BasicData.Format("presentation.map.routeFare", _route.cost + (long)_route.distance * _rules.costPerDistance);
+    }
+
+    // 게임 중 지도 노선 라벨: 지금 출발하면 실제로 차감되는 운임(기본요금 + 거리 요금 + 기차 적재 칸 × 칸당 요금).
+    // 이동 처리(EvaluateTravel)와 같은 계산식을 쓴다.
+    public static string PuzzleMapRouteFare(PuzzleRouteData _route, PuzzleRouteTableData _rules, int _trainCells)
+    {
+        return PuzzleInventoryService.TryTravelCost(_route.cost, _route.distance, _rules.costPerDistance,
+                _trainCells, _rules.costPerCell, out long cost, out _)
+            ? BasicData.Format("presentation.map.routeFare", cost)
+            : PuzzleMapRouteFare(_route, _rules);
     }
 
     public static Color PuzzleMapRegionColor(string _regionId)

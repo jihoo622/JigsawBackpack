@@ -69,6 +69,7 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
         GameEvents.MapFocusRequested += OnMapFocusRequested;
         GameEvents.RoutePlanChanged += OnRoutePlanChanged;
         GameEvents.RoutePlanRequested += OnRoutePlanRequested;
+        GameEvents.PuzzleActionCommitted += OnPuzzleActionCommitted;
         if (routePlanPresenter)
         {
             routePlanPresenter.AutoTravelRequested += StartAutoTravel;
@@ -106,6 +107,7 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
         GameEvents.MapFocusRequested -= OnMapFocusRequested;
         GameEvents.RoutePlanChanged -= OnRoutePlanChanged;
         GameEvents.RoutePlanRequested -= OnRoutePlanRequested;
+        GameEvents.PuzzleActionCommitted -= OnPuzzleActionCommitted;
         if (routePlanPresenter)
         {
             routePlanPresenter.AutoTravelRequested -= StartAutoTravel;
@@ -405,6 +407,15 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
         }
     }
 
+    // 화물을 사고팔거나 옮기면 적재 칸 요금이 바뀌므로 노선 운임 라벨만 다시 쓴다.
+    void OnPuzzleActionCommitted(GameEvents.PuzzleActionInfo _info)
+    {
+        if (view && session != null)
+        {
+            view.RefreshRouteFares(session.TotalTrainOccupiedCells);
+        }
+    }
+
     void Refresh()
     {
         view.ShowGuide(Presentation.PuzzleMapGuide(session.ElapsedTime));
@@ -449,6 +460,7 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
                 Presentation.QuestMapBadge(session, cityId));
         }
         view.SetKnownRoutes(session.IsRouteKnown, session.IsRouteTraveled);
+        view.RefreshRouteFares(session.TotalTrainOccupiedCells);
         view.ShowFog(session.IsCityExplored, session.IsRouteTraveled);
         if (currentNode)
         {
