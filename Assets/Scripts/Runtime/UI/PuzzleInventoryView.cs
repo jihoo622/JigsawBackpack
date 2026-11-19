@@ -720,16 +720,14 @@ public sealed class PuzzleInventoryView : MonoBehaviour
                 bottomLeft - cell.Position, boardTitle.font, freshnessMaterial);
             _slots[index].ShowSynergyNotice(index == _start && _showSynergyNotice,
                 topRight - cell.Position);
-            if (cell.Position == bottomRight && !string.IsNullOrEmpty(_deltaText))
-            {
-                _slots[index].ShowDelta(_deltaText, _deltaColor ?? Color.white);
-                deltaSlot = _slots[index];
-            }
-            else
-            {
-                _slots[index].HideDelta();
-            }
+            _slots[index].HideDelta();
             index++;
+        }
+        // 가격 칩은 그림을 가진 기준 칸이 그리고 오른쪽 아래 칸 위치로 옮긴다(다른 칸을 위로 올리면 그 바탕이 그림을 덮는다).
+        if (!string.IsNullOrEmpty(_deltaText) && index > _start)
+        {
+            deltaSlot = _slots[_start];
+            deltaSlot.ShowDelta(_deltaText, _deltaColor ?? Color.white, bottomRight - _pose.Cells[0].Position);
         }
         if (_icon && index > _start)
         {
@@ -739,16 +737,10 @@ public sealed class PuzzleInventoryView : MonoBehaviour
                 int arrowIndex = synergyArrows[0].transform.GetSiblingIndex();
                 first.SetSiblingIndex(first.GetSiblingIndex() < arrowIndex ? arrowIndex - 1 : arrowIndex);
             }
-            else if (_slots == ghostSlots)
+            else
             {
                 first.SetAsLastSibling();
             }
-        }
-        // 가격 칩은 같은 자리의 다른 칸 채움보다 위에 그려져야 한다. 칩이 놓인 칸을 자리의 마지막 형제로 올린다.
-        // 칩 칸을 앞 순서에 두면 뒤에 그려지는 같은 자리의 칸 채움에 가려져 L자 자리에서 안 보인다.
-        if (deltaSlot)
-        {
-            deltaSlot.transform.SetAsLastSibling();
         }
         return index;
     }

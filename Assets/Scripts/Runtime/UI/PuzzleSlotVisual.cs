@@ -146,10 +146,22 @@ public sealed class PuzzleSlotVisual : MonoBehaviour
         synergyNotice.enabled = true;
     }
 
-    internal void ShowDelta(string _text, Color _color)
+    // 가격 칩 기본 위치. 여러 칸 화물은 그림을 가진 기준 칸이 칩을 그리고, 칩만 오른쪽 아래 칸으로 옮긴다.
+    Vector2 deltaChipBase;
+    Vector2 deltaLabelBase;
+    bool deltaBaseCached;
+
+    internal void ShowDelta(string _text, Color _color) => ShowDelta(_text, _color, Vector2.zero);
+
+    // _cellOffset: 이 칸에서 칩을 놓을 칸까지의 칸 단위 거리. 다른 칸을 맨 위로 올리면 그 칸의 바탕이 기준 칸의 그림을 덮으므로
+    // 칩은 그림과 같은 기준 칸에서 그린다.
+    internal void ShowDelta(string _text, Color _color, Vector2 _cellOffset)
     {
+        CacheDeltaBase();
+        Vector2 shift = _cellOffset * Rect.rect.width;
         if (deltaChip)
         {
+            ((RectTransform)deltaChip.transform).anchoredPosition = deltaChipBase + shift;
             deltaChip.SetActive(true);
             // 칩은 이 칸의 채움·아이콘보다 위에 그린다.
             deltaChip.transform.SetAsLastSibling();
@@ -159,7 +171,28 @@ public sealed class PuzzleSlotVisual : MonoBehaviour
             deltaLabel.text = _text;
             deltaLabel.color = _color;
             deltaLabel.enabled = true;
+            if (!deltaChip || deltaLabel.transform.parent != deltaChip.transform)
+            {
+                deltaLabel.rectTransform.anchoredPosition = deltaLabelBase + shift;
+            }
             deltaLabel.rectTransform.SetAsLastSibling();
+        }
+    }
+
+    void CacheDeltaBase()
+    {
+        if (deltaBaseCached)
+        {
+            return;
+        }
+        deltaBaseCached = true;
+        if (deltaChip)
+        {
+            deltaChipBase = ((RectTransform)deltaChip.transform).anchoredPosition;
+        }
+        if (deltaLabel)
+        {
+            deltaLabelBase = deltaLabel.rectTransform.anchoredPosition;
         }
     }
 
