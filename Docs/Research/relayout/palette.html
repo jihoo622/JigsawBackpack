@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trainventory 컬러 팔레트 후보 4종 비교 (시안 3b 기준)</title>
+<link rel="icon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ui-bg: #0b0f17;
+    --ui-panel: #131a26;
+    --ui-card: #1a2333;
+    --ui-border: #2a3950;
+    --ui-text: #f1f5f9;
+    --ui-sub: #94a3b8;
+    --ui-gold: #f0b429;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--ui-bg);
+    color: var(--ui-text);
+    font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
+    line-height: 1.5;
+  }
+  .topbar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(11, 15, 23, 0.96);
+    border-bottom: 1px solid var(--ui-border);
+    padding: 12px 24px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    backdrop-filter: blur(8px);
+  }
+  .brand h1 { font-size: 16px; font-weight: 800; color: var(--ui-gold); }
+  .brand p { font-size: 12px; color: var(--ui-sub); }
+  .tabs { display: flex; flex-wrap: wrap; gap: 8px; }
+  .tab-btn {
+    background: var(--ui-card);
+    color: var(--ui-sub);
+    border: 1px solid var(--ui-border);
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 13px;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .tab-btn:hover { color: var(--ui-text); border-color: #475569; }
+  .tab-btn.active {
+    background: rgba(240, 180, 41, 0.18);
+    color: var(--ui-gold);
+    border-color: var(--ui-gold);
+  }
+  .container {
+    max-width: 1680px;
+    margin: 0 auto;
+    padding: 20px 24px 48px;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+  }
+  .summary-grid {
+    display: grid;
+    grid-template-columns: 1.3fr 1fr;
+    gap: 16px;
+  }
+  .card {
+    background: var(--ui-panel);
+    border: 1px solid var(--ui-border);
+    border-radius: 12px;
+    padding: 18px 20px;
+  }
+  .card h2 {
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--ui-gold);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  .open-full-link {
+    font-size: 12px;
+    font-weight: 700;
+    color: #38bdf8;
+    text-decoration: none;
+    border: 1px solid rgba(56, 189, 248, 0.45);
+    padding: 4px 10px;
+    border-radius: 6px;
+  }
+  .open-full-link:hover { background: rgba(56, 189, 248, 0.14); }
+  .note-list {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-top: 8px;
+  }
+  .note-box {
+    background: var(--ui-card);
+    border: 1px solid var(--ui-border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 12.5px;
+  }
+  .note-box b { display: block; font-size: 11.5px; color: var(--ui-sub); margin-bottom: 4px; }
+  .sim-strips { display: flex; flex-direction: column; gap: 10px; }
+  .sim-row {
+    background: var(--ui-card);
+    border: 1px solid var(--ui-border);
+    border-radius: 8px;
+    padding: 10px 12px;
+  }
+  .sim-label { font-size: 11.5px; font-weight: 700; color: var(--ui-sub); margin-bottom: 7px; }
+  .sim-chips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .sim-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 8px;
+    border-radius: 5px;
+    font-size: 11.5px;
+    font-weight: 700;
+    border: 1px solid rgba(255,255,255,0.14);
+  }
+  .sim-dot { width: 11px; height: 11px; border-radius: 3px; flex-shrink: 0; border: 1px solid rgba(255,255,255,0.25); }
+  .mg-mini-preview {
+    display: inline-grid;
+    grid-template-columns: repeat(4, 9px);
+    gap: 1px;
+    padding: 3px;
+    border-radius: 4px;
+    border: 1px solid rgba(255,255,255,0.2);
+  }
+  .mg-sq { width: 9px; height: 9px; border-radius: 1px; }
+
+  /* Preview Grid */
+  .preview-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+    gap: 16px;
+  }
+  .preview-item {
+    background: var(--ui-panel);
+    border: 1px solid var(--ui-border);
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .preview-head {
+    padding: 10px 14px;
+    background: var(--ui-card);
+    border-bottom: 1px solid var(--ui-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 13px;
+    font-weight: 700;
+  }
+  .preview-head a { color: #38bdf8; font-size: 11.5px; text-decoration: none; }
+  .iframe-wrap {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: #05080d;
+    overflow: hidden;
+  }
+  .iframe-wrap iframe {
+    position: absolute;
+    top: 0; left: 0;
+    width: 1920px;
+    height: 1080px;
+    border: 0;
+    transform-origin: top left;
+    pointer-events: none;
+  }
+
+  /* Swatch Table */
+  .swatch-groups {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(520px, 1fr));
+    gap: 16px;
+  }
+  .swatch-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+  .swatch-table th, .swatch-table td {
+    border-bottom: 1px solid var(--ui-border);
+    padding: 6px 8px;
+    text-align: left;
+  }
+  .swatch-table th { color: var(--ui-sub); font-weight: 700; font-size: 11px; }
+  .swatch-box {
+    width: 24px;
+    height: 18px;
+    border-radius: 4px;
+    border: 1px solid rgba(255,255,255,0.22);
+    display: inline-block;
+    vertical-align: middle;
+  }
+  code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 11.5px; color: #e2e8f0; }
+  .badge-pass {
+    display: inline-block;
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-size: 10.5px;
+    font-weight: 700;
+    background: rgba(34, 197, 94, 0.2);
+    color: #4ade80;
+    border: 1px solid rgba(34, 197, 94, 0.4);
+  }
+  .badge-large {
+    display: inline-block;
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-size: 10.5px;
+    font-weight: 700;
+    background: rgba(240, 180, 41, 0.2);
+    color: #f0b429;
+    border: 1px solid rgba(240, 180, 41, 0.4);
+  }
+  .badge-fail {
+    display: inline-block;
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-size: 10.5px;
+    font-weight: 700;
+    background: rgba(239, 68, 68, 0.2);
+    color: #f87171;
+    border: 1px solid rgba(239, 68, 68, 0.4);
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <h1>Trainventory 컬러 팔레트 후보 비교 (시안 3b)</h1>
+    <p>4개 후보의 실제 화면 프리뷰(5개 핵심 상태) · WCAG 대비율 · 그레이스케일 및 적록색맹(Deuteranopia) 시뮬레이션</p>
+  </div>
+  <div class="tabs" id="palette-tabs">
+    <button class="tab-btn active" data-p="a">A. 다크 네이비 (현행 정리)</button>
+    <button class="tab-btn" data-p="b">B. 따뜻한 철도</button>
+    <button class="tab-btn" data-p="c">C. 밝은 아침 마을</button>
+    <button class="tab-btn" data-p="d">D. 고대비 명료 (색맹 안전)</button>
+  </div>
+</header>
+
+<main class="container">
+  <section class="summary-grid">
+    <div class="card">
+      <h2>
+        <span id="cand-title">A. 다크 네이비 (현행 정리)</span>
+        <a class="open-full-link" id="open-full-link" href="concept-3b.html?palette=a" target="_blank">실제 시안 새 창으로 열기 ↗</a>
+      </h2>
+      <div class="note-list">
+        <div class="note-box"><b>분위기 (Mood)</b><span id="note-mood"></span></div>
+        <div class="note-box"><b>강점 (Strengths)</b><span id="note-strengths"></span></div>
+        <div class="note-box"><b>리스크 (Risks)</b><span id="note-risks"></span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>의미 색 · 등급 · 9px 미니그리드 시뮬레이션</h2>
+      <div class="sim-strips" id="sim-strips"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>실제 화면 라이브 프리뷰 (5개 핵심 상태)</h2>
+    <div class="preview-grid" id="preview-grid"></div>
+  </section>
+
+  <section class="card">
+    <h2>전체 컬러 토큰 스와치 & WCAG 대비율</h2>
+    <div class="swatch-groups" id="swatch-groups"></div>
+  </section>
+</main>
+
+<script>
+  const CANDIDATES = {
+    a: {
+      title: 'A. 다크 네이비 (현행 정리)',
+      mood: '깊은 야간 철도 관제실 톤의 다크 네이비. 익숙한 현행 시안의 대비와 일관성을 정돈한 기준안.',
+      strengths: '골드 자금/선택 악센트가 가장 선명하게 부각됨. 야간/주간 전환과 유리 패널 가독성이 안정적.',
+      risks: '차가운 네이비 톤이 증기/목재 철도 무드보다는 현대적/전략 UI에 가깝게 느껴질 수 있음.',
+      panelHex: '#0f1724',
+      cardHex: '#1b2838',
+      groups: [
+        {
+          name: 'UI 틀 (UI Frame)',
+          tokens: [
+            ['--bg-outer', '#070b11', '바깥 배경'],
+            ['--bg-panel', '#0f1724', '기본 패널 배경'],
+            ['--bg-panel-2', '#152033', '보조 패널/푸터'],
+            ['--bg-card', '#1b2838', '카드/버튼 배경'],
+            ['--border', '#2a3f5a', '기본 테두리'],
+            ['--border-bright', '#3e5b80', '강조 테두리'],
+            ['--text', '#f1f5f9', '본문 텍스트', true],
+            ['--text-sub', '#a8b8cc', '보조 텍스트', true],
+            ['--text-muted', '#8da0b8', '흐린 텍스트 (4.5:1 보정)', true],
+            ['--gold', '#f0b429', '선택/포커스/자금 악센트', true]
+          ]
+        },
+        {
+          name: '의미 색 & 등급 (Semantic & Tiers)',
+          tokens: [
+            ['--gold', '#f0b429', '자금/선택 단일 최강 악센트', true],
+            ['--pos-soft', '#4ade80', '긍정 Δ (▲ +)', true],
+            ['--neg-soft', '#f87171', '부정 Δ (▼ -)', true],
+            ['--warn', '#f97316', '경고/주의', true],
+            ['--info', '#38bdf8', '정보/소문', true],
+            ['--disabled-text', '#8da0b8', '비활성 텍스트', true],
+            ['--tier-abundant', '#94a3b8', '풍부 70% (중간 명도)', true],
+            ['--tier-preferred', '#f0b429', '선호 130% (골드)', true],
+            ['--tier-rare', '#f0abfc', '희귀 200% (고명도)', true]
+          ]
+        },
+        {
+          name: '화물 분류 태그 (Cargo Tags)',
+          tokens: [
+            ['--tag-machinery', '#c2410c', '기계·음식'],
+            ['--tag-fish', '#0369a1', '물고기'],
+            ['--tag-fruit', '#b91c1c', '과일'],
+            ['--tag-salt', '#475569', '소금·화물'],
+            ['--tag-wood', '#78350f', '목재·가축'],
+            ['--tag-exempt', '#15803d', '운임 면제']
+          ]
+        },
+        {
+          name: '지역 색 (Region Colors)',
+          tokens: [
+            ['--region-capital-text', '#f472b6', '수도권', true],
+            ['--region-mine-text', '#93c5fd', '광산', true],
+            ['--region-pasture-text', '#fdba74', '목축', true],
+            ['--region-industry-text', '#86efac', '공업', true],
+            ['--region-coast-text', '#a5b4fc', '해안', true],
+            ['--region-agri-text', '#5eead4', '농업', true]
+          ]
+        },
+        {
+          name: '보드 & 미니그리드 (Board & 9px Mini-Grid)',
+          tokens: [
+            ['--cell-bg', '#233346', '화차/시장 빈 셀'],
+            ['--cell-blocked-bg', '#0a0f18', '막힌 셀'],
+            ['--cand-1-border', '#4ade80', '1순위 추천 테두리'],
+            ['--mg-blocked', '#141922', '미니그리드 막힘'],
+            ['--mg-empty', '#4b5563', '미니그리드 빈 칸'],
+            ['--mg-cargo-0', '#fde047', '미니그리드 화물 A'],
+            ['--mg-cargo-1', '#eab308', '미니그리드 화물 B']
+          ]
+        },
+        {
+          name: '장면 (Diegetic Scene)',
+          tokens: [
+            ['--scene-platform-bg', '#3a414d', '플랫폼 바닥'],
+            ['--scene-rail-bed', '#1c2026', '선로 자갈'],
+            ['--scene-rail-sleeper', '#453222', '침목'],
+            ['--scene-grass', '#3b4d3b', '마을 잔디'],
+            ['--scene-road', '#4b5563', '마을 도로'],
+            ['--scene-bldg-station-wall', '#7c2d12', '역사 외벽'],
+            ['--scene-bldg-market-awning', '#b91c1c', '시장 차양'],
+            ['--scene-map-water', '#2c3e55', '노선도 바다']
+          ]
+        }
+      ]
+    },
+    b: {
+      title: 'B. 따뜻한 철도 (Warm Railway)',
+      mood: '에스프레소·차콜 목재 톤에 황동(Brass) 골드를 얹은 클래식 증기기관차 감성.',
+      strengths: '철도·교역 게임 테마와 가장 높은 일체감. 따뜻한 크림 텍스트로 장시간 플레이 시 눈의 피로가 적음.',
+      risks: '장면(땅/침목/건물)과 UI 패널이 모두 갈색 계열이라 경계 테두리(--border-bright)가 흐려지지 않게 관리 필요.',
+      panelHex: '#1c1613',
+      cardHex: '#2b221d',
+      groups: [
+        {
+          name: 'UI 틀 (UI Frame)',
+          tokens: [
+            ['--bg-outer', '#110d0b', '바깥 배경'],
+            ['--bg-panel', '#1c1613', '기본 패널 배경'],
+            ['--bg-panel-2', '#241c18', '보조 패널/푸터'],
+            ['--bg-card', '#2b221d', '카드/버튼 배경'],
+            ['--border', '#4a3a31', '기본 테두리'],
+            ['--border-bright', '#6b5344', '강조 테두리'],
+            ['--text', '#f5efe6', '본문 텍스트', true],
+            ['--text-sub', '#cbbfb0', '보조 텍스트', true],
+            ['--text-muted', '#a69888', '흐린 텍스트', true],
+            ['--gold', '#ebb038', '황동 골드 악센트', true]
+          ]
+        },
+        {
+          name: '의미 색 & 등급 (Semantic & Tiers)',
+          tokens: [
+            ['--gold', '#ebb038', '황동 자금/선택 악센트', true],
+            ['--pos-soft', '#5eead4', '긍정 Δ (청록 ▲ +)', true],
+            ['--neg-soft', '#fb7185', '부정 Δ (코랄 ▼ -)', true],
+            ['--warn', '#fb923c', '경고/주의', true],
+            ['--info', '#7dd3fc', '정보/소문', true],
+            ['--disabled-text', '#a69888', '비활성 텍스트', true],
+            ['--tier-abundant', '#a89984', '풍부 70%', true],
+            ['--tier-preferred', '#ebb038', '선호 130%', true],
+            ['--tier-rare', '#fbcfe8', '희귀 200%', true]
+          ]
+        },
+        {
+          name: '화물 분류 태그 (Cargo Tags)',
+          tokens: [
+            ['--tag-machinery', '#b45309', '기계·음식'],
+            ['--tag-fish', '#0e7490', '물고기'],
+            ['--tag-fruit', '#9f1239', '과일'],
+            ['--tag-salt', '#57534e', '소금·화물'],
+            ['--tag-wood', '#713f12', '목재·가축'],
+            ['--tag-exempt', '#0f766e', '운임 면제']
+          ]
+        },
+        {
+          name: '지역 색 (Region Colors)',
+          tokens: [
+            ['--region-capital-text', '#fda4af', '수도권', true],
+            ['--region-mine-text', '#bfdbfe', '광산', true],
+            ['--region-pasture-text', '#fed7aa', '목축', true],
+            ['--region-industry-text', '#99f6e4', '공업', true],
+            ['--region-coast-text', '#c7d2fe', '해안', true],
+            ['--region-agri-text', '#d9f99d', '농업', true]
+          ]
+        },
+        {
+          name: '보드 & 미니그리드 (Board & 9px Mini-Grid)',
+          tokens: [
+            ['--cell-bg', '#322822', '화차/시장 빈 셀'],
+            ['--cell-blocked-bg', '#100c0a', '막힌 셀'],
+            ['--cand-1-border', '#5eead4', '1순위 추천 테두리'],
+            ['--mg-blocked', '#1e1612', '미니그리드 막힘'],
+            ['--mg-empty', '#5c4d42', '미니그리드 빈 칸'],
+            ['--mg-cargo-0', '#fbbf24', '미니그리드 화물 A'],
+            ['--mg-cargo-1', '#d97706', '미니그리드 화물 B']
+          ]
+        },
+        {
+          name: '장면 (Diegetic Scene)',
+          tokens: [
+            ['--scene-platform-bg', '#453a32', '플랫폼 바닥'],
+            ['--scene-rail-bed', '#1b1512', '선로 자갈'],
+            ['--scene-rail-sleeper', '#543822', '침목'],
+            ['--scene-grass', '#454935', '마을 잔디'],
+            ['--scene-road', '#574c43', '마을 도로'],
+            ['--scene-bldg-cityhall-wall', '#443830', '시청 외벽'],
+            ['--scene-bldg-market-wall', '#2b221d', '시장 외벽'],
+            ['--scene-map-water', '#2c3a47', '노선도 바다']
+          ]
+        }
+      ]
+    },
+    c: {
+      title: 'C. 밝은 아침 마을 (Morning Town)',
+      mood: '양피지·크림 패널과 맑은 파스텔 마을이 어우러지는 아늑하고 산뜻한 낮 톤.',
+      strengths: '다크 UI가 무겁게 느껴지는 유저에게 압도적으로 친근하고 밝은 인상. 지도/문서 가독성 우수.',
+      risks: '밝은 배경에서 골드(--gold)가 묻히지 않도록 어두운 호박색(#8c4f00)으로 눌러야 해 화려함이 줄 수 있음.',
+      panelHex: '#fbf8f2',
+      cardHex: '#ede6d7',
+      groups: [
+        {
+          name: 'UI 틀 (UI Frame)',
+          tokens: [
+            ['--bg-outer', '#e4ddd0', '바깥 배경'],
+            ['--bg-panel', '#fbf8f2', '양피지 패널 배경'],
+            ['--bg-panel-2', '#f2ece0', '보조 패널/푸터'],
+            ['--bg-card', '#ede6d7', '카드/버튼 배경'],
+            ['--border', '#c9bea9', '기본 테두리'],
+            ['--border-bright', '#9e8f77', '강조 테두리'],
+            ['--text', '#1c201e', '본문 먹색 텍스트', true],
+            ['--text-sub', '#424944', '보조 텍스트', true],
+            ['--text-muted', '#565e59', '흐린 텍스트', true],
+            ['--gold', '#8c4f00', '앤티크 골드 악센트', true]
+          ]
+        },
+        {
+          name: '의미 색 & 등급 (Semantic & Tiers)',
+          tokens: [
+            ['--gold', '#8c4f00', '앤티크 골드 자금/선택', true],
+            ['--pos-soft', '#146c34', '긍정 Δ (딥 그린 ▲ +)', true],
+            ['--neg-soft', '#b91c1c', '부정 Δ (크림슨 ▼ -)', true],
+            ['--warn', '#c2410c', '경고/주의', true],
+            ['--info', '#0369a1', '정보/소문', true],
+            ['--disabled-text', '#565e59', '비활성 텍스트', true],
+            ['--tier-abundant', '#57534e', '풍부 70%', true],
+            ['--tier-preferred', '#8c4f00', '선호 130%', true],
+            ['--tier-rare', '#7e22ce', '희귀 200%', true]
+          ]
+        },
+        {
+          name: '화물 분류 태그 (Cargo Tags)',
+          tokens: [
+            ['--tag-machinery', '#c2410c', '기계·음식'],
+            ['--tag-fish', '#0369a1', '물고기'],
+            ['--tag-fruit', '#b91c1c', '과일'],
+            ['--tag-salt', '#475569', '소금·화물'],
+            ['--tag-wood', '#78350f', '목재·가축'],
+            ['--tag-exempt', '#15803d', '운임 면제']
+          ]
+        },
+        {
+          name: '지역 색 (Region Colors)',
+          tokens: [
+            ['--region-capital-text', '#9d174d', '수도권', true],
+            ['--region-mine-text', '#1e40af', '광산', true],
+            ['--region-pasture-text', '#9a3412', '목축', true],
+            ['--region-industry-text', '#166534', '공업', true],
+            ['--region-coast-text', '#3730a3', '해안', true],
+            ['--region-agri-text', '#115e59', '농업', true]
+          ]
+        },
+        {
+          name: '보드 & 미니그리드 (Board & 9px Mini-Grid)',
+          tokens: [
+            ['--cell-bg', '#f5efe4', '화차/시장 빈 셀'],
+            ['--cell-blocked-bg', '#cfc4b0', '막힌 셀'],
+            ['--cand-1-border', '#15803d', '1순위 추천 테두리'],
+            ['--mg-blocked', '#cfc4b0', '미니그리드 막힘'],
+            ['--mg-empty', '#b5aa97', '미니그리드 빈 칸'],
+            ['--mg-cargo-0', '#b45309', '미니그리드 화물 A'],
+            ['--mg-cargo-1', '#7c2d12', '미니그리드 화물 B']
+          ]
+        },
+        {
+          name: '장면 (Diegetic Scene)',
+          tokens: [
+            ['--scene-platform-bg', '#d6cec0', '플랫폼 바닥'],
+            ['--scene-rail-bed', '#bfb4a2', '선로 자갈'],
+            ['--scene-rail-sleeper', '#78593c', '침목'],
+            ['--scene-grass', '#96bc7a', '아침 잔디'],
+            ['--scene-road', '#b8b0a2', '밝은 석재 도로'],
+            ['--scene-bldg-station-wall', '#c2410c', '역사 외벽'],
+            ['--scene-map-water', '#93c5fd', '노선도 바다']
+          ]
+        }
+      ]
+    },
+    d: {
+      title: 'D. 고대비 명료 (색각 이상 안전)',
+      mood: '무채색 다크 그레이 UI 위에 파랑(+)/주황(-)과 고채도 골드를 얹은 최고 가독성 모드.',
+      strengths: '적록색맹(Deuteranopia)에서도 긍정/부정 Δ가 100% 구분됨. 모든 텍스트 대비율 6.6:1 이상.',
+      risks: '무채색 UI라 A/B에 비해 감성적 색감 온기는 덜하며, 기능적·명료한 인상.',
+      panelHex: '#141418',
+      cardHex: '#222229',
+      groups: [
+        {
+          name: 'UI 틀 (UI Frame)',
+          tokens: [
+            ['--bg-outer', '#09090b', '바깥 배경'],
+            ['--bg-panel', '#141418', '중립 다크 패널'],
+            ['--bg-panel-2', '#1c1c22', '보조 패널/푸터'],
+            ['--bg-card', '#222229', '카드/버튼 배경'],
+            ['--border', '#3f3f4a', '기본 테두리'],
+            ['--border-bright', '#636374', '강조 테두리'],
+            ['--text', '#ffffff', '순백 본문 텍스트', true],
+            ['--text-sub', '#d4d4df', '보조 텍스트', true],
+            ['--text-muted', '#a6a6b8', '흐린 텍스트', true],
+            ['--gold', '#fbbf24', '고대비 골드 악센트', true]
+          ]
+        },
+        {
+          name: '의미 색 & 등급 (색맹 안전 파랑/주황)',
+          tokens: [
+            ['--gold', '#fbbf24', '자금/선택 단일 최강 악센트', true],
+            ['--pos-soft', '#38bdf8', '긍정 Δ (파랑 ▲ +)', true],
+            ['--neg-soft', '#fb923c', '부정 Δ (주황 ▼ -)', true],
+            ['--warn', '#fb923c', '경고/주의', true],
+            ['--info', '#a78bfa', '정보/소문 (바이올렛)', true],
+            ['--disabled-text', '#a6a6b8', '비활성 텍스트', true],
+            ['--tier-abundant', '#a1a1aa', '풍부 70%', true],
+            ['--tier-preferred', '#fbbf24', '선호 130%', true],
+            ['--tier-rare', '#f9a8d4', '희귀 200%', true]
+          ]
+        },
+        {
+          name: '화물 분류 태그 (Cargo Tags)',
+          tokens: [
+            ['--tag-machinery', '#c2410c', '기계·음식'],
+            ['--tag-fish', '#0369a1', '물고기'],
+            ['--tag-fruit', '#9d174d', '과일'],
+            ['--tag-salt', '#52525b', '소금·화물'],
+            ['--tag-wood', '#854d0e', '목재·가축'],
+            ['--tag-exempt', '#0369a1', '운임 면제']
+          ]
+        },
+        {
+          name: '지역 색 (Region Colors)',
+          tokens: [
+            ['--region-capital-text', '#fbcfe8', '수도권', true],
+            ['--region-mine-text', '#bae6fd', '광산', true],
+            ['--region-pasture-text', '#fed7aa', '목축', true],
+            ['--region-industry-text', '#ddd6fe', '공업', true],
+            ['--region-coast-text', '#bfdbfe', '해안', true],
+            ['--region-agri-text', '#fef08a', '농업', true]
+          ]
+        },
+        {
+          name: '보드 & 미니그리드 (Board & 9px Mini-Grid)',
+          tokens: [
+            ['--cell-bg', '#24242c', '화차/시장 빈 셀'],
+            ['--cell-blocked-bg', '#0f0f13', '막힌 셀'],
+            ['--cand-1-border', '#38bdf8', '1순위 추천 테두리'],
+            ['--mg-blocked', '#18181b', '미니그리드 막힘'],
+            ['--mg-empty', '#52525b', '미니그리드 빈 칸'],
+            ['--mg-cargo-0', '#fde047', '미니그리드 화물 A'],
+            ['--mg-cargo-1', '#fb923c', '미니그리드 화물 B']
+          ]
+        },
+        {
+          name: '장면 (Diegetic Scene)',
+          tokens: [
+            ['--scene-platform-bg', '#2e2e36', '플랫폼 바닥'],
+            ['--scene-rail-bed', '#141418', '선로 자갈'],
+            ['--scene-rail-sleeper', '#3f352c', '침목'],
+            ['--scene-grass', '#2d382d', '마을 잔디'],
+            ['--scene-road', '#43434d', '마을 도로'],
+            ['--scene-bldg-market-wall', '#18181f', '시장 외벽'],
+            ['--scene-map-water', '#1e293b', '노선도 바다']
+          ]
+        }
+      ]
+    }
+  };
+
+  const KEY_STATES = [
+    { id: 'arrival_default', label: '1. 평상시 (도착)' },
+    { id: 'market_holding', label: '2. 시장 화물 잡는 중' },
+    { id: 'many_wagons', label: '3. 11량 편성 (스크롤)' },
+    { id: 'notebook_map', label: '4. 수첩 · 노선도' },
+    { id: 'travel', label: '5. 야간 이동 중' }
+  ];
+
+  function hexToRgb(h) {
+    h = h.replace('#', '');
+    if (h.length === 3) h = h.split('').map(c => c + c).join('');
+    return [parseInt(h.slice(0,2),16), parseInt(h.slice(2,4),16), parseInt(h.slice(4,6),16)];
+  }
+  function rgbToHex(r, g, b) {
+    const clamp = v => Math.max(0, Math.min(255, Math.round(v)));
+    return '#' + [clamp(r), clamp(g), clamp(b)].map(v => v.toString(16).padStart(2, '0')).join('');
+  }
+  function srgbToLin(c) {
+    c /= 255;
+    return c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+  }
+  function linToSrgb(c) {
+    c = Math.max(0, Math.min(1, c));
+    return (c <= 0.0031308 ? 12.92 * c : 1.055 * Math.pow(c, 1 / 2.4) - 0.055) * 255;
+  }
+  function relLum(hex) {
+    const [r, g, b] = hexToRgb(hex).map(srgbToLin);
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  }
+  function contrastRatio(h1, h2) {
+    let l1 = relLum(h1), l2 = relLum(h2);
+    if (l1 < l2) [l1, l2] = [l2, l1];
+    return (l1 + 0.05) / (l2 + 0.05);
+  }
+  function toGrayscaleHex(hex) {
+    const l = relLum(hex);
+    const v = linToSrgb(l);
+    return rgbToHex(v, v, v);
+  }
+  // Viénot et al. (1999) deuteranopia simulation in linear sRGB
+  function toDeuteranopiaHex(hex) {
+    const [r, g, b] = hexToRgb(hex).map(srgbToLin);
+    const dr = 0.29275 * r + 0.70725 * g + 0.0 * b;
+    const dg = 0.29275 * r + 0.70725 * g + 0.0 * b;
+    const db = -0.02234 * r + 0.02234 * g + 1.0 * b;
+    return rgbToHex(linToSrgb(dr), linToSrgb(dg), linToSrgb(db));
+  }
+
+  function findTokenHex(cand, tokenName) {
+    for (const g of cand.groups) {
+      for (const t of g.tokens) {
+        if (t[0] === tokenName) return t[1];
+      }
+    }
+    return '#888888';
+  }
+
+  let currentPalette = new URLSearchParams(window.location.search).get('palette') || 'a';
+  if (!['a', 'b', 'c', 'd'].includes(currentPalette)) currentPalette = 'a';
+
+  function renderCandidate(p) {
+    currentPalette = p;
+    const cand = CANDIDATES[p];
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.p === p));
+    document.getElementById('cand-title').textContent = cand.title;
+    document.getElementById('open-full-link').href = `concept-3b.html?palette=${p}`;
+    document.getElementById('note-mood').textContent = cand.mood;
+    document.getElementById('note-strengths').textContent = cand.strengths;
+    document.getElementById('note-risks').textContent = cand.risks;
+
+    // 1. Simulation strips (Original, Grayscale, Deuteranopia)
+    const gold = findTokenHex(cand, '--gold');
+    const pos = findTokenHex(cand, '--pos-soft');
+    const neg = findTokenHex(cand, '--neg-soft');
+    const warn = findTokenHex(cand, '--warn');
+    const info = findTokenHex(cand, '--info');
+    const tAbund = findTokenHex(cand, '--tier-abundant');
+    const tPref = findTokenHex(cand, '--tier-preferred');
+    const tRare = findTokenHex(cand, '--tier-rare');
+    const mgBlk = findTokenHex(cand, '--mg-blocked');
+    const mgEmp = findTokenHex(cand, '--mg-empty');
+    const mgC0 = findTokenHex(cand, '--mg-cargo-0');
+    const mgC1 = findTokenHex(cand, '--mg-cargo-1');
+
+    const simModes = [
+      { label: '원본 (Original)', fn: x => x },
+      { label: '그레이스케일 (Grayscale — 명도 구분 확인)', fn: toGrayscaleHex },
+      { label: '적록색맹 (Deuteranopia — +/- Δ 및 등급 구분 확인)', fn: toDeuteranopiaHex }
+    ];
+
+    const stripsEl = document.getElementById('sim-strips');
+    stripsEl.innerHTML = simModes.map(mode => {
+      const bg = mode.fn(cand.panelHex);
+      const items = [
+        { name: '골드', hex: mode.fn(gold) },
+        { name: '▲ +12$', hex: mode.fn(pos) },
+        { name: '▼ -50%', hex: mode.fn(neg) },
+        { name: '경고', hex: mode.fn(warn) },
+        { name: '정보', hex: mode.fn(info) },
+        { name: '풍부70%', hex: mode.fn(tAbund) },
+        { name: '선호130%', hex: mode.fn(tPref) },
+        { name: '희귀200%', hex: mode.fn(tRare) }
+      ];
+      const mgColors = [mgBlk, mgEmp, mgC0, mgC1].map(mode.fn);
+      return `
+        <div class="sim-row">
+          <div class="sim-label">${mode.label}</div>
+          <div class="sim-chips">
+            ${items.map(it => `
+              <span class="sim-chip" style="background:${bg};color:${it.hex};">
+                <span class="sim-dot" style="background:${it.hex};"></span>${it.name}
+              </span>
+            `).join('')}
+            <span class="mg-mini-preview" style="background:${bg};" title="9px 미니그리드: 막힘/빈칸/화물A/화물B">
+              <span class="mg-sq" style="background:${mgColors[0]};"></span>
+              <span class="mg-sq" style="background:${mgColors[1]};"></span>
+              <span class="mg-sq" style="background:${mgColors[2]};"></span>
+              <span class="mg-sq" style="background:${mgColors[3]};"></span>
+            </span>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    // 2. Live Preview Iframes
+    const previewEl = document.getElementById('preview-grid');
+    previewEl.innerHTML = KEY_STATES.map(st => `
+      <div class="preview-item">
+        <div class="preview-head">
+          <span>${st.label}</span>
+          <a href="concept-3b.html?palette=${p}&state=${st.id}" target="_blank">1920×1080 열기 ↗</a>
+        </div>
+        <div class="iframe-wrap">
+          <iframe src="concept-3b.html?palette=${p}&state=${st.id}&embed=1" loading="lazy"></iframe>
+        </div>
+      </div>
+    `).join('');
+    scaleIframes();
+
+    // 3. Swatch Groups + WCAG Ratios
+    const swatchEl = document.getElementById('swatch-groups');
+    swatchEl.innerHTML = cand.groups.map(g => `
+      <div class="card" style="padding:14px 16px;">
+        <h2 style="font-size:14px;margin-bottom:8px;">${g.name}</h2>
+        <table class="swatch-table">
+          <thead><tr><th>색</th><th>토큰</th><th>Hex</th><th>역할</th><th>패널 대비율</th></tr></thead>
+          <tbody>
+            ${g.tokens.map(([tok, hex, role, checkContrast]) => {
+              let ratioHtml = '<span style="color:var(--ui-sub);">—</span>';
+              if (checkContrast) {
+                const rPanel = contrastRatio(hex, cand.panelHex);
+                const rCard = contrastRatio(hex, cand.cardHex);
+                const minR = Math.min(rPanel, rCard);
+                const cls = minR >= 4.5 ? 'badge-pass' : (minR >= 3.0 ? 'badge-large' : 'badge-fail');
+                const tag = minR >= 4.5 ? 'AA' : (minR >= 3.0 ? '3:1+' : '미달');
+                ratioHtml = `<span class="${cls}">${rPanel.toFixed(1)} / ${rCard.toFixed(1)} (${tag})</span>`;
+              }
+              return `
+                <tr>
+                  <td><span class="swatch-box" style="background:${hex};"></span></td>
+                  <td><code>${tok}</code></td>
+                  <td><code>${hex}</code></td>
+                  <td>${role}</td>
+                  <td>${ratioHtml}</td>
+                </tr>
+              `;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>
+    `).join('');
+  }
+
+  function scaleIframes() {
+    document.querySelectorAll('.iframe-wrap').forEach(wrap => {
+      const iframe = wrap.querySelector('iframe');
+      if (!iframe) return;
+      const scale = wrap.clientWidth / 1920;
+      iframe.style.transform = `scale(${scale})`;
+    });
+  }
+
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => renderCandidate(btn.dataset.p));
+  });
+  window.addEventListener('resize', scaleIframes);
+  renderCandidate(currentPalette);
+</script>
+</body>
+</html>
