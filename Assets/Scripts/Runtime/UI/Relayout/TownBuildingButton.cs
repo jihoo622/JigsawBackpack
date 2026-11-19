@@ -81,6 +81,11 @@ public sealed class TownBuildingButton : MonoBehaviour, IPointerEnterHandler, IP
     {
         isDisabled = _disabled;
         disabledReason = _reason;
+        ApplyDisabledVisuals();
+    }
+
+    void ApplyDisabledVisuals()
+    {
         if (button && button.targetGraphic)
         {
             if (!baseWallColorCaptured)
@@ -89,8 +94,22 @@ public sealed class TownBuildingButton : MonoBehaviour, IPointerEnterHandler, IP
                 baseWallColorCaptured = true;
             }
             var c = baseWallColor;
-            c.a = _disabled ? baseWallColor.a * 0.48f : baseWallColor.a;
+            c.a = isDisabled ? baseWallColor.a * 0.48f : baseWallColor.a;
             button.targetGraphic.color = c;
+        }
+        ApplyChildVisualAlpha(workshopVisual);
+        ApplyChildVisualAlpha(emptyLotVisual);
+    }
+
+    void ApplyChildVisualAlpha(GameObject _root)
+    {
+        if (!_root) return;
+        var imgs = _root.GetComponentsInChildren<Image>(true);
+        for (int i = 0; i < imgs.Length; i++)
+        {
+            var c = imgs[i].color;
+            c.a = isDisabled ? 0.48f : 1f;
+            imgs[i].color = c;
         }
     }
 
@@ -125,6 +144,7 @@ public sealed class TownBuildingButton : MonoBehaviour, IPointerEnterHandler, IP
         if (workshopVisual) workshopVisual.SetActive(_hasWorkshop);
         if (emptyLotVisual) emptyLotVisual.SetActive(!_hasWorkshop);
         if (chimneySmokeObject) chimneySmokeObject.SetActive(_hasWorkshop);
+        ApplyDisabledVisuals();
     }
 
     public void SetChalkboard(string _text)

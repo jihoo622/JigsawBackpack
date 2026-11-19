@@ -38,6 +38,9 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
     [SerializeField] TrainWindowManager trainWindowManager;
     [SerializeField] MarketWindowView marketWindowView;
     [SerializeField] LensWindowView lensWindowView;
+    [SerializeField] TavernWindowView tavernWindowView;
+    [SerializeField] StationHallWindowView stationHallWindowView;
+    [SerializeField] WorkshopWindowView workshopWindowView;
     [SerializeField] TownSceneView townSceneView;
     [SerializeField] StatusBannerView statusBannerView;
     [SerializeField] NotebookWindowView notebookWindowView;
@@ -47,9 +50,15 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
     bool UseMultiTrainWindows => RelayoutSettings.Enabled && trainWindowManager;
     PuzzleInventoryView ActiveTrainView => RelayoutSettings.Enabled && relayoutTrainView ? relayoutTrainView : trainView;
     PuzzleInventoryView ActiveMarketView => RelayoutSettings.Enabled && relayoutMarketView ? relayoutMarketView : marketView;
+    PuzzleInventoryView ActiveQuestBoardView => RelayoutSettings.Enabled && tavernWindowView ? tavernWindowView.QuestBoardView : null;
+    PuzzleInventoryView ActiveButcheryView => RelayoutSettings.Enabled && workshopWindowView && workshopWindowView.ButcheryBoardView ? workshopWindowView.ButcheryBoardView : butcheryView;
+    PuzzleInventoryView ActiveModificationView => RelayoutSettings.Enabled && workshopWindowView && workshopWindowView.ModificationBoardView ? workshopWindowView.ModificationBoardView : modificationView;
+    PuzzleInventoryView ActiveRefiningView => RelayoutSettings.Enabled && workshopWindowView && workshopWindowView.RefiningBoardView ? workshopWindowView.RefiningBoardView : refiningView;
 
     [SerializeField] PuzzleInventoryInput input;
     PuzzleInventoryService session;
+    PuzzleInventory questOfferBoard;
+    readonly Dictionary<int, TrainventoryQuestOffer> questOfferByInstanceId = new();
     // 아직 상태 줄에 띄우지 않은 숙련 레벨 상승 알림.
     string pendingProficiencyNotice;
     PuzzleInventoryDrag drag;
@@ -67,13 +76,13 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
     bool modificationConfigured;
     bool refiningConfigured;
     // 도축대는 세션이 조작을 허용하고 패널에 View가 나와 있을 때만 드래그·표시 대상이 된다.
-    bool ButcheryViewReady => session != null && session.IsButcheryOpen && butcheryView != null &&
-        butcheryView.gameObject.activeInHierarchy;
+    bool ButcheryViewReady => session != null && session.IsButcheryOpen && ActiveButcheryView != null &&
+        ActiveButcheryView.gameObject.activeInHierarchy;
     internal static bool HasActiveDrag { get; private set; }
-    bool ModificationViewReady => session != null && session.IsModificationOpen && modificationView != null &&
-        modificationView.gameObject.activeInHierarchy;
-    bool RefiningViewReady => session != null && session.IsRefiningOpen && refiningView != null &&
-        refiningView.gameObject.activeInHierarchy;
+    bool ModificationViewReady => session != null && session.IsModificationOpen && ActiveModificationView != null &&
+        ActiveModificationView.gameObject.activeInHierarchy;
+    bool RefiningViewReady => session != null && session.IsRefiningOpen && ActiveRefiningView != null &&
+        ActiveRefiningView.gameObject.activeInHierarchy;
     decimal? pendingSettlementValue;
     decimal? pendingFreshnessLossValue;
     bool pendingFundsRefresh;
@@ -170,6 +179,12 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
         ConfigureButcheryView();
         ConfigureModificationView();
         ConfigureRefiningView();
+        ConfigureQuestBoardView();
+        RebuildQuestOfferBoard();
+        if (tavernWindowView)
+        {
+            tavernWindowView.ResetCity(session.CityData?.displayName ?? string.Empty);
+        }
         cityView.Initialize(session.TargetFunds);
         cityView.InitializeTown(GetTavernRumor);
         ShowCurrentCity();
@@ -206,6 +221,21 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
         if (refiningView)
         {
             refiningView.Disabled += OnViewDisabled;
+        }
+        if (tavernWindowView)
+        {
+            tavernWindowView.RumorRequested += OnTavernRumorRequested;
+            tavernWindowView.Opened += RebuildQuestOfferBoard;
+            if (tavernWindowView.QuestBoardView)
+            {
+                tavernWindowView.QuestBoardView.Disabled += OnViewDisabled;
+            }
+        }
+        if (workshopWindowView)
+        {
+            if (workshopWindowView.ButcheryBoardView) workshopWindowView.ButcheryBoardView.Disabled += OnViewDisabled;
+            if (workshopWindowView.ModificationBoardView) workshopWindowView.ModificationBoardView.Disabled += OnViewDisabled;
+            if (workshopWindowView.RefiningBoardView) workshopWindowView.RefiningBoardView.Disabled += OnViewDisabled;
         }
         GameEvents.CityArrived += OnCityArrived;
         GameEvents.TimeAdvanced += OnTimeAdvanced;
@@ -250,6 +280,11 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
             trainWindowManager.LensToggleRequested += OnRelayoutLensToggleRequested;
         }
         stationActions = GetComponentInChildren<PuzzleStationActionsView>(true);
+        if (RelayoutSettings.Enabled && tavernWindowView)
+        {
+            tavernWindowView.ResetCity(session.CityData.displayName);
+            RebuildQuestOfferBoard();
+        }
         if (RelayoutSettings.Enabled && marketWindowView)
         {
             marketWindowView.SetCity(session.CityData.displayName, Presentation.GetCityTradePreferences(session.CityData));
@@ -300,6 +335,21 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
         if (refiningView)
         {
             refiningView.Disabled -= OnViewDisabled;
+        }
+        if (tavernWindowView)
+        {
+            tavernWindowView.RumorRequested -= OnTavernRumorRequested;
+            tavernWindowView.Opened -= RebuildQuestOfferBoard;
+            if (tavernWindowView.QuestBoardView)
+            {
+                tavernWindowView.QuestBoardView.Disabled -= OnViewDisabled;
+            }
+        }
+        if (workshopWindowView)
+        {
+            if (workshopWindowView.ButcheryBoardView) workshopWindowView.ButcheryBoardView.Disabled -= OnViewDisabled;
+            if (workshopWindowView.ModificationBoardView) workshopWindowView.ModificationBoardView.Disabled -= OnViewDisabled;
+            if (workshopWindowView.RefiningBoardView) workshopWindowView.RefiningBoardView.Disabled -= OnViewDisabled;
         }
         if (input)
         {
@@ -480,6 +530,11 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
     {
         bool inProgress = session.RunStatus == PuzzleRunStatus.InProgress;
         cityView.SetTown(session.CityData.displayName, inProgress);
+        if (RelayoutSettings.Enabled && tavernWindowView)
+        {
+            tavernWindowView.ResetCity(session.CityData.displayName);
+            RebuildQuestOfferBoard();
+        }
         if (RelayoutSettings.Enabled && marketWindowView)
         {
             marketWindowView.SetCity(session.CityData.displayName, Presentation.GetCityTradePreferences(session.CityData));
@@ -494,6 +549,55 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
     }
 
     #region 술집 대화 생성
+
+    void OnTavernRumorRequested()
+    {
+        if (session == null || session.RunStatus != PuzzleRunStatus.InProgress || !tavernWindowView)
+        {
+            return;
+        }
+        tavernWindowView.SetRumor(GetTavernRumor());
+    }
+
+    bool questBoardConfigured;
+
+    void ConfigureQuestBoardView()
+    {
+        var boardView = ActiveQuestBoardView;
+        if (!boardView || session == null)
+        {
+            return;
+        }
+        if (!questBoardConfigured)
+        {
+            long dragCapacity = System.Math.Max(System.Math.Max((long)session.Train.Width * session.Train.Height,
+                session.MarketCapacity), 45L);
+            boardView.Initialize(45L, dragCapacity, Presentation.RumorLogQuestTab, session.ItemDefinitions,
+                _showSynergies: false);
+            questBoardConfigured = true;
+        }
+        boardView.SetBoardSize(9, 5, System.Array.Empty<Vector2Int>());
+    }
+
+    void RebuildQuestOfferBoard()
+    {
+        if (session == null)
+        {
+            return;
+        }
+        questOfferBoard = session.BuildQuestOfferBoard(9, 5, out var mapped, out int skippedCount);
+        questOfferByInstanceId.Clear();
+        foreach (var kv in mapped)
+        {
+            questOfferByInstanceId[kv.Key] = kv.Value;
+        }
+        tavernWindowView?.SetOverflowCount(skippedCount);
+        ConfigureQuestBoardView();
+        if (ActiveQuestBoardView && ActiveQuestBoardView.isActiveAndEnabled)
+        {
+            ActiveQuestBoardView.RenderPlacements(questOfferBoard, drag?.InstanceId, currentHoveredInstanceId);
+        }
+    }
 
     string GetTavernRumor()
     {
@@ -1004,6 +1108,58 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
         {
             if (TryGetBoard(_eventData.position, out _, out var destination, out var targetCell))
             {
+                if (questOfferBoard != null && ReferenceEquals(activeDrag.Source, questOfferBoard))
+                {
+                    if (questOfferByInstanceId.TryGetValue(activeDrag.InstanceId, out var offer))
+                    {
+                        if (session.IsTrainWagon(destination))
+                        {
+                            var failure = session.TryAcceptQuestAt(offer, destination, activeDrag.GrabbedCell, targetCell,
+                                activeDrag.ClockwiseTurns);
+                            if (failure == TrainventoryQuestAcceptFailure.None)
+                            {
+                                RebuildQuestOfferBoard();
+                                RenderValues();
+                                RefreshFunds();
+                                RefreshTrainBar();
+                                statusBannerView?.ShowStatus(Presentation.QuestOffer(offer));
+                            }
+                            else
+                            {
+                                statusBannerView?.ShowStatus(Presentation.QuestAcceptFailure(failure, offer, session.MaxActiveQuests));
+                            }
+                        }
+                        else if (!ReferenceEquals(destination, questOfferBoard))
+                        {
+                            statusBannerView?.ShowStatus(Presentation.QuestAcceptFailure(
+                                TrainventoryQuestAcceptFailure.NoSpace, offer, session.MaxActiveQuests));
+                        }
+                    }
+                    return;
+                }
+                if (questOfferBoard != null && ReferenceEquals(destination, questOfferBoard))
+                {
+                    if (session.IsTrainWagon(activeDrag.Source))
+                    {
+                        if (session.TryCompleteQuestWithCargo(activeDrag.OriginalPlacement, out string failReason))
+                        {
+                            RebuildQuestOfferBoard();
+                            RenderValues();
+                            RefreshFunds();
+                            RefreshTrainBar();
+                            statusBannerView?.ShowStatus(Presentation.QuestCompleteLabel);
+                        }
+                        else if (!string.IsNullOrEmpty(failReason))
+                        {
+                            statusBannerView?.ShowStatus(failReason);
+                        }
+                    }
+                    else
+                    {
+                        statusBannerView?.ShowStatus(Presentation.QuestDropNotQuestCargo);
+                    }
+                    return;
+                }
                 result = activeDrag.DropOnBoard(session, destination, targetCell);
                 if (result.CanDrop)
                 {
@@ -1011,6 +1167,14 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
                     RenderValues();
                     RefreshFunds();
                     RefreshTrainBar();
+                }
+            }
+            else if (questOfferBoard != null && ReferenceEquals(activeDrag.Source, questOfferBoard))
+            {
+                if (questOfferByInstanceId.TryGetValue(activeDrag.InstanceId, out var offer))
+                {
+                    statusBannerView?.ShowStatus(Presentation.QuestAcceptFailure(
+                        TrainventoryQuestAcceptFailure.NoSpace, offer, session.MaxActiveQuests));
                 }
             }
             else if (trainBarView && trainBarView.TryGetWagonAtScreenPosition(_eventData.position, out int candidateWagon) &&
@@ -1205,6 +1369,47 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
 
         if (TryGetBoard(pointerPosition, out var targetView, out var destination, out var targetCell))
         {
+            if (questOfferBoard != null && ReferenceEquals(drag.Source, questOfferBoard))
+            {
+                bool canAccept = session.IsTrainWagon(destination) &&
+                    questOfferByInstanceId.TryGetValue(drag.InstanceId, out var offer) &&
+                    session.EvaluateQuestAcceptAt(offer, destination, drag.GrabbedCell, targetCell, drag.ClockwiseTurns) ==
+                    TrainventoryQuestAcceptFailure.None;
+                var questPose = destination.CreatePoseAtSlot(drag.Definition.Cells, drag.GrabbedCell, targetCell,
+                    drag.ClockwiseTurns, out var pose) == PuzzlePlacementFailure.None
+                    ? pose
+                    : null;
+                SetDragView(targetView);
+                if (questPose != null)
+                {
+                    targetView.ShowGhostOnBoard(questPose, drag.Definition, drag.FreshnessPercent);
+                }
+                else
+                {
+                    targetView.ShowGhostAtPointer(drag.GetGhostPose(), drag.Definition, Vector2Int.zero, pointerPosition, drag.FreshnessPercent);
+                }
+                targetView.ShowPreview(questPose, canAccept);
+                if (targetView != sourceView && sourceView)
+                {
+                    sourceView.HideGhost();
+                    sourceView.ShowPreview(null, false);
+                }
+                return;
+            }
+            if (questOfferBoard != null && ReferenceEquals(destination, questOfferBoard))
+            {
+                bool canDeliver = session.IsTrainWagon(drag.Source) &&
+                    session.CanCompleteQuestCargoHere(drag.OriginalPlacement, out _);
+                SetDragView(targetView);
+                targetView.ShowGhostAtPointer(drag.GetGhostPose(), drag.Definition, Vector2Int.zero, pointerPosition, drag.FreshnessPercent);
+                targetView.ShowPreview(null, canDeliver);
+                if (targetView != sourceView && sourceView)
+                {
+                    sourceView.HideGhost();
+                    sourceView.ShowPreview(null, false);
+                }
+                return;
+            }
             var preview = drag.Evaluate(session, destination, targetCell);
             SetDragView(targetView);
             var candidate = preview.Placement.Candidate;
@@ -1333,21 +1538,28 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
                     _inventory = session.Market;
                     return true;
                 }
-                if (ButcheryViewReady && butcheryView.TryGetBoardCell(_position, out _cell))
+                if (ActiveQuestBoardView && ActiveQuestBoardView.isActiveAndEnabled && questOfferBoard != null &&
+                    ActiveQuestBoardView.TryGetBoardCell(_position, out _cell))
                 {
-                    _view = butcheryView;
+                    _view = ActiveQuestBoardView;
+                    _inventory = questOfferBoard;
+                    return true;
+                }
+                if (ButcheryViewReady && ActiveButcheryView.TryGetBoardCell(_position, out _cell))
+                {
+                    _view = ActiveButcheryView;
                     _inventory = session.ButcheryBoard();
                     return true;
                 }
-                if (ModificationViewReady && modificationView.TryGetBoardCell(_position, out _cell))
+                if (ModificationViewReady && ActiveModificationView.TryGetBoardCell(_position, out _cell))
                 {
-                    _view = modificationView;
+                    _view = ActiveModificationView;
                     _inventory = session.ModificationBoard();
                     return true;
                 }
-                if (RefiningViewReady && refiningView.TryGetBoardCell(_position, out _cell))
+                if (RefiningViewReady && ActiveRefiningView.TryGetBoardCell(_position, out _cell))
                 {
-                    _view = refiningView;
+                    _view = ActiveRefiningView;
                     _inventory = session.RefiningBoard();
                     return true;
                 }
@@ -1592,6 +1804,12 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
             }
         }
 
+        if (_view == ActiveQuestBoardView && _placement != null && tavernWindowView &&
+            questOfferByInstanceId.TryGetValue(_placement.InstanceId, out var hoveredOffer))
+        {
+            tavernWindowView.SetHint(Presentation.QuestOffer(hoveredOffer));
+        }
+
         if (tooltipView && drag == null && (_position.HasValue || hoverPosition.HasValue))
         {
             Vector2 pos = _position ?? hoverPosition.Value;
@@ -1711,17 +1929,21 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
             ActiveMarketView.RenderPlacements(session.Market, drag?.InstanceId, _highlightedInstanceId,
                 _slotLabelProvider: priceProvider);
         }
+        if (ActiveQuestBoardView && ActiveQuestBoardView.isActiveAndEnabled && questOfferBoard != null)
+        {
+            ActiveQuestBoardView.RenderPlacements(questOfferBoard, drag?.InstanceId, _highlightedInstanceId);
+        }
         if (ButcheryViewReady)
         {
-            butcheryView.RenderPlacements(session.ButcheryBoard(), drag?.InstanceId, _highlightedInstanceId);
+            ActiveButcheryView.RenderPlacements(session.ButcheryBoard(), drag?.InstanceId, _highlightedInstanceId);
         }
         if (ModificationViewReady)
         {
-            modificationView.RenderPlacements(session.ModificationBoard(), drag?.InstanceId, _highlightedInstanceId);
+            ActiveModificationView.RenderPlacements(session.ModificationBoard(), drag?.InstanceId, _highlightedInstanceId);
         }
         if (RefiningViewReady)
         {
-            refiningView.RenderPlacements(session.RefiningBoard(), drag?.InstanceId, _highlightedInstanceId);
+            ActiveRefiningView.RenderPlacements(session.RefiningBoard(), drag?.InstanceId, _highlightedInstanceId);
         }
     }
 
@@ -1743,17 +1965,21 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
 
     PuzzleInventoryView ViewFor(PuzzleInventory _inventory)
     {
-        if (session.IsButchery(_inventory) && butcheryView)
+        if (questOfferBoard != null && ReferenceEquals(_inventory, questOfferBoard) && ActiveQuestBoardView)
         {
-            return butcheryView;
+            return ActiveQuestBoardView;
         }
-        if (session.IsModification(_inventory) && modificationView)
+        if (session.IsButchery(_inventory) && ActiveButcheryView)
         {
-            return modificationView;
+            return ActiveButcheryView;
         }
-        if (session.IsRefining(_inventory) && refiningView)
+        if (session.IsModification(_inventory) && ActiveModificationView)
         {
-            return refiningView;
+            return ActiveModificationView;
+        }
+        if (session.IsRefining(_inventory) && ActiveRefiningView)
+        {
+            return ActiveRefiningView;
         }
         if (UseMultiTrainWindows && session.IsTrainWagon(_inventory))
         {
@@ -1765,7 +1991,8 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
     // 도축대 View는 한 번 구성하면 된다. 열 때마다 크기와 상태 문구만 갱신한다.
     void ConfigureButcheryView()
     {
-        if (!butcheryView)
+        var view = ActiveButcheryView;
+        if (!view)
         {
             return;
         }
@@ -1779,11 +2006,11 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
             long capacity = (long)board.Width * board.Height;
             long dragCapacity = System.Math.Max(System.Math.Max((long)session.Train.Width * session.Train.Height,
                 session.MarketCapacity), capacity);
-            butcheryView.Initialize(capacity, dragCapacity, Presentation.PuzzleButcheryTitle, session.ItemDefinitions,
+            view.Initialize(capacity, dragCapacity, Presentation.PuzzleButcheryTitle, session.ItemDefinitions,
                 _showSynergies: false);
             butcheryConfigured = true;
         }
-        butcheryView.SetBoardSize(board.Width, board.Height, board.BlockedCells);
+        view.SetBoardSize(board.Width, board.Height, board.BlockedCells);
     }
 
     void OnButcheryChanged(GameEvents.ButcheryInfo _info)
@@ -1802,7 +2029,8 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
     // 개조대 View도 한 번 구성하고, 열릴 때 크기와 상태 문구만 갱신한다.
     void ConfigureModificationView()
     {
-        if (!modificationView)
+        var view = ActiveModificationView;
+        if (!view)
         {
             return;
         }
@@ -1816,11 +2044,11 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
             long capacity = (long)board.Width * board.Height;
             long dragCapacity = System.Math.Max(System.Math.Max((long)session.Train.Width * session.Train.Height,
                 session.MarketCapacity), capacity);
-            modificationView.Initialize(capacity, dragCapacity, Presentation.PuzzleModificationTitle,
+            view.Initialize(capacity, dragCapacity, Presentation.PuzzleModificationTitle,
                 session.ItemDefinitions, _showSynergies: false);
             modificationConfigured = true;
         }
-        modificationView.SetBoardSize(board.Width, board.Height, board.BlockedCells);
+        view.SetBoardSize(board.Width, board.Height, board.BlockedCells);
     }
 
     void OnModificationChanged(GameEvents.ModificationInfo _info)
@@ -1839,7 +2067,8 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
     // 정제대 View도 한 번 구성하고, 열릴 때 크기와 상태 문구만 갱신한다.
     void ConfigureRefiningView()
     {
-        if (!refiningView)
+        var view = ActiveRefiningView;
+        if (!view)
         {
             return;
         }
@@ -1853,11 +2082,11 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
             long capacity = (long)board.Width * board.Height;
             long dragCapacity = System.Math.Max(System.Math.Max((long)session.Train.Width * session.Train.Height,
                 session.MarketCapacity), capacity);
-            refiningView.Initialize(capacity, dragCapacity, Presentation.PuzzleRefiningTitle,
+            view.Initialize(capacity, dragCapacity, Presentation.PuzzleRefiningTitle,
                 session.ItemDefinitions, _showSynergies: false);
             refiningConfigured = true;
         }
-        refiningView.SetBoardSize(board.Width, board.Height, board.BlockedCells);
+        view.SetBoardSize(board.Width, board.Height, board.BlockedCells);
     }
 
     void OnRefiningChanged(GameEvents.RefiningInfo _info)
@@ -2010,6 +2239,15 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
         {
             return;
         }
+        butcheryConfigured = false;
+        modificationConfigured = false;
+        refiningConfigured = false;
+        questBoardConfigured = false;
+        ConfigureButcheryView();
+        ConfigureModificationView();
+        ConfigureRefiningView();
+        ConfigureQuestBoardView();
+        RebuildQuestOfferBoard();
         if (drag != null)
         {
             input.CancelCapture();
@@ -2036,6 +2274,11 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
         {
             ActiveTrainView.SetTitle(Presentation.PuzzleTrainTitle(session.Train));
             ActiveTrainView.SetBoard(session.Train);
+        }
+        if (RelayoutSettings.Enabled && tavernWindowView)
+        {
+            tavernWindowView.ResetCity(session.CityData.displayName);
+            RebuildQuestOfferBoard();
         }
         if (RelayoutSettings.Enabled && marketWindowView)
         {
@@ -2124,6 +2367,7 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
         }
         input.CancelCapture();
         ClearDrag();
+        RebuildQuestOfferBoard();
         if (!UseMultiTrainWindows && ActiveTrainView)
         {
             ActiveTrainView.SetTitle(Presentation.PuzzleTrainTitle(session.Train));
@@ -2226,6 +2470,7 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
 
         input.CancelCapture();
         ClearDrag();
+        RebuildQuestOfferBoard();
         if (!session.SelectWagon(_index))
         {
             return;
@@ -2320,6 +2565,10 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
 
     bool IsWagonSaleDropPosition(Vector2 _screenPos)
     {
+        if (stationHallWindowView && stationHallWindowView.ContainsScreenPoint(_screenPos))
+        {
+            return true;
+        }
         if (townSceneView && townSceneView.IsScreenPointOverBuilding(TownBuildingButton.BuildingKind.StationHall, _screenPos))
         {
             return true;
@@ -2357,9 +2606,11 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
         int newIndex = session.WagonCount - 1;
         var purchasedWagon = session.TrainWagons[newIndex];
         int clampedTarget = Mathf.Clamp(insertionIndex, 0, newIndex);
-        if (clampedTarget != newIndex)
+        if (clampedTarget != newIndex && !session.TryMoveWagon(newIndex, clampedTarget))
         {
-            session.TryMoveWagon(newIndex, clampedTarget);
+            const string moveFail = "화차 위치를 옮기지 못했습니다.";
+            statusBannerView?.ShowStatus(moveFail);
+            cityView.ShowTradeStatus(moveFail);
         }
         if (UseMultiTrainWindows)
         {
@@ -2459,6 +2710,7 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
 
         input.CancelCapture();
         ClearDrag();
+        RebuildQuestOfferBoard();
         if (!session.TryPurchaseWagon(_product.id, out string failureReason))
         {
             cityView.ShowTradeStatus(failureReason);

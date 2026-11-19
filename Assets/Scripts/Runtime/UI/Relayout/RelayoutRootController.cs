@@ -22,6 +22,12 @@ public sealed class RelayoutRootController : MonoBehaviour
     [SerializeField] NotebookWindowView notebookWindow;
     [SerializeField] MarketWindowView marketWindow;
     [SerializeField] LensWindowView lensWindow;
+    [SerializeField] TavernWindowView tavernWindow;
+    [SerializeField] RestWindowView restWindow;
+    [SerializeField] StationHallWindowView stationHallWindow;
+    [SerializeField] WorkshopWindowView workshopWindow;
+    [SerializeField] CityHallWindowView cityHallWindow;
+    [SerializeField] TravelBannerView travelBanner;
 
     bool defaultsCaptured;
     bool defaultGameplayLayoutActive;
@@ -52,11 +58,19 @@ public sealed class RelayoutRootController : MonoBehaviour
         {
             stationActionsPresenter.ReturnedHome += OnStationReturnedHome;
         }
+        if (stationHallWindow)
+        {
+            stationHallWindow.DepartureRequested += OnDepartureRequested;
+        }
         ApplyRelayoutState(RelayoutSettings.Enabled);
     }
 
     void OnDisable()
     {
+        if (stationHallWindow)
+        {
+            stationHallWindow.DepartureRequested -= OnDepartureRequested;
+        }
         RelayoutSettings.Changed -= ApplyRelayoutState;
         GameEvents.MapToggleRequested -= OnMapToggleRequested;
         GameEvents.MapRequested -= OnMapRequested;
@@ -144,29 +158,63 @@ public sealed class RelayoutRootController : MonoBehaviour
 
     public void OpenStationBuilding(TownBuildingButton.BuildingKind _kind)
     {
-        if (_kind == TownBuildingButton.BuildingKind.CityHall)
+        var session = SceneServices.For<PuzzleInventoryService>(gameObject.scene);
+        if (_kind == TownBuildingButton.BuildingKind.CityHall && cityHallWindow)
         {
-            statusBannerView?.ShowStatus(Presentation.BuildingCityHallPlaceholder);
+            cityHallWindow.SetOpen(true);
             return;
         }
 
-        if (_kind == TownBuildingButton.BuildingKind.Market && marketWindow)
+        if (session == null || session.RunStatus != PuzzleRunStatus.InProgress)
         {
-            var session = SceneServices.For<PuzzleInventoryService>(gameObject.scene);
-            if (session == null || session.RunStatus != PuzzleRunStatus.InProgress)
-            {
-                string runMsg = session != null ? Presentation.PuzzleRunStatusText(session.RunStatus) : string.Empty;
-                if (!string.IsNullOrEmpty(runMsg)) statusBannerView?.ShowStatus(runMsg);
-                return;
-            }
-            if (!session.IsMarketOpen)
-            {
-                statusBannerView?.ShowStatus(Presentation.PuzzleNightMarket);
-                return;
-            }
-            session.TryEnterMarket();
-            marketWindow.SetOpen(true);
+            string runMsg = session != null ? Presentation.PuzzleRunStatusText(session.RunStatus) : string.Empty;
+            if (!string.IsNullOrEmpty(runMsg)) statusBannerView?.ShowStatus(runMsg);
             return;
+        }
+        if (PuzzleMapPresenter.IsAnyTravelAnimating)
+        {
+            statusBannerView?.ShowStatus(Presentation.PuzzleTravelInProgress);
+            return;
+        }
+
+        switch (_kind)
+        {
+            case TownBuildingButton.BuildingKind.Market when marketWindow:
+                if (!session.IsMarketOpen)
+                {
+                    statusBannerView?.ShowStatus(Presentation.PuzzleNightMarket);
+                    return;
+                }
+                session.TryEnterMarket();
+                marketWindow.SetOpen(true);
+                return;
+
+            case TownBuildingButton.BuildingKind.Tavern when tavernWindow:
+                if (session.TryEnterTavern())
+                {
+                    tavernWindow.SetOpen(true);
+                }
+                return;
+
+            case TownBuildingButton.BuildingKind.Rest when restWindow:
+                restWindow.SetOpen(true);
+                return;
+
+            case TownBuildingButton.BuildingKind.StationHall when stationHallWindow:
+                if (session.TryEnterWagonFacility())
+                {
+                    stationHallWindow.SetOpen(true);
+                }
+                return;
+
+            case TownBuildingButton.BuildingKind.Workshop when workshopWindow:
+                if (WorkshopWindowView.ResolveKind(session) == WorkshopWindowView.WorkshopKind.None)
+                {
+                    statusBannerView?.ShowStatus(Presentation.BuildingWorkshopEmpty);
+                    return;
+                }
+                workshopWindow.SetOpen(true);
+                return;
         }
 
         var presenter = stationActionsPresenter
@@ -191,6 +239,14 @@ public sealed class RelayoutRootController : MonoBehaviour
         if (oldGameplayLayout) oldGameplayLayout.SetActive(true);
         if (oldTrainColumn) oldTrainColumn.SetActive(false);
         if (oldFixedBottomBar) oldFixedBottomBar.SetActive(false);
+    }
+
+    void OnDepartureRequested()
+    {
+        if (notebookWindow)
+        {
+            notebookWindow.OpenTab(NotebookWindowView.NotebookWindowTab.Map);
+        }
     }
 
     void OnStationReturnedHome()

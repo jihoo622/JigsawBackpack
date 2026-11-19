@@ -19,6 +19,8 @@ public sealed class PuzzleWagonProductRow : MonoBehaviour, IBeginDragHandler, ID
 
     internal event Action<PuzzleWagonProductRow> Clicked;
     internal event Action<PuzzleWagonProductRow> DragStarted;
+    internal event Action<PuzzleWagonProductRow, PointerEventData> Dragged;
+    internal event Action<PuzzleWagonProductRow, PointerEventData> DragEnded;
     internal PuzzleWagonProductData Product => product;
     internal Sprite ArtworkSprite => artwork != null ? artwork.sprite : null;
 
@@ -131,6 +133,7 @@ public sealed class PuzzleWagonProductRow : MonoBehaviour, IBeginDragHandler, ID
                 parent, _eventData.position, _eventData.pressEventCamera, out var position))
         {
             dragPreview.rectTransform.position = position + parent.TransformVector(dragPreviewOffset);
+            Dragged?.Invoke(this, _eventData);
         }
     }
 
@@ -138,6 +141,7 @@ public sealed class PuzzleWagonProductRow : MonoBehaviour, IBeginDragHandler, ID
     {
         if (dragPointerId == _eventData.pointerId)
         {
+            DragEnded?.Invoke(this, _eventData);
             CancelDrag();
         }
     }

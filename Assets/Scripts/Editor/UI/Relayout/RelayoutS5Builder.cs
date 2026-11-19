@@ -121,6 +121,16 @@ public static class RelayoutS5Builder
             HideNamedChild(clonedMarketInv.transform, "MoveGuide");
             HideNamedChild(clonedMarketInv.transform, "BoardInfo");
 
+            var infoPanel = FindDeep(clonedMarketInv.transform, "MarketInfoPanel") as RectTransform;
+            if (infoPanel)
+            {
+                infoPanel.anchorMin = new Vector2(0f, 1f);
+                infoPanel.anchorMax = new Vector2(1f, 1f);
+                infoPanel.pivot = new Vector2(0.5f, 1f);
+                infoPanel.anchoredPosition = Vector2.zero;
+                infoPanel.sizeDelta = new Vector2(0f, 68f);
+            }
+
             var tradePrefs = invSo.FindProperty("boardTradePreferences").objectReferenceValue as CityTradePreferencesView;
             if (tradePrefs)
             {
