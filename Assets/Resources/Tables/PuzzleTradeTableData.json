@@ -295,6 +295,54 @@
         ],
         "startingPlacements": []
       }
+    },
+    {
+      "id": "questReward.4",
+      "displayName": "4칸 보상 화차",
+      "price": 40,
+      "description": "의뢰 보상용 2×2 화차. 특수 효과 없음. 보상 산정 가치: 40원.",
+      "board": {
+        "width": 2,
+        "height": 2,
+        "blockedCells": [],
+        "startingPlacements": []
+      }
+    },
+    {
+      "id": "questReward.6",
+      "displayName": "6칸 보상 화차",
+      "price": 60,
+      "description": "의뢰 보상용 3×2 화차. 특수 효과 없음. 보상 산정 가치: 60원.",
+      "board": {
+        "width": 3,
+        "height": 2,
+        "blockedCells": [],
+        "startingPlacements": []
+      }
+    },
+    {
+      "id": "questReward.8",
+      "displayName": "8칸 보상 화차",
+      "price": 80,
+      "description": "의뢰 보상용 4×2 화차. 특수 효과 없음. 보상 산정 가치: 80원.",
+      "board": {
+        "width": 4,
+        "height": 2,
+        "blockedCells": [],
+        "startingPlacements": []
+      }
+    },
+    {
+      "id": "questReward.10",
+      "displayName": "10칸 보상 화차",
+      "price": 100,
+      "description": "의뢰 보상용 5×2 화차. 특수 효과 없음. 보상 산정 가치: 100원.",
+      "board": {
+        "width": 5,
+        "height": 2,
+        "blockedCells": [],
+        "startingPlacements": []
+      }
     }
   ],
   "targetFunds": 1500,

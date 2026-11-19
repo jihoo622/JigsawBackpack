@@ -23,6 +23,7 @@ public static class EntityLinkNavigation
             case EntityLinkKind.Region:
                 return EntityLinkAction.Map;
             case EntityLinkKind.Quest:
+            case EntityLinkKind.Wagon:
                 return EntityLinkAction.Quests;
             default:
                 return EntityLinkAction.Synergy;
@@ -41,6 +42,7 @@ public static class EntityLinkNavigation
             case EntityLinkKind.Tag:
                 return new[] { EntityLinkAction.Synergy, EntityLinkAction.Proficiency };
             case EntityLinkKind.Quest:
+            case EntityLinkKind.Wagon:
                 return new[] { EntityLinkAction.Quests };
             default:
                 return new[] { EntityLinkAction.Synergy };

@@ -428,6 +428,7 @@ public sealed class TrainventoryQuestPenaltyData
 public sealed class TrainventoryCourierQuestData
 {
     public string id, penaltyId;
+    public string rewardWagonProductId;
     public string[] pieceIds = Array.Empty<string>();
     public int weight = -1;
     public int minTravelDistance = -1, maxTravelDistance = -1;

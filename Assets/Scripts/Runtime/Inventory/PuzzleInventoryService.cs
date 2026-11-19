@@ -331,6 +331,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
                 : CurrentWagonIndex - 1;
         }
         Funds = saleFunds;
+        ReceivePendingQuestWagons();
         GameEvents.RaiseFundsChanged(this, previousFunds);
         RecordAction(PuzzleActionKind.SellWagon, _productId: wagon.WagonProduct?.id, _board: board,
             _wagonOrder: trainWagons.Select(BoardId).ToArray());

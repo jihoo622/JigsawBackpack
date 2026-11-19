@@ -1267,6 +1267,14 @@
       ],
       "texts": [
         {
+          "id": "wagonReward", "value": "\n화차 보상: {0}", "arguments": 1
+        },
+        { "id": "detailWagonReward", "value": "보수: {0} + 화물 가치 · {1} 숙련 +{2:N0}", "arguments": 3 },
+        { "id": "wagonSize", "value": "크기 {0}×{1} · 사용 가능 {2}칸", "arguments": 3 },
+        { "id": "wagonValue", "value": "보상 가치 {0:N0} $", "arguments": 1 },
+        { "id": "wagonReceived", "value": " · 지급 완료" },
+        { "id": "wagonPending", "value": " · 수령 대기 (연결 한도에 여유가 생기면 자동 지급)" },
+        {
           "id": "mapBadge",
           "value": "의뢰 {0}",
           "arguments": 1
@@ -1330,7 +1338,7 @@
         },
         {
           "id": "offer",
-          "value": "<b>{0}</b> → <b>{1}</b>\n최단 {2} · 기한 {3} · 보수 {4}$ + 화물 가치 · {6} 숙련 +{7:N0}\n실패 시 {5}",
+          "value": "<b>{0}</b> → <b>{1}</b>\n최단 {2} · 기한 {3} · 보수 {4} + 화물 가치 · {6} 숙련 +{7:N0}\n실패 시 {5}",
           "arguments": 8
         },
         {

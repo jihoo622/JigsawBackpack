@@ -627,7 +627,15 @@ public sealed class GameTableRules
             Check(courier.minTravelDistance > 0 && courier.maxTravelDistance >= courier.minTravelDistance, path,
                 "최단 이동 시간 범위는 양수이고 최소가 최대 이하여야 합니다.");
             Check(courier.baseReward >= 0 && courier.rewardPerCellDistance >= 0 &&
-                courier.baseReward + courier.rewardPerCellDistance > 0, path, "보상 계수는 0 이상이고 둘 다 0일 수 없습니다.");
+                (courier.baseReward + courier.rewardPerCellDistance > 0 || !string.IsNullOrEmpty(courier.rewardWagonProductId)),
+                path, "보상 계수는 0 이상이고 현금 또는 화차 보상이 필요합니다.");
+            if (!string.IsNullOrEmpty(courier.rewardWagonProductId))
+            {
+                var rewardWagon = _tables.PuzzleTrade.wagonProducts.FirstOrDefault(_product => _product.id == courier.rewardWagonProductId);
+                Reference(courier.rewardWagonProductId, path + ".rewardWagonProductId", rewardWagon != null, "보상 화차");
+                Check(rewardWagon != null && string.IsNullOrEmpty(rewardWagon.modificationId) &&
+                    string.IsNullOrEmpty(rewardWagon.processId), path + ".rewardWagonProductId", "보상은 일반 적재용 화차여야 합니다.");
+            }
             Check(courier.deadlinePercent >= 100, path + ".deadlinePercent", "기한 배율은 100% 이상이어야 합니다.");
             Check(courier.deadlineExtraHours >= 0, path + ".deadlineExtraHours", "기한 여유 시간은 0 이상이어야 합니다.");
             CheckTurnHours(courier.deadlineExtraHours, path + ".deadlineExtraHours");

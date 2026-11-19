@@ -324,6 +324,7 @@ public static partial class Presentation
             case EntityLinkKind.Item: return "item";
             case EntityLinkKind.Tag: return "tag";
             case EntityLinkKind.Quest: return "quest";
+            case EntityLinkKind.Wagon: return "wagon";
             default: return "region";
         }
     }
@@ -402,6 +403,8 @@ public static partial class Presentation
             case EntityLinkKind.Item:
                 var piece = FindPiece(_id);
                 return piece != null ? piece.displayName : _id;
+            case EntityLinkKind.Wagon:
+                return tables.PuzzleTrade.wagonProducts.FirstOrDefault(_product => _product.id == _id)?.displayName ?? _id;
             default:
                 var quest = FindQuest(_session, _id);
                 return quest != null ? BasicData.Format("presentation.link.previewQuestRoute", QuestCargoPlain(quest.PieceId), QuestCityPlain(quest.TargetCityId)) : _id;
@@ -491,6 +494,16 @@ public static partial class Presentation
                 break;
             case EntityLinkKind.Item:
                 // 품목은 아이템 정보 팝업(ItemInfoPopup)이 맡는다.
+                break;
+            case EntityLinkKind.Wagon:
+                var wagon = tables.PuzzleTrade.wagonProducts.FirstOrDefault(_product => _product.id == _id);
+                if (wagon != null)
+                {
+                    var board = tables.WagonBoardOf(wagon);
+                    _lines.Add(BasicData.Format("presentation.quest.wagonSize", board.width, board.height, WagonUsableCells(wagon)));
+                    _lines.Add(BasicData.Format("presentation.quest.wagonValue", wagon.price));
+                    _lines.Add(wagon.description);
+                }
                 break;
             case EntityLinkKind.Tag:
                 PreviewTag(_id, _lines);
@@ -602,6 +615,10 @@ public static partial class Presentation
         long remaining = Math.Max(0, quest.DeadlineHours - _session.ElapsedTime);
         _lines.Add(BasicData.Format("presentation.link.previewQuestDeadline", TurnSpan(remaining)));
         _lines.Add(BasicData.Format("presentation.link.previewQuestReward", quest.Reward));
+        if (!string.IsNullOrEmpty(quest.RewardWagonProductId))
+        {
+            _lines.Add(QuestWagonReward(quest.RewardWagonProductId));
+        }
     }
     #endregion
 
@@ -699,9 +716,26 @@ public static partial class Presentation
         return BasicData.Format("presentation.quest.detailDeadline", GameTimestamp(_deadlineHours));
     }
 
-    public static string QuestDetailReward(long _reward, string _proficiencyTag, long _proficiencyXp)
+    public static string QuestDetailReward(long _reward, string _proficiencyTag, long _proficiencyXp, string _wagonProductId = null)
     {
-        return BasicData.Format("presentation.quest.detailReward", _reward, PuzzleTagLabel(_proficiencyTag), _proficiencyXp);
+        if (!string.IsNullOrEmpty(_wagonProductId) && _reward == 0)
+            return BasicData.Format("presentation.quest.detailWagonReward", WagonRewardName(_wagonProductId),
+                PuzzleTagLabel(_proficiencyTag), _proficiencyXp);
+        return BasicData.Format("presentation.quest.detailReward", _reward, PuzzleTagLabel(_proficiencyTag), _proficiencyXp)
+            + QuestWagonReward(_wagonProductId);
+    }
+
+    static string QuestWagonReward(string _productId)
+    {
+        var product = TableManager.Instance.PuzzleTrade.wagonProducts.FirstOrDefault(_product => _product.id == _productId);
+        return product == null ? string.Empty : BasicData.Format("presentation.quest.wagonReward",
+            EntityLink(EntityLinkKind.Wagon, product.id, product.displayName));
+    }
+
+    static string WagonRewardName(string _productId)
+    {
+        var product = TableManager.Instance.PuzzleTrade.wagonProducts.First(_product => _product.id == _productId);
+        return EntityLink(EntityLinkKind.Wagon, product.id, product.displayName);
     }
 
     public static string QuestDetailDeposit(long _deposit)
@@ -759,7 +793,8 @@ public static partial class Presentation
     internal static string QuestOffer(TrainventoryQuestOffer _offer)
     {
         return BasicData.Format("presentation.quest.offer", QuestCargoName(_offer.PieceId), QuestCityName(_offer.TargetCityId),
-            TurnSpan(PuzzleTimeManager.HoursOf(_offer.TravelTurns)), TurnSpan(_offer.DeadlineHours), _offer.Reward,
+            TurnSpan(PuzzleTimeManager.HoursOf(_offer.TravelTurns)), TurnSpan(_offer.DeadlineHours),
+            string.IsNullOrEmpty(_offer.RewardWagonProductId) ? _offer.Reward.ToString() + "$" : WagonRewardName(_offer.RewardWagonProductId),
             QuestPenaltyText(_offer.PenaltyId, _offer.Deposit, _offer.SourceCityId), PuzzleTagLabel(_offer.ProficiencyTag),
             _offer.ProficiencyXp);
     }
@@ -789,7 +824,11 @@ public static partial class Presentation
         string cargo = QuestCargoName(_info.pieceId);
         if (_info.state == nameof(TrainventoryQuestState.Completed))
         {
-            return BasicData.Format("presentation.quest.completed", cargo, _info.payout);
+            var quest = _info.session.Quests.FirstOrDefault(_quest => _quest.Id == _info.questId);
+            string reward = quest == null ? string.Empty : QuestWagonReward(quest.RewardWagonProductId);
+            if (!string.IsNullOrEmpty(reward))
+                reward += BasicData.Text(quest.RewardWagonReceived ? "presentation.quest.wagonReceived" : "presentation.quest.wagonPending");
+            return BasicData.Format("presentation.quest.completed", cargo, _info.payout) + reward;
         }
         if (_info.state == nameof(TrainventoryQuestState.Failed))
         {
@@ -956,6 +995,8 @@ public static partial class Presentation
             entries.Add(BasicData.Format("presentation.quest.logActive", QuestCargoName(quest.PieceId),
                 QuestCityName(quest.TargetCityId), GameTimestamp(quest.DeadlineHours), quest.Reward,
                 QuestPenaltyText(quest.PenaltyId, quest.Deposit, quest.SourceCityId)));
+            if (!string.IsNullOrEmpty(quest.RewardWagonProductId))
+                entries.Add(QuestWagonReward(quest.RewardWagonProductId));
         }
         foreach (var quest in quests.Where(_quest => _quest.State != TrainventoryQuestState.Active).Reverse())
         {
@@ -966,6 +1007,11 @@ public static partial class Presentation
                     QuestCityName(quest.TargetCityId), quest.Failure == TrainventoryQuestFailure.Overdue
                         ? BasicData.Text("presentation.quest.failureOverdue")
                         : BasicData.Text("presentation.quest.failureCargoLost")));
+            if (quest.State == TrainventoryQuestState.Completed && !string.IsNullOrEmpty(quest.RewardWagonProductId))
+            {
+                entries.Add(QuestWagonReward(quest.RewardWagonProductId) + BasicData.Text(quest.RewardWagonReceived
+                    ? "presentation.quest.wagonReceived" : "presentation.quest.wagonPending"));
+            }
         }
         return string.Join(BasicData.Text("presentation.quest.separator"), entries);
     }

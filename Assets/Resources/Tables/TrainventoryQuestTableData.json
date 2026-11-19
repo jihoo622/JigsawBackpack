@@ -1,6 +1,6 @@
 {
   "status": "provisional",
-  "note": "술집 운송 의뢰 잠정값. 보상 = baseReward + rewardPerCellDistance × 화물 칸 수 × 최단 노선 거리이며 도착 시 화물의 실제 가치와 보증금을 함께 지급한다. 기한(시간) = ⌈최단 이동 턴 × deadlinePercent / 100⌉ × 6 + deadlineExtraHours. 최단 거리는 minTravelDistance~maxTravelDistance 범위의 목적지만 고른다. 의뢰마다 숙련 태그 하나를 정해(proficiencyTags 후보 → 화물 생산 태그 → 목적지 지역 생산 태그 → 전체 숙련 태그) 완료 때 보상 × proficiencyXpPercentOfReward / 100만큼 그 태그에 경험치를 준다. 평판은 TrainventoryProficiencyTableData의 숙련 레벨 합이다. 실패해도 평판·숙련은 줄지 않고 패널티만 적용한다. 플레이 검증 전 수치다.",
+  "note": "술집 운송 의뢰 잠정값. 보상 = baseReward + rewardPerCellDistance × 화물 칸 수 × 최단 노선 거리이며 도착 시 화물의 실제 가치와 보증금을 함께 지급한다. 기한(시간) = ⌈최단 이동 턴 × deadlinePercent / 100⌉ × 6 + deadlineExtraHours. 최단 거리는 minTravelDistance~maxTravelDistance 범위의 목적지만 고른다. 의뢰마다 숙련 태그 하나를 정해(proficiencyTags 후보 → 화물 생산 태그 → 목적지 지역 생산 태그 → 전체 숙련 태그) 완료 때 (현금 보상 + 보상 화차 price) × proficiencyXpPercentOfReward / 100만큼 그 태그에 경험치를 준다. 평판은 TrainventoryProficiencyTableData의 숙련 레벨 합이다. 실패해도 평판·숙련은 줄지 않고 패널티만 적용한다. 플레이 검증 전 수치다.",
   "cargoTag": "Quest",
   "offersPerTavern": 2,
   "proficiencyXpPercentOfReward": 100,
@@ -68,6 +68,74 @@
       "maxTravelDistance": 12,
       "baseReward": 30,
       "rewardPerCellDistance": 1,
+      "deadlinePercent": 150,
+      "deadlineExtraHours": 12,
+      "proficiencyTags": []
+    },
+    {
+      "id": "courier.wagon4",
+      "penaltyId": "penalty.deposit",
+      "rewardWagonProductId": "questReward.4",
+      "pieceIds": [
+        "piece.questParcel",
+        "piece.questToolCrate"
+      ],
+      "weight": 1,
+      "minTravelDistance": 2,
+      "maxTravelDistance": 12,
+      "baseReward": 0,
+      "rewardPerCellDistance": 0,
+      "deadlinePercent": 150,
+      "deadlineExtraHours": 12,
+      "proficiencyTags": []
+    },
+    {
+      "id": "courier.wagon6",
+      "penaltyId": "penalty.deposit",
+      "rewardWagonProductId": "questReward.6",
+      "pieceIds": [
+        "piece.questParcel",
+        "piece.questToolCrate"
+      ],
+      "weight": 1,
+      "minTravelDistance": 2,
+      "maxTravelDistance": 12,
+      "baseReward": 0,
+      "rewardPerCellDistance": 0,
+      "deadlinePercent": 150,
+      "deadlineExtraHours": 12,
+      "proficiencyTags": []
+    },
+    {
+      "id": "courier.wagon8",
+      "penaltyId": "penalty.deposit",
+      "rewardWagonProductId": "questReward.8",
+      "pieceIds": [
+        "piece.questParcel",
+        "piece.questToolCrate"
+      ],
+      "weight": 1,
+      "minTravelDistance": 2,
+      "maxTravelDistance": 12,
+      "baseReward": 0,
+      "rewardPerCellDistance": 0,
+      "deadlinePercent": 150,
+      "deadlineExtraHours": 12,
+      "proficiencyTags": []
+    },
+    {
+      "id": "courier.wagon10",
+      "penaltyId": "penalty.deposit",
+      "rewardWagonProductId": "questReward.10",
+      "pieceIds": [
+        "piece.questParcel",
+        "piece.questToolCrate"
+      ],
+      "weight": 1,
+      "minTravelDistance": 2,
+      "maxTravelDistance": 12,
+      "baseReward": 0,
+      "rewardPerCellDistance": 0,
       "deadlinePercent": 150,
       "deadlineExtraHours": 12,
       "proficiencyTags": []

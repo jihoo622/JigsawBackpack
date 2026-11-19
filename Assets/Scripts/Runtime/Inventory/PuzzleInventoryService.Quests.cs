@@ -138,13 +138,15 @@ public sealed partial class PuzzleInventoryService
             selected.Template.deadlineExtraHours);
         // 4. 완료 때 경험치를 받을 숙련 태그 하나와 경험치(보상 × 비율)를 정해 의뢰에 보여 준다.
         string proficiencyTag = PickQuestProficiencyTag(selected.Template, piece, targetCityId);
-        long proficiencyXp = checked(reward * tables.Quest.proficiencyXpPercentOfReward / 100);
+        var rewardWagon = tables.PuzzleTrade.wagonProducts.FirstOrDefault(_product => _product.id == selected.Template.rewardWagonProductId);
+        long rewardValue = checked(reward + (rewardWagon?.price ?? 0));
+        long proficiencyXp = checked(rewardValue * tables.Quest.proficiencyXpPercentOfReward / 100);
         var penalty = tables.QuestPenalty(selected.Template.penaltyId);
         long deposit = PenaltyType(penalty) == TrainventoryQuestPenaltyType.Deposit
-            ? checked((reward * penalty.depositPercentOfReward + 99) / 100)
+            ? checked((rewardValue * penalty.depositPercentOfReward + 99) / 100)
             : 0;
         _offer = new TrainventoryQuestOffer(selected.Template.id, piece.Id, CurrentCityId, targetCityId, penalty.id,
-            travelTurns, reward, deposit, deadlineHours, proficiencyTag, proficiencyXp);
+            travelTurns, reward, deposit, deadlineHours, proficiencyTag, proficiencyXp, selected.Template.rewardWagonProductId);
         return true;
     }
 
@@ -315,6 +317,7 @@ public sealed partial class PuzzleInventoryService
             Funds = checked(Funds + payout);
             quest.Finish(TrainventoryQuestState.Completed, TrainventoryQuestFailure.None, payout, Time.ElapsedHours);
             GrantQuestProficiency(quest);
+            ReceivePendingQuestWagons(false);
             completed.Add(quest);
         }
         if (completed.Count == 0)
@@ -350,6 +353,30 @@ public sealed partial class PuzzleInventoryService
             {
                 FailQuest(quest, TrainventoryQuestFailure.CargoLost);
             }
+        }
+    }
+
+    // 한도가 찬 보상은 완료된 의뢰에 보관하고, 판매·숙련 상승으로 자리가 생기면 순서대로 연결한다.
+    void ReceivePendingQuestWagons(bool _notify = true)
+    {
+        foreach (var quest in quests.Where(_quest => _quest.State == TrainventoryQuestState.Completed &&
+                     !string.IsNullOrEmpty(_quest.RewardWagonProductId) && !_quest.RewardWagonReceived))
+        {
+            if (trainWagons.Count >= MaxWagonCount)
+            {
+                break;
+            }
+            var product = tables.PuzzleTrade.wagonProducts.First(_product => _product.id == quest.RewardWagonProductId);
+            var wagon = new PuzzleInventory(tables.WagonBoardOf(product), Array.Empty<PuzzleStartingPlacementData>(),
+                definitions, tables.SynergiesFor(PuzzleSynergyScope.Train), ref lastInstanceId);
+            wagon.SynergyComboBonusPercent = SynergyComboBonusPercent;
+            wagon.WagonNumber = ++lastWagonNumber;
+            wagon.WagonProduct = product;
+            wagon.WagonSalePrice = tables.WagonSalePrice(product.price);
+            trainWagons.Add(wagon);
+            quest.RewardWagonReceived = true;
+            if (_notify)
+                GameEvents.RaiseQuestChanged(this, quest);
         }
     }
 
@@ -469,6 +496,7 @@ internal enum TrainventoryQuestAcceptFailure
 // 술집에 걸린 의뢰. 수락하면 같은 값으로 TrainventoryQuest가 된다.
 internal sealed class TrainventoryQuestOffer
 {
+    internal string RewardWagonProductId { get; }
     internal string TemplateId { get; }
     internal string PieceId { get; }
     internal string SourceCityId { get; }
@@ -485,8 +513,9 @@ internal sealed class TrainventoryQuestOffer
 
     internal TrainventoryQuestOffer(string _templateId, string _pieceId, string _sourceCityId, string _targetCityId,
         string _penaltyId, long _travelTurns, long _reward, long _deposit, long _deadlineHours, string _proficiencyTag,
-        long _proficiencyXp)
+        long _proficiencyXp, string _rewardWagonProductId = null)
     {
+        RewardWagonProductId = _rewardWagonProductId;
         ProficiencyTag = _proficiencyTag;
         ProficiencyXp = _proficiencyXp;
         TemplateId = _templateId;
@@ -503,6 +532,8 @@ internal sealed class TrainventoryQuestOffer
 
 internal sealed class TrainventoryQuest
 {
+    internal string RewardWagonProductId { get; }
+    internal bool RewardWagonReceived { get; set; }
     internal int Id { get; }
     internal string TemplateId { get; }
     internal string PieceId { get; }
@@ -525,6 +556,7 @@ internal sealed class TrainventoryQuest
         long _deadlineHours)
     {
         Id = _id;
+        RewardWagonProductId = _offer.RewardWagonProductId;
         TemplateId = _offer.TemplateId;
         PieceId = _offer.PieceId;
         SourceCityId = _offer.SourceCityId;
