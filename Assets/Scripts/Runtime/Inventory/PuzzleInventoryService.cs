@@ -21,7 +21,6 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
     readonly List<TavernRumor> tavernRumors = new List<TavernRumor>();
     int lastRumorVisit = -1;
     System.Random stockRandom = new System.Random();
-    System.Random wagonDamageRandom = new System.Random();
 
     internal readonly struct TavernRumor
     {
@@ -247,6 +246,16 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         return true;
     }
 
+    // 에디터 화차 그리드 테스트 도구가 현재 세션의 화차 보드 모양을 즉시 바꿀 때 호출한다.
+    public int ReshapeWagonForTest(PuzzleInventory _wagon, PuzzleBoardData _board)
+    {
+        if (_wagon == null || _board == null || !IsTrainWagon(_wagon))
+        {
+            return 0;
+        }
+        return _wagon.ReshapeBoard(_board, ref lastInstanceId);
+    }
+
     internal bool TryMoveWagon(int _sourceIndex, int _destinationIndex)
     {
         // 제자리 놓기는 상태 변화가 없는 조작이므로 기록하지 않는다.
@@ -376,9 +385,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
 
         var trainRules = tables.SynergiesFor(PuzzleSynergyScope.Train);
         int nextInstanceId = lastInstanceId;
-        // 상품 보드(구역 포함)에 구매 시 무작위 파손 칸을 더한다.
-        var ownedCargo = trainWagons.SelectMany(wagon => wagon.Placements).Select(placement => placement.Definition);
-        var board = PuzzleWagonDamage.Roll(tables.WagonBoardOf(_product), definitions.Values, ownedCargo, wagonDamageRandom);
+        var board = tables.WagonBoardOf(_product);
         var newWagon = new PuzzleInventory(board, Array.Empty<PuzzleStartingPlacementData>(), definitions, trainRules,
             ref nextInstanceId);
         newWagon.SynergyComboBonusPercent = SynergyComboBonusPercent;
@@ -528,7 +535,6 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
     {
         stockRandom = new System.Random(_seed);
         questRandom = new System.Random(_seed);
-        wagonDamageRandom = new System.Random(_seed);
     }
 
     internal void Initialize()

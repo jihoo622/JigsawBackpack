@@ -17,8 +17,8 @@ public sealed class PuzzleInventory
     readonly Dictionary<Vector2Int, PuzzleBoardZone> zoneByCell = new();
     readonly Dictionary<string, PuzzleWagonModification> wagonModifications = new(StringComparer.Ordinal);
 
-    public int Width { get; }
-    public int Height { get; }
+    public int Width { get; private set; }
+    public int Height { get; private set; }
     internal string DisplayName { get; }
     internal int UsableCellCount => checked(Width * Height - blockedCells.Count);
     internal IReadOnlyCollection<Vector2Int> BlockedCells => blockedCells;
@@ -26,7 +26,7 @@ public sealed class PuzzleInventory
     // 진행 중인 화차 가공 묶음. 없으면 null이다. 시간 진행 사본과 함께 옮긴다.
     internal PuzzleWagonProcessState ProcessState { get; set; }
     internal int WagonNumber { get; set; }
-    internal PuzzleWagonProductData WagonProduct { get; set; }
+    public PuzzleWagonProductData WagonProduct { get; internal set; }
     internal long WagonSalePrice { get; set; }
     public IReadOnlyCollection<PuzzlePlacement> Placements => placements.Values;
     internal IReadOnlyCollection<PuzzleWagonModification> WagonModifications => wagonModifications.Values;
@@ -124,6 +124,59 @@ public sealed class PuzzleInventory
     internal bool HasWagonModification(string _id)
     {
         return wagonModifications.ContainsKey(_id);
+    }
+
+    // 테스트 도구에서 실행 중인 화차 보드의 격자 크기·막힌 칸·전용 구역을 즉시 바꾼다.
+    // 바뀐 모양에 그대로 놓일 수 있는 기존 화물은 유지하고, 막힌 칸·범위 밖과 겹치는 화물은 빈 자리에 재배치하거나 제거한다.
+    internal int ReshapeBoard(PuzzleBoardData _board, ref int _lastInstanceId)
+    {
+        Width = _board.width;
+        Height = _board.height;
+        blockedCells.Clear();
+        foreach (var cell in _board.blockedCells ?? Array.Empty<PuzzleBoardCellData>())
+        {
+            blockedCells.Add(new Vector2Int(cell.x, cell.y));
+        }
+        zones.Clear();
+        zoneByCell.Clear();
+        foreach (var zone in _board.zones ?? Array.Empty<PuzzleBoardZoneData>())
+        {
+            AddZone(new PuzzleBoardZone(zone));
+        }
+
+        var existing = placements.Values.OrderBy(_item => _item.InstanceId).ToArray();
+        placements.Clear();
+        occupancy.Clear();
+        ProcessState = null;
+
+        var displaced = new List<PuzzlePlacement>();
+        foreach (var item in existing)
+        {
+            if (CheckPlacement(item.Pose.Cells, null, item.Definition) == PuzzlePlacementFailure.None)
+            {
+                StorePlacement(item);
+            }
+            else
+            {
+                displaced.Add(item);
+            }
+        }
+
+        int removed = 0;
+        foreach (var item in displaced)
+        {
+            if (TryFindAutoPlacement(item.Definition, out var pose, _allowRotation: true))
+            {
+                StorePlacement(CopyPlacement(item, item.Definition, this, pose, item.ActualValue));
+            }
+            else
+            {
+                removed++;
+            }
+        }
+
+        RecalculateValue();
+        return removed;
     }
 
     internal PuzzleInventory CopyForTimeAdvance()

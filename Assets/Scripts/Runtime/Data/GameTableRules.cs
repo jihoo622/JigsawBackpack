@@ -53,8 +53,8 @@ public sealed class GameTableRules
         issues = _issues;
     }
 
-    // 화물칸 화면(PuzzleInventoryUI 프리팹)에 미리 배치한 칸 슬롯 수.
-    const int MAX_WAGON_BOARD_CELLS = 42;
+    // 화차 보드 최대 크기(10×10 = 100칸). PuzzleInventoryView.EnsureCapacity가 필요한 만큼 슬롯을 자동 복제한다.
+    const int MAX_WAGON_BOARD_CELLS = 100;
 
     // 턴제: 테이블의 시간 값은 턴 길이(6시간)의 배수여야 턴 경계에서만 사건이 일어난다.
     void CheckTurnHours(long _hours, string _path, string _pieceId = null, string _field = null)

@@ -185,6 +185,9 @@ public sealed class PuzzleInventoryView : MonoBehaviour
         gridMin = boardRect.center - new Vector2(_width, _height) * (cellSize * 0.5f);
 
         long cellCount = (long)_width * _height;
+        EnsureCapacity(ref boardCells, checked((int)cellCount));
+        EnsureCapacity(ref placementSlots, checked((int)cellCount));
+        EnsureCapacity(ref synergyArrows, checked((int)(cellCount * synergyArrowsCapacityMultiplier)));
         for (int i = 0; i < boardCells.Length; i++)
         {
             var cell = boardCells[i];

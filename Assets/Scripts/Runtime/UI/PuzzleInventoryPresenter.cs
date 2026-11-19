@@ -1922,4 +1922,20 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         RefreshTrainBar();
     }
 
+    // 에디터 화차 그리드 테스트 도구에서 실행 중인 화차 보드를 바꾼 직후 화면을 다시 그린다.
+    public void RefreshAfterTestReshape()
+    {
+        if (!initialized || session?.Train == null)
+        {
+            return;
+        }
+        if (input)
+        {
+            input.CancelCapture();
+        }
+        ClearDrag();
+        HideWagonTooltip();
+        RefreshSelectedWagon();
+    }
+
 }
