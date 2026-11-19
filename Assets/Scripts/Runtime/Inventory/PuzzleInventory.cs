@@ -483,6 +483,34 @@ public sealed class PuzzleInventory
     }
 
     // 비어 있는 첫 칸에 조각을 새로 올려 배치한다. 마땅한 빈 칸이 없으면 false.
+    internal bool CanPlaceAt(PuzzleItemDefinition _definition, Vector2Int _grabbedCell, Vector2Int _targetCell,
+        int _clockwiseTurns)
+    {
+        if (_definition == null || CreatePoseAtSlot(_definition.Cells, _grabbedCell, _targetCell, _clockwiseTurns, out var pose) !=
+            PuzzlePlacementFailure.None)
+        {
+            return false;
+        }
+        return CheckPlacement(pose.Cells, null, _definition) == PuzzlePlacementFailure.None;
+    }
+
+    internal bool TryPlaceAt(PuzzleItemDefinition _definition, Vector2Int _grabbedCell, Vector2Int _targetCell,
+        int _clockwiseTurns, int _instanceId, out PuzzlePlacement _placement)
+    {
+        _placement = null;
+        if (_definition == null || CreatePoseAtSlot(_definition.Cells, _grabbedCell, _targetCell, _clockwiseTurns, out var pose) !=
+            PuzzlePlacementFailure.None)
+        {
+            return false;
+        }
+        if (CheckPlacement(pose.Cells, null, _definition) != PuzzlePlacementFailure.None)
+        {
+            return false;
+        }
+        _placement = PlaceSpawnedItem(_definition, _instanceId, pose);
+        return true;
+    }
+
     internal bool TryAutoPlace(PuzzleItemDefinition _definition, int _instanceId, out PuzzlePlacement _placement)
     {
         if (!TryFindAutoPlacement(_definition, out var pose))
@@ -799,7 +827,7 @@ public sealed class PuzzleInventory
         return pose;
     }
 
-    PuzzlePlacementFailure CreatePoseAtSlot(IReadOnlyList<Vector2Int> _shape, Vector2Int _grabbedCell, Vector2Int _targetCell,
+    internal PuzzlePlacementFailure CreatePoseAtSlot(IReadOnlyList<Vector2Int> _shape, Vector2Int _grabbedCell, Vector2Int _targetCell,
         int _clockwiseTurns, out PuzzlePose _pose)
     {
         _pose = null;

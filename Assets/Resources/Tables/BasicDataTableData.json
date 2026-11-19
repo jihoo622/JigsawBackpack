@@ -1030,6 +1030,110 @@
           "value": "화물을 잡거나 선택하면 행선지별 판매 견적이 표시됩니다."
         },
         {
+          "id": "questDropNotQuestCargo",
+          "value": "의뢰 화물만 의뢰 게시판에 놓을 수 있습니다."
+        },
+        {
+          "id": "questDropWrongCity",
+          "value": "{0} 의뢰 화물입니다. 해당 마을 술집에 반납하세요.",
+          "arguments": 1
+        },
+        {
+          "id": "questCompleteLabel",
+          "value": "완료"
+        },
+        {
+          "id": "questDeliverableOffer",
+          "value": "[완료 가능] {0} · 보상 {1:N0}$",
+          "arguments": 2
+        },
+        {
+          "id": "tavernWindowTitle",
+          "value": "술집 · {0}",
+          "arguments": 1
+        },
+        {
+          "id": "tavernWindowRumorButton",
+          "value": "소문 듣기 (무료)"
+        },
+        {
+          "id": "tavernWindowRumorEmpty",
+          "value": "소문 듣기 버튼을 눌러 다음 역 정보를 확인하세요."
+        },
+        {
+          "id": "tavernWindowBoardHint",
+          "value": "의뢰 화물을 화차로 드래그해 수락 · 목적지에서는 화물을 게시판에 드롭해 완료"
+        },
+        {
+          "id": "restWindowTitle",
+          "value": "여관 · {0}",
+          "arguments": 1
+        },
+        {
+          "id": "restWindowHint",
+          "value": "휴식할 턴 수(1~4턴)를 선택하거나 아침까지 대기할 수 있습니다."
+        },
+        {
+          "id": "stationHallWindowTitle",
+          "value": "역사 · {0}",
+          "arguments": 1
+        },
+        {
+          "id": "stationHallSaleDrop",
+          "value": "선로의 화차를 이곳(또는 역사 건물)에 드롭하면 판매합니다."
+        },
+        {
+          "id": "stationHallDepartButton",
+          "value": "출발 / 노선도 열기 (M)"
+        },
+        {
+          "id": "workshopWindowTitle",
+          "value": "생산시설 · {0}",
+          "arguments": 1
+        },
+        {
+          "id": "workshopWindowEmptyLot",
+          "value": "이 마을에는 생산시설(작업대)이 없습니다."
+        },
+        {
+          "id": "cityHallWindowTitle",
+          "value": "시청 · {0}",
+          "arguments": 1
+        },
+        {
+          "id": "cityHallIndustryFormat",
+          "value": "산업: {0}",
+          "arguments": 1
+        },
+        {
+          "id": "cityHallReputationFormat",
+          "value": "평판: {0} (동시 의뢰 {1}건)",
+          "arguments": 2
+        },
+        {
+          "id": "cityHallGoalFormat",
+          "value": "목표 자금: {0:N0}$ / {1:N0}$ (남은 기한 {2}턴)",
+          "arguments": 3
+        },
+        {
+          "id": "travelBannerDepart",
+          "value": "{0}행 · 운임 {1:N0}$ · {2}턴",
+          "arguments": 3
+        },
+        {
+          "id": "travelBannerConfirm",
+          "value": "출발"
+        },
+        {
+          "id": "travelBannerCancel",
+          "value": "취소"
+        },
+        {
+          "id": "travelBannerInProgress",
+          "value": "{0} → {1} 이동 중...",
+          "arguments": 2
+        },
+        {
           "id": "notebookTabMap",
           "value": "지도",
           "arguments": 0

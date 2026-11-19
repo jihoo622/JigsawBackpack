@@ -11,6 +11,7 @@ public sealed class TrainventoryQuestBoardPresenter : MonoBehaviour
     // 마지막 수락 시도의 실패 사유. 다른 마을에 도착하면 지운다.
     string acceptMessage;
     int messageVisit = -1;
+    readonly List<TrainventoryQuest> deliverableSlots = new();
 
     void OnEnable()
     {
@@ -84,12 +85,29 @@ public sealed class TrainventoryQuestBoardPresenter : MonoBehaviour
 
     void OnOfferAccepted(int _index)
     {
+        if (_index >= 0 && _index < deliverableSlots.Count)
+        {
+            var deliverable = deliverableSlots[_index];
+            if (!session.TryCompleteQuest(deliverable, out string fail))
+            {
+                acceptMessage = fail;
+                messageVisit = session.CityMoveCount;
+            }
+            else
+            {
+                acceptMessage = null;
+                view.SetSelectedIndex(-1);
+            }
+            Refresh();
+            return;
+        }
+        int offerIdx = _index - deliverableSlots.Count;
         var offers = session.QuestOffers;
-        if (_index < 0 || _index >= offers.Count)
+        if (offerIdx < 0 || offerIdx >= offers.Count)
         {
             return;
         }
-        var offer = offers[_index];
+        var offer = offers[offerIdx];
         var failure = session.TryAcceptQuest(offer);
         acceptMessage = failure == TrainventoryQuestAcceptFailure.None
             ? null
@@ -105,10 +123,11 @@ public sealed class TrainventoryQuestBoardPresenter : MonoBehaviour
 
     void OnOfferSelected(int _index)
     {
+        int offerIdx = _index - deliverableSlots.Count;
         var offers = session.QuestOffers;
-        if (_index >= 0 && _index < offers.Count)
+        if (offerIdx >= 0 && offerIdx < offers.Count)
         {
-            detailView?.Bind(offers[_index], session);
+            detailView?.Bind(offers[offerIdx], session);
         }
         else
         {
@@ -122,9 +141,26 @@ public sealed class TrainventoryQuestBoardPresenter : MonoBehaviour
         {
             acceptMessage = null;
         }
-        var offers = session.QuestOffers;
-        var shown = offers.Take(view.SlotCount).ToArray();
+        deliverableSlots.Clear();
         var contents = new List<TrainventoryQuestBoardView.OfferContent>();
+        foreach (var q in session.Quests)
+        {
+            if (contents.Count >= view.SlotCount) break;
+            if (q.State == TrainventoryQuestState.Active &&
+                string.Equals(q.TargetCityId, session.CurrentCityId, System.StringComparison.Ordinal))
+            {
+                deliverableSlots.Add(q);
+                var def = session.ItemDefinitions?.FirstOrDefault(_d => _d.Id == q.PieceId);
+                string cargoName = def != null ? def.DisplayName : q.PieceId;
+                contents.Add(new TrainventoryQuestBoardView.OfferContent(
+                    Presentation.QuestDeliverableOffer(cargoName, q.Reward),
+                    Presentation.QuestCompleteLabel, true));
+            }
+        }
+
+        var offers = session.QuestOffers;
+        int offerRoom = Mathf.Max(0, view.SlotCount - contents.Count);
+        var shown = offers.Take(offerRoom).ToArray();
         string blocked = null;
         foreach (var offer in shown)
         {
@@ -139,7 +175,7 @@ public sealed class TrainventoryQuestBoardPresenter : MonoBehaviour
 
         // 안내 문구 우선순위: 수락 실패 사유 → 의뢰 없음 → 수락할 수 없는 이유 → 슬롯 밖 의뢰 수.
         string message = acceptMessage;
-        if (message == null && offers.Count == 0)
+        if (message == null && offers.Count == 0 && deliverableSlots.Count == 0)
         {
             message = Presentation.QuestNoOffers;
         }
@@ -154,10 +190,10 @@ public sealed class TrainventoryQuestBoardPresenter : MonoBehaviour
             Presentation.QuestStatus(session.ActiveQuestCount, session.MaxActiveQuests, session.Reputation),
             contents.ToArray(), message);
 
-        int selectedIndex = view.SelectedIndex;
-        if (selectedIndex >= 0 && selectedIndex < shown.Length)
+        int selectedOfferIdx = view.SelectedIndex - deliverableSlots.Count;
+        if (selectedOfferIdx >= 0 && selectedOfferIdx < shown.Length)
         {
-            detailView?.Bind(shown[selectedIndex], session);
+            detailView?.Bind(shown[selectedOfferIdx], session);
         }
         else
         {

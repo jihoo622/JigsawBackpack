@@ -2778,6 +2778,41 @@ public static partial class Presentation
     public static string QuickToolbarLens => BasicData.Text("presentation.inventory.quickToolbarLens");
     public static string TrainWindowLensButton => BasicData.Text("presentation.inventory.trainWindowLensButton");
     public static string LensWindowEmpty => BasicData.Text("presentation.inventory.lensWindowEmpty");
+    public static string QuestDropNotQuestCargo => BasicData.Text("presentation.inventory.questDropNotQuestCargo");
+    public static string QuestDropWrongCity(string _cityName) =>
+        BasicData.Format("presentation.inventory.questDropWrongCity", _cityName);
+    public static string QuestCompleteLabel => BasicData.Text("presentation.inventory.questCompleteLabel");
+    public static string QuestDeliverableOffer(string _cargoName, long _reward) =>
+        BasicData.Format("presentation.inventory.questDeliverableOffer", _cargoName, _reward);
+    public static string TavernWindowTitle(string _cityName) =>
+        BasicData.Format("presentation.inventory.tavernWindowTitle", _cityName);
+    public static string TavernWindowRumorButton => BasicData.Text("presentation.inventory.tavernWindowRumorButton");
+    public static string TavernWindowRumorEmpty => BasicData.Text("presentation.inventory.tavernWindowRumorEmpty");
+    public static string TavernWindowBoardHint => BasicData.Text("presentation.inventory.tavernWindowBoardHint");
+    public static string RestWindowTitle(string _cityName) =>
+        BasicData.Format("presentation.inventory.restWindowTitle", _cityName);
+    public static string RestWindowHint => BasicData.Text("presentation.inventory.restWindowHint");
+    public static string StationHallWindowTitle(string _cityName) =>
+        BasicData.Format("presentation.inventory.stationHallWindowTitle", _cityName);
+    public static string StationHallSaleDrop => BasicData.Text("presentation.inventory.stationHallSaleDrop");
+    public static string StationHallDepartButton => BasicData.Text("presentation.inventory.stationHallDepartButton");
+    public static string WorkshopWindowTitle(string _cityName) =>
+        BasicData.Format("presentation.inventory.workshopWindowTitle", _cityName);
+    public static string WorkshopWindowEmptyLot => BasicData.Text("presentation.inventory.workshopWindowEmptyLot");
+    public static string CityHallWindowTitle(string _cityName) =>
+        BasicData.Format("presentation.inventory.cityHallWindowTitle", _cityName);
+    public static string CityHallIndustryFormat(string _industry) =>
+        BasicData.Format("presentation.inventory.cityHallIndustryFormat", _industry);
+    public static string CityHallReputationFormat(int _rep, int _maxQuests) =>
+        BasicData.Format("presentation.inventory.cityHallReputationFormat", _rep, _maxQuests);
+    public static string CityHallGoalFormat(long _funds, long _target, long _remainingTurns) =>
+        BasicData.Format("presentation.inventory.cityHallGoalFormat", _funds, _target, _remainingTurns);
+    public static string TravelBannerDepart(string _dest, long _fare, long _turns) =>
+        BasicData.Format("presentation.inventory.travelBannerDepart", _dest, _fare, _turns);
+    public static string TravelBannerConfirm => BasicData.Text("presentation.inventory.travelBannerConfirm");
+    public static string TravelBannerCancel => BasicData.Text("presentation.inventory.travelBannerCancel");
+    public static string TravelBannerInProgress(string _from, string _to) =>
+        BasicData.Format("presentation.inventory.travelBannerInProgress", _from, _to);
 
     internal static string RelayoutToggle(bool _enabled)
     {

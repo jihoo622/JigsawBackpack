@@ -755,6 +755,11 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
 
     void Settle()
     {
+        // R26: 마지막 턴 행동으로 결산될 때 이미 목적지에 와 있는 진행 중 의뢰는 결산 직전에 완료로 처리한다.
+        if (!IsPassingThrough)
+        {
+            CompleteArrivedQuests();
+        }
         RunStatus = ReachedTargetFunds ? PuzzleRunStatus.Won : PuzzleRunStatus.Lost;
         HandleRunStatusChanged();
         RecordAction(PuzzleActionKind.FinishRun);
@@ -1785,7 +1790,6 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         {
             visitedCities.Add(CurrentCityId);
             GameEvents.RaiseCityArrived(CurrentCityId, CityMoveCount);
-            CompleteArrivedQuests();
         }
 
         if (RoutePlan != null)
