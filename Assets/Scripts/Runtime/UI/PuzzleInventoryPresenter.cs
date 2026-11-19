@@ -996,13 +996,13 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             if (candidate != null)
             {
                 targetView.ShowGhostOnBoard(candidate, drag.Definition, drag.FreshnessPercent,
-                    drag.GetBundleGhostExtras(candidate));
+                    drag.OriginalPlacement, drag.GetBundleGhostExtras(candidate));
             }
             else
             {
                 var ghostPose = drag.GetGhostPose();
                 targetView.ShowGhostAtPointer(ghostPose, drag.Definition, Vector2Int.zero, pointerPosition,
-                    drag.FreshnessPercent, drag.GetBundleGhostExtras(ghostPose));
+                    drag.FreshnessPercent, drag.OriginalPlacement, drag.GetBundleGhostExtras(ghostPose));
             }
             targetView.ShowPreview(candidate, preview.CanDrop);
             // 고스트는 놓을 후보 보드에만 둔다. 출발 보드에는 원래 자리 외곽선과 광선만 남긴다.
@@ -1052,7 +1052,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         {
             var homeGhostPose = drag.GetGhostPose();
             sourceView.ShowGhostAtPointer(homeGhostPose, drag.Definition, Vector2Int.zero, pointerPosition,
-                drag.FreshnessPercent, drag.GetBundleGhostExtras(homeGhostPose));
+                drag.FreshnessPercent, drag.OriginalPlacement, drag.GetBundleGhostExtras(homeGhostPose));
             sourceView.ShowPreview(null, false);
             sourceView.HideAdjacentSynergyPreview();
             Vector2 sourceCenterScreen = sourceView.GetShapeCenterScreen(drag.OriginalPose.Cells);
@@ -1374,7 +1374,8 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             tooltipView.Show(item, actualValue, rate, effects.General, effects.Synergies, futureValue, pos, isTrain, _placement.FreshnessPercent,
                 session.HoursUntilNextFreshnessBand(_placement), previewHours,
                 previewName, previewActivations, price,                 isTrain ? PuzzleSynergyBonus.GroupByNeighbor(value.SynergyBonuses) : null,
-                isTrain ? session.AppliedPreservationPercent(_placement) : 0, isActionBoard, bundleName);
+                isTrain ? session.AppliedPreservationPercent(_placement) : 0, isActionBoard, bundleName,
+                Presentation.PuzzleEffectiveTags(item, _placement));
             // 툴팁을 열면 미확인 알림만 지운다. 실제로 대기 중인 진행도와 빨간 표시는 상태가 풀릴 때까지 남는다.
             if (_placement.HasUnreadNotice && tooltipView.IsOpen)
             {
@@ -1414,7 +1415,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         return Presentation.PuzzleTooltipPossibleEffects(
             _placement?.Definition,
             _isTrain || _isActionBoard ? PuzzleSynergyScope.Train : PuzzleSynergyScope.Market,
-            _isTrain ? _placement : null,
+            _placement,
             session);
     }
 

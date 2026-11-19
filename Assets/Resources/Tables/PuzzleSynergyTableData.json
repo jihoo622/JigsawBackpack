@@ -107,6 +107,17 @@
       "description": "인접한 화물(Cargo)에게 -10%",
       "targetDescription": "동물과 인접 시 -10%",
       "sourceDescription": "인접한 화물(Cargo)에게 -10%"
+    },
+    {
+      "id": "cargoNearCargo",
+      "targetTag": "Cargo",
+      "neighborTag": "Cargo",
+      "scope": "Both",
+      "spatialRange": "Adjacent",
+      "multiplierPercent": 120,
+      "description": "화물과 인접 시 +20%",
+      "targetDescription": "화물과 인접 시 +20%",
+      "sourceDescription": "인접한 화물(Cargo)에게 +20%"
     }
   ],
   "activationIntervalHours": 6,

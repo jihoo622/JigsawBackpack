@@ -1909,7 +1909,9 @@ public static partial class Presentation
         var general = new List<PuzzleEffectDisplay>();
         var synergies = new List<(bool isTarget, bool isPenalty, PuzzleTooltipEffectEntry entry)>();
         var tables = TableManager.Instance;
-        int preservation = PuzzleRefrigeration.SourceReductionPercent(_item, tables.PuzzleSynergy.freshness);
+        int preservation = _placement != null
+            ? PuzzleRefrigeration.SourceReductionPercent(_placement, tables.PuzzleSynergy.freshness)
+            : PuzzleRefrigeration.SourceReductionPercent(_item, tables.PuzzleSynergy.freshness);
         if (preservation > 0)
         {
             synergies.Add((false, false, PuzzleRefrigerationEffect(preservation)));
@@ -2637,6 +2639,51 @@ public static partial class Presentation
             return BasicData.Color("presentation.inventory.wasteOutline", _alpha);
         }
         return null;
+    }
+
+    internal static Color? PuzzlePieceAccentOutline(PuzzlePlacement _placement, float _alpha)
+    {
+        if (_placement?.Definition == null)
+        {
+            return null;
+        }
+
+        Color? outline = PuzzlePieceAccentOutline(_placement.Definition, _alpha);
+        if (outline.HasValue)
+        {
+            return outline;
+        }
+
+        var freshness = TableManager.Instance.PuzzleSynergy?.freshness;
+        if (freshness != null && PuzzleRefrigeration.PreservationUpgrade(_placement) != null)
+        {
+            return BasicData.Color("presentation.inventory.refrigerationOutline", _alpha);
+        }
+
+        return null;
+    }
+
+    internal static IReadOnlyList<string> PuzzleEffectiveTags(PuzzleItemDefinition _item, PuzzlePlacement _placement = null)
+    {
+        if (_item == null)
+        {
+            return Array.Empty<string>();
+        }
+
+        IReadOnlyList<string> baseTags = _item.Tags ?? Array.Empty<string>();
+        var freshness = TableManager.Instance.PuzzleSynergy?.freshness;
+        string refrigerationTag = freshness?.refrigerationTag;
+        if (!string.IsNullOrEmpty(refrigerationTag) &&
+            !PuzzlePieceEffects.HasAnyTag(baseTags, refrigerationTag) &&
+            _placement != null &&
+            PuzzleRefrigeration.SourceReductionPercent(_placement, freshness) > 0)
+        {
+            var tags = new List<string>(baseTags);
+            tags.Add(refrigerationTag);
+            return tags;
+        }
+
+        return baseTags;
     }
 
     public static Color PuzzlePieceOutline(float _alpha)

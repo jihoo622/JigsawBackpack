@@ -267,7 +267,7 @@ public sealed class PuzzleInventoryView : MonoBehaviour
                 iconIndex[placement.Definition.VisualKey].sprite, placement.Definition.IconSize, placement.Definition.IconOffset,
                 // 가치 변동, 공간 부족, 새로 생성된 산출물은 별도 상태지만 같은 알림 아이콘을 쓴다. 읽지 않은 쪽이 남아 있으면 아이콘은 유지한다.
                 placement.FreshnessPercent, placement.HasUnreadNotice,
-                Presentation.PuzzlePieceAccentOutline(placement.Definition, color.a));
+                Presentation.PuzzlePieceAccentOutline(placement, color.a));
         }
 
         HideSlots(placementSlots, index);
@@ -387,7 +387,8 @@ public sealed class PuzzleInventoryView : MonoBehaviour
 
     // 놓을 자리 후보는 외곽선과 같은 보드 칸에 겹쳐 그린다. _extras는 목재 묶음처럼 함께 움직이는 회원 고스트.
     public void ShowGhostOnBoard(PuzzlePose _pose, PuzzleItemDefinition _item, int? _freshness = null,
-        IReadOnlyList<(PuzzlePose Pose, PuzzleItemDefinition Item, int? Freshness)> _extras = null)
+        PuzzlePlacement _placement = null,
+        IReadOnlyList<(PuzzlePose Pose, PuzzleItemDefinition Item, int? Freshness, PuzzlePlacement Placement)> _extras = null)
     {
         if (_pose == null)
         {
@@ -396,13 +397,13 @@ public sealed class PuzzleInventoryView : MonoBehaviour
         }
 
         Vector2 boardOrigin = GhostParent.InverseTransformPoint(board.rectTransform.position);
-        RenderGhost(_pose, _item, boardOrigin, _freshness, _extras);
+        RenderGhost(_pose, _item, boardOrigin, _freshness, _placement, _extras);
     }
 
     // 놓을 자리가 없으면 잡은 칸의 중심이 커서 아래 오도록 커서를 따라간다.
     public void ShowGhostAtPointer(PuzzlePose _pose, PuzzleItemDefinition _item, Vector2Int _grabbedCell, Vector2 _screenPosition,
-        int? _freshness = null,
-        IReadOnlyList<(PuzzlePose Pose, PuzzleItemDefinition Item, int? Freshness)> _extras = null)
+        int? _freshness = null, PuzzlePlacement _placement = null,
+        IReadOnlyList<(PuzzlePose Pose, PuzzleItemDefinition Item, int? Freshness, PuzzlePlacement Placement)> _extras = null)
     {
         if (_pose == null || !RectTransformUtility.ScreenPointToLocalPointInRectangle(
                 GhostParent, _screenPosition, EventCamera, out var local))
@@ -411,7 +412,7 @@ public sealed class PuzzleInventoryView : MonoBehaviour
             return;
         }
 
-        RenderGhost(_pose, _item, local - GetCellCenter(_grabbedCell), _freshness, _extras);
+        RenderGhost(_pose, _item, local - GetCellCenter(_grabbedCell), _freshness, _placement, _extras);
     }
 
     public void HideGhost()
@@ -420,12 +421,15 @@ public sealed class PuzzleInventoryView : MonoBehaviour
     }
 
     void RenderGhost(PuzzlePose _pose, PuzzleItemDefinition _item, Vector2 _offset, int? _freshness,
-        IReadOnlyList<(PuzzlePose Pose, PuzzleItemDefinition Item, int? Freshness)> _extras = null)
+        PuzzlePlacement _placement = null,
+        IReadOnlyList<(PuzzlePose Pose, PuzzleItemDefinition Item, int? Freshness, PuzzlePlacement Placement)> _extras = null)
     {
         var ghost = Presentation.PuzzleGhost;
         int used = RenderPose(ghostSlots, 0, _pose, _offset, ghost,
             iconIndex[_item.VisualKey].sprite, _item.IconSize, _item.IconOffset, _freshness,
-            _outlineColor: Presentation.PuzzlePieceAccentOutline(_item, ghost.a));
+            _outlineColor: _placement != null
+                ? Presentation.PuzzlePieceAccentOutline(_placement, ghost.a)
+                : Presentation.PuzzlePieceAccentOutline(_item, ghost.a));
         if (_extras != null)
         {
             foreach (var extra in _extras)
@@ -436,7 +440,9 @@ public sealed class PuzzleInventoryView : MonoBehaviour
                 }
                 used = RenderPose(ghostSlots, used, extra.Pose, _offset, ghost,
                     iconIndex[extra.Item.VisualKey].sprite, extra.Item.IconSize, extra.Item.IconOffset,
-                    extra.Freshness, _outlineColor: Presentation.PuzzlePieceAccentOutline(extra.Item, ghost.a));
+                    extra.Freshness, _outlineColor: extra.Placement != null
+                        ? Presentation.PuzzlePieceAccentOutline(extra.Placement, ghost.a)
+                        : Presentation.PuzzlePieceAccentOutline(extra.Item, ghost.a));
             }
         }
         HideSlots(ghostSlots, used);

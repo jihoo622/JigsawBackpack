@@ -38,16 +38,17 @@ internal sealed class PuzzleInventoryDrag
     }
 
     // 묶음 회원이 잡은 조각의 고스트 포즈(_anchorPose)와 강체로 함께 움직이는 표시용 포즈. 잡은 조각 제외.
-    public List<(PuzzlePose Pose, PuzzleItemDefinition Item, int? Freshness)> GetBundleGhostExtras(PuzzlePose _anchorPose)
+    public List<(PuzzlePose Pose, PuzzleItemDefinition Item, int? Freshness, PuzzlePlacement Placement)> GetBundleGhostExtras(
+        PuzzlePose _anchorPose)
     {
-        var extras = new List<(PuzzlePose Pose, PuzzleItemDefinition Item, int? Freshness)>();
+        var extras = new List<(PuzzlePose Pose, PuzzleItemDefinition Item, int? Freshness, PuzzlePlacement Placement)>();
         foreach (var member in Source.GetBundleGhostPoses(original, grabbedCell, _anchorPose))
         {
             if (ReferenceEquals(member.Member, original))
             {
                 continue;
             }
-            extras.Add((member.Pose, member.Member.Definition, member.Member.FreshnessPercent));
+            extras.Add((member.Pose, member.Member.Definition, member.Member.FreshnessPercent, member.Member));
         }
         return extras;
     }

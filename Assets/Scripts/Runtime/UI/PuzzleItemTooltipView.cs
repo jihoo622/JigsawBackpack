@@ -209,7 +209,7 @@ public sealed class PuzzleItemTooltipView : PanelBase
         IReadOnlyList<string> _generalEffects, IReadOnlyList<PuzzleTooltipEffectEntry> _synergyEffects, decimal? _futureValue, Vector2 _screenPosition,
         bool _isTrainInventory, int? _freshness, long? _minutesUntilNextFreshnessBand, long? _previewHours, string _previewCityName,
         long? _previewActivations, long? _tradePrice, IReadOnlyList<PuzzleSynergyBonus> _activeEffects, int _appliedPreservation,
-        bool _isActionBoard = false, string _displayName = null)
+        bool _isActionBoard = false, string _displayName = null, IReadOnlyList<string> _categoryTags = null)
     {
         if (_item == null)
         {
@@ -224,7 +224,7 @@ public sealed class PuzzleItemTooltipView : PanelBase
             activeEffectsSection.gameObject.SetActive(true);
         }
 
-        UpdateCategoryBadges(_item);
+        UpdateCategoryBadges(_categoryTags ?? (_item != null ? _item.Tags : null));
 
         SetRow(baseValueLabelText, baseValueValueText,
             Presentation.PuzzleTooltipBaseValueLabel, Presentation.PuzzleTooltipActualValueValue(_item.BaseValue));
