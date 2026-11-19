@@ -464,7 +464,8 @@ public static partial class Presentation
 
     // 마우스를 올렸을 때 보이는 미리보기 카드 내용(제목 + 상단 표 행 + 본문 줄). 링크 없이 글자만 쓴다(카드는 입력을 받지 않는다).
     internal static void EntityPreview(EntityLinkKind _kind, string _id, PuzzleInventoryService _session,
-        out string _title, List<(string label, string value)> _statRows, List<string> _lines)
+        out string _title, List<(string label, string value)> _statRows, List<string> _lines,
+        bool _includeCurrentLine = true)
     {
         _statRows?.Clear();
         _lines.Clear();
@@ -473,7 +474,7 @@ public static partial class Presentation
         switch (_kind)
         {
             case EntityLinkKind.City:
-                PreviewCity(_id, _session, _statRows, _lines);
+                PreviewCity(_id, _session, _statRows, _lines, _includeCurrentLine);
                 break;
             case EntityLinkKind.Region:
                 if (tables.TryGetRegion(_id, out var region))
@@ -516,7 +517,7 @@ public static partial class Presentation
     }
 
     static void PreviewCity(string _cityId, PuzzleInventoryService _session,
-        List<(string label, string value)> _statRows, List<string> _lines)
+        List<(string label, string value)> _statRows, List<string> _lines, bool _includeCurrentLine = true)
     {
         var tables = TableManager.Instance;
         if (!tables.HasCity(_cityId))
@@ -539,7 +540,10 @@ public static partial class Presentation
         {
             if (_cityId == _session.CurrentCityId)
             {
-                _lines.Add(BasicData.Text("presentation.link.previewCurrent"));
+                if (_includeCurrentLine)
+                {
+                    _lines.Add(BasicData.Text("presentation.link.previewCurrent"));
+                }
             }
             else
             {
@@ -831,6 +835,28 @@ public static partial class Presentation
             .OrderBy(_quest => _quest.DeadlineHours)
             .Select(_quest => BasicData.Format("presentation.quest.mapInformation", QuestCargoName(_quest.PieceId),
                 TurnSpan(Math.Max(0, _quest.DeadlineHours - _session.ElapsedTime)), _quest.Reward)));
+    }
+
+    internal static string BuildTownHeaderStatus(string _cityId, PuzzleInventoryService _session)
+    {
+        if (_session == null || string.IsNullOrEmpty(_cityId))
+        {
+            return null;
+        }
+        bool isCurrent = string.Equals(_cityId, _session.CurrentCityId, StringComparison.Ordinal);
+        string questBadge = QuestMapBadge(_session, _cityId);
+        string questText = string.IsNullOrEmpty(questBadge)
+            ? null
+            : $"<color=#{ColorUtility.ToHtmlStringRGB(QuestMapMarker)}>{questBadge}</color>";
+        if (isCurrent && !string.IsNullOrEmpty(questText))
+        {
+            return $"{BasicData.Text("presentation.link.previewCurrent")} · {questText}";
+        }
+        if (isCurrent)
+        {
+            return BasicData.Text("presentation.link.previewCurrent");
+        }
+        return questText;
     }
 
     // 숙련 레벨이 오를 때 하단 상태 줄 끝에 붙이는 알림.
@@ -2110,7 +2136,7 @@ public static partial class Presentation
     }
 
     internal static void CityTradeGradeInfo(PuzzleCityTradeGrade _grade, bool _withLink,
-        out string _formattedLabel, out string _linkId, out Color _color)
+        out string _formattedLabel, out string _linkId, out Color _color, bool _bold = true)
     {
         string rawTitle;
         switch (_grade)
@@ -2145,14 +2171,15 @@ public static partial class Presentation
         string content = _withLink && !string.IsNullOrEmpty(_linkId)
             ? $"<link=\"{_linkId}\">{rawTitle}</link>"
             : rawTitle;
-        _formattedLabel = $"<color=#{ColorUtility.ToHtmlStringRGB(_color)}><b>{content}</b></color>";
+        string inner = _bold ? $"<b>{content}</b>" : content;
+        _formattedLabel = $"<color=#{ColorUtility.ToHtmlStringRGB(_color)}>{inner}</color>";
     }
 
     internal static string CityTradeWasteSuffix => "(+10$)";
 
     const string REGION_PRICE_LINK_PREFIX = "regionPrice:";
 
-    internal static string CityTradeRegionPriceText(int _buyPercent, int _sellPercent, bool _withLink = false)
+    internal static string CityTradeRegionPriceText(int _buyPercent, int _sellPercent, bool _withLink = false, bool _bold = true)
     {
         bool samePercent = _buyPercent == _sellPercent;
         string rawText = samePercent
@@ -2163,11 +2190,12 @@ public static partial class Presentation
             ? $"<link=\"{REGION_PRICE_LINK_PREFIX}{_buyPercent}:{_sellPercent}\">{rawText}</link>"
             : rawText;
 
+        string inner = _bold ? $"<b>{content}</b>" : content;
         if (_buyPercent != 100 || _sellPercent != 100)
         {
-            return $"<color=#{ColorUtility.ToHtmlStringRGB(PuzzleTooltipGold)}><b>{content}</b></color>";
+            return $"<color=#{ColorUtility.ToHtmlStringRGB(PuzzleTooltipGold)}>{inner}</color>";
         }
-        return $"<b>{content}</b>";
+        return inner;
     }
 
     // 도시의 태그 규칙을 판매 등급 기준으로 흔함/귀함/희귀로 묶는다. 임의 배율이나 일반(100%)은 표시하지 않는다.
@@ -2195,6 +2223,27 @@ public static partial class Presentation
             return string.Empty;
         }
         return BasicData.Format(_textKey, ColorUtility.ToHtmlStringRGB(PuzzleTooltipGreen), PuzzleTagLabel("Waste"));
+    }
+
+    internal static void BuildTownTooltipRumorLines(string _cityId, PuzzleInventoryService _session,
+        List<string> _lines, out string _header)
+    {
+        _lines.Clear();
+        _header = null;
+        if (_session?.TavernRumors == null || (_session.HasVisitedCity(_cityId)))
+        {
+            return;
+        }
+        foreach (var rumor in _session.TavernRumors)
+        {
+            if (!string.Equals(rumor.TargetCityId, _cityId, StringComparison.Ordinal))
+            {
+                continue;
+            }
+            _header ??= SummaryRumorTitle;
+            string plain = Regex.Replace(TavernRumorMessage(rumor), @"</?link(?:=[^>]*)?>", string.Empty);
+            _lines.Add($"• {plain}");
+        }
     }
 
     internal static bool TryGetTradeKeywordTooltip(string _linkId, out string _title, out string _description)
