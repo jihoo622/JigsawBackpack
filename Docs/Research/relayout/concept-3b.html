@@ -11,7 +11,7 @@
 <script>
   (function () {
     const p = new URLSearchParams(window.location.search).get('palette') || 'a';
-    if (['a', 'b', 'c', 'd'].includes(p)) {
+    if (['a', 'b', 'c', 'd', 'e'].includes(p)) {
       document.documentElement.dataset.palette = p;
     } else {
       document.documentElement.dataset.palette = 'a';
@@ -35,8 +35,8 @@
     --bg-panel: #0f1724; /* 기본 패널 배경 */
     --bg-panel-glass: rgba(15, 23, 36, 0.95); /* 반투명 팝업/HUD 배경 */
     --bg-panel-glass-strong: rgba(15, 23, 36, 0.98); /* 툴팁 등 고불투명 패널 배경 */
-    --bg-panel-fade-top: linear-gradient(180deg, rgba(15, 23, 36, 0.94) 0%, rgba(15, 23, 36, 0) 100%); /* 선로 상단 페이드 */
-    --bg-panel-fade-bottom: linear-gradient(0deg, rgba(15, 23, 36, 0.94) 0%, rgba(15, 23, 36, 0) 100%); /* 선로 하단 페이드 */
+    --bg-panel-fade-top: rgba(15, 23, 36, 0.85); /* 선로 상단 페이드 */
+    --bg-panel-fade-bottom: rgba(15, 23, 36, 0.85); /* 선로 하단 페이드 */
     --bg-panel-2: #152033; /* 보조 패널/푸터 배경 */
     --bg-panel-2-subtle: rgba(21, 32, 51, 0.55); /* 테이블 짝수 행 배경 */
     --bg-card: #1b2838; /* 카드/버튼 기본 배경 */
@@ -281,8 +281,8 @@
     --bg-panel: #1c1613;
     --bg-panel-glass: rgba(28, 22, 19, 0.95);
     --bg-panel-glass-strong: rgba(28, 22, 19, 0.98);
-    --bg-panel-fade-top: linear-gradient(180deg, rgba(28, 22, 19, 0.94) 0%, rgba(28, 22, 19, 0) 100%);
-    --bg-panel-fade-bottom: linear-gradient(0deg, rgba(28, 22, 19, 0.94) 0%, rgba(28, 22, 19, 0) 100%);
+    --bg-panel-fade-top: rgba(15, 23, 36, 0.85);
+    --bg-panel-fade-bottom: rgba(15, 23, 36, 0.85);
     --bg-panel-2: #241c18;
     --bg-panel-2-subtle: rgba(36, 28, 24, 0.55);
     --bg-card: #2b221d;
@@ -455,8 +455,8 @@
     --bg-panel: #fbf8f2;
     --bg-panel-glass: rgba(251, 248, 242, 0.96);
     --bg-panel-glass-strong: rgba(251, 248, 242, 0.99);
-    --bg-panel-fade-top: linear-gradient(180deg, rgba(251, 248, 242, 0.94) 0%, rgba(251, 248, 242, 0) 100%);
-    --bg-panel-fade-bottom: linear-gradient(0deg, rgba(251, 248, 242, 0.94) 0%, rgba(251, 248, 242, 0) 100%);
+    --bg-panel-fade-top: rgba(15, 23, 36, 0.85);
+    --bg-panel-fade-bottom: rgba(15, 23, 36, 0.85);
     --bg-panel-2: #f2ece0;
     --bg-panel-2-subtle: rgba(242, 236, 224, 0.75);
     --bg-card: #ede6d7;
@@ -642,8 +642,8 @@
     --bg-panel: #141418;
     --bg-panel-glass: rgba(20, 20, 24, 0.96);
     --bg-panel-glass-strong: rgba(20, 20, 24, 0.99);
-    --bg-panel-fade-top: linear-gradient(180deg, rgba(20, 20, 24, 0.95) 0%, rgba(20, 20, 24, 0) 100%);
-    --bg-panel-fade-bottom: linear-gradient(0deg, rgba(20, 20, 24, 0.95) 0%, rgba(20, 20, 24, 0) 100%);
+    --bg-panel-fade-top: rgba(15, 23, 36, 0.85);
+    --bg-panel-fade-bottom: rgba(15, 23, 36, 0.85);
     --bg-panel-2: #1c1c22;
     --bg-panel-2-subtle: rgba(28, 28, 34, 0.65);
     --bg-card: #222229;
@@ -1667,6 +1667,464 @@
     --shadow-text: none;
   }
 
+
+  /* ── 후보 E: FM 스타일 (Football Manager 2024 시각 언어) ── */
+  :root[data-palette="e"] {
+    --bg-outer: #18181a;
+    --bg-stage: #141416;
+    --bg-canvas: #1e1e20;
+    --bg-panel: #262628;
+    --bg-panel-glass: rgba(38, 38, 40, 0.96);
+    --bg-panel-glass-strong: rgba(38, 38, 40, 0.99);
+    --bg-panel-fade-top: rgba(38, 38, 40, 0.85);
+    --bg-panel-fade-bottom: rgba(38, 38, 40, 0.85);
+    --bg-panel-2: #222224;
+    --bg-panel-2-subtle: rgba(44, 44, 47, 0.65);
+    --bg-card: #2c2c2f;
+    --bg-card-glass: rgba(44, 44, 47, 0.95);
+    --bg-inset: #1a1a1c;
+    --bg-inset-glass: rgba(26, 26, 28, 0.9);
+    --bg-switcher: #2a1846;
+    --border: #3a3a3d;
+    --border-subtle: #323236;
+    --border-viewport: #3a3a3d;
+    --border-bright: #525257;
+    --border-panel-soft: rgba(58, 58, 61, 0.7);
+    --text: #f3f3f5;
+    --text-bright: #ffffff;
+    --text-body-doc: #d0d0d6;
+    --text-sub: #b4b4bc;
+    --text-muted: #9a9aa0;
+    --text-on-accent: #18181a;
+    --text-on-tag: #ffffff;
+    --focus-ring: #f2a33a;
+    --selection-bg: #5a3f1c;
+    --selection-border: #f2a33a;
+    --scrollbar-thumb: #525257;
+
+    --gold: #f2a33a;
+    --gold-soft: #fbbf24;
+    --gold-dim: rgba(242, 163, 58, 0.18);
+    --gold-glow: rgba(242, 163, 58, 0.7);
+    --gold-glow-soft: rgba(242, 163, 58, 0.35);
+    --pos: #2fb84f;
+    --pos-soft: #4ade80;
+    --pos-dim: rgba(47, 184, 79, 0.22);
+    --pos-bg: #1f3d2a;
+    --pos-bg-strong: #1f3d2a;
+    --pos-badge-bg: #2fb84f;
+    --pos-table-bg: #1f3d2a;
+    --pos-text: #bbf7d0;
+    --neg: #d94848;
+    --neg-soft: #f87171;
+    --neg-dim: rgba(217, 72, 72, 0.22);
+    --neg-table-bg: #4a2424;
+    --neg-text: #fecaca;
+    --warn: #f2a33a;
+    --info: #4a7fd0;
+    --info-soft: #7cb0f8;
+    --info-dim: rgba(74, 127, 208, 0.2);
+    --info-card-bg: #2e3a4c;
+    --info-btn-bg: #6f52e0;
+    --info-btn-border: #8b72ee;
+    --disabled-bg: #2c2c2f;
+    --disabled-text: #9a9aa0;
+    --disabled-border: #3a3a3d;
+    --purple: #6f52e0;
+    --orange: #f2a33a;
+
+    --tier-abundant: #9a9aa0;
+    --tier-preferred: #f2a33a;
+    --tier-rare: #b794f4;
+
+    --tag-machinery: #b45309;
+    --tag-fish: #2b5a9e;
+    --tag-fruit: #9b2c2c;
+    --tag-salt: #4a4a50;
+    --tag-livestock: #744210;
+    --tag-wood: #744210;
+    --tag-food: #b45309;
+    --tag-cargo: #4a4a50;
+    --tag-exempt: #246b3b;
+
+    --region-capital: #b794f4;
+    --region-capital-text: #d6bcfa;
+    --region-mine: #4a7fd0;
+    --region-mine-text: #90cdf4;
+    --region-pasture: #f2a33a;
+    --region-pasture-text: #fbd38d;
+    --region-industry: #2fb84f;
+    --region-industry-text: #9ae6b4;
+    --region-coast: #6f52e0;
+    --region-coast-text: #c3b5fd;
+    --region-agri: #38b2ac;
+    --region-agri-text: #81e6d9;
+    --region-inter: #d0d0d6;
+    --region-unvisited: #9a9aa0;
+
+    --board-bg: #1a1a1c;
+    --cell-bg: #2c2c2f;
+    --cell-border: #3a3a3d;
+    --cell-blocked-bg: #18181a;
+    --cell-blocked-border: #262628;
+    --cand-1-bg: #1f3d2a;
+    --cand-1-border: #2fb84f;
+    --cand-2-bg: #1f3d2a;
+    --cand-2-border: #258f3e;
+    --cand-3-bg: #22352a;
+    --cand-3-border: #258f3e;
+    --cand-text: #bbf7d0;
+    --cargo-piece-bg: #f3f3f5;
+    --cargo-piece-border: #9a9aa0;
+    --held-chip-bg: #f3f3f5;
+    --tooltip-border: #f2a33a;
+    --mg-bg: #18181a;
+    --mg-border: #3a3a3d;
+    --mg-blocked: #18181a;
+    --mg-empty: #4a4a50;
+    --mg-cargo-0: #fde047;
+    --mg-cargo-1: #eab308;
+
+    --scene-platform-bg: #242426;
+    --scene-platform-grid: #323236;
+    --scene-platform-tactile: #f2a33a;
+    --scene-platform-edge: #18181a;
+    --scene-platform-lamp: #fde047;
+    --scene-canopy-fill: #323236;
+    --scene-canopy-stroke: #525257;
+    --scene-canopy-inner: #262628;
+    --scene-sign-bg: #1e1e20;
+    --scene-sign-gold: #f2a33a;
+    --scene-sign-info: #7cb0f8;
+    --scene-bench-fill: #5a3f1c;
+    --scene-bench-stroke: #f2a33a;
+    --scene-crate-1-fill: #5a3f1c;
+    --scene-crate-1-stroke: #f2a33a;
+    --scene-crate-2-fill: #744210;
+    --scene-crate-2-stroke: #fbbf24;
+    --scene-crate-3-fill: #4a2424;
+    --scene-crate-3-stroke: #d94848;
+    --scene-rail-bg: #222224;
+    --scene-rail-bed: #18181a;
+    --scene-rail-edge: #3a3a3d;
+    --scene-rail-sleeper: #3d332a;
+    --scene-rail-steel: #9a9aa0;
+    --scene-rail-badge-text: #d0d0d6;
+    --scene-loco-funnel-fill: #3a3a3d;
+    --scene-loco-funnel-stroke: #9a9aa0;
+    --scene-loco-body-fill: #5a3f1c;
+    --scene-loco-body-stroke: #f2a33a;
+    --scene-loco-body-inner: #3d2b13;
+    --scene-loco-wheel-fill: #262628;
+    --scene-loco-wheel-stroke: #d0d0d6;
+    --scene-loco-cab-fill: #744210;
+    --scene-loco-cab-stroke: #fde047;
+    --scene-wagon-bg: #2c2c2f;
+    --scene-wagon-border: #525257;
+    --scene-wagon-basic-bg: #4a2424;
+    --scene-wagon-basic-border: #f2a33a;
+    --scene-wagon-fridge-bg: #2e3a4c;
+    --scene-wagon-fridge-border: #4a7fd0;
+    --scene-wagon-std-bg: #2c2c2f;
+    --scene-wagon-std-border: #9a9aa0;
+    --scene-wagon-coupler: #525257;
+    --scene-wagon-coupler-line: #9a9aa0;
+    --scene-town-bg: #1f3326;
+    --scene-grass: #213628;
+    --scene-tree-dark: #192b1f;
+    --scene-tree-light: #284532;
+    --scene-platform-tree-dark: #192b1f;
+    --scene-platform-tree-light: #284532;
+    --scene-platform-grass: #1c2e22;
+    --scene-road: #323236;
+    --scene-road-marking: #6b6b73;
+    --scene-plaza-bg: #3a3a3d;
+    --scene-plaza-border: #525257;
+    --scene-plaza-ring: #2c2c2f;
+    --scene-fountain-water: #4a7fd0;
+    --scene-fountain-center: #d0d0d6;
+    --scene-bldg-station-wall: #4a2424;
+    --scene-bldg-station-stroke: #f2a33a;
+    --scene-bldg-station-roof: #6b2d2d;
+    --scene-bldg-station-roof-stroke: #fbd38d;
+    --scene-bldg-cityhall-wall: #2e3a4c;
+    --scene-bldg-cityhall-stroke: #9a9aa0;
+    --scene-bldg-cityhall-roof: #3a4a60;
+    --scene-bldg-market-wall: #2c2c2f;
+    --scene-bldg-market-awning: #9b2c2c;
+    --scene-bldg-market-stripe: #f3f3f5;
+    --scene-bldg-market-board-bg: #1f3d2a;
+    --scene-bldg-market-board-stroke: #f2a33a;
+    --scene-bldg-market-crates-1: #b45309;
+    --scene-bldg-market-crates-2: #f2a33a;
+    --scene-bldg-market-crates-3: #d94848;
+    --scene-bldg-market-crates-4: #4a7fd0;
+    --scene-bldg-tavern-wall: #5a3f1c;
+    --scene-bldg-tavern-stroke: #f2a33a;
+    --scene-bldg-tavern-roof: #744210;
+    --scene-bldg-tavern-text: #fde047;
+    --scene-bldg-tavern-sub: #fbd38d;
+    --scene-bldg-inn-wall: #2e3a4c;
+    --scene-bldg-inn-stroke: #4a7fd0;
+    --scene-bldg-inn-roof: #24406b;
+    --scene-bldg-inn-text: #90cdf4;
+    --scene-bldg-inn-sub: #90cdf4;
+    --scene-bldg-workshop-wall: #2c2c2f;
+    --scene-bldg-workshop-roof-l: #3a3a3d;
+    --scene-bldg-workshop-roof-r: #525257;
+    --scene-bldg-workshop-chimney: #18181a;
+    --scene-bldg-empty-bg: #26332b;
+    --scene-bldg-empty-bush: #324a3b;
+    --scene-bldg-empty-text: #b4b4bc;
+    --scene-bldg-hover-text: #90cdf4;
+    --scene-slot-bg: #2c2c2f;
+    --scene-map-land: #33302b;
+    --scene-map-water: #232d3b;
+    --scene-map-region-1: #2c2c2f;
+    --scene-map-region-2: #3a3a3d;
+    --scene-map-region-3: #2e3a4c;
+    --scene-map-hub-glow: #2fb84f;
+    --scene-night-overlay: rgba(20, 16, 32, 0.48);
+    --scene-night-banner-bg: #2a1846;
+    --scene-night-banner-border: #6f52e0;
+    --scene-night-banner-text: #e9d8fd;
+    --dn-night: #2a1846;
+    --dn-day: #4a7fd0;
+  }
+  /* FM 스타일 전용 프레임/버튼/탭 규칙 */
+  :root[data-palette="e"] .top-hud { background: #2a1846; border-color: #4c2e7d; }
+  :root[data-palette="e"] .quick-toolbar { background: #34205a; border-color: #4c2e7d; }
+  :root[data-palette="e"] .btn-primary { background: #6f52e0; border: 1px solid #8b72ee; color: #ffffff; }
+  :root[data-palette="e"] .btn-secondary { background: var(--bg-panel); border: 1px solid #4a7fd0; color: var(--text); }
+  :root[data-palette="e"] .st-tab.active,
+  :root[data-palette="e"] .state-btn.active { background: var(--selection-bg); border-color: var(--border); border-bottom: 2px solid var(--gold); color: var(--text-bright); }
+  :root[data-palette="e"] .wagon-car-shell.selected { border-left: 3px solid var(--gold); background: var(--selection-bg); }
+
+  :root[data-palette="e"][data-limit="1"] {
+    --bg-outer: #181818;
+    --bg-stage: #181818;
+    --bg-canvas: #181818;
+    --bg-panel: #212129;
+    --bg-panel-glass: #212129;
+    --bg-panel-glass-strong: #212129;
+    --bg-panel-fade-top: #212129;
+    --bg-panel-fade-bottom: #212129;
+    --bg-panel-2: #212129;
+    --bg-panel-2-subtle: #292931;
+    --bg-card: #292931;
+    --bg-card-glass: #292931;
+    --bg-inset: #181818;
+    --bg-inset-glass: #181818;
+    --bg-switcher: #29184a;
+    --border: #393942;
+    --border-subtle: #393942;
+    --border-viewport: #393942;
+    --border-bright: #5a5a63;
+    --border-panel-soft: #393942;
+    --text: #f7f7ff;
+    --text-bright: #f7f7ff;
+    --text-body-doc: #bdbdc6;
+    --text-sub: #bdbdc6;
+    --text-muted: #94949c;
+    --text-on-accent: #181818;
+    --text-on-tag: #f7f7ff;
+    --selection-bg: #5a3918;
+    --selection-border: #f7a539;
+    --backdrop-scrim: #181818;
+    --scrollbar-thumb: #5a5a63;
+    --gold: #f7a539;
+    --gold-soft: #ffe74a;
+    --gold-dim: #5a3918;
+    --pos: #31a552;
+    --pos-soft: #63d67b;
+    --pos-dim: #213929;
+    --pos-bg: #213929;
+    --pos-bg-strong: #213929;
+    --pos-badge-bg: #31a552;
+    --pos-table-bg: #213929;
+    --pos-text: #c6f7ce;
+    --neg: #d64a4a;
+    --neg-soft: #f78484;
+    --neg-dim: #4a2121;
+    --neg-table-bg: #4a2121;
+    --neg-text: #f78484;
+    --warn: #f7a539;
+    --info: #4a7bd6;
+    --info-soft: #73b5f7;
+    --info-dim: #29394a;
+    --info-card-bg: #29394a;
+    --info-btn-bg: #6b52e7;
+    --info-btn-border: #947bf7;
+    --disabled-bg: #292931;
+    --disabled-text: #94949c;
+    --disabled-border: #393942;
+    --purple: #6b52e7;
+    --orange: #f7a539;
+    --tier-abundant: #94949c;
+    --tier-preferred: #f7a539;
+    --tier-rare: #947bf7;
+    --tag-machinery: #8c5218;
+    --tag-fish: #4a7bd6;
+    --tag-fruit: #8c2929;
+    --tag-salt: #393942;
+    --tag-livestock: #5a3918;
+    --tag-wood: #5a3918;
+    --tag-food: #8c5218;
+    --tag-cargo: #393942;
+    --tag-exempt: #31a552;
+    --region-capital: #947bf7;
+    --region-capital-text: #947bf7;
+    --region-mine: #4a7bd6;
+    --region-mine-text: #73b5f7;
+    --region-pasture: #f7a539;
+    --region-pasture-text: #ffe74a;
+    --region-industry: #31a552;
+    --region-industry-text: #63d67b;
+    --region-coast: #6b52e7;
+    --region-coast-text: #947bf7;
+    --region-agri: #63d67b;
+    --region-agri-text: #c6f7ce;
+    --region-inter: #bdbdc6;
+    --region-unvisited: #94949c;
+    --board-bg: #181818;
+    --cell-bg: #292931;
+    --cell-border: #393942;
+    --cell-blocked-bg: #181818;
+    --cell-blocked-border: #212129;
+    --cand-1-bg: #213929;
+    --cand-1-border: #31a552;
+    --cand-2-bg: #213929;
+    --cand-2-border: #31a552;
+    --cand-3-bg: #213929;
+    --cand-3-border: #295a39;
+    --cand-text: #c6f7ce;
+    --cargo-piece-bg: #f7f7ff;
+    --cargo-piece-border: #94949c;
+    --held-chip-bg: #f7f7ff;
+    --tooltip-border: #f7a539;
+    --mg-bg: #181818;
+    --mg-border: #393942;
+    --mg-blocked: #181818;
+    --mg-empty: #393942;
+    --mg-cargo-0: #ffe74a;
+    --mg-cargo-1: #e79429;
+    --scene-platform-bg: #212129;
+    --scene-platform-grid: #292931;
+    --scene-platform-tactile: #f7a539;
+    --scene-platform-edge: #181818;
+    --scene-platform-lamp: #ffe74a;
+    --scene-canopy-fill: #292931;
+    --scene-canopy-stroke: #5a5a63;
+    --scene-canopy-inner: #212129;
+    --scene-sign-bg: #181818;
+    --scene-sign-gold: #f7a539;
+    --scene-sign-info: #73b5f7;
+    --scene-bench-fill: #5a3918;
+    --scene-bench-stroke: #f7a539;
+    --scene-crate-1-fill: #5a3918;
+    --scene-crate-1-stroke: #f7a539;
+    --scene-crate-2-fill: #8c5218;
+    --scene-crate-2-stroke: #ffe74a;
+    --scene-crate-3-fill: #4a2121;
+    --scene-crate-3-stroke: #d64a4a;
+    --scene-rail-bg: #212129;
+    --scene-rail-bed: #181818;
+    --scene-rail-edge: #393942;
+    --scene-rail-sleeper: #5a3918;
+    --scene-rail-steel: #94949c;
+    --scene-rail-badge-text: #bdbdc6;
+    --scene-loco-funnel-fill: #393942;
+    --scene-loco-funnel-stroke: #94949c;
+    --scene-loco-body-fill: #5a3918;
+    --scene-loco-body-stroke: #f7a539;
+    --scene-loco-body-inner: #181818;
+    --scene-loco-wheel-fill: #212129;
+    --scene-loco-wheel-stroke: #bdbdc6;
+    --scene-loco-cab-fill: #8c5218;
+    --scene-loco-cab-stroke: #ffe74a;
+    --scene-wagon-bg: #292931;
+    --scene-wagon-border: #5a5a63;
+    --scene-wagon-basic-bg: #4a2121;
+    --scene-wagon-basic-border: #f7a539;
+    --scene-wagon-fridge-bg: #29394a;
+    --scene-wagon-fridge-border: #4a7bd6;
+    --scene-wagon-std-bg: #292931;
+    --scene-wagon-std-border: #94949c;
+    --scene-wagon-coupler: #5a5a63;
+    --scene-wagon-coupler-line: #94949c;
+    --scene-town-bg: #213929;
+    --scene-grass: #213929;
+    --scene-tree-dark: #213929;
+    --scene-tree-light: #295a39;
+    --scene-platform-tree-dark: #213929;
+    --scene-platform-tree-light: #295a39;
+    --scene-platform-grass: #213929;
+    --scene-road: #292931;
+    --scene-road-marking: #5a5a63;
+    --scene-plaza-bg: #393942;
+    --scene-plaza-border: #5a5a63;
+    --scene-plaza-ring: #292931;
+    --scene-fountain-water: #4a7bd6;
+    --scene-fountain-center: #bdbdc6;
+    --scene-bldg-station-wall: #4a2121;
+    --scene-bldg-station-stroke: #f7a539;
+    --scene-bldg-station-roof: #8c2929;
+    --scene-bldg-station-roof-stroke: #f7a539;
+    --scene-bldg-cityhall-wall: #29394a;
+    --scene-bldg-cityhall-stroke: #94949c;
+    --scene-bldg-cityhall-roof: #393942;
+    --scene-bldg-market-wall: #292931;
+    --scene-bldg-market-awning: #8c2929;
+    --scene-bldg-market-stripe: #f7f7ff;
+    --scene-bldg-market-board-bg: #213929;
+    --scene-bldg-market-board-stroke: #f7a539;
+    --scene-bldg-market-crates-1: #8c5218;
+    --scene-bldg-market-crates-2: #f7a539;
+    --scene-bldg-market-crates-3: #d64a4a;
+    --scene-bldg-market-crates-4: #4a7bd6;
+    --scene-bldg-tavern-wall: #5a3918;
+    --scene-bldg-tavern-stroke: #f7a539;
+    --scene-bldg-tavern-roof: #8c5218;
+    --scene-bldg-tavern-text: #ffe74a;
+    --scene-bldg-tavern-sub: #f7a539;
+    --scene-bldg-inn-wall: #29394a;
+    --scene-bldg-inn-stroke: #4a7bd6;
+    --scene-bldg-inn-roof: #29394a;
+    --scene-bldg-inn-text: #73b5f7;
+    --scene-bldg-inn-sub: #73b5f7;
+    --scene-bldg-workshop-wall: #292931;
+    --scene-bldg-workshop-roof-l: #393942;
+    --scene-bldg-workshop-roof-r: #5a5a63;
+    --scene-bldg-workshop-chimney: #181818;
+    --scene-bldg-empty-bg: #213929;
+    --scene-bldg-empty-bush: #295a39;
+    --scene-bldg-empty-text: #bdbdc6;
+    --scene-bldg-hover-text: #73b5f7;
+    --scene-slot-bg: #292931;
+    --scene-map-land: #292931;
+    --scene-map-water: #29394a;
+    --scene-map-region-1: #212129;
+    --scene-map-region-2: #393942;
+    --scene-map-region-3: #29394a;
+    --scene-map-hub-glow: #31a552;
+    --scene-night-overlay: #29184a;
+    --scene-night-banner-bg: #29184a;
+    --scene-night-banner-border: #6b52e7;
+    --scene-night-banner-text: #f7f7ff;
+    --dn-night: #29184a;
+    --dn-day: #4a7bd6;
+    --shadow-viewport: none;
+    --shadow-panel: none;
+    --shadow-modal: none;
+    --shadow-card: none;
+    --shadow-wagon: none;
+    --shadow-text: none;
+  }
+  :root[data-palette="e"][data-limit="1"] .top-hud { background: #29184a; border-color: #392163; }
+  :root[data-palette="e"][data-limit="1"] .quick-toolbar { background: #392163; border-color: #6b52e6; }
+  :root[data-palette="e"][data-limit="1"] .btn-primary { background: #6b52e6; border-color: #947bf7; color: #f7f7ff; }
+  :root[data-palette="e"][data-limit="1"] .btn-secondary { background: #212129; border-color: #4a7bd6; color: #f7f7ff; }
+
   /* ── 도트(픽셀아트) 32색 제한 모드 규칙 (&limit=1) ── */
   :root[data-limit="1"] * {
     border-radius: 0;
@@ -1678,8 +2136,7 @@
   :root[data-limit="1"] .resize-se { background: var(--border-bright) !important; }
   :root[data-limit="1"] .loco-wrap,
   :root[data-limit="1"] .loco-wrap.is-moving { filter: none !important; }
-  :root[data-limit="1"] [style*="linear-gradient"] { background: var(--gold) !important; }
-  :root[data-limit="1"] .scene-night-tint { opacity: 0.55; }
+    :root[data-limit="1"] .scene-night-tint { opacity: 0.55; }
 
   :root[data-palette="a"][data-limit="1"] {
     --bg-outer: #080810;
@@ -2565,8 +3022,7 @@
   :root[data-limit="1"] .resize-se { background: var(--border-bright) !important; }
   :root[data-limit="1"] .loco-wrap,
   :root[data-limit="1"] .loco-wrap.is-moving { filter: none !important; }
-  :root[data-limit="1"] [style*="linear-gradient"] { background: var(--gold) !important; }
-  :root[data-limit="1"] .scene-night-tint { opacity: 0.55; }
+    :root[data-limit="1"] .scene-night-tint { opacity: 0.55; }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -3823,7 +4279,7 @@
             <span id="train-win-title">1번 · 고장난 칸</span>
             <span style="font-size:12px;color:var(--cyan);font-weight:700;" id="train-win-cap">적재 6/22칸</span>
           </div>
-          <button class="win-close" id="btn-close-train">✕</button>
+          <button class="win-close" id="btn-close-train">X</button>
         </div>
         <div class="train-meta-row">
           <span style="font-weight:700;" id="train-win-val">가치 65$ <small style="color:var(--text-sub);font-weight:400;">(기본 50$)</small></span>
@@ -3891,7 +4347,7 @@
             <span>시장 · 금융마을</span>
             <span style="font-size:12px;color:var(--gold);font-weight:700;">물가 125%</span>
           </div>
-          <button class="win-close" data-close-win>닫기 ✕</button>
+          <button class="win-close" data-close-win>닫기</button>
         </div>
 
         <div class="market-info-strip">
@@ -3919,7 +4375,7 @@
       <aside class="popup-window right-building-window" id="tavern-window">
         <div class="win-header">
           <div class="win-title">금융마을 술집 · 의뢰 게시판</div>
-          <button class="win-close" data-close-win>닫기 ✕</button>
+          <button class="win-close" data-close-win>닫기</button>
         </div>
         <div class="card-block" style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
           <div style="flex:1;">
@@ -3952,7 +4408,7 @@
       <aside class="popup-window right-building-window" id="rest-window">
         <div class="win-header">
           <div class="win-title">여관 · 휴식 및 시간 대기</div>
-          <button class="win-close" data-close-win>닫기 ✕</button>
+          <button class="win-close" data-close-win>닫기</button>
         </div>
         <div class="card-block" style="display:flex;flex-direction:column;gap:12px;">
           <div style="display:flex;align-items:center;gap:10px;">
@@ -3976,7 +4432,7 @@
       <aside class="popup-window right-building-window" id="station-hall-window">
         <div class="win-header">
           <div class="win-title">역사 · 화차 시설 및 출발</div>
-          <button class="win-close" data-close-win>닫기 ✕</button>
+          <button class="win-close" data-close-win>닫기</button>
         </div>
         <div class="card-block" style="display:flex;justify-content:space-between;align-items:center;border-color:var(--cyan);gap:10px;">
           <div style="flex:1;">
@@ -4009,7 +4465,7 @@
       <aside class="popup-window right-building-window" id="workshop-window">
         <div class="win-header">
           <div class="win-title">에른아 공업역 작업대 · 냉장 개조</div>
-          <button class="win-close" data-close-win>닫기 ✕</button>
+          <button class="win-close" data-close-win>닫기</button>
         </div>
         <div class="card-block" style="display:flex;justify-content:space-between;align-items:center;font-size:12.5px;">
           <span style="color:var(--text-sub);">도시 특화 시설 (냉장 개조)</span>
@@ -4029,7 +4485,7 @@
       <aside class="popup-window right-building-window" id="cityhall-window">
         <div class="win-header">
           <div class="win-title">시청 · 금융마을 정보 및 결산 목표</div>
-          <button class="win-close" data-close-win>닫기 ✕</button>
+          <button class="win-close" data-close-win>닫기</button>
         </div>
         <div class="card-block">
           <div style="font-size:14px;font-weight:800;color:var(--gold);margin-bottom:8px;">도시 시세 및 특화 정보</div>
@@ -4062,7 +4518,7 @@
       <aside class="popup-window notebook-window" id="notebook-window">
         <div class="win-header">
           <div class="win-title">여행 수첩</div>
-          <button class="win-close" id="btn-close-notebook">닫기 ✕</button>
+          <button class="win-close" id="btn-close-notebook">닫기</button>
         </div>
         <div class="nb-tabs">
           <button class="st-tab active" data-nb="map">지도</button>
@@ -4309,7 +4765,7 @@
         <div class="popup-window pause-modal visible" id="pause-modal-win">
           <div class="win-header">
             <div class="win-title">일시 정지</div>
-            <button class="win-close" id="btn-pause-close">✕</button>
+            <button class="win-close" id="btn-pause-close">X</button>
           </div>
           <button class="btn-gold">계속하기 (Esc)</button>
           <button class="btn-secondary">배치 후보 표시: 켜짐</button>
@@ -4324,7 +4780,7 @@
         <div class="popup-window run-end-modal visible" id="run-end-modal-win">
           <div class="win-header">
             <div class="win-title">런 결산 결과</div>
-            <button class="win-close" id="btn-runend-close">✕</button>
+            <button class="win-close" id="btn-runend-close">X</button>
           </div>
           <div style="text-align:center;">
             <div style="font-size:14px;color:var(--gold);font-weight:700;">14일(56턴) 정산 완료</div>
