@@ -37,7 +37,7 @@
     align-items: center;
     justify-content: space-between;
     gap: 12px;
-    backdrop-filter: blur(8px);
+    backdrop-filter: none;
   }
   .brand h1 { font-size: 16px; font-weight: 800; color: var(--ui-gold); }
   .brand p { font-size: 12px; color: var(--ui-sub); }
@@ -46,13 +46,13 @@
     background: var(--ui-card);
     color: var(--ui-sub);
     border: 1px solid var(--ui-border);
-    border-radius: 8px;
+    border-radius: 0;
     padding: 8px 14px;
     font-size: 13px;
     font-weight: 700;
     font-family: inherit;
     cursor: pointer;
-    transition: all 0.15s;
+    transition: none;
   }
   .tab-btn:hover { color: var(--ui-text); border-color: #475569; }
   .tab-btn.active {
@@ -76,7 +76,7 @@
   .card {
     background: var(--ui-panel);
     border: 1px solid var(--ui-border);
-    border-radius: 12px;
+    border-radius: 0;
     padding: 18px 20px;
   }
   .card h2 {
@@ -96,7 +96,7 @@
     text-decoration: none;
     border: 1px solid rgba(56, 189, 248, 0.45);
     padding: 4px 10px;
-    border-radius: 6px;
+    border-radius: 0;
   }
   .open-full-link:hover { background: rgba(56, 189, 248, 0.14); }
   .note-list {
@@ -108,7 +108,7 @@
   .note-box {
     background: var(--ui-card);
     border: 1px solid var(--ui-border);
-    border-radius: 8px;
+    border-radius: 0;
     padding: 10px 12px;
     font-size: 12.5px;
   }
@@ -117,7 +117,7 @@
   .sim-row {
     background: var(--ui-card);
     border: 1px solid var(--ui-border);
-    border-radius: 8px;
+    border-radius: 0;
     padding: 10px 12px;
   }
   .sim-label { font-size: 11.5px; font-weight: 700; color: var(--ui-sub); margin-bottom: 7px; }
@@ -127,21 +127,21 @@
     align-items: center;
     gap: 5px;
     padding: 4px 8px;
-    border-radius: 5px;
+    border-radius: 0;
     font-size: 11.5px;
     font-weight: 700;
     border: 1px solid rgba(255,255,255,0.14);
   }
-  .sim-dot { width: 11px; height: 11px; border-radius: 3px; flex-shrink: 0; border: 1px solid rgba(255,255,255,0.25); }
+  .sim-dot { width: 11px; height: 11px; border-radius: 0; flex-shrink: 0; border: 1px solid rgba(255,255,255,0.25); }
   .mg-mini-preview {
     display: inline-grid;
     grid-template-columns: repeat(4, 9px);
     gap: 1px;
     padding: 3px;
-    border-radius: 4px;
+    border-radius: 0;
     border: 1px solid rgba(255,255,255,0.2);
   }
-  .mg-sq { width: 9px; height: 9px; border-radius: 1px; }
+  .mg-sq { width: 9px; height: 9px; border-radius: 0; }
 
   /* Preview Grid */
   .preview-grid {
@@ -152,7 +152,7 @@
   .preview-item {
     background: var(--ui-panel);
     border: 1px solid var(--ui-border);
-    border-radius: 12px;
+    border-radius: 0;
     overflow: hidden;
     display: flex;
     flex-direction: column;
@@ -205,7 +205,7 @@
   .swatch-box {
     width: 24px;
     height: 18px;
-    border-radius: 4px;
+    border-radius: 0;
     border: 1px solid rgba(255,255,255,0.22);
     display: inline-block;
     vertical-align: middle;
@@ -214,7 +214,7 @@
   .badge-pass {
     display: inline-block;
     padding: 1px 6px;
-    border-radius: 4px;
+    border-radius: 0;
     font-size: 10.5px;
     font-weight: 700;
     background: rgba(34, 197, 94, 0.2);
@@ -224,7 +224,7 @@
   .badge-large {
     display: inline-block;
     padding: 1px 6px;
-    border-radius: 4px;
+    border-radius: 0;
     font-size: 10.5px;
     font-weight: 700;
     background: rgba(240, 180, 41, 0.2);
@@ -234,7 +234,7 @@
   .badge-fail {
     display: inline-block;
     padding: 1px 6px;
-    border-radius: 4px;
+    border-radius: 0;
     font-size: 10.5px;
     font-weight: 700;
     background: rgba(239, 68, 68, 0.2);
@@ -264,7 +264,7 @@
   .ramp-card {
     background: var(--ui-card);
     border: 1px solid var(--ui-border);
-    border-radius: 8px;
+    border-radius: 0;
     padding: 10px 12px;
   }
   .ramp-title { font-size: 12px; font-weight: 700; color: var(--ui-sub); margin-bottom: 8px; }
