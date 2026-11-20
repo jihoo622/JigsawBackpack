@@ -829,7 +829,6 @@ public static partial class Presentation
             ? BasicData.Format("presentation.quest.cardWagonRewardValue", wagon)
             : BasicData.Format("presentation.quest.cardRewardWithWagonValue", _offer.Reward, wagon);
     }
-
     internal static string QuestCardProficiency(TrainventoryQuestOffer _offer) =>
         BasicData.Format("presentation.quest.cardProficiencyValue", PuzzleTagLabel(_offer.ProficiencyTag), _offer.ProficiencyXp);
     internal static string QuestCardPenalty(TrainventoryQuestOffer _offer) =>
@@ -865,6 +864,10 @@ public static partial class Presentation
             if (!string.IsNullOrEmpty(reward))
                 reward += BasicData.Text(quest.RewardWagonReceived ? "presentation.quest.wagonReceived" : "presentation.quest.wagonPending");
             return BasicData.Format("presentation.quest.completed", cargo, _info.payout) + reward;
+        }
+        if (_info.state == nameof(TrainventoryQuestState.Cancelled))
+        {
+            return QuestCancelledLabel(_info.pieceId, _info.deposit);
         }
         if (_info.state == nameof(TrainventoryQuestState.Failed))
         {
@@ -1039,6 +1042,9 @@ public static partial class Presentation
             entries.Add(quest.State == TrainventoryQuestState.Completed
                 ? BasicData.Format("presentation.quest.logCompleted", QuestCargoName(quest.PieceId),
                     QuestCityName(quest.TargetCityId), quest.Payout)
+                : quest.State == TrainventoryQuestState.Cancelled
+                ? BasicData.Format("presentation.quest.logCancelled", QuestCargoName(quest.PieceId),
+                    QuestCityName(quest.TargetCityId))
                 : BasicData.Format("presentation.quest.logFailed", QuestCargoName(quest.PieceId),
                     QuestCityName(quest.TargetCityId), quest.Failure == TrainventoryQuestFailure.Overdue
                         ? BasicData.Text("presentation.quest.failureOverdue")
@@ -2941,6 +2947,9 @@ public static partial class Presentation
     public static string QuestDropWrongCity(string _cityName) =>
         BasicData.Format("presentation.inventory.questDropWrongCity", _cityName);
     public static string QuestCompleteLabel => BasicData.Text("presentation.inventory.questCompleteLabel");
+    // 의뢰를 받은 도시에서 의뢰 화물을 게시판에 되돌려 놓아 취소했다.
+    internal static string QuestCancelledLabel(string _pieceId, long _deposit) =>
+        BasicData.Format("presentation.quest.cancelled", QuestCargoName(_pieceId), _deposit);
     public static string QuestDeliverableOffer(string _cargoName, long _reward) =>
         BasicData.Format("presentation.inventory.questDeliverableOffer", _cargoName, _reward);
     public static string TavernWindowTitle(string _cityName) =>

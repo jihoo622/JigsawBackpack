@@ -2001,6 +2001,11 @@
           "arguments": 1
         },
         {
+          "id": "cancelled",
+          "value": "{0} 의뢰 취소: 보증금 {1:N0}$을 돌려받았습니다.",
+          "arguments": 2
+        },
+        {
           "id": "logEmpty",
           "value": "수락한 의뢰가 없습니다.\n술집에서 의뢰를 받을 수 있습니다."
         },
@@ -2023,6 +2028,11 @@
           "id": "logFailed",
           "value": "<b>[실패]</b> {0} → {1} · {2}",
           "arguments": 3
+        },
+        {
+          "id": "logCancelled",
+          "value": "<b>[취소]</b> {0} → {1}",
+          "arguments": 2
         },
         {
           "id": "logRegionPenalty",

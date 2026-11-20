@@ -50,6 +50,51 @@ public sealed class FloatingWindowManager : MonoBehaviour
         }
     }
 
+    // 열린 창을 위(마지막으로 누르거나 연 창)에서 아래 순서로. 창을 누르면 맨 앞으로 오므로 형제 순서가 곧 포커스 순서다.
+    readonly List<FloatingWindow> focusOrderBuffer = new List<FloatingWindow>();
+
+    internal IReadOnlyList<FloatingWindow> OpenWindowsTopFirst()
+    {
+        focusOrderBuffer.Clear();
+        for (int i = 0; i < windows.Count; i++)
+        {
+            var win = windows[i];
+            if (win && win.IsOpen && win.gameObject.activeInHierarchy)
+            {
+                focusOrderBuffer.Add(win);
+            }
+        }
+        focusOrderBuffer.Sort((_a, _b) => _b.transform.GetSiblingIndex().CompareTo(_a.transform.GetSiblingIndex()));
+        return focusOrderBuffer;
+    }
+
+    // 화면 좌표 아래에서 가장 위에 그려진 열린 창(형제 순서가 뒤일수록 위). 없으면 null.
+    // 화물 끌어 놓기는 이 창 안의 보드에만 들어가야 한다(겹친 창 뒤의 보드로 들어가지 않게).
+    internal FloatingWindow TopWindowAt(Vector2 _screenPosition)
+    {
+        var canvas = GetComponentInParent<Canvas>();
+        var root = canvas ? canvas.rootCanvas : null;
+        Camera cam = root && root.renderMode != RenderMode.ScreenSpaceOverlay ? root.worldCamera : null;
+        FloatingWindow top = null;
+        int topIndex = -1;
+        for (int i = 0; i < windows.Count; i++)
+        {
+            var win = windows[i];
+            if (!win || !win.IsOpen || !win.gameObject.activeInHierarchy)
+            {
+                continue;
+            }
+            int index = win.transform.GetSiblingIndex();
+            if (index > topIndex &&
+                RectTransformUtility.RectangleContainsScreenPoint((RectTransform)win.transform, _screenPosition, cam))
+            {
+                top = win;
+                topIndex = index;
+            }
+        }
+        return top;
+    }
+
     public void Register(FloatingWindow _window)
     {
         if (_window && !windows.Contains(_window))

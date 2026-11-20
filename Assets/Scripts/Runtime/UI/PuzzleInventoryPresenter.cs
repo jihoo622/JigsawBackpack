@@ -1049,14 +1049,23 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
             return;
         }
 
-        var otherBoard = QuickTransferPartner();
-        if (otherBoard == null || (source != session.Train && source != otherBoard))
+        hoverPosition = _eventData.position;
+        // 의뢰 게시판 화물: 보증금을 내고 수락해 화차에 싣는다(마지막으로 포커스한 화차 창의 화차부터).
+        if (questOfferBoard != null && ReferenceEquals(source, questOfferBoard))
         {
+            QuickAcceptQuest(placement);
             return;
         }
 
-        var destination = source == session.Train ? otherBoard : session.Train;
-        hoverPosition = _eventData.position;
+        if (!TryGetQuickTransferDestination(source, out var destination))
+        {
+            return;
+        }
+        if (questOfferBoard != null && ReferenceEquals(destination, questOfferBoard))
+        {
+            QuickReturnQuestCargo(placement);
+            return;
+        }
         var result = session.QuickTransferTo(placement, destination, placement.Pose.ClockwiseTurns);
         if (result.CanDrop)
         {
@@ -1067,6 +1076,138 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
         }
         RefreshHover();
         cityView.ShowTradeStatus(WithProficiencyNotice(Presentation.PuzzleTradeStatus(result, placement.Definition, _committed: true)));
+    }
+
+    // 화차의 의뢰 화물을 의뢰 게시판으로: 목적지면 완료, 의뢰를 받은 도시면 취소.
+    void QuickReturnQuestCargo(PuzzlePlacement _placement)
+    {
+        if (session.TryReturnQuestCargo(_placement, out bool cancelled, out string failReason))
+        {
+            RebuildQuestOfferBoard();
+            RenderValues();
+            RefreshFunds();
+            RefreshTrainBar();
+            var cancelledQuest = cancelled
+                ? session.Quests.LastOrDefault(_quest => _quest.CargoInstanceId == _placement.InstanceId)
+                : null;
+            statusBannerView?.ShowStatus(cancelledQuest != null
+                ? Presentation.QuestCancelledLabel(cancelledQuest.PieceId, cancelledQuest.Deposit)
+                : Presentation.QuestCompleteLabel);
+        }
+        else if (!string.IsNullOrEmpty(failReason))
+        {
+            statusBannerView?.ShowStatus(failReason);
+        }
+        RefreshHover();
+    }
+
+    void QuickAcceptQuest(PuzzlePlacement _placement)
+    {
+        if (!questOfferByInstanceId.TryGetValue(_placement.InstanceId, out var offer))
+        {
+            return;
+        }
+        TryGetQuickTransferDestination(questOfferBoard, out var preferredWagon);
+        var failure = session.TryAcceptQuest(offer, preferredWagon);
+        if (failure == TrainventoryQuestAcceptFailure.None)
+        {
+            RebuildQuestOfferBoard();
+            RenderValues();
+            RefreshFunds();
+            RefreshTrainBar();
+            statusBannerView?.ShowStatus(Presentation.QuestOffer(offer));
+        }
+        else
+        {
+            statusBannerView?.ShowStatus(Presentation.QuestAcceptFailure(failure, offer, session.MaxActiveQuests));
+        }
+        RefreshHover();
+    }
+
+    // Ctrl+클릭 화물이 갈 보드. 개편 UI(화차 창 여러 개)는 마지막으로 포커스한 창(보드가 있는 창 중 가장 위, 화물이 있던 창 제외)으로만 보낸다.
+    // 그 창이 받을 수 없으면(예: 화차가 아닌 화물을 술집으로) 다른 창으로 넘기지 않는다.
+    // 단, 시장·작업장·의뢰 게시판의 화물은 늘 화차로 가므로 가장 최근에 포커스한 화차 창을 쓴다.
+    // 옛 UI는 현재 화차 <-> 열린 짝 보드(작업장 -> 시장 순).
+    bool TryGetQuickTransferDestination(PuzzleInventory _source, out PuzzleInventory _destination)
+    {
+        _destination = null;
+        bool sourceIsTrain = session.IsTrainWagon(_source);
+        if (UseMultiTrainWindows)
+        {
+            if (!floatingWindowManager)
+            {
+                floatingWindowManager = SceneServices.Find<FloatingWindowManager>(gameObject.scene);
+            }
+            if (floatingWindowManager)
+            {
+                foreach (var window in floatingWindowManager.OpenWindowsTopFirst())
+                {
+                    var board = BoardInWindow(window);
+                    if (board == null || ReferenceEquals(board, _source))
+                    {
+                        continue;
+                    }
+                    if (!sourceIsTrain && !session.IsTrainWagon(board))
+                    {
+                        continue;
+                    }
+                    _destination = board;
+                    return true;
+                }
+                return false;
+            }
+        }
+
+        var otherBoard = QuickTransferPartner();
+        if (otherBoard == null || (!sourceIsTrain && _source != otherBoard))
+        {
+            return false;
+        }
+        _destination = sourceIsTrain ? otherBoard : session.Train;
+        return true;
+    }
+
+    // 창 안의 거래·적재 가능한 보드. 화차 창은 그 화차, 시장 창은 시장(입장 중일 때), 작업장 창은 열린 작업장 보드.
+    PuzzleInventory BoardInWindow(FloatingWindow _window)
+    {
+        if (!_window)
+        {
+            return null;
+        }
+        if (trainWindowManager)
+        {
+            foreach (var trainWindow in trainWindowManager.Windows)
+            {
+                if (trainWindow && trainWindow.FloatingWindow == _window)
+                {
+                    return trainWindow.BoundWagon != null && session.IsTrainWagon(trainWindow.BoundWagon) ? trainWindow.BoundWagon : null;
+                }
+            }
+        }
+        var windowTransform = _window.transform;
+        if (questOfferBoard != null && ActiveQuestBoardView && ActiveQuestBoardView.isActiveAndEnabled &&
+            ActiveQuestBoardView.transform.IsChildOf(windowTransform))
+        {
+            return questOfferBoard;
+        }
+        if (session.CanTradeInMarket && ActiveMarketView && ActiveMarketView.isActiveAndEnabled &&
+            ActiveMarketView.transform.IsChildOf(windowTransform))
+        {
+            return session.Market;
+        }
+        if (ButcheryViewReady && ActiveButcheryView.transform.IsChildOf(windowTransform))
+        {
+            return session.ButcheryBoard();
+        }
+        if (ModificationViewReady && ActiveModificationView.transform.IsChildOf(windowTransform))
+        {
+            return session.ModificationBoard();
+        }
+        if (RefiningViewReady && ActiveRefiningView.transform.IsChildOf(windowTransform))
+        {
+            return session.RefiningBoard();
+        }
+        return null;
     }
 
     PuzzleInventory QuickTransferPartner()
@@ -1147,7 +1288,17 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
                                 statusBannerView?.ShowStatus(Presentation.QuestAcceptFailure(failure, offer, session.MaxActiveQuests));
                             }
                         }
-                        else if (!ReferenceEquals(destination, questOfferBoard))
+                        else if (ReferenceEquals(destination, questOfferBoard))
+                        {
+                            // 의뢰 게시판 안에서는 자유롭게 옮기고 돌려 놓는다(게시 목록이 바뀌기 전까지 자리 유지).
+                            var moved = questOfferBoard.Move(activeDrag.OriginalPlacement, questOfferBoard, activeDrag.GrabbedCell,
+                                targetCell, activeDrag.ClockwiseTurns);
+                            if (moved.CanPlace)
+                            {
+                                RebuildQuestOfferBoard();
+                            }
+                        }
+                        else
                         {
                             statusBannerView?.ShowStatus(Presentation.QuestAcceptFailure(
                                 TrainventoryQuestAcceptFailure.NoSpace, offer, session.MaxActiveQuests));
@@ -1159,13 +1310,21 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
                 {
                     if (session.IsTrainWagon(activeDrag.Source))
                     {
-                        if (session.TryCompleteQuestWithCargo(activeDrag.OriginalPlacement, out string failReason))
+                        // 목적지면 완료, 의뢰를 받은 도시면 취소(보증금 반환, 같은 방문이면 게시판에 다시 걸림).
+                        var returned = activeDrag.OriginalPlacement;
+                        if (session.TryReturnQuestCargo(returned, out bool cancelled, out string failReason,
+                            (activeDrag.GrabbedCell, targetCell, activeDrag.ClockwiseTurns)))
                         {
                             RebuildQuestOfferBoard();
                             RenderValues();
                             RefreshFunds();
                             RefreshTrainBar();
-                            statusBannerView?.ShowStatus(Presentation.QuestCompleteLabel);
+                            var cancelledQuest = cancelled
+                                ? session.Quests.LastOrDefault(_quest => _quest.CargoInstanceId == returned.InstanceId)
+                                : null;
+                            statusBannerView?.ShowStatus(cancelledQuest != null
+                                ? Presentation.QuestCancelledLabel(cancelledQuest.PieceId, cancelledQuest.Deposit)
+                                : Presentation.QuestCompleteLabel);
                         }
                         else if (!string.IsNullOrEmpty(failReason))
                         {
@@ -1389,7 +1548,10 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
         {
             if (questOfferBoard != null && ReferenceEquals(drag.Source, questOfferBoard))
             {
-                bool canAccept = session.IsTrainWagon(destination) &&
+                bool canAccept = ReferenceEquals(destination, questOfferBoard)
+                    ? questOfferBoard.EvaluateMove(drag.OriginalPlacement, questOfferBoard, drag.GrabbedCell, targetCell,
+                        drag.ClockwiseTurns).CanPlace
+                    : session.IsTrainWagon(destination) &&
                     questOfferByInstanceId.TryGetValue(drag.InstanceId, out var offer) &&
                     session.EvaluateQuestAcceptAt(offer, destination, drag.GrabbedCell, targetCell, drag.ClockwiseTurns) ==
                     TrainventoryQuestAcceptFailure.None;
@@ -1417,7 +1579,7 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
             if (questOfferBoard != null && ReferenceEquals(destination, questOfferBoard))
             {
                 bool canDeliver = session.IsTrainWagon(drag.Source) &&
-                    session.CanCompleteQuestCargoHere(drag.OriginalPlacement, out _);
+                    session.CanReturnQuestCargoHere(drag.OriginalPlacement);
                 SetDragView(targetView);
                 targetView.ShowGhostAtPointer(drag.GetGhostPose(), drag.Definition, Vector2Int.zero, pointerPosition, drag.FreshnessPercent);
                 targetView.ShowPreview(null, canDeliver);
@@ -1530,64 +1692,96 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
         }
     }
 
+    // 끌어 놓기 대상 후보(포인터 아래에 보드 칸이 있는 보드).
+    readonly List<(PuzzleInventoryView view, PuzzleInventory inventory, Vector2Int cell)> boardCandidates = new();
+    FloatingWindowManager floatingWindowManager;
+
     bool TryGetBoard(Vector2 _position, out PuzzleInventoryView _view, out PuzzleInventory _inventory, out Vector2Int _cell)
     {
-        if (IsOnScreen(_position))
-        {
-            if (UseMultiTrainWindows)
-            {
-                if (trainWindowManager.TryGetWindowAtScreenPosition(_position, null, out var tw, out _inventory, out _cell))
-                {
-                    _view = tw ? tw.InventoryView : null;
-                    return _view != null;
-                }
-            }
-            else if (ActiveTrainView && ActiveTrainView.isActiveAndEnabled && ActiveTrainView.TryGetBoardCell(_position, out _cell))
-            {
-                _view = ActiveTrainView;
-                _inventory = session.Train;
-                return true;
-            }
-            if (!isMapOpen)
-            {
-                if (session.CanTradeInMarket && ActiveMarketView && ActiveMarketView.isActiveAndEnabled && ActiveMarketView.TryGetBoardCell(_position, out _cell))
-                {
-                    _view = ActiveMarketView;
-                    _inventory = session.Market;
-                    return true;
-                }
-                if (ActiveQuestBoardView && ActiveQuestBoardView.isActiveAndEnabled && questOfferBoard != null &&
-                    ActiveQuestBoardView.TryGetBoardCell(_position, out _cell))
-                {
-                    _view = ActiveQuestBoardView;
-                    _inventory = questOfferBoard;
-                    return true;
-                }
-                if (ButcheryViewReady && ActiveButcheryView.TryGetBoardCell(_position, out _cell))
-                {
-                    _view = ActiveButcheryView;
-                    _inventory = session.ButcheryBoard();
-                    return true;
-                }
-                if (ModificationViewReady && ActiveModificationView.TryGetBoardCell(_position, out _cell))
-                {
-                    _view = ActiveModificationView;
-                    _inventory = session.ModificationBoard();
-                    return true;
-                }
-                if (RefiningViewReady && ActiveRefiningView.TryGetBoardCell(_position, out _cell))
-                {
-                    _view = ActiveRefiningView;
-                    _inventory = session.RefiningBoard();
-                    return true;
-                }
-            }
-        }
-
         _view = null;
         _inventory = null;
         _cell = default;
-        return false;
+        boardCandidates.Clear();
+        if (IsOnScreen(_position))
+        {
+            CollectBoardCandidates(_position);
+        }
+        if (boardCandidates.Count == 0)
+        {
+            return false;
+        }
+
+        // 개편 UI는 보드가 부동 창 안에 있고 창끼리 겹칠 수 있다. 포인터 아래 가장 위 창 안의 보드만 받는다.
+        // 위 창에 보드가 없으면(제목줄·다른 창이 덮음) 뒤 창 보드로 넘기지 않는다. 창이 없으면(옛 UI) 고정 순서의 첫 후보.
+        int chosen = 0;
+        if (!floatingWindowManager)
+        {
+            floatingWindowManager = SceneServices.Find<FloatingWindowManager>(gameObject.scene);
+        }
+        var topWindow = floatingWindowManager ? floatingWindowManager.TopWindowAt(_position) : null;
+        if (topWindow)
+        {
+            chosen = -1;
+            for (int i = 0; i < boardCandidates.Count; i++)
+            {
+                if (boardCandidates[i].view && boardCandidates[i].view.transform.IsChildOf(topWindow.transform))
+                {
+                    chosen = i;
+                    break;
+                }
+            }
+            if (chosen < 0)
+            {
+                boardCandidates.Clear();
+                return false;
+            }
+        }
+
+        (_view, _inventory, _cell) = boardCandidates[chosen];
+        boardCandidates.Clear();
+        return _view != null;
+    }
+
+    void CollectBoardCandidates(Vector2 _position)
+    {
+        if (UseMultiTrainWindows)
+        {
+            if (trainWindowManager.TryGetWindowAtScreenPosition(_position, null, out var tw, out var trainInventory, out var trainCell) &&
+                tw && tw.InventoryView)
+            {
+                boardCandidates.Add((tw.InventoryView, trainInventory, trainCell));
+            }
+        }
+        else if (ActiveTrainView && ActiveTrainView.isActiveAndEnabled && ActiveTrainView.TryGetBoardCell(_position, out var cell))
+        {
+            boardCandidates.Add((ActiveTrainView, session.Train, cell));
+        }
+        if (isMapOpen)
+        {
+            return;
+        }
+        if (session.CanTradeInMarket && ActiveMarketView && ActiveMarketView.isActiveAndEnabled && ActiveMarketView.TryGetBoardCell(_position, out var marketCell))
+        {
+            boardCandidates.Add((ActiveMarketView, session.Market, marketCell));
+        }
+        // 의뢰 게시판은 영역 어디에 놓아도 받는다(의뢰 화물 완료·취소, 게시판 안 옮기기).
+        if (ActiveQuestBoardView && ActiveQuestBoardView.isActiveAndEnabled && questOfferBoard != null &&
+            ActiveQuestBoardView.TryGetBoardCellClamped(_position, out var questCell))
+        {
+            boardCandidates.Add((ActiveQuestBoardView, questOfferBoard, questCell));
+        }
+        if (ButcheryViewReady && ActiveButcheryView.TryGetBoardCell(_position, out var butcheryCell))
+        {
+            boardCandidates.Add((ActiveButcheryView, session.ButcheryBoard(), butcheryCell));
+        }
+        if (ModificationViewReady && ActiveModificationView.TryGetBoardCell(_position, out var modificationCell))
+        {
+            boardCandidates.Add((ActiveModificationView, session.ModificationBoard(), modificationCell));
+        }
+        if (RefiningViewReady && ActiveRefiningView.TryGetBoardCell(_position, out var refiningCell))
+        {
+            boardCandidates.Add((ActiveRefiningView, session.RefiningBoard(), refiningCell));
+        }
     }
 
     void OnHovered(Vector2 _position)

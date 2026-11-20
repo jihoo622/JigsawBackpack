@@ -10,6 +10,8 @@
 
 **콘솔·게임 분석·적용 테이블을 모두 LogKit으로 전송한다.** 기존 수신 API/주소/키를 사용한다. 게임 원본 계약은 schemaVersion 9다. 6에서 작업대·화차 행동, 작업대 보드 관측, `transformed`, `workbench_ready`·`route_stop_changed`·`station_screen`을 더했고, 7에서 게임 시간을 턴(`elapsedTurns` 등)으로 바꾸고 역 시설 진입 행동(`enter_market`·`enter_tavern`·`enter_wagon_facility`)을 더했으며, 8에서 정수 게임 시간(`elapsedHours` 등)과 실시간 시계(1시간마다 `advance_time`), 출발 `depart`를 더했고, 9에서 턴제(1턴 = 6시간)로 바꿔 `depart`와 시간당 `advance_time`을 없애고 경로 계획을 `totalTurns`로 바꿨다. 분석 가공·집계·대시보드는 별도 저장소 `logkit-analytics-trainventory`(`/trainventory`)가 수행하며 schemaVersion 3~6을 읽는다. 수신 서버 CSV는 DataJson을 4000자에서 잘라 `rules_chunk`는 서버 미러에서 복원되지 않는다. [PLAY_LOG](PLAY_LOG.md)
 
+2026-11-20: 의뢰 취소를 더했다. `quest_updated`의 state에 `Cancelled`(failure는 `None`, payout 0)가, 행동에 `cancel_quest`가 새로 나온다. 행 구조는 그대로라 schemaVersion은 9를 유지한다. 분석 저장소는 이 두 값을 알 수 없는 값으로 버리지 않도록 확인이 필요하다.
+
 ## 전송 계약
 
 - `GameLogger.Data("Info", "Telemetry", eventName, 원본행JSON)`을 호출한다. entry.dataJson을 파싱하면 로컬 JSONL과 같은 TelemetryLine이며 그 안의 dataJson을 파싱하면 게임 payload다.

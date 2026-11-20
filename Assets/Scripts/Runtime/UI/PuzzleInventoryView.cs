@@ -306,6 +306,23 @@ public sealed class PuzzleInventoryView : MonoBehaviour
         }
     }
 
+    // 보드 영역 안이면 칸 밖(가장자리 여백)이어도 가장 가까운 칸을 돌려준다. 의뢰 게시판처럼 영역 어디에 놓아도 되는 보드에 쓴다.
+    public bool TryGetBoardCellClamped(Vector2 _screenPosition, out Vector2Int _cell)
+    {
+        _cell = default;
+        var area = dynamicCellSizing && boardViewport ? boardViewport : CoordinateRect;
+        if (!area || gridSize.x <= 0 || gridSize.y <= 0 ||
+            !RectTransformUtility.RectangleContainsScreenPoint(area, _screenPosition, EventCamera) ||
+            !RectTransformUtility.ScreenPointToLocalPointInRectangle(CoordinateRect, _screenPosition, EventCamera, out var local))
+        {
+            return false;
+        }
+        var position = (local - gridMin) / cellSize;
+        _cell = new Vector2Int(Mathf.Clamp(Mathf.FloorToInt(position.x), 0, gridSize.x - 1),
+            Mathf.Clamp(Mathf.FloorToInt(position.y), 0, gridSize.y - 1));
+        return true;
+    }
+
     public bool TryGetBoardCell(Vector2 _screenPosition, out Vector2Int _cell)
     {
         if (dynamicCellSizing && boardViewport &&

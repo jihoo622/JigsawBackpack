@@ -308,6 +308,7 @@ public sealed partial class PuzzleInventoryService
         questOffers.Remove(_offer);
         var quest = new TrainventoryQuest(++lastQuestId, _offer, instanceId, Time.ElapsedHours,
             checked(Time.ElapsedHours + _offer.DeadlineHours));
+        quest.AcceptedMoveCount = CityMoveCount;
         quests.Add(quest);
         RevealRouteTo(_offer.TargetCityId);
         RecordAction(PuzzleActionKind.AcceptQuest);
@@ -317,7 +318,8 @@ public sealed partial class PuzzleInventoryService
     }
 
     // 의뢰 화물을 현재 화물칸부터 빈자리에 싣고 보증금을 받는다. 실패하면 상태를 바꾸지 않는다.
-    internal TrainventoryQuestAcceptFailure TryAcceptQuest(TrainventoryQuestOffer _offer)
+    // _preferredWagon이 있으면 그 화차부터 빈자리를 찾는다(Ctrl+클릭: 마지막으로 포커스한 화차 창).
+    internal TrainventoryQuestAcceptFailure TryAcceptQuest(TrainventoryQuestOffer _offer, PuzzleInventory _preferredWagon = null)
     {
         var failure = EvaluateQuestAccept(_offer);
         if (failure != TrainventoryQuestAcceptFailure.None)
@@ -327,8 +329,9 @@ public sealed partial class PuzzleInventoryService
         }
 
         var definition = definitions[_offer.PieceId];
-        var wagons = new List<PuzzleInventory> { Train };
-        wagons.AddRange(trainWagons.Where(_wagon => _wagon != Train));
+        var first = _preferredWagon != null && IsTrainWagon(_preferredWagon) ? _preferredWagon : Train;
+        var wagons = new List<PuzzleInventory> { first };
+        wagons.AddRange(trainWagons.Where(_wagon => _wagon != first));
         var wagon = wagons.First(_candidate => _candidate.CanAutoPlaceAll(definition, 1, true));
         wagon.TryAutoPlace(definition, ref lastInstanceId, true);
         int instanceId = lastInstanceId;
@@ -343,6 +346,7 @@ public sealed partial class PuzzleInventoryService
         questOffers.Remove(_offer);
         var quest = new TrainventoryQuest(++lastQuestId, _offer, instanceId, Time.ElapsedHours,
             checked(Time.ElapsedHours + _offer.DeadlineHours));
+        quest.AcceptedMoveCount = CityMoveCount;
         quests.Add(quest);
         // 의뢰 목적지의 위치와 거기까지의 최단 경로 노선이 드러난다. 경유역 정보는 드러나지 않는다.
         RevealRouteTo(_offer.TargetCityId);
@@ -418,6 +422,94 @@ public sealed partial class PuzzleInventoryService
             }
         }
         return false;
+    }
+
+    // 화차의 의뢰 화물을 의뢰 게시판에 놓았다. 목적지면 완료, 의뢰를 받은 도시면 취소, 그 밖의 도시면 거부한다.
+    // _slot은 게시판에 놓은 자리(잡은 칸·놓은 칸·회전). 취소로 의뢰가 게시판에 다시 걸릴 때 그 자리에 놓는다(안 맞으면 빈자리).
+    internal bool TryReturnQuestCargo(PuzzlePlacement _cargo, out bool _cancelled, out string _failureReason,
+        (Vector2Int GrabbedCell, Vector2Int TargetCell, int ClockwiseTurns)? _slot = null)
+    {
+        _cancelled = false;
+        var quest = ActiveQuestForCargo(_cargo);
+        if (quest != null && !string.Equals(quest.TargetCityId, CurrentCityId, StringComparison.Ordinal) &&
+            string.Equals(quest.SourceCityId, CurrentCityId, StringComparison.Ordinal))
+        {
+            _cancelled = TryCancelQuest(quest, _cargo, out _failureReason, _slot);
+            return _cancelled;
+        }
+        return TryCompleteQuestWithCargo(_cargo, out _failureReason);
+    }
+
+    // 끌어 놓기 미리보기: 이 화물을 지금 의뢰 게시판에 놓으면 완료되거나(목적지) 취소되는지(의뢰를 받은 도시).
+    internal bool CanReturnQuestCargoHere(PuzzlePlacement _cargo)
+    {
+        if (CanCompleteQuestCargoHere(_cargo, out _))
+        {
+            return true;
+        }
+        var quest = ActiveQuestForCargo(_cargo);
+        return quest != null && RunStatus == PuzzleRunStatus.InProgress &&
+            string.Equals(quest.SourceCityId, CurrentCityId, StringComparison.Ordinal) &&
+            TryFindQuestCargo(quest, out var cargo) && ReferenceEquals(cargo, _cargo);
+    }
+
+    TrainventoryQuest ActiveQuestForCargo(PuzzlePlacement _cargo)
+    {
+        if (_cargo == null)
+        {
+            return null;
+        }
+        for (int i = 0; i < quests.Count; i++)
+        {
+            var quest = quests[i];
+            if (quest.State == TrainventoryQuestState.Active && quest.CargoInstanceId == _cargo.InstanceId)
+            {
+                return quest;
+            }
+        }
+        return null;
+    }
+
+    // 의뢰를 받은 도시에서 의뢰 화물을 내려놓아 취소한다. 화물을 내리고 보증금을 돌려주며 지역 불이익은 없다.
+    // 같은 방문 안이면 그 의뢰를 게시판에 되돌려 다시 받을 수 있다(다른 방문에서는 게시판 목록이 새로 만들어졌으므로 되돌리지 않는다).
+    internal bool TryCancelQuest(TrainventoryQuest _quest, PuzzlePlacement _cargo, out string _failureReason,
+        (Vector2Int GrabbedCell, Vector2Int TargetCell, int ClockwiseTurns)? _slot = null)
+    {
+        _failureReason = null;
+        if (RunStatus != PuzzleRunStatus.InProgress || _quest == null || _quest.State != TrainventoryQuestState.Active)
+        {
+            _failureReason = "unavailable";
+            return false;
+        }
+        if (!string.Equals(_quest.SourceCityId, CurrentCityId, StringComparison.Ordinal))
+        {
+            _failureReason = Presentation.QuestDropWrongCity(Presentation.QuestCityName(_quest.TargetCityId));
+            return false;
+        }
+        if (!TryFindQuestCargo(_quest, out var cargo) || !ReferenceEquals(cargo, _cargo))
+        {
+            _failureReason = Presentation.QuestDropNotQuestCargo;
+            return false;
+        }
+
+        long previousFunds = Funds;
+        cargo.Owner.Remove(cargo);
+        PruneAnimalStates();
+        Funds = checked(Funds + _quest.Deposit);
+        _quest.Finish(TrainventoryQuestState.Cancelled, TrainventoryQuestFailure.None, 0, Time.ElapsedHours);
+        if (_quest.Offer != null && _quest.AcceptedMoveCount == CityMoveCount && questOfferVisit == CityMoveCount &&
+            !questOffers.Contains(_quest.Offer))
+        {
+            questOffers.Add(_quest.Offer);
+            if (_slot.HasValue)
+            {
+                preferredOfferSlots[_quest.Offer] = _slot.Value;
+            }
+        }
+        RecordAction(PuzzleActionKind.CancelQuest, _targetCityId: CurrentCityId);
+        GameEvents.RaiseFundsChanged(this, previousFunds);
+        GameEvents.RaiseQuestChanged(this, _quest);
+        return true;
     }
 
     internal bool TryCompleteQuestWithCargo(PuzzlePlacement _cargo, out string _failureReason)
@@ -498,6 +590,64 @@ public sealed partial class PuzzleInventoryService
     int cachedOfferBoardHeight;
     int cachedOfferSkippedCount;
 
+    // 취소로 게시판에 되돌아오는 의뢰를 놓을 자리(플레이어가 내려놓은 곳).
+    readonly Dictionary<TrainventoryQuestOffer, (Vector2Int GrabbedCell, Vector2Int TargetCell, int ClockwiseTurns)> preferredOfferSlots = new();
+
+    bool TryUpdateQuestOfferBoard(IReadOnlyList<TrainventoryQuestOffer> _offers, int _width, int _height)
+    {
+        if (cachedOfferBoard == null || cachedOfferBoardWidth != _width || cachedOfferBoardHeight != _height ||
+            !_offers.Any(_offer => cachedOfferSnapshot.Contains(_offer)))
+        {
+            return false;
+        }
+
+        // 빠진 의뢰의 화물을 게시판에서 내린다.
+        foreach (var pair in cachedOfferByInstanceId.ToList())
+        {
+            if (_offers.Contains(pair.Value))
+            {
+                continue;
+            }
+            var placement = cachedOfferBoard.Placements.FirstOrDefault(_placement => _placement.InstanceId == pair.Key);
+            if (placement != null)
+            {
+                cachedOfferBoard.Remove(placement);
+            }
+            cachedOfferByInstanceId.Remove(pair.Key);
+        }
+
+        // 새로 걸린 의뢰(취소로 되돌아온 의뢰 등)만 빈자리에 놓는다.
+        int skipped = 0;
+        foreach (var offer in _offers)
+        {
+            if (cachedOfferByInstanceId.ContainsValue(offer))
+            {
+                continue;
+            }
+            int nextId = lastInstanceId + 1;
+            PuzzlePlacement placed = null;
+            bool hasDefinition = definitions.TryGetValue(offer.PieceId, out var definition);
+            if (hasDefinition && preferredOfferSlots.Remove(offer, out var slot))
+            {
+                cachedOfferBoard.TryPlaceAt(definition, slot.GrabbedCell, slot.TargetCell, slot.ClockwiseTurns, nextId, out placed);
+            }
+            if (hasDefinition && (placed != null || cachedOfferBoard.TryAutoPlace(definition, nextId, out placed)))
+            {
+                lastInstanceId = nextId;
+                cachedOfferByInstanceId[placed.InstanceId] = offer;
+            }
+            else
+            {
+                skipped++;
+            }
+        }
+
+        cachedOfferSnapshot.Clear();
+        cachedOfferSnapshot.AddRange(_offers);
+        cachedOfferSkippedCount = skipped;
+        return true;
+    }
+
     internal PuzzleInventory BuildQuestOfferBoard(int _width, int _height,
         out Dictionary<int, TrainventoryQuestOffer> _offerByInstanceId, out int _skippedCount)
     {
@@ -519,6 +669,15 @@ public sealed partial class PuzzleInventoryService
         }
 
         if (same)
+        {
+            _offerByInstanceId = new Dictionary<int, TrainventoryQuestOffer>(cachedOfferByInstanceId);
+            _skippedCount = cachedOfferSkippedCount;
+            return cachedOfferBoard;
+        }
+
+        // 같은 게시 목록에서 몇 개만 빠지거나(수락) 다시 걸린(취소) 경우에는 보드를 다시 만들지 않는다.
+        // 플레이어가 게시판 안에서 옮겨 둔 다른 의뢰의 자리를 지키기 위해서다. 새 방문처럼 겹치는 의뢰가 없으면 새로 만든다.
+        if (TryUpdateQuestOfferBoard(offers, _width, _height))
         {
             _offerByInstanceId = new Dictionary<int, TrainventoryQuestOffer>(cachedOfferByInstanceId);
             _skippedCount = cachedOfferSkippedCount;
@@ -698,7 +857,9 @@ internal enum TrainventoryQuestState
 {
     Active,
     Completed,
-    Failed
+    Failed,
+    // 의뢰를 받은 도시에서 화물을 게시판에 되돌려 놓아 취소했다. 보증금을 돌려받고 불이익은 없다.
+    Cancelled
 }
 
 internal enum TrainventoryQuestFailure
@@ -778,10 +939,15 @@ internal sealed class TrainventoryQuest
     internal long Payout { get; private set; }
     internal long FinishedHours { get; private set; }
 
+    // 수락한 게시 의뢰와 수락한 방문(CityMoveCount). 같은 방문에서 취소하면 그 의뢰를 게시판에 되돌린다.
+    internal TrainventoryQuestOffer Offer { get; }
+    internal int AcceptedMoveCount { get; set; } = -1;
+
     internal TrainventoryQuest(int _id, TrainventoryQuestOffer _offer, int _cargoInstanceId, long _acceptedHours,
         long _deadlineHours)
     {
         Id = _id;
+        Offer = _offer;
         RewardWagonProductId = _offer.RewardWagonProductId;
         TemplateId = _offer.TemplateId;
         PieceId = _offer.PieceId;
