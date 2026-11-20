@@ -81,6 +81,17 @@ public sealed class PuzzleRoutePlanView : MonoBehaviour
         }
     }
 
+    // 경로 계획 카드를 이 창(지도 화면 영역) 우하단에 고정한다. 카드 높이는 ContentSizeFitter로 바뀌므로 아래 기준으로 위로 자란다.
+    internal void DockPanelBottomRight(float _margin)
+    {
+        if (!panelRoot || !(panelRoot.transform is RectTransform rect))
+        {
+            return;
+        }
+        rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(1f, 0f);
+        rect.anchoredPosition = new Vector2(-_margin, _margin);
+    }
+
     void Awake()
     {
         if (autoTravelButton)

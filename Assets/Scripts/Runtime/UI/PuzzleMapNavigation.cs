@@ -5,7 +5,7 @@ using UnityEngine.UI;
 using UnityEngine;
 
 // The viewport owns navigation; map objects remain authored in the prefab.
-public sealed class PuzzleMapNavigation : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
+public sealed class PuzzleMapNavigation : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerClickHandler
 {
     [Header("Zoom Settings")]
     [SerializeField] float minZoom = 0.35f;
@@ -335,5 +335,17 @@ public sealed class PuzzleMapNavigation : MonoBehaviour, IBeginDragHandler, IDra
     public void OnEndDrag(PointerEventData _eventData)
     {
         dragging = false;
+    }
+
+    // 지도 빈 공간(역 노드가 아닌 곳) 왼쪽 더블클릭. 역 노드는 자기 클릭을 먼저 받으므로 여기까지 오지 않는다.
+    // 끌어서 이동한 뒤의 놓기는 클릭으로 치지 않는다.
+    internal event System.Action EmptySpaceDoubleClicked;
+
+    public void OnPointerClick(PointerEventData _eventData)
+    {
+        if (_eventData.button == PointerEventData.InputButton.Left && _eventData.clickCount == 2 && !_eventData.dragging)
+        {
+            EmptySpaceDoubleClicked?.Invoke();
+        }
     }
 }

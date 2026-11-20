@@ -510,7 +510,7 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
             string name = TableManager.Instance.CityPrice(_cityId).displayName;
             string summary = isCurrent ? $"{name} · 현재 위치"
                 : isConnected ? $"{name} · 운임 {eval.Cost:N0}$ · {Presentation.TurnSpan(eval.TravelHours)}"
-                : $"{name} · 경로 계획과 이동은 지도 확대";
+                : $"{name} · 눌러서 경로 계획";
             view.ShowInformation(summary);
             view.HideTravelPreview();
         }
@@ -554,11 +554,6 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
 
     void OnNodeClicked(string _cityId)
     {
-        if (IsCompactNotebookMap)
-        {
-            ShowCity(_cityId);
-            return;
-        }
         if (phase != TravelPhase.None ||
             !view.IsOpen || session.RunStatus != PuzzleRunStatus.InProgress ||
             string.Equals(_cityId, session.CurrentCityId, System.StringComparison.Ordinal))

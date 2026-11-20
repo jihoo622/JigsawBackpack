@@ -51,6 +51,13 @@ public sealed class NotebookWindowView : MonoBehaviour
     {
         CreateMapExpandButton();
         ApplyMapDetailVisibility();
+        DockRoutePlan();
+        var navigation = embeddedMapView ? embeddedMapView.GetComponentInChildren<PuzzleMapNavigation>(true) : null;
+        if (navigation)
+        {
+            // 빈 공간 더블클릭: 미리보기면 크게 보기, 크게 보기면 다시 미리보기.
+            navigation.EmptySpaceDoubleClicked += () => SetMapExpanded(!mapExpanded);
+        }
         if (tabButtons != null)
         {
             for (int i = 0; i < tabButtons.Length; i++)
@@ -506,13 +513,26 @@ public sealed class NotebookWindowView : MonoBehaviour
     PuzzleItemTooltipView expandedTownTooltip;
     Transform townTooltipParent;
 
+    const float ROUTE_PLAN_MARGIN = 8f;
+
+    // 경로 계획 카드는 미리보기·크게 보기 모두 지도 화면 우하단에 고정한다.
+    void DockRoutePlan()
+    {
+        var routePlan = embeddedMapView ? embeddedMapView.GetComponentInChildren<PuzzleRoutePlanView>(true) : null;
+        if (routePlan)
+        {
+            routePlan.DockPanelBottomRight(ROUTE_PLAN_MARGIN);
+        }
+    }
+
     void ApplyMapDetailVisibility()
     {
         if (!embeddedMapView) return;
         // Keep presenters active so route/travel state continues updating while compact.
         foreach (var rt in embeddedMapView.GetComponentsInChildren<RectTransform>(true))
         {
-            if (rt.name != "RoutePlan" && rt.name != "MapTravelPanel" &&
+            // 경로 계획(RoutePlan)은 미리보기에서도 지도 우하단에 보인다(계획이 없으면 뷰가 스스로 숨긴다).
+            if (rt.name != "MapTravelPanel" &&
                 rt.name != "MapTradePreferences" && rt.name != "CityQuestInformation") continue;
             var group = rt.GetComponent<CanvasGroup>();
             // Unity's missing-component objects can compare equal to null without being CLR null.
@@ -688,7 +708,9 @@ public sealed class NotebookWindowView : MonoBehaviour
                 case "ZoomIn": SetExpandedRect(rt, -118, 0, 64, 40, true); break;
                 case "FitMap": SetExpandedRect(rt, 56, 0, 216, 40, true); break;
                 case "LocateCurrent": SetExpandedRect(rt, 304, 0, 216, 40, true); break;
-                case "RoutePlan": case "MapTravelPanel":
+                // 경로 계획은 크게 보기에서도 지도 화면(MapViewport) 영역에 맞춰 카드가 그 우하단에 오게 한다.
+                case "RoutePlan": SetExpandedRect(rt, 24, -112, 1036, 582); break;
+                case "MapTravelPanel":
                     compactMapRects.Add(new MapRectState(rt));
                     rt.anchorMin = Vector2.zero; rt.anchorMax = Vector2.one;
                     rt.offsetMin = rt.offsetMax = Vector2.zero;
