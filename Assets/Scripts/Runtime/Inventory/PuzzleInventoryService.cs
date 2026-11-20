@@ -431,11 +431,12 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
     public bool IsMarketOpen => Time != null && !Time.IsNight && RunStatus == PuzzleRunStatus.InProgress;
     public bool CanWaitForDaylight => Time != null && Time.IsNight && RunStatus == PuzzleRunStatus.InProgress &&
         Time.CanArriveBeforeDeadline(Time.HoursUntilDaylight);
-    // 지금 들어가 있는 역 시설. 시설 진입은 시간을 쓰지 않는다. 다른 시설에 들어가거나 다른 역 행동을 고르거나
-    // (LeaveFacility) 역을 떠나면 사라진다.
+    // 마지막으로 들어간 역 시설. 시설 진입은 시간을 쓰지 않는다. 다른 역 행동을 고르거나(LeaveFacility) 역을 떠나면 사라진다.
     internal StationFacility EnteredFacility { get; private set; }
+    // 시장 입장은 다른 시설 입장과 따로 기억한다. 마을 창을 여러 개 띄워도(술집·역사를 연 뒤에도) 시장 거래가 이어진다.
+    bool marketEntered;
     // 시장 입장이 유효한지. 밤 여부는 들어갈 때만 확인하므로 들어간 뒤 밤이 되어도 이번 입장 동안은 거래할 수 있다.
-    public bool MarketEntered => EnteredFacility == StationFacility.Market;
+    public bool MarketEntered => marketEntered;
     public bool CanTradeInMarket => MarketEntered && RunStatus == PuzzleRunStatus.InProgress;
 
     // 시장에 들어간다. 밤이면 들어가지 못한다.
@@ -467,6 +468,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
     internal void LeaveFacility()
     {
         EnteredFacility = StationFacility.None;
+        marketEntered = false;
     }
 
     bool TryEnterFacility(StationFacility _facility, PuzzleActionKind _action)
@@ -480,6 +482,10 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
             return true;
         }
         EnteredFacility = _facility;
+        if (_facility == StationFacility.Market)
+        {
+            marketEntered = true;
+        }
         RecordAction(_action);
         return true;
     }
@@ -1858,6 +1864,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         currentCityId = evaluation.ToCityId;
         ExploreCity(evaluation.FromCityId, currentCityId);
         EnteredFacility = StationFacility.None;
+        marketEntered = false;
         // 떠난 도시의 작업장은 조작 대상이 아니다. 도착 후 패널을 다시 열 때 열어 준다.
         IsButcheryOpen = false;
         IsModificationOpen = false;

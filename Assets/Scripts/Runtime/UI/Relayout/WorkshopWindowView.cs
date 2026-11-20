@@ -95,7 +95,7 @@ public sealed class WorkshopWindowView : MonoBehaviour
         }
         else
         {
-            session?.LeaveFacility();
+            // 마을 창은 여러 개를 함께 띄운다. 작업장을 닫아도 시장 등 다른 시설 입장은 그대로 둔다.
             activeKind = WorkshopKind.None;
         }
 
@@ -121,7 +121,7 @@ public sealed class WorkshopWindowView : MonoBehaviour
     void OpenFacilityInSession()
     {
         if (session == null) return;
-        session.LeaveFacility();
+        // 작업장을 열어도 시장 입장을 풀지 않는다(마을 창 여러 개 동시 사용).
         switch (activeKind)
         {
             case WorkshopKind.Butchery:
