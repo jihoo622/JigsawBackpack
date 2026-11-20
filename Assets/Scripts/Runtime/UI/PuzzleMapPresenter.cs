@@ -830,7 +830,7 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
             var travelResult = session.TravelNextRouteLeg(out bool stopped);
             if (travelResult.IsSuccess)
             {
-                // 정차역이면 위에서 들어와 멈추고, 통과역이면 멈추지 않고 다음 구간에서 그대로 지나간다.
+                // 정차역이면 아래에서 들어와 멈추고, 통과역이면 멈추지 않고 다음 구간에서 그대로 지나간다.
                 TrainMotion?.Arrive(stopped);
             }
             if (!travelResult.IsSuccess)
