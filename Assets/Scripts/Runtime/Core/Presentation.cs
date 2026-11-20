@@ -2995,6 +2995,17 @@ public static partial class Presentation
     public static string TavernWindowTitle(string _cityName) =>
         BasicData.Format("presentation.inventory.tavernWindowTitle", _cityName);
     public static string TavernWindowRumorButton => BasicData.Text("presentation.inventory.tavernWindowRumorButton");
+
+    internal static void TavernRumorButtonColors(bool _available, out Color _background, out Color _text)
+    {
+        var palette = Resources.Load<UIPalette>("UI/UIPalette");
+        if (!palette)
+        {
+            throw new InvalidOperationException("소문 듣기 버튼에 UI/UIPalette 팔레트가 필요합니다.");
+        }
+        _background = _available ? PuzzleCell : palette.Panel;
+        _text = palette.Text;
+    }
     public static string TavernWindowRumorEmpty => BasicData.Text("presentation.inventory.tavernWindowRumorEmpty");
     public static string TavernWindowBoardHint => BasicData.Text("presentation.inventory.tavernWindowBoardHint");
     public static string RestWindowTitle(string _cityName) =>
