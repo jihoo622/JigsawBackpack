@@ -106,7 +106,9 @@ public sealed class StationHallWindowView : MonoBehaviour
         {
             return false;
         }
-        var target = sellDropZone ? sellDropZone : transform as RectTransform;
+        // 보유 화차는 상품 목록을 포함한 역사 창 어디에 놓아도 판매한다.
+        // sellDropZone은 안내 표시용이며 드롭 판정을 그 작은 영역으로 제한하지 않는다.
+        var target = transform as RectTransform;
         return target && RectTransformUtility.RectangleContainsScreenPoint(target, _screenPos, EventCamera);
     }
 
