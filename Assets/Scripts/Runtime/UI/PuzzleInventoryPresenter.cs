@@ -659,6 +659,7 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
         cityView.ShowTradeStatus(inProgress
             ? session.IsMarketOpen ? string.Empty : Presentation.PuzzleNightMarket
             : Presentation.PuzzleRunStatusText(session.RunStatus));
+        CloseMarketWindowAtNight();
         marketView.SetMarketOpen(session.CanTradeInMarket);
         if (relayoutMarketView)
         {
@@ -962,6 +963,16 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
         pendingFreshnessLossValue = null;
     }
 
+    // 개편 UI: 밤(시장 휴업)에는 시장 창을 닫고 시장 입장도 푼다. 다시 열려면 낮에 시장 건물을 눌러 들어간다.
+    void CloseMarketWindowAtNight()
+    {
+        if (!RelayoutSettings.Enabled || session.IsMarketOpen || !session.MarketEntered)
+        {
+            return;
+        }
+        session.LeaveMarket();
+    }
+
     void ShowCurrentCity()
     {
         HideLens();
@@ -973,6 +984,7 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
         cityView.ShowTradeStatus(inProgress
             ? session.IsMarketOpen ? string.Empty : Presentation.PuzzleNightMarket
             : Presentation.PuzzleRunStatusText(session.RunStatus));
+        CloseMarketWindowAtNight();
         marketView.SetMarketOpen(session.CanTradeInMarket);
         if (relayoutMarketView)
         {

@@ -465,6 +465,16 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
     }
 
     // 다른 역 행동(휴식·작업장 화면 등)을 골랐다.
+    // 시장에서만 나온다(다른 시설 입장은 그대로). 개편 UI는 밤이 되면 시장 창을 닫고 이것으로 입장을 푼다.
+    internal void LeaveMarket()
+    {
+        marketEntered = false;
+        if (EnteredFacility == StationFacility.Market)
+        {
+            EnteredFacility = StationFacility.None;
+        }
+    }
+
     internal void LeaveFacility()
     {
         EnteredFacility = StationFacility.None;
