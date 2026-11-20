@@ -71,31 +71,20 @@ public sealed class TavernWindowView : MonoBehaviour
         }
     }
 
-    internal void ResetCity(string _cityName)
+    internal void ResetCity(string _cityName, string _heardRumor)
     {
-        heardRumor = null;
+        heardRumor = _heardRumor;
         if (titleText)
         {
             titleText.text = Presentation.TavernWindowTitle(_cityName ?? string.Empty);
-        }
-        if (rumorText)
-        {
-            rumorText.text = Presentation.TavernUnreadRumor;
-        }
-        if (rumorButton)
-        {
-            rumorButton.interactable = IsRunInProgress();
         }
         RefreshLabels();
     }
 
     internal void SetRumor(string _message)
     {
-        heardRumor = _message;
-        if (rumorText)
-        {
-            rumorText.text = string.IsNullOrEmpty(_message) ? Presentation.TavernNoRumor : _message;
-        }
+        heardRumor = string.IsNullOrEmpty(_message) ? Presentation.TavernNoRumor : _message;
+        RefreshRumor();
     }
 
     internal void SetOverflowCount(int _count)
@@ -188,18 +177,23 @@ public sealed class TavernWindowView : MonoBehaviour
 
     void RefreshLabels()
     {
-        if (rumorButton)
-        {
-            rumorButton.interactable = IsRunInProgress();
-        }
         if (rumorButtonLabel)
         {
             rumorButtonLabel.text = Presentation.TavernWindowRumorButton;
         }
         ShowIdle();
-        if (rumorText && string.IsNullOrEmpty(heardRumor))
+        RefreshRumor();
+    }
+
+    void RefreshRumor()
+    {
+        if (rumorButton)
         {
-            rumorText.text = Presentation.TavernUnreadRumor;
+            rumorButton.interactable = IsRunInProgress() && heardRumor == null;
+        }
+        if (rumorText)
+        {
+            rumorText.text = heardRumor ?? Presentation.TavernUnreadRumor;
         }
     }
 
@@ -207,7 +201,7 @@ public sealed class TavernWindowView : MonoBehaviour
 
     void OnRumorClicked()
     {
-        if (!IsRunInProgress())
+        if (!IsRunInProgress() || heardRumor != null)
         {
             return;
         }

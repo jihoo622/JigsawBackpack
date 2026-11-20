@@ -20,7 +20,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
     string currentCityId;
     readonly HashSet<string> visitedCities = new HashSet<string>(StringComparer.Ordinal);
     readonly List<TavernRumor> tavernRumors = new List<TavernRumor>();
-    int lastRumorVisit = -1;
+    readonly Dictionary<string, string> tavernRumorResults = new Dictionary<string, string>(StringComparer.Ordinal);
     System.Random stockRandom = new System.Random();
     System.Random wagonShopRandom = new System.Random();
     readonly Dictionary<string, IReadOnlyList<PuzzleWagonProductData>> wagonShops = new(StringComparer.Ordinal);
@@ -55,6 +55,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
     }
 
     internal IReadOnlyList<TavernRumor> TavernRumors => tavernRumors;
+    internal string CurrentTavernRumor => tavernRumorResults.TryGetValue(CurrentCityId, out var message) ? message : null;
 
     internal bool HasRumorForCity(string _cityId)
     {
@@ -67,17 +68,18 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         return HasRumorForCity(_cityId) && !HasVisitedCity(_cityId);
     }
 
-    // 한 방문에 한 번만 남긴다. 문구는 이미 결정된 후보에서 만들어 함께 저장한다.
-    internal void RecordTavernRumor(PuzzleRumorCandidate _candidate, string _message)
+    // 한 판에 들은 마을마다 한 번만 확인한다. 후보가 없었던 결과도 보관하되 소문 이력에는 넣지 않는다.
+    internal void RecordTavernRumor(PuzzleRumorCandidate? _candidate, string _message)
     {
-        if (lastRumorVisit != CityMoveCount)
+        if (!tavernRumorResults.TryAdd(CurrentCityId, _message) || !_candidate.HasValue)
         {
-            tavernRumors.Add(new TavernRumor(_candidate.Kind, _candidate.CityId, CurrentCityId, _message,
-                _candidate.ItemId, _candidate.Tag, _candidate.ActionId, Time.ElapsedHours, _candidate.WagonProductId));
-            lastRumorVisit = CityMoveCount;
-            GameEvents.RaiseTavernRumorRecorded(this, CurrentCityId, _candidate.CityId, _message,
-                Time.ElapsedHours, _candidate.Tag, _candidate.Kind, _candidate.ItemId, _candidate.ActionId, _candidate.WagonProductId);
+            return;
         }
+        var candidate = _candidate.Value;
+        tavernRumors.Add(new TavernRumor(candidate.Kind, candidate.CityId, CurrentCityId, _message,
+            candidate.ItemId, candidate.Tag, candidate.ActionId, Time.ElapsedHours, candidate.WagonProductId));
+        GameEvents.RaiseTavernRumorRecorded(this, CurrentCityId, candidate.CityId, _message,
+            Time.ElapsedHours, candidate.Tag, candidate.Kind, candidate.ItemId, candidate.ActionId, candidate.WagonProductId);
     }
 
     internal bool HasVisitedCity(string _cityId)
@@ -592,7 +594,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         visitedCities.Add(currentCityId);
         ResetFog();
         tavernRumors.Clear();
-        lastRumorVisit = -1;
+        tavernRumorResults.Clear();
         ResetQuests();
         ResetProficiency();
         RoutePlan = null;

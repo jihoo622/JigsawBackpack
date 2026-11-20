@@ -67,9 +67,9 @@ public sealed class PuzzleTradeNotebookView : PanelBase
         TabSelected?.Invoke(_tab);
     }
 
-    public void Toggle()
+    public new void Toggle()
     {
-        ToggleLog();
+        base.Toggle();
     }
 
     public void OpenTab(PuzzleNotebookTab _tab)

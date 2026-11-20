@@ -100,26 +100,26 @@ public sealed class PuzzleCityView : MonoBehaviour
         talkButton.GetComponentInChildren<TextMeshProUGUI>(true).text = Presentation.TavernTalk;
     }
 
-    internal void SetTown(string _name, bool _available)
+    internal void SetTown(string _name, bool _available, string _heardRumor)
     {
         tavernTitle.text = Presentation.TavernTitle(_name);
-        heardRumor = null;
-        rumorLabel.text = Presentation.TavernUnreadRumor;
-        talkButton.interactable = _available;
+        heardRumor = _heardRumor;
+        rumorLabel.text = heardRumor ?? Presentation.TavernUnreadRumor;
+        talkButton.interactable = _available && heardRumor == null;
     }
 
     #region 술집 대화 표시
 
-    // 이번 방문의 소식을 받아 표시한 뒤, 다음 마을에 도착할 때까지 대화 버튼을 비활성화한다.
+    // 이 마을에서 확인한 소식을 표시하고 재방문해도 같은 판에서는 다시 대화하지 않는다.
     void HearRumor()
     {
-        // 1. 이번 방문에서 아직 소식을 듣지 않았다면 새 소식을 받아 저장한다.
+        // 1. 이 마을에서 아직 소식을 듣지 않았다면 새 소식을 받아 저장한다.
         heardRumor ??= getRumor();
 
         // 2. 저장된 소식을 대화 영역에 표시한다.
         rumorLabel.text = heardRumor;
 
-        // 3. 같은 방문에서 대화를 반복할 수 없도록 버튼을 비활성화한다.
+        // 3. 같은 마을에서 대화를 반복할 수 없도록 버튼을 비활성화한다.
         talkButton.interactable = false;
     }
 

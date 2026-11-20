@@ -24,7 +24,15 @@ public sealed class PuzzleTradeNotebookPresenter : MonoBehaviour
         GameEvents.PanelVisibility += OnPanelVisibility;
         view.TabSelected += OnTabSelected;
         view.Shown += OnShown;
-        Refresh();
+        // View가 먼저 활성화되면 Shown 구독 전에 본문이 열릴 수 있다.
+        if (view.IsOpen)
+        {
+            OnShown();
+        }
+        else
+        {
+            Refresh();
+        }
     }
 
     void OnDisable()
@@ -46,25 +54,15 @@ public sealed class PuzzleTradeNotebookPresenter : MonoBehaviour
 
     void OnNotebookOpenRequested(PuzzleNotebookTab _tab)
     {
-        tab = _tab;
-        Refresh();
-        if (embeddedInNotebook && notebookWindow)
+        if (embeddedInNotebook || RelayoutSettings.Enabled)
         {
-            var winTab = _tab switch
-            {
-                PuzzleNotebookTab.Quests => NotebookWindowView.NotebookWindowTab.Quests,
-                PuzzleNotebookTab.Proficiency => NotebookWindowView.NotebookWindowTab.Proficiency,
-                PuzzleNotebookTab.Synergy => NotebookWindowView.NotebookWindowTab.Synergy,
-                _ => NotebookWindowView.NotebookWindowTab.Rumors
-            };
-            notebookWindow.OpenTab(winTab);
             return;
         }
+        tab = _tab;
+        Refresh();
         view.SetOpen(true);
         SyncSynergyChart();
     }
-
-    internal void MarkShown() => OnShown();
 
     void OnShown()
     {

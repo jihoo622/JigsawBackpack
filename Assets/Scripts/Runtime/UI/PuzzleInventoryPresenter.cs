@@ -85,7 +85,6 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
         ActiveRefiningView.gameObject.activeInHierarchy;
     decimal? pendingSettlementValue;
     decimal? pendingFreshnessLossValue;
-    bool pendingFundsRefresh;
     bool isTravelOpen;
     // 시장 보드가 마지막으로 그린 시장. 도시를 옮기거나 개장으로 새로 채워지면 객체가 바뀐다.
     PuzzleInventory shownMarket;
@@ -183,12 +182,12 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
         RebuildQuestOfferBoard();
         if (tavernWindowView)
         {
-            tavernWindowView.ResetCity(session.CityData?.displayName ?? string.Empty);
+            tavernWindowView.ResetCity(session.CityData?.displayName ?? string.Empty, session.CurrentTavernRumor);
         }
         cityView.Initialize(session.TargetFunds);
         cityView.InitializeTown(GetTavernRumor);
         ShowCurrentCity();
-        cityView.SetTown(session.CityData.displayName, session.RunStatus == PuzzleRunStatus.InProgress);
+        cityView.SetTown(session.CityData.displayName, session.RunStatus == PuzzleRunStatus.InProgress, session.CurrentTavernRumor);
         initialized = true;
 
         input.Pressed += OnPressed;
@@ -282,7 +281,7 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
         stationActions = GetComponentInChildren<PuzzleStationActionsView>(true);
         if (RelayoutSettings.Enabled && tavernWindowView)
         {
-            tavernWindowView.ResetCity(session.CityData.displayName);
+            tavernWindowView.ResetCity(session.CityData.displayName, session.CurrentTavernRumor);
             RebuildQuestOfferBoard();
         }
         if (RelayoutSettings.Enabled && marketWindowView)
@@ -372,7 +371,6 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
         HasActiveDrag = false;
         pendingSettlementValue = null;
         pendingFreshnessLossValue = null;
-        pendingFundsRefresh = false;
         GameEvents.CityArrived -= OnCityArrived;
         GameEvents.TimeAdvanced -= OnTimeAdvanced;
         GameEvents.PuzzleRunSettled -= OnRunSettled;
@@ -529,10 +527,10 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
     void OnCityArrived(GameEvents.CityArrivalInfo _info)
     {
         bool inProgress = session.RunStatus == PuzzleRunStatus.InProgress;
-        cityView.SetTown(session.CityData.displayName, inProgress);
+        cityView.SetTown(session.CityData.displayName, inProgress, session.CurrentTavernRumor);
         if (RelayoutSettings.Enabled && tavernWindowView)
         {
-            tavernWindowView.ResetCity(session.CityData.displayName);
+            tavernWindowView.ResetCity(session.CityData.displayName, session.CurrentTavernRumor);
             RebuildQuestOfferBoard();
         }
         if (RelayoutSettings.Enabled && marketWindowView)
@@ -605,6 +603,11 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
 
     string GetTavernRumor()
     {
+        string heardRumor = session.CurrentTavernRumor;
+        if (heardRumor != null)
+        {
+            return heardRumor;
+        }
         var candidates = session.CollectRumorCandidates().ToArray();
         var preferenceCandidates = candidates.Where(_candidate => _candidate.Kind == PuzzleRumorKind.Preference).ToArray();
         if (preferenceCandidates.Length > 0)
@@ -628,7 +631,9 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
             .ToArray();
         if (candidatesByKind.Length == 0)
         {
-            return Presentation.TavernNoRumor;
+            string message = Presentation.TavernNoRumor;
+            session.RecordTavernRumor(null, message);
+            return message;
         }
 
         return PickRumor(candidatesByKind[Random.Range(0, candidatesByKind.Length)]);
@@ -730,7 +735,7 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
             notebookWindowView?.FloatingWindow?.SetOpen(false, false);
         }
         RenderBoards();
-        cityView.SetTown(session.CityData.displayName, false);
+        cityView.SetTown(session.CityData.displayName, false, session.CurrentTavernRumor);
         RefreshFunds();
         cityView.ShowTradeStatus(Presentation.PuzzleRunStatusText(session.RunStatus));
         RefreshTrainBar();
@@ -752,7 +757,7 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
         {
             return;
         }
-        cityView.SetTown(session.CityData.displayName, true);
+        cityView.SetTown(session.CityData.displayName, true, session.CurrentTavernRumor);
         cityView.ShowEndless();
         RefreshAfterTimeAdvance();
         RenderBoards();
@@ -777,7 +782,7 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
         if (session.RunStatus != PuzzleRunStatus.InProgress)
         {
             RenderBoards();
-            cityView.SetTown(session.CityData.displayName, false);
+            cityView.SetTown(session.CityData.displayName, false, session.CurrentTavernRumor);
             cityView.ShowTradeStatus(Presentation.PuzzleRunStatusText(session.RunStatus));
             if (session.RunStatus == PuzzleRunStatus.Lost)
             {
@@ -840,7 +845,7 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
         }
 
         runEnd.Show(session);
-        cityView.SetTown(session.CityData.displayName, false);
+        cityView.SetTown(session.CityData.displayName, false, session.CurrentTavernRumor);
         RefreshFunds();
         cityView.ShowTradeStatus(Presentation.PuzzleRunStatusText(session.RunStatus));
         RefreshTrainBar();
@@ -857,12 +862,6 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
 
     void RefreshFunds()
     {
-        if (TrainOperationsBlocked)
-        {
-            pendingFundsRefresh = true;
-            return;
-        }
-        pendingFundsRefresh = false;
         cityView.ShowFunds(session.Funds, session.CanFinishRun);
     }
 
@@ -941,10 +940,6 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
         else
         {
             PlayPendingSettlement();
-            if (pendingFundsRefresh)
-            {
-                RefreshFunds();
-            }
             RefreshTrainBar();
         }
     }
@@ -2261,6 +2256,7 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
         {
             return;
         }
+        cityView.SetTown(session.CityData.displayName, session.RunStatus == PuzzleRunStatus.InProgress, session.CurrentTavernRumor);
         butcheryConfigured = false;
         modificationConfigured = false;
         refiningConfigured = false;
@@ -2299,7 +2295,7 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
         }
         if (RelayoutSettings.Enabled && tavernWindowView)
         {
-            tavernWindowView.ResetCity(session.CityData.displayName);
+            tavernWindowView.ResetCity(session.CityData.displayName, session.CurrentTavernRumor);
             RebuildQuestOfferBoard();
         }
         if (RelayoutSettings.Enabled && marketWindowView)

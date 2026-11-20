@@ -192,9 +192,21 @@ public sealed class NotebookWindowView : MonoBehaviour
         }
     }
 
+    public void OpenTab(PuzzleNotebookTab _tab)
+    {
+        NotebookWindowTab windowTab = _tab switch
+        {
+            PuzzleNotebookTab.Quests => NotebookWindowTab.Quests,
+            PuzzleNotebookTab.Proficiency => NotebookWindowTab.Proficiency,
+            PuzzleNotebookTab.Synergy => NotebookWindowTab.Synergy,
+            _ => NotebookWindowTab.Rumors
+        };
+        OpenTab(windowTab);
+    }
+
     public void OpenTab(NotebookWindowTab _tab)
     {
-        if (floatingWindow && !floatingWindow.IsOpen)
+        if (floatingWindow)
         {
             floatingWindow.Open();
         }
@@ -208,18 +220,33 @@ public sealed class NotebookWindowView : MonoBehaviour
         bool isSynergy = _tab == NotebookWindowTab.Synergy;
         bool isText = !isMap && !isSynergy;
 
-        if (mapTabContent) mapTabContent.SetActive(isMap);
-        if (textTabsContent) textTabsContent.SetActive(isText);
-        if (synergyTabContent) synergyTabContent.SetActive(isSynergy);
+        if (mapTabContent)
+        {
+            mapTabContent.SetActive(isMap);
+        }
+        if (textTabsContent)
+        {
+            textTabsContent.SetActive(isText);
+        }
+        if (synergyTabContent)
+        {
+            synergyTabContent.SetActive(isSynergy);
+        }
 
         if (isMap)
         {
-            if (embeddedMapPresenter) embeddedMapPresenter.OpenFromNotebook();
+            if (embeddedMapPresenter)
+            {
+                embeddedMapPresenter.OpenFromNotebook();
+            }
             RefreshDestinationPins();
         }
         else if (isSynergy)
         {
-            if (embeddedSynergyView) embeddedSynergyView.SetOpen(true);
+            if (embeddedSynergyView)
+            {
+                embeddedSynergyView.SetOpen(true);
+            }
         }
         else if (embeddedNotebookView)
         {
@@ -229,11 +256,8 @@ public sealed class NotebookWindowView : MonoBehaviour
                 NotebookWindowTab.Proficiency => PuzzleNotebookTab.Proficiency,
                 _ => PuzzleNotebookTab.Rumors
             };
+            embeddedNotebookView.SetOpen(true);
             embeddedNotebookView.SelectTabFromHost(legacyTab);
-            if (embeddedNotebookPresenter)
-            {
-                embeddedNotebookPresenter.MarkShown();
-            }
         }
 
         ApplyTabVisuals();

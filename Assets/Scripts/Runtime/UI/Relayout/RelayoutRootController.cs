@@ -336,13 +336,6 @@ public sealed class RelayoutRootController : MonoBehaviour
         {
             return;
         }
-        var winTab = _tab switch
-        {
-            PuzzleNotebookTab.Quests => NotebookWindowView.NotebookWindowTab.Quests,
-            PuzzleNotebookTab.Proficiency => NotebookWindowView.NotebookWindowTab.Proficiency,
-            PuzzleNotebookTab.Synergy => NotebookWindowView.NotebookWindowTab.Synergy,
-            _ => NotebookWindowView.NotebookWindowTab.Rumors
-        };
-        notebookWindow.OpenTab(winTab);
+        notebookWindow.OpenTab(_tab);
     }
 }
