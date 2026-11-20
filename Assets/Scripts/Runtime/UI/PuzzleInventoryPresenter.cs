@@ -362,10 +362,12 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             return PickRumor(preferenceCandidates);
         }
 
-        var rareCandidates = candidates.Where(_candidate => _candidate.Kind == PuzzleRumorKind.RareDemand).ToArray();
-        if (rareCandidates.Length > 0)
+        var priorityKinds = candidates.Where(_candidate => _candidate.Kind == PuzzleRumorKind.RareDemand ||
+                _candidate.Kind == PuzzleRumorKind.Wagon)
+            .GroupBy(_candidate => _candidate.Kind).Select(_group => _group.ToArray()).ToArray();
+        if (priorityKinds.Length > 0)
         {
-            return PickRumor(rareCandidates);
+            return PickRumor(priorityKinds[Random.Range(0, priorityKinds.Length)]);
         }
 
         var candidatesByKind = candidates

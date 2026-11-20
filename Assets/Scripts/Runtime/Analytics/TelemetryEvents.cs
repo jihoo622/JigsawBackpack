@@ -217,12 +217,14 @@ public static partial class TelemetryPayload
                 PuzzleRumorKind.RareDemand => "rare",
                 PuzzleRumorKind.Action => "action",
                 PuzzleRumorKind.Preference => "preference",
+                PuzzleRumorKind.Wagon => "wagon",
                 _ => throw new ArgumentOutOfRangeException(nameof(_info), _info.kind, "알 수 없는 소문 종류입니다.")
             },
             targetCityId = _info.targetCityId,
             tag = _info.tag,
             itemId = _info.itemId,
             actionId = _info.actionId,
+            wagonProductId = _info.wagonProductId,
             elapsedHours = _info.recordedHours
         };
     }

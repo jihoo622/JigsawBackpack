@@ -16,7 +16,21 @@ public sealed partial class PuzzleInventoryService
         CollectRareCandidates(candidates);
         CollectActionCandidates(candidates);
         CollectPreferenceCandidates(candidates);
+        CollectWagonCandidates(candidates);
         return PuzzleRumorCandidate.SortDistinct(candidates);
+    }
+
+    // 원본 마을 테이블 대신 현재 회차에서 실제 추첨한 판매 목록을 읽는다.
+    void CollectWagonCandidates(List<PuzzleRumorCandidate> _candidates)
+    {
+        foreach (var shop in wagonShops)
+        {
+            foreach (var product in shop.Value.Where(_product => !string.IsNullOrEmpty(_product.saleRegionId)))
+            {
+                _candidates.Add(new PuzzleRumorCandidate(PuzzleRumorKind.Wagon, shop.Key,
+                    _wagonProductId: product.id));
+            }
+        }
     }
 
     // 특산 후보는 마을 고정 재고의 품목 중 그 마을의 지역 로테이션에는 없는 품목이다.

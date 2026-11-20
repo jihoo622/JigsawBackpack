@@ -35,10 +35,11 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         // 희귀 소문은 수요 태그, 특산 소문은 대상 마을의 특산 태그다.
         public readonly string Tag;
         public readonly string ActionId;
+        public readonly string WagonProductId;
         public readonly long RecordedHours;
 
         public TavernRumor(PuzzleRumorKind _kind, string _targetCityId, string _sourceCityId, string _message,
-            string _itemId, string _tag, string _actionId, long _recordedHours)
+            string _itemId, string _tag, string _actionId, long _recordedHours, string _wagonProductId = null)
         {
             Kind = _kind;
             TargetCityId = _targetCityId;
@@ -47,6 +48,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
             ItemId = _itemId ?? string.Empty;
             Tag = _tag ?? string.Empty;
             ActionId = _actionId ?? string.Empty;
+            WagonProductId = _wagonProductId ?? string.Empty;
             RecordedHours = _recordedHours;
         }
     }
@@ -70,10 +72,10 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         if (lastRumorVisit != CityMoveCount)
         {
             tavernRumors.Add(new TavernRumor(_candidate.Kind, _candidate.CityId, CurrentCityId, _message,
-                _candidate.ItemId, _candidate.Tag, _candidate.ActionId, Time.ElapsedHours));
+                _candidate.ItemId, _candidate.Tag, _candidate.ActionId, Time.ElapsedHours, _candidate.WagonProductId));
             lastRumorVisit = CityMoveCount;
             GameEvents.RaiseTavernRumorRecorded(this, CurrentCityId, _candidate.CityId, _message,
-                Time.ElapsedHours, _candidate.Tag, _candidate.Kind, _candidate.ItemId, _candidate.ActionId);
+                Time.ElapsedHours, _candidate.Tag, _candidate.Kind, _candidate.ItemId, _candidate.ActionId, _candidate.WagonProductId);
         }
     }
 

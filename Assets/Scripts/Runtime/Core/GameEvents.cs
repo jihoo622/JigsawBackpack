@@ -136,11 +136,12 @@ public static class GameEvents
     {
         public readonly PuzzleInventoryService session;
         public readonly PuzzleRumorKind kind;
-        public readonly string sourceCityId, targetCityId, message, tag, itemId, actionId;
+        public readonly string sourceCityId, targetCityId, message, tag, itemId, actionId, wagonProductId;
         public readonly long recordedHours;
 
         public TavernRumorInfo(PuzzleInventoryService _session, string _sourceCityId, string _targetCityId,
-            string _message, long _recordedHours, string _tag, PuzzleRumorKind _kind, string _itemId, string _actionId)
+            string _message, long _recordedHours, string _tag, PuzzleRumorKind _kind, string _itemId, string _actionId,
+            string _wagonProductId = null)
         {
             session = _session;
             sourceCityId = _sourceCityId;
@@ -151,6 +152,7 @@ public static class GameEvents
             kind = _kind;
             itemId = _itemId ?? string.Empty;
             actionId = _actionId ?? string.Empty;
+            wagonProductId = _wagonProductId ?? string.Empty;
         }
     }
     public static event Action<TavernRumorInfo> TavernRumorRecorded;
@@ -224,10 +226,10 @@ public static class GameEvents
 
     public static void RaiseTavernRumorRecorded(PuzzleInventoryService _session, string _sourceCityId,
         string _targetCityId, string _message, long _recordedHours, string _tag, PuzzleRumorKind _kind, string _itemId,
-        string _actionId)
+        string _actionId, string _wagonProductId = null)
     {
         Emit(TavernRumorRecorded, new TavernRumorInfo(_session, _sourceCityId, _targetCityId, _message,
-            _recordedHours, _tag, _kind, _itemId, _actionId));
+            _recordedHours, _tag, _kind, _itemId, _actionId, _wagonProductId));
     }
 
     public readonly struct MapRequestInfo

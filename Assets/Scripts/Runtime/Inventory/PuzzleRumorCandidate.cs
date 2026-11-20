@@ -8,7 +8,8 @@ public enum PuzzleRumorKind
     Specialty,
     RareDemand,
     Action,
-    Preference
+    Preference,
+    Wagon
 }
 
 // 소문 후보에는 대상 마을과 종류별 ID를 보관한다.
@@ -19,15 +20,17 @@ internal readonly struct PuzzleRumorCandidate
     internal string ItemId { get; }
     internal string Tag { get; }
     internal string ActionId { get; }
+    internal string WagonProductId { get; }
 
     internal PuzzleRumorCandidate(PuzzleRumorKind _kind, string _cityId, string _itemId = null, string _tag = null,
-        string _actionId = null)
+        string _actionId = null, string _wagonProductId = null)
     {
         Kind = _kind;
         CityId = _cityId;
         ItemId = _itemId ?? string.Empty;
         Tag = _tag ?? string.Empty;
         ActionId = _actionId ?? string.Empty;
+        WagonProductId = _wagonProductId ?? string.Empty;
     }
 
     internal static IReadOnlyList<PuzzleRumorCandidate> SortDistinct(IEnumerable<PuzzleRumorCandidate> _candidates)
@@ -39,6 +42,7 @@ internal readonly struct PuzzleRumorCandidate
             .ThenBy(_candidate => _candidate.ItemId, StringComparer.Ordinal)
             .ThenBy(_candidate => _candidate.Tag, StringComparer.Ordinal)
             .ThenBy(_candidate => _candidate.ActionId, StringComparer.Ordinal)
+            .ThenBy(_candidate => _candidate.WagonProductId, StringComparer.Ordinal)
             .ToList();
     }
 }

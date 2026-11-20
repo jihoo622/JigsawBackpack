@@ -78,6 +78,8 @@ public static partial class Presentation
                 ItemLink(_candidate.ItemId, tables.Piece(_candidate.ItemId).displayName)),
             PuzzleRumorKind.RareDemand or PuzzleRumorKind.Preference => TavernDemandRumor(_candidate, city),
             PuzzleRumorKind.Action => TavernActionRumor(city, tables.WorkshopById(_candidate.ActionId)),
+            PuzzleRumorKind.Wagon => BasicData.Format("presentation.station.wagonRumor", city,
+                WagonRewardName(_candidate.WagonProductId)),
             _ => throw new ArgumentOutOfRangeException(nameof(_candidate), _candidate.Kind, "지원하지 않는 소문 종류입니다.")
         };
     }
@@ -102,10 +104,10 @@ public static partial class Presentation
     // 저장된 수요 소문도 종류·마을·태그로 문구를 만들어 현재 표시 원본을 사용한다.
     internal static string TavernRumorMessage(PuzzleInventoryService.TavernRumor _rumor)
     {
-        if (_rumor.Kind == PuzzleRumorKind.RareDemand || _rumor.Kind == PuzzleRumorKind.Preference)
+        if (_rumor.Kind == PuzzleRumorKind.RareDemand || _rumor.Kind == PuzzleRumorKind.Preference || _rumor.Kind == PuzzleRumorKind.Wagon)
         {
             return TavernRumor(new PuzzleRumorCandidate(_rumor.Kind, _rumor.TargetCityId, _rumor.ItemId,
-                _rumor.Tag, _rumor.ActionId));
+                _rumor.Tag, _rumor.ActionId, _rumor.WagonProductId));
         }
         return _rumor.Message;
     }
@@ -500,9 +502,15 @@ public static partial class Presentation
                 if (wagon != null)
                 {
                     var board = tables.WagonBoardOf(wagon);
-                    _lines.Add(BasicData.Format("presentation.quest.wagonSize", board.width, board.height, WagonUsableCells(wagon)));
-                    _lines.Add(BasicData.Format("presentation.quest.wagonValue", wagon.price));
-                    _lines.Add(wagon.description);
+                    _statRows?.Add((BasicData.Text("presentation.quest.wagonSizeLabel"),
+                        BasicData.Format("presentation.quest.wagonSize", board.width, board.height)));
+                    _statRows?.Add((BasicData.Text("presentation.quest.wagonCellsLabel"),
+                        BasicData.Format("presentation.quest.wagonCells", WagonUsableCells(wagon))));
+                    _statRows?.Add((BasicData.Text("presentation.quest.wagonValueLabel"),
+                        BasicData.Format("presentation.quest.wagonValue", wagon.price)));
+                    bool hasEffect = !string.IsNullOrEmpty(wagon.modificationId) || !string.IsNullOrEmpty(wagon.processId) ||
+                        (wagon.freightExemptTags?.Length ?? 0) > 0 || (board.zones?.Length ?? 0) > 0;
+                    _lines.Add(BasicData.Format("presentation.quest.wagonEffectLine", hasEffect ? wagon.description : PuzzleTooltipNoEffect()));
                 }
                 break;
             case EntityLinkKind.Tag:
