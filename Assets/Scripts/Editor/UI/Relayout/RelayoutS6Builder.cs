@@ -855,7 +855,7 @@ public static class RelayoutS6Builder
         for (int i = 0; i < _clonedBoard.transform.childCount; i++)
         {
             var ch = _clonedBoard.transform.GetChild(i);
-            if (ch == viewport || ch.name.Contains("DragBeam") || ch.name.Contains("Candidate"))
+            if (ch == viewport || ch.name.Contains("DragBeam") || ch.name.Contains("Candidate") || ch.name.Contains("Ghost"))
             {
                 continue;
             }

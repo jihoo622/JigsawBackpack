@@ -193,6 +193,24 @@ public sealed class PuzzleInventoryView : MonoBehaviour
         ConfigureSlots(placementSlots, flatOutline, fillSprites);
         ConfigureSlots(ghostSlots, flatOutline, fillSprites);
         ConfigureSlots(outlineSlots, flatOutline);
+
+        if (ghostLayer)
+        {
+            // 중첩 Canvas를 가진 프리팹을 저장할 때 RectTransform이 0으로 접힐 수 있어 초기화 시 복구한다.
+            if (!ghostLayer.gameObject.activeSelf)
+            {
+                ghostLayer.gameObject.SetActive(true);
+            }
+            if (ghostLayer.localScale == Vector3.zero)
+            {
+                ghostLayer.localScale = Vector3.one;
+                ghostLayer.anchorMin = Vector2.zero;
+                ghostLayer.anchorMax = Vector2.one;
+                ghostLayer.anchoredPosition = Vector2.zero;
+                ghostLayer.sizeDelta = Vector2.zero;
+                ghostLayer.pivot = new Vector2(0.5f, 0.5f);
+            }
+        }
     }
 
     internal void SetTitle(string _title)
