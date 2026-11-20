@@ -817,8 +817,19 @@ public static partial class Presentation
     internal static string QuestCardProficiencyLabel => BasicData.Text("presentation.quest.cardProficiencyLabel");
     internal static string QuestCardTravel(TrainventoryQuestOffer _offer) => TurnSpan(PuzzleTimeManager.HoursOf(_offer.TravelTurns));
     internal static string QuestCardDeadline(TrainventoryQuestOffer _offer) => TurnSpan(_offer.DeadlineHours);
-    internal static string QuestCardReward(TrainventoryQuestOffer _offer) =>
-        BasicData.Format("presentation.quest.cardRewardValue", _offer.Reward);
+    // 화차를 주는 의뢰는 화차 이름(고유명사 링크: 올리면 화차 효과 미리보기)을 보수 칸에 함께 보인다.
+    internal static string QuestCardReward(TrainventoryQuestOffer _offer)
+    {
+        if (string.IsNullOrEmpty(_offer.RewardWagonProductId))
+        {
+            return BasicData.Format("presentation.quest.cardRewardValue", _offer.Reward);
+        }
+        string wagon = WagonRewardName(_offer.RewardWagonProductId);
+        return _offer.Reward == 0
+            ? BasicData.Format("presentation.quest.cardWagonRewardValue", wagon)
+            : BasicData.Format("presentation.quest.cardRewardWithWagonValue", _offer.Reward, wagon);
+    }
+
     internal static string QuestCardProficiency(TrainventoryQuestOffer _offer) =>
         BasicData.Format("presentation.quest.cardProficiencyValue", PuzzleTagLabel(_offer.ProficiencyTag), _offer.ProficiencyXp);
     internal static string QuestCardPenalty(TrainventoryQuestOffer _offer) =>

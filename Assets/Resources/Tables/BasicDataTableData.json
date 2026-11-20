@@ -2063,6 +2063,16 @@
           "arguments": 1
         },
         {
+          "id": "cardWagonRewardValue",
+          "value": "화차 {0} + 화물 가치",
+          "arguments": 1
+        },
+        {
+          "id": "cardRewardWithWagonValue",
+          "value": "{0:N0}$ + 화차 {1} + 화물 가치",
+          "arguments": 2
+        },
+        {
           "id": "cardProficiencyValue",
           "value": "{0} +{1:N0}",
           "arguments": 2
