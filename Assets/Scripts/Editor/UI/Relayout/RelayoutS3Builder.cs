@@ -201,6 +201,20 @@ public static class RelayoutS3Builder
                 6f, 972f, 79f, 22f, "▼", 12f, _palette);
             // 화차 간격 8px(연결기 자리)·화차 높이 80px. 목업 car shell 81px 폭에 맞춘다.
 
+            // 역 이동 연출: 기관차와 화차 목록을 함께 아래로 내보냈다가 다음 역에서 위에서 들여와 멈춘다(RailTrainMotion).
+            // 선로 밖으로 나간 부분은 선로 루트에서 잘라 낸다.
+            if (!rootGo.GetComponent<RectMask2D>()) rootGo.AddComponent<RectMask2D>();
+            var motion = rootGo.AddComponent<RailTrainMotion>();
+            var motionSo = new SerializedObject(motion);
+            var partsProp = motionSo.FindProperty("movingParts");
+            var parts = new[] { boiler, loco, scrollRectRt };
+            partsProp.arraySize = parts.Length;
+            for (int p = 0; p < parts.Length; p++)
+            {
+                partsProp.GetArrayElementAtIndex(p).objectReferenceValue = parts[p];
+            }
+            motionSo.ApplyModifiedPropertiesWithoutUndo();
+
             var stripView = rootGo.AddComponent<RailStripView>();
             var insRect = NewRect("InsertionLine", content);
             insRect.anchorMin = new Vector2(0f, 1f);

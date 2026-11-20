@@ -19,6 +19,20 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
     string hoveredCityId;
     Coroutine travelRoutine;
     Coroutine autoTravelRoutine;
+    RailTrainMotion trainMotion;
+
+    // 가운데 선로 기차 연출(개편 레이아웃에만 있다). 없으면 연출 없이 이동한다.
+    RailTrainMotion TrainMotion
+    {
+        get
+        {
+            if (!trainMotion)
+            {
+                trainMotion = SceneServices.Find<RailTrainMotion>(gameObject.scene);
+            }
+            return trainMotion && trainMotion.isActiveAndEnabled ? trainMotion : null;
+        }
+    }
     bool stopAutoTravelRequested;
     TravelPhase phase;
 
@@ -591,11 +605,14 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
     // 짧은 이동 연출 뒤 이동을 한 번 확정한다(1턴). 닫힘·비활성화는 확정 전에 대기 작업을 멈춘다.
     IEnumerator TravelTo(string _cityId)
     {
-        yield return PlayTravelEffect(TableManager.Instance.PuzzleTrade.travelEffectSeconds);
+        float effectSeconds = TableManager.Instance.PuzzleTrade.travelEffectSeconds;
+        TrainMotion?.Depart(effectSeconds);
+        yield return PlayTravelEffect(effectSeconds);
 
         var travelResult = session.Travel(_cityId);
         if (travelResult.IsSuccess)
         {
+            TrainMotion?.Arrive(true);
             phase = TravelPhase.Arrived;
             ShowTravelArrival();
             yield return HoldArrival();
@@ -643,6 +660,8 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
 
     void AbortTravel()
     {
+        // 출발 연출 중에 취소·실패하면 기차를 제자리로 돌려놓는다(이미 서 있거나 도착 중이면 그대로).
+        TrainMotion?.ReturnToStation();
         if (travelRoutine != null)
         {
             StopCoroutine(travelRoutine);
@@ -805,8 +824,15 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
                 session.ElapsedTime + eval.TravelHours);
             // 통과 구간은 연출을 절반으로 줄인다. 구간마다 1턴이 흐른다.
             float baseDuration = TableManager.Instance.PuzzleTrade.travelEffectSeconds;
-            yield return PlayTravelEffect(isStopLeg ? baseDuration : Mathf.Max(0.2f, baseDuration * 0.5f));
+            float legSeconds = isStopLeg ? baseDuration : Mathf.Max(0.2f, baseDuration * 0.5f);
+            TrainMotion?.Depart(legSeconds);
+            yield return PlayTravelEffect(legSeconds);
             var travelResult = session.TravelNextRouteLeg(out bool stopped);
+            if (travelResult.IsSuccess)
+            {
+                // 정차역이면 위에서 들어와 멈추고, 통과역이면 멈추지 않고 다음 구간에서 그대로 지나간다.
+                TrainMotion?.Arrive(stopped);
+            }
             if (!travelResult.IsSuccess)
             {
                 if (session.IsPassingThrough)
@@ -872,6 +898,7 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
 
     void EndAutoTravel()
     {
+        TrainMotion?.ReturnToStation();
         if (autoTravelRoutine != null)
         {
             StopCoroutine(autoTravelRoutine);
