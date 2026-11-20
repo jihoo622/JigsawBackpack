@@ -5,7 +5,8 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 // 화차 상점 카드. 누르면 선택을 토글하고, 끌기 시작하면 선택하며 화차 미리보기가 커서를 따라간다.
-public sealed class PuzzleWagonProductRow : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerClickHandler
+public sealed class PuzzleWagonProductRow : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerClickHandler,
+    IPointerEnterHandler, IPointerMoveHandler, IPointerExitHandler
 {
     [SerializeField] TextMeshProUGUI label;
     [SerializeField] Image artwork;
@@ -27,6 +28,7 @@ public sealed class PuzzleWagonProductRow : MonoBehaviour, IBeginDragHandler, ID
     PuzzleWagonProductData product;
     int dragPointerId;
     PuzzleWagonProductData draggedProduct;
+    bool hovered;
 
     static PuzzleWagonProductRow activeDraggingRow;
 
@@ -52,6 +54,7 @@ public sealed class PuzzleWagonProductRow : MonoBehaviour, IBeginDragHandler, ID
 
     internal void Bind(PuzzleWagonProductData _product)
     {
+        ClearHover();
         CancelDrag();
         product = _product;
         gameObject.SetActive(product != null);
@@ -68,6 +71,40 @@ public sealed class PuzzleWagonProductRow : MonoBehaviour, IBeginDragHandler, ID
                 chipRoot.SetActive(true);
             }
         }
+    }
+
+    public void OnPointerEnter(PointerEventData _eventData) => UpdateHover(_eventData, _entered: true);
+
+    public void OnPointerMove(PointerEventData _eventData) => UpdateHover(_eventData, _entered: false);
+
+    public void OnPointerExit(PointerEventData _eventData) => ClearHover();
+
+    void UpdateHover(PointerEventData _eventData, bool _entered)
+    {
+        if (product == null || _eventData == null || _eventData.dragging ||
+            IsDraggingProduct || PuzzleInventoryPresenter.HasActiveDrag)
+        {
+            ClearHover();
+            return;
+        }
+        var info = new GameEvents.EntityLinkInfo(gameObject.scene.handle, EntityLinkKind.Wagon, product.id, _eventData.position);
+        if (!hovered || _entered)
+        {
+            hovered = true;
+            GameEvents.RaiseEntityLinkHovered(info);
+            return;
+        }
+        GameEvents.RaiseEntityLinkHoverMoved(info);
+    }
+
+    void ClearHover()
+    {
+        if (!hovered)
+        {
+            return;
+        }
+        hovered = false;
+        GameEvents.RaiseEntityLinkHoverEnded(gameObject.scene.handle);
     }
 
     // 끌다가 같은 카드 위에서 놓은 경우는 클릭으로 보지 않는다(끌기 시작이 이미 선택했다).
@@ -97,6 +134,7 @@ public sealed class PuzzleWagonProductRow : MonoBehaviour, IBeginDragHandler, ID
             return;
         }
 
+        ClearHover();
         DragStarted?.Invoke(this);
 
         draggedProduct = product;
@@ -159,12 +197,17 @@ public sealed class PuzzleWagonProductRow : MonoBehaviour, IBeginDragHandler, ID
         return droppedProduct;
     }
 
-    void OnDisable() => CancelDrag();
+    void OnDisable()
+    {
+        ClearHover();
+        CancelDrag();
+    }
 
     void OnApplicationFocus(bool _focused)
     {
         if (!_focused)
         {
+            ClearHover();
             CancelDrag();
         }
     }

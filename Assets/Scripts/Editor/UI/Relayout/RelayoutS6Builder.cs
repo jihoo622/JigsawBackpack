@@ -88,6 +88,7 @@ public static class RelayoutS6Builder
 
             var rumorText = CreateLabel(_labelTemplate, rumorBar, "RumorText", 13f, TextAlignmentOptions.Left, _palette, UIPalette.ColorRole.Text);
             rumorText.textWrappingMode = TextWrappingModes.Normal;
+            TextLinkHandler.Attach(rumorText);
             rumorText.rectTransform.anchorMin = Vector2.zero;
             rumorText.rectTransform.anchorMax = Vector2.one;
             rumorText.rectTransform.offsetMin = new Vector2(128f, 4f);
@@ -122,7 +123,7 @@ public static class RelayoutS6Builder
 
             var hintText = CreateLabel(_labelTemplate, card, "HintText", 13f, TextAlignmentOptions.Center, _palette, UIPalette.ColorRole.TextSub);
             hintText.textWrappingMode = TextWrappingModes.Normal;
-            EnableEntityLinks(hintText);
+            TextLinkHandler.Attach(hintText);
             hintText.rectTransform.anchorMin = Vector2.zero;
             hintText.rectTransform.anchorMax = Vector2.one;
             hintText.rectTransform.offsetMin = new Vector2(12f, 8f);
@@ -138,7 +139,7 @@ public static class RelayoutS6Builder
             detailTitle.fontStyle = FontStyles.Bold;
             detailTitle.textWrappingMode = TextWrappingModes.NoWrap;
             detailTitle.overflowMode = TextOverflowModes.Ellipsis;
-            EnableEntityLinks(detailTitle);
+            TextLinkHandler.Attach(detailTitle);
             SetAnchored(detailTitle.rectTransform, 0f, 1f, 1f, 1f, 12f, -10f, -24f, 24f);
 
             const float STAT_TOP = 40f, STAT_H = 44f, STAT_GAP = 8f, CARD_INNER = 572f;
@@ -167,14 +168,14 @@ public static class RelayoutS6Builder
             // 보수는 금색으로 강조한다.
             statValues[2].color = _palette.GoldAccent;
             BindPalette(statValues[2].gameObject, _palette, UIPalette.ColorRole.GoldAccent);
-            EnableEntityLinks(statValues[2]);
+            TextLinkHandler.Attach(statValues[2]);
 
             var detailPenalty = CreateLabel(_labelTemplate, detailRoot, "DetailPenalty", 13f, TextAlignmentOptions.MidlineLeft, _palette, UIPalette.ColorRole.Text);
             detailPenalty.color = _palette.Negative;
             BindPalette(detailPenalty.gameObject, _palette, UIPalette.ColorRole.Negative);
             detailPenalty.textWrappingMode = TextWrappingModes.NoWrap;
             detailPenalty.overflowMode = TextOverflowModes.Ellipsis;
-            EnableEntityLinks(detailPenalty);
+            TextLinkHandler.Attach(detailPenalty);
             SetAnchored(detailPenalty.rectTransform, 0f, 1f, 1f, 1f, 12f, -92f, -24f, 22f);
             detailRoot.gameObject.SetActive(false);
 
@@ -1059,17 +1060,6 @@ public static class RelayoutS6Builder
         tmp.raycastTarget = false;
         BindPalette(go, _palette, _role);
         return tmp;
-    }
-
-    static void EnableEntityLinks(TextMeshProUGUI _label)
-    {
-        if (!_label) return;
-        _label.richText = true;
-        _label.raycastTarget = true;
-        if (!_label.TryGetComponent<TextLinkHandler>(out _))
-        {
-            _label.gameObject.AddComponent<TextLinkHandler>();
-        }
     }
 
     static Button CreateButton(

@@ -272,6 +272,8 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
             railStripView.WagonReordered += OnWagonMoved;
             railStripView.WagonDraggedOutside += OnRelayoutWagonDraggedOutside;
             railStripView.WagonDragEndedOutside += OnRelayoutWagonDragEndedOutside;
+            railStripView.WagonHovered += OnRailStripWagonHovered;
+            railStripView.WagonHoverEnded += HideWagonTooltip;
         }
         if (trainWindowManager)
         {
@@ -409,6 +411,8 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
             railStripView.WagonReordered -= OnWagonMoved;
             railStripView.WagonDraggedOutside -= OnRelayoutWagonDraggedOutside;
             railStripView.WagonDragEndedOutside -= OnRelayoutWagonDragEndedOutside;
+            railStripView.WagonHovered -= OnRailStripWagonHovered;
+            railStripView.WagonHoverEnded -= HideWagonTooltip;
         }
         if (trainWindowManager)
         {
@@ -2445,7 +2449,18 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
 
     void OnWagonHovered(int _index, Vector2 _slotAnchor)
     {
-        if (!wagonTooltipView || TrainOperationsBlocked || drag != null)
+        ShowWagonTooltip(_index, _slotAnchor, _aboveAnchor: true);
+    }
+
+    void OnRailStripWagonHovered(int _index, Vector2 _pointerPosition)
+    {
+        ShowWagonTooltip(_index, _pointerPosition, _aboveAnchor: false);
+    }
+
+    void ShowWagonTooltip(int _index, Vector2 _anchor, bool _aboveAnchor)
+    {
+        if (!wagonTooltipView || TrainOperationsBlocked || drag != null || session == null ||
+            _index < 0 || _index >= session.TrainWagons.Count)
         {
             HideWagonTooltip();
             return;
@@ -2454,7 +2469,14 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
         var wagon = session.TrainWagons[_index];
         if (hoveredTooltipWagon == wagon && wagonTooltipView.IsOpen)
         {
-            wagonTooltipView.SetPositionAboveAnchor(_slotAnchor);
+            if (_aboveAnchor)
+            {
+                wagonTooltipView.SetPositionAboveAnchor(_anchor);
+            }
+            else
+            {
+                wagonTooltipView.SetPointerPosition(_anchor);
+            }
             return;
         }
 
@@ -2492,7 +2514,7 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
         string failure = session.WagonSaleFailure(_index);
         string notice = failure == null ? null : Presentation.WagonSaleNotice(failure);
         wagonTooltipView.ShowEntityInfo($"{name} · {wagon.WagonNumber}번", null,
-            notice == null ? null : new[] { notice }, _slotAnchor, _statRows: wagonTooltipStats, _aboveAnchor: true,
+            notice == null ? null : new[] { notice }, _anchor, _statRows: wagonTooltipStats, _aboveAnchor: _aboveAnchor,
             _effectHeader: BasicData.Text("presentation.quest.wagonEffectsHeader"), _effectLines: wagonTooltipEffects);
     }
 
