@@ -253,6 +253,38 @@ public sealed class FloatingWindowManager : MonoBehaviour
         return false;
     }
 
+    // ---- 포커스 표시 ----
+    // 가장 위에 있는 열린 창(마지막으로 누르거나 연 창)의 테두리만 금색으로 보인다(FloatingWindow.SetFocusedVisual).
+    FloatingWindow focusedWindow;
+
+    void LateUpdate()
+    {
+        FloatingWindow top = null;
+        int topIndex = -1;
+        for (int i = 0; i < windows.Count; i++)
+        {
+            var win = windows[i];
+            if (win && win.IsOpen && win.gameObject.activeInHierarchy && win.transform.GetSiblingIndex() > topIndex)
+            {
+                top = win;
+                topIndex = win.transform.GetSiblingIndex();
+            }
+        }
+        if (top == focusedWindow)
+        {
+            return;
+        }
+        if (focusedWindow)
+        {
+            focusedWindow.SetFocusedVisual(false);
+        }
+        focusedWindow = top;
+        if (focusedWindow)
+        {
+            focusedWindow.SetFocusedVisual(true);
+        }
+    }
+
     // R18: 열린 창만 일시 숨기고 열림 상태를 기억한 뒤 다시 호출하면 복원한다.
     public void ToggleBackgroundOnly()
     {

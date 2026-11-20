@@ -41,6 +41,9 @@ public sealed class FloatingWindow : MonoBehaviour, IPointerDownHandler
     bool hiddenForBackgroundOnly;
     // 사용자가 끌어 옮긴 창. 다시 열어도 그 자리를 지킨다. 창 배치 초기화로 풀린다.
     bool userPlaced;
+    GameObject focusBorder;
+    bool focusBorderResolved;
+    bool focusedVisual;
 
     public string WindowId => string.IsNullOrEmpty(windowId) ? gameObject.name : windowId;
     public Vector2 DefaultPosition => defaultPosition;
@@ -199,6 +202,39 @@ public sealed class FloatingWindow : MonoBehaviour, IPointerDownHandler
         var manager = ResolveManager();
         Vector2 position = manager ? manager.FindOpenPosition(this, _occupied) : defaultPosition;
         PlaceAt(new Rect(position.x, position.y, defaultSize.x, defaultSize.y));
+    }
+
+    // 포커스된(가장 위) 창은 틀의 금색 테두리 선(FocusBorder, 창 틀 프리팹에 미리 둔 선 4개)을 켠다. 바탕 색은 그대로다.
+    internal void SetFocusedVisual(bool _focused)
+    {
+        if (focusedVisual == _focused)
+        {
+            return;
+        }
+        if (!focusBorderResolved)
+        {
+            focusBorderResolved = true;
+            var found = transform.Find("FocusBorder");
+            focusBorder = found ? found.gameObject : null;
+        }
+        focusedVisual = _focused;
+        if (focusBorder)
+        {
+            focusBorder.SetActive(_focused);
+            if (_focused)
+            {
+                focusBorder.transform.SetAsLastSibling();
+            }
+        }
+    }
+
+    public void SetDefaultSize(Vector2 _size)
+    {
+        defaultSize = _size;
+        if (initialized)
+        {
+            PlaceAt(new Rect(desiredRect.x, desiredRect.y, defaultSize.x, defaultSize.y));
+        }
     }
 
     internal void BeginDrag()

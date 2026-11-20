@@ -204,6 +204,49 @@ public static class RelayoutWindowKit
         content.pivot = new Vector2(0.5f, 0.5f);
         content.offsetMin = new Vector2(_t.windowPadding, _t.windowPadding);
         content.offsetMax = new Vector2(-_t.windowPadding, -_t.ContentTop);
+
+        ApplyFocusBorder(rootRt, _t, _p);
+    }
+
+    public const string FOCUS_BORDER_NAME = "FocusBorder";
+
+    // 포커스된 창 표시(R57): 기본 테두리(Outline, 창 밖 borderWidth) 자리에 금색 선 4개를 겹쳐 그린다. 평소에는 꺼 둔다.
+    // Outline 색을 바꾸면 반투명 바탕 뒤로 그 색이 비쳐 창 전체가 물들어서 선을 따로 둔다.
+    static void ApplyFocusBorder(RectTransform _rootRt, UILayoutTokens _t, UIPalette _p)
+    {
+        var border = _rootRt.Find(FOCUS_BORDER_NAME) as RectTransform;
+        if (!border)
+        {
+            border = NewRect(FOCUS_BORDER_NAME, _rootRt);
+        }
+        Stretch(border);
+        border.SetAsLastSibling();
+        float w = _t.borderWidth;
+        Color gold = _p ? _p.GoldAccent : new Color(0.9412f, 0.7059f, 0.1608f, 1f);
+        FocusEdge(border, "Top", new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 0f), new Vector2(w * 2f, w), gold);
+        FocusEdge(border, "Bottom", new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0.5f, 1f), new Vector2(w * 2f, w), gold);
+        FocusEdge(border, "Left", new Vector2(0f, 0f), new Vector2(0f, 1f), new Vector2(1f, 0.5f), new Vector2(w, 0f), gold);
+        FocusEdge(border, "Right", new Vector2(1f, 0f), new Vector2(1f, 1f), new Vector2(0f, 0.5f), new Vector2(w, 0f), gold);
+        border.gameObject.SetActive(false);
+    }
+
+    static void FocusEdge(RectTransform _parent, string _side, Vector2 _min, Vector2 _max, Vector2 _pivot, Vector2 _size, Color _color)
+    {
+        var t = _parent.Find(_side) as RectTransform;
+        if (!t)
+        {
+            t = NewRect(_side, _parent);
+            t.gameObject.AddComponent<Image>();
+        }
+        t.anchorMin = _min;
+        t.anchorMax = _max;
+        t.pivot = _pivot;
+        t.anchoredPosition = Vector2.zero;
+        t.sizeDelta = _size;
+        var img = t.GetComponent<Image>();
+        img.sprite = null;
+        img.color = _color;
+        img.raycastTarget = false;
     }
 
     const string FONT_PATH = "Assets/TextMesh Pro/Resources/Fonts & Materials/NotoSansKR-Medium SDF.asset";
