@@ -401,10 +401,6 @@ public static class RelayoutS4Builder
                 if (profPanel)
                 {
                     Stretch(profPanel);
-                    // 머리 3줄 높이를 글자 크기 × 1.5에 맞춘다(평판 20pt → 30, 안내 14pt → 22). 구분선(-80) 위에서 끝난다.
-                    FitProficiencyLine(profPanel, "Reputation", 0f, 30f);
-                    FitProficiencyLine(profPanel, "NextStage", -32f, 24f);
-                    FitProficiencyLine(profPanel, "Hint", -56f, 22f);
                 }
             }
 
@@ -835,14 +831,6 @@ public static class RelayoutS4Builder
         text.fontSize = _fontSize;
         text.enableWordWrapping = true;
         text.overflowMode = TextOverflowModes.Overflow;
-    }
-
-    static void FitProficiencyLine(RectTransform _panel, string _name, float _y, float _height)
-    {
-        var rt = _panel.Find(_name) as RectTransform;
-        if (!rt) return;
-        rt.anchoredPosition = new Vector2(rt.anchoredPosition.x, _y);
-        rt.sizeDelta = new Vector2(rt.sizeDelta.x, _height);
     }
 
     static RectTransform NewRect(string _name, Transform _parent)
