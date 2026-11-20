@@ -235,6 +235,7 @@ public sealed partial class PuzzleInventoryService
         visitedCities.Add(CurrentCityId);
         // 이 구간은 이미 통과 이동으로 기록했다. 정차 전환은 auto_travel_stopped로 남는다.
         GameEvents.RaiseCityArrived(CurrentCityId, CityMoveCount);
+        CompleteArrivedQuests();
     }
 }
 

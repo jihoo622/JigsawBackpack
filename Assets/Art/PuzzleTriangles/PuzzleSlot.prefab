@@ -73,8 +73,8 @@ MonoBehaviour:
   freshnessLabel: {fileID: 1029684734639950670}
   synergyNotice: {fileID: 7044077942590150612}
   freshnessFontScale: 0.45
-  freshnessWidthScale: 0.18
-  freshnessHeightScale: 0.7
+  freshnessWidthScale: 0.9
+  freshnessHeightScale: 0.35
   freshnessOffsetScale: 0.43
   synergyNoticeFontScale: 0.24
   synergyNoticeSizeScale: 0.3

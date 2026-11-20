@@ -1,16 +1,6 @@
 # 현재 구현 상태
 
-> **화면 배치 개편 기본 적용(S7, 2026-11-19):** `RelayoutSettings.Enabled`(`ui.relayout.enabled`) 기본값이 `1`(개편 레이아웃)이다. 일시정지 메뉴 토글로 구형 `GameplayLayout`으로 전환할 수 있으며 구형 UI 삭제는 별도 후속 작업이다. Play Mode 검증은 S1~S7 및 `.orca/analysis/relayout/s1~s7/`에 반영되었다.
-
-- **개편 UI 구현 현황(S1~S7)**:
-  - **창 시스템(S1) & 고정 프레임(S2)**: `FloatingWindow` 고정 크기(H21)·`UIPalette.asset`(현재 팔레트 A 임시 적용)·`RunEndModal`·`TopHudView`(56px)·`QuickToolbarView`·`StatusBannerView`·`PlatformSceneView`·`TownSceneView`(6건물 클릭/`1~6` 단축키, 이벤트 기반 1줄 현황, 완료 가능 의뢰 테두리 강조, 야간/공터 디밍).
-  - **중앙 선로 & 다중 화차 창(S3/S3b)**: `RailStripView`(가상화 14슬롯 풀, 7×6 미니 격자, 드래그 순서 변경 H20, 역사 드롭 판매 H17, 구매 삽입 드롭 R24) + `TrainWindowManager`/`TrainWindowView`(`train_0..15`, LRU 교체, 440×430 7×5 보드, 2줄 렌즈 요약).
-  - **통합 수첩(S4)**: `NotebookWindowView` 5탭(`지도`/`소문`/`의뢰`/`숙련`/`상성표`), `PuzzleWorldMap` 임베드·줌/패닝/검색/경로 계획·`MapDestinationPinView` 16개 풀.
-  - **시장 & 렌즈(S5)**: `MarketWindowView`(1136, 96, 764×640, 13×9 보드 56px, 시세 띠, 구매/판매가 라벨, 도착 자동 오픈, 야간 차단) + `LensWindowView`(26, 134, 510×366, `현재`/`방문 도시`/`소문 도시`) + H16 평면 툴팁.
-  - **마을 창 5종 & 이동 배너 + 의뢰 드래그 규칙(S6)**: `TavernWindowView`(소문 + 9×5 의뢰 게시판 드래그 위치 지정 수락 `TryAcceptQuestAt` / 목적지 게시판 드롭 완료 `TryCompleteQuestWithCargo` / 도착 시 비자동완료 / 최종 결산 `Settle()` 직전 자동 완료 R26 / 초과 의뢰 `외 n건` / 비화차·범위 외 드롭 거절 사유 배너), `RestWindowView`(1~4턴 휴식·아침까지 대기·결산 미리보기), `StationHallWindowView`(화차 드래그 구매·판매 구역·출발), `WorkshopWindowView`(R17 단일 창 도시 작업장 전환), `CityHallWindowView`(읽기 전용 도시 정보·평판·목표), `TravelBannerView`(이동 확인·진행 막대, 이동 연출 중 휴식/작업장 차단 `IsAnyTravelAnimating`).
-  - **미완료/보류 항목**: 구형 UI(`GameplayLayout` 등) 코드·프리팹 삭제(별도 후속), 팔레트 최종 선택(현재 `UIPalette.asset` 팔레트 A 임시 적용), `PlatformScene`/`TownScene` 플레이스홀더 아트 교체.
-
-- 시작 지급 화차는 `startingTrain`의 5×5 외곽에서 13칸을 제거한 12칸이다. 화면 위에서 두 줄 전체·세 번째 줄 오른쪽 두 칸·맨 아래 네 번째 칸을 제외하며, 시작 목재 묶음 하나를 사용 가능한 칸으로 옮겼다. 시작 전용 보드는 구매 상품과 분리되어 있고 구매 화차는 `train`을 사용한다. 제거한 칸은 격자 표시·포인터·수동/자동 배치·성장·시간 진행 사본에서 함께 제외한다.
+- 시작 지급 화차는 `startingTrain`의 5×5 외곽에서 13칸을 제거한 12칸이다. 화면 위에서 두 줄 전체·세 번째 줄 오른쪽 두 칸·맨 아래 네 번째 칸을 제외하며, 시작 목재 묶음 하나를 사용 가능한 칸으로 옮겼다. 시작 전용 보드는 구매 상품과 분리되어 있고 구매 화차는 `train`을 사용한다. 제거한 칸은 격자 표시·포인터·수동/자동 배치·성장·시간 진행 사본에서 함께 제외한다. Unity 컴파일·플레이·시각 확인은 남아 있다.
 
 구현 사실과 기획 대비 차이를 관리한다. 규칙·의도·설계 미정 사항은 [게임 기획서](<../게임 기획서.md>)를 본다. 구현 완료는 플레이 검증 완료를 뜻하지 않는다.
 
@@ -95,7 +85,6 @@
 - 지도 표시 경로 11개를 우회·분리해 직통선이 테라카·금융마을 등 비경유 역에 붙지 않도록 했다. 그리기는 선택적 `displayPoints`를 우선 사용하며 게임 시간/운임의 원본 `points`와 역 좌표는 보존한다. 교차점에는 아래 노선의 틈을 저장하고 지역 간→중립→지역 내부 순으로 그린다. 노선 굵기는 통일하고 중립 선·역 테두리는 같은 밝은 회색을 사용한다.
 
 - 소문 로그는 `PanelBase` View와 별도 Presenter로 나눴다. 소문·의뢰 탭을 두고 `TavernRumorRecorded`·`QuestChanged`·`TimeAdvanced`를 세션별로 구독해 즉시 갱신하며 static 초기화 시 이벤트를 정리한다. 본문은 사전 배치된 TMP 한 개와 ScrollRect/Viewport/Content를 사용한다. 문구·형식은 기초데이터 `presentation.rumorLog.*`이며 배치는 프리팹(`Assets/Art/PuzzleTradeNotebook.prefab`)에서 수정한다.
-- **행선지 렌즈(L안, `feature/route-lens` 커밋 `9d51822`·`d7bdeb8`·`51675e3`)**: 기차·시장 화물을 잡는 동안(작업대 제외, 지도 열림 중에도 유지) 기차 열 아래 `RouteLens`(`64,716, 684×208`)에 거래 견적·잔액 전후(거래 완료 후 다음 화물을 누를 때까지 유지), 가리킨 자리의 다음 정산 `Δ`(HUD `TrainSynergyDelta`와 같은 Σ(Final − Base) 기준, 영향 이웃 수), `현재` / `방문 도시` / `소문 도시` 탭별 행선지 공개 정보(직결 이웃 + 계획 목적지: 방문 역은 공식 견적·물가·적재 포함 운임, 소문 역은 문장·경과 시간·48시간 기준 오래됨 표시·운임, 미확인 역은 가격·등급 비공개)를 표시한다. 현재 화차·현재 회전의 유효 자리(구역·구멍 칸은 `EvaluateMove`로 제외)를 원본 불변 사본으로 평가해 상위 3개 배치 후보(1순위 외곽선, 2·3순위 앵커 배지)를 기차 보드(`PuzzleInventoryUI.prefab` 사전 배치 표식 3개)에 띄우며, 누름·회전·화차 전환 때만 계산하고 일시정지 메뉴(`PauseMenu`) 토글로 켜고 끌 수 있다. 구현은 `PuzzleLensTypes.cs`, `PuzzleInventoryService.Lens.cs`, `PuzzleInventoryService.Proficiency.cs`, `PuzzleInventory.cs`, `PuzzleInventoryDrag.cs`, `PuzzleInventoryPresenter.Lens.cs`, `PuzzleRouteLensView.cs`, `PuzzleInventoryView.cs`, `Presentation.cs`, `BasicDataTableData.json`, `BasicDataContract.cs`, `RouteLensUIBuilder.cs`(`Tools/MyJG/UI/Build Route Lens UI`) 및 `GameplayLayout`·`PuzzleInventoryUI`·`GameCanvas`·`PauseCanvas` 프리팹에 반영했다. 플레이에서의 시각·배치·4ms 계산 예산·토글 동작은 미확인이다.
 
 ## 기획과 구현의 정합성
 

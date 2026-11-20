@@ -6,8 +6,6 @@ using UnityEngine;
 public sealed class PuzzleTradeNotebookPresenter : MonoBehaviour
 {
     [SerializeField] PuzzleTradeNotebookView view;
-    [SerializeField] bool embeddedInNotebook;
-    [SerializeField] NotebookWindowView notebookWindow;
     PuzzleInventoryService session;
     PuzzleNotebookTab tab = PuzzleNotebookTab.Rumors;
     int unseenCount;
@@ -48,23 +46,9 @@ public sealed class PuzzleTradeNotebookPresenter : MonoBehaviour
     {
         tab = _tab;
         Refresh();
-        if (embeddedInNotebook && notebookWindow)
-        {
-            var winTab = _tab switch
-            {
-                PuzzleNotebookTab.Quests => NotebookWindowView.NotebookWindowTab.Quests,
-                PuzzleNotebookTab.Proficiency => NotebookWindowView.NotebookWindowTab.Proficiency,
-                PuzzleNotebookTab.Synergy => NotebookWindowView.NotebookWindowTab.Synergy,
-                _ => NotebookWindowView.NotebookWindowTab.Rumors
-            };
-            notebookWindow.OpenTab(winTab);
-            return;
-        }
         view.SetOpen(true);
         SyncSynergyChart();
     }
-
-    internal void MarkShown() => OnShown();
 
     void OnShown()
     {
@@ -88,10 +72,6 @@ public sealed class PuzzleTradeNotebookPresenter : MonoBehaviour
 
     void SyncSynergyChart()
     {
-        if (embeddedInNotebook)
-        {
-            return;
-        }
         GameEvents.RaiseSynergyChartShowRequested(gameObject.scene.handle, view.IsOpen && tab == PuzzleNotebookTab.Synergy);
     }
 

@@ -124,15 +124,3 @@ InitTestScene*.unity*
 /[Aa]ssets/[Ss]ceneDependencyCache*
 Docs/시너지 현황.md
 .orca/
-
-# 에이전트·도구 작업 폴더(로컬 전용)
-.zcode/
-.omo/
-
-# Unity 강제 종료 후 장면 복구 백업
-/[Aa]ssets/_[Rr]ecovery/
-/[Aa]ssets/_[Rr]ecovery.meta
-
-# Performance Testing 패키지가 테스트 실행 때 만들고 지우는 파일
-/[Aa]ssets/[Rr]esources/PerformanceTestRunInfo.json*
-/[Aa]ssets/[Rr]esources/PerformanceTestRunSettings.json*

@@ -170,125 +170,6 @@ public sealed class PuzzleStationActionsPresenter : MonoBehaviour
         return modes.Count > 0 ? modes[0].displayName : string.Empty;
     }
 
-    internal event System.Action ReturnedHome;
-
-    internal bool TryOpenFromRelayout(TownBuildingButton.BuildingKind _kind, out string _reason)
-    {
-        session ??= SceneServices.For<PuzzleInventoryService>(gameObject.scene);
-        if (session == null || session.RunStatus != PuzzleRunStatus.InProgress)
-        {
-            _reason = session != null ? Presentation.PuzzleRunStatusText(session.RunStatus) : string.Empty;
-            return false;
-        }
-
-        switch (_kind)
-        {
-            case TownBuildingButton.BuildingKind.Market:
-                if (!session.IsMarketOpen)
-                {
-                    _reason = Presentation.PuzzleNightMarket;
-                    return false;
-                }
-                if (!session.TryEnterMarket())
-                {
-                    _reason = Presentation.StationMarketClosed;
-                    return false;
-                }
-                if (view) view.SetOpen(true);
-                view.ShowMarket();
-                _reason = string.Empty;
-                return true;
-
-            case TownBuildingButton.BuildingKind.Tavern:
-                if (!session.TryEnterTavern())
-                {
-                    _reason = Presentation.PuzzleRunStatusText(session.RunStatus);
-                    return false;
-                }
-                if (view) view.SetOpen(true);
-                view.ShowTavern();
-                _reason = string.Empty;
-                return true;
-
-            case TownBuildingButton.BuildingKind.Rest:
-                if (view) view.SetOpen(true);
-                OpenRest();
-                _reason = string.Empty;
-                return true;
-
-            case TownBuildingButton.BuildingKind.StationHall:
-                if (!session.TryEnterWagonFacility())
-                {
-                    _reason = Presentation.PuzzleRunStatusText(session.RunStatus);
-                    return false;
-                }
-                if (view) view.SetOpen(true);
-                view.ShowWagonShop(session.WagonProductsHere);
-                _reason = string.Empty;
-                return true;
-
-            case TownBuildingButton.BuildingKind.Workshop:
-                if (session.HasButchery())
-                {
-                    session.LeaveFacility();
-                    if (view) view.SetOpen(true);
-                    view.ShowButchery();
-                    if (!session.OpenButchery())
-                    {
-                        view.ShowHome();
-                        _reason = Presentation.BuildingWorkshopEmpty;
-                        return false;
-                    }
-                    Refresh();
-                    _reason = string.Empty;
-                    return true;
-                }
-                if (session.HasModification())
-                {
-                    session.LeaveFacility();
-                    if (view) view.SetOpen(true);
-                    view.ShowModification();
-                    if (!session.OpenModification())
-                    {
-                        view.ShowHome();
-                        _reason = Presentation.BuildingWorkshopEmpty;
-                        return false;
-                    }
-                    Refresh();
-                    _reason = string.Empty;
-                    return true;
-                }
-                if (session.HasRefining())
-                {
-                    session.LeaveFacility();
-                    if (view) view.SetOpen(true);
-                    view.ShowRefining();
-                    if (!session.OpenRefining())
-                    {
-                        view.ShowHome();
-                        _reason = Presentation.BuildingWorkshopEmpty;
-                        return false;
-                    }
-                    Refresh();
-                    _reason = string.Empty;
-                    return true;
-                }
-                _reason = Presentation.BuildingWorkshopEmpty;
-                return false;
-
-            default:
-                _reason = string.Empty;
-                return false;
-        }
-    }
-
-    internal void CloseForRelayoutSwitch()
-    {
-        session ??= SceneServices.For<PuzzleInventoryService>(gameObject.scene);
-        session?.LeaveFacility();
-        ShowHome();
-    }
-
     // 시장·술집·화차 시설은 시간을 쓰지 않고 들어간다. 이동 중이거나 판이 끝났으면 화면을 열지 않는다.
     // 뒤로 갔다가 같은 시설에 다시 들어가면 시간을 다시 쓰지 않는다. 다른 역 행동을 고르면 다시 쓴다.
     void OpenMarket()
@@ -478,7 +359,6 @@ public sealed class PuzzleStationActionsPresenter : MonoBehaviour
             session.CloseRefining();
         }
         view.ShowHome();
-        ReturnedHome?.Invoke();
     }
 
     void OnPanelVisibility(GameEvents.PanelInfo _info)
@@ -558,7 +438,7 @@ public sealed class PuzzleStationActionsPresenter : MonoBehaviour
 
     void OnArrived(GameEvents.CityArrivalInfo _info)
     {
-        ShowHome();
+        view.ShowHome();
         Refresh();
     }
 
