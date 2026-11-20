@@ -484,6 +484,7 @@ public sealed partial class PuzzleInventoryService
         Funds = checked(Funds + payout);
         _quest.Finish(TrainventoryQuestState.Completed, TrainventoryQuestFailure.None, payout, Time.ElapsedHours);
         GrantQuestProficiency(_quest);
+        ReceivePendingQuestWagons(false);
         PruneAnimalStates();
         RecordAction(PuzzleActionKind.CompleteQuest, _targetCityId: CurrentCityId);
         GameEvents.RaiseFundsChanged(this, previousFunds);
