@@ -2135,7 +2135,14 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         return result;
     }
 
-    PuzzleDropResult FindQuickTransfer(PuzzlePlacement _original, PuzzleInventory _destination, int _preferredClockwiseTurns)
+    internal bool CanQuickTransferToWagon(PuzzlePlacement _original, int _wagonIndex, int _preferredClockwiseTurns)
+    {
+        return _wagonIndex >= 0 && _wagonIndex < trainWagons.Count &&
+            FindQuickTransfer(_original, trainWagons[_wagonIndex], _preferredClockwiseTurns, false).CanDrop;
+    }
+
+    PuzzleDropResult FindQuickTransfer(PuzzlePlacement _original, PuzzleInventory _destination, int _preferredClockwiseTurns,
+        bool _apply = true)
     {
         if (_original == null)
         {
@@ -2169,7 +2176,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
                     var candidate = EvaluateDrop(_original, _destination, grabbedCell, targetCell, rotation);
                     if (candidate.CanDrop)
                     {
-                        return ApplyDrop(_original, _destination, grabbedCell, targetCell, rotation);
+                        return _apply ? ApplyDrop(_original, _destination, grabbedCell, targetCell, rotation) : candidate;
                     }
                 }
             }

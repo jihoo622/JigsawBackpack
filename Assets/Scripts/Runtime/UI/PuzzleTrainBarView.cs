@@ -263,7 +263,7 @@ public sealed class PuzzleTrainBarView : MonoBehaviour, IBeginDragHandler, IDrag
 
     // _maxWagonCount: 지금 평판에서 허용하는 증차 상한(세션 계산값). 빈 슬롯의 구매 안내 표시에 쓴다.
     internal void Refresh(IReadOnlyList<PuzzleInventory> _wagons, int _selectedIndex, int _maxWagonCount,
-        int? _dragHoveredIndex = null)
+        int? _dragHoveredIndex = null, bool _canDropOnHoveredWagon = true)
     {
         if (wagonSlots == null)
         {
@@ -317,7 +317,7 @@ public sealed class PuzzleTrainBarView : MonoBehaviour, IBeginDragHandler, IDrag
                 slot.numberText.color = Presentation.PuzzleHeading;
             }
 
-            RefreshSlotHighlight(slot, i, _selectedIndex, _dragHoveredIndex);
+            RefreshSlotHighlight(slot, i, _selectedIndex, _dragHoveredIndex, _canDropOnHoveredWagon);
             RefreshSlotSynergyNotice(slot, _wagons[i], i == _selectedIndex);
         }
 
@@ -392,7 +392,8 @@ public sealed class PuzzleTrainBarView : MonoBehaviour, IBeginDragHandler, IDrag
         return ownedWagonCount < currentMaxWagonCount;
     }
 
-    void RefreshSlotHighlight(WagonSlotUI _slot, int _index, int _selectedIndex, int? _dragHoveredIndex)
+    void RefreshSlotHighlight(WagonSlotUI _slot, int _index, int _selectedIndex, int? _dragHoveredIndex,
+        bool _canDropOnHoveredWagon)
     {
         if (_slot.highlightBorder == null)
         {
@@ -403,7 +404,7 @@ public sealed class PuzzleTrainBarView : MonoBehaviour, IBeginDragHandler, IDrag
         bool isDragHovered = _dragHoveredIndex == _index;
         _slot.highlightBorder.enabled = isSelected || isDragHovered;
         _slot.highlightBorder.color = isDragHovered
-            ? Presentation.PuzzleWagonDragHoverBorder
+            ? (_canDropOnHoveredWagon ? Presentation.PuzzleWagonDragHoverBorder : Presentation.PuzzleOutline(false))
             : Presentation.PuzzleWagonSelectedBorder;
     }
 

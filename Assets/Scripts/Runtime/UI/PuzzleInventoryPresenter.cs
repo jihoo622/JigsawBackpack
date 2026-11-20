@@ -1668,7 +1668,10 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         }
         if (trainBarView && session != null)
         {
-            trainBarView.Refresh(session.TrainWagons, session.CurrentWagonIndex, session.MaxWagonCount, hoveredWagonIndex);
+            bool canDropOnHoveredWagon = drag == null || !hoveredWagonIndex.HasValue ||
+                session.CanQuickTransferToWagon(drag.OriginalPlacement, hoveredWagonIndex.Value, drag.ClockwiseTurns);
+            trainBarView.Refresh(session.TrainWagons, session.CurrentWagonIndex, session.MaxWagonCount,
+                hoveredWagonIndex, canDropOnHoveredWagon);
         }
     }
 
