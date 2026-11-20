@@ -304,14 +304,19 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
     bool UseTravelBanner => RelayoutSettings.Enabled && travelBannerView;
     bool IsCompactNotebookMap => embeddedInNotebook && notebookWindow && !notebookWindow.IsMapExpanded;
 
+    // 이동 확인·진행 팝업은 늘 지도 화면 위(가운데)에 놓는다. 수첩 미리보기·크게 보기 어느 쪽이든 지금 보이는 지도를 따라간다.
+    RectTransform MapScreenRect => view && view.Navigation ? view.Navigation.Viewport : null;
+
     void ShowTravelConfirmation(string _quote)
     {
+        if (UseTravelBanner) travelBannerView.SetFollowTarget(MapScreenRect);
         if (UseTravelBanner) travelBannerView.ShowConfirmation(_quote);
         else if (travelView) travelView.ShowConfirmation(_quote);
     }
 
     void BeginTravelJourney(string _fromName, string _toName, long _cost, long _departureHours, long _arrivalHours)
     {
+        if (UseTravelBanner) travelBannerView.SetFollowTarget(MapScreenRect);
         if (UseTravelBanner) travelBannerView.BeginJourney(_fromName, _toName, _cost, _departureHours, _arrivalHours);
         else if (travelView) travelView.BeginJourney(_fromName, _toName, _cost, _departureHours, _arrivalHours);
     }

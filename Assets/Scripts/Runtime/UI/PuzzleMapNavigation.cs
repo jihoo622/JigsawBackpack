@@ -24,6 +24,8 @@ public sealed class PuzzleMapNavigation : MonoBehaviour, IBeginDragHandler, IDra
     [SerializeField] TMPro.TextMeshProUGUI zoomLabel;
     [SerializeField] PuzzleMapView view;
 
+    // 지도가 실제로 보이는 화면 영역. 이동 확인 팝업이 이 영역 위에 놓인다.
+    internal RectTransform Viewport => viewport;
     public float MinZoom => minZoom;
     public float MaxZoom => maxZoom;
     public float ZoomStep => zoomStep;
