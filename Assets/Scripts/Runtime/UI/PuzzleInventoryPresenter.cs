@@ -714,6 +714,11 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
             return;
         }
         marketView.SetMarketOpen(session.CanTradeInMarket);
+        // 개편 시장 창 보드도 같이 맞춘다. 빠지면 시간 보내기로 닫혔다가(회색) 다시 들어가도 회색·조작 불가로 남는다.
+        if (relayoutMarketView)
+        {
+            relayoutMarketView.SetMarketOpen(session.CanTradeInMarket);
+        }
     }
 
     // 영업 기간이 끝나 자동 결산되면 결과 패널을 연다(승리·패배 모두).
