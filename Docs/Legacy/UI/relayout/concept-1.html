@@ -1,0 +1,2225 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>시안 1 · 나란히 거래대 (C안 발전형) — JigsawBackpack UI 개편안</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-outer: #0b0d12;
+    --bg-canvas: #0f131a;
+    --panel: #161c26;
+    --panel-2: #1c2432;
+    --panel-3: #222c3d;
+    --cell-empty: #242e3d;
+    --cell-hover: #2d3a4d;
+    --cell-blocked: #121720;
+    --border: #2c3749;
+    --border-bright: #43536d;
+    --txt: #e8edf5;
+    --txt-sub: #98a6bc;
+    --txt-dim: #68768c;
+    --gold: #f0b932;
+    --gold-dim: rgba(240, 185, 50, 0.16);
+    --green: #48b86a;
+    --green-dim: rgba(72, 184, 106, 0.22);
+    --red: #e05a5a;
+    --red-dim: rgba(224, 90, 90, 0.22);
+    --blue: #4f94e8;
+    --blue-dim: rgba(79, 148, 232, 0.22);
+    --purple: #a577e8;
+    --cyan: #48b8c8;
+    --orange: #e08a42;
+    --cell: 64px;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg-outer);
+    color: var(--txt);
+    font-family: 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ===== 브라우저 상단 상태 전환기 (1920x1080 캔버스 바깥) ===== */
+  .switcher-bar {
+    position: sticky;
+    top: 0;
+    z-index: 900;
+    background: #131822ee;
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--border);
+    padding: 10px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .switcher-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .switcher-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--gold);
+  }
+  .switcher-title span.sub {
+    font-weight: 400;
+    color: var(--txt-sub);
+    font-size: 12.5px;
+  }
+  .scale-info {
+    font-size: 12px;
+    color: var(--txt-sub);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .state-btns {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .state-btn {
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    color: var(--txt-sub);
+    font-family: inherit;
+    font-size: 12.5px;
+    font-weight: 500;
+    padding: 5px 11px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.12s ease;
+  }
+  .state-btn:hover {
+    border-color: var(--border-bright);
+    color: var(--txt);
+  }
+  .state-btn.active {
+    background: var(--gold-dim);
+    border-color: var(--gold);
+    color: var(--gold);
+    font-weight: 700;
+  }
+
+  /* ===== 1920x1080 스케일 뷰포트 ===== */
+  .canvas-stage {
+    width: 100%;
+    padding: 14px 16px 20px;
+    display: flex;
+    justify-content: center;
+    overflow: hidden;
+  }
+  .canvas-scaler {
+    position: relative;
+    transform-origin: top left;
+  }
+  #gameCanvas {
+    position: relative;
+    width: 1920px;
+    height: 1080px;
+    background: var(--bg-canvas);
+    border: 1px solid var(--border-bright);
+    box-shadow: 0 24px 70px rgba(0,0,0,0.75);
+    overflow: hidden;
+    user-select: none;
+  }
+  #gameCanvas.night-mode {
+    background: #0a0e18;
+  }
+  #gameCanvas.night-mode::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 50% 0%, rgba(45, 70, 140, 0.12), rgba(5, 8, 18, 0.28));
+    pointer-events: none;
+    z-index: 45;
+  }
+
+  /* ===== 공통 패널 ===== */
+  .u-panel {
+    position: absolute;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+  }
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.3;
+    white-space: nowrap;
+  }
+  .pill-orange { background: #59351e; color: #ffb980; border: 1px solid #8a512c; }
+  .pill-blue { background: #1c3a5e; color: #8fc5ff; border: 1px solid #2e5d96; }
+  .pill-red { background: #592328; color: #ff9c9c; border: 1px solid #8a353d; }
+  .pill-pink { background: #542848; color: #f4a8dc; border: 1px solid #823d6f; }
+  .pill-brown { background: #473222; color: #dfb68c; border: 1px solid #6e4e35; }
+  .pill-green { background: #1e4a2c; color: #8ce8a8; border: 1px solid #307546; }
+  .pill-purple { background: #3b2659; color: #caa8ff; border: 1px solid #5e3d8f; }
+  .pill-slate { background: #263040; color: #b8c6db; border: 1px solid #3c4b63; }
+
+  .btn-ui {
+    background: var(--panel-2);
+    border: 1px solid var(--border-bright);
+    color: var(--txt);
+    font-family: inherit;
+    font-weight: 600;
+    border-radius: 6px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+  .btn-ui:hover { background: var(--panel-3); border-color: var(--gold); }
+  .btn-ui.primary {
+    background: #2b4568;
+    border-color: var(--blue);
+    color: #fff;
+  }
+  .btn-ui.gold {
+    background: #3d3115;
+    border-color: var(--gold);
+    color: var(--gold);
+  }
+  .btn-ui.disabled {
+    opacity: 0.42;
+    cursor: not-allowed;
+  }
+
+  /* ===== 1. 상단 통합 HUD (x:16, y:12, w:1888, h:60) ===== */
+  .top-hud {
+    left: 16px; top: 12px; width: 1888px; height: 60px;
+    display: flex;
+    align-items: center;
+    padding: 0 18px;
+    gap: 18px;
+    z-index: 30;
+  }
+  .hud-city {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 270px;
+    cursor: pointer;
+  }
+  .hud-city-name {
+    font-size: 22px;
+    font-weight: 800;
+    color: #e87bb6;
+  }
+  .hud-region-tag {
+    font-size: 13px;
+    color: var(--txt-sub);
+    background: var(--panel-2);
+    padding: 2px 8px;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+  }
+  .hud-sep {
+    width: 1px;
+    height: 34px;
+    background: var(--border);
+  }
+  .hud-block {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .hud-lbl { font-size: 11.5px; color: var(--txt-sub); line-height: 1.2; }
+  .hud-val { font-size: 17px; font-weight: 700; color: var(--txt); line-height: 1.25; }
+  .hud-time-wrap {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-width: 390px;
+  }
+  .daynight-bar {
+    width: 160px;
+    height: 8px;
+    background: #232d3d;
+    border-radius: 4px;
+    position: relative;
+    overflow: hidden;
+    margin-top: 4px;
+    border: 1px solid var(--border);
+  }
+  .daynight-night {
+    position: absolute;
+    left: 0; top: 0; bottom: 0; width: 25%;
+    background: #172038;
+  }
+  .daynight-day {
+    position: absolute;
+    left: 25%; top: 0; bottom: 0; width: 75%;
+    background: #4e7ca8;
+  }
+  .daynight-marker {
+    position: absolute;
+    top: -2px; bottom: -2px; width: 4px;
+    background: var(--gold);
+    box-shadow: 0 0 6px var(--gold);
+  }
+  .hud-settlement {
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    padding: 4px 12px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14.5px;
+    font-weight: 600;
+  }
+  .hud-rep {
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .hud-funds {
+    margin-left: auto;
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+  }
+  .hud-funds .lbl { font-size: 14px; color: var(--txt-sub); }
+  .hud-funds .val { font-size: 23px; font-weight: 800; color: var(--gold); }
+  .hud-goal {
+    background: var(--panel-2);
+    border: 1px solid var(--border-bright);
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 15.5px;
+    font-weight: 700;
+    color: var(--txt);
+  }
+  .hud-esc {
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    color: var(--txt-sub);
+    padding: 6px 11px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  /* ===== 2. 상태 안내 띠 (x:16, y:78, w:1888, h:28) ===== */
+  .status-strip {
+    left: 16px; top: 78px; width: 1888px; height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 14px;
+    font-size: 13.5px;
+    color: var(--txt-sub);
+    background: #131822;
+    z-index: 25;
+  }
+  .status-strip.alert {
+    background: #2b1d22;
+    border-color: #6b3640;
+    color: #ffb8b8;
+    font-weight: 600;
+  }
+  .status-strip.hold {
+    background: #182638;
+    border-color: #365c8a;
+    color: #b7daff;
+    font-weight: 600;
+  }
+
+  /* ===== 3. 좌측 슬림 행동 레일 (x:16, y:112, w:96, h:952) ===== */
+  .left-rail {
+    left: 16px; top: 112px; width: 96px; height: 952px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px 8px;
+    gap: 8px;
+    z-index: 25;
+  }
+  .rail-btn {
+    width: 80px;
+    height: 82px;
+    border-radius: 8px;
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    color: var(--txt-sub);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    cursor: pointer;
+    position: relative;
+    font-family: inherit;
+    transition: all 0.12s;
+  }
+  .rail-btn:hover {
+    border-color: var(--border-bright);
+    color: var(--txt);
+    background: var(--panel-3);
+  }
+  .rail-btn.active {
+    background: #23334b;
+    border-color: var(--gold);
+    color: var(--gold);
+    box-shadow: inset 3px 0 0 var(--gold);
+  }
+  .rail-btn.disabled {
+    opacity: 0.36;
+    cursor: not-allowed;
+  }
+  .rail-btn .ico {
+    font-size: 24px;
+    line-height: 1;
+  }
+  .rail-btn .lbl {
+    font-size: 12.5px;
+    font-weight: 700;
+    text-align: center;
+    line-height: 1.15;
+  }
+  .rail-badge {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: var(--red);
+    color: #fff;
+    font-size: 10.5px;
+    font-weight: 800;
+    padding: 1px 5px;
+    border-radius: 8px;
+  }
+  .rail-badge.night {
+    background: #404a66;
+    color: #cad5f5;
+  }
+  .rail-div {
+    width: 64px;
+    height: 1px;
+    background: var(--border);
+    margin: 4px 0;
+  }
+  .rail-spacer { flex: 1; }
+
+  /* ===== 4. 기차 열 (x:124, y:112, w:480, h:952) ===== */
+  .train-col {
+    left: 124px; top: 112px; width: 480px; height: 952px;
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+  }
+  .col-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  .col-title {
+    font-size: 20px;
+    font-weight: 800;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .train-val-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    padding: 8px 0 6px;
+  }
+  .train-val-main {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--txt);
+  }
+  .train-val-main strong {
+    font-size: 21px;
+    color: #fff;
+  }
+  .train-val-sub {
+    font-size: 13.5px;
+    color: var(--txt-sub);
+  }
+  .train-board-wrap {
+    height: 368px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+  .grid-board {
+    position: relative;
+    background: #11161e;
+    border: 1px solid var(--border-bright);
+    border-radius: 4px;
+  }
+  .grid-cells {
+    display: grid;
+    width: 100%;
+    height: 100%;
+  }
+  .g-cell {
+    width: 64px;
+    height: 64px;
+    background: var(--cell-empty);
+    border: 1px solid #1b222e;
+    position: relative;
+  }
+  .g-cell.blocked {
+    background: var(--cell-blocked);
+    border-color: #141923;
+  }
+  .g-cell.blocked::after {
+    content: "";
+    position: absolute;
+    inset: 6px;
+    background: repeating-linear-gradient(45deg, transparent, transparent 4px, rgba(255,255,255,0.03) 4px, rgba(255,255,255,0.03) 8px);
+  }
+  /* 후보 셀 채움(fill) — Δ > 0일 때만 채움 */
+  .g-cell.cand-1 {
+    background: rgba(240, 185, 50, 0.36);
+    box-shadow: inset 0 0 0 2px var(--gold);
+  }
+  .g-cell.cand-2 {
+    background: rgba(72, 184, 106, 0.28);
+    box-shadow: inset 0 0 0 1px var(--green);
+  }
+  .g-cell.cand-3 {
+    background: rgba(79, 148, 232, 0.24);
+    box-shadow: inset 0 0 0 1px var(--blue);
+  }
+  .cand-tag {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    background: #141923ee;
+    color: var(--gold);
+    border: 1px solid var(--gold);
+    font-size: 11px;
+    font-weight: 800;
+    padding: 0 5px;
+    border-radius: 4px;
+    z-index: 6;
+    line-height: 1.35;
+  }
+  .cand-tag.c2 { color: #8ce8a8; border-color: var(--green); }
+  .cand-tag.c3 { color: #8fc5ff; border-color: var(--blue); }
+
+  /* 영향 이웃 셀 하이라이트 */
+  .g-cell.nbr-pos {
+    box-shadow: inset 0 0 0 2px var(--green);
+    background: rgba(72, 184, 106, 0.22);
+  }
+  .g-cell.nbr-neg {
+    box-shadow: inset 0 0 0 2px var(--red);
+    background: rgba(224, 90, 90, 0.22);
+  }
+
+  .move-guide {
+    text-align: center;
+    font-size: 12.5px;
+    color: var(--txt-sub);
+    padding: 4px 0 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* 화차 바 (기차 보드 바로 아래) */
+  .wagon-bar-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--txt-sub);
+    margin: 10px 0 6px;
+  }
+  .wagon-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+  }
+  .wagon-slot {
+    height: 76px;
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 6px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    position: relative;
+  }
+  .wagon-slot.active {
+    border-color: var(--gold);
+    background: #252b36;
+    box-shadow: 0 0 0 1px var(--gold);
+  }
+  .wagon-slot.empty {
+    background: #131720;
+    border-style: dashed;
+    opacity: 0.45;
+    cursor: default;
+  }
+  .wagon-slot .w-top {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--txt-sub);
+  }
+  .wagon-slot.active .w-top { color: var(--gold); }
+  .wagon-slot .w-ico { font-size: 20px; line-height: 1; }
+  .wagon-slot .w-cap { font-size: 11px; color: var(--txt); font-weight: 600; }
+
+  /* 현재 화차 적재 요약 */
+  .wagon-summary {
+    margin-top: 10px;
+    flex: 1;
+    background: #121720;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    overflow: hidden;
+  }
+  .ws-hdr {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--txt-sub);
+  }
+  .ws-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 6px 10px;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  .ws-item:hover, .ws-item.selected {
+    border-color: var(--gold);
+    background: var(--panel-2);
+  }
+  .ws-item .name { display: flex; align-items: center; gap: 8px; font-weight: 600; }
+  .ws-item img { width: 22px; height: 22px; object-fit: contain; }
+
+  /* ===== 카운터 간격 (x:604, y:112, w:16, h:952) ===== */
+  .counter-gap {
+    left: 604px; top: 112px; width: 16px; height: 952px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: var(--gold);
+    font-size: 13px;
+    font-weight: 800;
+    opacity: 0.7;
+  }
+  .counter-line {
+    width: 2px;
+    height: 360px;
+    background: linear-gradient(to bottom, transparent, var(--border-bright), transparent);
+  }
+
+  /* ===== 5. 중앙-우측 거래대/역 작업 영역 (x:620, y:112, w:884, h:952) ===== */
+  .center-surface {
+    left: 620px; top: 112px; width: 884px; height: 952px;
+    padding: 14px 24px;
+    display: flex;
+    flex-direction: column;
+  }
+  .market-info-bar {
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 10px 14px;
+    margin: 10px 0 12px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 16px;
+    font-size: 13.5px;
+  }
+  .mi-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .mi-label { font-weight: 700; min-width: 74px; }
+  .market-board-wrap {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+  }
+  .market-footer {
+    margin-top: 12px;
+    flex: 1;
+    background: #121720;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .mf-filters {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  .filter-pills { display: flex; gap: 6px; flex-wrap: wrap; }
+  .fpill {
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    color: var(--txt-sub);
+    padding: 4px 10px;
+    border-radius: 14px;
+    font-size: 12.5px;
+    font-weight: 600;
+  }
+  .fpill.on {
+    border-color: var(--gold);
+    color: var(--gold);
+    background: var(--gold-dim);
+  }
+  .mf-hints {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-top: 10px;
+  }
+  .hint-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 8px 10px;
+    font-size: 12.5px;
+    color: var(--txt-sub);
+    line-height: 1.45;
+  }
+  .hint-card strong { color: var(--txt); display: block; margin-bottom: 2px; font-size: 13px; }
+
+  /* ===== 화물 아이템 (보드 위 64px 단위) ===== */
+  .cargo-piece {
+    position: absolute;
+    background: #f4f6fa;
+    border: 2px solid #232a36;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3px;
+    cursor: pointer;
+    z-index: 4;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.45);
+  }
+  .cargo-piece.selected {
+    border-color: var(--gold);
+    box-shadow: 0 0 0 2px var(--gold), 0 4px 14px rgba(240,185,50,0.35);
+    z-index: 5;
+  }
+  .cargo-piece.source-dim {
+    opacity: 0.3;
+    border-style: dashed;
+  }
+  .cargo-piece img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    pointer-events: none;
+  }
+  .price-tag {
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    background: rgba(15, 19, 26, 0.9);
+    color: var(--gold);
+    border: 1px solid rgba(240, 185, 50, 0.65);
+    font-size: 11px;
+    font-weight: 800;
+    padding: 0 4px;
+    border-radius: 3px;
+    line-height: 1.3;
+  }
+  .nbr-delta-tag {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    font-size: 11px;
+    font-weight: 800;
+    padding: 0 4px;
+    border-radius: 3px;
+    line-height: 1.3;
+    z-index: 7;
+  }
+  .nbr-delta-tag.pos { background: #143820; color: #8ce8a8; border: 1px solid var(--green); }
+  .nbr-delta-tag.neg { background: #3d181a; color: #ff9c9c; border: 1px solid var(--red); }
+
+  /* 들고 있는 화물 + 큰 Δ 칩 */
+  .held-ghost {
+    position: absolute;
+    border: 2px dashed #8fd0ff;
+    background: rgba(143, 208, 255, 0.22);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px;
+    z-index: 20;
+    box-shadow: 0 10px 26px rgba(0,0,0,0.65);
+  }
+  .held-ghost img { width: 90%; height: 90%; object-fit: contain; }
+  .held-delta-chip {
+    position: absolute;
+    top: -28px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #143820;
+    border: 2px solid var(--green);
+    color: #9ff0b8;
+    font-size: 14px;
+    font-weight: 800;
+    padding: 2px 9px;
+    border-radius: 14px;
+    white-space: nowrap;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.7);
+    z-index: 22;
+  }
+  .held-delta-chip.neg {
+    background: #3d181a;
+    border-color: var(--red);
+    color: #ffb0b0;
+  }
+
+  /* ===== 6. 우측 고정 판단 패널 (x:1516, y:112, w:388, h:952) ===== */
+  .right-panel {
+    left: 1516px; top: 112px; width: 388px; height: 952px;
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    z-index: 25;
+  }
+  .rp-mode-badge {
+    font-size: 12px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 4px;
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    color: var(--txt-sub);
+  }
+  .rp-mode-badge.lens {
+    background: var(--gold-dim);
+    border-color: var(--gold);
+    color: var(--gold);
+  }
+  .rp-card {
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    padding: 12px;
+  }
+  .rp-cargo-top {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+  }
+  .rp-cargo-img {
+    width: 56px;
+    height: 56px;
+    background: #eef2f8;
+    border-radius: 6px;
+    border: 2px solid var(--border-bright);
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .rp-cargo-img img { width: 100%; height: 100%; object-fit: contain; }
+  .rp-kv {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    font-size: 13.5px;
+  }
+  .rp-kv:last-child { border-bottom: none; }
+  .rp-kv .k { color: var(--txt-sub); }
+  .rp-kv .v { font-weight: 700; color: #fff; }
+  .rp-quote-box {
+    background: #131c29;
+    border: 1px solid #355278;
+    border-radius: 6px;
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .rp-delta-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #142a1e;
+    border: 1px solid var(--green);
+    border-radius: 6px;
+    padding: 8px 12px;
+  }
+  .rp-delta-banner.neg { background: #2d1618; border-color: var(--red); }
+  .rp-delta-banner.zero { background: #1d2430; border-color: var(--border-bright); }
+  .dest-tabs {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    margin-bottom: 8px;
+  }
+  .dest-tab {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    color: var(--txt-sub);
+    font-family: inherit;
+    font-size: 12.5px;
+    font-weight: 700;
+    padding: 6px 4px;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  .dest-tab.active {
+    background: var(--gold-dim);
+    border-color: var(--gold);
+    color: var(--gold);
+  }
+  .dest-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 9px 10px;
+    margin-bottom: 8px;
+    font-size: 13px;
+  }
+  .dest-card-hdr {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+
+  /* ===== 역 행동 화면들 (시장 영역 620,112,884,952 교체) ===== */
+  .station-subgrid {
+    display: grid;
+    grid-template-columns: 1.15fr 0.85fr;
+    gap: 16px;
+    flex: 1;
+    margin-top: 12px;
+  }
+  .sub-box {
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .quest-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+  }
+  .quest-card.selected { border-color: var(--gold); background: #1d2534; }
+
+  /* ===== 지도 & 수첩 오버레이 (x:124, y:112, w:1380, h:952 — HUD·좌측레일·우측패널 유지!) ===== */
+  .center-overlay {
+    left: 124px; top: 112px; width: 1380px; height: 952px;
+    padding: 16px 20px;
+    display: flex;
+    flex-direction: column;
+    z-index: 28;
+    background: var(--panel);
+    border: 1px solid var(--border-bright);
+    border-radius: 8px;
+  }
+  .map-body {
+    flex: 1;
+    display: flex;
+    gap: 14px;
+    margin-top: 10px;
+    min-height: 0;
+  }
+  .map-canvas {
+    flex: 1;
+    background: #877c64;
+    border: 2px solid var(--border-bright);
+    border-radius: 6px;
+    position: relative;
+    overflow: hidden;
+    background-image:
+      radial-gradient(circle at 75% 40%, #4b6d8a 0%, #4b6d8a 18%, transparent 19%),
+      linear-gradient(90deg, rgba(0,0,0,0.04) 1px, transparent 1px),
+      linear-gradient(rgba(0,0,0,0.04) 1px, transparent 1px);
+    background-size: 100% 100%, 24px 24px, 24px 24px;
+  }
+  .map-fog {
+    position: absolute;
+    background: rgba(15, 19, 26, 0.72);
+    border: 1px dashed rgba(255,255,255,0.18);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #98a6bc;
+    font-size: 13px;
+    font-weight: 700;
+  }
+  .map-node {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    z-index: 5;
+  }
+  .map-dot {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 3px solid #11161e;
+    box-shadow: 0 0 0 2px rgba(255,255,255,0.4);
+  }
+  .map-dot.current {
+    width: 28px; height: 28px;
+    background: var(--gold);
+    box-shadow: 0 0 0 4px rgba(240,185,50,0.45);
+  }
+  .map-lbl {
+    background: rgba(15, 19, 26, 0.9);
+    color: #fff;
+    font-size: 12.5px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 4px;
+    white-space: nowrap;
+    border: 1px solid var(--border);
+  }
+  .map-side-dock {
+    width: 340px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  /* ===== 상성표 매트릭스 ===== */
+  .syn-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+  .syn-table th, .syn-table td {
+    border: 1px solid var(--border);
+    text-align: center;
+    padding: 8px 6px;
+  }
+  .syn-table th { background: var(--panel-2); color: #fff; font-weight: 700; }
+  .syn-pos { background: #265936; color: #a8f5be; font-weight: 800; }
+  .syn-neg { background: #6b262a; color: #ffb3b3; font-weight: 800; }
+
+  /* ===== 플로팅 툴팁 & 모달 ===== */
+  .item-tooltip {
+    position: absolute;
+    width: 300px;
+    background: #171d27;
+    border: 1.5px solid #c9a769;
+    border-radius: 8px;
+    padding: 12px 14px;
+    box-shadow: 0 14px 36px rgba(0,0,0,0.75);
+    z-index: 40;
+  }
+  .modal-dim {
+    position: absolute;
+    inset: 0;
+    background: rgba(8, 10, 15, 0.78);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+  }
+  .modal-card {
+    background: var(--panel);
+    border: 1px solid var(--border-bright);
+    border-radius: 10px;
+    padding: 26px 28px;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.85);
+  }
+
+  /* ===== 캔버스 하단 설계 문서 영역 ===== */
+  .doc-wrap {
+    max-width: 1320px;
+    margin: 24px auto 80px;
+    padding: 0 24px;
+  }
+  .doc-wrap h2 {
+    font-size: 20px;
+    color: var(--gold);
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 8px;
+    margin-top: 38px;
+  }
+  .doc-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 20px;
+    line-height: 1.65;
+    font-size: 14px;
+    color: var(--txt);
+  }
+  .doc-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13.5px;
+    margin-top: 10px;
+    background: var(--panel);
+  }
+  .doc-table th, .doc-table td {
+    border: 1px solid var(--border);
+    padding: 8px 10px;
+    text-align: left;
+    vertical-align: top;
+  }
+  .doc-table th {
+    background: var(--panel-2);
+    color: #fff;
+    font-weight: 700;
+  }
+  .doc-table code {
+    background: #232c3b;
+    padding: 1px 5px;
+    border-radius: 4px;
+    color: #9ecbff;
+    font-size: 12.5px;
+  }
+</style>
+</head>
+<body>
+
+<div class="switcher-bar">
+  <div class="switcher-top">
+    <div class="switcher-title">
+      <span>시안 1 · 나란히 거래대 (C안 발전형)</span>
+      <span class="sub">1920×1080 Unity uGUI 기준 인터랙티브 목업</span>
+    </div>
+    <div class="scale-info">
+      <span id="scaleLabel">배율: 100%</span>
+      <button class="state-btn" onclick="toggleActualSize()" id="btnActual">1:1 원본 보기</button>
+    </div>
+  </div>
+  <div class="state-btns" id="stateButtons"></div>
+</div>
+
+<div class="canvas-stage" id="canvasStage">
+  <div class="canvas-scaler" id="canvasScaler">
+    <div id="gameCanvas"></div>
+  </div>
+</div>
+
+<div class="doc-wrap">
+  <h2>1. 시안 요약 — 무엇이 달라지고 왜인가</h2>
+  <div class="doc-card">
+    <p><strong>시안 1 (나란히 거래대)</strong>은 기존 화면의 좌측 기차 열(732px)과 우측 역/시장 패널(1084px) 사이의 <strong>249px 빈 간격</strong>과 보드 상하의 <strong>죽은 검은 여백</strong>을 제거하고, <strong>좌측 슬림 행동 레일(96px) + 중앙 맞대면 거래대(기차 480px | 16px 카운터 | 시장 884px) + 우측 상시 판단 패널(388px)</strong>의 4단 작업 공간으로 재구성한 안입니다.</p>
+    <ul>
+      <li><strong>시선·드래그 거리 단축</strong>: 두 보드 중심 거리를 약 932px에서 <strong>676px</strong>로 줄이고, 보드 사이 간격을 <strong>16px 거래대(카운터)</strong>로 좁혀 구매·판매 드래그 피로를 크게 낮췄습니다.</li>
+      <li><strong>상시 판단 패널 (우측 388px 고정)</strong>: 평상시에는 호버/선택한 화물의 가치·시세·인접 시너지 규칙을 보여주고, 화물을 잡는 순간 <strong>행선지 렌즈</strong>(확정 견적, 자금 전→후, 다음 정산 Δ, 현재/방문/소문 도시 비교 탭)로 전환됩니다. 기존처럼 드래그 중에만 패널이 나타났다가 사라지거나 마우스 탭 클릭이 불가능한 문제를 해결합니다.</li>
+      <li><strong>제자리 역 행동 전환 &amp; 통합 오버레이</strong>: 술집·의뢰, 휴식, 화차 시설, 도시 작업대는 전체 화면을 덮지 않고 시장 자리(620, 112, 884×952)만 제자리 교체하므로 기차 화물과 판단 패널을 보면서 의사결정할 수 있습니다. 지도와 수첩은 상단 HUD와 우측 판단 패널을 유지한 채 중앙 영역(124, 112, 1380×952)만 덮습니다.</li>
+      <li><strong>화차 바 직결 배치</strong>: 하단 전체를 차지하던 128px 고정 바를 없애고, 기차 보드 바로 아래에 4×2 화차 바(최대 8량, 적재량·특성 표시)를 붙여 수직 공간을 확보했습니다.</li>
+    </ul>
+  </div>
+
+  <h2>2. 선택한 보드 셀 크기와 화물 아트워크 가독성</h2>
+  <div class="doc-card">
+    <ul>
+      <li><strong>셀 크기: <code>64 × 64 px</code> (기차 7×5 및 시장 13×9 동일 스케일)</strong></li>
+      <li><strong>선정 근거</strong>: 중앙 작업 폭 <code>1,380px</code>에서 양쪽 패널 여백(<code>32px + 52px</code>)과 카운터 간격(<code>16px</code>)을 제외하면 <code>1,280px</code>이 남습니다. 기차 7열 + 시장 13열 = 총 20열이므로 <code>1,280 / 20 = 64px</code>가 두 보드를 한 번에 나란히 배치할 수 있는 최대 정수 셀 크기입니다.</li>
+      <li><strong>아트워크 가독성</strong>: 현행 develop의 <code>68.32px</code> 대비 <strong>93.7% 크기(-4.32px)</strong>만 축소되므로 1×1 사과·목재·물통·기계 프레임 등 모든 화물 아트워크의 윤곽과 시장 가격 배지(<code>11px</code>)가 뭉개지지 않고 선명하게 식별됩니다. 또한 두 보드가 <strong>1:1 동일 셀 크기</strong>를 쓰므로 드래그 중 고스트 크기가 변하지 않습니다.</li>
+      <li><strong>확장 화차 대응</strong>: 구매 화차가 <code>7×6</code>(<code>448×384px</code>)까지 커져도 기차 보드 슬롯(<code>448×368~384px</code>) 안에 여유 있게 수용됩니다.</li>
+    </ul>
+  </div>
+
+  <h2>3. 1920×1080 기준 패널 Rect 테이블 (좌상단 원점)</h2>
+  <table class="doc-table">
+    <thead>
+      <tr>
+        <th>패널 / 프리팹 역할</th>
+        <th>x</th><th>y</th><th>w</th><th>h</th>
+        <th>노출 조건 및 비고</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td><code>TopHUD</code> (통합 상단 바)</td><td>16</td><td>12</td><td>1888</td><td>60</td><td>항상 노출 (도시·기한·시각/낮밤바·정산·평판·자금·목표·Esc)</td></tr>
+      <tr><td><code>JourneyFooter</code> (상태 안내 띠)</td><td>16</td><td>78</td><td>1888</td><td>28</td><td>항상 노출 (평상시 가이드, 드래그/야간/오류 시 강조)</td></tr>
+      <tr><td><code>LeftActionRail</code> (좌측 행동 레일)</td><td>16</td><td>112</td><td>96</td><td>952</td><td>항상 노출 (시장, 술집·의뢰, 휴식, 화차, 작업대, 지도, 수첩)</td></tr>
+      <tr><td><code>TrainColumn</code> (기차 열)</td><td>124</td><td>112</td><td>480</td><td>952</td><td>역 화면 상시 노출 (지도/수첩 열림 시 중앙 오버레이 아래)</td></tr>
+      <tr><td><code>└ TrainBoard</code> (7×5 / 7×6)</td><td>140</td><td>200</td><td>448</td><td>320~384</td><td>셀 64×64px, 1~3순위 양수 Δ 후보 채움 + 이웃 하이라이트</td></tr>
+      <tr><td><code>└ WagonBar</code> (4×2 화차 바)</td><td>140</td><td>632</td><td>448</td><td>180</td><td>최대 8량 슬롯(106×76), 적재량·특성 표시</td></tr>
+      <tr><td><code>└ WagonLoadSummary</code> (적재 요약)</td><td>140</td><td>818</td><td>448</td><td>232</td><td>현재 화차 내 화물 목록·즉시 선택/시너지 확인</td></tr>
+      <tr><td><code>CounterGap</code> (거래대 경계)</td><td>604</td><td>112</td><td>16</td><td>952</td><td>기차↔시장 16px 맞대면 경계</td></tr>
+      <tr><td><code>CenterActionSurface</code> (시장 / 역 작업)</td><td>620</td><td>112</td><td>884</td><td>952</td><td>시장(13×9, 832×576) 또는 술집·휴식·화차·작업대 제자리 교체</td></tr>
+      <tr><td><code>DecisionPanel</code> (우측 판단 패널)</td><td>1516</td><td>112</td><td>388</td><td>952</td><td><strong>항상 노출</strong> (평상시: 화물 상세 / 잡는 중: 행선지 렌즈)</td></tr>
+      <tr><td><code>MapOverlay / NotebookOverlay</code></td><td>124</td><td>112</td><td>1380</td><td>952</td><td>HUD·좌측 레일·우측 판단 패널을 유지한 채 중앙부만 덮음</td></tr>
+      <tr><td><code>PauseModal / RunEndModal</code></td><td>0</td><td>0</td><td>1920</td><td>1080</td><td>전체 딤 오버레이 + 중앙 전용 모달 (560×460 / 680×540)</td></tr>
+    </tbody>
+  </table>
+
+  <h2>4. UI_SCREEN_INVENTORY.md 전수 커버리지 테이블</h2>
+  <table class="doc-table">
+    <thead>
+      <tr><th>현행 요소 (UI_SCREEN_INVENTORY.md)</th><th>신규 배치 위치 (시안 1)</th><th>개선 포인트</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>§0 City Navigation</code> (도시·기한·시각·정산·평판·자금·목표)</td><td><code>TopHUD (16, 12, 1888, 60)</code> + Esc 버튼 추가</td><td>기존 요소 전부 유지, Esc 마우스 접근성 추가</td></tr>
+      <tr><td><code>§0 JourneyFooter</code></td><td><code>StatusStrip (16, 78, 1888, 28)</code></td><td>높이 정돈 및 거래/야간 상태 색상 구분</td></tr>
+      <tr><td><code>§0 Train Inventory</code> + <code>§17 TrainBar</code> (최대 8량)</td><td><code>TrainColumn (124, 112, 480, 952)</code> 내부로 통합</td><td>하단 128px 바 제거, 기차 보드 바로 아래 4×2 화차 바 + 적재 목록 배치로 빈 공간 0화</td></tr>
+      <tr><td><code>§0 NotebookToggle / MapToggle / SideHandle</code></td><td><code>LeftActionRail</code>의 <code>지도</code>·<code>수첩</code> 버튼으로 일원화</td><td>3중 중복 진입(하단 버튼·우측 손잡이·요약 카드) 해소</td></tr>
+      <tr><td><code>§2 StationHome</code> (역 행동 카드 6개 + 요약 2개)</td><td><code>LeftActionRail (16, 112, 96, 952)</code> 상시 레일</td><td>별도 허브 화면 없이 원클릭 즉시 전환, 도시 작업대 없을 시 비활성 표시</td></tr>
+      <tr><td><code>§3 Market</code> (물가 띠 + 13×9 보드)</td><td><code>CenterActionSurface (620, 112, 884, 952)</code></td><td>모든 화물에 가격 배지($) 상시 표기 + 하단 필터·추천 힌트 추가</td></tr>
+      <tr><td><code>§4 RouteLens</code> + <code>§15 ItemTooltip</code></td><td><code>DecisionPanel (1516, 112, 388, 952)</code> + 잡은 화물 옆 큰 Δ 칩</td><td>드래그 안 할 때도 화물 상세 상시 확인, 양수 Δ 후보만 칸 채움, 안개 규칙 엄수</td></tr>
+      <tr><td><code>§5 Tavern</code> (소문 + 의뢰 2개 + 상세)</td><td><code>CenterActionSurface</code> 제자리 교체</td><td>빈 우측 상세 박스 축소·통합, 말 걸기 무료 표시</td></tr>
+      <tr><td><code>§6 Rest</code> (1~4턴 + 아침까지 대기)</td><td><code>CenterActionSurface</code> 제자리 교체</td><td>휴식 후 예상 시각·정산 횟수·야간 대기 가능 여부 명확화</td></tr>
+      <tr><td><code>§7 WagonShop</code> (화차 시설)</td><td><code>CenterActionSurface</code> 제자리 교체</td><td>드래그 구매 외에 클릭 구매 버튼 병행, 기차 화차 바가 바로 옆에 있어 드래그도 짧아짐</td></tr>
+      <tr><td><code>§8 Workshop</code> (개조·도축·정제)</td><td><code>CenterActionSurface</code> 제자리 교체</td><td>5×5 보드 중앙 정렬 + 비용(10$/150$)·소요 시간(6시간)·결과 미리보기</td></tr>
+      <tr><td><code>§9~10 Map + RoutePlan</code></td><td><code>MapOverlay (124, 112, 1380, 952)</code></td><td>경로 계획·역 미리보기를 우측 도킹 영역으로 분리해 역 노드 겹침 제거</td></tr>
+      <tr><td><code>§11~14 Notebook</code> (소문·의뢰·숙련·상성표)</td><td><code>NotebookOverlay (124, 112, 1380, 952)</code></td><td>우측 판단 패널 유지, 상성표 텍스트 겹침 버그 제거, 숙련 막대 시인성 강화</td></tr>
+      <tr><td><code>§16 PauseMenu</code> &amp; <code>§20 RunEnd</code></td><td>전용 모달 분리 (<code>PauseModal</code> / <code>RunEndModal</code>)</td><td>결과 화면에서 "배치 후보 표시" 버튼 제거, 플레이 요약 통계(수익·방문역·의뢰·최고 시너지) 추가</td></tr>
+      <tr><td><code>§18 Travel</code> &amp; <code>§19 Night</code></td><td>중앙 이동 연출 카드 + 야간 톤·상단 배너·시장 비활성</td><td>야간 색감 구분 강화, 이동 연출 시에도 우측 판단 패널/HUD 정돈 유지</td></tr>
+    </tbody>
+  </table>
+
+  <h2>5. Unity uGUI 구현 리스크 및 대응</h2>
+  <div class="doc-card">
+    <ul>
+      <li><strong>20열 가로 폭 여유 부족(±0px)</strong>: 기차 7열 + 시장 13열 = 20열을 64px로 두면 양쪽 여백이 16~26px로 타이트합니다. <em>대응</em>: <code>CanvasScaler</code>(1920×1080 Expand)에서 패널 패딩을 고정 픽셀로 두고, <code>7×6</code> 이상 특수 화차는 스크롤 없이 <code>384px</code> 슬롯에 맞춥니다.</li>
+      <li><strong>오른쪽 판단 패널과 기존 툴팁 중복</strong>: <code>PuzzleItemTooltip</code>(Z=270)과 <code>DecisionPanel</code>이 같은 정보를 보여줄 수 있습니다. <em>대응</em>: 호버 툴팁은 간단한 이름·가격·즉시 비교용으로 축소하거나 일시정지 옵션으로 선택 가능하게 둡니다.</li>
+      <li><strong>드래그 중 우측 렌즈 탭 클릭</strong>: 마우스 드래그 중에는 <code>현재 / 방문 도시 / 소문 도시</code> 탭을 마우스로 누르기 어렵습니다. <em>대응</em>: 숫자키(<code>1/2/3</code>) 또는 <code>Tab</code> 단축키 전환을 유지하고, 화물 클릭 선택(잡기 전) 상태에서도 판단 패널의 탭을 자유롭게 누를 수 있게 합니다.</li>
+      <li><strong>안개 4단계 정보 누수 방지</strong>: <code>DecisionPanel</code>의 <code>소문 도시</code> 탭에서 미방문 도시의 가격·등급%를 절대 조회하지 않도록 기존 <code>PuzzleInventoryService.Lens</code>의 <code>HasVisitedCity</code> 가드를 그대로 사용합니다.</li>
+    </ul>
+  </div>
+</div>
+
+<script>
+const ASSETS = '../../../Research/relayout/assets/';
+const STATES = [
+  { id: 'idle_market', label: '평상시(시장 열림)' },
+  { id: 'hold_market', label: '시장 화물 잡는 중' },
+  { id: 'hold_train', label: '기차 화물 재배치 중' },
+  { id: 'tavern', label: '술집·의뢰' },
+  { id: 'rest', label: '휴식(아침까지 대기 포함)' },
+  { id: 'wagon_shop', label: '화차 시설' },
+  { id: 'workshop', label: '도시 작업대' },
+  { id: 'map', label: '지도' },
+  { id: 'map_route', label: '지도 + 경로 계획' },
+  { id: 'nb_rumor', label: '수첩 · 소문' },
+  { id: 'nb_quest', label: '수첩 · 의뢰' },
+  { id: 'nb_prof', label: '수첩 · 숙련' },
+  { id: 'nb_synergy', label: '수첩 · 상성표' },
+  { id: 'tooltip', label: '툴팁' },
+  { id: 'pause', label: '일시정지' },
+  { id: 'travel', label: '이동 중' },
+  { id: 'run_end', label: '결산 결과' },
+  { id: 'night', label: '야간 상태' }
+];
+
+let currentState = 'idle_market';
+let currentDestTab = 'current'; // current | visited | rumor
+let actualSize = false;
+
+// 7x5 시작 화차(고장난 칸): 13칸 막힘, 22칸 사용
+const TRAIN_BLOCKED = new Set([
+  '0,0','1,0','2,0','3,0','4,0',
+  '0,1','1,1','2,1','3,1','4,1',
+  '0,2',
+  '3,4'
+]);
+
+const TRAIN_CARGO = [
+  { id:'wood1', name:'목재 묶음', img:'WoodBundle.png', x:1, y:2, w:2, h:1, base:25, cur:25, delta:0, tags:['목재','화물'] },
+  { id:'wood2', name:'목재 묶음', img:'WoodBundle.png', x:0, y:3, w:1, h:2, base:25, cur:25, delta:0, tags:['목재','화물'] },
+  { id:'fish1', name:'물고기', img:'Fish.png', x:5, y:1, w:1, h:2, base:30, cur:39, delta:+9, tags:['음식','물고기'] }
+];
+
+const MARKET_CARGO = [
+  { id:'m_apple', name:'사과', img:'Apple.png', x:1, y:1, w:1, h:1, price:18, base:14, tags:['음식','과일'], grade:'선호 130%' },
+  { id:'m_crate', name:'소형 상자', img:'SmallCrate.png', x:3, y:1, w:1, h:1, price:13, base:10, tags:['화물','목재'], grade:'보통 100%' },
+  { id:'m_water', name:'물통', img:'WaterBarrel.png', x:6, y:1, w:1, h:1, price:20, base:16, tags:['보급품','물'], grade:'보통 100%' },
+  { id:'m_grain', name:'곡물 포대', img:'GrainSack.png', x:9, y:1, w:2, h:2, price:28, base:22, tags:['음식','보급품','곡물'], grade:'보통 100%' },
+  { id:'m_mach', name:'기계 프레임', img:'MachineFrame.png', x:8, y:4, w:3, h:2, price:98, base:60, tags:['기계'], grade:'선호 130%' },
+  { id:'m_salt', name:'소금 자루', img:'SaltSack.png', x:4, y:3, w:1, h:2, price:33, base:20, tags:['소금','보급품','신선'], grade:'선호 130%' },
+  { id:'m_elbow', name:'왼쪽 모서리 상자', img:'ElbowLeft.png', x:2, y:5, w:2, h:2, price:31, base:25, tags:['화물','목재'], grade:'보통 100%' },
+  { id:'m_tool', name:'공구 상자', img:'Toolbox.png', x:6, y:6, w:2, h:1, price:45, base:28, tags:['화물','금속'], grade:'선호 130%' }
+];
+
+function tagPill(t) {
+  const map = {
+    '음식':'pill-orange', '과일':'pill-red', '물고기':'pill-blue', '화물':'pill-brown',
+    '목재':'pill-brown', '기계':'pill-orange', '소금':'pill-slate', '가축':'pill-brown',
+    '금속':'pill-slate', '물':'pill-blue', '보급품':'pill-green', '곡물':'pill-green',
+    '신선':'pill-green', '의뢰':'pill-purple'
+  };
+  return `<span class="pill ${map[t]||'pill-slate'}">${t}</span>`;
+}
+
+function renderButtons() {
+  const host = document.getElementById('stateButtons');
+  host.innerHTML = STATES.map(s =>
+    `<button class="state-btn ${s.id===currentState?'active':''}" onclick="setState('${s.id}')">${s.label}</button>`
+  ).join('');
+}
+
+function setState(id) {
+  currentState = id;
+  if (id === 'hold_market' || id === 'hold_train') {
+    // Keep currentDestTab
+  }
+  renderButtons();
+  renderCanvas();
+}
+
+function setDestTab(tab) {
+  currentDestTab = tab;
+  renderCanvas();
+}
+
+function toggleActualSize() {
+  actualSize = !actualSize;
+  document.getElementById('btnActual').classList.toggle('active', actualSize);
+  applyScale();
+}
+
+function applyScale() {
+  const stage = document.getElementById('canvasStage');
+  const scaler = document.getElementById('canvasScaler');
+  const lbl = document.getElementById('scaleLabel');
+  if (actualSize) {
+    scaler.style.transform = 'scale(1)';
+    scaler.style.width = '1920px';
+    scaler.style.height = '1080px';
+    stage.style.overflowX = 'auto';
+    lbl.textContent = '배율: 100% (원본)';
+    return;
+  }
+  stage.style.overflowX = 'hidden';
+  const availW = Math.max(320, window.innerWidth - 36);
+  const scale = Math.min(1, availW / 1920);
+  scaler.style.transform = `scale(${scale})`;
+  scaler.style.width = `${1920 * scale}px`;
+  scaler.style.height = `${1080 * scale}px`;
+  lbl.textContent = `배율: ${Math.round(scale * 100)}%`;
+}
+
+function renderTopHUD(isNight) {
+  const timeText = isNight ? '1일 새벽 · 밤 · 휴업 · 4턴' : '1일 오전 · 낮 · 1턴';
+  const markerLeft = isNight ? '12%' : '36%';
+  const city = currentState === 'workshop' ? '에른아 공업역' : '금융마을';
+  const region = currentState === 'workshop' ? '공업 지역' : '수도권';
+  return `
+  <div class="u-panel top-hud">
+    <div class="hud-city" onclick="setState('map')" title="지도 열기">
+      <span class="hud-city-name">${city}</span>
+      <span class="hud-region-tag">${region}</span>
+    </div>
+    <div class="hud-sep"></div>
+    <div class="hud-block">
+      <span class="hud-lbl">남은 기한</span>
+      <span class="hud-val">D-14 · 56턴</span>
+    </div>
+    <div class="hud-sep"></div>
+    <div class="hud-time-wrap">
+      <div class="hud-block">
+        <span class="hud-lbl">현재 시각 (6시간/턴)</span>
+        <span class="hud-val">${timeText}</span>
+        <div class="daynight-bar">
+          <div class="daynight-night"></div>
+          <div class="daynight-day"></div>
+          <div class="daynight-marker" style="left:${markerLeft}"></div>
+        </div>
+      </div>
+      <div class="hud-settlement">
+        <span style="color:var(--txt-sub)">정산 1턴 · 예상</span>
+        <span style="color:var(--green)">+9$</span>
+      </div>
+    </div>
+    <button class="hud-rep" onclick="setState('nb_prof')">평판 2</button>
+    <div class="hud-funds">
+      <span class="lbl">보유 자금</span>
+      <span class="val">200$</span>
+    </div>
+    <div class="hud-goal">결산 · 목표 1,500$</div>
+    <button class="hud-esc" onclick="setState('pause')">메뉴 (Esc)</button>
+  </div>`;
+}
+
+function renderStatusStrip(isNight) {
+  let cls = 'u-panel status-strip';
+  let left = '시장 화물을 기차로 드래그하거나 Ctrl+클릭으로 즉시 구매할 수 있습니다.';
+  let right = '단축키: R 회전 · Esc 취소/일시정지 · 1~3 행선지 탭';
+  if (isNight) {
+    cls += ' alert';
+    left = '야간(00:00~06:00)에는 시장이 휴업합니다. 다른 역으로 이동하거나 아침까지 대기하세요.';
+  } else if (currentState === 'hold_market') {
+    cls += ' hold';
+    left = '잡은 화물: 물통 (1×1 · 20$) — 기차의 강조된 칸에 놓으면 다음 정산 +9$ 시너지가 발생합니다.';
+  } else if (currentState === 'hold_train') {
+    cls += ' hold';
+    left = '재배치 중: 물고기 (1×2) — 기차 내 다른 칸으로 옮기거나 시장에 드롭해 판매(39$)할 수 있습니다.';
+  }
+  return `<div class="${cls}"><span>${left}</span><span>${right}</span></div>`;
+}
+
+function renderLeftRail(isNight) {
+  const hasWorkshop = currentState === 'workshop';
+  const activeMap = currentState === 'map' || currentState === 'map_route';
+  const activeNb = currentState.startsWith('nb_');
+  const activeMarket = ['idle_market','hold_market','hold_train','tooltip','night'].includes(currentState);
+  return `
+  <div class="u-panel left-rail">
+    <button class="rail-btn ${activeMarket?'active':''} ${isNight?'disabled':''}" onclick="setState('idle_market')">
+      <span class="ico">🏪</span>
+      <span class="lbl">시장</span>
+      ${isNight?'<span class="rail-badge night">휴업</span>':''}
+    </button>
+    <button class="rail-btn ${currentState==='tavern'?'active':''}" onclick="setState('tavern')">
+      <span class="ico">🍺</span>
+      <span class="lbl">술집·의뢰</span>
+      <span class="rail-badge">2</span>
+    </button>
+    <button class="rail-btn ${currentState==='rest'?'active':''}" onclick="setState('rest')">
+      <span class="ico">🛏️</span>
+      <span class="lbl">휴식</span>
+    </button>
+    <button class="rail-btn ${currentState==='wagon_shop'?'active':''}" onclick="setState('wagon_shop')">
+      <span class="ico">🚃</span>
+      <span class="lbl">화차 시설</span>
+    </button>
+    <button class="rail-btn ${hasWorkshop?'active':'disabled'}" onclick="setState('workshop')" title="${hasWorkshop?'개조 작업대 이용 가능':'이 역에는 특수 작업대가 없습니다'}">
+      <span class="ico">🔧</span>
+      <span class="lbl">${hasWorkshop?'도시 작업대':'작업대 없음'}</span>
+    </button>
+    <div class="rail-div"></div>
+    <button class="rail-btn ${activeMap?'active':''}" onclick="setState('map')">
+      <span class="ico">🗺️</span>
+      <span class="lbl">지도</span>
+    </button>
+    <button class="rail-btn ${activeNb?'active':''}" onclick="setState('nb_rumor')">
+      <span class="ico">📒</span>
+      <span class="lbl">수첩</span>
+      <span class="rail-badge">N</span>
+    </button>
+    <div class="rail-spacer"></div>
+    <button class="rail-btn" style="height:56px" onclick="setState('run_end')">
+      <span class="lbl" style="font-size:11px;color:var(--txt-sub)">결산<br>미리보기</span>
+    </button>
+  </div>`;
+}
+
+function renderTrainColumn() {
+  const isHoldMarket = currentState === 'hold_market';
+  const isHoldTrain = currentState === 'hold_train';
+
+  // 7x5 cells
+  let cellsHtml = '';
+  for (let y = 0; y < 5; y++) {
+    for (let x = 0; x < 7; x++) {
+      const blocked = TRAIN_BLOCKED.has(`${x},${y}`);
+      let cls = 'g-cell' + (blocked ? ' blocked' : '');
+      let extra = '';
+      if (isHoldMarket) {
+        // 물통(1x1) 잡는 중: 물고기(5,1..5,2) 옆 (4,1) 1순위 +9$, (6,1) 2순위 +9$, (4,2) 3순위 +9$
+        if (x === 4 && y === 1) { cls += ' cand-1'; extra = '<span class="cand-tag">① +9$</span>'; }
+        else if (x === 6 && y === 1) { cls += ' cand-2'; extra = '<span class="cand-tag c2">② +9$</span>'; }
+        else if (x === 4 && y === 2) { cls += ' cand-3'; extra = '<span class="cand-tag c3">③ +9$</span>'; }
+        else if (x === 5 && (y === 1 || y === 2)) { cls += ' nbr-pos'; }
+      } else if (isHoldTrain) {
+        // 물고기(1x2) 재배치 중: (6,2..6,3) 1순위 +6$ (목재 옆/기타)
+        if (x === 6 && y === 2) { cls += ' cand-1'; extra = '<span class="cand-tag">① +6$</span>'; }
+        else if (x === 4 && y === 2) { cls += ' cand-2'; extra = '<span class="cand-tag c2">② +3$</span>'; }
+        // 3순위는 Δ=0이므로 채우지 않음 (양수 Δ만 채움 규칙)
+      }
+      cellsHtml += `<div class="${cls}">${extra}</div>`;
+    }
+  }
+
+  let piecesHtml = '';
+  TRAIN_CARGO.forEach(c => {
+    const dim = (isHoldTrain && c.id === 'fish1') ? 'source-dim' : '';
+    const sel = (!isHoldMarket && !isHoldTrain && c.id === 'fish1') ? 'selected' : '';
+    let nbrBadge = '';
+    if (isHoldMarket && c.id === 'fish1') {
+      nbrBadge = `<span class="nbr-delta-tag pos">+9$</span>`;
+    }
+    piecesHtml += `
+      <div class="cargo-piece ${dim} ${sel}" style="left:${c.x*64+2}px; top:${c.y*64+2}px; width:${c.w*64-4}px; height:${c.h*64-4}px;">
+        <img src="${ASSETS}${c.img}" alt="${c.name}">
+        ${nbrBadge}
+      </div>`;
+  });
+
+  // 들고 있는 화물 고스트 + 큰 Δ 칩
+  let ghostHtml = '';
+  if (isHoldMarket) {
+    ghostHtml = `
+      <div class="held-ghost" style="left:${4*64+2}px; top:${1*64+2}px; width:60px; height:60px;">
+        <img src="${ASSETS}WaterBarrel.png" alt="물통">
+        <div class="held-delta-chip">Δ +9$</div>
+      </div>`;
+  } else if (isHoldTrain) {
+    ghostHtml = `
+      <div class="held-ghost" style="left:${6*64+2}px; top:${2*64+2}px; width:60px; height:124px;">
+        <img src="${ASSETS}Fish.png" alt="물고기">
+        <div class="held-delta-chip">Δ +6$</div>
+      </div>`;
+  }
+
+  // 화차 바 (4x2, 8칸)
+  const wagons = [
+    { n:1, name:'고장난', cap:'4/22칸', ico:'🚂', active:true },
+    { n:2, name:'일반', cap:'12/25칸', ico:'🚃', active:false },
+    { n:3, name:'냉장', cap:'0/20칸', ico:'❄️', active:false }
+  ];
+  let wagonHtml = '';
+  for (let i = 0; i < 8; i++) {
+    const w = wagons[i];
+    if (w) {
+      wagonHtml += `
+        <div class="wagon-slot ${w.active?'active':''}">
+          <div class="w-top"><span>#${w.n}</span><span>${w.name}</span></div>
+          <div class="w-ico">${w.ico}</div>
+          <div class="w-cap">${w.cap}</div>
+        </div>`;
+    } else {
+      wagonHtml += `<div class="wagon-slot empty"><div class="w-top"><span>#${i+1}</span></div><div class="w-ico" style="font-size:14px">빈 슬롯</div></div>`;
+    }
+  }
+
+  return `
+  <div class="u-panel train-col">
+    <div class="col-header">
+      <div class="col-title">🚂 1번 · 고장난 칸 <span class="pill pill-slate">7×5 · 22칸</span></div>
+      <span class="pill pill-green">정산 +9$/턴</span>
+    </div>
+    <div class="train-val-row">
+      <span class="train-val-main">화물 현재 가치 <strong>89$</strong></span>
+      <span class="train-val-sub">기본 80$ · 누적 시너지 +9$</span>
+    </div>
+    <div class="train-board-wrap">
+      <div class="grid-board" style="width:${7*64}px; height:${5*64}px;">
+        <div class="grid-cells" style="grid-template-columns:repeat(7,64px); grid-template-rows:repeat(5,64px);">
+          ${cellsHtml}
+        </div>
+        ${piecesHtml}
+        ${ghostHtml}
+      </div>
+    </div>
+    <div class="move-guide">드래그 배치 · R 회전 · Ctrl+클릭 빠른이동 · Esc 취소</div>
+    <div class="wagon-bar-title">
+      <span>연결 화차 (3 / 최대 8량)</span>
+      <span style="color:var(--gold)">클릭으로 전환 · 드래그로 화물 이동</span>
+    </div>
+    <div class="wagon-grid">${wagonHtml}</div>
+    <div class="wagon-summary">
+      <div class="ws-hdr"><span>현재 화차 적재 화물 (3)</span><span>판매 예상 (금융마을)</span></div>
+      <div class="ws-item selected">
+        <span class="name"><img src="${ASSETS}Fish.png">물고기 <span class="pill pill-blue" style="font-size:11px">선호 130%</span></span>
+        <span style="color:var(--green);font-weight:700">39$ (+9$)</span>
+      </div>
+      <div class="ws-item">
+        <span class="name"><img src="${ASSETS}WoodBundle.png">목재 묶음 ×2</span>
+        <span style="color:var(--txt);font-weight:700">각 31$ (운임 면제)</span>
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderMarketSurface(isNight) {
+  let cellsHtml = '';
+  for (let i = 0; i < 13 * 9; i++) {
+    cellsHtml += `<div class="g-cell"></div>`;
+  }
+  let piecesHtml = '';
+  MARKET_CARGO.forEach(c => {
+    const dim = (currentState === 'hold_market' && c.id === 'm_water') ? 'source-dim' : '';
+    const sel = (currentState === 'idle_market' && c.id === 'm_apple') || (currentState === 'tooltip' && c.id === 'm_apple') ? 'selected' : '';
+    piecesHtml += `
+      <div class="cargo-piece ${dim} ${sel}" style="left:${c.x*64+2}px; top:${c.y*64+2}px; width:${c.w*64-4}px; height:${c.h*64-4}px;">
+        <img src="${ASSETS}${c.img}" alt="${c.name}">
+        <span class="price-tag">${c.price}$</span>
+      </div>`;
+  });
+
+  return `
+  <div class="u-panel center-surface">
+    <div class="col-header">
+      <div class="col-title">🏪 금융마을 시장 ${isNight?'<span class="pill pill-red">야간 휴업 (00~06시)</span>':'<span class="pill pill-green">영업 중</span>'}</div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span class="pill pill-slate">매 턴 재입고</span>
+        <span class="pill pill-gold" style="background:var(--gold-dim);color:var(--gold);border:1px solid var(--gold)">가격 상시 표시 ON</span>
+      </div>
+    </div>
+    <div class="market-info-bar">
+      <div class="mi-row"><span class="mi-label" style="color:var(--gold)">물가 125%</span><span style="color:var(--txt-sub)">수도권 · 전반 시세 높음</span></div>
+      <div class="mi-row"><span class="mi-label" style="color:var(--green)">풍부 70%</span><span style="color:var(--txt-dim)">없음</span></div>
+      <div class="mi-row"><span class="mi-label" style="color:#ff9e5e">선호 130%</span>${tagPill('기계')}${tagPill('물고기')}${tagPill('과일')}${tagPill('소금')}${tagPill('가축')}</div>
+      <div class="mi-row"><span class="mi-label" style="color:var(--purple)">희귀 200%</span><span style="color:var(--txt-dim)">없음</span></div>
+    </div>
+    <div class="market-board-wrap" style="${isNight?'opacity:0.35;filter:grayscale(0.6)':''}">
+      <div class="grid-board" style="width:${13*64}px; height:${9*64}px;">
+        <div class="grid-cells" style="grid-template-columns:repeat(13,64px); grid-template-rows:repeat(9,64px);">
+          ${cellsHtml}
+        </div>
+        ${piecesHtml}
+      </div>
+    </div>
+    <div class="market-footer">
+      <div class="mf-filters">
+        <div class="filter-pills">
+          <span class="fpill on">전체 품목 (8)</span>
+          <span class="fpill">선호·희귀 품목</span>
+          <span class="fpill">시너지 가능</span>
+          <span class="fpill">운임 면제(목재·기계)</span>
+        </div>
+        <span style="font-size:12.5px;color:var(--txt-sub)">기차 화물을 시장으로 드래그해 판매</span>
+      </div>
+      <div class="mf-hints">
+        <div class="hint-card"><strong>💡 추천 시너지: 물통 (20$)</strong>기차의 <b>물고기</b> 옆에 두면 다음 정산 <b>+9$ (+30%)</b></div>
+        <div class="hint-card"><strong>📦 운임 면제: 기계 프레임 (98$)</strong>6칸이지만 목재·기계는 이동 운임 칸 비용 면제</div>
+        <div class="hint-card"><strong>🗣️ 최근 소문 (12시간 전)</strong>아이포트 중앙에서 <b>소금</b> 수요가 높다는 소식</div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderTavernSurface() {
+  return `
+  <div class="u-panel center-surface">
+    <div class="col-header">
+      <div class="col-title">🍺 금융마을 술집 · 의뢰 게시판</div>
+      <button class="btn-ui" style="padding:6px 14px" onclick="setState('idle_market')">시장으로 돌아가기</button>
+    </div>
+    <div class="station-subgrid">
+      <div class="sub-box">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <strong style="font-size:16px">손님 소문</strong>
+          <span class="pill pill-green">무료 · 48시간 유효</span>
+        </div>
+        <div style="background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:12px;font-size:14px;line-height:1.5">
+          "아이포트 중앙 쪽에서 <strong style="color:var(--gold)">소금</strong>이 꽤 귀하게 팔린다는 얘기가 돌더군요."
+          <div style="font-size:12px;color:var(--txt-sub);margin-top:4px">들은 지 12시간 · 수첩에 자동 기록됨</div>
+        </div>
+        <button class="btn-ui primary" style="height:48px;font-size:16px">🗣️ 손님에게 말 걸기 (무료 · 새 소문 듣기)</button>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px">
+          <strong style="font-size:16px">의뢰 게시판</strong>
+          <span style="font-size:13px;color:var(--txt-sub)">진행 중 0/1 · 평판 2</span>
+        </div>
+        <div class="quest-card selected">
+          <div>
+            <div style="font-weight:700;font-size:15px">의뢰 소포 → <span style="color:#e87bb6">에른아 공업역</span></div>
+            <div style="font-size:13px;color:var(--txt-sub);margin-top:4px">최단 6턴 · 기한 11턴 · 보수 48$ + 화물 가치 + 기계 숙련 +48</div>
+            <div style="font-size:12.5px;color:#ff9c9c;margin-top:2px">실패 시 보증금 24$ 몰수</div>
+          </div>
+          <button class="btn-ui gold" style="padding:10px 16px;font-size:14px">수락<br>(보증금 24$)</button>
+        </div>
+        <div class="quest-card">
+          <div>
+            <div style="font-weight:700;font-size:15px">의뢰 신선 식품 → <span style="color:#e87bb6">트렌포드</span></div>
+            <div style="font-size:13px;color:var(--txt-sub);margin-top:4px">최단 2턴 · 기한 4턴 · 보수 33$ + 과일 숙련 +33</div>
+            <div style="font-size:12.5px;color:#ff9c9c;margin-top:2px">실패 시 수도권 72시간 거래 불이익(±20%)</div>
+          </div>
+          <button class="btn-ui primary" style="padding:10px 16px;font-size:14px">수락</button>
+        </div>
+      </div>
+      <div class="sub-box">
+        <strong style="font-size:16px">선택한 의뢰 상세</strong>
+        <div class="rp-card" style="background:var(--panel)">
+          <div style="font-size:16px;font-weight:800;margin-bottom:6px">의뢰 소포 (2×1 · 화물)</div>
+          <div class="rp-kv"><span class="k">목적지</span><span class="v">에른아 공업역 (공업 지역)</span></div>
+          <div class="rp-kv"><span class="k">제한 기한</span><span class="v">11턴 (66시간)</span></div>
+          <div class="rp-kv"><span class="k">완료 보수</span><span class="v" style="color:var(--gold)">48$ + 화물 가치</span></div>
+          <div class="rp-kv"><span class="k">숙련 보상</span><span class="v" style="color:var(--green)">기계 +48</span></div>
+          <div class="rp-kv"><span class="k">보증금</span><span class="v" style="color:#ff9c9c">24$ (성공 시 반환)</span></div>
+        </div>
+        <div style="font-size:13px;color:var(--txt-sub);line-height:1.55">
+          • 수락 즉시 의뢰 화물이 기차 빈 칸에 적재됩니다.<br>
+          • 우측 판단 패널과 좌측 기차 보드를 보며 여유 칸을 미리 확인하세요.
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderRestSurface() {
+  return `
+  <div class="u-panel center-surface">
+    <div class="col-header">
+      <div class="col-title">🛏️ 휴식 및 시간 대기</div>
+      <button class="btn-ui" style="padding:6px 14px" onclick="setState('idle_market')">시장으로 돌아가기</button>
+    </div>
+    <div class="station-subgrid">
+      <div class="sub-box" style="justify-content:center;gap:18px">
+        <div style="text-align:center;font-size:14px;color:var(--txt-sub)">휴식할 턴 수를 선택하세요 (1턴 = 6시간 · 매 턴 정산)</div>
+        <div style="display:flex;align-items:center;justify-content:center;gap:12px">
+          <button class="btn-ui" style="width:64px;height:64px;font-size:26px">◀</button>
+          <button class="btn-ui primary" style="width:300px;height:64px;font-size:20px;flex-direction:column;gap:2px">
+            <span>오후까지 휴식 · 1턴</span>
+            <span style="font-size:12.5px;font-weight:400;color:#cbe4ff">예상 정산 +9$ · 시장 재입고</span>
+          </button>
+          <button class="btn-ui" style="width:64px;height:64px;font-size:26px">▶</button>
+        </div>
+        <button class="btn-ui gold" style="height:64px;font-size:18px;width:452px;margin:0 auto">
+          🌅 아침까지 대기 (다음 날 06:00 · 3턴 · 예상 정산 +27$)
+        </button>
+        <div style="background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:12px;width:452px;margin:0 auto;font-size:13px;color:var(--txt-sub)">
+          • 현재 시각: <strong style="color:#fff">1일 오전 (낮)</strong> → 1턴 후: <strong style="color:#fff">1일 오후 (낮)</strong><br>
+          • 야간(00:00~06:00)에는 시장이 닫히므로 <b>아침까지 대기</b>로 빠르게 넘길 수 있습니다.
+        </div>
+      </div>
+      <div class="sub-box">
+        <strong style="font-size:16px">휴식 및 정산 안내</strong>
+        <div style="font-size:13.5px;color:var(--txt-sub);line-height:1.7">
+          • 휴식 1턴마다 <strong>6시간</strong>이 지나며, 모든 기차 화차의 인접 시너지 정산이 1회 실행됩니다.<br>
+          • 1턴이 지날 때마다 역 시장의 재고가 새로 입출고됩니다.<br>
+          • 식품·신선 화물의 유통기한과 가공 화차(정원·제련·분쇄)의 변환도 턴마다 진행됩니다.<br>
+          • 남은 전체 기한은 <strong>D-14 · 56턴</strong>입니다.
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderWagonShopSurface() {
+  return `
+  <div class="u-panel center-surface">
+    <div class="col-header">
+      <div class="col-title">🚃 금융마을 화차 시설 <span class="pill pill-green">구매 무료(턴 소모 없음)</span></div>
+      <button class="btn-ui" style="padding:6px 14px" onclick="setState('idle_market')">시장으로 돌아가기</button>
+    </div>
+    <div class="station-subgrid">
+      <div class="sub-box">
+        <div style="font-size:13.5px;color:var(--txt-sub)">카드를 클릭해 바로 구매하거나, 좌측 화차 바 빈 슬롯으로 드래그하세요. (현재 3/8량)</div>
+        <div class="quest-card selected" style="padding:16px">
+          <div style="display:flex;align-items:center;gap:14px">
+            <span style="font-size:40px">🚃</span>
+            <div>
+              <div style="font-size:17px;font-weight:800">일반 화차 (5×5)</div>
+              <div style="font-size:13px;color:var(--txt-sub);margin-top:3px"><span class="pill pill-green">사용 가능 21칸 (구멍 4칸)</span></div>
+            </div>
+          </div>
+          <button class="btn-ui gold" style="padding:10px 18px;font-size:16px">300$ 구매</button>
+        </div>
+        <div class="quest-card" style="padding:16px">
+          <div style="display:flex;align-items:center;gap:14px">
+            <span style="font-size:40px">❄️</span>
+            <div>
+              <div style="font-size:17px;font-weight:800">냉장 화차 (7×4)</div>
+              <div style="font-size:13px;color:var(--txt-sub);margin-top:3px"><span class="pill pill-blue">음식·신선 보존 +50%</span> <span class="pill pill-slate">24칸</span></div>
+            </div>
+          </div>
+          <button class="btn-ui primary" style="padding:10px 18px;font-size:16px">550$ 구매</button>
+        </div>
+      </div>
+      <div class="sub-box">
+        <strong style="font-size:16px">선택한 화차 상세 · 일반 화차 (5×5)</strong>
+        <div class="rp-card" style="background:var(--panel)">
+          <div class="rp-kv"><span class="k">가격</span><span class="v" style="color:var(--gold)">300$ (현재 자금 200$ — 부족)</span></div>
+          <div class="rp-kv"><span class="k">격자 크기</span><span class="v">5×5 (구매 시 구멍 3~5칸 포함)</span></div>
+          <div class="rp-kv"><span class="k">증차 상한</span><span class="v">최대 8량 (평판 1당 +1칸)</span></div>
+          <div class="rp-kv"><span class="k">기존 화차 판매</span><span class="v">화차 바에서 시설로 드래그</span></div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderWorkshopSurface() {
+  let cells = '';
+  for (let i = 0; i < 25; i++) cells += `<div class="g-cell"></div>`;
+  return `
+  <div class="u-panel center-surface">
+    <div class="col-header">
+      <div class="col-title">🔧 에른아 공업역 작업대 · 개조 <span class="pill pill-orange">도시 전용</span></div>
+      <button class="btn-ui" style="padding:6px 14px" onclick="setState('idle_market')">시장으로 돌아가기</button>
+    </div>
+    <div class="station-subgrid">
+      <div class="sub-box" style="align-items:center">
+        <div style="width:100%;display:flex;justify-content:space-between;align-items:center">
+          <span style="font-weight:700">개조 모드</span>
+          <span class="pill pill-blue">냉장 개조 (투입당 150$ · 6시간)</span>
+        </div>
+        <div class="grid-board" style="width:${5*64}px;height:${5*64}px;margin:10px 0">
+          <div class="grid-cells" style="grid-template-columns:repeat(5,64px);grid-template-rows:repeat(5,64px)">${cells}</div>
+          <div class="cargo-piece" style="left:66px;top:66px;width:188px;height:124px">
+            <img src="${ASSETS}MachineFrame.png" alt="기계 프레임">
+          </div>
+        </div>
+        <button class="btn-ui gold" style="width:320px;height:52px;font-size:17px">개조하기 · 150$ (1턴 소요)</button>
+      </div>
+      <div class="sub-box">
+        <strong style="font-size:16px">개조 작업 안내</strong>
+        <div class="rp-card" style="background:var(--panel)">
+          <div class="rp-kv"><span class="k">대상 화물</span><span class="v">기계 부품 (기계 프레임 등)</span></div>
+          <div class="rp-kv"><span class="k">변환 결과</span><span class="v" style="color:var(--blue)">냉장 프레임 (인접 보존 50%)</span></div>
+          <div class="rp-kv"><span class="k">수수료</span><span class="v" style="color:var(--gold)">투입 1개당 150$</span></div>
+          <div class="rp-kv"><span class="k">소요 시간</span><span class="v">6시간 (1턴 · 정산 1회)</span></div>
+        </div>
+        <div style="font-size:13px;color:var(--txt-sub);line-height:1.6">
+          • 도시 작업대(개조 150$, 도축·정제 10$)는 역마다 1종만 존재합니다.<br>
+          • 작업대 드래그 중에는 행선지 렌즈가 작동하지 않습니다.
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderRightPanel(isHoldMarket, isHoldTrain) {
+  const isHolding = isHoldMarket || isHoldTrain;
+  const item = isHoldMarket
+    ? { name:'물통', img:'WaterBarrel.png', size:'1×1', tags:['보급품','물'], base:16, cur:16, buy:20, sell:16, grade:'보통 100%', delta:+9 }
+    : isHoldTrain
+      ? { name:'물고기', img:'Fish.png', size:'1×2', tags:['음식','물고기'], base:30, cur:39, buy:null, sell:39, grade:'선호 130%', delta:+6 }
+      : { name:'사과', img:'Apple.png', size:'1×1', tags:['음식','과일'], base:14, cur:14, buy:18, sell:14, grade:'선호 130%', delta:0 };
+
+  let quoteBlock = '';
+  if (isHoldMarket) {
+    quoteBlock = `
+      <div class="rp-quote-box">
+        <div class="rp-kv"><span class="k">구매 견적 (현재 도시)</span><span class="v" style="color:var(--gold)">20$</span></div>
+        <div class="rp-kv"><span class="k">자금 변화</span><span class="v">200$ → <span style="color:var(--green)">180$</span></span></div>
+      </div>
+      <div class="rp-delta-banner">
+        <div>
+          <div style="font-size:12px;color:#9ff0b8">이 자리 다음 정산 Δ</div>
+          <div style="font-size:13px;color:var(--txt-sub)">영향 이웃: 물고기 (+9$)</div>
+        </div>
+        <div style="font-size:22px;font-weight:800;color:#8ce8a8">+9$</div>
+      </div>
+      <div style="font-size:12.5px;color:var(--txt-sub)">상위 후보(양수 Δ만 표시): <strong style="color:var(--gold)">① +9$</strong> · ② +9$ · ③ +9$</div>`;
+  } else if (isHoldTrain) {
+    quoteBlock = `
+      <div class="rp-quote-box">
+        <div class="rp-kv"><span class="k">기차 안 재배치</span><span class="v">거래 없음 (자금 200$ 유지)</span></div>
+        <div class="rp-kv"><span class="k">시장 드롭 시 판매가</span><span class="v" style="color:var(--green)">39$ (200 → 239$)</span></div>
+      </div>
+      <div class="rp-delta-banner">
+        <div>
+          <div style="font-size:12px;color:#9ff0b8">이 자리 다음 정산 Δ</div>
+          <div style="font-size:13px;color:var(--txt-sub)">영향 이웃: 1개</div>
+        </div>
+        <div style="font-size:22px;font-weight:800;color:#8ce8a8">+6$</div>
+      </div>
+      <div style="font-size:12.5px;color:var(--txt-sub)">상위 후보(양수 Δ만 표시): <strong style="color:var(--gold)">① +6$</strong> · ② +3$</div>`;
+  } else {
+    quoteBlock = `
+      <div class="rp-card" style="padding:10px 12px">
+        <div class="rp-kv"><span class="k">기본 가치 / 현재 가치</span><span class="v">${item.base}$ / ${item.cur}$</span></div>
+        <div class="rp-kv"><span class="k">현재 도시 등급</span><span class="v" style="color:#ff9e5e">${item.grade} (물가 125%)</span></div>
+        <div class="rp-kv"><span class="k">시장 구매가</span><span class="v" style="color:var(--gold)">${item.buy}$</span></div>
+        <div class="rp-kv"><span class="k">인접 시너지 규칙</span><span class="v" style="color:var(--green)">소금 옆 +20% · 거름 -50%</span></div>
+      </div>`;
+  }
+
+  let destBody = '';
+  if (currentDestTab === 'current') {
+    const quoteLine = isHoldTrain
+      ? `판매 시 <b>${item.sell}$</b> · 물가 125%`
+      : `구매 <b>${item.buy||20}$</b> · 판매 시 <b>${item.sell}$</b> · 물가 125%`;
+    destBody = `
+      <div class="dest-card">
+        <div class="dest-card-hdr"><span>금융마을 (현재 역)</span><span class="pill pill-orange">확정 견적</span></div>
+        <div style="color:var(--txt-sub)">${quoteLine}</div>
+      </div>
+      <div class="dest-card">
+        <div class="dest-card-hdr"><span>적용 가능 시너지</span><span style="color:var(--green)">+30% / 턴</span></div>
+        <div style="color:var(--txt-sub)">기차 내 <b>물고기</b>와 인접 시 매 턴 +9$ 누적</div>
+      </div>`;
+  } else if (currentDestTab === 'visited') {
+    destBody = `
+      <div class="dest-card">
+        <div class="dest-card-hdr"><span>트렌포드 (방문 완료)</span><span class="pill pill-green">공식 견적 22$</span></div>
+        <div style="color:var(--txt-sub)">선호 130% · 물가 105% · 1턴</div>
+        <div style="color:#8fc5ff;margin-top:3px">적재 포함 운임: <b>8$</b> (기본3 + 거리2 + 적재3)</div>
+      </div>
+      <div class="dest-card">
+        <div class="dest-card-hdr"><span>마루항 (방문 완료)</span><span class="pill pill-slate">공식 견적 14$</span></div>
+        <div style="color:var(--txt-sub)">풍부 70% · 물가 100% · 1턴 · 운임 <b>9$</b></div>
+      </div>`;
+  } else {
+    destBody = `
+      <div class="dest-card">
+        <div class="dest-card-hdr"><span>아이포트 중앙 (미방문)</span><span class="pill pill-blue">소문 · 12시간 전</span></div>
+        <div style="color:var(--txt)">"물류 수요가 높아 소금·물품 거래가 활발함"</div>
+        <div style="color:var(--txt-sub);margin-top:4px">1턴 · 적재 포함 운임 <b>9$</b> (등급·가격 비공개)</div>
+      </div>
+      <div class="dest-card">
+        <div class="dest-card-hdr"><span>다르폴 (미방문)</span><span class="pill pill-red">오래된 소문 · 54시간</span></div>
+        <div style="color:var(--txt-sub)">"축산·도축 관련 품목 수요" · 운임 <b>12$</b> (48h 초과)</div>
+      </div>`;
+  }
+
+  return `
+  <div class="u-panel right-panel">
+    <div class="col-header" style="padding-bottom:8px">
+      <div class="col-title" style="font-size:17px">${isHolding?'🔭 행선지 렌즈':'📋 화물 판단 패널'}</div>
+      <span class="rp-mode-badge ${isHolding?'lens':''}">${isHolding?'잡는 중':'선택/호버'}</span>
+    </div>
+    <div class="rp-card">
+      <div class="rp-cargo-top">
+        <div class="rp-cargo-img"><img src="${ASSETS}${item.img}" alt="${item.name}"></div>
+        <div>
+          <div style="font-size:18px;font-weight:800;color:#fff">${item.name} <span style="font-size:13px;color:var(--txt-sub);font-weight:500">(${item.size})</span></div>
+          <div style="display:flex;gap:5px;margin-top:5px;flex-wrap:wrap">${item.tags.map(tagPill).join('')}</div>
+        </div>
+      </div>
+    </div>
+    ${quoteBlock}
+    <div class="rp-card" style="flex:1;display:flex;flex-direction:column;min-height:0">
+      <div style="font-size:13.5px;font-weight:700;margin-bottom:8px;display:flex;justify-content:space-between">
+        <span>목적지별 비교</span>
+        <span style="font-size:11.5px;color:var(--txt-sub)">안개 규칙 준수</span>
+      </div>
+      <div class="dest-tabs">
+        <button class="dest-tab ${currentDestTab==='current'?'active':''}" onclick="setDestTab('current')">현재</button>
+        <button class="dest-tab ${currentDestTab==='visited'?'active':''}" onclick="setDestTab('visited')">방문 도시</button>
+        <button class="dest-tab ${currentDestTab==='rumor'?'active':''}" onclick="setDestTab('rumor')">소문 도시</button>
+      </div>
+      <div style="overflow:auto;flex:1">${destBody}</div>
+    </div>
+  </div>`;
+}
+
+function renderMapOverlay(withRoute) {
+  return `
+  <div class="u-panel center-overlay">
+    <div class="col-header">
+      <div class="col-title">🗺️ 지역 철도 노선도 <span class="pill pill-slate">안개 4단계 적용</span></div>
+      <div style="display:flex;gap:10px;align-items:center">
+        <input type="text" value="" placeholder="역·지역 검색..." style="background:var(--panel-2);border:1px solid var(--border);color:#fff;padding:6px 12px;border-radius:6px;font-family:inherit;width:210px">
+        <button class="btn-ui" style="padding:6px 14px" onclick="setState('idle_market')">닫기</button>
+      </div>
+    </div>
+    <div style="display:flex;gap:14px;padding:8px 0;font-size:13px;color:var(--txt-sub);flex-wrap:wrap">
+      <span><b style="color:#4f94e8">▬</b> 광산</span>
+      <span><b style="color:#e08a42">▬</b> 목축</span>
+      <span><b style="color:#48b86a">▬</b> 공업</span>
+      <span><b style="color:#e87bb6">▬</b> 수도권</span>
+      <span><b style="color:#7868e8">▬</b> 해안</span>
+      <span><b style="color:#48b8c8">▬</b> 농업</span>
+      <span style="margin-left:auto">기본 운임 = 3 + 거리 + 적재 칸(목재·기계 제외)</span>
+    </div>
+    <div class="map-body">
+      <div class="map-canvas">
+        <svg width="100%" height="100%" style="position:absolute;inset:0">
+          <line x1="76%" y1="68%" x2="72%" y2="48%" stroke="#e87bb6" stroke-width="5"/>
+          <line x1="76%" y1="68%" x2="62%" y2="62%" stroke="#e87bb6" stroke-width="5"/>
+          <line x1="76%" y1="68%" x2="84%" y2="54%" stroke="#e87bb6" stroke-width="5"/>
+          <line x1="62%" y1="62%" x2="45%" y2="68%" stroke="#e5e8ef" stroke-width="3" stroke-dasharray="6,4"/>
+          ${withRoute ? '<line x1="76%" y1="68%" x2="72%" y2="48%" stroke="#f0b932" stroke-width="7" stroke-dasharray="10,4"/>' : ''}
+        </svg>
+        <div class="map-fog" style="left:10%;top:15%;width:240px;height:180px">미확인 구역 (안개)</div>
+        <div class="map-node" style="left:76%;top:68%"><div class="map-dot current"></div><div class="map-lbl" style="border-color:var(--gold);color:var(--gold)">▼ 현재: 금융마을</div></div>
+        <div class="map-node" style="left:72%;top:48%"><div class="map-dot" style="background:#e87bb6"></div><div class="map-lbl">아이포트 중앙 (미방문 · 소문)</div></div>
+        <div class="map-node" style="left:62%;top:62%"><div class="map-dot" style="background:#e87bb6"></div><div class="map-lbl">트렌포드 (방문)</div></div>
+        <div class="map-node" style="left:84%;top:54%"><div class="map-dot" style="background:#7868e8"></div><div class="map-lbl">마루항 (방문)</div></div>
+        <div class="map-node" style="left:45%;top:68%"><div class="map-dot" style="background:#48b8c8"></div><div class="map-lbl">농업 지역 (노선 공개)</div></div>
+      </div>
+      <div class="map-side-dock">
+        <div class="rp-card" style="flex:1">
+          ${withRoute ? `
+            <div style="font-size:16px;font-weight:800;color:var(--gold);margin-bottom:8px">경로 계획 · 1구간</div>
+            <div style="font-size:15px;font-weight:700;margin-bottom:6px">금융마을 → 아이포트 중앙</div>
+            <div class="rp-kv"><span class="k">소요 시간</span><span class="v">1턴 (6시간)</span></div>
+            <div class="rp-kv"><span class="k">도착 예정</span><span class="v">1일 오후 (낮)</span></div>
+            <div class="rp-kv"><span class="k">예상 운임 (적재 포함)</span><span class="v" style="color:var(--gold)">9$ (기본3+거리2+적재4)</span></div>
+            <div style="margin:12px 0;padding:8px;background:var(--panel);border-radius:5px;font-size:13px">
+              ☑ 1. 아이포트 중앙 (정차)
+            </div>
+            <div style="display:flex;gap:8px;margin-top:10px">
+              <button class="btn-ui gold" style="flex:1;height:40px" onclick="setState('travel')">자동 이동</button>
+              <button class="btn-ui" style="flex:1;height:40px" onclick="setState('map')">취소</button>
+            </div>
+          ` : `
+            <div style="font-size:16px;font-weight:800;margin-bottom:8px">역 미리보기</div>
+            <div style="font-size:13.5px;color:var(--txt-sub);line-height:1.6">
+              역 노드를 가리키거나 클릭하면 거리·운임·소문 정보를 노선도를 가리지 않고 이 영역에 표시합니다.
+            </div>
+            <div style="margin-top:14px">
+              <button class="btn-ui primary" style="width:100%;height:38px" onclick="setState('map_route')">아이포트 중앙 경로 계획 예시</button>
+            </div>
+          `}
+        </div>
+        <div class="rp-card" style="display:flex;justify-content:space-between;align-items:center">
+          <button class="btn-ui" style="padding:6px 12px">-</button>
+          <span style="font-weight:700">68%</span>
+          <button class="btn-ui" style="padding:6px 12px">+</button>
+          <button class="btn-ui" style="padding:6px 10px">전체</button>
+          <button class="btn-ui" style="padding:6px 10px">현재</button>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderNotebookOverlay(tab) {
+  const tabs = [
+    { id:'nb_rumor', lbl:'소문 (2)' },
+    { id:'nb_quest', lbl:'의뢰 (1/1)' },
+    { id:'nb_prof', lbl:'숙련 · 평판' },
+    { id:'nb_synergy', lbl:'상성표' }
+  ];
+  let body = '';
+  if (tab === 'nb_rumor') {
+    body = `
+      <div class="quest-card" style="margin-top:12px">
+        <div>
+          <div style="font-weight:700;font-size:15px">아이포트 중앙 · 소금 수요</div>
+          <div style="font-size:13.5px;color:var(--txt-sub);margin-top:4px">"아이포트 중앙 쪽에서 소금이 꽤 귀하게 팔린다는 얘기가 돌더군요."</div>
+        </div>
+        <span class="pill pill-blue">12시간 전</span>
+      </div>
+      <div class="quest-card" style="margin-top:10px">
+        <div>
+          <div style="font-weight:700;font-size:15px">다르폴 · 축산 수요</div>
+          <div style="font-size:13.5px;color:var(--txt-sub);margin-top:4px">"다르폴에서는 도축·육류 물량이 부족하답니다."</div>
+        </div>
+        <span class="pill pill-red">오래된 소문 · 54시간</span>
+      </div>`;
+  } else if (tab === 'nb_quest') {
+    body = `
+      <div class="rp-card" style="margin-top:12px">
+        <div style="font-size:16px;font-weight:700">평판 2 · 동시 진행 가능 의뢰 1개</div>
+        <div class="quest-card selected" style="margin-top:12px">
+          <div>
+            <div style="font-weight:700;font-size:15px">[진행 중] 의뢰 소포 → 에른아 공업역</div>
+            <div style="font-size:13px;color:var(--txt-sub);margin-top:4px">남은 기한 9턴 · 보수 48$ + 화물 가치 + 기계 숙련 +48</div>
+          </div>
+          <span class="pill pill-gold" style="background:var(--gold-dim);color:var(--gold)">기차 1번 칸 적재됨</span>
+        </div>
+      </div>`;
+  } else if (tab === 'nb_prof') {
+    const tags = [
+      ['음식', 1, '+5.0%', 65], ['화물', 1, '+5.0%', 40], ['물고기', 0, '+0.0%', 25],
+      ['과일', 0, '+0.0%', 10], ['기계', 0, '+0.0%', 0], ['목재', 0, '+0.0%', 50],
+      ['소금', 0, '+0.0%', 0], ['가축', 0, '+0.0%', 0], ['금속', 0, '+0.0%', 0],
+      ['광물', 0, '+0.0%', 0], ['보급품', 0, '+0.0%', 20]
+    ];
+    const rows = tags.map(t => `
+      <div style="display:grid;grid-template-columns:110px 70px 110px 1fr;align-items:center;gap:12px;padding:7px 10px;background:var(--panel);border:1px solid var(--border);border-radius:5px">
+        <span style="font-weight:700">${t[0]}</span>
+        <span style="color:var(--gold)">Lv ${t[1]}</span>
+        <span style="color:var(--green)">이득 ${t[2]}</span>
+        <div style="height:10px;background:#263040;border-radius:5px;overflow:hidden"><div style="width:${t[3]}%;height:100%;background:var(--blue)"></div></div>
+      </div>`).join('');
+    body = `
+      <div style="margin-top:12px;display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:16px;font-weight:700">평판 2 · 다음 단계(평판 4)까지 2 · 증차 상한 6/8칸</span>
+        <span style="font-size:13px;color:var(--txt-sub)">다른 마을 화물을 팔면 숙련이 오릅니다</span>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px;margin-top:10px">${rows}</div>`;
+  } else {
+    body = `
+      <div style="display:grid;grid-template-columns:1.5fr 0.85fr;gap:16px;margin-top:12px;flex:1;min-height:0">
+        <div>
+          <table class="syn-table">
+            <thead>
+              <tr><th>↓ 옆에 닿으면 →</th><th>가축</th><th>물고기</th><th>음식</th><th>소금</th><th>거름</th><th>물</th><th>목재</th></tr>
+            </thead>
+            <tbody>
+              <tr><th>모든 화물</th><td></td><td></td><td></td><td></td><td class="syn-neg">-50%</td><td></td><td></td></tr>
+              <tr><th>화물</th><td class="syn-neg">-10%</td><td></td><td class="syn-pos">+20%*1</td><td></td><td></td><td></td><td></td></tr>
+              <tr><th>물고기</th><td></td><td></td><td></td><td></td><td></td><td class="syn-pos">+30%</td><td></td></tr>
+              <tr><th>음식</th><td></td><td></td><td></td><td class="syn-pos">+20%</td><td></td><td></td><td></td></tr>
+              <tr><th>기계</th><td></td><td></td><td></td><td></td><td></td><td></td><td class="syn-pos">+10%</td></tr>
+              <tr><th>금속</th><td></td><td class="syn-neg">-20%</td><td></td><td></td><td></td><td class="syn-neg">-20%</td><td></td></tr>
+              <tr><th>목재</th><td></td><td class="syn-neg">-10%</td><td></td><td></td><td></td><td class="syn-neg">-10%</td><td></td></tr>
+            </tbody>
+          </table>
+          <div style="margin-top:12px;font-size:13px;color:var(--txt-sub);line-height:1.6">
+            • 맞닿은 면 하나마다 효과를 합산하고 1턴 정산마다 실제 가치에 누적됩니다.<br>
+            • 품목별 인접 보존율: 냉장 프레임 50% · 소금 자루 10% (최대 100%)
+          </div>
+        </div>
+        <div class="sub-box" style="padding:12px">
+          <strong>화물별 태그 목록</strong>
+          <div style="display:flex;flex-direction:column;gap:6px;font-size:13px">
+            <div><b>사과</b> ${tagPill('음식')}${tagPill('과일')}</div>
+            <div><b>물고기</b> ${tagPill('음식')}${tagPill('물고기')}</div>
+            <div><b>소금 자루</b> ${tagPill('소금')}${tagPill('보급품')}${tagPill('신선')}</div>
+            <div><b>물통</b> ${tagPill('보급품')}${tagPill('물')}</div>
+            <div><b>목재 묶음</b> ${tagPill('화물')}${tagPill('목재')}</div>
+            <div><b>기계 프레임</b> ${tagPill('기계')}</div>
+            <div><b>공구 상자</b> ${tagPill('화물')}${tagPill('금속')}</div>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  return `
+  <div class="u-panel center-overlay">
+    <div class="col-header">
+      <div class="col-title">📒 술집 수첩</div>
+      <button class="btn-ui" style="padding:6px 14px" onclick="setState('idle_market')">닫기</button>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:10px">
+      ${tabs.map(t => `<button class="btn-ui ${tab===t.id?'gold':''}" style="padding:8px 18px;font-size:15px" onclick="setState('${t.id}')">${t.lbl}</button>`).join('')}
+    </div>
+    ${body}
+  </div>`;
+}
+
+function renderModals() {
+  if (currentState === 'tooltip') {
+    return `
+      <div class="item-tooltip" style="left:820px;top:370px">
+        <div style="font-size:20px;font-weight:800;margin-bottom:6px">사과</div>
+        <div style="display:flex;gap:6px;margin-bottom:10px">${tagPill('음식')}${tagPill('과일')}</div>
+        <div class="rp-kv"><span class="k">기본 가치</span><span class="v">14$</span></div>
+        <div class="rp-kv"><span class="k">판매 배율</span><span class="v" style="color:#ff9e5e">163% (선호×물가)</span></div>
+        <div class="rp-kv"><span class="k">시장 구매가</span><span class="v" style="color:var(--gold)">18$</span></div>
+        <div style="margin-top:8px;font-size:12.5px;color:var(--txt-sub)">소금 옆 배치 시 다음 정산 +20%</div>
+      </div>`;
+  }
+  if (currentState === 'pause') {
+    return `
+      <div class="modal-dim">
+        <div class="modal-card" style="width:460px;text-align:center">
+          <h2 style="margin:0 0 18px;font-size:28px">일시 정지</h2>
+          <div style="display:flex;flex-direction:column;gap:12px">
+            <button class="btn-ui primary" style="height:54px;font-size:18px" onclick="setState('idle_market')">계속하기 (Esc)</button>
+            <button class="btn-ui gold" style="height:54px;font-size:18px">배치 후보 표시: 켜짐</button>
+            <button class="btn-ui" style="height:54px;font-size:18px">재시작</button>
+            <button class="btn-ui" style="height:54px;font-size:18px;border-color:var(--red);color:#ff9c9c">게임 종료</button>
+          </div>
+        </div>
+      </div>`;
+  }
+  if (currentState === 'travel') {
+    return `
+      <div class="modal-dim" style="left:124px;top:112px;width:1380px;height:952px;inset:auto;border-radius:8px">
+        <div class="modal-card" style="width:680px;text-align:center">
+          <div style="font-size:28px;font-weight:800;margin-bottom:8px">기차가 이동 중입니다</div>
+          <div style="font-size:18px;color:var(--txt-sub);margin-bottom:24px">금융마을 → 아이포트 중앙 · 적재 포함 운임 9$ · 1턴</div>
+          <div style="height:4px;background:var(--border-bright);position:relative;margin:30px 20px">
+            <div style="position:absolute;left:52%;top:-26px;font-size:32px">🚂🚃</div>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:0 20px;font-size:16px;font-weight:700">
+            <span>금융마을</span><span style="color:var(--gold)">1일 오후 15:10</span><span>아이포트 중앙</span>
+          </div>
+          <button class="btn-ui primary" style="margin-top:24px;padding:10px 24px" onclick="setState('idle_market')">도착 확인</button>
+        </div>
+      </div>`;
+  }
+  if (currentState === 'run_end') {
+    return `
+      <div class="modal-dim">
+        <div class="modal-card" style="width:600px;text-align:center">
+          <div class="pill pill-green" style="font-size:14px;margin-bottom:8px">14일 여정 결산 완료</div>
+          <h2 style="margin:0 0 14px;font-size:32px;color:var(--gold)">목표 달성 · 승리!</h2>
+          <div class="rp-card" style="text-align:left;margin-bottom:18px">
+            <div class="rp-kv"><span class="k">최종 결산 잔액</span><span class="v" style="color:var(--gold);font-size:20px">1,840$ (목표 1,500$)</span></div>
+            <div class="rp-kv"><span class="k">방문한 역 / 완료 의뢰</span><span class="v">9개 역 · 6건 완료</span></div>
+            <div class="rp-kv"><span class="k">최종 평판 / 최고 시너지</span><span class="v">평판 6 · 턴당 +42$</span></div>
+          </div>
+          <div style="display:flex;gap:12px">
+            <button class="btn-ui gold" style="flex:1;height:52px;font-size:17px" onclick="setState('idle_market')">무한 모드 계속</button>
+            <button class="btn-ui primary" style="flex:1;height:52px;font-size:17px" onclick="setState('idle_market')">새 여정 시작</button>
+          </div>
+        </div>
+      </div>`;
+  }
+  return '';
+}
+
+function renderCanvas() {
+  const canvas = document.getElementById('gameCanvas');
+  const isNight = currentState === 'night';
+  canvas.className = isNight ? 'night-mode' : '';
+
+  const isHoldMarket = currentState === 'hold_market';
+  const isHoldTrain = currentState === 'hold_train';
+
+  let centerArea = '';
+  if (currentState === 'tavern') centerArea = renderTavernSurface();
+  else if (currentState === 'rest') centerArea = renderRestSurface();
+  else if (currentState === 'wagon_shop') centerArea = renderWagonShopSurface();
+  else if (currentState === 'workshop') centerArea = renderWorkshopSurface();
+  else centerArea = renderMarketSurface(isNight);
+
+  let overlay = '';
+  if (currentState === 'map') overlay = renderMapOverlay(false);
+  else if (currentState === 'map_route') overlay = renderMapOverlay(true);
+  else if (currentState.startsWith('nb_')) overlay = renderNotebookOverlay(currentState);
+
+  canvas.innerHTML = `
+    ${renderTopHUD(isNight)}
+    ${renderStatusStrip(isNight)}
+    ${renderLeftRail(isNight)}
+    ${renderTrainColumn()}
+    <div class="counter-gap u-panel" style="background:transparent;border:none">
+      <div class="counter-line"></div>
+      <span>⇄</span>
+      <div class="counter-line"></div>
+    </div>
+    ${centerArea}
+    ${overlay}
+    ${renderRightPanel(isHoldMarket, isHoldTrain)}
+    ${renderModals()}
+  `;
+}
+
+window.addEventListener('resize', applyScale);
+renderButtons();
+renderCanvas();
+applyScale();
+</script>
+</body>
+</html>

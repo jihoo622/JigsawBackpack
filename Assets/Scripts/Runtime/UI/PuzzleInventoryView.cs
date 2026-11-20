@@ -26,6 +26,13 @@ public sealed class PuzzleInventoryView : MonoBehaviour
         Vector2Int.up, Vector2Int.right, Vector2Int.down, Vector2Int.left
     };
 
+    // 놓을 자리 후보 표식의 반투명 채움색(개편 레이아웃).
+    // 아래 화물이 보이도록 옅게 채운다(테두리는 표식의 선 4개가 그린다).
+    static readonly Color CANDIDATE_FILL_COLOR = new Color(0.95f, 0.82f, 0.35f, 0.22f);
+    static readonly Color CANDIDATE_LABEL_COLOR = new Color(0.98f, 0.86f, 0.42f, 1f);
+    // 순위·가치 글자 뒤 어두운 바탕(화물 그림 위에서도 읽히게)
+    const string CANDIDATE_LABEL_PLATE = "<mark=#0E1520E6 padding=\"6,6,2,2\">";
+
     [SerializeField] Image board;
     [SerializeField] CanvasGroup interaction;
     [SerializeField] TextMeshProUGUI boardTitle;
@@ -54,6 +61,9 @@ public sealed class PuzzleInventoryView : MonoBehaviour
     [SerializeField] RectTransform[] synergyChips;
     [SerializeField] TextMeshProUGUI[] synergyChipLabels;
     [SerializeField] Image[] synergyChipBackgrounds;
+    // [0] 1순위는 자리 전체 외곽선, [1]·[2] 순위 배지는 잡은 칸이 놓이는 한 칸 크기다.
+    [SerializeField] RectTransform[] candidateMarkers;
+    [SerializeField] TextMeshProUGUI[] candidateLabels;
 
     [Header("Layout & Visual Settings")]
     [SerializeField] float cellGap = 2f;
@@ -64,6 +74,11 @@ public sealed class PuzzleInventoryView : MonoBehaviour
     [SerializeField] float synergyArrowHeightScale = 0.55f;
     [SerializeField] float synergyIncreaseLaneOffset = 0.08f;
     [SerializeField] float synergyDecreaseLaneOffset = 0.2f;
+    [SerializeField] bool dynamicCellSizing;
+    [SerializeField] RectTransform boardViewport;
+    [SerializeField] RectTransform boardContent;
+    [SerializeField] float minDynamicCellSize = 40f;
+    [SerializeField] float maxDynamicCellSize = 72f;
 
     void OnValidate()
     {
@@ -81,6 +96,16 @@ public sealed class PuzzleInventoryView : MonoBehaviour
     Vector2 gridMin;
     float cellSize;
     bool showSynergies;
+    bool initializedView;
+    PuzzleInventory lastRenderedInventory;
+    int? lastHiddenInstanceId;
+    int? lastHighlightedInstanceId;
+    IReadOnlyList<PuzzleRefrigerationContact> lastContacts;
+    IReadOnlyList<(PuzzlePose Pose, Vector2Int TargetCell, string Label)> lastCandidates;
+
+    public float CurrentCellSize => cellSize;
+    Transform CellParent => dynamicCellSizing && boardContent ? boardContent : board.rectTransform;
+    RectTransform CoordinateRect => dynamicCellSizing && boardContent ? boardContent : board.rectTransform;
 
     Camera EventCamera => canvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : canvas.worldCamera;
 
@@ -98,15 +123,16 @@ public sealed class PuzzleInventoryView : MonoBehaviour
     {
         showSynergies = _showSynergies;
         var parentCanvas = GetComponentInParent<Canvas>();
+        Transform cellParent = boardContent && dynamicCellSizing ? boardContent : (board ? board.rectTransform : null);
         if (!interaction || !parentCanvas || !board || !boardTitle || !boardTitle.font || !boardValue || !boardValue.font ||
             (_showSynergies && !synergySettlementNotice) ||
-            !moveGuide || !moveGuide.font ||
+            (!dynamicCellSizing && (!moveGuide || !moveGuide.font)) ||
 
             !flatTriangle || boardCells == null || boardCells.Distinct().Count() != boardCells.Length ||
-            boardCells.Any(image => !image || image.rectTransform.parent != board.rectTransform) ||
+            boardCells.Any(image => !image || image.rectTransform.parent != cellParent) ||
             !increaseArrow || !decreaseArrow || synergyArrows == null ||
             synergyArrows.Distinct().Count() != synergyArrows.Length ||
-            synergyArrows.Any(image => !image || image.rectTransform.parent != board.rectTransform))
+            synergyArrows.Any(image => !image || image.rectTransform.parent != cellParent))
         {
             throw new InvalidOperationException("화물 인벤토리 View의 Canvas 또는 프리팹 참조가 누락되었습니다.");
         }
@@ -124,9 +150,9 @@ public sealed class PuzzleInventoryView : MonoBehaviour
         var fillSprites = new[] { reference, eastFlatTriangle, southFlatTriangle, westFlatTriangle };
         if (!reference || !fillSprites.All(sprite => MatchesReference(sprite, reference)) ||
             !MatchesReference(flatOutline, reference) ||
-            !HasSlots(placementSlots, board.rectTransform, reference) ||
+            !HasSlots(placementSlots, cellParent, reference) ||
             !HasSlots(ghostSlots, ghostLayer ? ghostLayer : transform, reference) ||
-            !HasSlots(outlineSlots, board.rectTransform, reference))
+            !HasSlots(outlineSlots, cellParent, reference))
         {
             throw new InvalidOperationException("화물 슬롯의 스프라이트 참조·크기 또는 슬롯 구성이 올바르지 않습니다.");
         }
@@ -171,9 +197,48 @@ public sealed class PuzzleInventoryView : MonoBehaviour
 
     internal void SetTitle(string _title)
     {
+        initializedView = true;
         if (boardTitle)
         {
             boardTitle.text = _title;
+        }
+    }
+
+    void UpdateLayoutMetrics()
+    {
+        if (dynamicCellSizing && boardViewport && boardContent)
+        {
+            float vw = Mathf.Max(1f, boardViewport.rect.width);
+            float vh = Mathf.Max(1f, boardViewport.rect.height);
+            float raw = Mathf.Min(vw / gridSize.x, vh / gridSize.y);
+            cellSize = Mathf.Clamp(raw, minDynamicCellSize, maxDynamicCellSize);
+
+            boardContent.sizeDelta = new Vector2(vw, vh);
+            boardContent.anchoredPosition = Vector2.zero;
+
+            // BoardContent는 좌상단 고정 앵커(0,1)이므로 rect.center 기준이 정확하다.
+            Rect contentRect = boardContent.rect;
+            gridMin = contentRect.center - new Vector2(gridSize.x, gridSize.y) * (cellSize * 0.5f);
+        }
+        else
+        {
+            Rect boardRect = board.rectTransform.rect;
+            cellSize = Mathf.Min(boardRect.width / gridSize.x, boardRect.height / gridSize.y);
+            gridMin = boardRect.center - new Vector2(gridSize.x, gridSize.y) * (cellSize * 0.5f);
+        }
+    }
+
+    void UpdateBoardCellTransforms()
+    {
+        long cellCount = (long)gridSize.x * gridSize.y;
+        for (int i = 0; i < boardCells.Length; i++)
+        {
+            var cell = boardCells[i];
+            if (i < cellCount && cell.enabled)
+            {
+                cell.rectTransform.localPosition = GetCellCenter(new Vector2Int(i % gridSize.x, i / gridSize.x));
+                cell.rectTransform.sizeDelta = Vector2.one * (cellSize - cellGap);
+            }
         }
     }
 
@@ -182,9 +247,7 @@ public sealed class PuzzleInventoryView : MonoBehaviour
         gridSize = new Vector2Int(_width, _height);
         blockedCells.Clear();
         blockedCells.UnionWith(_blockedCells);
-        Rect boardRect = board.rectTransform.rect;
-        cellSize = Mathf.Min(boardRect.width / _width, boardRect.height / _height);
-        gridMin = boardRect.center - new Vector2(_width, _height) * (cellSize * 0.5f);
+        UpdateLayoutMetrics();
 
         long cellCount = (long)_width * _height;
         EnsureCapacity(ref boardCells, checked((int)cellCount));
@@ -202,6 +265,7 @@ public sealed class PuzzleInventoryView : MonoBehaviour
             }
         }
 
+        lastRenderedInventory = null;
         HideSlots(placementSlots);
         HideArrows();
         ClearDrag();
@@ -226,8 +290,14 @@ public sealed class PuzzleInventoryView : MonoBehaviour
 
     public bool TryGetBoardCell(Vector2 _screenPosition, out Vector2Int _cell)
     {
+        if (dynamicCellSizing && boardViewport &&
+            !RectTransformUtility.RectangleContainsScreenPoint(boardViewport, _screenPosition, EventCamera))
+        {
+            _cell = default;
+            return false;
+        }
         if (RectTransformUtility.ScreenPointToLocalPointInRectangle(
-            board.rectTransform, _screenPosition, EventCamera, out var local))
+            CoordinateRect, _screenPosition, EventCamera, out var local))
         {
             var position = (local - gridMin) / cellSize;
             _cell = new Vector2Int(Mathf.FloorToInt(position.x), Mathf.FloorToInt(position.y));
@@ -241,8 +311,13 @@ public sealed class PuzzleInventoryView : MonoBehaviour
 
     internal void RenderPlacements(PuzzleInventory _inventory,
         int? _hiddenInstanceId = null, int? _highlightedInstanceId = null,
-        IReadOnlyList<PuzzleRefrigerationContact> _refrigerationContacts = null)
+        IReadOnlyList<PuzzleRefrigerationContact> _refrigerationContacts = null,
+        Func<PuzzlePlacement, string> _slotLabelProvider = null)
     {
+        lastRenderedInventory = _inventory;
+        lastHiddenInstanceId = _hiddenInstanceId;
+        lastHighlightedInstanceId = _highlightedInstanceId;
+        lastContacts = _refrigerationContacts;
         int index = 0;
         foreach (var placement in _inventory.Placements)
         {
@@ -254,12 +329,13 @@ public sealed class PuzzleInventoryView : MonoBehaviour
             var color = placement.InstanceId == _highlightedInstanceId
                 ? Presentation.PuzzleMoveTarget
                 : Presentation.PuzzlePiece;
+            string slotLabel = _slotLabelProvider != null ? _slotLabelProvider(placement) : null;
             index = RenderPose(placementSlots, index, placement.Pose, Vector2.zero, color,
                 iconIndex[placement.Definition.VisualKey].sprite, placement.Definition.IconSize, placement.Definition.IconOffset,
                 // 가치 변동, 공간 부족, 새로 생성된 산출물은 별도 상태지만 같은 알림 아이콘을 쓴다. 읽지 않은 쪽이 남아 있으면 아이콘은 유지한다.
-                placement.FreshnessPercent, placement.HasUnreadNotice
-                // , Presentation.PuzzlePieceAccentOutline(placement.Definition, color.a)
-                );
+                placement.FreshnessPercent, placement.HasUnreadNotice,
+                // develop: 품목 강조 테두리는 쓰지 않는다. 개편 시장의 가격 칩 문구는 유지한다.
+                _deltaText: slotLabel, _deltaColor: new Color(0.95f, 0.82f, 0.35f, 1f));
         }
 
         HideSlots(placementSlots, index);
@@ -386,7 +462,7 @@ public sealed class PuzzleInventoryView : MonoBehaviour
             return;
         }
 
-        Vector2 boardOrigin = GhostParent.InverseTransformPoint(board.rectTransform.position);
+        Vector2 boardOrigin = GhostParent.InverseTransformPoint(CoordinateRect.position);
         RenderGhost(_pose, _item, boardOrigin, _freshness, Color.clear);
     }
 
@@ -417,6 +493,22 @@ public sealed class PuzzleInventoryView : MonoBehaviour
             iconIndex[_item.VisualKey].sprite, _item.IconSize, _item.IconOffset, _freshness,
             _outlineColor: _outlineColor);
         HideSlots(ghostSlots, used);
+    }
+
+    internal void ShowGhostPrice(string _priceText)
+    {
+        if (ghostSlots == null || ghostSlots.Length == 0 || !ghostSlots[0])
+        {
+            return;
+        }
+        if (string.IsNullOrEmpty(_priceText))
+        {
+            ghostSlots[0].HideDelta();
+        }
+        else
+        {
+            ghostSlots[0].ShowDelta(_priceText, new Color(0.95f, 0.82f, 0.35f, 1f));
+        }
     }
 
     PuzzlePose originalSlotPose;
@@ -580,13 +672,13 @@ public sealed class PuzzleInventoryView : MonoBehaviour
     internal Vector2 GetShapeCenterScreen(IReadOnlyList<PuzzleCell> _cells)
     {
         Vector2 local = GetShapeCenter(_cells);
-        Vector3 world = board.rectTransform.TransformPoint(local);
+        Vector3 world = CoordinateRect.TransformPoint(local);
         return RectTransformUtility.WorldToScreenPoint(EventCamera, world);
     }
 
     int RenderPose(PuzzleSlotVisual[] _slots, int _start, PuzzlePose _pose, Vector2 _offset, Color _color, Sprite _icon = null,
         Vector2 _iconSize = default, Vector2 _iconOffset = default, int? _freshness = null, bool _showSynergyNotice = false,
-        Color? _outlineColor = null, bool _useDashedOutline = false)
+        Color? _outlineColor = null, bool _useDashedOutline = false, string _deltaText = null, Color? _deltaColor = null)
     {
         piecePositions.Clear();
         foreach (var cell in _pose.Cells)
@@ -598,6 +690,7 @@ public sealed class PuzzleInventoryView : MonoBehaviour
         var min = _pose.Cells[0].Position;
         var max = min;
         var bottomLeft = min;
+        var bottomRight = min;
         var topRight = max;
         var originalMin = _pose.Cells[0].OriginalCell;
         var originalMax = originalMin;
@@ -610,6 +703,11 @@ public sealed class PuzzleInventoryView : MonoBehaviour
             {
                 bottomLeft = cell.Position;
             }
+            if (cell.Position.y < bottomRight.y ||
+                (cell.Position.y == bottomRight.y && cell.Position.x > bottomRight.x))
+            {
+                bottomRight = cell.Position;
+            }
             if (cell.Position.y > topRight.y ||
                 (cell.Position.y == topRight.y && cell.Position.x > topRight.x))
             {
@@ -621,6 +719,7 @@ public sealed class PuzzleInventoryView : MonoBehaviour
         var iconLayout = PuzzleIconLayout.Calculate(min, max, originalMin, originalMax,
             _iconSize, _iconOffset, _pose.ClockwiseTurns);
         Vector2 iconOffset = iconLayout.Center - (Vector2)_pose.Cells[0].Position;
+        PuzzleSlotVisual deltaSlot = null;
         foreach (var cell in _pose.Cells)
         {
             int hiddenEdges = GetHiddenEdges(cell.Position);
@@ -631,7 +730,14 @@ public sealed class PuzzleInventoryView : MonoBehaviour
                 bottomLeft - cell.Position, boardTitle.font, freshnessMaterial);
             _slots[index].ShowSynergyNotice(index == _start && _showSynergyNotice,
                 topRight - cell.Position);
+            _slots[index].HideDelta();
             index++;
+        }
+        // 가격 칩은 그림을 가진 기준 칸이 그리고 오른쪽 아래 칸 위치로 옮긴다(다른 칸을 위로 올리면 그 바탕이 그림을 덮는다).
+        if (!string.IsNullOrEmpty(_deltaText) && index > _start)
+        {
+            deltaSlot = _slots[_start];
+            deltaSlot.ShowDelta(_deltaText, _deltaColor ?? Color.white, bottomRight - _pose.Cells[0].Position);
         }
         if (_icon && index > _start)
         {
@@ -641,7 +747,7 @@ public sealed class PuzzleInventoryView : MonoBehaviour
                 int arrowIndex = synergyArrows[0].transform.GetSiblingIndex();
                 first.SetSiblingIndex(first.GetSiblingIndex() < arrowIndex ? arrowIndex - 1 : arrowIndex);
             }
-            else if (_slots == ghostSlots)
+            else
             {
                 first.SetAsLastSibling();
             }
@@ -657,6 +763,7 @@ public sealed class PuzzleInventoryView : MonoBehaviour
         HideSlots(outlineSlots);
         HideDragBeam();
         HideAdjacentSynergyPreview();
+        HidePlacementCandidates();
     }
 
     internal void ShowBoardValue(decimal _actualValue, long _baseValue)
@@ -746,6 +853,139 @@ public sealed class PuzzleInventoryView : MonoBehaviour
             boardValue.text = string.Empty;
         }
         boardTradePreferences?.Show(_data);
+    }
+
+    // 1순위는 자리 전체 외곽선, 2·3순위는 잡은 칸이 놓이는 칸에 배지로 둔다. 남는 표식은 숨긴다.
+    internal void ShowPlacementCandidates(IReadOnlyList<(PuzzlePose Pose, Vector2Int TargetCell, string Label)> _candidates)
+    {
+        lastCandidates = _candidates;
+        int count = _candidates != null ? _candidates.Count : 0;
+        int markerCount = candidateMarkers != null ? candidateMarkers.Length : 0;
+        for (int i = 0; i < markerCount; i++)
+        {
+            if (i >= count || _candidates[i].Pose == null)
+            {
+                HideCandidate(i);
+                continue;
+            }
+
+            var candidate = _candidates[i];
+            Vector2 boardCenter;
+            Vector2 size;
+            // 개편 레이아웃에서는 세 순위 모두 자리 전체 칸 영역을 채워 그린다. 기존 레이아웃은 기존 크기를 그대로 쓴다.
+            if (i == 0 || RelayoutSettings.Enabled)
+            {
+                boardCenter = GetShapeCenter(candidate.Pose.Cells);
+                size = GetFootprintCellCount(candidate.Pose.Cells) * cellSize;
+            }
+            else
+            {
+                boardCenter = GetCellCenter(candidate.TargetCell);
+                size = Vector2.one * cellSize;
+            }
+            PlaceCandidate(i, boardCenter, size, candidate.Label);
+        }
+    }
+
+    internal void HidePlacementCandidates()
+    {
+        lastCandidates = null;
+        int markerCount = candidateMarkers != null ? candidateMarkers.Length : 0;
+        for (int i = 0; i < markerCount; i++)
+        {
+            HideCandidate(i);
+        }
+        int labelCount = candidateLabels != null ? candidateLabels.Length : 0;
+        for (int i = markerCount; i < labelCount; i++)
+        {
+            if (candidateLabels[i])
+            {
+                candidateLabels[i].gameObject.SetActive(false);
+            }
+        }
+    }
+
+    void PlaceCandidate(int _index, Vector2 _boardCenter, Vector2 _size, string _label)
+    {
+        var marker = candidateMarkers[_index];
+        if (marker)
+        {
+            // 보드 좌표 계산은 칸 중심과 같은 기준이므로 중심 앵커로 놓고 크기만 칸 단위로 준다.
+            marker.anchorMin = marker.anchorMax = marker.pivot = new Vector2(0.5f, 0.5f);
+            marker.localPosition = BoardToSpace(marker.parent, _boardCenter);
+            marker.sizeDelta = _size;
+            // 개편 레이아웃의 표식은 반투명 채움 한 장이다. 종횡비를 유지하면 납작한 스프라이트가 얇은 띠로 줄어든다.
+            if (RelayoutSettings.Enabled && marker.TryGetComponent(out Image markerFill))
+            {
+                markerFill.preserveAspect = false;
+                markerFill.color = CANDIDATE_FILL_COLOR;
+            }
+            SetRaycastTargetsOff(marker);
+            marker.gameObject.SetActive(true);
+        }
+
+        var label = candidateLabels != null && _index < candidateLabels.Length ? candidateLabels[_index] : null;
+        if (label)
+        {
+            label.text = RelayoutSettings.Enabled && !string.IsNullOrEmpty(_label)
+                ? CANDIDATE_LABEL_PLATE + _label + "</mark>"
+                : _label ?? string.Empty;
+            label.rectTransform.localPosition = BoardToSpace(label.rectTransform.parent, _boardCenter);
+            label.raycastTarget = false;
+            // 개편 레이아웃은 옅은 채움 위 화물 그림과 겹치므로 어두운 바탕 위 밝은 글자로 대비를 준다.
+            if (RelayoutSettings.Enabled)
+            {
+                label.color = CANDIDATE_LABEL_COLOR;
+                label.richText = true;
+                label.fontStyle = FontStyles.Bold;
+            }
+            label.gameObject.SetActive(true);
+        }
+    }
+
+    void HideCandidate(int _index)
+    {
+        if (candidateMarkers[_index])
+        {
+            candidateMarkers[_index].gameObject.SetActive(false);
+        }
+        if (candidateLabels != null && _index < candidateLabels.Length && candidateLabels[_index])
+        {
+            candidateLabels[_index].gameObject.SetActive(false);
+        }
+    }
+
+    // 보드 로컬 점을 대상 부모의 로컬 좌표로 옮긴다. 표식이 보드 밖에 있어도 같은 칸 위치에 놓인다.
+    Vector2 BoardToSpace(Transform _space, Vector2 _boardLocal)
+    {
+        Vector3 world = CoordinateRect.TransformPoint(_boardLocal);
+        return _space ? (Vector2)_space.InverseTransformPoint(world) : (Vector2)world;
+    }
+
+    static void SetRaycastTargetsOff(Component _root)
+    {
+        foreach (var graphic in _root.GetComponentsInChildren<Graphic>(true))
+        {
+            graphic.raycastTarget = false;
+        }
+    }
+
+    // 자리가 차지하는 칸 수(가로·세로)를 구한다. 외곽선은 이 칸 수에 cellSize를 곱해 그린다.
+    static Vector2 GetFootprintCellCount(IReadOnlyList<PuzzleCell> _cells)
+    {
+        if (_cells == null || _cells.Count == 0)
+        {
+            return Vector2.zero;
+        }
+
+        var min = _cells[0].Position;
+        var max = min;
+        foreach (var cell in _cells)
+        {
+            min = Vector2Int.Min(min, cell.Position);
+            max = Vector2Int.Max(max, cell.Position);
+        }
+        return (Vector2)(max - min + Vector2Int.one);
     }
 
     internal bool TryGetHoveredBoardInfoLink(Vector2 _screenPosition, out string _linkId)

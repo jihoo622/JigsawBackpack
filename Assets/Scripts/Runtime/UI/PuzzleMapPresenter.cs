@@ -7,7 +7,12 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
     [SerializeField] PuzzleMapView view;
     [SerializeField] Button closeButton;
     [SerializeField] PuzzleMapTravelView travelView;
+    [SerializeField] TravelBannerView travelBannerView;
     [SerializeField] PuzzleRoutePlanPresenter routePlanPresenter;
+    [SerializeField] bool embeddedInNotebook;
+    [SerializeField] NotebookWindowView notebookWindow;
+
+    public bool IsEmbeddedInNotebook => embeddedInNotebook;
 
     PuzzleInventoryService session;
     string pendingCityId;
@@ -20,6 +25,26 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
     enum TravelPhase
     {
         None, Confirming, Traveling, Arrived, AutoTraveling
+    }
+
+    static readonly System.Collections.Generic.HashSet<PuzzleMapPresenter> animatingPresenters = new();
+    public static bool IsAnyTravelAnimating => animatingPresenters.Count > 0;
+    public static event System.Action<bool> TravelAnimatingChanged;
+    public bool IsTravelAnimating => phase == TravelPhase.Traveling || phase == TravelPhase.Arrived || phase == TravelPhase.AutoTraveling;
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    static void ResetTravelAnimatingState()
+    {
+        animatingPresenters.Clear();
+    }
+
+    void UpdateTravelAnimatingState()
+    {
+        bool wasAny = animatingPresenters.Count > 0;
+        if (IsTravelAnimating && isActiveAndEnabled) animatingPresenters.Add(this);
+        else animatingPresenters.Remove(this);
+        bool nowAny = animatingPresenters.Count > 0;
+        if (wasAny != nowAny) TravelAnimatingChanged?.Invoke(nowAny);
     }
 
     void OnEnable()
@@ -44,13 +69,22 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
         GameEvents.MapFocusRequested += OnMapFocusRequested;
         GameEvents.RoutePlanChanged += OnRoutePlanChanged;
         GameEvents.RoutePlanRequested += OnRoutePlanRequested;
+        GameEvents.PuzzleActionCommitted += OnPuzzleActionCommitted;
         if (routePlanPresenter)
         {
             routePlanPresenter.AutoTravelRequested += StartAutoTravel;
             routePlanPresenter.StopRequested += RequestStopAutoTravel;
         }
-        travelView.Confirmed += ConfirmTravel;
-        travelView.Canceled += AbortTravel;
+        if (travelView)
+        {
+            travelView.Confirmed += ConfirmTravel;
+            travelView.Canceled += AbortTravel;
+        }
+        if (travelBannerView)
+        {
+            travelBannerView.Confirmed += ConfirmTravel;
+            travelBannerView.Canceled += AbortTravel;
+        }
         Refresh();
     }
 
@@ -73,17 +107,33 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
         GameEvents.MapFocusRequested -= OnMapFocusRequested;
         GameEvents.RoutePlanChanged -= OnRoutePlanChanged;
         GameEvents.RoutePlanRequested -= OnRoutePlanRequested;
+        GameEvents.PuzzleActionCommitted -= OnPuzzleActionCommitted;
         if (routePlanPresenter)
         {
             routePlanPresenter.AutoTravelRequested -= StartAutoTravel;
             routePlanPresenter.StopRequested -= RequestStopAutoTravel;
         }
-        travelView.Confirmed -= ConfirmTravel;
-        travelView.Canceled -= AbortTravel;
+        if (travelView)
+        {
+            travelView.Confirmed -= ConfirmTravel;
+            travelView.Canceled -= AbortTravel;
+        }
+        if (travelBannerView)
+        {
+            travelBannerView.Confirmed -= ConfirmTravel;
+            travelBannerView.Canceled -= AbortTravel;
+        }
         AbortTravel();
+        UpdateTravelAnimatingState();
         hoveredCityId = null;
         view.Close();
     }
+
+    internal void OpenFromNotebook() => OpenMap();
+
+    internal void FocusFromNotebook(GameEvents.MapFocusInfo _info) => OnMapFocusRequested(_info);
+
+    internal void PlanRouteFromNotebook(GameEvents.RoutePlanRequestInfo _info) => OnRoutePlanRequested(_info);
 
     void OpenMap()
     {
@@ -98,8 +148,20 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
 
     void OnMapToggleRequested(GameEvents.MapToggleInfo _info)
     {
+        if (embeddedInNotebook)
+        {
+            return;
+        }
         if (_info.sceneHandle != gameObject.scene.handle || phase == TravelPhase.Traveling)
         {
+            return;
+        }
+        if (embeddedInNotebook && notebookWindow)
+        {
+            if (phase == TravelPhase.None)
+            {
+                notebookWindow.ToggleMapTab();
+            }
             return;
         }
         if (view.IsOpen)
@@ -114,8 +176,17 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
 
     void OnMapRequested(GameEvents.MapRequestInfo _info)
     {
+        if (embeddedInNotebook)
+        {
+            return;
+        }
         if (_info.sceneHandle == gameObject.scene.handle && phase == TravelPhase.None)
         {
+            if (embeddedInNotebook && notebookWindow)
+            {
+                notebookWindow.OpenTab(NotebookWindowView.NotebookWindowTab.Map);
+                return;
+            }
             OpenMap();
         }
     }
@@ -150,7 +221,11 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
                 return;
             }
 
-            if (!view.IsOpen)
+            if (embeddedInNotebook && notebookWindow)
+            {
+                notebookWindow.OpenTab(NotebookWindowView.NotebookWindowTab.Map);
+            }
+            else if (!view.IsOpen)
             {
                 OpenMap();
             }
@@ -165,7 +240,11 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
                 return;
             }
 
-            if (!view.IsOpen)
+            if (embeddedInNotebook && notebookWindow)
+            {
+                notebookWindow.OpenTab(NotebookWindowView.NotebookWindowTab.Map);
+            }
+            else if (!view.IsOpen)
             {
                 OpenMap();
             }
@@ -202,6 +281,38 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
         }
     }
 
+    bool UseTravelBanner => RelayoutSettings.Enabled && travelBannerView;
+
+    void ShowTravelConfirmation(string _quote)
+    {
+        if (UseTravelBanner) travelBannerView.ShowConfirmation(_quote);
+        else if (travelView) travelView.ShowConfirmation(_quote);
+    }
+
+    void BeginTravelJourney(string _fromName, string _toName, long _cost, long _departureHours, long _arrivalHours)
+    {
+        if (UseTravelBanner) travelBannerView.BeginJourney(_fromName, _toName, _cost, _departureHours, _arrivalHours);
+        else if (travelView) travelView.BeginJourney(_fromName, _toName, _cost, _departureHours, _arrivalHours);
+    }
+
+    void ShowTravelProgress(float _progress)
+    {
+        if (UseTravelBanner) travelBannerView.ShowProgress(_progress);
+        else if (travelView) travelView.ShowProgress(_progress);
+    }
+
+    void ShowTravelArrival()
+    {
+        if (UseTravelBanner) travelBannerView.ShowArrival();
+        else if (travelView) travelView.ShowArrival();
+    }
+
+    void CloseTravelView()
+    {
+        if (travelBannerView) travelBannerView.Close();
+        if (travelView) travelView.Close();
+    }
+
     public bool TryConsumeTravelCancel()
     {
         // 연출 중인 이동은 취소하면 확정 전에 멈춘다.
@@ -210,7 +321,7 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
             RequestStopAutoTravel();
             return true;
         }
-        if (travelView && travelView.TryConsumeCancel())
+        if (UseTravelBanner ? travelBannerView.TryConsumeCancel() : (travelView && travelView.TryConsumeCancel()))
         {
             AbortTravel();
             return true;
@@ -296,6 +407,15 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
         }
     }
 
+    // 화물을 사고팔거나 옮기면 적재 칸 요금이 바뀌므로 노선 운임 라벨만 다시 쓴다.
+    void OnPuzzleActionCommitted(GameEvents.PuzzleActionInfo _info)
+    {
+        if (view && session != null)
+        {
+            view.RefreshRouteFares(session.TotalTrainOccupiedCells);
+        }
+    }
+
     void Refresh()
     {
         view.ShowGuide(Presentation.PuzzleMapGuide(session.ElapsedTime));
@@ -340,6 +460,7 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
                 Presentation.QuestMapBadge(session, cityId));
         }
         view.SetKnownRoutes(session.IsRouteKnown, session.IsRouteTraveled);
+        view.RefreshRouteFares(session.TotalTrainOccupiedCells);
         view.ShowFog(session.IsCityExplored, session.IsRouteTraveled);
         if (currentNode)
         {
@@ -437,7 +558,7 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
         view.SetInteraction(false);
         view.HideTravelPreview();
         view.ClearRouteHighlight();
-        travelView.ShowConfirmation(Presentation.PuzzleTravelConfirmation(
+        ShowTravelConfirmation(Presentation.PuzzleTravelConfirmation(
             TableManager.Instance.CityPrice(session.CurrentCityId).displayName,
             TableManager.Instance.CityPrice(_cityId).displayName, eval));
     }
@@ -456,9 +577,14 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
             return;
         }
         phase = TravelPhase.Traveling;
-        travelView.BeginJourney(TableManager.Instance.CityPrice(session.CurrentCityId).displayName,
+        UpdateTravelAnimatingState();
+        BeginTravelJourney(TableManager.Instance.CityPrice(session.CurrentCityId).displayName,
             TableManager.Instance.CityPrice(pendingCityId).displayName, evaluation.Cost, session.ElapsedTime,
             session.ElapsedTime + evaluation.TravelHours);
+        if (embeddedInNotebook && notebookWindow && notebookWindow.FloatingWindow)
+        {
+            notebookWindow.FloatingWindow.CloseBlocked = true;
+        }
         travelRoutine = StartCoroutine(TravelTo(pendingCityId));
     }
 
@@ -471,11 +597,18 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
         if (travelResult.IsSuccess)
         {
             phase = TravelPhase.Arrived;
-            travelView.ShowArrival();
+            ShowTravelArrival();
             yield return HoldArrival();
             travelRoutine = null;
             AbortTravel();
-            view.Close();
+            if (embeddedInNotebook && notebookWindow && notebookWindow.FloatingWindow)
+            {
+                notebookWindow.FloatingWindow.Close();
+            }
+            else
+            {
+                view.Close();
+            }
         }
         else
         {
@@ -491,10 +624,10 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
         while (elapsed < _duration)
         {
             elapsed += Time.unscaledDeltaTime;
-            travelView.ShowProgress(Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(elapsed / _duration)));
+            ShowTravelProgress(Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(elapsed / _duration)));
             yield return null;
         }
-        travelView.ShowProgress(1f);
+        ShowTravelProgress(1f);
     }
 
     IEnumerator HoldArrival()
@@ -527,9 +660,14 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
         }
         stopAutoTravelRequested = false;
         phase = TravelPhase.None;
+        UpdateTravelAnimatingState();
         pendingCityId = null;
-        travelView.Close();
+        CloseTravelView();
         view.SetInteraction(true);
+        if (notebookWindow && notebookWindow.FloatingWindow)
+        {
+            notebookWindow.FloatingWindow.CloseBlocked = false;
+        }
         if (routePlanPresenter)
         {
             routePlanPresenter.SetAutoTraveling(false);
@@ -567,6 +705,7 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
         }
 
         phase = TravelPhase.AutoTraveling;
+        UpdateTravelAnimatingState();
         stopAutoTravelRequested = false;
         view.SetInteraction(false);
         view.HideTravelPreview();
@@ -662,7 +801,7 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
             bool isStopLeg = plan.IsStop(nextCityId);
             string currentCityName = TableManager.Instance.CityPrice(session.CurrentCityId).displayName;
             string nextCityName = TableManager.Instance.CityPrice(nextCityId).displayName;
-            travelView.BeginJourney(currentCityName, nextCityName, eval.Cost, session.ElapsedTime,
+            BeginTravelJourney(currentCityName, nextCityName, eval.Cost, session.ElapsedTime,
                 session.ElapsedTime + eval.TravelHours);
             // 통과 구간은 연출을 절반으로 줄인다. 구간마다 1턴이 흐른다.
             float baseDuration = TableManager.Instance.PuzzleTrade.travelEffectSeconds;
@@ -683,11 +822,18 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
             if (stopped)
             {
                 phase = TravelPhase.Arrived;
-                travelView.ShowArrival();
+                ShowTravelArrival();
                 yield return HoldArrival();
                 session.ReportAutoTravelStopped("stop_reached");
                 EndAutoTravel();
-                view.Close();
+                if (embeddedInNotebook && notebookWindow && notebookWindow.FloatingWindow)
+                {
+                    notebookWindow.FloatingWindow.Close();
+                }
+                else
+                {
+                    view.Close();
+                }
                 yield break;
             }
 
@@ -733,8 +879,13 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
         }
         stopAutoTravelRequested = false;
         phase = TravelPhase.None;
-        travelView.Close();
+        UpdateTravelAnimatingState();
+        CloseTravelView();
         view.SetInteraction(true);
+        if (notebookWindow && notebookWindow.FloatingWindow)
+        {
+            notebookWindow.FloatingWindow.CloseBlocked = false;
+        }
         if (routePlanPresenter)
         {
             routePlanPresenter.SetAutoTraveling(false);

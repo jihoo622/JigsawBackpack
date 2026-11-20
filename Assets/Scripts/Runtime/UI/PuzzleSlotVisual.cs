@@ -18,12 +18,14 @@ public sealed class PuzzleSlotVisual : MonoBehaviour
     Sprite outlineSprite;
     Sprite dashedOutlineSprite;
     Image occupancyHatch;
+    [SerializeField] GameObject deltaChip;
     [SerializeField] TextMeshProUGUI deltaLabel;
     [SerializeField] TextMeshProUGUI freshnessLabel;
     [SerializeField] TextMeshProUGUI synergyNotice;
+    // 신선도 점: 글자 크기 0.45(develop), 상자는 점 하나 크기(가격 칩과 겹치지 않게 폭 0.18, 높이 = 글자 × 1.5)
     [SerializeField] float freshnessFontScale = 0.45f;
-    [SerializeField] float freshnessWidthScale = 0.9f;
-    [SerializeField] float freshnessHeightScale = 0.35f;
+    [SerializeField] float freshnessWidthScale = 0.18f;
+    [SerializeField] float freshnessHeightScale = 0.7f;
     [SerializeField] float freshnessOffsetScale = 0.43f;
     [SerializeField] float synergyNoticeFontScale = 0.24f;
     [SerializeField] float synergyNoticeSizeScale = 0.3f;
@@ -164,18 +166,62 @@ public sealed class PuzzleSlotVisual : MonoBehaviour
         synergyNotice.enabled = true;
     }
 
-    internal void ShowDelta(string _text, Color _color)
+    // 가격 칩 기본 위치. 여러 칸 화물은 그림을 가진 기준 칸이 칩을 그리고, 칩만 오른쪽 아래 칸으로 옮긴다.
+    Vector2 deltaChipBase;
+    Vector2 deltaLabelBase;
+    bool deltaBaseCached;
+
+    internal void ShowDelta(string _text, Color _color) => ShowDelta(_text, _color, Vector2.zero);
+
+    // _cellOffset: 이 칸에서 칩을 놓을 칸까지의 칸 단위 거리. 다른 칸을 맨 위로 올리면 그 칸의 바탕이 기준 칸의 그림을 덮으므로
+    // 칩은 그림과 같은 기준 칸에서 그린다.
+    internal void ShowDelta(string _text, Color _color, Vector2 _cellOffset)
     {
+        CacheDeltaBase();
+        Vector2 shift = _cellOffset * Rect.rect.width;
+        if (deltaChip)
+        {
+            ((RectTransform)deltaChip.transform).anchoredPosition = deltaChipBase + shift;
+            deltaChip.SetActive(true);
+            // 칩은 이 칸의 채움·아이콘보다 위에 그린다.
+            deltaChip.transform.SetAsLastSibling();
+        }
         if (deltaLabel)
         {
             deltaLabel.text = _text;
             deltaLabel.color = _color;
             deltaLabel.enabled = true;
+            if (!deltaChip || deltaLabel.transform.parent != deltaChip.transform)
+            {
+                deltaLabel.rectTransform.anchoredPosition = deltaLabelBase + shift;
+            }
+            deltaLabel.rectTransform.SetAsLastSibling();
+        }
+    }
+
+    void CacheDeltaBase()
+    {
+        if (deltaBaseCached)
+        {
+            return;
+        }
+        deltaBaseCached = true;
+        if (deltaChip)
+        {
+            deltaChipBase = ((RectTransform)deltaChip.transform).anchoredPosition;
+        }
+        if (deltaLabel)
+        {
+            deltaLabelBase = deltaLabel.rectTransform.anchoredPosition;
         }
     }
 
     internal void HideDelta()
     {
+        if (deltaChip)
+        {
+            deltaChip.SetActive(false);
+        }
         if (deltaLabel)
         {
             deltaLabel.enabled = false;

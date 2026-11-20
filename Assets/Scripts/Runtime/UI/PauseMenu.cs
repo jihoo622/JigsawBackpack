@@ -12,17 +12,16 @@ public sealed class PauseMenu : PanelBase
     [SerializeField] Button restartButton;
     [SerializeField] TextMeshProUGUI panelTitle;
     [SerializeField] TextMeshProUGUI panelHint;
-    // 승리 결산 패널에서만 켜는 무한 모드 버튼.
-    [SerializeField] Button endlessButton;
-    [SerializeField] TextMeshProUGUI endlessLabel;
+    [SerializeField] Button candidateToggleButton;
+    [SerializeField] TextMeshProUGUI candidateToggleLabel;
+    [SerializeField] Button resetLayoutButton;
+    [SerializeField] TextMeshProUGUI resetLayoutLabel;
+    [SerializeField] Button relayoutToggleButton;
+    [SerializeField] TextMeshProUGUI relayoutToggleLabel;
 
     float previousTimeScale;
-    bool offerEndless;
-    string pauseTitle;
-    string pauseHint;
     bool paused;
     bool restoreInventoryInput;
-    bool showingCompletion;
     GameObject previousSelection;
     InputActionAsset actions;
     InputAction cancel;
@@ -30,6 +29,8 @@ public sealed class PauseMenu : PanelBase
     InputAction rightClick;
     int cancelConsumedFrame = -1;
 
+    FloatingWindowManager windowManager;
+    RunEndView runEndView;
     PuzzleMapPresenter mapPresenter;
     PuzzleMapTravelView travelView;
     PuzzleTrainBarView trainBarView;
@@ -40,7 +41,14 @@ public sealed class PauseMenu : PanelBase
     MapSearchPresenter searchPresenter;
     PuzzleObjectiveView objectiveView;
 
-    internal bool CanShowCompletion => isActiveAndEnabled && !IsOpen && restartButton && panelTitle && panelHint;
+    protected override bool CanOpen
+    {
+        get
+        {
+            var endView = Resolve(ref runEndView);
+            return !endView || !endView.IsOpen;
+        }
+    }
 
     T Resolve<T>(ref T _field) where T : Component
     {
@@ -53,9 +61,6 @@ public sealed class PauseMenu : PanelBase
 
     protected override void Awake()
     {
-        // 일시정지 제목·안내는 프리팹 문구다. 결산 패널이 덮어쓴 뒤 무한 모드로 돌아오면 되살린다.
-        pauseTitle = panelTitle ? panelTitle.text : string.Empty;
-        pauseHint = panelHint ? panelHint.text : string.Empty;
         var input = inventoryInput ? inventoryInput : SceneServices.Find<PuzzleInventoryInput>(gameObject.scene);
         if (input && input.ActionsAsset)
         {
@@ -70,6 +75,30 @@ public sealed class PauseMenu : PanelBase
     protected override void OnEnable()
     {
         base.OnEnable();
+        if (candidateToggleButton)
+        {
+            candidateToggleButton.onClick.AddListener(OnCandidateToggleClicked);
+        }
+        if (resetLayoutButton)
+        {
+            resetLayoutButton.onClick.AddListener(OnResetLayoutClicked);
+        }
+        if (resetLayoutLabel)
+        {
+            resetLayoutLabel.text = Presentation.ResetWindowLayouts;
+        }
+        if (relayoutToggleButton)
+        {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            relayoutToggleButton.gameObject.SetActive(true);
+            relayoutToggleButton.onClick.AddListener(OnRelayoutToggleClicked);
+            RefreshRelayoutToggle();
+#else
+            relayoutToggleButton.gameObject.SetActive(false);
+#endif
+        }
+        PuzzleLensSettings.Changed += RefreshCandidateToggle;
+        RefreshCandidateToggle();
         if (cancel != null)
         {
             cancel.performed += OnCancel;
@@ -89,6 +118,19 @@ public sealed class PauseMenu : PanelBase
 
     protected override void OnDisable()
     {
+        PuzzleLensSettings.Changed -= RefreshCandidateToggle;
+        if (candidateToggleButton)
+        {
+            candidateToggleButton.onClick.RemoveListener(OnCandidateToggleClicked);
+        }
+        if (resetLayoutButton)
+        {
+            resetLayoutButton.onClick.RemoveListener(OnResetLayoutClicked);
+        }
+        if (relayoutToggleButton)
+        {
+            relayoutToggleButton.onClick.RemoveListener(OnRelayoutToggleClicked);
+        }
         if (cancel != null)
         {
             cancel.performed -= OnCancel;
@@ -168,7 +210,8 @@ public sealed class PauseMenu : PanelBase
 
     bool TryConsumeStep(bool _pauseWhenIdle)
     {
-        if (showingCompletion)
+        var endView = Resolve(ref runEndView);
+        if (endView && endView.IsOpen)
         {
             return false;
         }
@@ -225,6 +268,13 @@ public sealed class PauseMenu : PanelBase
 
         // 2. 화물·화차 드래그 중 -> 드래그 취소
         if (TryConsumeDrag())
+        {
+            return true;
+        }
+
+        // 2.5. 열린 부동 창 -> 최상위 창 닫기 (닫았으면 일시정지를 열지 않는다)
+        var wm = Resolve(ref windowManager);
+        if (wm && wm.TryConsumeCancel())
         {
             return true;
         }
@@ -309,38 +359,16 @@ public sealed class PauseMenu : PanelBase
         return station && station.TryConsumeCancel();
     }
 
-    internal void ShowCompletion(PuzzleRunStatus _status, long _funds)
-    {
-        if (_status == PuzzleRunStatus.InProgress || showingCompletion)
-        {
-            return;
-        }
-        showingCompletion = true;
-        offerEndless = _status == PuzzleRunStatus.Won && endlessButton;
-        if (offerEndless && endlessLabel)
-        {
-            endlessLabel.text = Presentation.PuzzleEndlessContinue;
-        }
-        panelTitle.text = Presentation.PuzzleRunStatusText(_status);
-        panelHint.text = _status == PuzzleRunStatus.Won
-            ? Presentation.PuzzleClearSummary(_funds)
-            : Presentation.PuzzleLossSummary(_funds);
-        Open();
-    }
-
     protected override void OnShow()
     {
+        RefreshCandidateToggle();
         if (paused)
         {
             return;
         }
         paused = true;
-        previousTimeScale = Time.timeScale;
+        previousTimeScale = Time.timeScale > 0f ? Time.timeScale : 1f;
         Time.timeScale = 0f;
-        if (endlessButton)
-        {
-            endlessButton.gameObject.SetActive(showingCompletion && offerEndless);
-        }
         restoreInventoryInput = inventoryInput && inventoryInput.enabled;
         if (restoreInventoryInput)
         {
@@ -350,9 +378,7 @@ public sealed class PauseMenu : PanelBase
         if (EventSystem.current)
         {
             previousSelection = EventSystem.current.currentSelectedGameObject;
-            EventSystem.current.SetSelectedGameObject(showingCompletion && offerEndless
-                ? endlessButton.gameObject
-                : restartButton.gameObject);
+            EventSystem.current.SetSelectedGameObject(restartButton ? restartButton.gameObject : null);
         }
     }
 
@@ -376,19 +402,37 @@ public sealed class PauseMenu : PanelBase
         previousSelection = null;
     }
 
-    // 승리 결산 패널의 무한 모드 버튼. 마감을 없애고 같은 판을 이어 간다.
-    public void ContinueEndless()
+    void OnResetLayoutClicked()
     {
-        var session = SceneServices.For<PuzzleInventoryService>(gameObject.scene);
-        if (!showingCompletion || !offerEndless || session == null || !session.TryContinueEndless())
+        var wm = Resolve(ref windowManager);
+        wm?.ResetAllLayouts();
+    }
+
+    void OnRelayoutToggleClicked()
+    {
+        RelayoutSettings.Enabled = !RelayoutSettings.Enabled;
+        RefreshRelayoutToggle();
+    }
+
+    void RefreshRelayoutToggle()
+    {
+        if (relayoutToggleLabel)
         {
-            return;
+            relayoutToggleLabel.text = Presentation.RelayoutToggle(RelayoutSettings.Enabled);
         }
-        showingCompletion = false;
-        offerEndless = false;
-        panelTitle.text = pauseTitle;
-        panelHint.text = pauseHint;
-        Close();
+    }
+
+    void OnCandidateToggleClicked()
+    {
+        PuzzleLensSettings.ShowCandidates = !PuzzleLensSettings.ShowCandidates;
+    }
+
+    void RefreshCandidateToggle()
+    {
+        if (candidateToggleLabel)
+        {
+            candidateToggleLabel.text = Presentation.LensCandidatesToggle(PuzzleLensSettings.ShowCandidates);
+        }
     }
 
     public void RestartGame()

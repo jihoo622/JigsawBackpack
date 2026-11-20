@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine;
 
 // 술집 운송 의뢰. 의뢰 생성·수락·완료·실패와 지역 거래 불이익을 세션 상태로 가진다. 평판은 숙련 레벨 합이다.
 // 규칙 수치는 TrainventoryQuestTableData가 원본이고, 여기에는 진행 상태만 둔다.
@@ -251,6 +252,70 @@ public sealed partial class PuzzleInventoryService
         return TrainventoryQuestAcceptFailure.None;
     }
 
+    // H19: 의뢰 화물을 지정한 화차·칸·회전에 직접 배치해 수락한다.
+    internal TrainventoryQuestAcceptFailure EvaluateQuestAcceptAt(TrainventoryQuestOffer _offer,
+        PuzzleInventory _wagon, Vector2Int _grabbedCell, Vector2Int _targetCell, int _clockwiseTurns)
+    {
+        if (RunStatus != PuzzleRunStatus.InProgress)
+        {
+            return TrainventoryQuestAcceptFailure.RunFinished;
+        }
+        if (_offer == null || !QuestOffers.Contains(_offer))
+        {
+            return TrainventoryQuestAcceptFailure.Unavailable;
+        }
+        if (ActiveQuestCount >= MaxActiveQuests)
+        {
+            return TrainventoryQuestAcceptFailure.ActiveLimit;
+        }
+        if (Funds < _offer.Deposit)
+        {
+            return TrainventoryQuestAcceptFailure.InsufficientFunds;
+        }
+        if (_wagon == null || !IsTrainWagon(_wagon) || !definitions.TryGetValue(_offer.PieceId, out var definition) ||
+            !_wagon.CanPlaceAt(definition, _grabbedCell, _targetCell, _clockwiseTurns))
+        {
+            return TrainventoryQuestAcceptFailure.NoSpace;
+        }
+        return TrainventoryQuestAcceptFailure.None;
+    }
+
+    internal TrainventoryQuestAcceptFailure TryAcceptQuestAt(TrainventoryQuestOffer _offer,
+        PuzzleInventory _wagon, Vector2Int _grabbedCell, Vector2Int _targetCell, int _clockwiseTurns)
+    {
+        var failure = EvaluateQuestAcceptAt(_offer, _wagon, _grabbedCell, _targetCell, _clockwiseTurns);
+        if (failure != TrainventoryQuestAcceptFailure.None)
+        {
+            RecordAction(PuzzleActionKind.AcceptQuest, "quest." + failure);
+            return failure;
+        }
+
+        var definition = definitions[_offer.PieceId];
+        int nextId = lastInstanceId + 1;
+        if (!_wagon.TryPlaceAt(definition, _grabbedCell, _targetCell, _clockwiseTurns, nextId, out var cargo))
+        {
+            RecordAction(PuzzleActionKind.AcceptQuest, "quest.NoSpace");
+            return TrainventoryQuestAcceptFailure.NoSpace;
+        }
+        lastInstanceId = nextId;
+        int instanceId = cargo.InstanceId;
+        cargo.SetOwned(true);
+        RecordLocalOrigin(instanceId);
+        CurrentWagonIndex = trainWagons.IndexOf(_wagon);
+
+        long previousFunds = Funds;
+        Funds -= _offer.Deposit;
+        questOffers.Remove(_offer);
+        var quest = new TrainventoryQuest(++lastQuestId, _offer, instanceId, Time.ElapsedHours,
+            checked(Time.ElapsedHours + _offer.DeadlineHours));
+        quests.Add(quest);
+        RevealRouteTo(_offer.TargetCityId);
+        RecordAction(PuzzleActionKind.AcceptQuest);
+        GameEvents.RaiseFundsChanged(this, previousFunds);
+        GameEvents.RaiseQuestChanged(this, quest);
+        return TrainventoryQuestAcceptFailure.None;
+    }
+
     // 의뢰 화물을 현재 화물칸부터 빈자리에 싣고 보증금을 받는다. 실패하면 상태를 바꾸지 않는다.
     internal TrainventoryQuestAcceptFailure TryAcceptQuest(TrainventoryQuestOffer _offer)
     {
@@ -332,6 +397,167 @@ public sealed partial class PuzzleInventoryService
         {
             GameEvents.RaiseQuestChanged(this, quest);
         }
+    }
+
+    // H19: 목적지 술집 의뢰 게시판에 의뢰 화물을 놓아 완료한다.
+    internal bool CanCompleteQuestCargoHere(PuzzlePlacement _cargo, out TrainventoryQuest _quest)
+    {
+        _quest = null;
+        if (RunStatus != PuzzleRunStatus.InProgress || _cargo == null)
+        {
+            return false;
+        }
+        for (int i = 0; i < quests.Count; i++)
+        {
+            var q = quests[i];
+            if (q.State == TrainventoryQuestState.Active && q.CargoInstanceId == _cargo.InstanceId &&
+                string.Equals(q.TargetCityId, CurrentCityId, StringComparison.Ordinal))
+            {
+                _quest = q;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    internal bool TryCompleteQuestWithCargo(PuzzlePlacement _cargo, out string _failureReason)
+    {
+        _failureReason = null;
+        if (RunStatus != PuzzleRunStatus.InProgress)
+        {
+            _failureReason = Presentation.PuzzleRunStatusText(RunStatus);
+            return false;
+        }
+        if (_cargo == null)
+        {
+            _failureReason = "invalid_cargo";
+            return false;
+        }
+        TrainventoryQuest activeQuest = null;
+        for (int i = 0; i < quests.Count; i++)
+        {
+            var q = quests[i];
+            if (q.State == TrainventoryQuestState.Active && q.CargoInstanceId == _cargo.InstanceId)
+            {
+                activeQuest = q;
+                break;
+            }
+        }
+        if (activeQuest == null)
+        {
+            _failureReason = Presentation.QuestDropNotQuestCargo;
+            return false;
+        }
+        if (!string.Equals(activeQuest.TargetCityId, CurrentCityId, StringComparison.Ordinal))
+        {
+            _failureReason = Presentation.QuestDropWrongCity(Presentation.QuestCityName(activeQuest.TargetCityId));
+            return false;
+        }
+        return TryCompleteQuest(activeQuest, out _failureReason);
+    }
+
+    internal bool TryCompleteQuest(TrainventoryQuest _quest, out string _failureReason)
+    {
+        _failureReason = null;
+        if (RunStatus != PuzzleRunStatus.InProgress || _quest == null || _quest.State != TrainventoryQuestState.Active)
+        {
+            _failureReason = "unavailable";
+            return false;
+        }
+        if (!string.Equals(_quest.TargetCityId, CurrentCityId, StringComparison.Ordinal))
+        {
+            _failureReason = Presentation.QuestDropWrongCity(Presentation.QuestCityName(_quest.TargetCityId));
+            return false;
+        }
+        if (!TryFindQuestCargo(_quest, out var cargo))
+        {
+            FailQuest(_quest, TrainventoryQuestFailure.CargoLost);
+            _failureReason = "cargo_lost";
+            return false;
+        }
+
+        long previousFunds = Funds;
+        decimal value = Math.Round(cargo.FreshnessAdjustedValue, MidpointRounding.AwayFromZero);
+        long cargoValue = value > 0 ? (long)value : 0;
+        long payout = checked(_quest.Reward + cargoValue + _quest.Deposit);
+        cargo.Owner.Remove(cargo);
+        Funds = checked(Funds + payout);
+        _quest.Finish(TrainventoryQuestState.Completed, TrainventoryQuestFailure.None, payout, Time.ElapsedHours);
+        GrantQuestProficiency(_quest);
+        PruneAnimalStates();
+        RecordAction(PuzzleActionKind.CompleteQuest, _targetCityId: CurrentCityId);
+        GameEvents.RaiseFundsChanged(this, previousFunds);
+        GameEvents.RaiseQuestChanged(this, _quest);
+        return true;
+    }
+
+    PuzzleInventory cachedOfferBoard;
+    readonly Dictionary<int, TrainventoryQuestOffer> cachedOfferByInstanceId = new();
+    readonly List<TrainventoryQuestOffer> cachedOfferSnapshot = new();
+    int cachedOfferBoardWidth;
+    int cachedOfferBoardHeight;
+    int cachedOfferSkippedCount;
+
+    internal PuzzleInventory BuildQuestOfferBoard(int _width, int _height,
+        out Dictionary<int, TrainventoryQuestOffer> _offerByInstanceId, out int _skippedCount)
+    {
+        var offers = QuestOffers;
+        bool same = cachedOfferBoard != null &&
+            cachedOfferBoardWidth == _width &&
+            cachedOfferBoardHeight == _height &&
+            cachedOfferSnapshot.Count == offers.Count;
+        if (same)
+        {
+            for (int i = 0; i < offers.Count; i++)
+            {
+                if (!ReferenceEquals(cachedOfferSnapshot[i], offers[i]))
+                {
+                    same = false;
+                    break;
+                }
+            }
+        }
+
+        if (same)
+        {
+            _offerByInstanceId = new Dictionary<int, TrainventoryQuestOffer>(cachedOfferByInstanceId);
+            _skippedCount = cachedOfferSkippedCount;
+            return cachedOfferBoard;
+        }
+
+        var boardData = new PuzzleBoardData { width = _width, height = _height };
+        var board = new PuzzleInventory(boardData, Array.Empty<PuzzleStartingPlacementData>(), definitions, Array.Empty<PuzzleSynergyRuleData>(), ref lastInstanceId);
+        cachedOfferByInstanceId.Clear();
+        cachedOfferSnapshot.Clear();
+        int skipped = 0;
+        for (int i = 0; i < offers.Count; i++)
+        {
+            var offer = offers[i];
+            cachedOfferSnapshot.Add(offer);
+            if (!definitions.TryGetValue(offer.PieceId, out var def))
+            {
+                skipped++;
+                continue;
+            }
+            int nextId = lastInstanceId + 1;
+            if (board.TryAutoPlace(def, nextId, out var placed))
+            {
+                lastInstanceId = nextId;
+                cachedOfferByInstanceId[placed.InstanceId] = offer;
+            }
+            else
+            {
+                skipped++;
+            }
+        }
+        cachedOfferBoard = board;
+        cachedOfferBoardWidth = _width;
+        cachedOfferBoardHeight = _height;
+        cachedOfferSkippedCount = skipped;
+
+        _offerByInstanceId = new Dictionary<int, TrainventoryQuestOffer>(cachedOfferByInstanceId);
+        _skippedCount = skipped;
+        return board;
     }
 
     // 기한이 지났거나 화물을 잃은(판매·만료·변환) 진행 중 의뢰를 실패 처리한다.

@@ -7,7 +7,7 @@ using UnityEngine.UI;
 using TMPro;
 
 [DisallowMultipleComponent]
-public sealed class PuzzleInventoryPresenter : MonoBehaviour
+public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
 {
     [Header("Drag Settings")]
     [SerializeField] float wagonDragHoverDelay = 0.5f;
@@ -31,10 +31,34 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
     int? wagonSalePreviewIndex;
     [SerializeField] PuzzleItemTooltipView keywordTooltipView;
     [SerializeField] PuzzleTrainBarView trainBarView;
+    [SerializeField] PuzzleInventoryView relayoutTrainView;
+    [SerializeField] PuzzleInventoryView relayoutMarketView;
+    [SerializeField] RailStripView railStripView;
+    [SerializeField] TrainWindowView trainWindowView;
+    [SerializeField] TrainWindowManager trainWindowManager;
+    [SerializeField] MarketWindowView marketWindowView;
+    [SerializeField] LensWindowView lensWindowView;
+    [SerializeField] TavernWindowView tavernWindowView;
+    [SerializeField] StationHallWindowView stationHallWindowView;
+    [SerializeField] WorkshopWindowView workshopWindowView;
+    [SerializeField] TownSceneView townSceneView;
+    [SerializeField] StatusBannerView statusBannerView;
+    [SerializeField] NotebookWindowView notebookWindowView;
     [SerializeField] PauseMenu pauseMenu;
+    [SerializeField] RunEndPresenter runEndPresenter;
+
+    bool UseMultiTrainWindows => RelayoutSettings.Enabled && trainWindowManager;
+    PuzzleInventoryView ActiveTrainView => RelayoutSettings.Enabled && relayoutTrainView ? relayoutTrainView : trainView;
+    PuzzleInventoryView ActiveMarketView => RelayoutSettings.Enabled && relayoutMarketView ? relayoutMarketView : marketView;
+    PuzzleInventoryView ActiveQuestBoardView => RelayoutSettings.Enabled && tavernWindowView ? tavernWindowView.QuestBoardView : null;
+    PuzzleInventoryView ActiveButcheryView => RelayoutSettings.Enabled && workshopWindowView && workshopWindowView.ButcheryBoardView ? workshopWindowView.ButcheryBoardView : butcheryView;
+    PuzzleInventoryView ActiveModificationView => RelayoutSettings.Enabled && workshopWindowView && workshopWindowView.ModificationBoardView ? workshopWindowView.ModificationBoardView : modificationView;
+    PuzzleInventoryView ActiveRefiningView => RelayoutSettings.Enabled && workshopWindowView && workshopWindowView.RefiningBoardView ? workshopWindowView.RefiningBoardView : refiningView;
 
     [SerializeField] PuzzleInventoryInput input;
     PuzzleInventoryService session;
+    PuzzleInventory questOfferBoard;
+    readonly Dictionary<int, TrainventoryQuestOffer> questOfferByInstanceId = new();
     // 아직 상태 줄에 띄우지 않은 숙련 레벨 상승 알림.
     string pendingProficiencyNotice;
     PuzzleInventoryDrag drag;
@@ -52,21 +76,39 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
     bool modificationConfigured;
     bool refiningConfigured;
     // 도축대는 세션이 조작을 허용하고 패널에 View가 나와 있을 때만 드래그·표시 대상이 된다.
-    bool ButcheryViewReady => session != null && session.IsButcheryOpen && butcheryView != null &&
-        butcheryView.gameObject.activeInHierarchy;
+    bool ButcheryViewReady => session != null && session.IsButcheryOpen && ActiveButcheryView != null &&
+        ActiveButcheryView.gameObject.activeInHierarchy;
     internal static bool HasActiveDrag { get; private set; }
-    bool ModificationViewReady => session != null && session.IsModificationOpen && modificationView != null &&
-        modificationView.gameObject.activeInHierarchy;
-    bool RefiningViewReady => session != null && session.IsRefiningOpen && refiningView != null &&
-        refiningView.gameObject.activeInHierarchy;
+    bool ModificationViewReady => session != null && session.IsModificationOpen && ActiveModificationView != null &&
+        ActiveModificationView.gameObject.activeInHierarchy;
+    bool RefiningViewReady => session != null && session.IsRefiningOpen && ActiveRefiningView != null &&
+        ActiveRefiningView.gameObject.activeInHierarchy;
     decimal? pendingSettlementValue;
     decimal? pendingFreshnessLossValue;
     bool pendingFundsRefresh;
     bool isTravelOpen;
     // 시장 보드가 마지막으로 그린 시장. 도시를 옮기거나 개장으로 새로 채워지면 객체가 바뀐다.
     PuzzleInventory shownMarket;
+    PuzzleInventoryView lastDragQuoteView;
+    int lastDragQuoteInstanceId = -1;
+    string cachedDragQuoteText;
+    System.Func<PuzzlePlacement, string> cachedMarketPriceProvider;
     bool TrainOperationsBlocked => isTravelOpen;
     bool MarketOperationsBlocked => isMapOpen || isTravelOpen;
+
+    internal bool AreShortcutsBlocked()
+    {
+        if (MarketOperationsBlocked || session == null || session.RunStatus != PuzzleRunStatus.InProgress)
+        {
+            return true;
+        }
+        if (pauseMenu && pauseMenu.IsOpen)
+        {
+            return true;
+        }
+        var runEnd = ResolveRunEndPresenter();
+        return runEnd && runEnd.IsOpen;
+    }
 
     void Start()
     {
@@ -108,10 +150,41 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         long trainCapacity = (long)session.Train.Width * session.Train.Height;
         long dragCapacity = System.Math.Max(trainCapacity, session.MarketCapacity);
         trainView.Initialize(trainCapacity, dragCapacity, Presentation.PuzzleTrainTitle(session.Train), session.ItemDefinitions, _showSynergies: true);
+        bool relayoutViewInitialized = false;
+        if (trainWindowManager && trainWindowManager.Windows != null)
+        {
+            var wins = trainWindowManager.Windows;
+            for (int i = 0; i < wins.Count; i++)
+            {
+                var iv = wins[i] ? wins[i].InventoryView : null;
+                if (iv)
+                {
+                    iv.Initialize(trainCapacity, dragCapacity, Presentation.PuzzleTrainTitle(session.Train), session.ItemDefinitions, _showSynergies: true);
+                    if (iv == relayoutTrainView)
+                    {
+                        relayoutViewInitialized = true;
+                    }
+                }
+            }
+        }
+        if (relayoutTrainView && !relayoutViewInitialized)
+        {
+            relayoutTrainView.Initialize(trainCapacity, dragCapacity, Presentation.PuzzleTrainTitle(session.Train), session.ItemDefinitions, _showSynergies: true);
+        }
         marketView.Initialize(session.MarketCapacity, dragCapacity, Presentation.PuzzleMarketTitle, session.ItemDefinitions, _showSynergies: false);
+        if (relayoutMarketView)
+        {
+            relayoutMarketView.Initialize(session.MarketCapacity, dragCapacity, Presentation.PuzzleMarketTitle, session.ItemDefinitions, _showSynergies: false);
+        }
         ConfigureButcheryView();
         ConfigureModificationView();
         ConfigureRefiningView();
+        ConfigureQuestBoardView();
+        RebuildQuestOfferBoard();
+        if (tavernWindowView)
+        {
+            tavernWindowView.ResetCity(session.CityData?.displayName ?? string.Empty);
+        }
         cityView.Initialize(session.TargetFunds);
         cityView.InitializeTown(GetTavernRumor);
         ShowCurrentCity();
@@ -127,7 +200,16 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         input.Hovered += OnHovered;
         input.HoverEnded += OnHoverEnded;
         trainView.Disabled += OnViewDisabled;
+        if (relayoutTrainView)
+        {
+            relayoutTrainView.Disabled += OnViewDisabled;
+        }
         marketView.Disabled += OnViewDisabled;
+        if (relayoutMarketView)
+        {
+            relayoutMarketView.Disabled += OnViewDisabled;
+        }
+        SubscribeLens();
         if (butcheryView)
         {
             butcheryView.Disabled += OnViewDisabled;
@@ -139,6 +221,21 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         if (refiningView)
         {
             refiningView.Disabled += OnViewDisabled;
+        }
+        if (tavernWindowView)
+        {
+            tavernWindowView.RumorRequested += OnTavernRumorRequested;
+            tavernWindowView.Opened += RebuildQuestOfferBoard;
+            if (tavernWindowView.QuestBoardView)
+            {
+                tavernWindowView.QuestBoardView.Disabled += OnViewDisabled;
+            }
+        }
+        if (workshopWindowView)
+        {
+            if (workshopWindowView.ButcheryBoardView) workshopWindowView.ButcheryBoardView.Disabled += OnViewDisabled;
+            if (workshopWindowView.ModificationBoardView) workshopWindowView.ModificationBoardView.Disabled += OnViewDisabled;
+            if (workshopWindowView.RefiningBoardView) workshopWindowView.RefiningBoardView.Disabled += OnViewDisabled;
         }
         GameEvents.CityArrived += OnCityArrived;
         GameEvents.TimeAdvanced += OnTimeAdvanced;
@@ -169,7 +266,34 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             trainBarView.OwnedWagonReleased += FinishWagonSale;
             trainBarView.OwnedWagonDragEnded += ClearWagonSalePreview;
         }
+        if (railStripView)
+        {
+            railStripView.WagonSelected += OnRelayoutWagonSelected;
+            railStripView.WagonReordered += OnWagonMoved;
+            railStripView.WagonDraggedOutside += OnRelayoutWagonDraggedOutside;
+            railStripView.WagonDragEndedOutside += OnRelayoutWagonDragEndedOutside;
+        }
+        if (trainWindowManager)
+        {
+            trainWindowManager.WagonFocused += OnRelayoutWagonFocused;
+            trainWindowManager.OpenWindowsChanged += OnRelayoutOpenWindowsChanged;
+            trainWindowManager.LensToggleRequested += OnRelayoutLensToggleRequested;
+        }
         stationActions = GetComponentInChildren<PuzzleStationActionsView>(true);
+        if (RelayoutSettings.Enabled && tavernWindowView)
+        {
+            tavernWindowView.ResetCity(session.CityData.displayName);
+            RebuildQuestOfferBoard();
+        }
+        if (RelayoutSettings.Enabled && marketWindowView)
+        {
+            marketWindowView.SetCity(session.CityData.displayName, Presentation.GetCityTradePreferences(session.CityData));
+            if (session.IsMarketOpen && session.TryEnterMarket())
+            {
+                relayoutMarketView?.SetMarketOpen(session.CanTradeInMarket);
+                marketWindowView.SetOpen(true, false);
+            }
+        }
     }
 
     void OnDisable()
@@ -179,13 +303,26 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             return;
         }
 
+        if (trainWindowManager)
+        {
+            trainWindowManager.ClearAllDragVisuals();
+        }
         if (trainView)
         {
             trainView.Disabled -= OnViewDisabled;
         }
+        if (relayoutTrainView)
+        {
+            relayoutTrainView.Disabled -= OnViewDisabled;
+        }
         if (marketView)
         {
             marketView.Disabled -= OnViewDisabled;
+            UnsubscribeLens();
+        }
+        if (relayoutMarketView)
+        {
+            relayoutMarketView.Disabled -= OnViewDisabled;
         }
         if (butcheryView)
         {
@@ -198,6 +335,21 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         if (refiningView)
         {
             refiningView.Disabled -= OnViewDisabled;
+        }
+        if (tavernWindowView)
+        {
+            tavernWindowView.RumorRequested -= OnTavernRumorRequested;
+            tavernWindowView.Opened -= RebuildQuestOfferBoard;
+            if (tavernWindowView.QuestBoardView)
+            {
+                tavernWindowView.QuestBoardView.Disabled -= OnViewDisabled;
+            }
+        }
+        if (workshopWindowView)
+        {
+            if (workshopWindowView.ButcheryBoardView) workshopWindowView.ButcheryBoardView.Disabled -= OnViewDisabled;
+            if (workshopWindowView.ModificationBoardView) workshopWindowView.ModificationBoardView.Disabled -= OnViewDisabled;
+            if (workshopWindowView.RefiningBoardView) workshopWindowView.RefiningBoardView.Disabled -= OnViewDisabled;
         }
         if (input)
         {
@@ -252,6 +404,19 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             trainBarView.OwnedWagonDragEnded -= ClearWagonSalePreview;
             trainBarView.CancelWagonDrag();
         }
+        if (railStripView)
+        {
+            railStripView.WagonSelected -= OnRelayoutWagonSelected;
+            railStripView.WagonReordered -= OnWagonMoved;
+            railStripView.WagonDraggedOutside -= OnRelayoutWagonDraggedOutside;
+            railStripView.WagonDragEndedOutside -= OnRelayoutWagonDragEndedOutside;
+        }
+        if (trainWindowManager)
+        {
+            trainWindowManager.WagonFocused -= OnRelayoutWagonFocused;
+            trainWindowManager.OpenWindowsChanged -= OnRelayoutOpenWindowsChanged;
+            trainWindowManager.LensToggleRequested -= OnRelayoutLensToggleRequested;
+        }
         HideWagonTooltip();
         OnViewDisabled();
         initialized = false;
@@ -288,7 +453,8 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         }
 
         ClearKeywordHover();
-        if (TrainOperationsBlocked || !trainBarView || session.RunStatus != PuzzleRunStatus.InProgress)
+        bool hasWagonBar = RelayoutSettings.Enabled ? (bool)railStripView : (bool)trainBarView;
+        if (TrainOperationsBlocked || !hasWagonBar || session.RunStatus != PuzzleRunStatus.InProgress)
         {
             if (hoveredWagonIndex.HasValue)
             {
@@ -298,8 +464,10 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             return;
         }
 
-        if (trainBarView.TryGetWagonAtScreenPosition(pointerPosition, out int wagonIndex) &&
-            wagonIndex < session.WagonCount && wagonIndex != session.CurrentWagonIndex)
+        bool overWagon = RelayoutSettings.Enabled && railStripView
+            ? railStripView.TryGetWagonAtScreenPosition(pointerPosition, out int wagonIndex)
+            : trainBarView.TryGetWagonAtScreenPosition(pointerPosition, out wagonIndex);
+        if (overWagon && wagonIndex < session.WagonCount && wagonIndex != session.CurrentWagonIndex)
         {
             if (hoveredWagonIndex != wagonIndex)
             {
@@ -331,17 +499,30 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
 
     void SwitchWagonDuringDrag(int _index)
     {
+        if (UseMultiTrainWindows)
+        {
+            // 드래그 출발 창과 현재 대상 창은 LRU 교체에서 제외한다.
+            var switchedWin = trainWindowManager.OpenOrFocusWagon(_index, session, true, drag?.Source, dragView);
+            if (!switchedWin)
+            {
+                return;
+            }
+        }
         if (!session.SelectWagon(_index))
         {
             return;
         }
 
-        SetDragView(null);
-        trainView.SetTitle(Presentation.PuzzleTrainTitle(session.Train));
-        trainView.SetBoard(session.Train);
+        if (!UseMultiTrainWindows)
+        {
+            SetDragView(null);
+            ActiveTrainView.SetTitle(Presentation.PuzzleTrainTitle(session.Train));
+            ActiveTrainView.SetBoard(session.Train);
+        }
         RenderBoards();
         RenderValues();
         RefreshTrainBar();
+        UpdateLensRanking();
         RefreshDrag();
     }
 
@@ -349,9 +530,78 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
     {
         bool inProgress = session.RunStatus == PuzzleRunStatus.InProgress;
         cityView.SetTown(session.CityData.displayName, inProgress);
+        if (RelayoutSettings.Enabled && tavernWindowView)
+        {
+            tavernWindowView.ResetCity(session.CityData.displayName);
+            RebuildQuestOfferBoard();
+        }
+        if (RelayoutSettings.Enabled && marketWindowView)
+        {
+            marketWindowView.SetCity(session.CityData.displayName, Presentation.GetCityTradePreferences(session.CityData));
+            bool open = session.IsMarketOpen && session.TryEnterMarket();
+            relayoutMarketView?.SetMarketOpen(session.CanTradeInMarket);
+            if (relayoutMarketView && session.Market != null)
+            {
+                relayoutMarketView.SetBoardSize(session.Market.Width, session.Market.Height, session.Market.BlockedCells);
+            }
+            marketWindowView.SetOpen(open, false);
+            if (open)
+            {
+                RenderBoards();
+            }
+        }
     }
 
     #region 술집 대화 생성
+
+    void OnTavernRumorRequested()
+    {
+        if (session == null || session.RunStatus != PuzzleRunStatus.InProgress || !tavernWindowView)
+        {
+            return;
+        }
+        tavernWindowView.SetRumor(GetTavernRumor());
+    }
+
+    bool questBoardConfigured;
+
+    void ConfigureQuestBoardView()
+    {
+        var boardView = ActiveQuestBoardView;
+        if (!boardView || session == null)
+        {
+            return;
+        }
+        if (!questBoardConfigured)
+        {
+            long dragCapacity = System.Math.Max(System.Math.Max((long)session.Train.Width * session.Train.Height,
+                session.MarketCapacity), 45L);
+            boardView.Initialize(45L, dragCapacity, Presentation.RumorLogQuestTab, session.ItemDefinitions,
+                _showSynergies: false);
+            questBoardConfigured = true;
+        }
+        boardView.SetBoardSize(9, 5, System.Array.Empty<Vector2Int>());
+    }
+
+    void RebuildQuestOfferBoard()
+    {
+        if (session == null)
+        {
+            return;
+        }
+        questOfferBoard = session.BuildQuestOfferBoard(9, 5, out var mapped, out int skippedCount);
+        questOfferByInstanceId.Clear();
+        foreach (var kv in mapped)
+        {
+            questOfferByInstanceId[kv.Key] = kv.Value;
+        }
+        tavernWindowView?.SetOverflowCount(skippedCount);
+        ConfigureQuestBoardView();
+        if (ActiveQuestBoardView && ActiveQuestBoardView.isActiveAndEnabled)
+        {
+            ActiveQuestBoardView.RenderPlacements(questOfferBoard, drag?.InstanceId, currentHoveredInstanceId);
+        }
+    }
 
     string GetTavernRumor()
     {
@@ -405,6 +655,14 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             ? session.IsMarketOpen ? string.Empty : Presentation.PuzzleNightMarket
             : Presentation.PuzzleRunStatusText(session.RunStatus));
         marketView.SetMarketOpen(session.CanTradeInMarket);
+        if (relayoutMarketView)
+        {
+            relayoutMarketView.SetMarketOpen(session.CanTradeInMarket);
+        }
+        if (RelayoutSettings.Enabled && marketWindowView && !session.CanTradeInMarket && marketWindowView.IsOpen)
+        {
+            marketWindowView.SetOpen(false, false);
+        }
         RefreshWaitAction();
         SyncMarketBoard();
         RenderValues();
@@ -423,6 +681,11 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         shownMarket = session.Market;
         cityView.ShowCity(Presentation.PuzzleCityTitle(session.CityData, session.RegionData));
         marketView.SetBoardSize(session.Market.Width, session.Market.Height, session.Market.BlockedCells);
+        if (relayoutMarketView)
+        {
+            relayoutMarketView.SetBoardSize(session.Market.Width, session.Market.Height, session.Market.BlockedCells);
+        }
+        marketWindowView?.SetCity(session.CityData.displayName, Presentation.GetCityTradePreferences(session.CityData));
         if (currentHoveredInstanceId.HasValue && !session.Train.Placements.Any(_item => _item.InstanceId == currentHoveredInstanceId.Value))
         {
             currentHoveredInstanceId = null;
@@ -432,6 +695,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             }
         }
         marketView.ShowItemDetails(null, default, default, default);
+        relayoutMarketView?.ShowItemDetails(null, default, default, default);
         RenderBoards(currentHoveredInstanceId);
     }
 
@@ -459,12 +723,26 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             input.CancelCapture();
             ClearDrag();
         }
+        if (RelayoutSettings.Enabled)
+        {
+            marketWindowView?.SetOpen(false, false);
+            lensWindowView?.SetOpen(false, false);
+            notebookWindowView?.FloatingWindow?.SetOpen(false, false);
+        }
         RenderBoards();
         cityView.SetTown(session.CityData.displayName, false);
         RefreshFunds();
         cityView.ShowTradeStatus(Presentation.PuzzleRunStatusText(session.RunStatus));
         RefreshTrainBar();
-        pauseMenu.ShowCompletion(session.RunStatus, session.Funds);
+        var runEnd = ResolveRunEndPresenter();
+        if (runEnd)
+        {
+            runEnd.Show(session);
+        }
+        else
+        {
+            Debug.LogError("RunEndPresenter를 찾을 수 없어 결산 모달을 열 수 없습니다.", this);
+        }
     }
 
     // 무한 모드로 이어 가면 진행 중 표시로 되돌린다. 마감이 사라져 시계의 남은 기간 표시는 숨는다.
@@ -503,7 +781,15 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             cityView.ShowTradeStatus(Presentation.PuzzleRunStatusText(session.RunStatus));
             if (session.RunStatus == PuzzleRunStatus.Lost)
             {
-                pauseMenu.ShowCompletion(PuzzleRunStatus.Lost, session.Funds);
+                var runEnd = ResolveRunEndPresenter();
+                if (runEnd)
+                {
+                    runEnd.Show(session);
+                }
+                else
+                {
+                    Debug.LogError("RunEndPresenter를 찾을 수 없어 패배 결산 모달을 열 수 없습니다.", this);
+                }
             }
         }
         else
@@ -541,17 +827,32 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
 
     public void ClearGame()
     {
-        if (!initialized || !isActiveAndEnabled || MarketOperationsBlocked || !pauseMenu || !pauseMenu.CanShowCompletion ||
+        var runEnd = ResolveRunEndPresenter();
+        if (!runEnd)
+        {
+            Debug.LogError("RunEndPresenter를 찾을 수 없어 결산 모달을 열 수 없습니다.", this);
+            return;
+        }
+        if (!initialized || !isActiveAndEnabled || MarketOperationsBlocked || !runEnd.CanShow ||
             !session.TryFinishRun())
         {
             return;
         }
 
-        pauseMenu.ShowCompletion(session.RunStatus, session.Funds);
+        runEnd.Show(session);
         cityView.SetTown(session.CityData.displayName, false);
         RefreshFunds();
         cityView.ShowTradeStatus(Presentation.PuzzleRunStatusText(session.RunStatus));
         RefreshTrainBar();
+    }
+
+    RunEndPresenter ResolveRunEndPresenter()
+    {
+        if (!runEndPresenter)
+        {
+            runEndPresenter = SceneServices.Find<RunEndPresenter>(gameObject.scene);
+        }
+        return runEndPresenter;
     }
 
     void RefreshFunds()
@@ -591,8 +892,17 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
                 {
                     tooltipView.Close();
                 }
+                if (RelayoutSettings.Enabled)
+                {
+                    marketWindowView?.SetOpen(false, false);
+                    lensWindowView?.SetOpen(false, false);
+                }
                 RenderBoards();
                 ShowItemDetails(null, null);
+            }
+            else if (RelayoutSettings.Enabled && marketWindowView && session != null && session.CanTradeInMarket)
+            {
+                marketWindowView.SetOpen(true, false);
             }
             return;
         }
@@ -646,7 +956,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             return;
         }
 
-        trainView.ShowCargoValueFeedback(pendingSettlementValue, pendingFreshnessLossValue,
+        ActiveTrainView.ShowCargoValueFeedback(pendingSettlementValue, pendingFreshnessLossValue,
             session.Train.Placements.Sum(item => item.FreshnessAdjustedValue), session.Train.Value.BaseValue);
         pendingSettlementValue = null;
         pendingFreshnessLossValue = null;
@@ -654,6 +964,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
 
     void ShowCurrentCity()
     {
+        HideLens();
         bool inProgress = session.RunStatus == PuzzleRunStatus.InProgress;
         shownMarket = session.Market;
         cityView.ShowCity(Presentation.PuzzleCityTitle(session.CityData, session.RegionData));
@@ -663,9 +974,21 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             ? session.IsMarketOpen ? string.Empty : Presentation.PuzzleNightMarket
             : Presentation.PuzzleRunStatusText(session.RunStatus));
         marketView.SetMarketOpen(session.CanTradeInMarket);
+        if (relayoutMarketView)
+        {
+            relayoutMarketView.SetMarketOpen(session.CanTradeInMarket);
+        }
+        if (RelayoutSettings.Enabled && marketWindowView && !session.CanTradeInMarket && marketWindowView.IsOpen)
+        {
+            marketWindowView.SetOpen(false, false);
+        }
         RefreshWaitAction();
         marketView.SetBoardSize(session.Market.Width, session.Market.Height, session.Market.BlockedCells);
-        trainView.SetBoard(session.Train);
+        if (relayoutMarketView)
+        {
+            relayoutMarketView.SetBoardSize(session.Market.Width, session.Market.Height, session.Market.BlockedCells);
+        }
+        ActiveTrainView.SetBoard(session.Train);
         RenderBoards();
         RenderValues();
         ShowItemDetails(null, null);
@@ -700,13 +1023,14 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         }
         RenderBoards();
         ShowItemDetails(sourceView, placement);
+        BeginLens(placement);
         RefreshDrag();
     }
 
     void OnQuickTransferRequested(PointerEventData _eventData)
     {
         if (MarketOperationsBlocked || drag != null || session.RunStatus != PuzzleRunStatus.InProgress ||
-            !trainView.isActiveAndEnabled ||
+            !(UseMultiTrainWindows ? trainWindowManager.HasAnyOpenWindow : (ActiveTrainView && ActiveTrainView.isActiveAndEnabled)) ||
             !TryGetBoard(_eventData.position, out _, out var source, out var boardCell) ||
             !source.TryGetCell(boardCell, out var placement, out _))
         {
@@ -747,7 +1071,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         {
             return session.RefiningBoard();
         }
-        return marketView.isActiveAndEnabled ? session.Market : null;
+        return ActiveMarketView && ActiveMarketView.isActiveAndEnabled ? session.Market : null;
     }
 
     void OnDragged(PointerEventData _eventData)
@@ -770,6 +1094,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         }
 
         drag.RotateClockwise();
+        UpdateLensRanking();
         RefreshDrag();
     }
 
@@ -789,6 +1114,58 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         {
             if (TryGetBoard(_eventData.position, out _, out var destination, out var targetCell))
             {
+                if (questOfferBoard != null && ReferenceEquals(activeDrag.Source, questOfferBoard))
+                {
+                    if (questOfferByInstanceId.TryGetValue(activeDrag.InstanceId, out var offer))
+                    {
+                        if (session.IsTrainWagon(destination))
+                        {
+                            var failure = session.TryAcceptQuestAt(offer, destination, activeDrag.GrabbedCell, targetCell,
+                                activeDrag.ClockwiseTurns);
+                            if (failure == TrainventoryQuestAcceptFailure.None)
+                            {
+                                RebuildQuestOfferBoard();
+                                RenderValues();
+                                RefreshFunds();
+                                RefreshTrainBar();
+                                statusBannerView?.ShowStatus(Presentation.QuestOffer(offer));
+                            }
+                            else
+                            {
+                                statusBannerView?.ShowStatus(Presentation.QuestAcceptFailure(failure, offer, session.MaxActiveQuests));
+                            }
+                        }
+                        else if (!ReferenceEquals(destination, questOfferBoard))
+                        {
+                            statusBannerView?.ShowStatus(Presentation.QuestAcceptFailure(
+                                TrainventoryQuestAcceptFailure.NoSpace, offer, session.MaxActiveQuests));
+                        }
+                    }
+                    return;
+                }
+                if (questOfferBoard != null && ReferenceEquals(destination, questOfferBoard))
+                {
+                    if (session.IsTrainWagon(activeDrag.Source))
+                    {
+                        if (session.TryCompleteQuestWithCargo(activeDrag.OriginalPlacement, out string failReason))
+                        {
+                            RebuildQuestOfferBoard();
+                            RenderValues();
+                            RefreshFunds();
+                            RefreshTrainBar();
+                            statusBannerView?.ShowStatus(Presentation.QuestCompleteLabel);
+                        }
+                        else if (!string.IsNullOrEmpty(failReason))
+                        {
+                            statusBannerView?.ShowStatus(failReason);
+                        }
+                    }
+                    else
+                    {
+                        statusBannerView?.ShowStatus(Presentation.QuestDropNotQuestCargo);
+                    }
+                    return;
+                }
                 result = activeDrag.DropOnBoard(session, destination, targetCell);
                 if (result.CanDrop)
                 {
@@ -796,6 +1173,14 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
                     RenderValues();
                     RefreshFunds();
                     RefreshTrainBar();
+                }
+            }
+            else if (questOfferBoard != null && ReferenceEquals(activeDrag.Source, questOfferBoard))
+            {
+                if (questOfferByInstanceId.TryGetValue(activeDrag.InstanceId, out var offer))
+                {
+                    statusBannerView?.ShowStatus(Presentation.QuestAcceptFailure(
+                        TrainventoryQuestAcceptFailure.NoSpace, offer, session.MaxActiveQuests));
                 }
             }
             else if (trainBarView && trainBarView.TryGetWagonAtScreenPosition(_eventData.position, out int candidateWagon) &&
@@ -816,6 +1201,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         {
             ClearDrag();
         }
+        FinishLens(result);
         if (result.Direction != PuzzleTradeDirection.None)
         {
             cityView.ShowTradeStatus(WithProficiencyNotice(Presentation.PuzzleTradeStatus(result, activeDrag.Definition, _committed: true)));
@@ -989,6 +1375,47 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
 
         if (TryGetBoard(pointerPosition, out var targetView, out var destination, out var targetCell))
         {
+            if (questOfferBoard != null && ReferenceEquals(drag.Source, questOfferBoard))
+            {
+                bool canAccept = session.IsTrainWagon(destination) &&
+                    questOfferByInstanceId.TryGetValue(drag.InstanceId, out var offer) &&
+                    session.EvaluateQuestAcceptAt(offer, destination, drag.GrabbedCell, targetCell, drag.ClockwiseTurns) ==
+                    TrainventoryQuestAcceptFailure.None;
+                var questPose = destination.CreatePoseAtSlot(drag.Definition.Cells, drag.GrabbedCell, targetCell,
+                    drag.ClockwiseTurns, out var pose) == PuzzlePlacementFailure.None
+                    ? pose
+                    : null;
+                SetDragView(targetView);
+                if (questPose != null)
+                {
+                    targetView.ShowGhostOnBoard(questPose, drag.Definition, drag.FreshnessPercent);
+                }
+                else
+                {
+                    targetView.ShowGhostAtPointer(drag.GetGhostPose(), drag.Definition, Vector2Int.zero, pointerPosition, drag.FreshnessPercent);
+                }
+                targetView.ShowPreview(questPose, canAccept);
+                if (targetView != sourceView && sourceView)
+                {
+                    sourceView.HideGhost();
+                    sourceView.ShowPreview(null, false);
+                }
+                return;
+            }
+            if (questOfferBoard != null && ReferenceEquals(destination, questOfferBoard))
+            {
+                bool canDeliver = session.IsTrainWagon(drag.Source) &&
+                    session.CanCompleteQuestCargoHere(drag.OriginalPlacement, out _);
+                SetDragView(targetView);
+                targetView.ShowGhostAtPointer(drag.GetGhostPose(), drag.Definition, Vector2Int.zero, pointerPosition, drag.FreshnessPercent);
+                targetView.ShowPreview(null, canDeliver);
+                if (targetView != sourceView && sourceView)
+                {
+                    sourceView.HideGhost();
+                    sourceView.ShowPreview(null, false);
+                }
+                return;
+            }
             var preview = drag.Evaluate(session, destination, targetCell);
             SetDragView(targetView);
             var candidate = preview.Placement.Candidate;
@@ -1000,6 +1427,16 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             {
                 targetView.ShowGhostAtPointer(drag.GetGhostPose(), drag.Definition, Vector2Int.zero, pointerPosition, drag.FreshnessPercent);
             }
+            if (targetView != lastDragQuoteView || drag.InstanceId != lastDragQuoteInstanceId)
+            {
+                lastDragQuoteView = targetView;
+                lastDragQuoteInstanceId = drag.InstanceId;
+                cachedDragQuoteText = targetView == ActiveMarketView && session.IsTrainWagon(drag.Source) &&
+                    session.TryQuoteTrade(drag.OriginalPlacement, PuzzleTradeDirection.Sell, out long sellPrice)
+                    ? Presentation.MarketItemPrice(sellPrice)
+                    : null;
+            }
+            targetView.ShowGhostPrice(cachedDragQuoteText);
             targetView.ShowPreview(candidate, preview.CanDrop);
             // 고스트는 놓을 후보 보드에만 둔다. 출발 보드에는 원래 자리 외곽선과 광선만 남긴다.
             if (targetView != sourceView && sourceView)
@@ -1039,6 +1476,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
                 sourceView.HideAdjacentSynergyPreview();
             }
 
+            UpdateLensSpot(destination, targetCell, preview.CanDrop && candidate != null);
             cityView.ShowTradeStatus(Presentation.PuzzleTradeStatus(preview, drag.Definition, _committed: false));
             return;
         }
@@ -1052,6 +1490,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             Vector2 sourceCenterScreen = sourceView.GetShapeCenterScreen(drag.OriginalPose.Cells);
             sourceView.ShowDragBeam(sourceCenterScreen, pointerPosition);
         }
+        UpdateLensSpot(null, default, false);
         cityView.ShowTradeStatus(string.Empty);
     }
 
@@ -1062,47 +1501,71 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             return;
         }
 
+        var prev = dragView;
         var sourceView = drag != null ? ViewFor(drag.Source) : null;
-        if (dragView && dragView != sourceView)
+        if (prev)
         {
-            dragView.ClearDrag();
+            if (prev != sourceView)
+            {
+                prev.ClearDrag();
+            }
+            prev.HidePlacementCandidates();
         }
         dragView = _next;
+        if (drag != null && _next)
+        {
+            UpdateLensRanking();
+        }
     }
 
     bool TryGetBoard(Vector2 _position, out PuzzleInventoryView _view, out PuzzleInventory _inventory, out Vector2Int _cell)
     {
         if (IsOnScreen(_position))
         {
-            if (trainView && trainView.isActiveAndEnabled && trainView.TryGetBoardCell(_position, out _cell))
+            if (UseMultiTrainWindows)
             {
-                _view = trainView;
+                if (trainWindowManager.TryGetWindowAtScreenPosition(_position, null, out var tw, out _inventory, out _cell))
+                {
+                    _view = tw ? tw.InventoryView : null;
+                    return _view != null;
+                }
+            }
+            else if (ActiveTrainView && ActiveTrainView.isActiveAndEnabled && ActiveTrainView.TryGetBoardCell(_position, out _cell))
+            {
+                _view = ActiveTrainView;
                 _inventory = session.Train;
                 return true;
             }
             if (!isMapOpen)
             {
-                if (session.CanTradeInMarket && marketView && marketView.isActiveAndEnabled && marketView.TryGetBoardCell(_position, out _cell))
+                if (session.CanTradeInMarket && ActiveMarketView && ActiveMarketView.isActiveAndEnabled && ActiveMarketView.TryGetBoardCell(_position, out _cell))
                 {
-                    _view = marketView;
+                    _view = ActiveMarketView;
                     _inventory = session.Market;
                     return true;
                 }
-                if (ButcheryViewReady && butcheryView.TryGetBoardCell(_position, out _cell))
+                if (ActiveQuestBoardView && ActiveQuestBoardView.isActiveAndEnabled && questOfferBoard != null &&
+                    ActiveQuestBoardView.TryGetBoardCell(_position, out _cell))
                 {
-                    _view = butcheryView;
+                    _view = ActiveQuestBoardView;
+                    _inventory = questOfferBoard;
+                    return true;
+                }
+                if (ButcheryViewReady && ActiveButcheryView.TryGetBoardCell(_position, out _cell))
+                {
+                    _view = ActiveButcheryView;
                     _inventory = session.ButcheryBoard();
                     return true;
                 }
-                if (ModificationViewReady && modificationView.TryGetBoardCell(_position, out _cell))
+                if (ModificationViewReady && ActiveModificationView.TryGetBoardCell(_position, out _cell))
                 {
-                    _view = modificationView;
+                    _view = ActiveModificationView;
                     _inventory = session.ModificationBoard();
                     return true;
                 }
-                if (RefiningViewReady && refiningView.TryGetBoardCell(_position, out _cell))
+                if (RefiningViewReady && ActiveRefiningView.TryGetBoardCell(_position, out _cell))
                 {
-                    _view = refiningView;
+                    _view = ActiveRefiningView;
                     _inventory = session.RefiningBoard();
                     return true;
                 }
@@ -1268,9 +1731,9 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
 
     void ClearBoardItemDetails()
     {
-        if (trainView)
+        if (ActiveTrainView)
         {
-            trainView.ShowItemDetails(null, default, default, default);
+            ActiveTrainView.ShowItemDetails(null, default, default, default);
         }
         if (marketView)
         {
@@ -1299,9 +1762,9 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             {
                 tooltipView.Close();
             }
-            if (trainView)
+            if (ActiveTrainView)
             {
-                trainView.ShowItemDetails(null, default, default, default);
+                ActiveTrainView.ShowItemDetails(null, default, default, default);
             }
             if (marketView)
             {
@@ -1326,7 +1789,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         var value = _placement.Owner.ValueOf(_placement.InstanceId);
         bool isActionBoard = session.IsButchery(_placement.Owner) || session.IsModification(_placement.Owner) ||
             session.IsRefining(_placement.Owner);
-        bool isTrain = _view == trainView || session.IsTrainWagon(_placement.Owner);
+        bool isTrain = _view == ActiveTrainView || session.IsTrainWagon(_placement.Owner);
         decimal actualValue = _placement.FreshnessAdjustedValue;
         var rate = item == null ? default : session.RateFor(item);
         (IReadOnlyList<string> General, IReadOnlyList<PuzzleTooltipEffectEntry> Synergies) effects =
@@ -1345,6 +1808,12 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             {
                 futureValue = null;
             }
+        }
+
+        if (_view == ActiveQuestBoardView && _placement != null && tavernWindowView &&
+            questOfferByInstanceId.TryGetValue(_placement.InstanceId, out var hoveredOffer))
+        {
+            tavernWindowView.ShowQuestDetail(hoveredOffer);
         }
 
         if (tooltipView && drag == null && (_position.HasValue || hoverPosition.HasValue))
@@ -1368,13 +1837,25 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             }
         }
 
-        if (trainView)
+        if (UseMultiTrainWindows && trainWindowManager.Windows != null)
         {
-            trainView.ShowItemDetails(_view == trainView ? item : null, value, actualValue, rate);
+            var wins = trainWindowManager.Windows;
+            for (int i = 0; i < wins.Count; i++)
+            {
+                var iv = wins[i] ? wins[i].InventoryView : null;
+                if (iv && wins[i].FloatingWindow && wins[i].FloatingWindow.IsOpen)
+                {
+                    iv.ShowItemDetails(_view == iv ? item : null, value, actualValue, rate);
+                }
+            }
         }
-        if (marketView)
+        else if (ActiveTrainView)
         {
-            marketView.ShowItemDetails(_view == marketView ? item : null, value, actualValue, rate);
+            ActiveTrainView.ShowItemDetails(_view == ActiveTrainView ? item : null, value, actualValue, rate);
+        }
+        if (ActiveMarketView)
+        {
+            ActiveMarketView.ShowItemDetails(_view == ActiveMarketView ? item : null, value, actualValue, rate);
         }
         if (butcheryView)
         {
@@ -1402,45 +1883,78 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
 
     void RenderValues()
     {
-        if (trainView)
+        if (UseMultiTrainWindows && trainWindowManager.Windows != null)
         {
-            trainView.ShowBoardValue(session.Train.Placements.Sum(_item => _item.FreshnessAdjustedValue), session.Train.Value.BaseValue);
-        }
-        if (marketView)
-        {
-            if (marketView.HasTradePreferences)
+            var wins = trainWindowManager.Windows;
+            for (int i = 0; i < wins.Count; i++)
             {
-                marketView.ShowBoardTradePreferences(Presentation.GetCityTradePreferences(session.CityData));
+                var w = wins[i];
+                if (!w || !w.FloatingWindow || !w.FloatingWindow.IsOpen || !w.InventoryView) continue;
+                var wagon = w.BoundWagon;
+                if (wagon != null && session.IsTrainWagon(wagon))
+                {
+                    w.InventoryView.ShowBoardValue(wagon.Placements.Sum(_item => _item.FreshnessAdjustedValue), wagon.Value.BaseValue);
+                    w.SetHeader(wagon, RemainingSettlementHours(), session.TrainSynergyDelta);
+                }
+            }
+        }
+        else if (ActiveTrainView)
+        {
+            ActiveTrainView.ShowBoardValue(session.Train.Placements.Sum(_item => _item.FreshnessAdjustedValue), session.Train.Value.BaseValue);
+        }
+        if (ActiveMarketView)
+        {
+            if (ActiveMarketView.HasTradePreferences)
+            {
+                ActiveMarketView.ShowBoardTradePreferences(Presentation.GetCityTradePreferences(session.CityData));
             }
             else
             {
-                marketView.ShowBoardInfo(Presentation.PuzzleCityTagPreferences(session.CityData));
+                ActiveMarketView.ShowBoardInfo(Presentation.PuzzleCityTagPreferences(session.CityData));
             }
         }
     }
 
+    bool suppressRestoreTrainWindows;
+
     void RenderBoards(int? _highlightedInstanceId = null)
     {
-        if (trainView)
+        if (UseMultiTrainWindows)
         {
-            trainView.RenderPlacements(session.Train, drag?.InstanceId, _highlightedInstanceId,
+            if (!suppressRestoreTrainWindows)
+            {
+                trainWindowManager.RestoreOrEnsureDefault(session);
+            }
+            trainWindowManager.RefreshAllOpenWindows(session, RemainingSettlementHours(), session.TrainSynergyDelta,
+                drag?.InstanceId, _highlightedInstanceId, RefrigerationContacts);
+        }
+        else if (ActiveTrainView)
+        {
+            ActiveTrainView.RenderPlacements(session.Train, drag?.InstanceId, _highlightedInstanceId,
                 RefrigerationContacts(session.Train));
         }
-        if (marketView)
+        if (ActiveMarketView)
         {
-            marketView.RenderPlacements(session.Market, drag?.InstanceId, _highlightedInstanceId);
+            cachedMarketPriceProvider ??= MarketPriceLabel;
+            System.Func<PuzzlePlacement, string> priceProvider = RelayoutSettings.Enabled ? cachedMarketPriceProvider : null;
+            ActiveMarketView.RenderPlacements(session.Market, drag?.InstanceId, _highlightedInstanceId,
+                _slotLabelProvider: priceProvider);
+        }
+        if (ActiveQuestBoardView && ActiveQuestBoardView.isActiveAndEnabled && questOfferBoard != null)
+        {
+            ActiveQuestBoardView.RenderPlacements(questOfferBoard, drag?.InstanceId, _highlightedInstanceId);
         }
         if (ButcheryViewReady)
         {
-            butcheryView.RenderPlacements(session.ButcheryBoard(), drag?.InstanceId, _highlightedInstanceId);
+            ActiveButcheryView.RenderPlacements(session.ButcheryBoard(), drag?.InstanceId, _highlightedInstanceId);
         }
         if (ModificationViewReady)
         {
-            modificationView.RenderPlacements(session.ModificationBoard(), drag?.InstanceId, _highlightedInstanceId);
+            ActiveModificationView.RenderPlacements(session.ModificationBoard(), drag?.InstanceId, _highlightedInstanceId);
         }
         if (RefiningViewReady)
         {
-            refiningView.RenderPlacements(session.RefiningBoard(), drag?.InstanceId, _highlightedInstanceId);
+            ActiveRefiningView.RenderPlacements(session.RefiningBoard(), drag?.InstanceId, _highlightedInstanceId);
         }
     }
 
@@ -1452,27 +1966,44 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             : null;
     }
 
+    string MarketPriceLabel(PuzzlePlacement _placement)
+    {
+        if (session == null || _placement == null) return null;
+        return session.TryQuoteTrade(_placement, PuzzleTradeDirection.Buy, out long price)
+            ? Presentation.MarketItemPrice(price)
+            : null;
+    }
+
     PuzzleInventoryView ViewFor(PuzzleInventory _inventory)
     {
-        if (session.IsButchery(_inventory) && butcheryView)
+        if (questOfferBoard != null && ReferenceEquals(_inventory, questOfferBoard) && ActiveQuestBoardView)
         {
-            return butcheryView;
+            return ActiveQuestBoardView;
         }
-        if (session.IsModification(_inventory) && modificationView)
+        if (session.IsButchery(_inventory) && ActiveButcheryView)
         {
-            return modificationView;
+            return ActiveButcheryView;
         }
-        if (session.IsRefining(_inventory) && refiningView)
+        if (session.IsModification(_inventory) && ActiveModificationView)
         {
-            return refiningView;
+            return ActiveModificationView;
         }
-        return session.IsTrainWagon(_inventory) ? trainView : marketView;
+        if (session.IsRefining(_inventory) && ActiveRefiningView)
+        {
+            return ActiveRefiningView;
+        }
+        if (UseMultiTrainWindows && session.IsTrainWagon(_inventory))
+        {
+            return trainWindowManager.GetViewForInventory(_inventory, session)?.InventoryView;
+        }
+        return session.IsTrainWagon(_inventory) ? ActiveTrainView : ActiveMarketView;
     }
 
     // 도축대 View는 한 번 구성하면 된다. 열 때마다 크기와 상태 문구만 갱신한다.
     void ConfigureButcheryView()
     {
-        if (!butcheryView)
+        var view = ActiveButcheryView;
+        if (!view)
         {
             return;
         }
@@ -1486,11 +2017,11 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             long capacity = (long)board.Width * board.Height;
             long dragCapacity = System.Math.Max(System.Math.Max((long)session.Train.Width * session.Train.Height,
                 session.MarketCapacity), capacity);
-            butcheryView.Initialize(capacity, dragCapacity, Presentation.PuzzleButcheryTitle, session.ItemDefinitions,
+            view.Initialize(capacity, dragCapacity, Presentation.PuzzleButcheryTitle, session.ItemDefinitions,
                 _showSynergies: false);
             butcheryConfigured = true;
         }
-        butcheryView.SetBoardSize(board.Width, board.Height, board.BlockedCells);
+        view.SetBoardSize(board.Width, board.Height, board.BlockedCells);
     }
 
     void OnButcheryChanged(GameEvents.ButcheryInfo _info)
@@ -1509,7 +2040,8 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
     // 개조대 View도 한 번 구성하고, 열릴 때 크기와 상태 문구만 갱신한다.
     void ConfigureModificationView()
     {
-        if (!modificationView)
+        var view = ActiveModificationView;
+        if (!view)
         {
             return;
         }
@@ -1523,11 +2055,11 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             long capacity = (long)board.Width * board.Height;
             long dragCapacity = System.Math.Max(System.Math.Max((long)session.Train.Width * session.Train.Height,
                 session.MarketCapacity), capacity);
-            modificationView.Initialize(capacity, dragCapacity, Presentation.PuzzleModificationTitle,
+            view.Initialize(capacity, dragCapacity, Presentation.PuzzleModificationTitle,
                 session.ItemDefinitions, _showSynergies: false);
             modificationConfigured = true;
         }
-        modificationView.SetBoardSize(board.Width, board.Height, board.BlockedCells);
+        view.SetBoardSize(board.Width, board.Height, board.BlockedCells);
     }
 
     void OnModificationChanged(GameEvents.ModificationInfo _info)
@@ -1546,7 +2078,8 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
     // 정제대 View도 한 번 구성하고, 열릴 때 크기와 상태 문구만 갱신한다.
     void ConfigureRefiningView()
     {
-        if (!refiningView)
+        var view = ActiveRefiningView;
+        if (!view)
         {
             return;
         }
@@ -1560,11 +2093,11 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             long capacity = (long)board.Width * board.Height;
             long dragCapacity = System.Math.Max(System.Math.Max((long)session.Train.Width * session.Train.Height,
                 session.MarketCapacity), capacity);
-            refiningView.Initialize(capacity, dragCapacity, Presentation.PuzzleRefiningTitle,
+            view.Initialize(capacity, dragCapacity, Presentation.PuzzleRefiningTitle,
                 session.ItemDefinitions, _showSynergies: false);
             refiningConfigured = true;
         }
-        refiningView.SetBoardSize(board.Width, board.Height, board.BlockedCells);
+        view.SetBoardSize(board.Width, board.Height, board.BlockedCells);
     }
 
     void OnRefiningChanged(GameEvents.RefiningInfo _info)
@@ -1603,16 +2136,25 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
     void OnViewDisabled()
     {
         hoverPosition = null;
+        HideLens();
         bool hadDrag = drag != null;
         if (input)
         {
             input.CancelCapture();
         }
-        ClearDrag();
-        if (!hadDrag)
+        suppressRestoreTrainWindows = true;
+        try
         {
-            RenderBoards();
-            ShowItemDetails(null, null);
+            ClearDrag();
+            if (!hadDrag)
+            {
+                RenderBoards();
+                ShowItemDetails(null, null);
+            }
+        }
+        finally
+        {
+            suppressRestoreTrainWindows = false;
         }
     }
 
@@ -1623,10 +2165,27 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         lastSynergyPreviewDestination = null;
         lastSynergyPreviewCell = new Vector2Int(int.MinValue, int.MinValue);
         lastSynergyPreviewRotation = -1;
+        lastDragQuoteView = null;
+        lastDragQuoteInstanceId = -1;
+        cachedDragQuoteText = null;
         cachedSynergyDeltas.Clear();
 
-        if (trainView) trainView.ClearDrag();
+        if (trainWindowManager)
+        {
+            trainWindowManager.ClearAllDragVisuals();
+        }
+        if (trainView)
+        {
+            trainView.ClearDrag();
+            trainView.HidePlacementCandidates();
+        }
+        if (relayoutTrainView)
+        {
+            relayoutTrainView.ClearDrag();
+            relayoutTrainView.HidePlacementCandidates();
+        }
         if (marketView) marketView.ClearDrag();
+        if (relayoutMarketView) relayoutMarketView.ClearDrag();
         if (butcheryView) butcheryView.ClearDrag();
         if (modificationView) modificationView.ClearDrag();
         if (refiningView) refiningView.ClearDrag();
@@ -1672,6 +2231,116 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
                 session.CanQuickTransferToWagon(drag.OriginalPlacement, hoveredWagonIndex.Value, drag.ClockwiseTurns);
             trainBarView.Refresh(session.TrainWagons, session.CurrentWagonIndex, session.MaxWagonCount,
                 hoveredWagonIndex, canDropOnHoveredWagon);
+        }
+        if (RelayoutSettings.Enabled && session != null)
+        {
+            if (railStripView)
+            {
+                railStripView.Refresh(session.TrainWagons, session.CurrentWagonIndex, hoveredWagonIndex);
+            }
+            if (!UseMultiTrainWindows && trainWindowView)
+            {
+                long remainingSettlementHours = 0;
+                double interval = TableManager.Instance != null && TableManager.Instance.IsValid
+                    ? TableManager.Instance.RequireValid().PuzzleSynergy.activationIntervalHours
+                    : 0d;
+                if (interval > 0d && session.Time != null)
+                {
+                    double now = session.Time.ElapsedHours + PuzzleTimeManager.HOURS_PER_TURN / 2d;
+                    double next = (System.Math.Floor(now / interval) + 1d) * interval;
+                    remainingSettlementHours = (long)(next - session.Time.ElapsedHours);
+                }
+                trainWindowView.SetHeader(session.Train, remainingSettlementHours, session.TrainSynergyDelta);
+            }
+        }
+    }
+
+    internal void RefreshForRelayoutSwitch()
+    {
+        if (!initialized || session == null)
+        {
+            return;
+        }
+        butcheryConfigured = false;
+        modificationConfigured = false;
+        refiningConfigured = false;
+        questBoardConfigured = false;
+        ConfigureButcheryView();
+        ConfigureModificationView();
+        ConfigureRefiningView();
+        ConfigureQuestBoardView();
+        RebuildQuestOfferBoard();
+        if (drag != null)
+        {
+            input.CancelCapture();
+            ClearDrag();
+        }
+        else
+        {
+            if (trainWindowManager)
+        {
+            trainWindowManager.ClearAllDragVisuals();
+        }
+        if (trainView)
+            {
+                trainView.ClearDrag();
+                trainView.HidePlacementCandidates();
+            }
+            if (relayoutTrainView)
+            {
+                relayoutTrainView.ClearDrag();
+                relayoutTrainView.HidePlacementCandidates();
+            }
+        }
+        if (!UseMultiTrainWindows && ActiveTrainView)
+        {
+            ActiveTrainView.SetTitle(Presentation.PuzzleTrainTitle(session.Train));
+            ActiveTrainView.SetBoard(session.Train);
+        }
+        if (RelayoutSettings.Enabled && tavernWindowView)
+        {
+            tavernWindowView.ResetCity(session.CityData.displayName);
+            RebuildQuestOfferBoard();
+        }
+        if (RelayoutSettings.Enabled && marketWindowView)
+        {
+            marketWindowView.SetCity(session.CityData.displayName, Presentation.GetCityTradePreferences(session.CityData));
+            bool open = session.IsMarketOpen && session.TryEnterMarket();
+            relayoutMarketView?.SetMarketOpen(session.CanTradeInMarket);
+            if (relayoutMarketView && session.Market != null)
+            {
+                relayoutMarketView.SetBoardSize(session.Market.Width, session.Market.Height, session.Market.BlockedCells);
+            }
+            marketWindowView.SetOpen(open, false);
+            if (open)
+            {
+                RenderBoards();
+            }
+        }
+        RenderBoards();
+        RenderValues();
+        RefreshTrainBar();
+    }
+
+    void OnRelayoutLensToggleRequested()
+    {
+        if (!RelayoutSettings.Enabled || !lensWindowView)
+        {
+            return;
+        }
+        lensWindowView.Toggle();
+        if (lensWindowView.IsOpen && RouteLens)
+        {
+            if (lensDefinition != null)
+            {
+                RouteLens.Show(lensTitle, lensTrade, JoinLensLines(lensSpotText, lensRankingText), LensDestinationText(),
+                    Presentation.RouteLensFootnote(lensTab), lensTab, _tabsInteractable: drag == null);
+            }
+            else
+            {
+                RouteLens.Show(Presentation.LensWindowTitle, Presentation.LensWindowEmpty, string.Empty,
+                    string.Empty, string.Empty, lensTab, _tabsInteractable: false);
+            }
         }
     }
 
@@ -1724,8 +2393,12 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
         }
         input.CancelCapture();
         ClearDrag();
-        trainView.SetTitle(Presentation.PuzzleTrainTitle(session.Train));
-        trainView.SetBoard(session.Train);
+        RebuildQuestOfferBoard();
+        if (!UseMultiTrainWindows && ActiveTrainView)
+        {
+            ActiveTrainView.SetTitle(Presentation.PuzzleTrainTitle(session.Train));
+            ActiveTrainView.SetBoard(session.Train);
+        }
         RenderBoards();
         RenderValues();
         RefreshTrainBar();
@@ -1828,23 +2501,180 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
 
         input.CancelCapture();
         ClearDrag();
+        RebuildQuestOfferBoard();
         if (!session.SelectWagon(_index))
         {
             return;
         }
-        trainView.SetTitle(Presentation.PuzzleTrainTitle(session.Train));
-        trainView.SetBoard(session.Train);
+        if (!UseMultiTrainWindows && ActiveTrainView)
+        {
+            ActiveTrainView.SetTitle(Presentation.PuzzleTrainTitle(session.Train));
+            ActiveTrainView.SetBoard(session.Train);
+        }
         RenderBoards();
         RenderValues();
         ShowItemDetails(null, null);
         RefreshTrainBar();
     }
 
+    void OnRelayoutWagonSelected(int _index)
+    {
+        if (session == null || _index < 0 || _index >= session.WagonCount)
+        {
+            return;
+        }
+        if (UseMultiTrainWindows)
+        {
+            trainWindowManager.OpenOrFocusWagon(_index, session);
+        }
+        OnWagonSelected(_index);
+    }
+
+    void OnRelayoutWagonFocused(int _index)
+    {
+        if (session != null && _index >= 0 && _index < session.WagonCount && session.CurrentWagonIndex != _index)
+        {
+            session.SelectWagon(_index);
+            RefreshTrainBar();
+        }
+    }
+
+    void OnRelayoutOpenWindowsChanged()
+    {
+        if (session != null)
+        {
+            RenderBoards();
+            RenderValues();
+            RefreshTrainBar();
+        }
+    }
+
+    void OnRelayoutWagonDraggedOutside(int _index, Vector2 _screenPos)
+    {
+        if (_index < 0 || MarketOperationsBlocked || !IsWagonSaleDropPosition(_screenPos))
+        {
+            ClearWagonSalePreview();
+            return;
+        }
+        if (wagonSalePreviewIndex == _index)
+        {
+            return;
+        }
+        wagonSalePreviewIndex = _index;
+        string failure = session.WagonSaleFailure(_index);
+        string msg = failure == null
+            ? BasicData.Format("rules.wagon.salePreview", Presentation.WagonSaleAmount(session.TrainWagons[_index].WagonSalePrice))
+            : Presentation.WagonSaleNotice(failure);
+        statusBannerView?.ShowStatus(msg);
+        cityView.ShowTradeStatus(msg);
+    }
+
+    void OnRelayoutWagonDragEndedOutside(int _index, Vector2 _screenPos)
+    {
+        ClearWagonSalePreview();
+        if (_index < 0 || MarketOperationsBlocked || !IsWagonSaleDropPosition(_screenPos))
+        {
+            return;
+        }
+
+        var wagon = _index < session.WagonCount ? session.TrainWagons[_index] : null;
+        if (!session.TrySellWagon(_index, out string failure))
+        {
+            string failMsg = Presentation.WagonSaleNotice(failure);
+            statusBannerView?.ShowStatus(failMsg);
+            cityView.ShowTradeStatus(failMsg);
+            return;
+        }
+
+        HideWagonTooltip();
+        RefreshSelectedWagon();
+        string okMsg = BasicData.Format("rules.wagon.saleComplete", wagon.WagonNumber,
+            Presentation.WagonSaleAmount(wagon.WagonSalePrice, _showPlus: true));
+        statusBannerView?.ShowStatus(okMsg);
+        cityView.ShowTradeStatus(okMsg);
+    }
+
+    bool IsWagonSaleDropPosition(Vector2 _screenPos)
+    {
+        if (stationHallWindowView && stationHallWindowView.ContainsScreenPoint(_screenPos))
+        {
+            return true;
+        }
+        if (townSceneView && townSceneView.IsScreenPointOverBuilding(TownBuildingButton.BuildingKind.StationHall, _screenPos))
+        {
+            return true;
+        }
+        if (stationActions && stationActions.IsWagonShopOpen && UnityEngine.EventSystems.EventSystem.current)
+        {
+            var data = new UnityEngine.EventSystems.PointerEventData(UnityEngine.EventSystems.EventSystem.current) { position = _screenPos };
+            var hits = new List<UnityEngine.EventSystems.RaycastResult>();
+            UnityEngine.EventSystems.EventSystem.current.RaycastAll(data, hits);
+            for (int i = 0; i < hits.Count; i++)
+            {
+                if (stationActions.IsWagonShopTarget(hits[i].gameObject))
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    // S6 역사 창에서 구매한 화차를 선로 삽입 지점에 놓을 때 호출한다(R24).
+    public bool TryDropPurchasedWagonAtScreenPosition(PuzzleWagonProductData _product, Vector2 _screenPos)
+    {
+        if (MarketOperationsBlocked || session == null || _product == null || !railStripView ||
+            !railStripView.TryGetInsertionIndexAtScreenPosition(_screenPos, out int insertionIndex))
+        {
+            return false;
+        }
+        if (!session.TryPurchaseWagon(_product.id, out string failureReason))
+        {
+            statusBannerView?.ShowStatus(failureReason);
+            cityView.ShowTradeStatus(failureReason);
+            return false;
+        }
+        int newIndex = session.WagonCount - 1;
+        var purchasedWagon = session.TrainWagons[newIndex];
+        int clampedTarget = Mathf.Clamp(insertionIndex, 0, newIndex);
+        if (clampedTarget != newIndex && !session.TryMoveWagon(newIndex, clampedTarget))
+        {
+            const string moveFail = "화차 위치를 옮기지 못했습니다.";
+            statusBannerView?.ShowStatus(moveFail);
+            cityView.ShowTradeStatus(moveFail);
+        }
+        if (UseMultiTrainWindows)
+        {
+            trainWindowManager.OpenOrFocusWagon(purchasedWagon, session);
+        }
+        RefreshSelectedWagon();
+        return true;
+    }
+
+    long RemainingSettlementHours()
+    {
+        double interval = TableManager.Instance != null && TableManager.Instance.IsValid
+            ? TableManager.Instance.RequireValid().PuzzleSynergy.activationIntervalHours
+            : 0d;
+        if (interval > 0d && session?.Time != null)
+        {
+            double now = session.Time.ElapsedHours + PuzzleTimeManager.HOURS_PER_TURN / 2d;
+            double next = (System.Math.Floor(now / interval) + 1d) * interval;
+            return (long)(next - session.Time.ElapsedHours);
+        }
+        return 0;
+    }
+
     void OnWagonMoved(int _sourceIndex, int _destinationIndex)
     {
         if (!TrainOperationsBlocked && drag == null && session.TryMoveWagon(_sourceIndex, _destinationIndex))
         {
+            RenderBoards();
             RefreshTrainBar();
+            if (UseMultiTrainWindows)
+            {
+                trainWindowManager.SavePersistence(session);
+            }
         }
     }
 
@@ -1911,6 +2741,7 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
 
         input.CancelCapture();
         ClearDrag();
+        RebuildQuestOfferBoard();
         if (!session.TryPurchaseWagon(_product.id, out string failureReason))
         {
             cityView.ShowTradeStatus(failureReason);
@@ -1924,8 +2755,11 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
 
     void RefreshSelectedWagon()
     {
-        trainView.SetTitle(Presentation.PuzzleTrainTitle(session.Train));
-        trainView.SetBoard(session.Train);
+        if (!UseMultiTrainWindows && ActiveTrainView)
+        {
+            ActiveTrainView.SetTitle(Presentation.PuzzleTrainTitle(session.Train));
+            ActiveTrainView.SetBoard(session.Train);
+        }
         RenderBoards();
         RenderValues();
         ShowItemDetails(null, null);

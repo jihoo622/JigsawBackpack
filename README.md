@@ -63,6 +63,7 @@ Unity 6.3 LTS(6000.3.22f1) URP 기반의 기차 화물 거래 게임. 작업 규
 - [BACKLOG](Docs/Management/BACKLOG.md): 개발 기반 제약·남은 사용자 확인.
 - [TELEMETRY](Docs/Management/TELEMETRY.md) / [PLAY_LOG](Docs/Management/PLAY_LOG.md): 기록 경로·설정 / 이벤트 필드.
 - 초기 기획·단계별 작업 계획은 [Docs/Management/Archive](Docs/Management/Archive/)에 보존하며 현재 작업 기준으로 사용하지 않는다.
+- 확정 전 UI 레이아웃 안·조사·목업은 [Docs/Legacy](Docs/Legacy/README.md)에 격리했으며 현재 작업 기준으로 사용하지 않는다.
 
 ## 중요한 제약
 

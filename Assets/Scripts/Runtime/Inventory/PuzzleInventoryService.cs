@@ -16,6 +16,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
     IReadOnlyList<PuzzleSynergyRuleData> marketRules;
     int lastInstanceId;
     int lastWagonNumber;
+    internal string RunId { get; private set; } = string.Empty;
     string currentCityId;
     readonly HashSet<string> visitedCities = new HashSet<string>(StringComparer.Ordinal);
     readonly List<TavernRumor> tavernRumors = new List<TavernRumor>();
@@ -586,6 +587,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         ItemDefinitions = definitions.Values;
         MarketCapacity = marketCapacity;
         currentCityId = tables.Puzzle.startCity;
+        RunId = Guid.NewGuid().ToString("N");
         visitedCities.Clear();
         visitedCities.Add(currentCityId);
         ResetFog();
@@ -837,6 +839,11 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
 
     void Settle()
     {
+        // R26: 마지막 턴 행동으로 결산될 때 이미 목적지에 와 있는 진행 중 의뢰는 결산 직전에 완료로 처리한다.
+        if (!IsPassingThrough)
+        {
+            CompleteArrivedQuests();
+        }
         RunStatus = ReachedTargetFunds ? PuzzleRunStatus.Won : PuzzleRunStatus.Lost;
         HandleRunStatusChanged();
         RecordAction(PuzzleActionKind.FinishRun);
@@ -1867,7 +1874,6 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         {
             visitedCities.Add(CurrentCityId);
             GameEvents.RaiseCityArrived(CurrentCityId, CityMoveCount);
-            CompleteArrivedQuests();
         }
 
         if (RoutePlan != null)

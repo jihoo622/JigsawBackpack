@@ -19,6 +19,8 @@ public sealed class PuzzleWagonProductRow : MonoBehaviour, IBeginDragHandler, ID
 
     internal event Action<PuzzleWagonProductRow> Clicked;
     internal event Action<PuzzleWagonProductRow> DragStarted;
+    internal event Action<PuzzleWagonProductRow, PointerEventData> Dragged;
+    internal event Action<PuzzleWagonProductRow, PointerEventData> DragEnded;
     internal PuzzleWagonProductData Product => product;
     internal Sprite ArtworkSprite => artwork != null ? artwork.sprite : null;
 
@@ -55,7 +57,8 @@ public sealed class PuzzleWagonProductRow : MonoBehaviour, IBeginDragHandler, ID
         gameObject.SetActive(product != null);
         if (product != null)
         {
-            label.text = Presentation.WagonProductLabel(product);
+            // 개편 역사 창 카드는 이름·크기·가격을 줄을 나눠 보여 준다.
+            label.text = RelayoutSettings.Enabled ? Presentation.WagonProductCard(product) : Presentation.WagonProductLabel(product);
             if (chipLabel != null)
             {
                 chipLabel.text = Presentation.WagonCellsChip(Presentation.WagonUsableCells(product));
@@ -131,6 +134,7 @@ public sealed class PuzzleWagonProductRow : MonoBehaviour, IBeginDragHandler, ID
                 parent, _eventData.position, _eventData.pressEventCamera, out var position))
         {
             dragPreview.rectTransform.position = position + parent.TransformVector(dragPreviewOffset);
+            Dragged?.Invoke(this, _eventData);
         }
     }
 
@@ -138,6 +142,7 @@ public sealed class PuzzleWagonProductRow : MonoBehaviour, IBeginDragHandler, ID
     {
         if (dragPointerId == _eventData.pointerId)
         {
+            DragEnded?.Invoke(this, _eventData);
             CancelDrag();
         }
     }

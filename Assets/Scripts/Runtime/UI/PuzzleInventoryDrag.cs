@@ -13,6 +13,7 @@ internal sealed class PuzzleInventoryDrag
     public PuzzlePose OriginalPose => original?.Pose;
     public PuzzlePlacement OriginalPlacement => original;
     public int ClockwiseTurns => clockwiseTurns;
+    public Vector2Int GrabbedCell => grabbedCell;
 
     public PuzzleInventoryDrag(PuzzlePlacement _placement, PuzzleCell _cell)
     {

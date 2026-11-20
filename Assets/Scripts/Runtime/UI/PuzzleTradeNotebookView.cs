@@ -53,6 +53,7 @@ public sealed class PuzzleTradeNotebookView : PanelBase
     [SerializeField] TextMeshProUGUI handleLabel;
     [SerializeField] Image handleBadge;
     [SerializeField] TextMeshProUGUI handleBadgeLabel;
+    [SerializeField] bool embeddedInNotebook;
     bool scrollPending;
     bool normalCaptured;
     float normalPanelLeft;
@@ -60,6 +61,16 @@ public sealed class PuzzleTradeNotebookView : PanelBase
 
     internal event Action<PuzzleNotebookTab> TabSelected;
     internal event Action Shown;
+
+    public void SelectTabFromHost(PuzzleNotebookTab _tab)
+    {
+        TabSelected?.Invoke(_tab);
+    }
+
+    public void Toggle()
+    {
+        ToggleLog();
+    }
 
     public void OpenTab(PuzzleNotebookTab _tab)
     {
@@ -70,24 +81,24 @@ public sealed class PuzzleTradeNotebookView : PanelBase
     protected override void OnEnable()
     {
         base.OnEnable();
-        toggleButton.onClick.AddListener(ToggleLog);
-        handleButton.onClick.AddListener(ToggleLog);
-        collapseButton.onClick.AddListener(Close);
-        rumorTabButton.onClick.AddListener(SelectRumors);
-        questTabButton.onClick.AddListener(SelectQuests);
-        proficiencyTabButton.onClick.AddListener(SelectProficiency);
-        synergyTabButton.onClick.AddListener(SelectSynergy);
+        if (toggleButton) toggleButton.onClick.AddListener(ToggleLog);
+        if (handleButton) handleButton.onClick.AddListener(ToggleLog);
+        if (collapseButton) collapseButton.onClick.AddListener(Close);
+        if (rumorTabButton) rumorTabButton.onClick.AddListener(SelectRumors);
+        if (questTabButton) questTabButton.onClick.AddListener(SelectQuests);
+        if (proficiencyTabButton) proficiencyTabButton.onClick.AddListener(SelectProficiency);
+        if (synergyTabButton) synergyTabButton.onClick.AddListener(SelectSynergy);
     }
 
     protected override void OnDisable()
     {
-        toggleButton.onClick.RemoveListener(ToggleLog);
-        handleButton.onClick.RemoveListener(ToggleLog);
-        collapseButton.onClick.RemoveListener(Close);
-        rumorTabButton.onClick.RemoveListener(SelectRumors);
-        questTabButton.onClick.RemoveListener(SelectQuests);
-        proficiencyTabButton.onClick.RemoveListener(SelectProficiency);
-        synergyTabButton.onClick.RemoveListener(SelectSynergy);
+        if (toggleButton) toggleButton.onClick.RemoveListener(ToggleLog);
+        if (handleButton) handleButton.onClick.RemoveListener(ToggleLog);
+        if (collapseButton) collapseButton.onClick.RemoveListener(Close);
+        if (rumorTabButton) rumorTabButton.onClick.RemoveListener(SelectRumors);
+        if (questTabButton) questTabButton.onClick.RemoveListener(SelectQuests);
+        if (proficiencyTabButton) proficiencyTabButton.onClick.RemoveListener(SelectProficiency);
+        if (synergyTabButton) synergyTabButton.onClick.RemoveListener(SelectSynergy);
         base.OnDisable();
     }
 
@@ -151,6 +162,20 @@ public sealed class PuzzleTradeNotebookView : PanelBase
     // _unseenCount: 수첩을 마지막으로 연 뒤 생긴 소문·의뢰 변화·숙련 레벨 상승 수. 0이면 접힌 탭의 배지를 숨긴다.
     internal void Render(PuzzleNotebookTab _tab, string _text, int _rumorCount, int _questCount, int _unseenCount)
     {
+        bool proficiency = _tab == PuzzleNotebookTab.Proficiency;
+        bool synergy = _tab == PuzzleNotebookTab.Synergy;
+        if (embeddedInNotebook)
+        {
+            if (scroll) scroll.gameObject.SetActive(!proficiency && !synergy);
+            if (proficiencyPanel) proficiencyPanel.gameObject.SetActive(proficiency);
+            if (logText)
+            {
+                logText.richText = true;
+                logText.text = (proficiency || synergy) ? string.Empty : _text;
+            }
+            scrollPending = !proficiency && !synergy;
+            return;
+        }
         if (!logText || !scroll || !toggleButton || !collapseButton || !toggleLabel ||
             !titleLabel || !countLabel || !collapseLabel || !rumorTabButton || !rumorTabLabel ||
             !questTabButton || !questTabLabel || !rumorTabMark || !questTabMark || !proficiencyTabButton ||
@@ -160,8 +185,6 @@ public sealed class PuzzleTradeNotebookView : PanelBase
         {
             throw new InvalidOperationException("수첩 패널의 본문·스크롤·숙련 패널·탭·탭 밑줄·접기 버튼·정보 버튼·가장자리 손잡이·새 소식 배지를 연결하세요.");
         }
-        bool proficiency = _tab == PuzzleNotebookTab.Proficiency;
-        bool synergy = _tab == PuzzleNotebookTab.Synergy;
         ApplyPanelWidth(synergy);
         // 상성표 탭 본문은 빌드 요약. 상성표 패널이 열려 있으면 불투명 배경으로 덮인다.
         scroll.gameObject.SetActive(!proficiency);
@@ -218,7 +241,7 @@ public sealed class PuzzleTradeNotebookView : PanelBase
     {
         scrollPending = true;
         Shown?.Invoke();
-        if (EventSystem.current)
+        if (!embeddedInNotebook && EventSystem.current && collapseButton)
         {
             EventSystem.current.SetSelectedGameObject(collapseButton.gameObject);
         }
@@ -227,7 +250,7 @@ public sealed class PuzzleTradeNotebookView : PanelBase
     protected override void OnHide()
     {
         scrollPending = false;
-        if (Active && gameObject.activeInHierarchy && EventSystem.current)
+        if (!embeddedInNotebook && Active && gameObject.activeInHierarchy && EventSystem.current && toggleButton)
         {
             EventSystem.current.SetSelectedGameObject(toggleButton.gameObject);
         }

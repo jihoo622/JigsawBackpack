@@ -31,6 +31,8 @@ public sealed class PuzzleInventory
     public IReadOnlyCollection<PuzzlePlacement> Placements => placements.Values;
     internal IReadOnlyCollection<PuzzleWagonModification> WagonModifications => wagonModifications.Values;
     internal PuzzleValue Value => valuation.Total;
+    // Σ(FinalValue − BaseValue): 정산 1회로 이 보드에 더해지는 가치. HUD 정산 예상(TrainSynergyDelta)과 같은 기준이다.
+    internal decimal SettlementGain => valuation.Total.FinalValue - valuation.Total.BaseValue;
     internal bool HasUnreadEventNotice { get; set; }
 
     internal PuzzleInventory(PuzzleBoardData _board, IReadOnlyList<PuzzleStartingPlacementData> _startingPlacements,
@@ -534,6 +536,34 @@ public sealed class PuzzleInventory
     }
 
     // 비어 있는 첫 칸에 조각을 새로 올려 배치한다. 마땅한 빈 칸이 없으면 false.
+    internal bool CanPlaceAt(PuzzleItemDefinition _definition, Vector2Int _grabbedCell, Vector2Int _targetCell,
+        int _clockwiseTurns)
+    {
+        if (_definition == null || CreatePoseAtSlot(_definition.Cells, _grabbedCell, _targetCell, _clockwiseTurns, out var pose) !=
+            PuzzlePlacementFailure.None)
+        {
+            return false;
+        }
+        return CheckPlacement(pose.Cells, null, _definition) == PuzzlePlacementFailure.None;
+    }
+
+    internal bool TryPlaceAt(PuzzleItemDefinition _definition, Vector2Int _grabbedCell, Vector2Int _targetCell,
+        int _clockwiseTurns, int _instanceId, out PuzzlePlacement _placement)
+    {
+        _placement = null;
+        if (_definition == null || CreatePoseAtSlot(_definition.Cells, _grabbedCell, _targetCell, _clockwiseTurns, out var pose) !=
+            PuzzlePlacementFailure.None)
+        {
+            return false;
+        }
+        if (CheckPlacement(pose.Cells, null, _definition) != PuzzlePlacementFailure.None)
+        {
+            return false;
+        }
+        _placement = PlaceSpawnedItem(_definition, _instanceId, pose);
+        return true;
+    }
+
     internal bool TryAutoPlace(PuzzleItemDefinition _definition, int _instanceId, out PuzzlePlacement _placement)
     {
         if (!TryFindAutoPlacement(_definition, out var pose))
@@ -723,6 +753,76 @@ public sealed class PuzzleInventory
         return true;
     }
 
+    // _original을 _candidate 자리에 놓았을 때 이 보드(목적)의 정산 Δ와 값이 바뀌는 이웃을 구한다.
+    // 사본에서만 계산하며 이 보드의 배치·점유·가치·알림은 바뀌지 않는다. _candidate는 EvaluateMove가 허용한 자리여야 한다.
+    internal PuzzlePlacementDelta PreviewPlacementDelta(PuzzlePlacement _original, PuzzlePose _candidate, Vector2Int _targetCell)
+    {
+        if (_original == null || _candidate == null)
+        {
+            return null;
+        }
+
+        var copy = CopyForTimeAdvance();
+        if (IsCurrentPlacement(_original))
+        {
+            copy.DropForPreview(_original.InstanceId);
+        }
+        if (copy.CheckPlacement(_candidate.Cells, null, _original.Definition) != PuzzlePlacementFailure.None)
+        {
+            return null;
+        }
+        copy.StorePlacement(copy.CopyPlacement(_original, _original.Definition, copy, _candidate, _original.ActualValue));
+        copy.RecalculateValue();
+
+        var affected = new List<PuzzleSettlementChange>();
+        foreach (var placement in copy.placements.Values)
+        {
+            // 옮겨지는 화물 자신은 Affected에 넣지 않는다.
+            if (placement.InstanceId == _original.InstanceId || !placements.ContainsKey(placement.InstanceId))
+            {
+                continue;
+            }
+            decimal before = SettlementGainOf(placement.InstanceId);
+            decimal after = copy.SettlementGainOf(placement.InstanceId);
+            if (before != after)
+            {
+                affected.Add(new PuzzleSettlementChange(placement.InstanceId, placement.Definition.DisplayName, before, after));
+            }
+        }
+
+        return new PuzzlePlacementDelta(_candidate, _targetCell, copy.SettlementGain - SettlementGain, affected);
+    }
+
+    // _original이 이 보드에서 빠질 때 이 보드의 정산 Δ. 기차 안에서 다른 화차로 옮길 때 출발 화차 쪽 변화다.
+    internal decimal PreviewRemovalDelta(PuzzlePlacement _original)
+    {
+        if (_original == null || !IsCurrentPlacement(_original))
+        {
+            return 0m;
+        }
+
+        var copy = CopyForTimeAdvance();
+        copy.DropForPreview(_original.InstanceId);
+        copy.RecalculateValue();
+        return copy.SettlementGain - SettlementGain;
+    }
+
+    // 사본 전용. 미리보기 Δ를 만들려고 배치 하나를 치운다. 호출자가 RecalculateValue를 다시 불러야 한다.
+    void DropForPreview(int _instanceId)
+    {
+        if (placements.TryGetValue(_instanceId, out var placement))
+        {
+            ClearOccupancy(placement);
+            placements.Remove(_instanceId);
+        }
+    }
+
+    decimal SettlementGainOf(int _instanceId)
+    {
+        var value = valuation.ValueOf(_instanceId);
+        return value.FinalValue - value.BaseValue;
+    }
+
     // 조합 완료 판정. 두 입력이 이 보드의 현재 인스턴스이고 상하좌우로 붙어 있으며, 결과를 자리를
     // 이어받는 입력의 칸에 그대로 놓을 수 있을 때만 참이다. 상태는 바꾸지 않는다.
     internal bool CanCombine(PuzzlePlacement _source, PuzzlePlacement _partner, PuzzleItemDefinition _result)
@@ -780,7 +880,7 @@ public sealed class PuzzleInventory
         return pose;
     }
 
-    PuzzlePlacementFailure CreatePoseAtSlot(IReadOnlyList<Vector2Int> _shape, Vector2Int _grabbedCell, Vector2Int _targetCell,
+    internal PuzzlePlacementFailure CreatePoseAtSlot(IReadOnlyList<Vector2Int> _shape, Vector2Int _grabbedCell, Vector2Int _targetCell,
         int _clockwiseTurns, out PuzzlePose _pose)
     {
         _pose = null;
