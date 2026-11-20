@@ -81,7 +81,7 @@ internal enum PuzzleLensTab
 }
 
 // 행선지 한 곳의 공개 정보. 수준별로 채우는 필드가 다르다(계획 §7).
-//   Visited: SellPercent·RegionPercent·Quote(현재 가치 기준 공식 견적)
+//   Visited: SellGrade·SellPercent·RegionPercent·Quote(현재 가치 기준 공식 견적)
 //   Rumor:   RumorMessage·RumorHoursAgo·RumorStale (견적·등급 수치 없음)
 //   Unknown: 운임·이동 턴만
 // Planned는 지도에서 경로를 계획한 목적지다(직결이 아니어도 포함). 공개 수준은 위 규칙을 그대로 따른다.
@@ -91,27 +91,29 @@ internal readonly struct PuzzleLensDestination
     internal string CityName { get; }
     internal PuzzleLensLevel Level { get; }
     internal int? SellPercent { get; }
+    internal PuzzleSellGradeKind SellGrade { get; }
     internal int? RegionPercent { get; }
     internal long? Quote { get; }
     internal string RumorMessage { get; }
     internal long? RumorHoursAgo { get; }
     internal bool RumorStale { get; }
-    // 구간 수. 직결 이웃은 1, 계획 목적지는 남은 구간 수.
+    // 구간 수. 현재 역은 0, 방문 도시의 알려진 최단 경로나 예약 경로의 구간 수다.
     internal int Legs { get; }
-    // 도착까지 쓰는 턴(구간 × travelTurns).
-    internal long TravelTurns { get; }
+    // 도착까지 쓰는 턴(구간 × travelTurns). 알려진 경로가 없으면 null.
+    internal long? TravelTurns { get; }
     // 이 화물을 실은 상태의 운임(운임 칸 기준, 목재·기계 등 운임 면제 태그 제외). 계산할 수 없으면 null.
     internal long? Fare { get; }
     internal bool Planned { get; }
 
     internal PuzzleLensDestination(string _cityId, string _cityName, PuzzleLensLevel _level, int? _sellPercent,
         int? _regionPercent, long? _quote, string _rumorMessage, long? _rumorHoursAgo, bool _rumorStale,
-        int _legs, long _travelTurns, long? _fare, bool _planned)
+        int _legs, long? _travelTurns, long? _fare, bool _planned, PuzzleSellGradeKind _sellGrade = PuzzleSellGradeKind.Normal)
     {
         CityId = _cityId;
         CityName = _cityName;
         Level = _level;
         SellPercent = _sellPercent;
+        SellGrade = _sellGrade;
         RegionPercent = _regionPercent;
         Quote = _quote;
         RumorMessage = _rumorMessage;

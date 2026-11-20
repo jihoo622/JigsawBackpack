@@ -1220,6 +1220,31 @@ public static partial class Presentation
         return mark + " " + RouteLensSignedAmount(_delta);
     }
 
+    internal static string RouteLensRumors(IReadOnlyList<PuzzleInventoryService.TavernRumor> _rumors, long _elapsedHours)
+    {
+        if (_rumors.Count == 0)
+        {
+            return BasicData.Text("presentation.inventory.routeLensNoRumor");
+        }
+        var lines = new List<string>();
+        foreach (var rumor in _rumors)
+        {
+            long hoursAgo = _elapsedHours - rumor.RecordedHours;
+            var parts = new List<string>
+            {
+                TavernRumorMessage(rumor),
+                BasicData.Format("presentation.inventory.routeLensRumorHours", hoursAgo)
+            };
+            if (hoursAgo >= TableManager.Instance.PuzzleRumor.refreshHours)
+            {
+                parts.Add(BasicData.Text("presentation.inventory.routeLensRumorStale"));
+            }
+            lines.Add(BasicData.Format("presentation.rumorLog.entry", GameTimestamp(rumor.RecordedHours),
+                CityLink(rumor.SourceCityId), string.Join(" · ", parts)));
+        }
+        return string.Join(BasicData.Text("presentation.rumorLog.separator"), lines);
+    }
+
     // 현재 탭 목록은 비운다. 현재 도시 견적은 TradeStatus가 맡는다.
     internal static string RouteLensDestinations(IReadOnlyList<PuzzleLensDestination> _list, PuzzleLensTab _tab)
     {
@@ -1258,7 +1283,7 @@ public static partial class Presentation
         var parts = CreateRouteDestinationParts(_destination);
         if (_destination.SellPercent is int sell)
         {
-            parts.Add(BasicData.Format("presentation.inventory.routeLensVisitedSell", sell));
+            parts.Add(BasicData.Format("presentation.inventory.routeLensVisitedSell", RouteLensSellGrade(_destination.SellGrade), sell));
         }
         if (_destination.RegionPercent is int region)
         {
@@ -1270,6 +1295,18 @@ public static partial class Presentation
         }
         AppendRouteCommonParts(parts, _destination);
         return string.Join(" · ", parts);
+    }
+
+    static string RouteLensSellGrade(PuzzleSellGradeKind _grade)
+    {
+        string key = _grade switch
+        {
+            PuzzleSellGradeKind.Common => "presentation.inventory.routeLensGradeCommon",
+            PuzzleSellGradeKind.Expensive => "presentation.inventory.routeLensGradeExpensive",
+            PuzzleSellGradeKind.Rare => "presentation.inventory.routeLensGradeRare",
+            _ => "presentation.inventory.routeLensGradeNormal"
+        };
+        return BasicData.Text(key);
     }
 
     static string RouteLensRumorLine(PuzzleLensDestination _destination)
@@ -1307,8 +1344,11 @@ public static partial class Presentation
         {
             _parts.Add(BasicData.Format("presentation.inventory.routeLensFare", fare));
         }
-        _parts.Add(BasicData.Format("presentation.inventory.routeLensTravelTurns", _destination.TravelTurns));
-        if (_destination.Planned)
+        if (_destination.TravelTurns is long turns)
+        {
+            _parts.Add(BasicData.Format("presentation.inventory.routeLensTravelTurns", turns));
+        }
+        if (_destination.Planned && _destination.TravelTurns.HasValue)
         {
             _parts.Add(BasicData.Format("presentation.inventory.routeLensLegs", _destination.Legs));
         }

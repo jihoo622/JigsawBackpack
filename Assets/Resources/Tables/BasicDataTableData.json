@@ -763,8 +763,28 @@
         },
         {
           "id": "routeLensVisitedSell",
-          "value": "판매 {0}%",
-          "arguments": 1
+          "value": "{0} ({1}%)",
+          "arguments": 2
+        },
+        {
+          "id": "routeLensGradeCommon",
+          "value": "흔함",
+          "arguments": 0
+        },
+        {
+          "id": "routeLensGradeExpensive",
+          "value": "필요",
+          "arguments": 0
+        },
+        {
+          "id": "routeLensGradeRare",
+          "value": "희귀",
+          "arguments": 0
+        },
+        {
+          "id": "routeLensGradeNormal",
+          "value": "평범",
+          "arguments": 0
         },
         {
           "id": "routeLensVisitedRegion",
@@ -773,12 +793,12 @@
         },
         {
           "id": "routeLensVisitedQuote",
-          "value": "현재 가치 기준 {0:N0}$",
+          "value": "실제 판매가 {0:N0}$",
           "arguments": 1
         },
         {
           "id": "routeLensFare",
-          "value": "적재 포함 운임 {0:N0}$",
+          "value": "운임비 {0:N0}$",
           "arguments": 1
         },
         {
@@ -808,7 +828,7 @@
         },
         {
           "id": "routeLensNoVisited",
-          "value": "방문한 이웃 도시가 없습니다",
+          "value": "방문한 도시가 없습니다",
           "arguments": 0
         },
         {
