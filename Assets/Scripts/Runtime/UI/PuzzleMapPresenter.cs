@@ -296,6 +296,7 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
     }
 
     bool UseTravelBanner => RelayoutSettings.Enabled && travelBannerView;
+    bool IsCompactNotebookMap => embeddedInNotebook && notebookWindow && !notebookWindow.IsMapExpanded;
 
     void ShowTravelConfirmation(string _quote)
     {
@@ -504,10 +505,21 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
             }
         }
 
-        view.ShowInformation(Presentation.PuzzleMapHint);
-
-        var node = System.Array.Find(view.Nodes, n => n && string.Equals(n.CityId, _cityId, System.StringComparison.Ordinal));
-        view.ShowTownTooltip(_cityId, eval, isCurrent, isConnected, node ? (RectTransform)node.transform : null, session);
+        if (IsCompactNotebookMap)
+        {
+            string name = TableManager.Instance.CityPrice(_cityId).displayName;
+            string summary = isCurrent ? $"{name} · 현재 위치"
+                : isConnected ? $"{name} · 운임 {eval.Cost:N0}$ · {Presentation.TurnSpan(eval.TravelHours)}"
+                : $"{name} · 경로 계획과 이동은 지도 확대";
+            view.ShowInformation(summary);
+            view.HideTravelPreview();
+        }
+        else
+        {
+            view.ShowInformation(Presentation.PuzzleMapHint);
+            var node = System.Array.Find(view.Nodes, n => n && string.Equals(n.CityId, _cityId, System.StringComparison.Ordinal));
+            view.ShowTownTooltip(_cityId, eval, isCurrent, isConnected, node ? (RectTransform)node.transform : null, session);
+        }
 
         if (isConnected && !isCurrent)
         {
@@ -542,6 +554,11 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
 
     void OnNodeClicked(string _cityId)
     {
+        if (IsCompactNotebookMap)
+        {
+            ShowCity(_cityId);
+            return;
+        }
         if (phase != TravelPhase.None ||
             !view.IsOpen || session.RunStatus != PuzzleRunStatus.InProgress ||
             string.Equals(_cityId, session.CurrentCityId, System.StringComparison.Ordinal))

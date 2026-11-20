@@ -42,12 +42,22 @@ public sealed class PuzzleMapTravelView : PanelBase
 
     protected override void Awake()
     {
+        CenterTravelCard(confirmation);
+        CenterTravelCard(journey);
         actions = Instantiate(inputActions);
         cancel = actions.FindAction("UI/Cancel", true);
         question.text = Presentation.PuzzleTravelQuestion;
         confirmLabel.text = Presentation.PuzzleTravelConfirm;
         cancelLabel.text = Presentation.PuzzleTravelCancel;
         base.Awake();
+    }
+
+    static void CenterTravelCard(GameObject card)
+    {
+        if (!card || !(card.transform is RectTransform rect)) return;
+        // Card contents retain their authored size; only placement follows the map center.
+        rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(0.5f, 0.5f);
+        rect.anchoredPosition = Vector2.zero;
     }
 
     protected override void OnEnable()
