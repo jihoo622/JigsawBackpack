@@ -427,7 +427,7 @@ public sealed partial class PuzzleInventoryService
         return false;
     }
 
-    // 화차의 의뢰 화물을 의뢰 게시판에 놓았다. 목적지면 완료, 의뢰를 받은 도시면 취소, 그 밖의 도시면 거부한다.
+    // 화차의 의뢰 화물을 의뢰 게시판에 놓았다. 목적지면 완료, 의뢰를 받은 방문 중(역을 떠나기 전)이면 취소, 그 밖에는 거부한다.
     // _slot은 게시판에 놓은 자리(잡은 칸·놓은 칸·회전). 취소로 의뢰가 게시판에 다시 걸릴 때 그 자리에 놓는다(안 맞으면 빈자리).
     internal bool TryReturnQuestCargo(PuzzlePlacement _cargo, out bool _cancelled, out string _failureReason,
         (Vector2Int GrabbedCell, Vector2Int TargetCell, int ClockwiseTurns)? _slot = null)
@@ -435,7 +435,7 @@ public sealed partial class PuzzleInventoryService
         _cancelled = false;
         var quest = ActiveQuestForCargo(_cargo);
         if (quest != null && !string.Equals(quest.TargetCityId, CurrentCityId, StringComparison.Ordinal) &&
-            string.Equals(quest.SourceCityId, CurrentCityId, StringComparison.Ordinal))
+            CanCancelQuestNow(quest))
         {
             _cancelled = TryCancelQuest(quest, _cargo, out _failureReason, _slot);
             return _cancelled;
@@ -451,9 +451,15 @@ public sealed partial class PuzzleInventoryService
             return true;
         }
         var quest = ActiveQuestForCargo(_cargo);
-        return quest != null && RunStatus == PuzzleRunStatus.InProgress &&
-            string.Equals(quest.SourceCityId, CurrentCityId, StringComparison.Ordinal) &&
+        return quest != null && RunStatus == PuzzleRunStatus.InProgress && CanCancelQuestNow(quest) &&
             TryFindQuestCargo(quest, out var cargo) && ReferenceEquals(cargo, _cargo);
+    }
+
+    // 취소는 시장 되사기처럼 의뢰를 받은 방문 동안만(그 역을 떠나기 전까지) 된다. 다시 찾아와도 취소할 수 없다.
+    bool CanCancelQuestNow(TrainventoryQuest _quest)
+    {
+        return string.Equals(_quest.SourceCityId, CurrentCityId, StringComparison.Ordinal) &&
+            _quest.AcceptedMoveCount == CityMoveCount;
     }
 
     TrainventoryQuest ActiveQuestForCargo(PuzzlePlacement _cargo)
@@ -474,7 +480,7 @@ public sealed partial class PuzzleInventoryService
     }
 
     // 의뢰를 받은 도시에서 의뢰 화물을 내려놓아 취소한다. 화물을 내리고 보증금을 돌려주며 지역 불이익은 없다.
-    // 같은 방문 안이면 그 의뢰를 게시판에 되돌려 다시 받을 수 있다(다른 방문에서는 게시판 목록이 새로 만들어졌으므로 되돌리지 않는다).
+    // 의뢰를 받은 방문 동안(역을 떠나기 전)만 되고, 그 의뢰는 게시판에 되돌려 다시 받을 수 있다.
     internal bool TryCancelQuest(TrainventoryQuest _quest, PuzzlePlacement _cargo, out string _failureReason,
         (Vector2Int GrabbedCell, Vector2Int TargetCell, int ClockwiseTurns)? _slot = null)
     {
@@ -484,7 +490,7 @@ public sealed partial class PuzzleInventoryService
             _failureReason = "unavailable";
             return false;
         }
-        if (!string.Equals(_quest.SourceCityId, CurrentCityId, StringComparison.Ordinal))
+        if (!CanCancelQuestNow(_quest))
         {
             _failureReason = Presentation.QuestDropWrongCity(Presentation.QuestCityName(_quest.TargetCityId));
             return false;
@@ -500,8 +506,7 @@ public sealed partial class PuzzleInventoryService
         PruneAnimalStates();
         Funds = checked(Funds + _quest.Deposit);
         _quest.Finish(TrainventoryQuestState.Cancelled, TrainventoryQuestFailure.None, 0, Time.ElapsedHours);
-        if (_quest.Offer != null && _quest.AcceptedMoveCount == CityMoveCount && questOfferVisit == CityMoveCount &&
-            !questOffers.Contains(_quest.Offer))
+        if (_quest.Offer != null && questOfferVisit == CityMoveCount && !questOffers.Contains(_quest.Offer))
         {
             questOffers.Add(_quest.Offer);
             if (_slot.HasValue)
