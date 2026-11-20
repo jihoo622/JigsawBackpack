@@ -824,7 +824,9 @@ public static partial class Presentation
         {
             return BasicData.Format("presentation.quest.cardRewardValue", _offer.Reward);
         }
-        string wagon = WagonRewardName(_offer.RewardWagonProductId);
+        var product = TableManager.Instance.PuzzleTrade.wagonProducts.First(_product => _product.id == _offer.RewardWagonProductId);
+        string wagon = EntityLink(EntityLinkKind.Wagon, product.id,
+            BasicData.Format("presentation.quest.cardWagonName", WagonUsableCells(product)));
         return _offer.Reward == 0
             ? BasicData.Format("presentation.quest.cardWagonRewardValue", wagon)
             : BasicData.Format("presentation.quest.cardRewardWithWagonValue", _offer.Reward, wagon);

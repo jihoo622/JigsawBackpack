@@ -143,13 +143,16 @@ public static class RelayoutS6Builder
             SetAnchored(detailTitle.rectTransform, 0f, 1f, 1f, 1f, 12f, -10f, -24f, 24f);
 
             const float STAT_TOP = 40f, STAT_H = 44f, STAT_GAP = 8f, CARD_INNER = 572f;
-            float statW = (CARD_INNER - STAT_GAP * 3f) / 4f;
+            float[] statWeights = { 0.22f, 0.22f, 0.34f, 0.22f };
+            float statX = 12f;
             var statLabels = new TextMeshProUGUI[4];
             var statValues = new TextMeshProUGUI[4];
             for (int i = 0; i < 4; i++)
             {
                 var cell = NewRect("Stat_" + i, detailRoot);
-                SetAnchored(cell, 0f, 1f, 0f, 1f, 12f + i * (statW + STAT_GAP), -STAT_TOP, statW, STAT_H);
+                float statW = (CARD_INNER - STAT_GAP * 3f) * statWeights[i];
+                SetAnchored(cell, 0f, 1f, 0f, 1f, statX, -STAT_TOP, statW, STAT_H);
+                statX += statW + STAT_GAP;
                 var cellImg = cell.gameObject.AddComponent<Image>();
                 cellImg.color = _palette.Panel;
                 cellImg.raycastTarget = false;
@@ -166,6 +169,10 @@ public static class RelayoutS6Builder
                 SetAnchored(statValues[i].rectTransform, 0f, 1f, 1f, 1f, 8f, -20f, -16f, 22f);
             }
             // 보수는 금색으로 강조한다.
+            statLabels[2].rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 16f);
+            statValues[2].fontSize = 13f;
+            statValues[2].enableAutoSizing = false;
+            SetAnchored(statValues[2].rectTransform, 0f, 1f, 1f, 1f, 8f, -20f, -16f, 22f);
             statValues[2].color = _palette.GoldAccent;
             BindPalette(statValues[2].gameObject, _palette, UIPalette.ColorRole.GoldAccent);
             TextLinkHandler.Attach(statValues[2]);

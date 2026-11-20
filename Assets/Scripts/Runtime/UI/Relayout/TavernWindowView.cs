@@ -34,6 +34,27 @@ public sealed class TavernWindowView : MonoBehaviour
     // 의뢰 카드·소문 글자의 도시·지역·화차 이름은 고유명사 링크다. 눌러서 지도로 가거나 올려서 미리보기를 보려면 링크 처리기가 있어야 한다.
     void Awake()
     {
+        // 기존 프리팹에서도 보수와 화물 가치를 한 줄로 표시한다.
+        if (detailRoot && detailRoot.transform.parent is RectTransform card)
+            card.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 124f);
+        if (questBoardView && questBoardView.transform is RectTransform board)
+            board.offsetMin = new Vector2(board.offsetMin.x, 140f);
+        if (detailPenalty)
+            detailPenalty.rectTransform.anchoredPosition = new Vector2(detailPenalty.rectTransform.anchoredPosition.x, -92f);
+        if (detailStatValues != null)
+            foreach (var value in detailStatValues)
+                if (value && value.transform.parent is RectTransform cell)
+                    cell.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 44f);
+        if (detailStatLabels != null && detailStatLabels.Length > 2 && detailStatLabels[2])
+            detailStatLabels[2].rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 16f);
+        if (detailStatValues != null && detailStatValues.Length > 2 && detailStatValues[2])
+        {
+            var reward = detailStatValues[2];
+            reward.fontSize = 13f;
+            reward.enableAutoSizing = false;
+            reward.rectTransform.anchoredPosition = new Vector2(reward.rectTransform.anchoredPosition.x, -20f);
+            reward.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 22f);
+        }
         TextLinkHandler.Attach(rumorText);
         TextLinkHandler.Attach(hintText);
         TextLinkHandler.Attach(detailTitle);
@@ -45,6 +66,30 @@ public sealed class TavernWindowView : MonoBehaviour
             }
         }
         TextLinkHandler.Attach(detailPenalty);
+        LayoutQuestStats();
+    }
+
+    void LayoutQuestStats()
+    {
+        if (!detailRoot || detailStatValues == null || detailStatValues.Length < 4)
+            return;
+        // 네 칸의 균형을 유지하면서 보수에만 여유 너비를 조금 더 준다.
+        float[] weights = { 0.22f, 0.22f, 0.34f, 0.22f };
+        float width = ((RectTransform)detailRoot.transform).rect.width;
+        float available = (width > 0f ? width : 596f) - 48f;
+        float x = 12f;
+        for (int i = 0; i < 4; i++)
+        {
+            float cellWidth = available * weights[i];
+            if (detailStatValues[i] && detailStatValues[i].transform.parent is RectTransform cell)
+            {
+                cell.anchorMin = cell.anchorMax = new Vector2(0f, 1f);
+                cell.pivot = new Vector2(0f, 1f);
+                cell.anchoredPosition = new Vector2(x, -40f);
+                cell.sizeDelta = new Vector2(cellWidth, 44f);
+            }
+            x += cellWidth + 8f;
+        }
     }
 
     void Start()
@@ -137,6 +182,7 @@ public sealed class TavernWindowView : MonoBehaviour
             return;
         }
         SetDetailVisible(true);
+        LayoutQuestStats();
         if (detailTitle)
         {
             detailTitle.text = Presentation.QuestCardTitle(_offer);
