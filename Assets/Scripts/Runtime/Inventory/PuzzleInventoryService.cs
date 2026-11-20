@@ -421,7 +421,8 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
     }
     public PuzzleInventory Market => markets[CurrentCityId];
     public string CurrentCityId => currentCityId;
-    internal PuzzleCityData CityData => tables.CityPrice(CurrentCityId);
+    // Initialize 전(테이블 미준비)에는 null이다. 씬의 UI가 OnEnable에서 먼저 물어볼 수 있다.
+    internal PuzzleCityData CityData => tables == null ? null : tables.CityPrice(CurrentCityId);
     public long Funds { get; private set; }
     // 목표 잔액. 영업 기간(14일)이 끝나 결산할 때의 잔액이 점수다.
     public long TargetFunds => tables.PuzzleTrade.targetFunds;

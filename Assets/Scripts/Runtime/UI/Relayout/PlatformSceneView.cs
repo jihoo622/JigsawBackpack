@@ -17,12 +17,14 @@ public sealed class PlatformSceneView : MonoBehaviour
     void OnEnable()
     {
         GameEvents.CityArrived += OnCityArrived;
+        GameEvents.PuzzleRunStarted += OnRunStarted;
         RefreshSign();
     }
 
     void OnDisable()
     {
         GameEvents.CityArrived -= OnCityArrived;
+        GameEvents.PuzzleRunStarted -= OnRunStarted;
     }
 
     public void SetTraveling(bool _traveling)
@@ -34,6 +36,8 @@ public sealed class PlatformSceneView : MonoBehaviour
     }
 
     void OnCityArrived(GameEvents.CityArrivalInfo _info) => RefreshSign();
+    // 판 시작(서비스 Initialize) 전에 켜지면 도시 정보가 없으므로 시작 시점에 출발 도시 이름을 다시 채운다.
+    void OnRunStarted(GameEvents.PuzzleRunInfo _info) => RefreshSign();
 
     // 간판에 현재 도시의 표시 이름만 보인다. 승강장 번호 문구는 BasicData에 없어 보류 중이다.
     void RefreshSign()
