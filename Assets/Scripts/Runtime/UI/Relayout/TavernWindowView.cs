@@ -31,6 +31,36 @@ public sealed class TavernWindowView : MonoBehaviour
     public event Action RumorRequested;
     public event Action Opened;
 
+    // 의뢰 카드·소문 글자의 도시·지역 이름은 고유명사 링크다. 눌러서 수첩 지도로 가려면 TextLinkHandler가 있어야 한다.
+    void Awake()
+    {
+        EnableEntityLinks(rumorText);
+        EnableEntityLinks(hintText);
+        EnableEntityLinks(detailTitle);
+        EnableEntityLinks(detailPenalty);
+        if (detailStatValues != null)
+        {
+            foreach (var value in detailStatValues)
+            {
+                EnableEntityLinks(value);
+            }
+        }
+    }
+
+    static void EnableEntityLinks(TextMeshProUGUI _text)
+    {
+        if (!_text)
+        {
+            return;
+        }
+        _text.richText = true;
+        _text.raycastTarget = true;
+        if (!_text.TryGetComponent<TextLinkHandler>(out _))
+        {
+            _text.gameObject.AddComponent<TextLinkHandler>();
+        }
+    }
+
     void OnEnable()
     {
         if (rumorButton)

@@ -245,6 +245,12 @@ public sealed class PuzzleMapPresenter : MonoBehaviour
             }
 
             view.FocusCity(_info.cityId);
+            // 미발견(지도에 보이지 않는) 역은 위치만 카메라로 보여 주고 강조·정보는 띄우지 않는다.
+            if (session.CityVisibility(_info.cityId) == PuzzleMapVisibility.Hidden)
+            {
+                ClearInformation();
+                return;
+            }
             ShowCity(_info.cityId);
         }
         else if (hasRegion)
