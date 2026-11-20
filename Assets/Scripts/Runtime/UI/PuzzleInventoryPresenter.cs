@@ -1795,11 +1795,16 @@ public sealed class PuzzleInventoryPresenter : MonoBehaviour
             wagonTooltipEffects.Add(Presentation.PuzzleTooltipEffectDescription(modification.TooltipEffect));
         }
 
+        if (wagonTooltipEffects.Count == 0)
+        {
+            wagonTooltipEffects.Add(Presentation.PuzzleTooltipEffectDescription("특수 기능 없음"));
+        }
+
         string failure = session.WagonSaleFailure(_index);
         string notice = failure == null ? null : Presentation.WagonSaleNotice(failure);
         wagonTooltipView.ShowEntityInfo($"{name} · {wagon.WagonNumber}번", null,
             notice == null ? null : new[] { notice }, _slotAnchor, _statRows: wagonTooltipStats, _aboveAnchor: true,
-            _effectHeader: "효과", _effectLines: wagonTooltipEffects);
+            _effectHeader: BasicData.Text("presentation.quest.wagonEffectsHeader"), _effectLines: wagonTooltipEffects);
     }
 
     void HideWagonTooltip()

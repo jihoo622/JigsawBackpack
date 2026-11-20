@@ -510,7 +510,8 @@ public static partial class Presentation
                         BasicData.Format("presentation.quest.wagonValue", wagon.price)));
                     bool hasEffect = !string.IsNullOrEmpty(wagon.modificationId) || !string.IsNullOrEmpty(wagon.processId) ||
                         (wagon.freightExemptTags?.Length ?? 0) > 0 || (board.zones?.Length ?? 0) > 0;
-                    _lines.Add(BasicData.Format("presentation.quest.wagonEffectLine", hasEffect ? wagon.description : PuzzleTooltipNoEffect()));
+                    _lines.Add(BasicData.Format("presentation.quest.wagonEffectLine",
+                        hasEffect && !string.IsNullOrWhiteSpace(wagon.description) ? wagon.description : "특수 기능 없음"));
                 }
                 break;
             case EntityLinkKind.Tag:

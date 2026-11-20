@@ -20,7 +20,7 @@
         "blockedCells": [],
         "startingPlacements": []
       },
-      "description": "처음 구매하는 5×4 화차. 특수 효과 없음."
+      "description": "첫 구매용 5×4 화차\n특수 기능 없음"
     },
     {
       "id": "hopper",
@@ -47,7 +47,7 @@
         ],
         "startingPlacements": []
       },
-      "description": "광석·금속 전용. 넓은 대신 광석·금속 화물만 실을 수 있다."
+      "description": "광석·금속 전용\n넓은 적재 공간"
     },
     {
       "id": "flatbed",
@@ -60,7 +60,7 @@
         "blockedCells": [],
         "startingPlacements": []
       },
-      "description": "목재·기계 화물은 운임의 적재 칸 수에 넣지 않는다.",
+      "description": "목재·기계 화물의 운임 적재 칸 수 제외",
       "freightExemptTags": [
         "Wood",
         "Machinery"
@@ -76,7 +76,7 @@
         "blockedCells": [],
         "startingPlacements": []
       },
-      "description": "특수 효과 없음."
+      "description": "특수 기능 없음"
     },
     {
       "id": "coldbox",
@@ -90,7 +90,7 @@
         "blockedCells": [],
         "startingPlacements": []
       },
-      "description": "냉장: 같은 객차 신선 화물의 유통기한 소모를 줄인다."
+      "description": "냉장: 같은 객차 신선 화물의 유통기한 소모 감소"
     },
     {
       "id": "livestock",
@@ -116,7 +116,7 @@
         ],
         "startingPlacements": []
       },
-      "description": "아래쪽 1행 4칸은 똥 전용칸이다. 배설된 똥은 전용칸부터 채운다."
+      "description": "아래쪽 1행 4칸: 똥 전용\n배설된 똥은 전용칸에 우선 배치"
     },
     {
       "id": "granary",
@@ -142,7 +142,7 @@
         ],
         "startingPlacements": []
       },
-      "description": "화물만 실을 수 있다."
+      "description": "화물 전용"
     },
     {
       "id": "refrigerated",
@@ -156,7 +156,7 @@
         "blockedCells": [],
         "startingPlacements": []
       },
-      "description": "냉장: 같은 객차 신선 화물의 유통기한 소모를 줄인다."
+      "description": "냉장: 같은 객차 신선 화물의 유통기한 소모 감소"
     },
     {
       "id": "boxcar",
@@ -168,14 +168,14 @@
         "blockedCells": [],
         "startingPlacements": []
       },
-      "description": "특수 효과 없음. 칸이 가장 많다."
+      "description": "최대 적재 칸 수\n특수 기능 없음"
     },
     {
       "id": "garden",
       "saleRegionId": "region.farm",
       "displayName": "텃밭 화차",
       "price": 360,
-      "description": "텃밭: 곡물 1 + 똥 1 → 곡물 3(2턴, 자동 반복). 곡물 4×4칸·똥 1열 전용.",
+      "description": "곡물 4×4칸·똥 1열 전용\n텃밭: 곡물 1 + 똥 1 → 곡물 3(2턴, 자동 반복)",
       "processId": "process.garden",
       "board": {
         "width": 5,
@@ -213,7 +213,7 @@
       "saleRegionId": "region.industry",
       "displayName": "제련 화차",
       "price": 450,
-      "description": "제련: 나무 1칸 + 광석 조각 2 → 금속 주괴 3(15턴, 자동 반복). 나무 5×2·광석 조각 3×3·금속 전용칸.",
+      "description": "나무 5×2·광석 조각 3×3·금속 전용\n제련: 나무 1칸 + 광석 조각 2 → 금속 주괴 3(15턴, 자동 반복)",
       "processId": "process.smelt",
       "board": {
         "width": 7,
@@ -274,7 +274,7 @@
       "saleRegionId": "region.mine",
       "displayName": "분쇄 화차",
       "price": 300,
-      "description": "분쇄: 여러 칸 광석을 1칸 광석 조각으로 나눈다(칸당 2턴, 자동 반복). 광석 전용.",
+      "description": "광석 전용\n분쇄: 여러 칸 광석 → 칸 수만큼 1칸 광석 조각(칸당 2턴, 자동 반복)",
       "processId": "process.crush",
       "board": {
         "width": 5,
@@ -300,7 +300,7 @@
       "id": "questReward.4",
       "displayName": "4칸 보상 화차",
       "price": 40,
-      "description": "의뢰 보상용 2×2 화차. 특수 효과 없음. 보상 산정 가치: 40원.",
+      "description": "의뢰 보상용 2×2 화차\n특수 기능 없음\n보상 산정 가치: 40원",
       "board": {
         "width": 2,
         "height": 2,
@@ -312,7 +312,7 @@
       "id": "questReward.6",
       "displayName": "6칸 보상 화차",
       "price": 60,
-      "description": "의뢰 보상용 3×2 화차. 특수 효과 없음. 보상 산정 가치: 60원.",
+      "description": "의뢰 보상용 3×2 화차\n특수 기능 없음\n보상 산정 가치: 60원",
       "board": {
         "width": 3,
         "height": 2,
@@ -324,7 +324,7 @@
       "id": "questReward.8",
       "displayName": "8칸 보상 화차",
       "price": 80,
-      "description": "의뢰 보상용 4×2 화차. 특수 효과 없음. 보상 산정 가치: 80원.",
+      "description": "의뢰 보상용 4×2 화차\n특수 기능 없음\n보상 산정 가치: 80원",
       "board": {
         "width": 4,
         "height": 2,
@@ -336,7 +336,7 @@
       "id": "questReward.10",
       "displayName": "10칸 보상 화차",
       "price": 100,
-      "description": "의뢰 보상용 5×2 화차. 특수 효과 없음. 보상 산정 가치: 100원.",
+      "description": "의뢰 보상용 5×2 화차\n특수 기능 없음\n보상 산정 가치: 100원",
       "board": {
         "width": 5,
         "height": 2,
