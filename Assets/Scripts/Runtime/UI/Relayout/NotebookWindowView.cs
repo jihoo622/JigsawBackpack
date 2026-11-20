@@ -622,7 +622,8 @@ public sealed class NotebookWindowView : MonoBehaviour
             frame.layer = gameObject.layer;
             expandedMapFrame = (RectTransform)frame.transform;
             expandedMapFrame.SetParent(expandedMapLayer, false);
-            expandedMapFrame.sizeDelta = new Vector2(1084f, 780f);
+            expandedMapSize = ExpandedMapSize(expandedMapLayer.rect.size);
+            expandedMapFrame.sizeDelta = expandedMapSize;
             frame.GetComponent<Image>().color = new Color(0.06f, 0.09f, 0.14f, 1f);
             mapTabContent.transform.SetParent(expandedMapFrame, false);
             var content = (RectTransform)mapTabContent.transform;
@@ -676,12 +677,26 @@ public sealed class NotebookWindowView : MonoBehaviour
         if (mapExpandButton) mapExpandButton.transform.SetAsLastSibling();
     }
 
+    // 크게 보기 창은 화면(부동 창 캔버스)에서 좌우 40, 위 상단 정보 바 몫을 뺀 만큼 채운다. 최소는 원래 배치 1084 x 780.
+    // 창을 띄운 뒤 화면이 작아지면 비율로 줄인다(FitExpandedMapFrame).
+    const float EXPANDED_MIN_WIDTH = 1084f;
+    const float EXPANDED_MIN_HEIGHT = 780f;
+    const float EXPANDED_SIDE_MARGIN = 80f;
+    const float EXPANDED_VERTICAL_MARGIN = 112f;
+    Vector2 expandedMapSize = new Vector2(EXPANDED_MIN_WIDTH, EXPANDED_MIN_HEIGHT);
+
+    static Vector2 ExpandedMapSize(Vector2 _available)
+    {
+        return new Vector2(Mathf.Max(EXPANDED_MIN_WIDTH, _available.x - EXPANDED_SIDE_MARGIN),
+            Mathf.Max(EXPANDED_MIN_HEIGHT, _available.y - EXPANDED_VERTICAL_MARGIN));
+    }
+
     void FitExpandedMapFrame()
     {
         if (!mapExpanded || !expandedMapLayer) return;
         var available = expandedMapLayer.rect.size;
-        float scale = Mathf.Min(1f, Mathf.Min(Mathf.Max(1f, available.x - 80f) / 1084f,
-            Mathf.Max(1f, available.y - 112f) / 780f));
+        float scale = Mathf.Min(1f, Mathf.Min(Mathf.Max(1f, available.x - EXPANDED_SIDE_MARGIN) / expandedMapSize.x,
+            Mathf.Max(1f, available.y - EXPANDED_VERTICAL_MARGIN) / expandedMapSize.y));
         expandedMapFrame.localScale = Vector3.one * scale;
         expandedMapFrame.anchorMin = expandedMapFrame.anchorMax = expandedMapFrame.pivot = new Vector2(0.5f, 0.5f);
         expandedMapFrame.anchoredPosition = Vector2.zero;
@@ -691,32 +706,36 @@ public sealed class NotebookWindowView : MonoBehaviour
     {
         var panel = embeddedMapView ? embeddedMapView.GetComponentsInChildren<RectTransform>(true) : null;
         if (panel == null) return;
+        // PuzzleWorldMap.prefab의 1084 x 780 배치를 기준으로, 창이 커진 만큼 지도 화면(가로·세로)과 아래 줄들의 위치를 늘린다.
+        float w = expandedMapSize.x;
+        float h = expandedMapSize.y;
+        float inner = w - 48f;
+        float viewportHeight = h - 198f;
         foreach (var rt in panel)
         {
-            // Original 1084 x 780 right action-panel layout from PuzzleWorldMap.prefab.
             switch (rt.name)
             {
-                case "MapSearch": SetExpandedRect(rt, 694, -14, 214, 36); break;
-                case "MapLegend": SetExpandedRect(rt, 24, -64, 1036, 40); break;
-                case "MapViewport": SetExpandedRect(rt, 24, -112, 1036, 582); break;
-                case "CityInformation": SetExpandedRect(rt, 24, -702, 1036, 26); break;
-                case "MapControls": SetExpandedRect(rt, 24, -734, 1036, 40); break;
-                case "MapTradePreferences": SetExpandedRect(rt, 24, -650, 1036, 56); break;
-                case "CityQuestInformation": SetExpandedRect(rt, 24, -708, 1036, 22); break;
+                case "MapSearch": SetExpandedRect(rt, w - 390f, -14, 214, 36); break;
+                case "MapLegend": SetExpandedRect(rt, 24, -64, inner, 40); break;
+                case "MapViewport": SetExpandedRect(rt, 24, -112, inner, viewportHeight); break;
+                case "CityInformation": SetExpandedRect(rt, 24, -(h - 78f), inner, 26); break;
+                case "MapControls": SetExpandedRect(rt, 24, -(h - 46f), inner, 40); break;
+                case "MapTradePreferences": SetExpandedRect(rt, 24, -(h - 130f), inner, 56); break;
+                case "CityQuestInformation": SetExpandedRect(rt, 24, -(h - 72f), inner, 22); break;
                 case "ZoomOut": SetExpandedRect(rt, -294, 0, 64, 40, true); break;
                 case "ZoomPercent": SetExpandedRect(rt, -206, 0, 100, 40, true); break;
                 case "ZoomIn": SetExpandedRect(rt, -118, 0, 64, 40, true); break;
                 case "FitMap": SetExpandedRect(rt, 56, 0, 216, 40, true); break;
                 case "LocateCurrent": SetExpandedRect(rt, 304, 0, 216, 40, true); break;
                 // 경로 계획은 크게 보기에서도 지도 화면(MapViewport) 영역에 맞춰 카드가 그 우하단에 오게 한다.
-                case "RoutePlan": SetExpandedRect(rt, 24, -112, 1036, 582); break;
+                case "RoutePlan": SetExpandedRect(rt, 24, -112, inner, viewportHeight); break;
                 case "MapTravelPanel":
                     compactMapRects.Add(new MapRectState(rt));
                     rt.anchorMin = Vector2.zero; rt.anchorMax = Vector2.one;
                     rt.offsetMin = rt.offsetMax = Vector2.zero;
                     break;
                 case "TooltipClip":
-                    SetExpandedRect(rt, 24, -112, 1036, 582);
+                    SetExpandedRect(rt, 24, -112, inner, viewportHeight);
                     break;
             }
         }
