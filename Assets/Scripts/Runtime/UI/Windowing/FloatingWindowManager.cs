@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 
 // FloatingWindowCanvas에 부착해 모든 부동 창의 스냅 대상, 일괄 초기화, 배경만 보기, Esc 닫기를 관리한다.
@@ -9,48 +10,41 @@ public sealed class FloatingWindowManager : MonoBehaviour
     readonly List<FloatingWindow> windows = new List<FloatingWindow>();
     readonly List<FloatingWindow> hiddenWindows = new List<FloatingWindow>();
     readonly List<Rect> scratchRects = new List<Rect>();
+    readonly List<RaycastResult> raycastHits = new List<RaycastResult>();
+    PointerEventData pointerData;
 
     bool backgroundOnly;
 
     public bool IsBackgroundOnly => backgroundOnly;
 
-    Canvas rootCanvas;
-
     void Awake()
     {
         DiscoverChildWindows();
-        var canvas = GetComponentInParent<Canvas>();
-        rootCanvas = canvas ? canvas.rootCanvas : null;
     }
 
     // 창을 누르면(제목줄·버튼·보드 어디든) 그 창을 맨 앞으로 올린다. 마지막으로 누른 창이 가장 위에 겹친다.
-    // 창 안의 버튼·보드가 누름 이벤트를 먼저 받아 창의 OnPointerDown이 불리지 않는 경우가 있어, 누른 순간 포인터 아래의 가장 위 창을 직접 찾는다.
+    // 창 안의 버튼·보드가 누름 이벤트를 먼저 받아 창의 OnPointerDown이 불리지 않는 경우가 있어, 누른 순간 포인터 아래의 가장 위 UI를 직접 찾는다.
+    // 창 영역이 아니라 실제로 가장 위에 그려진 UI를 기준으로 한다. 수첩 지도 크게 보기 레이어처럼 창 위를 덮은 화면을 누르면 그 아래 창을 올리지 않는다.
     void Update()
     {
         var pointer = Pointer.current;
-        if (pointer == null || !pointer.press.wasPressedThisFrame)
+        var eventSystem = EventSystem.current;
+        if (pointer == null || !pointer.press.wasPressedThisFrame || !eventSystem)
         {
             return;
         }
-        Vector2 screenPos = pointer.position.ReadValue();
-        Camera cam = rootCanvas && rootCanvas.renderMode != RenderMode.ScreenSpaceOverlay ? rootCanvas.worldCamera : null;
-        FloatingWindow top = null;
-        int topIndex = -1;
-        for (int i = 0; i < windows.Count; i++)
+        pointerData ??= new PointerEventData(eventSystem);
+        pointerData.Reset();
+        pointerData.position = pointer.position.ReadValue();
+        raycastHits.Clear();
+        eventSystem.RaycastAll(pointerData, raycastHits);
+        if (raycastHits.Count == 0 || !raycastHits[0].gameObject)
         {
-            var win = windows[i];
-            if (!win || !win.IsOpen || !win.gameObject.activeInHierarchy)
-            {
-                continue;
-            }
-            int index = win.transform.GetSiblingIndex();
-            if (index > topIndex && RectTransformUtility.RectangleContainsScreenPoint((RectTransform)win.transform, screenPos, cam))
-            {
-                top = win;
-                topIndex = index;
-            }
+            return;
         }
-        if (top && topIndex != top.transform.parent.childCount - 1)
+        var top = raycastHits[0].gameObject.GetComponentInParent<FloatingWindow>();
+        if (top && windows.Contains(top) && top.IsOpen &&
+            top.transform.GetSiblingIndex() != top.transform.parent.childCount - 1)
         {
             top.BringToFront();
         }

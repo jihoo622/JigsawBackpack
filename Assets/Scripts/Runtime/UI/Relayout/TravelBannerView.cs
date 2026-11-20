@@ -31,8 +31,24 @@ public sealed class TravelBannerView : MonoBehaviour
     internal event Action Confirmed;
     internal event Action Canceled;
 
+    // 역 이동 확인·진행 팝업은 게임 화면의 모든 UI(부동 창 50, 지도 크게 보기, 결산 200, 툴팁 270~272, 우클릭 메뉴 280,
+    // 목표 안내·작업 대기 290) 위에 그린다. 일시정지 메뉴(PauseCanvas 300)만 이보다 위다.
+    const int SORTING_ORDER = 295;
+
     void Awake()
     {
+        // 자기 Canvas로 정렬 순서를 덮어쓴다. 중첩 Canvas는 입력을 받으려면 GraphicRaycaster가 따로 있어야 한다.
+        var ownCanvas = GetComponent<Canvas>();
+        if (!ownCanvas)
+        {
+            ownCanvas = gameObject.AddComponent<Canvas>();
+        }
+        ownCanvas.overrideSorting = true;
+        ownCanvas.sortingOrder = SORTING_ORDER;
+        if (!GetComponent<GraphicRaycaster>())
+        {
+            gameObject.AddComponent<GraphicRaycaster>();
+        }
         if (questionText) questionText.text = Presentation.PuzzleTravelQuestion;
         if (confirmLabel) confirmLabel.text = Presentation.PuzzleTravelConfirm;
         if (cancelLabel) cancelLabel.text = Presentation.PuzzleTravelCancel;
