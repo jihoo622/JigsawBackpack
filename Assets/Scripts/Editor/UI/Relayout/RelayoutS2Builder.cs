@@ -326,10 +326,7 @@ public static class RelayoutS2Builder
 
             var nbBtn = CreatePillButton(_buttonTemplate, _labelTemplate, rootRect, "NotebookButton",
                 8f, 5f, 92f, 28f, "수첩 (N)", 14f, _palette, out var nbLbl);
-            var mapBtn = CreatePillButton(_buttonTemplate, _labelTemplate, rootRect, "MapButton",
-                106f, 5f, 102f, 28f, "노선도 (M)", 14f, _palette, out var mapLbl);
-            var bgBtn = CreatePillButton(_buttonTemplate, _labelTemplate, rootRect, "BackgroundOnlyButton",
-                214f, 5f, 104f, 28f, "배경만 보기", 14f, _palette, out var bgLbl);
+            // 노선도·배경만 보기는 버튼 없이 단축키(M·H)로만 쓴다(R44). 오른쪽 단축키 안내에 적는다.
             var resetBtn = CreatePillButton(_buttonTemplate, _labelTemplate, rootRect, "ResetLayoutButton",
                 324f, 5f, 114f, 28f, "창 배치 초기화", 14f, _palette, out var resetLbl);
 
@@ -342,10 +339,10 @@ public static class RelayoutS2Builder
             var so = new SerializedObject(view);
             so.FindProperty("notebookButton").objectReferenceValue = nbBtn;
             so.FindProperty("notebookLabel").objectReferenceValue = nbLbl;
-            so.FindProperty("mapButton").objectReferenceValue = mapBtn;
-            so.FindProperty("mapLabel").objectReferenceValue = mapLbl;
-            so.FindProperty("backgroundOnlyButton").objectReferenceValue = bgBtn;
-            so.FindProperty("backgroundOnlyLabel").objectReferenceValue = bgLbl;
+            so.FindProperty("mapButton").objectReferenceValue = null;
+            so.FindProperty("mapLabel").objectReferenceValue = null;
+            so.FindProperty("backgroundOnlyButton").objectReferenceValue = null;
+            so.FindProperty("backgroundOnlyLabel").objectReferenceValue = null;
             so.FindProperty("resetLayoutButton").objectReferenceValue = resetBtn;
             so.FindProperty("resetLayoutLabel").objectReferenceValue = resetLbl;
             so.FindProperty("shortcutHintLabel").objectReferenceValue = hintLbl;

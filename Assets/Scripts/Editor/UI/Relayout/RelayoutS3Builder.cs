@@ -321,7 +321,10 @@ public static class RelayoutS3Builder
         var lbl = CreateLabel(_labelTemplate, carRect, "Label", 9f,
             TextAlignmentOptions.Center, _palette, UIPalette.ColorRole.Text);
         lbl.enableWordWrapping = false;
-        lbl.enableAutoSizing = false;
+        // 화차 칸 수·가치 자릿수가 늘면 한 줄이 칸보다 길어진다. 9pt에서 7pt까지 줄여 칸 안에 맞춘다.
+        lbl.enableAutoSizing = true;
+        lbl.fontSizeMin = 7f;
+        lbl.fontSizeMax = 9f;
         lbl.overflowMode = TextOverflowModes.Ellipsis;
         SetTopLeftRect(lbl.rectTransform, 2f, 62f, 77f, 14f);
 

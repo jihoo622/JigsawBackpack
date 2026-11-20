@@ -76,6 +76,11 @@ public sealed class QuickToolbarView : MonoBehaviour
         {
             OnLensClicked();
         }
+        // 배경만 보기는 버튼 없이 H 키로만 켜고 끈다.
+        else if (kb.hKey.wasPressedThisFrame)
+        {
+            OnBackgroundOnlyClicked();
+        }
     }
 
     void OnTextInputFocusChanged(GameEvents.TextInputFocusInfo _info)

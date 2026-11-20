@@ -473,18 +473,28 @@ public static class RelayoutS5Builder
             var qtView = root.GetComponent<QuickToolbarView>();
             var so = new SerializedObject(qtView);
 
+            // 노선도·배경만 보기 버튼은 없앴다(단축키 M·H만 유지, R44). 수첩 · 렌즈 · 창 배치 초기화 · 단축키 안내 순서, 간격 4.
+            foreach (var removed in new[] { "MapButton", "BackgroundOnlyButton" })
+            {
+                var old = root.transform.Find(removed);
+                if (old) Object.DestroyImmediate(old.gameObject);
+            }
+            so.FindProperty("mapButton").objectReferenceValue = null;
+            so.FindProperty("mapLabel").objectReferenceValue = null;
+            so.FindProperty("backgroundOnlyButton").objectReferenceValue = null;
+            so.FindProperty("backgroundOnlyLabel").objectReferenceValue = null;
             RepositionToolbarChild(root.transform, "NotebookButton", 8f, 80f);
-            RepositionToolbarChild(root.transform, "MapButton", 92f, 88f);
-            RepositionToolbarChild(root.transform, "BackgroundOnlyButton", 266f, 96f);
-            RepositionToolbarChild(root.transform, "ResetLayoutButton", 366f, 104f);
-            RepositionToolbarChild(root.transform, "ShortcutHint", 474f, 28f); // 오른쪽 여백 8px
+            RepositionToolbarChild(root.transform, "ResetLayoutButton", 174f, 104f);
+            RepositionToolbarChild(root.transform, "ShortcutHint", 286f, 216f); // 오른쪽 여백 8px
 
             var oldLens = root.transform.Find("LensButton");
             if (oldLens) Object.DestroyImmediate(oldLens.gameObject);
 
             var lensBtn = CreateSmallButton(_buttonTemplate, _labelTemplate, rootRect, "LensButton",
-                184f, 5f, 78f, 28f, Presentation.QuickToolbarLens, 13f, _palette);
+                92f, 5f, 78f, 28f, Presentation.QuickToolbarLens, 14f, _palette);
             var lensLbl = lensBtn.GetComponentInChildren<TextMeshProUGUI>(true);
+            // 다른 도구줄 버튼(수첩·창 배치 초기화)과 같은 굵은 14pt로 맞춘다.
+            lensLbl.fontStyle = FontStyles.Bold;
 
             so.FindProperty("lensButton").objectReferenceValue = lensBtn;
             so.FindProperty("lensLabel").objectReferenceValue = lensLbl;
