@@ -131,7 +131,7 @@ public struct PuzzleProficiencyPayload
 [Serializable]
 public struct PuzzleRumorPayload
 {
-    public string kind, targetCityId, tag, itemId, actionId;
+    public string kind, targetCityId, tag, itemId, actionId, wagonProductId;
     public long elapsedHours;
 }
 

@@ -63,7 +63,12 @@ public sealed class TrainventoryQuestDetailView : MonoBehaviour
         }
         if (rewardLabel)
         {
-            rewardLabel.text = Presentation.QuestDetailReward(_offer.Reward, _offer.ProficiencyTag, _offer.ProficiencyXp);
+            rewardLabel.richText = true;
+            rewardLabel.raycastTarget = true;
+            if (!rewardLabel.TryGetComponent<TextLinkHandler>(out _))
+                rewardLabel.gameObject.AddComponent<TextLinkHandler>();
+            rewardLabel.text = Presentation.QuestDetailReward(_offer.Reward, _offer.ProficiencyTag, _offer.ProficiencyXp,
+                _offer.RewardWagonProductId);
         }
         if (depositLabel)
         {

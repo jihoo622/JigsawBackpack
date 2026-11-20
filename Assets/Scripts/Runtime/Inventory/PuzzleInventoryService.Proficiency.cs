@@ -267,6 +267,8 @@ public sealed partial class PuzzleInventoryService
             int previousLevel = LevelForXp(before);
             long after = before > long.MaxValue - gained ? long.MaxValue : before + gained;
             proficiencyXp[tag] = after;
+            if (_source != TrainventoryProficiencySource.Quest)
+                ReceivePendingQuestWagons();
             // 레벨이 바뀐 뒤 이벤트 구독자가 보강치가 반영된 평가를 읽도록 먼저 다시 계산한다.
             RefreshValuations();
             GameEvents.RaiseProficiencyChanged(new GameEvents.ProficiencyInfo(this, tag, _source.ToString(), gained, after,

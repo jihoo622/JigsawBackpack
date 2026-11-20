@@ -16,12 +16,13 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
     IReadOnlyList<PuzzleSynergyRuleData> marketRules;
     int lastInstanceId;
     int lastWagonNumber;
-    bool tutorialWagonPurchased;
     string currentCityId;
     readonly HashSet<string> visitedCities = new HashSet<string>(StringComparer.Ordinal);
     readonly List<TavernRumor> tavernRumors = new List<TavernRumor>();
     int lastRumorVisit = -1;
     System.Random stockRandom = new System.Random();
+    System.Random wagonShopRandom = new System.Random();
+    readonly Dictionary<string, IReadOnlyList<PuzzleWagonProductData>> wagonShops = new(StringComparer.Ordinal);
 
     internal readonly struct TavernRumor
     {
@@ -34,10 +35,11 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         // 희귀 소문은 수요 태그, 특산 소문은 대상 마을의 특산 태그다.
         public readonly string Tag;
         public readonly string ActionId;
+        public readonly string WagonProductId;
         public readonly long RecordedHours;
 
         public TavernRumor(PuzzleRumorKind _kind, string _targetCityId, string _sourceCityId, string _message,
-            string _itemId, string _tag, string _actionId, long _recordedHours)
+            string _itemId, string _tag, string _actionId, long _recordedHours, string _wagonProductId = null)
         {
             Kind = _kind;
             TargetCityId = _targetCityId;
@@ -46,6 +48,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
             ItemId = _itemId ?? string.Empty;
             Tag = _tag ?? string.Empty;
             ActionId = _actionId ?? string.Empty;
+            WagonProductId = _wagonProductId ?? string.Empty;
             RecordedHours = _recordedHours;
         }
     }
@@ -69,10 +72,10 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         if (lastRumorVisit != CityMoveCount)
         {
             tavernRumors.Add(new TavernRumor(_candidate.Kind, _candidate.CityId, CurrentCityId, _message,
-                _candidate.ItemId, _candidate.Tag, _candidate.ActionId, Time.ElapsedHours));
+                _candidate.ItemId, _candidate.Tag, _candidate.ActionId, Time.ElapsedHours, _candidate.WagonProductId));
             lastRumorVisit = CityMoveCount;
             GameEvents.RaiseTavernRumorRecorded(this, CurrentCityId, _candidate.CityId, _message,
-                Time.ElapsedHours, _candidate.Tag, _candidate.Kind, _candidate.ItemId, _candidate.ActionId);
+                Time.ElapsedHours, _candidate.Tag, _candidate.Kind, _candidate.ItemId, _candidate.ActionId, _candidate.WagonProductId);
         }
     }
 
@@ -99,11 +102,9 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
     public PuzzleInventory CurrentTrainWagon => (trainWagons.Count > CurrentWagonIndex && CurrentWagonIndex >= 0) ? trainWagons[CurrentWagonIndex] : null;
     public PuzzleInventory Train => CurrentTrainWagon;
     public int WagonCount => trainWagons.Count;
-    // 튜토리얼 화차를 사기 전에는 모든 역에 이 상품만 진열한다. 구매 후에는 역별 기존 목록을 쓴다.
-    internal IReadOnlyList<PuzzleWagonProductData> WagonProductsHere => tutorialWagonPurchased
-        ? tables.WagonProductsOf(CurrentCityId)
-        : new[] { tables.TutorialWagonProduct };
-    PuzzleWagonProductData CheapestWagonHere => WagonProductsHere.FirstOrDefault();
+    // 처음부터 기본 화차와 회차별 특수 화차를 함께 진열한다. 재방문으로 다시 추첨하지 않는다.
+    internal IReadOnlyList<PuzzleWagonProductData> WagonProductsHere => wagonShops[CurrentCityId];
+    PuzzleWagonProductData CheapestWagonHere => WagonProductsHere.OrderBy(_product => _product.price).FirstOrDefault();
     // 이 역에서 가장 싼 화차의 가격. 화차를 팔지 않는 역이면 0이다.
     public long NextWagonCost => CheapestWagonHere?.price ?? 0;
     // 다음 정산 게이지 예상치용. 실제 6시간 정산(ApplySynergyActivations)이 읽는 평가(Value)와 같은 값을 쓴다.
@@ -332,6 +333,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
                 : CurrentWagonIndex - 1;
         }
         Funds = saleFunds;
+        ReceivePendingQuestWagons();
         GameEvents.RaiseFundsChanged(this, previousFunds);
         RecordAction(PuzzleActionKind.SellWagon, _productId: wagon.WagonProduct?.id, _board: board,
             _wagonOrder: trainWagons.Select(BoardId).ToArray());
@@ -410,8 +412,6 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         Funds -= _cost;
         lastInstanceId = nextInstanceId;
         CurrentWagonIndex = trainWagons.Count - 1;
-        tutorialWagonPurchased |= string.Equals(_productId, tables.PuzzleTrade.tutorialWagonProductId,
-            StringComparison.Ordinal);
         GameEvents.RaiseFundsChanged(this, previousFunds);
         RecordAction(PuzzleActionKind.AddWagon, _productId: _productId, _modificationId: _modificationId);
         return true;
@@ -540,6 +540,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
     {
         stockRandom = new System.Random(_seed);
         questRandom = new System.Random(_seed);
+        wagonShopRandom = new System.Random(_seed);
     }
 
     internal void Initialize()
@@ -557,6 +558,7 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         }
 
         tables = validatedTables;
+        InitializeWagonShops();
         Time = new PuzzleTimeManager(tables.PuzzleTrade.deadlineHours, tables.PuzzleTime);
         lastInstanceId = 0;
         var trainRules = validatedTables.SynergiesFor(PuzzleSynergyScope.Train);
@@ -597,7 +599,6 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         CityMoveCount = 0;
         RunStatus = PuzzleRunStatus.InProgress;
         trainWagons.Clear();
-        tutorialWagonPurchased = false;
         lastWagonNumber = train.WagonNumber = 1;
         train.WagonSalePrice = validatedTables.WagonSalePrice(validatedTables.PuzzleTrade.startingWagonValue);
         trainWagons.Add(train);
@@ -613,6 +614,59 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         IsModificationOpen = false;
         IsRefiningOpen = false;
         GameEvents.RaisePuzzleRunStarted(this);
+    }
+
+#if UNITY_EDITOR
+    // 실제 회차의 추첨 결과를 읽는다.
+    public string[] GetWagonSaleCityIdsForDebug(string _productId)
+    {
+        return wagonShops.Where(_shop => _shop.Value.Any(_product => _product.id == _productId))
+            .Select(_shop => _shop.Key).OrderBy(_id => _id, StringComparer.Ordinal).ToArray();
+    }
+#endif
+
+    void InitializeWagonShops()
+    {
+        wagonShops.Clear();
+        var products = tables.PuzzleTrade.wagonProducts;
+        var generalSpecials = products.Where(_product => _product.randomSale &&
+                string.IsNullOrEmpty(_product.saleRegionId))
+            .OrderBy(_product => _product.id, StringComparer.Ordinal).ToArray();
+        var shops = new Dictionary<string, List<PuzzleWagonProductData>>(StringComparer.Ordinal);
+        foreach (var city in tables.Cities)
+        {
+            // 기존 일반 상품은 남기고 특수 상품만 회차별 추첨으로 교체한다.
+            var shop = tables.WagonProductsOf(city.id)
+                .Where(_product => !_product.randomSale && string.IsNullOrEmpty(_product.saleRegionId)).ToList();
+            if (!shop.Contains(tables.DefaultWagonProduct))
+            {
+                shop.Add(tables.DefaultWagonProduct);
+            }
+            var candidates = generalSpecials.ToList();
+            int count = Math.Min(tables.PuzzleTrade.generalSpecialWagonsPerCity, candidates.Count);
+            for (int i = 0; i < count; i++)
+            {
+                int pick = wagonShopRandom.Next(candidates.Count);
+                shop.Add(candidates[pick]);
+                candidates.RemoveAt(pick);
+            }
+            shops.Add(city.id, shop);
+        }
+        foreach (var product in products.Where(_product => !string.IsNullOrEmpty(_product.saleRegionId))
+                     .OrderBy(_product => _product.id, StringComparer.Ordinal))
+        {
+            var cities = tables.Cities.Where(_city => _city.regionId == product.saleRegionId).ToArray();
+            if (cities.Length > 0)
+            {
+                shops[cities[wagonShopRandom.Next(cities.Length)].id].Add(product);
+            }
+        }
+        foreach (var shop in shops)
+        {
+            wagonShops.Add(shop.Key, shop.Value.OrderBy(_product => _product.id == tables.PuzzleTrade.defaultWagonProductId ? 0 : 1)
+                .ThenBy(_product => _product.price)
+                .ThenBy(_product => _product.id, StringComparer.Ordinal).ToArray());
+        }
     }
 
     // 도시 시장의 유일한 생성 경로. 처음 만들 때와 떠난 도시를 되돌릴 때 같은 경로를 쓴다.

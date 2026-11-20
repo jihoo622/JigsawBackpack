@@ -1267,6 +1267,60 @@
       ],
       "texts": [
         {
+          "id": "wagonReward",
+          "value": "\n화차 보상: {0}",
+          "arguments": 1
+        },
+        {
+          "id": "detailWagonReward",
+          "value": "보수: {0} + 화물 가치 · {1} 숙련 +{2:N0}",
+          "arguments": 3
+        },
+        {
+          "id": "wagonSizeLabel",
+          "value": "크기"
+        },
+        {
+          "id": "wagonSize",
+          "value": "{0} x {1}",
+          "arguments": 2
+        },
+        {
+          "id": "wagonCellsLabel",
+          "value": "사용가능칸"
+        },
+        {
+          "id": "wagonCells",
+          "value": "{0}칸",
+          "arguments": 1
+        },
+        {
+          "id": "wagonValueLabel",
+          "value": "가치"
+        },
+        {
+          "id": "wagonValue",
+          "value": "{0:N0}$",
+          "arguments": 1
+        },
+        {
+          "id": "wagonEffectsHeader",
+          "value": "특수 기능"
+        },
+        {
+          "id": "wagonEffectLine",
+          "value": "• {0}",
+          "arguments": 1
+        },
+        {
+          "id": "wagonReceived",
+          "value": " · 지급 완료"
+        },
+        {
+          "id": "wagonPending",
+          "value": " · 수령 대기 (연결 한도에 여유가 생기면 자동 지급)"
+        },
+        {
           "id": "mapBadge",
           "value": "의뢰 {0}",
           "arguments": 1
@@ -1330,7 +1384,7 @@
         },
         {
           "id": "offer",
-          "value": "<b>{0}</b> → <b>{1}</b>\n최단 {2} · 기한 {3} · 보수 {4}$ + 화물 가치 · {6} 숙련 +{7:N0}\n실패 시 {5}",
+          "value": "<b>{0}</b> → <b>{1}</b>\n최단 {2} · 기한 {3} · 보수 {4} + 화물 가치 · {6} 숙련 +{7:N0}\n실패 시 {5}",
           "arguments": 8
         },
         {
@@ -1557,6 +1611,15 @@
     },
     {
       "id": "presentation.station",
+      "colors": [
+        {
+          "id": "specialWagonName",
+          "r": 0.4,
+          "g": 0.8,
+          "b": 1,
+          "a": 1
+        }
+      ],
       "texts": [
         {
           "id": "actionRumor",
@@ -1623,6 +1686,11 @@
           "id": "restHint",
           "value": "고른 턴만큼 쉬며 시간을 보냅니다(1턴 = 6시간).\n{0}마다 시너지를 정산하고, 이동 요금과 시장 재고는 변하지 않습니다.",
           "arguments": 1
+        },
+        {
+          "id": "wagonRumor",
+          "value": "{0}에서 특별한 화차를 판다던데... {1} 말이야.",
+          "arguments": 2
         },
         {
           "id": "specialtyRumor",

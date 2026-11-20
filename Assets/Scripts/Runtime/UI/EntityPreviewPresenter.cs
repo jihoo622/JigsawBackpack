@@ -65,7 +65,8 @@ public sealed class EntityPreviewPresenter : MonoBehaviour
 
         Presentation.EntityPreview(_info.kind, _info.id, session, out string title, statRows, lines);
         string[] tags = _info.kind == EntityLinkKind.Tag ? new[] { _info.id } : null;
-        view.ShowEntityInfo(title, Presentation.EntityPreviewTitleColor(_info.kind, _info.id), lines, _info.screenPosition, tags, statRows);
+        view.ShowEntityInfo(title, Presentation.EntityPreviewTitleColor(_info.kind, _info.id), lines, _info.screenPosition, tags, statRows,
+            _infoHeader: _info.kind == EntityLinkKind.Wagon ? BasicData.Text("presentation.quest.wagonEffectsHeader") : null);
     }
 
     void OnHoverMoved(GameEvents.EntityLinkInfo _info)

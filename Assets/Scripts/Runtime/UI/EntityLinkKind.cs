@@ -5,5 +5,6 @@ public enum EntityLinkKind
     Item,
     Tag,
     Quest,
-    Region
+    Region,
+    Wagon
 }

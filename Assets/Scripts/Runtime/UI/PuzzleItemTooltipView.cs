@@ -341,7 +341,8 @@ public sealed class PuzzleItemTooltipView : PanelBase
         Vector2 _screenPosition, IReadOnlyList<string> _tags = null,
         IReadOnlyList<(string label, string value)> _statRows = null, bool _aboveAnchor = false,
         string _effectHeader = null, IReadOnlyList<string> _effectLines = null,
-        PuzzleCityTradePreferencesData? _tradePreferences = null, string _headerStatus = null)
+        PuzzleCityTradePreferencesData? _tradePreferences = null, string _headerStatus = null,
+        string _infoHeader = null)
     {
         BeginShow(_title, _titleColor, _headerStatus);
         UpdateCategoryBadges(_tags);
@@ -355,7 +356,7 @@ public sealed class PuzzleItemTooltipView : PanelBase
         }
         PopulateActiveEffectSection(_effectHeader, _effectLines);
         PopulateCityTradeSection(_tradePreferences);
-        PopulatePlainEffectSection(_lines);
+        PopulatePlainEffectSection(_lines, !string.IsNullOrEmpty(_infoHeader), _infoHeader);
         RebuildLayouts();
         if (_aboveAnchor)
         {
