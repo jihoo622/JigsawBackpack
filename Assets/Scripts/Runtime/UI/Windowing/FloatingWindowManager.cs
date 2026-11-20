@@ -137,6 +137,120 @@ public sealed class FloatingWindowManager : MonoBehaviour
                 windows[i].ResetLayout();
             }
         }
+        // 열린 창은 아래(먼저 연 창)부터 배치 규칙으로 다시 놓는다. 이미 다시 놓은 창만 피한다.
+        var placed = new List<Rect>();
+        var open = new List<FloatingWindow>(OpenWindowsTopFirst());
+        for (int i = open.Count - 1; i >= 0; i--)
+        {
+            open[i].PlaceAutomatically(placed);
+            placed.Add(open[i].CurrentRect);
+        }
+    }
+
+    // ---- 창 배치 규칙(H10) ----
+    // 개인 창(화차·렌즈·수첩)은 왼쪽 플랫폼 위, 마을 창(시장·술집·여관·역사·생산시설·시청)은 오른쪽 마을 위에 뜬다.
+    // 가운데 선로(x 549~640)는 가리지 않는다. 좌표는 1920x1080 기준 좌상단 원점(FloatingWindowMath와 같음).
+    // 1) 기본 위치가 비어 있으면 거기. 기본 위치는 마을 창이면 마을 영역 오른쪽 위(폭이 달라도 오른쪽 끝을 맞춤),
+    //    개인 창이면 빌더가 정한 defaultPosition(화차 창 슬롯·렌즈·수첩).
+    // 2) 아니면 자기 영역에서 다른 열린 창과 겹치지 않는 첫 자리(24px 간격으로 위에서 아래로, 개인은 왼쪽부터·마을은 오른쪽부터).
+    //    개인 창은 왼쪽 영역에 자리가 없으면 마을 영역도 찾는다(화차 창이 여러 개일 때, R29).
+    // 3) 그래도 없으면 기본 위치에서 24px씩 계단으로 비켜(마을은 왼쪽 아래, 개인은 오른쪽 아래) 다른 창과 왼쪽 위 모서리가 겹치지 않는 자리.
+    // 사용자가 끌어 옮긴 창(FloatingWindow.UserPlaced)은 이 규칙을 쓰지 않고 그 자리를 지킨다.
+    static readonly Rect PersonalArea = new Rect(16f, 128f, 524f, 936f);
+    static readonly Rect TownArea = new Rect(653f, 134f, 1247f, 925f);
+    const float PLACEMENT_STEP = 24f;
+
+    static bool IsTownWindow(FloatingWindow _window)
+    {
+        switch (_window.WindowId)
+        {
+            case "market":
+            case "tavern":
+            case "rest":
+            case "station_hall":
+            case "workshop":
+            case "city_hall":
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    internal Vector2 FindOpenPosition(FloatingWindow _window, IReadOnlyList<Rect> _occupied)
+    {
+        var occupied = _occupied ?? GetOtherOpenRects(_window);
+        Vector2 size = _window.DefaultSize;
+        bool town = IsTownWindow(_window);
+        var preferred = town
+            ? new Rect(TownArea.xMax - size.x, TownArea.yMin, size.x, size.y)
+            : new Rect(_window.DefaultPosition, size);
+        if (!Overlaps(preferred, occupied))
+        {
+            return preferred.position;
+        }
+        if (TryFindFreeSpot(town ? TownArea : PersonalArea, size, occupied, town, out var spot) ||
+            (!town && TryFindFreeSpot(TownArea, size, occupied, true, out spot)))
+        {
+            return spot;
+        }
+        for (int k = 1; k <= 40; k++)
+        {
+            // 마을 창은 오른쪽 끝에 붙어 있으므로 왼쪽 아래로, 개인 창은 오른쪽 아래로 비켜 계단을 만든다.
+            float dx = town ? -k * PLACEMENT_STEP : k * PLACEMENT_STEP;
+            var candidate = new Vector2(
+                Mathf.Clamp(preferred.x + dx, 0f, FloatingWindowMath.ReferenceWidth - size.x),
+                Mathf.Min(preferred.y + k * PLACEMENT_STEP, FloatingWindowMath.ReferenceHeight - size.y));
+            bool sameCorner = false;
+            foreach (var rect in occupied)
+            {
+                if (Mathf.Abs(rect.x - candidate.x) < PLACEMENT_STEP * 0.5f && Mathf.Abs(rect.y - candidate.y) < PLACEMENT_STEP * 0.5f)
+                {
+                    sameCorner = true;
+                    break;
+                }
+            }
+            if (!sameCorner)
+            {
+                return candidate;
+            }
+        }
+        return preferred.position;
+    }
+
+    static bool TryFindFreeSpot(Rect _area, Vector2 _size, IReadOnlyList<Rect> _occupied, bool _fromRight, out Vector2 _spot)
+    {
+        _spot = default;
+        if (_size.x > _area.width || _size.y > _area.height)
+        {
+            return false;
+        }
+        for (float y = _area.yMin; y + _size.y <= _area.yMax + 0.5f; y += PLACEMENT_STEP)
+        {
+            int columns = Mathf.FloorToInt((_area.width - _size.x) / PLACEMENT_STEP);
+            for (int c = 0; c <= columns; c++)
+            {
+                float x = _fromRight ? _area.xMax - _size.x - c * PLACEMENT_STEP : _area.xMin + c * PLACEMENT_STEP;
+                var candidate = new Rect(x, y, _size.x, _size.y);
+                if (!Overlaps(candidate, _occupied))
+                {
+                    _spot = candidate.position;
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    static bool Overlaps(Rect _rect, IReadOnlyList<Rect> _others)
+    {
+        for (int i = 0; i < _others.Count; i++)
+        {
+            if (_rect.Overlaps(_others[i]))
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     // R18: 열린 창만 일시 숨기고 열림 상태를 기억한 뒤 다시 호출하면 복원한다.

@@ -8,12 +8,10 @@ public sealed class TrainWindowManager : MonoBehaviour
 {
     const string OPEN_WAGONS_KEY = "ui.train.openWagons";
     const float CASCADE_OFFSET = 24f;
-    const float SLOT_OCCUPIED_TOLERANCE = 24f;
-    const float DEFAULT_WINDOW_WIDTH = 510f;
-    const float DEFAULT_WINDOW_HEIGHT = 544f;
 
-    // 목업 concept-3b 배치: 1번째 창은 왼쪽 하단 (26, 516)에 정확히 놓는다.
-    // 2번째 이후는 마을 상단(x 653부터, y 134)에 가로로 타일링하고, 슬롯이 모두 차면 24px 계단식으로 이어진다.
+    // 화차 창 N개의 기본 위치(빌더가 각 창의 defaultPosition에 넣음, 목업 concept-3b).
+    // 1번째 창은 왼쪽 하단 (26, 516), 2·3번째는 마을 상단(x 653·1173, y 134), 그 뒤는 24px 계단식.
+    // 실제로 열 때의 자리는 공용 배치 규칙(FloatingWindowManager.FindOpenPosition)이 이 기본 위치를 먼저 시도해 정한다.
     // 1920 폭에는 510px 창이 2열까지만 들어가므로 마을 상단 슬롯은 2개만 둔다.
     static readonly Vector2[] FirstOpenSlots =
     {
@@ -192,8 +190,8 @@ public sealed class TrainWindowManager : MonoBehaviour
             var win = windows[i];
             if (win && win.FloatingWindow && !win.FloatingWindow.IsOpen)
             {
-                Vector2 targetPos = ComputeNextWindowPosition(win);
-                BindAndOpen(i, _wagon, wagonIndex, targetPos, _session, _persist);
+                // 자리는 창을 열 때 공용 배치 규칙(FloatingWindowManager.FindOpenPosition)이 정한다. 사용자가 옮긴 창은 그 자리.
+                BindAndOpen(i, _wagon, wagonIndex, _session, _persist);
                 return win;
             }
         }
@@ -243,58 +241,7 @@ public sealed class TrainWindowManager : MonoBehaviour
         return null;
     }
 
-    Vector2 ComputeNextWindowPosition(TrainWindowView _targetWindow)
-    {
-        int cap = MaxWindowCount;
-        // 1~8번째 빈 슬롯 중 이미 열린 창이 점유하지 않은 첫 슬롯을 선택한다.
-        for (int s = 0; s < FirstOpenSlots.Length; s++)
-        {
-            Vector2 slot = FirstOpenSlots[s];
-            bool occupied = false;
-            for (int i = 0; i < cap; i++)
-            {
-                var w = windows[i];
-                if (!w || !w.FloatingWindow || !w.FloatingWindow.IsOpen)
-                {
-                    continue;
-                }
-                var r = w.FloatingWindow.CurrentRect;
-                if (Mathf.Abs(r.x - slot.x) <= SLOT_OCCUPIED_TOLERANCE &&
-                    Mathf.Abs(r.y - slot.y) <= SLOT_OCCUPIED_TOLERANCE)
-                {
-                    occupied = true;
-                    break;
-                }
-            }
-            if (!occupied)
-            {
-                return slot;
-            }
-        }
-
-        // 8개 슬롯이 모두 차 있으면 직전 창에서 +24px 계단식 오프셋을 적용한다.
-        float winW = DEFAULT_WINDOW_WIDTH;
-        float winH = DEFAULT_WINDOW_HEIGHT;
-        if (_targetWindow && _targetWindow.FloatingWindow && _targetWindow.FloatingWindow.CurrentRect.width > 1f)
-        {
-            winW = _targetWindow.FloatingWindow.CurrentRect.width;
-            winH = _targetWindow.FloatingWindow.CurrentRect.height;
-        }
-        if (lastOpenedIndex >= 0 && lastOpenedIndex < windows.Length)
-        {
-            var prev = windows[lastOpenedIndex];
-            if (prev && prev.FloatingWindow && prev.FloatingWindow.IsOpen)
-            {
-                var r = prev.FloatingWindow.CurrentRect;
-                float nextX = Mathf.Min(r.x + CASCADE_OFFSET, FloatingWindowMath.ReferenceWidth - winW);
-                float nextY = Mathf.Min(r.y + CASCADE_OFFSET, FloatingWindowMath.ReferenceHeight - winH);
-                return new Vector2(nextX, nextY);
-            }
-        }
-        return FirstOpenSlots[0];
-    }
-
-    void BindAndOpen(int _windowIndex, PuzzleInventory _wagon, int _wagonIndex, Vector2 _pos,
+    void BindAndOpen(int _windowIndex, PuzzleInventory _wagon, int _wagonIndex,
         PuzzleInventoryService _session, bool _persist)
     {
         var win = windows[_windowIndex];
@@ -304,7 +251,6 @@ public sealed class TrainWindowManager : MonoBehaviour
         try
         {
             win.FloatingWindow.SetOpen(true, _persist);
-            win.FloatingWindow.SetPosition(_pos, _persist);
         }
         finally
         {

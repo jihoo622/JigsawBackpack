@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -14,6 +15,8 @@ public sealed class FloatingWindow : MonoBehaviour, IPointerDownHandler
         public float x;
         public float y;
         public bool open;
+        // 사용자가 끌어 옮긴 위치인지. 아니면 열 때마다 배치 규칙(FloatingWindowManager.FindOpenPosition)으로 자리를 잡는다.
+        public bool moved;
     }
 
     const string PREFS_PREFIX = "ui.win.";
@@ -36,8 +39,13 @@ public sealed class FloatingWindow : MonoBehaviour, IPointerDownHandler
     bool dragging;
     bool initialized;
     bool hiddenForBackgroundOnly;
+    // 사용자가 끌어 옮긴 창. 다시 열어도 그 자리를 지킨다. 창 배치 초기화로 풀린다.
+    bool userPlaced;
 
     public string WindowId => string.IsNullOrEmpty(windowId) ? gameObject.name : windowId;
+    public Vector2 DefaultPosition => defaultPosition;
+    public Vector2 DefaultSize => defaultSize;
+    public bool UserPlaced => userPlaced;
     public bool IsOpen { get; private set; }
     public bool CloseBlocked { get; set; }
     public Rect CurrentRect => currentRect;
@@ -146,6 +154,10 @@ public sealed class FloatingWindow : MonoBehaviour, IPointerDownHandler
         {
             gameObject.SetActive(_open);
         }
+        if (_open && changed && !userPlaced)
+        {
+            PlaceAutomatically(null);
+        }
         if (_open)
         {
             BringToFront();
@@ -175,17 +187,18 @@ public sealed class FloatingWindow : MonoBehaviour, IPointerDownHandler
     public void ResetLayout()
     {
         InitializeIfNeeded();
+        userPlaced = false;
         PlaceAt(new Rect(defaultPosition.x, defaultPosition.y, defaultSize.x, defaultSize.y));
         SaveState();
     }
 
-    public void SetDefaultSize(Vector2 _size)
+    // 배치 규칙으로 자리를 잡는다. _occupied가 없으면 지금 열린 다른 창들을 피한다.
+    internal void PlaceAutomatically(IReadOnlyList<Rect> _occupied)
     {
-        defaultSize = _size;
-        if (initialized)
-        {
-            PlaceAt(new Rect(desiredRect.x, desiredRect.y, defaultSize.x, defaultSize.y));
-        }
+        InitializeIfNeeded();
+        var manager = ResolveManager();
+        Vector2 position = manager ? manager.FindOpenPosition(this, _occupied) : defaultPosition;
+        PlaceAt(new Rect(position.x, position.y, defaultSize.x, defaultSize.y));
     }
 
     internal void BeginDrag()
@@ -214,6 +227,7 @@ public sealed class FloatingWindow : MonoBehaviour, IPointerDownHandler
     internal void EndDrag()
     {
         dragging = false;
+        userPlaced = true;
         desiredRect = currentRect;
         placedForParentSize = GetScreenSize();
         SaveState();
@@ -265,7 +279,10 @@ public sealed class FloatingWindow : MonoBehaviour, IPointerDownHandler
             try
             {
                 var saved = JsonUtility.FromJson<SavedWindowState>(PlayerPrefs.GetString(key));
-                PlaceAt(new Rect(saved.x, saved.y, defaultSize.x, defaultSize.y));
+                userPlaced = saved.moved;
+                PlaceAt(userPlaced
+                    ? new Rect(saved.x, saved.y, defaultSize.x, defaultSize.y)
+                    : new Rect(defaultPosition.x, defaultPosition.y, defaultSize.x, defaultSize.y));
                 IsOpen = saved.open;
                 if (!hiddenForBackgroundOnly && gameObject.activeSelf != IsOpen)
                 {
@@ -293,7 +310,8 @@ public sealed class FloatingWindow : MonoBehaviour, IPointerDownHandler
         {
             x = currentRect.x,
             y = currentRect.y,
-            open = IsOpen
+            open = IsOpen,
+            moved = userPlaced
         };
         PlayerPrefs.SetString(PREFS_PREFIX + WindowId, JsonUtility.ToJson(state));
         PlayerPrefs.Save();
