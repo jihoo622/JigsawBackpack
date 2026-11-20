@@ -71,6 +71,7 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
     int? hoveredWagonIndex;
     PuzzleItemTooltipView KeywordTooltipView => keywordTooltipView ? keywordTooltipView : tooltipView;
     float hoveredWagonStartTime;
+    bool hoveredWagonWindowOpened;
     bool initialized;
     bool isMapOpen;
     bool butcheryConfigured;
@@ -467,20 +468,20 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
             return;
         }
 
-        bool overWagon = RelayoutSettings.Enabled && railStripView
-            ? railStripView.TryGetWagonAtScreenPosition(pointerPosition, out int wagonIndex)
-            : trainBarView.TryGetWagonAtScreenPosition(pointerPosition, out wagonIndex);
-        if (overWagon && wagonIndex < session.WagonCount && wagonIndex != session.CurrentWagonIndex)
+        bool overWagon = TryGetDragTargetWagon(pointerPosition, out int wagonIndex);
+        if (overWagon && wagonIndex >= 0 && wagonIndex < session.WagonCount &&
+            (UseMultiTrainWindows || wagonIndex != session.CurrentWagonIndex))
         {
             if (hoveredWagonIndex != wagonIndex)
             {
                 hoveredWagonIndex = wagonIndex;
                 hoveredWagonStartTime = Time.unscaledTime;
+                hoveredWagonWindowOpened = false;
                 RefreshTrainBar();
             }
-            else if (Time.unscaledTime - hoveredWagonStartTime >= wagonDragHoverDelay)
+            else if (!hoveredWagonWindowOpened && Time.unscaledTime - hoveredWagonStartTime >= wagonDragHoverDelay)
             {
-                SwitchWagonDuringDrag(wagonIndex);
+                OpenWagonDuringDrag(wagonIndex);
             }
         }
         else if (hoveredWagonIndex.HasValue)
@@ -488,6 +489,14 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
             hoveredWagonIndex = null;
             RefreshTrainBar();
         }
+    }
+
+    bool TryGetDragTargetWagon(Vector2 _screenPosition, out int _wagonIndex)
+    {
+        _wagonIndex = -1;
+        if (RelayoutSettings.Enabled)
+            return railStripView && railStripView.TryGetWagonAtScreenPosition(_screenPosition, out _wagonIndex);
+        return trainBarView && trainBarView.TryGetWagonAtScreenPosition(_screenPosition, out _wagonIndex);
     }
 
     bool CanQuickDropToWagon(int _wagonIndex)
@@ -500,7 +509,7 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
         return drag.Source != session.TrainWagons[_wagonIndex];
     }
 
-    void SwitchWagonDuringDrag(int _index)
+    void OpenWagonDuringDrag(int _index)
     {
         if (UseMultiTrainWindows)
         {
@@ -510,6 +519,13 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
             {
                 return;
             }
+            hoveredWagonWindowOpened = true;
+            RenderBoards();
+            RenderValues();
+            RefreshTrainBar();
+            UpdateLensRanking();
+            RefreshDrag();
+            return;
         }
         if (!session.SelectWagon(_index))
         {
@@ -1359,7 +1375,7 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
                         TrainventoryQuestAcceptFailure.NoSpace, offer, session.MaxActiveQuests));
                 }
             }
-            else if (trainBarView && trainBarView.TryGetWagonAtScreenPosition(_eventData.position, out int candidateWagon) &&
+            else if (TryGetDragTargetWagon(_eventData.position, out int candidateWagon) &&
                      CanQuickDropToWagon(candidateWagon))
             {
                 droppedWagonIndex = candidateWagon;

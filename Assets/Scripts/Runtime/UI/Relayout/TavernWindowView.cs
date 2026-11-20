@@ -47,6 +47,12 @@ public sealed class TavernWindowView : MonoBehaviour
         TextLinkHandler.Attach(detailPenalty);
     }
 
+    void Start()
+    {
+        // 자식 Graphic의 팔레트 바인더 Awake 이후에도 현재 버튼 상태의 색을 적용한다.
+        RefreshRumor();
+    }
+
     void OnEnable()
     {
         if (rumorButton)
@@ -203,9 +209,19 @@ public sealed class TavernWindowView : MonoBehaviour
 
     void RefreshRumor()
     {
+        bool available = IsRunInProgress() && heardRumor == null;
+        Presentation.TavernRumorButtonColors(available, out var background, out var text);
         if (rumorButton)
         {
-            rumorButton.interactable = IsRunInProgress() && heardRumor == null;
+            rumorButton.interactable = available;
+            if (rumorButton.targetGraphic)
+            {
+                rumorButton.targetGraphic.color = background;
+            }
+        }
+        if (rumorButtonLabel)
+        {
+            rumorButtonLabel.color = text;
         }
         if (rumorText)
         {
