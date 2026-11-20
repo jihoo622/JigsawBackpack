@@ -38,7 +38,8 @@
 - 서버 주소·업로드 키 우선순위는 GameLogger Inspector > 환경 변수(에디터만, Inspector가 빈 값이거나 주소가 패키지 기본값인 항목만 채움) > Resources/LogKitBuildConfig.json(그래도 빈 키·기본 주소 자리만 채움) > 패키지 기본값(localhost, 키 없음)이다. LogKit 요청에는 프로젝트 필드가 없고 `X-Api-Key` 헤더의 키만 보낸다. 앱 버전은 `Application.version`(PlayerSettings bundleVersion, 현재 0.1.0 고정)이다. 서버는 업로드 키로만 프로젝트를 정하며 이 게임의 프로젝트는 `trainven_kjgl6b2`다. `dev-log-key`는 다른 게임 프로젝트로 분류되고 등록되지 않은 키는 401로 거부된다(빌드는 성공하고 로그는 로컬에만 쌓인다).
 - 빌드: LogKit 빌드 단계가 빌드 PC(CI `Trainventory` 항목)의 LOGKIT_SERVER_URL, LOGKIT_UPLOAD_KEY로 LogKitBuildConfig를 만들어 넣고 빌드 후 지운다. 두 값이 없으면 빌드가 실패한다. LogKitSetup은 빌드 실행 중 환경 변수를 읽지 않는다.
 - 에디터: LogKitSetup이 Preload의 GameLogger보다 먼저(PreloadController 실행 순서 -1000) Inspector 값을 읽고, 비어 있는 항목만 환경 변수로 Configure한다. 여러 게임을 같은 PC에서 작업하면 사용자 범위에 두지 말고 에디터를 띄우는 셸에서만 설정한다. 사용자 범위에 다른 게임 키가 있으면 지우고 Unity Hub·에디터를 완전히 종료한 뒤 다시 연다. 전송하지 못한 로그는 다음 실행의 주소·키로 재전송되므로 그때 설정된 프로젝트로 분류된다.
-- 저장소에 추적 중인 Resources/LogKitBuildConfig.json에는 `dev-log-key`가 들어 있어 환경 변수 없이 에디터에서 플레이한 로그는 이 게임 프로젝트로 분류되지 않는다. 정리 방법(추적 해제 등)은 미정이다. 주소·키를 문서나 분석 로그에 복제하지 않는다. LOGKIT_OPTIONAL / LOGKIT_ALLOW_LOCALHOST 예외는 패키지 계약을 따른다.
+- 저장소에 추적 중인 Resources/LogKitBuildConfig.json은 이 게임 프로젝트의 업로드 키를 담아, 환경 변수 없이 에디터에서 플레이해도 이 게임 프로젝트로 분류된다(2026-11-20 결정, 이전에는 `dev-log-key`라 flail-game으로 분류됐다). CI 빌드는 빌드 단계가 이 파일을 CI 값으로 덮어쓰고 빌드 후 지운다.
+- 2026-11-20 점검: 2026-11-16 이전 CI 빌드(Trainventory-1~3)는 CI 키가 `dev-log-key`일 때 만들어져 flail-game으로 분류됐다. Preload 씬 GameLogger에 서버가 거부하는 키(401)가 저장돼 빌드 키를 덮고 있어 비웠다. CI `Trainventory` 항목의 키는 이 게임 프로젝트 키이므로 다음 빌드부터 반영된다. 주소·키를 문서나 분석 로그에 복제하지 않는다. LOGKIT_OPTIONAL / LOGKIT_ALLOW_LOCALHOST 예외는 패키지 계약을 따른다.
 - 확인: 빌드 콘솔의 `[LogKit] 빌드 설정을 넣었습니다: ... 업로드 키 16자`(11자면 dev-log-key), GM 툴에서 `trainven_kjgl6b2` 프로젝트에 세션이 보이는지, `Api Key가 비어 있어 서버 업로드가 거부됩니다` 경고가 없는지.
 - LogKit은 Unity 로그 자동 수집과 분석 Data를 같은 전송 큐로 처리한다. 기본 5초 주기 및 종료/백그라운드 전환 시 gzip JSON을 POST하고 통신 실패분은 다음 기동에 재시도한다. 프로젝트에서 Count/Measure 집계는 별도로 발행하지 않는다.
 

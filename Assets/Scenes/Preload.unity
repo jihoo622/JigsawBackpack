@@ -322,7 +322,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: LogKit.Runtime::LogKit.GameLogger
   _developmentServerUrl: http://172.21.10.138:5000/api/logs
   _releaseServerUrl: http://172.21.10.138:5000/api/logs
-  _apiKey: trainventory_kjglb2
+  _apiKey: 
   _captureUnityLogs: 1
   _flushIntervalSeconds: 5
   _uploadIntervalSeconds: 5
