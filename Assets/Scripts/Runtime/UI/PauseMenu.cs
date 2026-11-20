@@ -16,8 +16,6 @@ public sealed class PauseMenu : PanelBase
     [SerializeField] TextMeshProUGUI candidateToggleLabel;
     [SerializeField] Button resetLayoutButton;
     [SerializeField] TextMeshProUGUI resetLayoutLabel;
-    [SerializeField] Button relayoutToggleButton;
-    [SerializeField] TextMeshProUGUI relayoutToggleLabel;
 
     float previousTimeScale;
     bool paused;
@@ -87,16 +85,6 @@ public sealed class PauseMenu : PanelBase
         {
             resetLayoutLabel.text = Presentation.ResetWindowLayouts;
         }
-        if (relayoutToggleButton)
-        {
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
-            relayoutToggleButton.gameObject.SetActive(true);
-            relayoutToggleButton.onClick.AddListener(OnRelayoutToggleClicked);
-            RefreshRelayoutToggle();
-#else
-            relayoutToggleButton.gameObject.SetActive(false);
-#endif
-        }
         PuzzleLensSettings.Changed += RefreshCandidateToggle;
         RefreshCandidateToggle();
         if (cancel != null)
@@ -126,10 +114,6 @@ public sealed class PauseMenu : PanelBase
         if (resetLayoutButton)
         {
             resetLayoutButton.onClick.RemoveListener(OnResetLayoutClicked);
-        }
-        if (relayoutToggleButton)
-        {
-            relayoutToggleButton.onClick.RemoveListener(OnRelayoutToggleClicked);
         }
         if (cancel != null)
         {
@@ -406,20 +390,6 @@ public sealed class PauseMenu : PanelBase
     {
         var wm = Resolve(ref windowManager);
         wm?.ResetAllLayouts();
-    }
-
-    void OnRelayoutToggleClicked()
-    {
-        RelayoutSettings.Enabled = !RelayoutSettings.Enabled;
-        RefreshRelayoutToggle();
-    }
-
-    void RefreshRelayoutToggle()
-    {
-        if (relayoutToggleLabel)
-        {
-            relayoutToggleLabel.text = Presentation.RelayoutToggle(RelayoutSettings.Enabled);
-        }
     }
 
     void OnCandidateToggleClicked()

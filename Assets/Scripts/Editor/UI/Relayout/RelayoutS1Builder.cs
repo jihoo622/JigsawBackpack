@@ -142,6 +142,8 @@ public static class RelayoutS1Builder
 
             var button = resetGo.GetComponent<Button>();
             button.onClick.RemoveAllListeners();
+            // 복제한 원본 버튼의 저장된(persistent) 연결도 지운다. RemoveAllListeners는 코드로 붙인 연결만 지운다.
+            while (button.onClick.GetPersistentEventCount() > 0) UnityEditor.Events.UnityEventTools.RemovePersistentListener(button.onClick, 0);
             var label = resetGo.GetComponentInChildren<TextMeshProUGUI>(true);
             if (label)
             {
@@ -466,6 +468,8 @@ public static class RelayoutS1Builder
 
         var button = go.GetComponent<Button>();
         button.onClick.RemoveAllListeners();
+        // 복제한 원본 버튼의 저장된(persistent) 연결도 지운다. RemoveAllListeners는 코드로 붙인 연결만 지운다.
+        while (button.onClick.GetPersistentEventCount() > 0) UnityEditor.Events.UnityEventTools.RemovePersistentListener(button.onClick, 0);
 
         _label = go.GetComponentInChildren<TextMeshProUGUI>(true);
         if (!_label)

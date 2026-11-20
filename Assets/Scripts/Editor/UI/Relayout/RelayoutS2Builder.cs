@@ -11,7 +11,6 @@ using UnityEngine.UI;
 public static class RelayoutS2Builder
 {
     const string MENU_BUILD = "Tools/MyJG/UI/Relayout/S2 Build Fixed Frame";
-    const string MENU_TOGGLE = "Tools/MyJG/UI/Relayout/Toggle Relayout";
 
     const string PALETTE_PATH = "Assets/Resources/UI/UIPalette.asset";
     const string RELAYOUT_DIR = "Assets/Art/UI/Relayout";
@@ -25,25 +24,8 @@ public static class RelayoutS2Builder
     const string CITY_NAV_PREFAB = "Assets/Art/UI/City Navigation.prefab";
     const string GAME_CANVAS_PREFAB = "Assets/Art/UI/Scene/GameCanvas.prefab";
 
-    const string RELAYOUT_TOGGLE_BTN = "RelayoutToggleButton";
     const string WORLD_CANVAS_NAME = "WorldSceneCanvas";
     const string FIXED_CANVAS_NAME = "FixedFrameCanvas";
-
-    [MenuItem(MENU_TOGGLE)]
-    static void ToggleRelayoutMenu()
-    {
-        bool next = !RelayoutSettings.Enabled;
-        RelayoutSettings.Enabled = next;
-        Menu.SetChecked(MENU_TOGGLE, next);
-        Debug.Log($"RelayoutSettings.Enabled = {next}");
-    }
-
-    [MenuItem(MENU_TOGGLE, true)]
-    static bool ToggleRelayoutMenuValidate()
-    {
-        Menu.SetChecked(MENU_TOGGLE, RelayoutSettings.Enabled);
-        return true;
-    }
 
     [MenuItem(MENU_BUILD)]
     static void BuildFromMenu()
@@ -65,8 +47,6 @@ public static class RelayoutS2Builder
             palette = ScriptableObject.CreateInstance<UIPalette>();
             AssetDatabase.CreateAsset(palette, PALETTE_PATH);
         }
-
-        BuildPauseRelayoutToggle(log);
 
         Button buttonTemplate = null;
         TextMeshProUGUI labelTemplate = null;
@@ -96,63 +76,6 @@ public static class RelayoutS2Builder
 
         AssetDatabase.SaveAssets();
         return log.ToString();
-    }
-
-    static void BuildPauseRelayoutToggle(StringBuilder _log)
-    {
-        var root = PrefabUtility.LoadPrefabContents(PAUSE_PREFAB);
-        try
-        {
-            var menu = root.GetComponentInChildren<PauseMenu>(true);
-            if (!menu)
-            {
-                return;
-            }
-            var so = new SerializedObject(menu);
-            var anchorBtn = so.FindProperty("resetLayoutButton").objectReferenceValue as Button;
-            if (!anchorBtn)
-            {
-                anchorBtn = so.FindProperty("candidateToggleButton").objectReferenceValue as Button;
-            }
-            if (!anchorBtn)
-            {
-                return;
-            }
-
-            var panel = (RectTransform)anchorBtn.transform.parent;
-            var existing = panel.Find(RELAYOUT_TOGGLE_BTN);
-            GameObject toggleGo;
-            if (existing)
-            {
-                toggleGo = existing.gameObject;
-            }
-            else
-            {
-                toggleGo = Object.Instantiate(anchorBtn.gameObject, panel);
-                toggleGo.name = RELAYOUT_TOGGLE_BTN;
-                toggleGo.SetActive(true);
-                toggleGo.transform.SetSiblingIndex(anchorBtn.transform.GetSiblingIndex() + 1);
-                MakeRoomBelow(panel, (RectTransform)anchorBtn.transform, (RectTransform)toggleGo.transform);
-            }
-
-            var button = toggleGo.GetComponent<Button>();
-            button.onClick.RemoveAllListeners();
-            var label = toggleGo.GetComponentInChildren<TextMeshProUGUI>(true);
-            if (label)
-            {
-                label.text = "새 화면 배치: 꺼짐";
-            }
-
-            so.FindProperty("relayoutToggleButton").objectReferenceValue = button;
-            so.FindProperty("relayoutToggleLabel").objectReferenceValue = label;
-            so.ApplyModifiedPropertiesWithoutUndo();
-            PrefabUtility.SaveAsPrefabAsset(root, PAUSE_PREFAB);
-            _log.AppendLine($"일시정지 '새 화면 배치' 토글 → {PAUSE_PREFAB}");
-        }
-        finally
-        {
-            PrefabUtility.UnloadPrefabContents(root);
-        }
     }
 
     static GameObject BuildTopHudPrefab(
@@ -894,24 +817,6 @@ public static class RelayoutS2Builder
         _rect.sizeDelta = new Vector2(_width, _height);
     }
 
-    static void MakeRoomBelow(RectTransform _panel, RectTransform _anchor, RectTransform _inserted)
-    {
-        float step = _anchor.sizeDelta.y + 16f;
-        float anchorY = _anchor.anchoredPosition.y;
-        foreach (RectTransform child in _panel)
-        {
-            if (child != _inserted && child.anchoredPosition.y < anchorY)
-            {
-                child.anchoredPosition -= new Vector2(0f, step);
-            }
-        }
-        _inserted.anchoredPosition = new Vector2(_anchor.anchoredPosition.x, anchorY - step);
-        _panel.sizeDelta += new Vector2(0f, step);
-        foreach (RectTransform child in _panel)
-        {
-            child.anchoredPosition += new Vector2(0f, step * 0.5f);
-        }
-    }
 
     static RectTransform NewRect(string _name, Transform _parent)
     {

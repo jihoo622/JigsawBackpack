@@ -162,6 +162,8 @@ public static class RouteLensUIBuilder
                 element.preferredHeight = 28f;
                 tabs[i] = tab.GetComponent<Button>();
                 tabs[i].onClick.RemoveAllListeners();
+                // 복제한 원본 버튼의 저장된(persistent) 연결도 지운다. RemoveAllListeners는 코드로 붙인 연결만 지운다.
+                while (tabs[i].onClick.GetPersistentEventCount() > 0) UnityEditor.Events.UnityEventTools.RemovePersistentListener(tabs[i].onClick, 0);
                 tabLabels[i] = tab.GetComponentInChildren<TextMeshProUGUI>(true);
                 tabLabels[i].fontSize = 16f;
             }
@@ -247,6 +249,8 @@ public static class RouteLensUIBuilder
             }
             var button = toggle.GetComponent<Button>();
             button.onClick.RemoveAllListeners();
+            // 복제한 원본 버튼의 저장된(persistent) 연결도 지운다. RemoveAllListeners는 코드로 붙인 연결만 지운다.
+            while (button.onClick.GetPersistentEventCount() > 0) UnityEditor.Events.UnityEventTools.RemovePersistentListener(button.onClick, 0);
             buttonProperty.objectReferenceValue = button;
             labelProperty.objectReferenceValue = toggle.GetComponentInChildren<TextMeshProUGUI>(true);
             so.ApplyModifiedPropertiesWithoutUndo();
