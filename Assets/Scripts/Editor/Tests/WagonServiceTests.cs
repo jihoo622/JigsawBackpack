@@ -109,5 +109,25 @@ namespace Tests.Relayout
             Assert.IsFalse(R.CallOutString(service, "TrySellWagon", 0, out string lastFail));
             Assert.AreEqual("saleLastWagon", lastFail);
         }
+
+        [Test]
+        public void WagonProductsHere_OrderedByNormal_GeneralSpecial_RegionalSpecial()
+        {
+            var tables = TableManager.Instance;
+            foreach (var city in tables.Cities)
+            {
+                R.Set(service, "currentCityId", city.id);
+                var products = R.List(service, "WagonProductsHere");
+                int lastRank = -1;
+                foreach (var product in products)
+                {
+                    bool randomSale = R.Get<bool>(product, "randomSale");
+                    string saleRegionId = R.Get<string>(product, "saleRegionId");
+                    int rank = !string.IsNullOrEmpty(saleRegionId) ? 2 : (randomSale ? 1 : 0);
+                    Assert.GreaterOrEqual(rank, lastRank, $"City {city.id} wagon products out of category order");
+                    lastRank = rank;
+                }
+            }
+        }
     }
 }

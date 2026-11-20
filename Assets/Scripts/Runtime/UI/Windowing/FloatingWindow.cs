@@ -179,6 +179,15 @@ public sealed class FloatingWindow : MonoBehaviour, IPointerDownHandler
         SaveState();
     }
 
+    public void SetDefaultSize(Vector2 _size)
+    {
+        defaultSize = _size;
+        if (initialized)
+        {
+            PlaceAt(new Rect(desiredRect.x, desiredRect.y, defaultSize.x, defaultSize.y));
+        }
+    }
+
     internal void BeginDrag()
     {
         InitializeIfNeeded();
