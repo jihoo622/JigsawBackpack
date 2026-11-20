@@ -45,6 +45,26 @@ public sealed class RelayoutRootController : MonoBehaviour
         CaptureDefaultsIfNeeded();
     }
 
+    // 게임을 시작하면 마을 창(시장·술집·여관·역사·생산시설·시청)과 렌즈 창은 닫힌 채로 시작한다.
+    // 부동 창은 열림 상태를 저장해 다음 실행에 되살리는데, 마을 창을 여러 개 띄울 수 있게 되면서 지난 실행의 창이 전부 열린 채로 시작했다.
+    // 시설 창은 그 역에 들어가야 쓰는 창이므로 되살리지 않는다. 시장은 도착 처리(PuzzleInventoryPresenter)가 입장시킨 경우만 열어 둔다.
+    // 화차 창·수첩 같은 개인 창은 그대로 되살린다. 모든 OnEnable 뒤에 정리하도록 Start에서 한다.
+    void Start()
+    {
+        if (!RelayoutSettings.Enabled)
+        {
+            return;
+        }
+        var session = SceneServices.For<PuzzleInventoryService>(gameObject.scene);
+        if (marketWindow && marketWindow.IsOpen && (session == null || !session.CanTradeInMarket)) marketWindow.SetOpen(false);
+        if (tavernWindow && tavernWindow.IsOpen) tavernWindow.SetOpen(false);
+        if (restWindow && restWindow.IsOpen) restWindow.SetOpen(false);
+        if (stationHallWindow && stationHallWindow.IsOpen) stationHallWindow.SetOpen(false);
+        if (workshopWindow && workshopWindow.IsOpen) workshopWindow.SetOpen(false);
+        if (cityHallWindow && cityHallWindow.IsOpen) cityHallWindow.SetOpen(false);
+        if (lensWindow && lensWindow.IsOpen) lensWindow.SetOpen(false);
+    }
+
     void OnEnable()
     {
         CaptureDefaultsIfNeeded();
