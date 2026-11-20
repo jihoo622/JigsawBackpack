@@ -12,6 +12,8 @@ public sealed class StationHallWindowView : MonoBehaviour
     [SerializeField] FloatingWindow floatingWindow;
     [SerializeField] TextMeshProUGUI titleText;
     [SerializeField] PuzzleWagonProductRow[] productRows;
+    [SerializeField] ScrollRect productScrollRect;
+    [SerializeField] RectTransform productListContent;
     [SerializeField] Button nextPageButton;
     [SerializeField] TextMeshProUGUI pageLabel;
     [SerializeField] RectTransform sellDropZone;
@@ -25,7 +27,10 @@ public sealed class StationHallWindowView : MonoBehaviour
     RailStripView railStripView;
     Canvas rootCanvas;
     IReadOnlyList<PuzzleWagonProductData> currentProducts = Array.Empty<PuzzleWagonProductData>();
-    int page;
+    readonly List<PuzzleWagonProductRow> spawnedRows = new();
+    PuzzleWagonProductRow rowTemplate;
+    bool layoutInitialized;
+    bool rowEventsBound;
 
     public FloatingWindow FloatingWindow => floatingWindow;
     public bool IsOpen => floatingWindow && floatingWindow.IsOpen;
@@ -38,30 +43,18 @@ public sealed class StationHallWindowView : MonoBehaviour
     {
         var c = GetComponentInParent<Canvas>();
         rootCanvas = c ? c.rootCanvas : null;
+        EnsureProductListLayout();
     }
 
     void OnEnable()
     {
+        EnsureProductListLayout();
         session = SceneServices.For<PuzzleInventoryService>(gameObject.scene);
         inventoryPresenter = SceneServices.Find<PuzzleInventoryPresenter>(gameObject.scene);
         railStripView = SceneServices.Find<RailStripView>(gameObject.scene);
 
-        if (nextPageButton) nextPageButton.onClick.AddListener(OnNextPage);
         if (departButton) departButton.onClick.AddListener(OnDepart);
-
-        if (productRows != null)
-        {
-            for (int i = 0; i < productRows.Length; i++)
-            {
-                if (productRows[i])
-                {
-                    productRows[i].Clicked += OnProductClicked;
-                    productRows[i].DragStarted += OnProductDragStarted;
-                    productRows[i].Dragged += OnProductDragged;
-                    productRows[i].DragEnded += OnProductDragEnded;
-                }
-            }
-        }
+        SetRowEventsBound(true);
 
         GameEvents.FundsChanged += OnFundsChanged;
         GameEvents.CityArrived += OnCityArrived;
@@ -71,22 +64,8 @@ public sealed class StationHallWindowView : MonoBehaviour
 
     void OnDisable()
     {
-        if (nextPageButton) nextPageButton.onClick.RemoveListener(OnNextPage);
         if (departButton) departButton.onClick.RemoveListener(OnDepart);
-
-        if (productRows != null)
-        {
-            for (int i = 0; i < productRows.Length; i++)
-            {
-                if (productRows[i])
-                {
-                    productRows[i].Clicked -= OnProductClicked;
-                    productRows[i].DragStarted -= OnProductDragStarted;
-                    productRows[i].Dragged -= OnProductDragged;
-                    productRows[i].DragEnded -= OnProductDragEnded;
-                }
-            }
-        }
+        SetRowEventsBound(false);
 
         GameEvents.FundsChanged -= OnFundsChanged;
         GameEvents.CityArrived -= OnCityArrived;
@@ -102,7 +81,6 @@ public sealed class StationHallWindowView : MonoBehaviour
         if (_open)
         {
             session ??= SceneServices.For<PuzzleInventoryService>(gameObject.scene);
-            page = 0;
         }
         if (floatingWindow)
         {
@@ -115,6 +93,10 @@ public sealed class StationHallWindowView : MonoBehaviour
         if (_open)
         {
             Refresh();
+            if (productScrollRect)
+            {
+                productScrollRect.verticalNormalizedPosition = 1f;
+            }
         }
     }
 
@@ -124,7 +106,9 @@ public sealed class StationHallWindowView : MonoBehaviour
         {
             return false;
         }
-        var target = sellDropZone ? sellDropZone : transform as RectTransform;
+        // 보유 화차는 상품 목록을 포함한 역사 창 어디에 놓아도 판매한다.
+        // sellDropZone은 안내 표시용이며 드롭 판정을 그 작은 영역으로 제한하지 않는다.
+        var target = transform as RectTransform;
         return target && RectTransformUtility.RectangleContainsScreenPoint(target, _screenPos, EventCamera);
     }
 
@@ -152,53 +136,279 @@ public sealed class StationHallWindowView : MonoBehaviour
             statusText.text = Presentation.StationHallSaleDrop;
         }
 
-        currentProducts = session.WagonProductsHere ?? Array.Empty<PuzzleWagonProductData>();
-        int perPage = productRows != null && productRows.Length > 0 ? productRows.Length : 1;
-        int totalPages = Mathf.Max(1, Mathf.CeilToInt((float)currentProducts.Count / perPage));
-        page = Mathf.Clamp(page, 0, totalPages - 1);
+        EnsureProductListLayout();
 
-        if (productRows != null)
+        currentProducts = session.WagonProductsHere ?? Array.Empty<PuzzleWagonProductData>();
+        EnsureRowCount(currentProducts.Count);
+
+        for (int i = 0; i < spawnedRows.Count; i++)
         {
-            int start = page * perPage;
-            for (int i = 0; i < productRows.Length; i++)
-            {
-                if (!productRows[i]) continue;
-                int idx = start + i;
-                var prod = idx < currentProducts.Count ? currentProducts[idx] : null;
-                productRows[i].Bind(prod);
-                productRows[i].SetSelected(false);
-            }
+            var row = spawnedRows[i];
+            if (!row) continue;
+            var prod = i < currentProducts.Count ? currentProducts[i] : null;
+            row.Bind(prod);
+            row.SetSelected(false);
         }
-        // 상품이 한 쪽뿐이면 넘김 줄은 쓸모가 없으므로 숨긴다.
-        bool paged = totalPages > 1;
+
+        if (productListContent)
+        {
+            LayoutRebuilder.ForceRebuildLayoutImmediate(productListContent);
+        }
         if (pageLabel)
         {
-            pageLabel.text = $"{page + 1} / {totalPages}";
-            pageLabel.gameObject.SetActive(paged);
+            pageLabel.gameObject.SetActive(false);
         }
         if (nextPageButton)
         {
-            nextPageButton.interactable = paged;
-            nextPageButton.gameObject.SetActive(paged);
+            nextPageButton.gameObject.SetActive(false);
         }
     }
 
-    void OnNextPage()
+    void EnsureProductListLayout()
     {
-        int perPage = productRows != null && productRows.Length > 0 ? productRows.Length : 1;
-        int totalPages = Mathf.Max(1, Mathf.CeilToInt((float)currentProducts.Count / perPage));
-        page = (page + 1) % totalPages;
-        Refresh();
+        if (layoutInitialized)
+        {
+            return;
+        }
+        layoutInitialized = true;
+
+        if (pageLabel)
+        {
+            pageLabel.gameObject.SetActive(false);
+        }
+        if (nextPageButton)
+        {
+            nextPageButton.gameObject.SetActive(false);
+        }
+
+        if (productRows != null)
+        {
+            for (int i = 0; i < productRows.Length; i++)
+            {
+                if (!productRows[i]) continue;
+                if (!rowTemplate)
+                {
+                    rowTemplate = productRows[i];
+                }
+                if (!spawnedRows.Contains(productRows[i]))
+                {
+                    spawnedRows.Add(productRows[i]);
+                }
+            }
+        }
+
+        if (productListContent != null && productScrollRect != null)
+        {
+            return;
+        }
+
+        var rootRect = transform as RectTransform;
+        if (!rootRect)
+        {
+            return;
+        }
+
+        var windowSize = new Vector2(572f, 576f);
+        if (floatingWindow)
+        {
+            floatingWindow.SetDefaultSize(windowSize);
+        }
+        else
+        {
+            rootRect.sizeDelta = windowSize;
+        }
+
+        if (sellDropZone)
+        {
+            sellDropZone.anchorMin = Vector2.zero;
+            sellDropZone.anchorMax = Vector2.zero;
+            sellDropZone.pivot = Vector2.zero;
+            sellDropZone.anchoredPosition = new Vector2(16f, 16f);
+            sellDropZone.sizeDelta = new Vector2(372f, 72f);
+        }
+        if (departButton && departButton.transform is RectTransform departRt)
+        {
+            departRt.anchorMin = new Vector2(1f, 0f);
+            departRt.anchorMax = new Vector2(1f, 0f);
+            departRt.pivot = new Vector2(1f, 0f);
+            departRt.anchoredPosition = new Vector2(-16f, 16f);
+            departRt.sizeDelta = new Vector2(152f, 72f);
+        }
+
+        var scrollGo = new GameObject("ProductListScroll", typeof(RectTransform));
+        scrollGo.layer = gameObject.layer;
+        var scrollRt = (RectTransform)scrollGo.transform;
+        scrollRt.SetParent(rootRect, false);
+        scrollRt.anchorMin = Vector2.zero;
+        scrollRt.anchorMax = Vector2.one;
+        scrollRt.offsetMin = new Vector2(16f, 96f);
+        scrollRt.offsetMax = new Vector2(-16f, -38f);
+
+        productScrollRect = scrollGo.AddComponent<ScrollRect>();
+        productScrollRect.horizontal = false;
+        productScrollRect.vertical = true;
+        productScrollRect.movementType = ScrollRect.MovementType.Clamped;
+        productScrollRect.scrollSensitivity = 36f;
+
+        var barGo = new GameObject("VerticalScrollbar", typeof(RectTransform), typeof(Image), typeof(Scrollbar));
+        barGo.layer = gameObject.layer;
+        var barRt = (RectTransform)barGo.transform;
+        barRt.SetParent(scrollRt, false);
+        barRt.anchorMin = new Vector2(1f, 0f);
+        barRt.anchorMax = new Vector2(1f, 1f);
+        barRt.pivot = new Vector2(1f, 0.5f);
+        barRt.anchoredPosition = Vector2.zero;
+        barRt.sizeDelta = new Vector2(8f, 0f);
+        barGo.GetComponent<Image>().color = new Color(0.22f, 0.24f, 0.28f, 1f);
+
+        var slidingGo = new GameObject("SlidingArea", typeof(RectTransform));
+        slidingGo.layer = gameObject.layer;
+        var slidingRt = (RectTransform)slidingGo.transform;
+        slidingRt.SetParent(barRt, false);
+        slidingRt.anchorMin = Vector2.zero;
+        slidingRt.anchorMax = Vector2.one;
+        slidingRt.offsetMin = Vector2.zero;
+        slidingRt.offsetMax = Vector2.zero;
+
+        var handleGo = new GameObject("Handle", typeof(RectTransform), typeof(Image));
+        handleGo.layer = gameObject.layer;
+        var handleRt = (RectTransform)handleGo.transform;
+        handleRt.SetParent(slidingRt, false);
+        handleRt.anchorMin = Vector2.zero;
+        handleRt.anchorMax = Vector2.one;
+        handleRt.offsetMin = Vector2.zero;
+        handleRt.offsetMax = Vector2.zero;
+        var handleImg = handleGo.GetComponent<Image>();
+        handleImg.color = new Color(0.84f, 0.71f, 0.42f, 1f);
+
+        var scrollbar = barGo.GetComponent<Scrollbar>();
+        scrollbar.direction = Scrollbar.Direction.BottomToTop;
+        scrollbar.handleRect = handleRt;
+        scrollbar.targetGraphic = handleImg;
+        productScrollRect.verticalScrollbar = scrollbar;
+        productScrollRect.verticalScrollbarVisibility = ScrollRect.ScrollbarVisibility.AutoHide;
+
+        var vpGo = new GameObject("Viewport", typeof(RectTransform), typeof(RectMask2D), typeof(Image));
+        vpGo.layer = gameObject.layer;
+        var vpRt = (RectTransform)vpGo.transform;
+        vpRt.SetParent(scrollRt, false);
+        vpRt.anchorMin = Vector2.zero;
+        vpRt.anchorMax = Vector2.one;
+        vpRt.offsetMin = Vector2.zero;
+        vpRt.offsetMax = new Vector2(-12f, 0f);
+        vpGo.GetComponent<Image>().color = new Color(0f, 0f, 0f, 0f);
+
+        var contentGo = new GameObject("Content", typeof(RectTransform), typeof(VerticalLayoutGroup), typeof(ContentSizeFitter));
+        contentGo.layer = gameObject.layer;
+        productListContent = (RectTransform)contentGo.transform;
+        productListContent.SetParent(vpRt, false);
+        productListContent.anchorMin = new Vector2(0f, 1f);
+        productListContent.anchorMax = new Vector2(1f, 1f);
+        productListContent.pivot = new Vector2(0.5f, 1f);
+        productListContent.anchoredPosition = Vector2.zero;
+        productListContent.sizeDelta = Vector2.zero;
+
+        var layout = contentGo.GetComponent<VerticalLayoutGroup>();
+        layout.spacing = 8f;
+        layout.padding = new RectOffset(0, 0, 0, 0);
+        layout.childAlignment = TextAnchor.UpperLeft;
+        layout.childControlWidth = false;
+        layout.childControlHeight = false;
+        layout.childForceExpandWidth = false;
+        layout.childForceExpandHeight = false;
+
+        var fitter = contentGo.GetComponent<ContentSizeFitter>();
+        fitter.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
+        fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+
+        productScrollRect.viewport = vpRt;
+        productScrollRect.content = productListContent;
+
+        for (int i = 0; i < spawnedRows.Count; i++)
+        {
+            if (spawnedRows[i] && spawnedRows[i].transform is RectTransform rowRt)
+            {
+                rowRt.SetParent(productListContent, false);
+                rowRt.anchorMin = new Vector2(0f, 1f);
+                rowRt.anchorMax = new Vector2(0f, 1f);
+                rowRt.pivot = new Vector2(0f, 1f);
+                rowRt.sizeDelta = new Vector2(528f, 120f);
+            }
+        }
+
+        var dragPreview = rootRect.Find("DragPreview");
+        if (dragPreview)
+        {
+            dragPreview.SetAsLastSibling();
+        }
+    }
+
+    void EnsureRowCount(int _count)
+    {
+        if (!rowTemplate || !productListContent)
+        {
+            return;
+        }
+        while (spawnedRows.Count < _count)
+        {
+            var cloned = Instantiate(rowTemplate, productListContent, false);
+            cloned.name = $"WagonProductRow_{spawnedRows.Count + 1}";
+            if (cloned.transform is RectTransform rt)
+            {
+                rt.anchorMin = new Vector2(0f, 1f);
+                rt.anchorMax = new Vector2(0f, 1f);
+                rt.pivot = new Vector2(0f, 1f);
+                rt.sizeDelta = new Vector2(528f, 120f);
+            }
+            spawnedRows.Add(cloned);
+            if (rowEventsBound)
+            {
+                BindRowEvents(cloned, true);
+            }
+        }
+    }
+
+    void SetRowEventsBound(bool _bind)
+    {
+        if (rowEventsBound == _bind)
+        {
+            return;
+        }
+        rowEventsBound = _bind;
+        for (int i = 0; i < spawnedRows.Count; i++)
+        {
+            if (spawnedRows[i])
+            {
+                BindRowEvents(spawnedRows[i], _bind);
+            }
+        }
+    }
+
+    void BindRowEvents(PuzzleWagonProductRow _row, bool _bind)
+    {
+        if (_bind)
+        {
+            _row.Clicked += OnProductClicked;
+            _row.DragStarted += OnProductDragStarted;
+            _row.Dragged += OnProductDragged;
+            _row.DragEnded += OnProductDragEnded;
+        }
+        else
+        {
+            _row.Clicked -= OnProductClicked;
+            _row.DragStarted -= OnProductDragStarted;
+            _row.Dragged -= OnProductDragged;
+            _row.DragEnded -= OnProductDragEnded;
+        }
     }
 
     void OnProductClicked(PuzzleWagonProductRow _row)
     {
-        if (productRows == null) return;
-        for (int i = 0; i < productRows.Length; i++)
+        for (int i = 0; i < spawnedRows.Count; i++)
         {
-            if (productRows[i])
+            if (spawnedRows[i])
             {
-                productRows[i].SetSelected(productRows[i] == _row);
+                spawnedRows[i].SetSelected(spawnedRows[i] == _row);
             }
         }
     }

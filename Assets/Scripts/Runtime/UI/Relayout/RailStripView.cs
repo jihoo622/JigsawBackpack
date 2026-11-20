@@ -33,11 +33,14 @@ public sealed class RailStripView : MonoBehaviour
     PuzzleInventory draggingWagon;
     Vector2 draggingScreenPos;
     int lastPoolStart = -1;
+    int? tooltipHoveredIndex;
 
     public event Action<int> WagonSelected;
     public event Action<int, int> WagonReordered;
     public event Action<int, Vector2> WagonDraggedOutside;
     public event Action<int, Vector2> WagonDragEndedOutside;
+    public event Action<int, Vector2> WagonHovered;
+    public event Action WagonHoverEnded;
 
     float CarStride => carHeight + carSpacing;
     Camera EventCamera => rootCanvas && rootCanvas.renderMode != RenderMode.ScreenSpaceOverlay ? rootCanvas.worldCamera : null;
@@ -72,6 +75,8 @@ public sealed class RailStripView : MonoBehaviour
                     carPool[i].DragStarted += OnCarDragStarted;
                     carPool[i].Dragged += OnCarDragged;
                     carPool[i].DragEnded += OnCarDragEnded;
+                    carPool[i].Hovered += OnCarHovered;
+                    carPool[i].HoverEnded += OnCarHoverEnded;
                 }
             }
         }
@@ -106,9 +111,12 @@ public sealed class RailStripView : MonoBehaviour
                     carPool[i].DragStarted -= OnCarDragStarted;
                     carPool[i].Dragged -= OnCarDragged;
                     carPool[i].DragEnded -= OnCarDragEnded;
+                    carPool[i].Hovered -= OnCarHovered;
+                    carPool[i].HoverEnded -= OnCarHoverEnded;
                 }
             }
         }
+        OnCarHoverEnded();
         draggingWagonIndex = null;
         draggingWagon = null;
         lastPoolStart = -1;
@@ -241,6 +249,7 @@ public sealed class RailStripView : MonoBehaviour
 
     void OnCarDragStarted(int _wagonIndex, PointerEventData _eventData)
     {
+        OnCarHoverEnded();
         draggingWagonIndex = _wagonIndex;
         draggingWagon = (wagons != null && _wagonIndex >= 0 && _wagonIndex < wagons.Count)
             ? wagons[_wagonIndex]
@@ -482,6 +491,27 @@ public sealed class RailStripView : MonoBehaviour
     void OnCarSelected(int _index)
     {
         WagonSelected?.Invoke(_index);
+    }
+
+    void OnCarHovered(int _index, Vector2 _screenPos)
+    {
+        if (draggingWagonIndex.HasValue || wagons == null || _index < 0 || _index >= wagons.Count)
+        {
+            OnCarHoverEnded();
+            return;
+        }
+        tooltipHoveredIndex = _index;
+        WagonHovered?.Invoke(_index, _screenPos);
+    }
+
+    void OnCarHoverEnded()
+    {
+        if (!tooltipHoveredIndex.HasValue)
+        {
+            return;
+        }
+        tooltipHoveredIndex = null;
+        WagonHoverEnded?.Invoke();
     }
 
     void RefreshFromService()

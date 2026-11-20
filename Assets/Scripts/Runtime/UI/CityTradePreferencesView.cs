@@ -27,6 +27,8 @@ public sealed class CityTradePreferencesView : MonoBehaviour
     [SerializeField] bool alignTitleColumn;
     [SerializeField] bool boldTitles = true;
 
+    Canvas cachedRootCanvas;
+
     internal void Show(PuzzleCityTradePreferencesData _data)
     {
         if (!_data.IsValid)
@@ -68,6 +70,22 @@ public sealed class CityTradePreferencesView : MonoBehaviour
             }
         }
         gameObject.SetActive(false);
+    }
+
+    internal bool TryGetHoveredKeywordLink(Vector2 _screenPosition, out string _linkId)
+    {
+        if (!cachedRootCanvas)
+        {
+            var parentCanvas = GetComponentInParent<Canvas>();
+            if (parentCanvas)
+            {
+                cachedRootCanvas = parentCanvas.rootCanvas;
+            }
+        }
+        Camera eventCamera = cachedRootCanvas && cachedRootCanvas.renderMode != RenderMode.ScreenSpaceOverlay
+            ? cachedRootCanvas.worldCamera
+            : null;
+        return TryGetHoveredKeywordLink(_screenPosition, eventCamera, out _linkId);
     }
 
     internal bool TryGetHoveredKeywordLink(Vector2 _screenPosition, Camera _eventCamera, out string _linkId)

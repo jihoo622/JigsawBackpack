@@ -54,6 +54,8 @@ public sealed partial class PuzzleInventoryPresenter
             lensWindowView.RouteLensView.TabSelected += OnLensTabSelected;
         }
         PuzzleLensSettings.Changed += OnLensSettingsChanged;
+        GameEvents.TavernRumorRecorded += OnLensRumorRecorded;
+        GameEvents.TimeAdvanced += OnLensTimeAdvanced;
     }
 
     void UnsubscribeLens()
@@ -67,6 +69,8 @@ public sealed partial class PuzzleInventoryPresenter
             lensWindowView.RouteLensView.TabSelected -= OnLensTabSelected;
         }
         PuzzleLensSettings.Changed -= OnLensSettingsChanged;
+        GameEvents.TavernRumorRecorded -= OnLensRumorRecorded;
+        GameEvents.TimeAdvanced -= OnLensTimeAdvanced;
     }
 
     // L0: 잡는 순간의 거래 문맥을 고정한다. 앞선 거래 결과(D7)는 여기서만 교체된다.
@@ -244,6 +248,7 @@ public sealed partial class PuzzleInventoryPresenter
 
     void HideLensPanel()
     {
+        lensDefinition = null;
         if (RelayoutSettings.Enabled && lensWindowView && lensWindowView.RouteLensView)
         {
             lensWindowView.RouteLensView.Show(Presentation.LensWindowTitle, Presentation.LensWindowEmpty,
@@ -278,7 +283,36 @@ public sealed partial class PuzzleInventoryPresenter
         {
             return JoinLensLines(lensTrade, JoinLensLines(lensSpotText, lensRankingText));
         }
-        return Presentation.RouteLensDestinations(session.LensDestinations(lensDefinition, lensValue, lensItemOnTrain), lensTab);
+        if (lensTab == PuzzleLensTab.Rumor)
+        {
+            return Presentation.RouteLensRumors(session.LensRumors(lensDefinition), session.ElapsedTime);
+        }
+        return Presentation.RouteLensDestinations(session.LensVisitedDestinations(lensDefinition, lensValue, lensItemOnTrain), lensTab);
+    }
+
+    void OnLensRumorRecorded(GameEvents.TavernRumorInfo _info)
+    {
+        if (_info.session == session)
+        {
+            RefreshLensRumors();
+        }
+    }
+
+    void OnLensTimeAdvanced(GameEvents.TimeAdvanceInfo _info)
+    {
+        if (_info.session == session)
+        {
+            RefreshLensRumors();
+        }
+    }
+
+    void RefreshLensRumors()
+    {
+        if (lensTab != PuzzleLensTab.Rumor || lensDefinition == null || !RouteLens || !RouteLens.IsShowing)
+        {
+            return;
+        }
+        RouteLens.SetDestination(LensDestinationText(), Presentation.RouteLensFootnote(lensTab), lensTab);
     }
 
     // 드래그 중에는 탭을 잠근다(계획 §6). 거래 결과를 보는 동안에만 바꿀 수 있다.

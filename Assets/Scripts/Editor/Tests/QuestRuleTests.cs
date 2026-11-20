@@ -210,6 +210,35 @@ namespace Tests.Relayout
         }
 
         [Test]
+        public void WagonQuestDrop_GrantsWagonWithoutLevelUp_OnlyOnce()
+        {
+            var existing = R.List(service, "QuestOffers")[0];
+            var offer = Activator.CreateInstance(existing.GetType(),
+                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic,
+                null, new object[]
+                {
+                    "courier.wagon4", R.Get<string>(existing, "PieceId"), service.CurrentCityId,
+                    service.CurrentCityId, "penalty.deposit", 0L, 0L, 0L, 72L,
+                    R.Get<string>(existing, "ProficiencyTag"), 0L, "questReward.4"
+                }, null);
+            ((System.Collections.IList)R.Get(service, "questOffers")).Add(offer);
+            int before = service.TrainWagons.Count;
+            Assert.Less(before, R.Get<int>(service, "MaxWagonCount"));
+            Assert.AreEqual("None", R.Call(service, "TryAcceptQuest", offer).ToString());
+            var quest = R.List(service, "Quests").Single();
+            int cargoId = R.Get<int>(quest, "CargoInstanceId");
+            var cargo = service.TrainWagons.SelectMany(_w => R.List(_w, "Placements"))
+                .Single(_p => R.Get<int>(_p, "InstanceId") == cargoId);
+
+            Assert.IsTrue(R.CallOutString(service, "TryCompleteQuestWithCargo", cargo, out string failure), failure);
+            Assert.AreEqual(before + 1, service.TrainWagons.Count);
+            Assert.IsTrue(R.Get<bool>(quest, "RewardWagonReceived"));
+            Assert.AreEqual("questReward.4", R.Get<string>(R.Get(service.TrainWagons.Last(), "WagonProduct"), "id"));
+            Assert.IsFalse(R.CallOutString(service, "TryCompleteQuest", quest, out _));
+            Assert.AreEqual(before + 1, service.TrainWagons.Count);
+        }
+
+        [Test]
         public void WrongCityAndNonQuestCargo_AreRejected()
         {
             R.Set(service, "Funds", 5000L);

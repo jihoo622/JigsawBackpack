@@ -88,6 +88,7 @@ public static class RelayoutS6Builder
 
             var rumorText = CreateLabel(_labelTemplate, rumorBar, "RumorText", 13f, TextAlignmentOptions.Left, _palette, UIPalette.ColorRole.Text);
             rumorText.textWrappingMode = TextWrappingModes.Normal;
+            TextLinkHandler.Attach(rumorText);
             rumorText.rectTransform.anchorMin = Vector2.zero;
             rumorText.rectTransform.anchorMax = Vector2.one;
             rumorText.rectTransform.offsetMin = new Vector2(128f, 4f);
@@ -122,6 +123,7 @@ public static class RelayoutS6Builder
 
             var hintText = CreateLabel(_labelTemplate, card, "HintText", 13f, TextAlignmentOptions.Center, _palette, UIPalette.ColorRole.TextSub);
             hintText.textWrappingMode = TextWrappingModes.Normal;
+            TextLinkHandler.Attach(hintText);
             hintText.rectTransform.anchorMin = Vector2.zero;
             hintText.rectTransform.anchorMax = Vector2.one;
             hintText.rectTransform.offsetMin = new Vector2(12f, 8f);
@@ -137,6 +139,7 @@ public static class RelayoutS6Builder
             detailTitle.fontStyle = FontStyles.Bold;
             detailTitle.textWrappingMode = TextWrappingModes.NoWrap;
             detailTitle.overflowMode = TextOverflowModes.Ellipsis;
+            TextLinkHandler.Attach(detailTitle);
             SetAnchored(detailTitle.rectTransform, 0f, 1f, 1f, 1f, 12f, -10f, -24f, 24f);
 
             const float STAT_TOP = 40f, STAT_H = 44f, STAT_GAP = 8f, CARD_INNER = 572f;
@@ -165,12 +168,14 @@ public static class RelayoutS6Builder
             // 보수는 금색으로 강조한다.
             statValues[2].color = _palette.GoldAccent;
             BindPalette(statValues[2].gameObject, _palette, UIPalette.ColorRole.GoldAccent);
+            TextLinkHandler.Attach(statValues[2]);
 
             var detailPenalty = CreateLabel(_labelTemplate, detailRoot, "DetailPenalty", 13f, TextAlignmentOptions.MidlineLeft, _palette, UIPalette.ColorRole.Text);
             detailPenalty.color = _palette.Negative;
             BindPalette(detailPenalty.gameObject, _palette, UIPalette.ColorRole.Negative);
             detailPenalty.textWrappingMode = TextWrappingModes.NoWrap;
             detailPenalty.overflowMode = TextOverflowModes.Ellipsis;
+            TextLinkHandler.Attach(detailPenalty);
             SetAnchored(detailPenalty.rectTransform, 0f, 1f, 1f, 1f, 12f, -92f, -24f, 22f);
             detailRoot.gameObject.SetActive(false);
 
@@ -280,14 +285,14 @@ public static class RelayoutS6Builder
         TextMeshProUGUI _labelTemplate)
     {
         var layoutRoot = PrefabUtility.LoadPrefabContents(GAMEPLAY_LAYOUT_PREFAB);
-        var rootGo = CreateWindowShell("StationHallWindow", "station_hall", "역사", 1136f, 136f, 560f, 246f,
+        var rootGo = CreateWindowShell("StationHallWindow", "station_hall", "역사", 1136f, 136f, 572f, 576f,
             _palette, _buttonTemplate, _labelTemplate, out var floatingWin, out var titleText);
         try
         {
             var rootRect = (RectTransform)rootGo.transform;
             var actionsView = layoutRoot.GetComponentInChildren<PuzzleStationActionsView>(true);
             var srcRowsProp = new SerializedObject(actionsView).FindProperty("wagonProductRows");
-            // 상품 카드는 한 장씩 보여 주고 다음 버튼으로 넘긴다(페이지당 1개). 빈 슬롯이 남지 않도록 1개만 복제한다.
+            // 상품 카드는 템플릿 1개만 복제해 Content 아래에 두고, 실행 시 상품 수만큼 아래로 이어 붙인다.
             int rowCount = srcRowsProp != null ? Mathf.Min(srcRowsProp.arraySize, 1) : 0;
 
             var dragPreviewGo = new GameObject("DragPreview", typeof(RectTransform), typeof(Image));
@@ -300,16 +305,77 @@ public static class RelayoutS6Builder
             dragPreviewImg.preserveAspect = true;
             dragPreviewGo.SetActive(false);
 
+            // 화차 목록 스크롤 영역: 제목줄(30) 아래 8px ~ 하단 판매·출발 줄(72+16+8) 위.
+            var scrollGo = new GameObject("ProductListScroll", typeof(RectTransform));
+            scrollGo.layer = 5;
+            var scrollRt = (RectTransform)scrollGo.transform;
+            scrollRt.SetParent(rootRect, false);
+            scrollRt.anchorMin = Vector2.zero;
+            scrollRt.anchorMax = Vector2.one;
+            scrollRt.offsetMin = new Vector2(16f, 96f);
+            scrollRt.offsetMax = new Vector2(-16f, -38f);
+            var scrollRect = scrollGo.AddComponent<ScrollRect>();
+            scrollRect.horizontal = false;
+            scrollRect.vertical = true;
+            scrollRect.movementType = ScrollRect.MovementType.Clamped;
+            scrollRect.scrollSensitivity = 36f;
+
+            var vBar = NewRect("VerticalScrollbar", scrollRt);
+            vBar.anchorMin = new Vector2(1f, 0f);
+            vBar.anchorMax = new Vector2(1f, 1f);
+            vBar.pivot = new Vector2(1f, 0.5f);
+            vBar.anchoredPosition = Vector2.zero;
+            vBar.sizeDelta = new Vector2(8f, 0f);
+            vBar.gameObject.AddComponent<Image>().color = _palette.Border;
+            var vSliding = NewRect("SlidingArea", vBar);
+            RelayoutWindowKit.Stretch(vSliding);
+            var vHandle = NewRect("Handle", vSliding);
+            RelayoutWindowKit.Stretch(vHandle);
+            var vHandleImg = vHandle.gameObject.AddComponent<Image>();
+            vHandleImg.color = _palette.GoldAccent;
+            var vScrollbar = vBar.gameObject.AddComponent<Scrollbar>();
+            vScrollbar.direction = Scrollbar.Direction.BottomToTop;
+            vScrollbar.handleRect = vHandle;
+            vScrollbar.targetGraphic = vHandleImg;
+            scrollRect.verticalScrollbar = vScrollbar;
+            scrollRect.verticalScrollbarVisibility = ScrollRect.ScrollbarVisibility.AutoHide;
+
+            var vp = NewRect("Viewport", scrollRt);
+            RelayoutWindowKit.Stretch(vp);
+            vp.offsetMax = new Vector2(-12f, 0f);
+            vp.gameObject.AddComponent<RectMask2D>();
+            vp.gameObject.AddComponent<Image>().color = new Color(0f, 0f, 0f, 0f);
+
+            var content = NewRect("Content", vp);
+            content.anchorMin = new Vector2(0f, 1f);
+            content.anchorMax = new Vector2(1f, 1f);
+            content.pivot = new Vector2(0.5f, 1f);
+            content.anchoredPosition = Vector2.zero;
+            content.sizeDelta = Vector2.zero;
+            var vLayout = content.gameObject.AddComponent<VerticalLayoutGroup>();
+            vLayout.spacing = 8f;
+            vLayout.padding = new RectOffset(0, 0, 0, 0);
+            vLayout.childAlignment = TextAnchor.UpperLeft;
+            vLayout.childControlWidth = false;
+            vLayout.childControlHeight = false;
+            vLayout.childForceExpandWidth = false;
+            vLayout.childForceExpandHeight = false;
+            var cFitter = content.gameObject.AddComponent<ContentSizeFitter>();
+            cFitter.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
+            cFitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+
+            scrollRect.viewport = vp;
+            scrollRect.content = content;
+
             var clonedRows = new PuzzleWagonProductRow[rowCount];
             for (int i = 0; i < rowCount; i++)
             {
                 var srcRow = srcRowsProp.GetArrayElementAtIndex(i).objectReferenceValue as PuzzleWagonProductRow;
                 if (!srcRow) continue;
-                var rowGo = Object.Instantiate(srcRow.gameObject, rootRect, false);
+                var rowGo = Object.Instantiate(srcRow.gameObject, content, false);
                 rowGo.name = $"WagonProductRow_{i + 1}";
                 var rt = (RectTransform)rowGo.transform;
-                // 화차 카드: 제목줄(30) 아래 8px, 좌우 16px. 아래 판매·출발 줄과 8px.
-                SetAnchored(rt, 0f, 1f, 0f, 1f, 16f, -38f - i * 128f, 528f, 120f);
+                SetAnchored(rt, 0f, 1f, 0f, 1f, 0f, 0f, 528f, 120f);
                 var rowComp = rowGo.GetComponent<PuzzleWagonProductRow>();
                 var rSo = new SerializedObject(rowComp);
                 rSo.FindProperty("dragPreview").objectReferenceValue = dragPreviewImg;
@@ -364,18 +430,13 @@ public static class RelayoutS6Builder
             }
             dragPreviewRt.SetAsLastSibling();
 
-            // 페이저 줄: 카드 바로 아래, 페이지 표시 왼쪽 · 다음 버튼 오른쪽
-            // 넘김(상품이 여러 장일 때만 보임)은 제목줄 오른쪽, 닫기 버튼 왼쪽에 둔다. 본문에 빈 줄이 남지 않는다.
-            var titleBar = (RectTransform)titleText.transform.parent;
-            var nextPageBtn = CreateButton(_buttonTemplate, titleBar, "NextPageButton", "다음", _palette, UIPalette.ColorRole.Panel);
-            SetAnchored(nextPageBtn.GetComponent<RectTransform>(), 1f, 0.5f, 1f, 0.5f, -88f, 11f, 56f, 22f);
-            var pageLabel = CreateLabel(_labelTemplate, titleBar, "PageLabel", 12f, TextAlignmentOptions.MidlineRight, _palette, UIPalette.ColorRole.TextSub);
-            SetAnchored(pageLabel.rectTransform, 1f, 0.5f, 1f, 0.5f, -156f, 11f, 64f, 22f);
-            RelayoutWindowKit.ReserveTitleRight(titleText, 164f);
-
-            // 판매 드롭 구역과 출발 버튼: 같은 줄, 같은 높이
+            // 판매 드롭 구역과 출발 버튼: 하단 고정, 같은 줄, 같은 높이
             var sellZone = NewRect("SellDropZone", rootRect);
-            SetAnchored(sellZone, 0f, 1f, 0f, 1f, 16f, -166f, 360f, 72f);
+            sellZone.anchorMin = Vector2.zero;
+            sellZone.anchorMax = Vector2.zero;
+            sellZone.pivot = Vector2.zero;
+            sellZone.anchoredPosition = new Vector2(16f, 16f);
+            sellZone.sizeDelta = new Vector2(372f, 72f);
             var sellImg = sellZone.gameObject.AddComponent<Image>();
             sellImg.color = _palette.Panel2;
             BindPalette(sellZone.gameObject, _palette, UIPalette.ColorRole.Panel2);
@@ -391,7 +452,12 @@ public static class RelayoutS6Builder
             sellLabel.rectTransform.offsetMax = new Vector2(-8f, -4f);
 
             var departBtn = CreateButton(_buttonTemplate, rootRect, "DepartButton", "출발 (지도)", _palette, UIPalette.ColorRole.GoldAccent);
-            SetAnchored(departBtn.GetComponent<RectTransform>(), 0f, 1f, 0f, 1f, 392f, -166f, 152f, 72f);
+            var departRt = departBtn.GetComponent<RectTransform>();
+            departRt.anchorMin = new Vector2(1f, 0f);
+            departRt.anchorMax = new Vector2(1f, 0f);
+            departRt.pivot = new Vector2(1f, 0f);
+            departRt.anchoredPosition = new Vector2(-16f, 16f);
+            departRt.sizeDelta = new Vector2(152f, 72f);
             var departLabel = departBtn.GetComponentInChildren<TextMeshProUGUI>(true);
 
             // 하단 중복 안내(판매 문구 반복)는 만들지 않는다. statusText는 null로 두면 뷰가 쓰지 않는다.
@@ -406,8 +472,8 @@ public static class RelayoutS6Builder
             {
                 rowsProp.GetArrayElementAtIndex(i).objectReferenceValue = clonedRows[i];
             }
-            so.FindProperty("nextPageButton").objectReferenceValue = nextPageBtn;
-            so.FindProperty("pageLabel").objectReferenceValue = pageLabel;
+            so.FindProperty("productScrollRect").objectReferenceValue = scrollRect;
+            so.FindProperty("productListContent").objectReferenceValue = content;
             so.FindProperty("sellDropZone").objectReferenceValue = sellZone;
             so.FindProperty("sellZoneLabel").objectReferenceValue = sellLabel;
             so.FindProperty("departButton").objectReferenceValue = departBtn;
@@ -769,6 +835,7 @@ public static class RelayoutS6Builder
                 ipSo.FindProperty("tavernWindowView").objectReferenceValue = tavernView;
                 ipSo.FindProperty("stationHallWindowView").objectReferenceValue = stationHallView;
                 ipSo.FindProperty("workshopWindowView").objectReferenceValue = workshopView;
+                ipSo.FindProperty("cityHallWindowView").objectReferenceValue = cityHallView;
                 ipSo.ApplyModifiedPropertiesWithoutUndo();
             }
 

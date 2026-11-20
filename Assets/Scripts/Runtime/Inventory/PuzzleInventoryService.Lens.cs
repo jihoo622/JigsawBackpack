@@ -78,6 +78,79 @@ public sealed partial class PuzzleInventoryService
         return new PuzzlePlacementRanking(_destination, _clockwiseTurns, top, validCount, watch.Elapsed.TotalMilliseconds);
     }
 
+    // 소문 탭은 위치·방문 여부와 무관하게 실제 들은 기록에서 이 화물과 관련된 내용을 읽는다.
+    internal IReadOnlyList<TavernRumor> LensRumors(PuzzleItemDefinition _definition)
+    {
+        if (_definition == null)
+        {
+            return Array.Empty<TavernRumor>();
+        }
+        return tavernRumors.Where(_rumor => MatchesLensRumor(_rumor, _definition))
+            .OrderByDescending(_rumor => _rumor.RecordedHours)
+            .ThenBy(_rumor => _rumor.TargetCityId, StringComparer.Ordinal)
+            .ThenBy(_rumor => _rumor.SourceCityId, StringComparer.Ordinal)
+            .ToArray();
+    }
+
+    static bool MatchesLensRumor(TavernRumor _rumor, PuzzleItemDefinition _definition)
+    {
+        return string.Equals(_rumor.ItemId, _definition.Id, StringComparison.Ordinal) ||
+            (_rumor.Tag.Length > 0 && _definition.Tags.Contains(_rumor.Tag));
+    }
+
+    internal IReadOnlyList<PuzzleLensDestination> LensVisitedDestinations(PuzzleItemDefinition _definition, decimal _value,
+        bool _itemAlreadyOnTrain)
+    {
+        if (_definition == null || tables == null || Time == null || string.IsNullOrEmpty(currentCityId))
+        {
+            return Array.Empty<PuzzleLensDestination>();
+        }
+
+        int freightCells = TotalTrainOccupiedCells + (_itemAlreadyOnTrain ? 0 : ItemFreightCellsOf(_definition));
+        var destinations = new List<PuzzleLensDestination>();
+        foreach (var city in tables.Cities)
+        {
+            if (!HasVisitedCity(city.id))
+            {
+                continue;
+            }
+
+            bool planned = string.Equals(city.id, RoutePlan?.DestinationCityId, StringComparison.Ordinal);
+            var path = planned ? RoutePlan.Cities : PuzzleRoutePlanner.FindFastestPath(tables, currentCityId, city.id,
+                _route => IsRouteKnown(_route.fromCityId, _route.toCityId));
+            int legs = path != null ? path.Count - 1 : 0;
+            long? travelTurns = path != null ? legs * (long)tables.PuzzleTime.travelTurns : (long?)null;
+            destinations.Add(BuildLensDestination(city, _definition, _value, legs, travelTurns,
+                LensRouteFare(path, freightCells), planned));
+        }
+
+        return destinations.OrderByDescending(_destination => _destination.Planned)
+            .ThenByDescending(_destination => _destination.Quote.HasValue)
+            .ThenByDescending(_destination => _destination.Quote ?? long.MinValue)
+            .ThenBy(_destination => _destination.CityId, StringComparer.Ordinal)
+            .ToArray();
+    }
+
+    long? LensRouteFare(IReadOnlyList<string> _path, int _freightCells)
+    {
+        if (_path == null)
+        {
+            return null;
+        }
+        long total = 0;
+        for (int i = 1; i < _path.Count; i++)
+        {
+            if (!tables.TryGetRoute(_path[i - 1], _path[i], out var route) ||
+                !TryTravelCost(route.cost, route.distance, tables.PuzzleRoute.costPerDistance, _freightCells,
+                    tables.PuzzleRoute.costPerCell, out long cost, out _) || total > long.MaxValue - cost)
+            {
+                return null;
+            }
+            total += cost;
+        }
+        return total;
+    }
+
     // 현재 역에서 노선이 보이는 직결 역과 지도에서 계획한 목적지를 후보로 만든다(계획 §4 공개 규칙).
     // 방문한 역만 견적·등급을 계산하고, 나머지는 소문 기록이나 운임·턴만 보여 준다.
     internal IReadOnlyList<PuzzleLensDestination> LensDestinations(PuzzleItemDefinition _definition, decimal _value,
@@ -137,11 +210,11 @@ public sealed partial class PuzzleInventoryService
 
     // 공개 수준은 방문 여부로 정한다. 방문 역이 아니면 견적·등급을 계산하지 않는다.
     PuzzleLensDestination BuildLensDestination(PuzzleCityData _city, PuzzleItemDefinition _definition, decimal _value,
-        int _legs, long _travelTurns, long? _fare, bool _planned)
+        int _legs, long? _travelTurns, long? _fare, bool _planned)
     {
         if (HasVisitedCity(_city.id))
         {
-            // 구매 취소 환불은 현재 역에서만 성립하므로 다른 역 견적에는 숙련 비율만 적용한다.
+            // 현재 가치 기준 판매 견적에 숙련 비율을 적용한다. 현재 역의 구매 취소 환불은 현재 탭에서 처리한다.
             long? quote = null;
             if (TryQuoteTradeAt(_city.id, _definition, _value, PuzzleTradeDirection.Sell, out long price) &&
                 TryApplyProficiencyBonus(_definition, PuzzleTradeDirection.Sell, ref price))
@@ -151,7 +224,7 @@ public sealed partial class PuzzleInventoryService
 
             return new PuzzleLensDestination(_city.id, _city.displayName, PuzzleLensLevel.Visited,
                 RateFor(_city, _definition).SellPercent, tables.Region(_city.regionId).pricePercent, quote,
-                null, null, false, _legs, _travelTurns, _fare, _planned);
+                null, null, false, _legs, _travelTurns, _fare, _planned, LensSellGrade(_city, _definition));
         }
 
         if (TryFindRumor(_city.id, _definition, out var rumor))
@@ -163,6 +236,21 @@ public sealed partial class PuzzleInventoryService
 
         return new PuzzleLensDestination(_city.id, _city.displayName, PuzzleLensLevel.Unknown, null, null, null,
             null, null, false, _legs, _travelTurns, _fare, _planned);
+    }
+
+    // 합산 배율은 유지하고, 일치하는 태그 규칙 중 우선순위가 가장 높은 판매 등급을 대표로 표시한다.
+    PuzzleSellGradeKind LensSellGrade(PuzzleCityData _city, PuzzleItemDefinition _definition)
+    {
+        PuzzleCityTagPriceData selected = null;
+        foreach (string tag in _definition.Tags)
+        {
+            if (tables.TryGetCityTagPrice(_city.id, tag, out var rule) &&
+                (selected == null || rule.priority > selected.priority))
+            {
+                selected = rule;
+            }
+        }
+        return selected == null ? PuzzleSellGradeKind.Normal : TableManager.SellGradeKindOf(selected);
     }
 
     // 같은 역의 소문 중 이 화물과 맞는 가장 최근 기록. 소문 태그가 화물 태그에 들거나 품목 ID가 같아야 한다.
@@ -177,9 +265,7 @@ public sealed partial class PuzzleInventoryService
                 continue;
             }
 
-            bool matches = string.Equals(rumor.ItemId, _definition.Id, StringComparison.Ordinal) ||
-                (rumor.Tag.Length > 0 && _definition.Tags.Contains(rumor.Tag));
-            if (matches && (!found || rumor.RecordedHours >= _rumor.RecordedHours))
+            if (MatchesLensRumor(rumor, _definition) && (!found || rumor.RecordedHours >= _rumor.RecordedHours))
             {
                 _rumor = rumor;
                 found = true;

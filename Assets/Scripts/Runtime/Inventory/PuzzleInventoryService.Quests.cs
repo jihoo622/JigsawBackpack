@@ -318,8 +318,11 @@ public sealed partial class PuzzleInventoryService
     }
 
     // 의뢰 화물을 현재 화물칸부터 빈자리에 싣고 보증금을 받는다. 실패하면 상태를 바꾸지 않는다.
+    internal TrainventoryQuestAcceptFailure TryAcceptQuest(TrainventoryQuestOffer _offer) => TryAcceptQuest(_offer, null);
+
     // _preferredWagon이 있으면 그 화차부터 빈자리를 찾는다(Ctrl+클릭: 마지막으로 포커스한 화차 창).
-    internal TrainventoryQuestAcceptFailure TryAcceptQuest(TrainventoryQuestOffer _offer, PuzzleInventory _preferredWagon = null)
+    // 선택 인자 대신 오버로드로 둔다(테스트 반사 호출이 인자 개수로 메서드를 찾는다).
+    internal TrainventoryQuestAcceptFailure TryAcceptQuest(TrainventoryQuestOffer _offer, PuzzleInventory _preferredWagon)
     {
         var failure = EvaluateQuestAccept(_offer);
         if (failure != TrainventoryQuestAcceptFailure.None)
@@ -576,6 +579,7 @@ public sealed partial class PuzzleInventoryService
         Funds = checked(Funds + payout);
         _quest.Finish(TrainventoryQuestState.Completed, TrainventoryQuestFailure.None, payout, Time.ElapsedHours);
         GrantQuestProficiency(_quest);
+        ReceivePendingQuestWagons(false);
         PruneAnimalStates();
         RecordAction(PuzzleActionKind.CompleteQuest, _targetCityId: CurrentCityId);
         GameEvents.RaiseFundsChanged(this, previousFunds);

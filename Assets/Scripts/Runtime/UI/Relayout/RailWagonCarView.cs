@@ -9,7 +9,8 @@ using UnityEngine.UI;
 // S3/S3b: 중앙 선로의 가상화 화차 슬롯(R8 7×5 미니 격자 포함, H20 순서 드래그 + H17 판매 드래그).
 // 목업 concept-3b: 미니 격자 아래에 '번호 · 적재 · 가치' 한 줄 라벨, 선택 차량은 금색 테두리(상하좌우 4개 평면 사각형).
 [DisallowMultipleComponent]
-public sealed class RailWagonCarView : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
+public sealed class RailWagonCarView : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler,
+    IPointerEnterHandler, IPointerMoveHandler, IPointerExitHandler
 {
     public const int MINI_COLS = 7;
     // 화차 보드는 7×5(PuzzleTableData train)라서 목업과 같이 5행만 그린다.
@@ -30,11 +31,15 @@ public sealed class RailWagonCarView : MonoBehaviour, IBeginDragHandler, IDragHa
     readonly List<int> neighborTones = new();
     bool isDragging;
     int dragCapturedWagonIndex = -1;
+    bool isHovered;
+    Vector2 lastHoverScreenPos;
 
     public event Action<int> Selected;
     public event Action<int, PointerEventData> DragStarted;
     public event Action<int, PointerEventData> Dragged;
     public event Action<int, PointerEventData> DragEnded;
+    public event Action<int, Vector2> Hovered;
+    public event Action HoverEnded;
 
     public int BoundWagonIndex { get; private set; } = -1;
     public RectTransform RectTransform => rectTransform ? rectTransform : (RectTransform)transform;
@@ -49,6 +54,7 @@ public sealed class RailWagonCarView : MonoBehaviour, IBeginDragHandler, IDragHa
 
     void OnDisable()
     {
+        ClearHover();
         isDragging = false;
         dragCapturedWagonIndex = -1;
         if (button)
@@ -59,6 +65,7 @@ public sealed class RailWagonCarView : MonoBehaviour, IBeginDragHandler, IDragHa
 
     public void Bind(PuzzleInventory _wagon, int _index, bool _selected, bool _hovered)
     {
+        bool indexChanged = BoundWagonIndex != _index;
         BoundWagonIndex = _index;
         if (!gameObject.activeSelf)
         {
@@ -94,6 +101,11 @@ public sealed class RailWagonCarView : MonoBehaviour, IBeginDragHandler, IDragHa
         }
 
         RenderMiniGrid(_wagon, pal);
+        if (isHovered && indexChanged && BoundWagonIndex >= 0 && !isDragging && !PuzzleWagonProductRow.IsDraggingProduct &&
+            !PuzzleInventoryPresenter.HasActiveDrag)
+        {
+            Hovered?.Invoke(BoundWagonIndex, lastHoverScreenPos);
+        }
     }
 
     // 선택은 금색, 호버는 밝은 테두리 색으로 4변을 켠다.
@@ -119,11 +131,41 @@ public sealed class RailWagonCarView : MonoBehaviour, IBeginDragHandler, IDragHa
 
     public void Unbind()
     {
+        ClearHover();
         BoundWagonIndex = -1;
         if (gameObject.activeSelf)
         {
             gameObject.SetActive(false);
         }
+    }
+
+    public void OnPointerEnter(PointerEventData _eventData) => UpdateHover(_eventData);
+
+    public void OnPointerMove(PointerEventData _eventData) => UpdateHover(_eventData);
+
+    public void OnPointerExit(PointerEventData _eventData) => ClearHover();
+
+    void UpdateHover(PointerEventData _eventData)
+    {
+        if (BoundWagonIndex < 0 || isDragging || _eventData == null || _eventData.dragging ||
+            PuzzleWagonProductRow.IsDraggingProduct || PuzzleInventoryPresenter.HasActiveDrag)
+        {
+            ClearHover();
+            return;
+        }
+        isHovered = true;
+        lastHoverScreenPos = _eventData.position;
+        Hovered?.Invoke(BoundWagonIndex, lastHoverScreenPos);
+    }
+
+    void ClearHover()
+    {
+        if (!isHovered)
+        {
+            return;
+        }
+        isHovered = false;
+        HoverEnded?.Invoke();
     }
 
     void RenderMiniGrid(PuzzleInventory _wagon, UIPalette _pal)
@@ -231,6 +273,7 @@ public sealed class RailWagonCarView : MonoBehaviour, IBeginDragHandler, IDragHa
         {
             return;
         }
+        ClearHover();
         isDragging = true;
         dragCapturedWagonIndex = BoundWagonIndex;
         DragStarted?.Invoke(dragCapturedWagonIndex, _eventData);

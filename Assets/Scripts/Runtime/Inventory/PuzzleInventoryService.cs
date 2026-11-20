@@ -684,10 +684,21 @@ public sealed partial class PuzzleInventoryService : MonoBehaviour
         }
         foreach (var shop in shops)
         {
-            wagonShops.Add(shop.Key, shop.Value.OrderBy(_product => _product.id == tables.PuzzleTrade.defaultWagonProductId ? 0 : 1)
+            wagonShops.Add(shop.Key, shop.Value
+                .OrderBy(GetWagonCategoryOrder)
+                .ThenBy(_product => _product.id == tables.PuzzleTrade.defaultWagonProductId ? 0 : 1)
                 .ThenBy(_product => _product.price)
                 .ThenBy(_product => _product.id, StringComparer.Ordinal).ToArray());
         }
+    }
+
+    static int GetWagonCategoryOrder(PuzzleWagonProductData _product)
+    {
+        if (!string.IsNullOrEmpty(_product.saleRegionId))
+        {
+            return 2;
+        }
+        return _product.randomSale ? 1 : 0;
     }
 
     // 도시 시장의 유일한 생성 경로. 처음 만들 때와 떠난 도시를 되돌릴 때 같은 경로를 쓴다.

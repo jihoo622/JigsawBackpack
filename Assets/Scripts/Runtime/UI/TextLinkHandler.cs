@@ -14,6 +14,21 @@ public sealed class TextLinkHandler : MonoBehaviour, IPointerEnterHandler, IPoin
     Canvas rootCanvas;
     int hoveredLink = -1;
 
+    /// <summary>TMP 라벨의 링크 클릭/호버 수신을 켜고 TextLinkHandler를 붙인다.</summary>
+    public static void Attach(TextMeshProUGUI _label)
+    {
+        if (!_label)
+        {
+            return;
+        }
+        _label.richText = true;
+        _label.raycastTarget = true;
+        if (!_label.TryGetComponent<TextLinkHandler>(out _))
+        {
+            _label.gameObject.AddComponent<TextLinkHandler>();
+        }
+    }
+
     void Awake()
     {
         text = GetComponent<TextMeshProUGUI>();
