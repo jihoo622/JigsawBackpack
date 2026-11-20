@@ -414,6 +414,7 @@ MonoBehaviour:
   tavernWindowView: {fileID: 2421993511759109544}
   stationHallWindowView: {fileID: 3345187552694805470}
   workshopWindowView: {fileID: 2863772501136197607}
+  cityHallWindowView: {fileID: 5488183625085951378}
   townSceneView: {fileID: 105744838634553920}
   statusBannerView: {fileID: 8630666066330024285}
   notebookWindowView: {fileID: 6062628023833992754}

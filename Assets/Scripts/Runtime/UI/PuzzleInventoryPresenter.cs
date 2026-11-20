@@ -41,6 +41,7 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
     [SerializeField] TavernWindowView tavernWindowView;
     [SerializeField] StationHallWindowView stationHallWindowView;
     [SerializeField] WorkshopWindowView workshopWindowView;
+    [SerializeField] CityHallWindowView cityHallWindowView;
     [SerializeField] TownSceneView townSceneView;
     [SerializeField] StatusBannerView statusBannerView;
     [SerializeField] NotebookWindowView notebookWindowView;
@@ -1676,8 +1677,8 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
 
     void UpdateKeywordHover(Vector2? _screenPosition)
     {
-        if (!_screenPosition.HasValue || currentHoveredInstanceId.HasValue || !marketView ||
-            !marketView.TryGetHoveredBoardInfoLink(_screenPosition.Value, out string linkId) ||
+        if (!_screenPosition.HasValue || currentHoveredInstanceId.HasValue ||
+            !TryGetHoveredKeywordLink(_screenPosition.Value, out string linkId) ||
             !Presentation.TryGetTradeKeywordTooltip(linkId, out string title, out string description))
         {
             ClearKeywordHover();
@@ -1707,6 +1708,22 @@ public sealed partial class PuzzleInventoryPresenter : MonoBehaviour
 
         currentHoveredKeywordId = linkId;
         targetTooltip.ShowKeyword(title, description, pos);
+    }
+
+    bool TryGetHoveredKeywordLink(Vector2 _screenPosition, out string _linkId)
+    {
+        var activeMarket = ActiveMarketView;
+        if (activeMarket && activeMarket.TryGetHoveredBoardInfoLink(_screenPosition, out _linkId))
+        {
+            return true;
+        }
+        if (RelayoutSettings.Enabled && cityHallWindowView &&
+            cityHallWindowView.TryGetHoveredKeywordLink(_screenPosition, out _linkId))
+        {
+            return true;
+        }
+        _linkId = null;
+        return false;
     }
 
     void ClearKeywordHover(bool _closeSharedTooltip = true)

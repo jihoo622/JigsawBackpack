@@ -18,6 +18,13 @@ public sealed class CityHallWindowView : MonoBehaviour
     public FloatingWindow FloatingWindow => floatingWindow;
     public bool IsOpen => floatingWindow && floatingWindow.IsOpen;
 
+    internal bool TryGetHoveredKeywordLink(Vector2 _screenPosition, out string _linkId)
+    {
+        _linkId = null;
+        return tradePreferencesView && gameObject.activeInHierarchy &&
+            tradePreferencesView.TryGetHoveredKeywordLink(_screenPosition, out _linkId);
+    }
+
     void OnEnable()
     {
         session = SceneServices.For<PuzzleInventoryService>(gameObject.scene);

@@ -817,8 +817,15 @@ public static partial class Presentation
     internal static string QuestCardProficiencyLabel => BasicData.Text("presentation.quest.cardProficiencyLabel");
     internal static string QuestCardTravel(TrainventoryQuestOffer _offer) => TurnSpan(PuzzleTimeManager.HoursOf(_offer.TravelTurns));
     internal static string QuestCardDeadline(TrainventoryQuestOffer _offer) => TurnSpan(_offer.DeadlineHours);
-    internal static string QuestCardReward(TrainventoryQuestOffer _offer) =>
-        BasicData.Format("presentation.quest.cardRewardValue", _offer.Reward);
+    internal static string QuestCardReward(TrainventoryQuestOffer _offer)
+    {
+        if (string.IsNullOrEmpty(_offer.RewardWagonProductId))
+            return BasicData.Format("presentation.quest.cardRewardValue", _offer.Reward);
+        if (_offer.Reward == 0)
+            return WagonRewardName(_offer.RewardWagonProductId);
+        return BasicData.Format("presentation.quest.cardRewardValue", _offer.Reward)
+            + QuestWagonReward(_offer.RewardWagonProductId);
+    }
     internal static string QuestCardProficiency(TrainventoryQuestOffer _offer) =>
         BasicData.Format("presentation.quest.cardProficiencyValue", PuzzleTagLabel(_offer.ProficiencyTag), _offer.ProficiencyXp);
     internal static string QuestCardPenalty(TrainventoryQuestOffer _offer) =>

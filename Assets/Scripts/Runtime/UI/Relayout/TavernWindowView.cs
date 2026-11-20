@@ -31,6 +31,32 @@ public sealed class TavernWindowView : MonoBehaviour
     public event Action RumorRequested;
     public event Action Opened;
 
+    void Awake()
+    {
+        EnsureLinkHandler(rumorText);
+        EnsureLinkHandler(hintText);
+        EnsureLinkHandler(detailTitle);
+        if (detailStatValues != null && detailStatValues.Length > 2)
+        {
+            EnsureLinkHandler(detailStatValues[2]);
+        }
+        EnsureLinkHandler(detailPenalty);
+    }
+
+    static void EnsureLinkHandler(TextMeshProUGUI _label)
+    {
+        if (!_label)
+        {
+            return;
+        }
+        _label.richText = true;
+        _label.raycastTarget = true;
+        if (!_label.TryGetComponent<TextLinkHandler>(out _))
+        {
+            _label.gameObject.AddComponent<TextLinkHandler>();
+        }
+    }
+
     void OnEnable()
     {
         if (rumorButton)
