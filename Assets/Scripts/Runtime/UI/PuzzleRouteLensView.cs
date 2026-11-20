@@ -29,6 +29,11 @@ public sealed class PuzzleRouteLensView : MonoBehaviour
     // root가 없으면 이 컴포넌트가 붙은 오브젝트 자체를 패널로 본다.
     GameObject Panel => root ? root : gameObject;
 
+    void Awake()
+    {
+        TextLinkHandler.Attach(destinationLabel);
+    }
+
     void OnEnable()
     {
         if (tabButtons == null)

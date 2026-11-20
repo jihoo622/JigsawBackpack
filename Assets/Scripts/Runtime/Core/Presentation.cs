@@ -1351,7 +1351,7 @@ public static partial class Presentation
         {
             parts.Add(BasicData.Text("presentation.inventory.routeLensPlanned"));
         }
-        parts.Add(_destination.CityName);
+        parts.Add(CityLink(_destination.CityId));
         return parts;
     }
 

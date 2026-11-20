@@ -401,7 +401,7 @@ public static class RelayoutS5Builder
 
             var destLbl = CreateLabel(_labelTemplate, content, "DestinationLabel", 13f,
                 TextAlignmentOptions.TopLeft, _palette, UIPalette.ColorRole.Text);
-            destLbl.richText = true;
+            TextLinkHandler.Attach(destLbl);
             destLbl.textWrappingMode = TextWrappingModes.Normal;
 
             sr.viewport = vp;
